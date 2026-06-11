@@ -1,0 +1,20 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: "render(\"minimal/row_group_multiple.json\")"
+---
+\begin{tabular}{lrr}
+\toprule
+City & Pop (M) & Area (km²) \\
+\midrule
+\midrule
+\multicolumn{3}{l}{\bfseries Asia} \\
+\midrule
+Tokyo & 13.96 & 2,194 \\
+Seoul & 9.74 & 605 \\
+\midrule
+\multicolumn{3}{l}{\bfseries Europe} \\
+\midrule
+London & 8.98 & 1,572 \\
+Paris & 2.16 & 105 \\
+\bottomrule
+\end{tabular}

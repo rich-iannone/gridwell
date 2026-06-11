@@ -1,0 +1,26 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: "render(\"minimal/column_widths.json\")"
+---
+#table(
+  columns: (200px, 20%, 1fr, 2fr, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Fixed PX]],
+    [#text(weight: "bold")[Percent]],
+    [#text(weight: "bold")[Fractional]],
+    [#text(weight: "bold")[2x Fractional]],
+    [#text(weight: "bold")[Auto]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [200px wide],
+  [20% wide],
+  [1fr],
+  [2fr],
+  [auto],
+  [content],
+  [content],
+  [content],
+  [content],
+  [content],
+)

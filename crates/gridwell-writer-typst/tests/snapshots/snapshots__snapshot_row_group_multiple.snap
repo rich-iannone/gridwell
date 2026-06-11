@@ -1,0 +1,33 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: "render(\"minimal/row_group_multiple.json\")"
+---
+#table(
+  columns: (auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[City]],
+    [#text(weight: "bold")[Pop (M)]],
+    [#text(weight: "bold")[Area (km²)]],
+    table.hline(stroke: 0.5pt),
+  ),
+  table.hline(stroke: 0.5pt),
+  table.cell(colspan: 3, fill: luma(240))[#text(weight: "bold")[Asia]],
+  table.hline(stroke: 0.5pt),
+  [Tokyo],
+  [13.96],
+  [2,194],
+  [Seoul],
+  [9.74],
+  [605],
+  table.hline(stroke: 0.3pt),
+  table.hline(stroke: 0.5pt),
+  table.cell(colspan: 3, fill: luma(240))[#text(weight: "bold")[Europe]],
+  table.hline(stroke: 0.5pt),
+  [London],
+  [8.98],
+  [1,572],
+  [Paris],
+  [2.16],
+  [105],
+)

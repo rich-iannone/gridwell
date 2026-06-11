@@ -1,0 +1,13 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: "render(\"minimal/colspan_basic.json\")"
+---
+\begin{tabular}{lrr}
+\toprule
+ & \multicolumn{2}{l}{Scores} \\
+Name & Q1 & Q2 \\
+\midrule
+Alice & 90 & 95 \\
+Bob & 85 & 88 \\
+\bottomrule
+\end{tabular}

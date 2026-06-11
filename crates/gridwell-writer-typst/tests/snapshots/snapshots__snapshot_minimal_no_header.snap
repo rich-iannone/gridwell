@@ -1,0 +1,17 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: "render(\"minimal/minimal_no_header.json\")"
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Name]],
+    [#text(weight: "bold")[Score]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Alice],
+  [95],
+  [Bob],
+  [87],
+)

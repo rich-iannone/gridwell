@@ -1,0 +1,17 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: "render(\"minimal/summary_rows.json\")"
+---
+\begin{tabular}{lrr}
+\toprule
+Item & Qty & Total \\
+\midrule
+\midrule
+\multicolumn{3}{l}{\bfseries Order \#1234} \\
+\midrule
+Apples & 5 & \$7.50 \\
+Bread & 2 & \$8.00 \\
+\cmidrule(lr){1-3}
+\cellcolor{[HTML]{F5F5F5}}\textcolor{[HTML]{555555}}{\textit{\textbf{Total}}} & \cellcolor{[HTML]{F5F5F5}}\textcolor{[HTML]{555555}}{\textit{\textbf{7}}} & \cellcolor{[HTML]{F5F5F5}}\textcolor{[HTML]{555555}}{\textit{\textbf{\$15.50}}} \\
+\bottomrule
+\end{tabular}

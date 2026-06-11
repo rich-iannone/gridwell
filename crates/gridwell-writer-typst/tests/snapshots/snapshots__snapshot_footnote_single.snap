@@ -1,0 +1,19 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: "render(\"minimal/footnote_single.json\")"
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Item]],
+    [#text(weight: "bold")[Price]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Widget],
+  [\$9.99#super[1]],
+  [Gadget],
+  [\$19.99],
+)
+
+#text(size: 9pt)[#super[1] Price valid through end of quarter.]

@@ -1,0 +1,73 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: "render(\"comprehensive/reference_table.json\")"
+---
+#align(left)[#text(size: 16pt, weight: "bold")[Regional Sales Performance]]
+#align(left)[#text(size: 12pt, fill: luma(100))[Fiscal years 2023–2024 (in millions USD)]]
+#v(6pt)
+#table(
+  columns: (auto, auto, auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold", size: 13px, fill: rgb("#333333"))[]],
+    [#text(weight: "bold", size: 13px, fill: rgb("#333333"))[]],
+    table.cell(colspan: 3)[#text(weight: "bold", size: 13px, fill: rgb("#333333"))[Financials]],
+    [#text(weight: "bold", size: 13px, fill: rgb("#333333"))[Country]],
+    [#text(weight: "bold", size: 13px, fill: rgb("#333333"))[Year]],
+    [#text(weight: "bold", size: 13px, fill: rgb("#333333"))[Revenue]],
+    [#text(weight: "bold", size: 13px, fill: rgb("#333333"))[Expenses]],
+    [#text(weight: "bold", size: 13px, fill: rgb("#333333"))[Profit]],
+    table.hline(stroke: 0.5pt),
+  ),
+  table.hline(stroke: 0.5pt),
+  table.cell(colspan: 5, fill: luma(240))[#text(weight: "bold")[North America]],
+  table.hline(stroke: 0.5pt),
+  table.cell(rowspan: 2)[#text(size: 13px, fill: rgb("#333333"))[United States]],
+  [#text(size: 13px, fill: rgb("#333333"))[2023]],
+  [#text(size: 13px, fill: rgb("#333333"), font: "Courier New")[1,250.3]],
+  [#text(size: 13px, fill: rgb("#333333"), font: "Courier New")[980.2]],
+  [#text(weight: "bold", size: 13px, fill: rgb("#333333"), font: "Courier New")[270.1]],
+  [#text(size: 13px, fill: rgb("#333333"))[2024]],
+  [#text(size: 13px, fill: rgb("#333333"), font: "Courier New")[1,380.7]],
+  [#text(size: 13px, fill: rgb("#333333"), font: "Courier New")[1,050.4#super[1]]],
+  [#text(weight: "bold", size: 13px, fill: rgb("#333333"), font: "Courier New")[330.3]],
+  [#text(size: 13px, fill: rgb("#333333"))[Canada]],
+  [#text(size: 13px, fill: rgb("#333333"))[2024]],
+  [#text(size: 13px, fill: rgb("#333333"), font: "Courier New")[420.1]],
+  [#text(size: 13px, fill: rgb("#333333"), font: "Courier New")[310.6]],
+  [#text(weight: "bold", size: 13px, fill: rgb("#333333"), font: "Courier New")[109.5]],
+  table.hline(stroke: 0.3pt),
+  table.cell(fill: rgb("#FAFAFA"))[#text(weight: "bold", style: "italic", size: 13px, fill: rgb("#555555"))[Total]],
+  table.cell(fill: rgb("#FAFAFA"))[#text(weight: "bold", size: 13px, fill: rgb("#555555"), font: "Courier New")[—]],
+  table.cell(fill: rgb("#FAFAFA"))[#text(weight: "bold", size: 13px, fill: rgb("#555555"), font: "Courier New")[3,051.1]],
+  table.cell(fill: rgb("#FAFAFA"))[#text(weight: "bold", size: 13px, fill: rgb("#555555"), font: "Courier New")[2,341.2]],
+  table.cell(fill: rgb("#FAFAFA"))[#text(weight: "bold", size: 13px, fill: rgb("#555555"), font: "Courier New")[709.9]],
+  table.hline(stroke: 0.3pt),
+  table.hline(stroke: 0.5pt),
+  table.cell(colspan: 5, fill: luma(240))[#text(weight: "bold")[Europe]],
+  table.hline(stroke: 0.5pt),
+  table.cell(rowspan: 2)[#text(size: 13px, fill: rgb("#333333"))[Germany]],
+  [#text(size: 13px, fill: rgb("#333333"))[2023]],
+  [#text(size: 13px, fill: rgb("#333333"), font: "Courier New")[890.5]],
+  [#text(size: 13px, fill: rgb("#333333"), font: "Courier New")[720.1]],
+  [#text(weight: "bold", size: 13px, fill: rgb("#333333"), font: "Courier New")[170.4]],
+  [#text(size: 13px, fill: rgb("#333333"))[2024]],
+  [#text(size: 13px, fill: rgb("#333333"), font: "Courier New")[945.2]],
+  [#text(size: 13px, fill: rgb("#333333"), font: "Courier New")[780.3]],
+  [#text(weight: "bold", size: 13px, fill: rgb("#333333"), font: "Courier New")[164.9]],
+  [#text(size: 13px, fill: rgb("#333333"))[France]],
+  [#text(size: 13px, fill: rgb("#333333"))[2024]],
+  [#text(size: 13px, fill: rgb("#333333"), font: "Courier New")[610.8]],
+  [#text(size: 13px, fill: rgb("#333333"), font: "Courier New")[490.2]],
+  [#text(weight: "bold", size: 13px, fill: rgb("#333333"), font: "Courier New")[120.6]],
+  table.hline(stroke: 0.3pt),
+  table.cell(fill: rgb("#FAFAFA"))[#text(weight: "bold", style: "italic", size: 13px, fill: rgb("#555555"))[Total]],
+  table.cell(fill: rgb("#FAFAFA"))[#text(weight: "bold", size: 13px, fill: rgb("#555555"), font: "Courier New")[—]],
+  table.cell(fill: rgb("#FAFAFA"))[#text(weight: "bold", size: 13px, fill: rgb("#555555"), font: "Courier New")[2,446.5]],
+  table.cell(fill: rgb("#FAFAFA"))[#text(weight: "bold", size: 13px, fill: rgb("#555555"), font: "Courier New")[1,990.6]],
+  table.cell(fill: rgb("#FAFAFA"))[#text(weight: "bold", size: 13px, fill: rgb("#555555"), font: "Courier New")[455.9]],
+)
+
+#text(size: 9pt)[#super[1] Includes one-time restructuring charge.]
+
+#text(size: 9pt, fill: luma(100))[Source: Internal finance database, June 2025.]

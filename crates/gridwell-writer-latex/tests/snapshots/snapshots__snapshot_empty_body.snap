@@ -1,0 +1,10 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: "render(\"minimal/empty_body.json\")"
+---
+\begin{tabular}{lrl}
+\toprule
+Name & Age & City \\
+\midrule
+\bottomrule
+\end{tabular}

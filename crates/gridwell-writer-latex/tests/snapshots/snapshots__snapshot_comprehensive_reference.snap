@@ -1,0 +1,33 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: "render(\"comprehensive/reference_table.json\")"
+---
+{\large\bfseries Regional Sales Performance}\\
+{\small Fiscal years 2023–2024 (in millions USD)}\\[6pt]
+\begin{tabular}{lcrrr}
+\toprule
+\textcolor{[HTML]{333333}}{\textbf{}} & \textcolor{[HTML]{333333}}{\textbf{}} & \multicolumn{3}{c}{\textcolor{[HTML]{333333}}{\textbf{Financials}}} \\
+\textcolor{[HTML]{333333}}{\textbf{Country}} & \textcolor{[HTML]{333333}}{\textbf{Year}} & \textcolor{[HTML]{333333}}{\textbf{Revenue}} & \textcolor{[HTML]{333333}}{\textbf{Expenses}} & \textcolor{[HTML]{333333}}{\textbf{Profit}} \\
+\midrule
+\midrule
+\multicolumn{5}{l}{\bfseries North America} \\
+\midrule
+\multirow{2}{*}{\textcolor{[HTML]{333333}}{United States}} & \textcolor{[HTML]{333333}}{2023} & \texttt{\textcolor{[HTML]{333333}}{1,250.3}} & \texttt{\textcolor{[HTML]{333333}}{980.2}} & \texttt{\textcolor{[HTML]{333333}}{\textbf{270.1}}} \\
+\textcolor{[HTML]{333333}}{2024} & \texttt{\textcolor{[HTML]{333333}}{1,380.7}} & \texttt{\textcolor{[HTML]{333333}}{1,050.4\textsuperscript{1}}} & \texttt{\textcolor{[HTML]{333333}}{\textbf{330.3}}} \\
+\textcolor{[HTML]{333333}}{Canada} & \textcolor{[HTML]{333333}}{2024} & \texttt{\textcolor{[HTML]{333333}}{420.1}} & \texttt{\textcolor{[HTML]{333333}}{310.6}} & \texttt{\textcolor{[HTML]{333333}}{\textbf{109.5}}} \\
+\cmidrule(lr){1-5}
+\cellcolor{[HTML]{FAFAFA}}\textcolor{[HTML]{555555}}{\textit{\textbf{Total}}} & \texttt{\cellcolor{[HTML]{FAFAFA}}\textcolor{[HTML]{555555}}{\textbf{—}}} & \texttt{\cellcolor{[HTML]{FAFAFA}}\textcolor{[HTML]{555555}}{\textbf{3,051.1}}} & \texttt{\cellcolor{[HTML]{FAFAFA}}\textcolor{[HTML]{555555}}{\textbf{2,341.2}}} & \texttt{\cellcolor{[HTML]{FAFAFA}}\textcolor{[HTML]{555555}}{\textbf{709.9}}} \\
+\midrule
+\multicolumn{5}{l}{\bfseries Europe} \\
+\midrule
+\multirow{2}{*}{\textcolor{[HTML]{333333}}{Germany}} & \textcolor{[HTML]{333333}}{2023} & \texttt{\textcolor{[HTML]{333333}}{890.5}} & \texttt{\textcolor{[HTML]{333333}}{720.1}} & \texttt{\textcolor{[HTML]{333333}}{\textbf{170.4}}} \\
+\textcolor{[HTML]{333333}}{2024} & \texttt{\textcolor{[HTML]{333333}}{945.2}} & \texttt{\textcolor{[HTML]{333333}}{780.3}} & \texttt{\textcolor{[HTML]{333333}}{\textbf{164.9}}} \\
+\textcolor{[HTML]{333333}}{France} & \textcolor{[HTML]{333333}}{2024} & \texttt{\textcolor{[HTML]{333333}}{610.8}} & \texttt{\textcolor{[HTML]{333333}}{490.2}} & \texttt{\textcolor{[HTML]{333333}}{\textbf{120.6}}} \\
+\cmidrule(lr){1-5}
+\cellcolor{[HTML]{FAFAFA}}\textcolor{[HTML]{555555}}{\textit{\textbf{Total}}} & \texttt{\cellcolor{[HTML]{FAFAFA}}\textcolor{[HTML]{555555}}{\textbf{—}}} & \texttt{\cellcolor{[HTML]{FAFAFA}}\textcolor{[HTML]{555555}}{\textbf{2,446.5}}} & \texttt{\cellcolor{[HTML]{FAFAFA}}\textcolor{[HTML]{555555}}{\textbf{1,990.6}}} & \texttt{\cellcolor{[HTML]{FAFAFA}}\textcolor{[HTML]{555555}}{\textbf{455.9}}} \\
+\bottomrule
+\end{tabular}
+
+\textsuperscript{1} Includes one-time restructuring charge.\\
+
+{\footnotesize Source: Internal finance database, June 2025.}\\

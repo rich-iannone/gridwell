@@ -1,0 +1,18 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: "render(\"minimal/rowspan_basic.json\")"
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Country]],
+    [#text(weight: "bold")[Value]],
+    table.hline(stroke: 0.5pt),
+  ),
+  table.cell(rowspan: 2)[Japan],
+  [100],
+  [110],
+  [Korea],
+  [80],
+)

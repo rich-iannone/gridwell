@@ -1,0 +1,14 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: "render(\"minimal/content_rich.json\")"
+---
+\begin{tabular}{ll}
+\toprule
+Label & Content \\
+\midrule
+Rich content & Normal text, bold text\newline second line with \textsuperscript{*} \\
+Image cell & Trend: sparkline \\
+\bottomrule
+\end{tabular}
+
+\textsuperscript{*} Estimated value.\\

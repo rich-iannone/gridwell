@@ -1,0 +1,18 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: "render(\"minimal/unicode_cjk.json\")"
+---
+#align(left)[#text(size: 16pt, weight: "bold")[世界の都市]]
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[都市]],
+    [#text(weight: "bold")[人口 (万人)]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [東京],
+  [1,396],
+  [大阪],
+  [884],
+)

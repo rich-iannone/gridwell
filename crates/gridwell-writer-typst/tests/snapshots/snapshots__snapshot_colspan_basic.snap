@@ -1,0 +1,22 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: "render(\"minimal/colspan_basic.json\")"
+---
+#table(
+  columns: (auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[]],
+    table.cell(colspan: 2)[#text(weight: "bold")[Scores]],
+    [#text(weight: "bold")[Name]],
+    [#text(weight: "bold")[Q1]],
+    [#text(weight: "bold")[Q2]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Alice],
+  [90],
+  [95],
+  [Bob],
+  [85],
+  [88],
+)

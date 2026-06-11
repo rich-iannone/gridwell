@@ -1,0 +1,19 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: "render(\"minimal/content_rich.json\")"
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Label]],
+    [#text(weight: "bold")[Content]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Rich content],
+  [Normal text, bold text\ second line with #super[*]],
+  [Image cell],
+  [Trend: sparkline],
+)
+
+#text(size: 9pt)[#super[*] Estimated value.]

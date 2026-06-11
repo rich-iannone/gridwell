@@ -1,0 +1,13 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: "render(\"minimal/minimal_1x1.json\")"
+---
+#table(
+  columns: (auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Value]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Hello],
+)

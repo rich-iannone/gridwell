@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: "render(\"minimal/minimal_no_header.json\")"
+---
+\begin{tabular}{lr}
+\toprule
+Name & Score \\
+\midrule
+Alice & 95 \\
+Bob & 87 \\
+\bottomrule
+\end{tabular}

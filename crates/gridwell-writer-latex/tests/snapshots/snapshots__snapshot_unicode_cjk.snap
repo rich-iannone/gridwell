@@ -1,0 +1,13 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: "render(\"minimal/unicode_cjk.json\")"
+---
+{\large\bfseries 世界の都市}\\
+\begin{tabular}{lr}
+\toprule
+都市 & 人口 (万人) \\
+\midrule
+東京 & 1,396 \\
+大阪 & 884 \\
+\bottomrule
+\end{tabular}

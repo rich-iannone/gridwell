@@ -1,0 +1,23 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: "render(\"minimal/styles_borders.json\")"
+---
+#table(
+  columns: (auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[A]],
+    [#text(weight: "bold")[B]],
+    [#text(weight: "bold")[C]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [all borders],
+  [all borders],
+  [all borders],
+  [dashed],
+  [dashed],
+  [dashed],
+  [none],
+  [none],
+  [none],
+)

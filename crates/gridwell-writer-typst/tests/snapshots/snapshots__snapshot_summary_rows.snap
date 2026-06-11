@@ -1,0 +1,27 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: "render(\"minimal/summary_rows.json\")"
+---
+#table(
+  columns: (auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Item]],
+    [#text(weight: "bold")[Qty]],
+    [#text(weight: "bold")[Total]],
+    table.hline(stroke: 0.5pt),
+  ),
+  table.hline(stroke: 0.5pt),
+  table.cell(colspan: 3, fill: luma(240))[#text(weight: "bold")[Order \#1234]],
+  table.hline(stroke: 0.5pt),
+  [Apples],
+  [5],
+  [\$7.50],
+  [Bread],
+  [2],
+  [\$8.00],
+  table.hline(stroke: 0.3pt),
+  table.cell(fill: rgb("#F5F5F5"))[#text(weight: "bold", style: "italic", fill: rgb("#555555"))[Total]],
+  table.cell(fill: rgb("#F5F5F5"))[#text(weight: "bold", style: "italic", fill: rgb("#555555"))[7]],
+  table.cell(fill: rgb("#F5F5F5"))[#text(weight: "bold", style: "italic", fill: rgb("#555555"))[\$15.50]],
+)

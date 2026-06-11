@@ -1,0 +1,14 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: "render(\"minimal/empty_body.json\")"
+---
+#table(
+  columns: (auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Name]],
+    [#text(weight: "bold")[Age]],
+    [#text(weight: "bold")[City]],
+    table.hline(stroke: 0.5pt),
+  ),
+)

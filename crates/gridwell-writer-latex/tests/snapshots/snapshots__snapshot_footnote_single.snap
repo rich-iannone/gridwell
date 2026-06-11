@@ -1,0 +1,14 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: "render(\"minimal/footnote_single.json\")"
+---
+\begin{tabular}{lr}
+\toprule
+Item & Price \\
+\midrule
+Widget & \$9.99\textsuperscript{1} \\
+Gadget & \$19.99 \\
+\bottomrule
+\end{tabular}
+
+\textsuperscript{1} Price valid through end of quarter.\\

@@ -1,0 +1,13 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: "render(\"minimal/styles_borders.json\")"
+---
+\begin{tabular}{lcr}
+\toprule
+\textbf{A} & \textbf{B} & \textbf{C} \\
+\midrule
+all borders & all borders & all borders \\
+dashed & dashed & dashed \\
+none & none & none \\
+\bottomrule
+\end{tabular}

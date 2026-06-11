@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: "render(\"minimal/column_widths.json\")"
+---
+\begin{tabular}{p{200px}p{20%}p{1fr}p{2fr}l}
+\toprule
+Fixed PX & Percent & Fractional & 2x Fractional & Auto \\
+\midrule
+200px wide & 20\% wide & 1fr & 2fr & auto \\
+content & content & content & content & content \\
+\bottomrule
+\end{tabular}
