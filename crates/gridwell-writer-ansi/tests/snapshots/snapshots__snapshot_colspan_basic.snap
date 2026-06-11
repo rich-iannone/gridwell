@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: "render(\"minimal/colspan_basic.json\")"
+---
+┌────────────┬────────────┬────────────┐
+│[1m            [0m│[1m         Scores          [0m│
+│[1m    Name    [0m│[1m     Q1     [0m│[1m     Q2     [0m│
+├────────────┼────────────┼────────────┤
+│   Alice    │     90     │     95     │
+│    Bob     │     85     │     88     │
+└────────────┴────────────┴────────────┘

@@ -1,0 +1,9 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: "render(\"minimal/minimal_1x1.json\")"
+---
+┌────────────┐
+│[1m   Value    [0m│
+├────────────┤
+│   Hello    │
+└────────────┘

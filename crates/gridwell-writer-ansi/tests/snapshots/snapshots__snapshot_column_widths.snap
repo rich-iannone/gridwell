@@ -1,0 +1,10 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: "render(\"minimal/column_widths.json\")"
+---
+┌────────────┬────────────┬────────────┬───────────────┬────────────┐
+│[1m  Fixed PX  [0m│[1m  Percent   [0m│[1m Fractional [0m│[1m 2x Fractional [0m│[1m    Auto    [0m│
+├────────────┼────────────┼────────────┼───────────────┼────────────┤
+│ 200px wide │  20% wide  │    1fr     │      2fr      │    auto    │
+│  content   │  content   │  content   │    content    │  content   │
+└────────────┴────────────┴────────────┴───────────────┴────────────┘

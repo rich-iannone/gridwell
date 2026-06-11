@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: "render(\"minimal/unicode_cjk.json\")"
+---
+[1m世界の都市[0m
+┌────────────┬─────────────┐
+│[1m    都市    [0m│[1m 人口 (万人) [0m│
+├────────────┼─────────────┤
+│    東京    │    1,396    │
+│    大阪    │     884     │
+└────────────┴─────────────┘
