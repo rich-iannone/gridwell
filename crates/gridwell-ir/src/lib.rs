@@ -21,3 +21,19 @@ pub enum ParseError {
     Json(#[from] serde_json::Error),
 }
 
+/// The top-level table IR structure.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Table {
+    pub ir_version: String,
+    pub config: Config,
+    pub styles: StylePalette,
+    #[serde(default)]
+    pub header: Option<Header>,
+    pub column_spec: Vec<ColumnSpec>,
+    pub table: TableBlock,
+    #[serde(default)]
+    pub footer: Option<Footer>,
+    #[serde(default)]
+    pub extensions: Option<serde_json::Value>,
+}
+
