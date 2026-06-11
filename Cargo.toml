@@ -5,6 +5,10 @@ members = [
     "crates/gridwell-writer-html",
     "crates/gridwell-writer-latex",
     "crates/gridwell-writer-typst",
+    "crates/gridwell-writer-rtf",
+    "crates/gridwell-writer-svg",
+    "crates/gridwell-writer-ansi",
+    "crates/gridwell-writer-pandoc",
 ]
 resolver = "2"
 
