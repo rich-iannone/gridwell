@@ -48,3 +48,13 @@ pub struct Row {
     pub cells: Vec<Cell>,
 }
 
+/// A group label for a row group.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GroupLabel {
+    pub content: Vec<ContentNode>,
+    #[serde(default)]
+    pub style_id: Option<String>,
+    #[serde(default)]
+    pub colspan: Option<u32>,
+}
+
