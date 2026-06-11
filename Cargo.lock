@@ -155,6 +155,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "gridwell-ffi"
+version = "0.1.0"
+dependencies = [
+ "gridwell-ir",
+ "gridwell-writer-ansi",
+ "gridwell-writer-docx",
+ "gridwell-writer-html",
+ "gridwell-writer-latex",
+ "gridwell-writer-pandoc",
+ "gridwell-writer-pptx",
+ "gridwell-writer-quarto",
+ "gridwell-writer-rtf",
+ "gridwell-writer-svg",
+ "gridwell-writer-typst",
+ "gridwell-writer-xlsx",
+ "serde_json",
+]
+
+[[package]]
 name = "gridwell-ir"
 version = "0.1.0"
 dependencies = [
