@@ -64,3 +64,21 @@ pub fn validate(table: &Table) -> Vec<ValidationError> {
     errors
 }
 
+/// COLSPEC_LENGTH: column_spec array length == config.table_cols
+fn validate_colspec_length(table: &Table, errors: &mut Vec<ValidationError>) {
+    if table.column_spec.len() as u32 != table.config.table_cols {
+        errors.push(ValidationError {
+            rule: ValidationRule::ColspecLength,
+            section: "column_spec".to_string(),
+            row_group: None,
+            row: None,
+            col: None,
+            message: format!(
+                "column_spec has {} entries but config.table_cols is {}",
+                table.column_spec.len(),
+                table.config.table_cols
+            ),
+        });
+    }
+}
+
