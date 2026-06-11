@@ -1,0 +1,137 @@
+---
+source: crates/gridwell-writer-quarto/tests/snapshots.rs
+expression: "render(\"minimal/minimal_1x1.json\")"
+---
+{
+  "c": [
+    [
+      "",
+      [
+        "quarto-table",
+        "cell-output-display"
+      ],
+      []
+    ],
+    [
+      {
+        "c": [
+          [
+            "",
+            [],
+            []
+          ],
+          [
+            null,
+            []
+          ],
+          [
+            [
+              {
+                "t": "AlignLeft"
+              },
+              {
+                "t": "ColWidthDefault"
+              }
+            ]
+          ],
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            [
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                [
+                  [
+                    [
+                      "",
+                      [],
+                      []
+                    ],
+                    {
+                      "t": "AlignDefault"
+                    },
+                    1,
+                    1,
+                    [
+                      {
+                        "c": [
+                          {
+                            "c": "Value",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Plain"
+                      }
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              0,
+              [],
+              [
+                [
+                  [
+                    "",
+                    [],
+                    []
+                  ],
+                  [
+                    [
+                      [
+                        "",
+                        [],
+                        []
+                      ],
+                      {
+                        "t": "AlignDefault"
+                      },
+                      1,
+                      1,
+                      [
+                        {
+                          "c": [
+                            {
+                              "c": "Hello",
+                              "t": "Str"
+                            }
+                          ],
+                          "t": "Plain"
+                        }
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            []
+          ]
+        ],
+        "t": "Table"
+      }
+    ]
+  ],
+  "t": "Div"
+}

@@ -1,0 +1,155 @@
+---
+source: crates/gridwell-writer-quarto/tests/snapshots.rs
+expression: "render(\"minimal/empty_body.json\")"
+---
+{
+  "c": [
+    [
+      "",
+      [
+        "quarto-table",
+        "cell-output-display"
+      ],
+      []
+    ],
+    [
+      {
+        "c": [
+          [
+            "",
+            [],
+            []
+          ],
+          [
+            null,
+            []
+          ],
+          [
+            [
+              {
+                "t": "AlignLeft"
+              },
+              {
+                "t": "ColWidthDefault"
+              }
+            ],
+            [
+              {
+                "t": "AlignRight"
+              },
+              {
+                "t": "ColWidthDefault"
+              }
+            ],
+            [
+              {
+                "t": "AlignLeft"
+              },
+              {
+                "t": "ColWidthDefault"
+              }
+            ]
+          ],
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            [
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                [
+                  [
+                    [
+                      "",
+                      [],
+                      []
+                    ],
+                    {
+                      "t": "AlignDefault"
+                    },
+                    1,
+                    1,
+                    [
+                      {
+                        "c": [
+                          {
+                            "c": "Name",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Plain"
+                      }
+                    ]
+                  ],
+                  [
+                    [
+                      "",
+                      [],
+                      []
+                    ],
+                    {
+                      "t": "AlignDefault"
+                    },
+                    1,
+                    1,
+                    [
+                      {
+                        "c": [
+                          {
+                            "c": "Age",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Plain"
+                      }
+                    ]
+                  ],
+                  [
+                    [
+                      "",
+                      [],
+                      []
+                    ],
+                    {
+                      "t": "AlignDefault"
+                    },
+                    1,
+                    1,
+                    [
+                      {
+                        "c": [
+                          {
+                            "c": "City",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Plain"
+                      }
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [],
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            []
+          ]
+        ],
+        "t": "Table"
+      }
+    ]
+  ],
+  "t": "Div"
+}
