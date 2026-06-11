@@ -1,0 +1,133 @@
+{
+  "ir_version": "1.0",
+
+  "config": {
+    "table_cols": 2,
+    "header_rows": 1,
+    "body_rows": 2,
+    "stub_cols": 0,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null
+  },
+
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+
+  "header": {
+    "title": null,
+    "subtitle": null,
+    "extra_lines": [],
+    "preheader_content": null
+  },
+
+  "column_spec": [
+    { "id": "col_0", "align": "left", "align_char": null, "width": "auto", "min_width": null, "max_width": null, "style_id": null, "hidden": false, "label": "Item" },
+    { "id": "col_1", "align": "right", "align_char": null, "width": "auto", "min_width": null, "max_width": null, "style_id": null, "hidden": false, "label": "Price" }
+  ],
+
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [{ "type": "text", "value": "Item" }],
+              "colspan": 1, "rowspan": 1, "style_id": null,
+              "is_stub": false, "is_placeholder": false,
+              "scope": "col", "sort_key": null, "data_type": "string"
+            },
+            {
+              "content": [{ "type": "text", "value": "Price" }],
+              "colspan": 1, "rowspan": 1, "style_id": null,
+              "is_stub": false, "is_placeholder": false,
+              "scope": "col", "sort_key": null, "data_type": "number"
+            }
+          ]
+        }
+      ]
+    },
+
+    "tbody": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [{ "type": "text", "value": "Widget" }],
+                "typed_value": { "type": "string", "value": "Widget" },
+                "colspan": 1, "rowspan": 1, "style_id": null,
+                "is_stub": false, "is_placeholder": false,
+                "data_type": "string", "sort_key": "widget"
+              },
+              {
+                "content": [
+                  { "type": "text", "value": "$9.99" },
+                  { "type": "footnote_mark", "ref": "fn1", "mark_text": "1" }
+                ],
+                "typed_value": { "type": "number", "value": 9.99 },
+                "colspan": 1, "rowspan": 1, "style_id": null,
+                "is_stub": false, "is_placeholder": false,
+                "data_type": "number", "sort_key": 9.99
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [{ "type": "text", "value": "Gadget" }],
+                "typed_value": { "type": "string", "value": "Gadget" },
+                "colspan": 1, "rowspan": 1, "style_id": null,
+                "is_stub": false, "is_placeholder": false,
+                "data_type": "string", "sort_key": "gadget"
+              },
+              {
+                "content": [{ "type": "text", "value": "$19.99" }],
+                "typed_value": { "type": "number", "value": 19.99 },
+                "colspan": 1, "rowspan": 1, "style_id": null,
+                "is_stub": false, "is_placeholder": false,
+                "data_type": "number", "sort_key": 19.99
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ]
+  },
+
+  "footer": {
+    "footnotes": [
+      {
+        "id": "fn1",
+        "mark": "1",
+        "content": [{ "type": "text", "value": "Price valid through end of quarter." }],
+        "style_id": null
+      }
+    ],
+    "source_notes": []
+  },
+
+  "extensions": {}
+}
