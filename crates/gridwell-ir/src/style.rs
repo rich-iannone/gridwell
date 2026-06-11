@@ -92,3 +92,19 @@ pub struct Border {
     pub color: Option<String>,
 }
 
+/// A style composition (extends a base style with overrides).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StyleComposition {
+    pub extends: String,
+    #[serde(default)]
+    pub overrides: StyleDef,
+}
+
+/// A conditional style (applied based on selector matching).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConditionalStyle {
+    pub id: String,
+    pub selector: ConditionalSelector,
+    pub style: StyleDef,
+}
+
