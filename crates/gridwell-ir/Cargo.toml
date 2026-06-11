@@ -1,0 +1,16 @@
+[package]
+name = "gridwell-ir"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "IR types, serde, and validation for gridwell table rendering"
+
+[dependencies]
+gridwell-core = { path = "../gridwell-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
