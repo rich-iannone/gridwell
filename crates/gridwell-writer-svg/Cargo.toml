@@ -1,0 +1,16 @@
+[package]
+name = "gridwell-writer-svg"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "SVG writer for gridwell: IR → self-contained SVG table image"
+
+[dependencies]
+gridwell-ir = { path = "../gridwell-ir" }
+gridwell-core = { path = "../gridwell-core" }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+serde_json = { workspace = true }
