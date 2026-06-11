@@ -1,0 +1,43 @@
+[package]
+name = "gridwell-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+arbitrary = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[dependencies.gridwell-ir]
+path = "../crates/gridwell-ir"
+
+[dependencies.gridwell-writer-html]
+path = "../crates/gridwell-writer-html"
+
+[dependencies.gridwell-writer-latex]
+path = "../crates/gridwell-writer-latex"
+
+[[bin]]
+name = "fuzz_parse_ir"
+path = "fuzz_targets/fuzz_parse_ir.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_validate"
+path = "fuzz_targets/fuzz_validate.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_render_html"
+path = "fuzz_targets/fuzz_render_html.rs"
+test = false
+doc = false
+bench = false
