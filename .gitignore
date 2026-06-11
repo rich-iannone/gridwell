@@ -25,6 +25,9 @@ target
 !ROADMAP.md
 .DS_Store
 
+# Virtual environment for Python dependencies
+.venv
+
 # Added by cargo
 
 /target
