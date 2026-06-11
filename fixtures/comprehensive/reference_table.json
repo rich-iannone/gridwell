@@ -1,0 +1,1102 @@
+{
+  "ir_version": "1.0",
+
+  "config": {
+    "table_cols": 5,
+    "header_rows": 2,
+    "body_rows": 6,
+    "stub_cols": 1,
+    "row_striping": false,
+    "row_striping_include_stub": true,
+    "row_striping_include_body": true,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": "900px",
+    "container_height": null,
+    "container_overflow": "auto",
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": "Regional Sales Performance table",
+    "aria_describedby": null,
+    "summary": "Sales revenue, expenses, profit, and margin percentage for North America and Europe, fiscal years 2023-2024."
+  },
+
+  "styles": {
+    "defs": {
+      "header_title": {
+        "font_family": null,
+        "font_size": "18px",
+        "font_weight": "bold",
+        "font_style": "normal",
+        "color": "#333333",
+        "background_color": null,
+        "text_align": "left",
+        "vertical_align": null,
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": { "top": "4px", "right": "8px", "bottom": "0px", "left": "8px" },
+        "border": null,
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "header_subtitle": {
+        "font_family": null,
+        "font_size": "14px",
+        "font_weight": "normal",
+        "font_style": "normal",
+        "color": "#666666",
+        "background_color": null,
+        "text_align": "left",
+        "vertical_align": null,
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": { "top": "0px", "right": "8px", "bottom": "8px", "left": "8px" },
+        "border": null,
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "spanner_label": {
+        "font_family": null,
+        "font_size": "13px",
+        "font_weight": "bold",
+        "font_style": "normal",
+        "color": "#333333",
+        "background_color": null,
+        "text_align": "center",
+        "vertical_align": "bottom",
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": { "top": "4px", "right": "8px", "bottom": "4px", "left": "8px" },
+        "border": {
+          "top": null,
+          "right": null,
+          "bottom": { "width": "1px", "style": "solid", "color": "#A8A8A8" },
+          "left": null
+        },
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "col_label": {
+        "font_family": null,
+        "font_size": "13px",
+        "font_weight": "bold",
+        "font_style": "normal",
+        "color": "#333333",
+        "background_color": null,
+        "text_align": "center",
+        "vertical_align": "bottom",
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": { "top": "4px", "right": "8px", "bottom": "4px", "left": "8px" },
+        "border": {
+          "top": null,
+          "right": null,
+          "bottom": { "width": "2px", "style": "solid", "color": "#000000" },
+          "left": null
+        },
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "col_label_stub": {
+        "font_family": null,
+        "font_size": "13px",
+        "font_weight": "bold",
+        "font_style": "normal",
+        "color": "#333333",
+        "background_color": null,
+        "text_align": "left",
+        "vertical_align": "bottom",
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": { "top": "4px", "right": "8px", "bottom": "4px", "left": "8px" },
+        "border": {
+          "top": null,
+          "right": null,
+          "bottom": { "width": "2px", "style": "solid", "color": "#000000" },
+          "left": null
+        },
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "group_label": {
+        "font_family": null,
+        "font_size": "13px",
+        "font_weight": "bold",
+        "font_style": "normal",
+        "color": "#333333",
+        "background_color": "#F0F0F0",
+        "text_align": "left",
+        "vertical_align": "middle",
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": { "top": "6px", "right": "8px", "bottom": "6px", "left": "8px" },
+        "border": {
+          "top": { "width": "1px", "style": "solid", "color": "#D3D3D3" },
+          "right": null,
+          "bottom": { "width": "1px", "style": "solid", "color": "#D3D3D3" },
+          "left": null
+        },
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "body_stub": {
+        "font_family": null,
+        "font_size": "13px",
+        "font_weight": "normal",
+        "font_style": "normal",
+        "color": "#333333",
+        "background_color": null,
+        "text_align": "left",
+        "vertical_align": "middle",
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": { "top": "4px", "right": "8px", "bottom": "4px", "left": "12px" },
+        "border": null,
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "body_numeric": {
+        "font_family": "Courier New, monospace",
+        "font_size": "13px",
+        "font_weight": "normal",
+        "font_style": "normal",
+        "color": "#333333",
+        "background_color": null,
+        "text_align": "right",
+        "vertical_align": "middle",
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": { "top": "4px", "right": "8px", "bottom": "4px", "left": "8px" },
+        "border": null,
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "body_profit": {
+        "font_family": "Courier New, monospace",
+        "font_size": "13px",
+        "font_weight": "bold",
+        "font_style": "normal",
+        "color": "#333333",
+        "background_color": null,
+        "text_align": "right",
+        "vertical_align": "middle",
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": { "top": "4px", "right": "8px", "bottom": "4px", "left": "8px" },
+        "border": null,
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "body_year": {
+        "font_family": null,
+        "font_size": "13px",
+        "font_weight": "normal",
+        "font_style": "normal",
+        "color": "#333333",
+        "background_color": null,
+        "text_align": "center",
+        "vertical_align": "middle",
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": { "top": "4px", "right": "8px", "bottom": "4px", "left": "8px" },
+        "border": null,
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "summary_label": {
+        "font_family": null,
+        "font_size": "13px",
+        "font_weight": "bold",
+        "font_style": "italic",
+        "color": "#555555",
+        "background_color": "#FAFAFA",
+        "text_align": "left",
+        "vertical_align": "middle",
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": { "top": "4px", "right": "8px", "bottom": "4px", "left": "12px" },
+        "border": {
+          "top": { "width": "1px", "style": "solid", "color": "#D3D3D3" },
+          "right": null,
+          "bottom": null,
+          "left": null
+        },
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "summary_numeric": {
+        "font_family": "Courier New, monospace",
+        "font_size": "13px",
+        "font_weight": "bold",
+        "font_style": "normal",
+        "color": "#555555",
+        "background_color": "#FAFAFA",
+        "text_align": "right",
+        "vertical_align": "middle",
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": { "top": "4px", "right": "8px", "bottom": "4px", "left": "8px" },
+        "border": {
+          "top": { "width": "1px", "style": "solid", "color": "#D3D3D3" },
+          "right": null,
+          "bottom": null,
+          "left": null
+        },
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "footnote_mark": {
+        "font_family": null,
+        "font_size": "10px",
+        "font_weight": "normal",
+        "font_style": "normal",
+        "color": "#666666",
+        "background_color": null,
+        "text_align": null,
+        "vertical_align": "super",
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": null,
+        "border": null,
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "footer_text": {
+        "font_family": null,
+        "font_size": "11px",
+        "font_weight": "normal",
+        "font_style": "normal",
+        "color": "#666666",
+        "background_color": null,
+        "text_align": "left",
+        "vertical_align": null,
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": { "top": "4px", "right": "8px", "bottom": "4px", "left": "8px" },
+        "border": null,
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      }
+    },
+    "compositions": {},
+    "conditionals": []
+  },
+
+  "header": {
+    "title": {
+      "content": [{ "type": "text", "value": "Regional Sales Performance" }],
+      "style_id": "header_title"
+    },
+    "subtitle": {
+      "content": [{ "type": "text", "value": "Fiscal years 2023\u20132024 (in millions USD)" }],
+      "style_id": "header_subtitle"
+    },
+    "extra_lines": [],
+    "preheader_content": null
+  },
+
+  "column_spec": [
+    {
+      "id": "col_0",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": "120px",
+      "max_width": null,
+      "style_id": "body_stub",
+      "hidden": false,
+      "label": "Country"
+    },
+    {
+      "id": "col_1",
+      "align": "center",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": "body_year",
+      "hidden": false,
+      "label": "Year"
+    },
+    {
+      "id": "col_2",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": "body_numeric",
+      "hidden": false,
+      "label": "Revenue"
+    },
+    {
+      "id": "col_3",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": "body_numeric",
+      "hidden": false,
+      "label": "Expenses"
+    },
+    {
+      "id": "col_4",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": "body_profit",
+      "hidden": false,
+      "label": "Profit"
+    }
+  ],
+
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "spanner_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": "spanner_label",
+              "is_stub": true,
+              "is_placeholder": false,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": "spanner_label",
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [{ "type": "text", "value": "Financials" }],
+              "colspan": 3,
+              "rowspan": 1,
+              "style_id": "spanner_label",
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "colgroup",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        },
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [{ "type": "text", "value": "Country" }],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": "col_label_stub",
+              "is_stub": true,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": "string"
+            },
+            {
+              "content": [{ "type": "text", "value": "Year" }],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": "col_label",
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": "integer"
+            },
+            {
+              "content": [{ "type": "text", "value": "Revenue" }],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": "col_label",
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": "number"
+            },
+            {
+              "content": [{ "type": "text", "value": "Expenses" }],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": "col_label",
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": "number"
+            },
+            {
+              "content": [{ "type": "text", "value": "Profit" }],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": "col_label",
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": "number"
+            }
+          ]
+        }
+      ]
+    },
+
+    "tbody": [
+      {
+        "group_id": "grp_north_america",
+        "label": {
+          "content": [{ "type": "text", "value": "North America" }],
+          "style_id": "group_label",
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [{ "type": "text", "value": "United States" }],
+                "typed_value": { "type": "string", "value": "United States" },
+                "colspan": 1,
+                "rowspan": 2,
+                "style_id": "body_stub",
+                "is_stub": true,
+                "is_placeholder": false,
+                "data_type": "string",
+                "sort_key": "united states"
+              },
+              {
+                "content": [{ "type": "text", "value": "2023" }],
+                "typed_value": { "type": "integer", "value": 2023 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_year",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": 2023
+              },
+              {
+                "content": [{ "type": "text", "value": "1,250.3" }],
+                "typed_value": { "type": "number", "value": 1250.3 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 1250.3
+              },
+              {
+                "content": [{ "type": "text", "value": "980.2" }],
+                "typed_value": { "type": "number", "value": 980.2 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 980.2
+              },
+              {
+                "content": [{ "type": "text", "value": "270.1" }],
+                "typed_value": { "type": "number", "value": 270.1 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_profit",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 270.1
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": true,
+                "data_type": null,
+                "sort_key": null
+              },
+              {
+                "content": [{ "type": "text", "value": "2024" }],
+                "typed_value": { "type": "integer", "value": 2024 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_year",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": 2024
+              },
+              {
+                "content": [{ "type": "text", "value": "1,380.7" }],
+                "typed_value": { "type": "number", "value": 1380.7 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 1380.7
+              },
+              {
+                "content": [
+                  { "type": "text", "value": "1,050.4" },
+                  { "type": "footnote_mark", "ref": "fn1", "mark_text": "1" }
+                ],
+                "typed_value": { "type": "number", "value": 1050.4 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 1050.4
+              },
+              {
+                "content": [{ "type": "text", "value": "330.3" }],
+                "typed_value": { "type": "number", "value": 330.3 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_profit",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 330.3
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [{ "type": "text", "value": "Canada" }],
+                "typed_value": { "type": "string", "value": "Canada" },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_stub",
+                "is_stub": true,
+                "is_placeholder": false,
+                "data_type": "string",
+                "sort_key": "canada"
+              },
+              {
+                "content": [{ "type": "text", "value": "2024" }],
+                "typed_value": { "type": "integer", "value": 2024 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_year",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": 2024
+              },
+              {
+                "content": [{ "type": "text", "value": "420.1" }],
+                "typed_value": { "type": "number", "value": 420.1 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 420.1
+              },
+              {
+                "content": [{ "type": "text", "value": "310.6" }],
+                "typed_value": { "type": "number", "value": 310.6 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 310.6
+              },
+              {
+                "content": [{ "type": "text", "value": "109.5" }],
+                "typed_value": { "type": "number", "value": 109.5 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_profit",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 109.5
+              }
+            ]
+          }
+        ],
+        "summary_rows": [
+          {
+            "role": "summary_row",
+            "style_id": null,
+            "cells": [
+              {
+                "content": [{ "type": "text", "value": "Total" }],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "summary_label",
+                "is_stub": true,
+                "is_placeholder": false,
+                "data_type": null,
+                "sort_key": null
+              },
+              {
+                "content": [{ "type": "text", "value": "\u2014" }],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "summary_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": null,
+                "sort_key": null
+              },
+              {
+                "content": [{ "type": "text", "value": "3,051.1" }],
+                "typed_value": { "type": "number", "value": 3051.1 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "summary_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 3051.1
+              },
+              {
+                "content": [{ "type": "text", "value": "2,341.2" }],
+                "typed_value": { "type": "number", "value": 2341.2 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "summary_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 2341.2
+              },
+              {
+                "content": [{ "type": "text", "value": "709.9" }],
+                "typed_value": { "type": "number", "value": 709.9 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "summary_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 709.9
+              }
+            ]
+          }
+        ]
+      },
+
+      {
+        "group_id": "grp_europe",
+        "label": {
+          "content": [{ "type": "text", "value": "Europe" }],
+          "style_id": "group_label",
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [{ "type": "text", "value": "Germany" }],
+                "typed_value": { "type": "string", "value": "Germany" },
+                "colspan": 1,
+                "rowspan": 2,
+                "style_id": "body_stub",
+                "is_stub": true,
+                "is_placeholder": false,
+                "data_type": "string",
+                "sort_key": "germany"
+              },
+              {
+                "content": [{ "type": "text", "value": "2023" }],
+                "typed_value": { "type": "integer", "value": 2023 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_year",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": 2023
+              },
+              {
+                "content": [{ "type": "text", "value": "890.5" }],
+                "typed_value": { "type": "number", "value": 890.5 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 890.5
+              },
+              {
+                "content": [{ "type": "text", "value": "720.1" }],
+                "typed_value": { "type": "number", "value": 720.1 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 720.1
+              },
+              {
+                "content": [{ "type": "text", "value": "170.4" }],
+                "typed_value": { "type": "number", "value": 170.4 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_profit",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 170.4
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": true,
+                "data_type": null,
+                "sort_key": null
+              },
+              {
+                "content": [{ "type": "text", "value": "2024" }],
+                "typed_value": { "type": "integer", "value": 2024 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_year",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": 2024
+              },
+              {
+                "content": [{ "type": "text", "value": "945.2" }],
+                "typed_value": { "type": "number", "value": 945.2 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 945.2
+              },
+              {
+                "content": [{ "type": "text", "value": "780.3" }],
+                "typed_value": { "type": "number", "value": 780.3 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 780.3
+              },
+              {
+                "content": [{ "type": "text", "value": "164.9" }],
+                "typed_value": { "type": "number", "value": 164.9 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_profit",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 164.9
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [{ "type": "text", "value": "France" }],
+                "typed_value": { "type": "string", "value": "France" },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_stub",
+                "is_stub": true,
+                "is_placeholder": false,
+                "data_type": "string",
+                "sort_key": "france"
+              },
+              {
+                "content": [{ "type": "text", "value": "2024" }],
+                "typed_value": { "type": "integer", "value": 2024 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_year",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": 2024
+              },
+              {
+                "content": [{ "type": "text", "value": "610.8" }],
+                "typed_value": { "type": "number", "value": 610.8 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 610.8
+              },
+              {
+                "content": [{ "type": "text", "value": "490.2" }],
+                "typed_value": { "type": "number", "value": 490.2 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 490.2
+              },
+              {
+                "content": [{ "type": "text", "value": "120.6" }],
+                "typed_value": { "type": "number", "value": 120.6 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "body_profit",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 120.6
+              }
+            ]
+          }
+        ],
+        "summary_rows": [
+          {
+            "role": "summary_row",
+            "style_id": null,
+            "cells": [
+              {
+                "content": [{ "type": "text", "value": "Total" }],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "summary_label",
+                "is_stub": true,
+                "is_placeholder": false,
+                "data_type": null,
+                "sort_key": null
+              },
+              {
+                "content": [{ "type": "text", "value": "\u2014" }],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "summary_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": null,
+                "sort_key": null
+              },
+              {
+                "content": [{ "type": "text", "value": "2,446.5" }],
+                "typed_value": { "type": "number", "value": 2446.5 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "summary_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 2446.5
+              },
+              {
+                "content": [{ "type": "text", "value": "1,990.6" }],
+                "typed_value": { "type": "number", "value": 1990.6 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "summary_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 1990.6
+              },
+              {
+                "content": [{ "type": "text", "value": "455.9" }],
+                "typed_value": { "type": "number", "value": 455.9 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "summary_numeric",
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "number",
+                "sort_key": 455.9
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  "footer": {
+    "footnotes": [
+      {
+        "id": "fn1",
+        "mark": "1",
+        "content": [{ "type": "text", "value": "Includes one-time restructuring charge." }],
+        "style_id": "footer_text"
+      }
+    ],
+    "source_notes": [
+      {
+        "content": [{ "type": "text", "value": "Source: Internal finance database, June 2025." }],
+        "style_id": "footer_text"
+      }
+    ]
+  },
+
+  "extensions": {
+    "html": {
+      "table_id": "regional_sales_2024",
+      "table_class": "gt_table",
+      "custom_css": null
+    },
+    "latex": {
+      "environment": "table",
+      "caption_position": "top"
+    }
+  }
+}
