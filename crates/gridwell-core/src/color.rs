@@ -132,3 +132,24 @@ fn parse_hex(hex: &str) -> Option<Color> {
     }
 }
 
+fn parse_rgb_func(inner: &str) -> Option<Color> {
+    let parts: Vec<&str> = inner.split(',').collect();
+    match parts.len() {
+        3 => {
+            let r = parts[0].trim().parse::<u8>().ok()?;
+            let g = parts[1].trim().parse::<u8>().ok()?;
+            let b = parts[2].trim().parse::<u8>().ok()?;
+            Some(Color::rgb(r, g, b))
+        }
+        4 => {
+            let r = parts[0].trim().parse::<u8>().ok()?;
+            let g = parts[1].trim().parse::<u8>().ok()?;
+            let b = parts[2].trim().parse::<u8>().ok()?;
+            let a_f: f64 = parts[3].trim().parse().ok()?;
+            let a = (a_f * 255.0).round() as u8;
+            Some(Color::new(r, g, b, a))
+        }
+        _ => None,
+    }
+}
+
