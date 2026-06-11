@@ -58,3 +58,23 @@ pub struct GroupLabel {
     pub colspan: Option<u32>,
 }
 
+/// A row group in the table body.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RowGroup {
+    #[serde(default)]
+    pub group_id: Option<String>,
+    #[serde(default)]
+    pub label: Option<GroupLabel>,
+    pub rows: Vec<Row>,
+    #[serde(default)]
+    pub summary_rows: Vec<Row>,
+}
+
+/// The table header section.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TableHead {
+    pub rows: Vec<Row>,
+}
+
+/// Type alias for the table body (vector of row groups).
+pub type TableBody = Vec<RowGroup>;
