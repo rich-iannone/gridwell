@@ -1,0 +1,128 @@
+{
+  "ir_version": "1.0",
+
+  "config": {
+    "table_cols": 3,
+    "header_rows": 1,
+    "body_rows": 2,
+    "stub_cols": 1,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null
+  },
+
+  "styles": {
+    "defs": {
+      "summary_style": {
+        "font_family": null,
+        "font_size": null,
+        "font_weight": "bold",
+        "font_style": "italic",
+        "color": "#555555",
+        "background_color": "#F5F5F5",
+        "text_align": null,
+        "vertical_align": null,
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": null,
+        "border": {
+          "top": { "width": "1px", "style": "solid", "color": "#CCCCCC" },
+          "right": null,
+          "bottom": null,
+          "left": null
+        },
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      }
+    },
+    "compositions": {},
+    "conditionals": []
+  },
+
+  "header": {
+    "title": null,
+    "subtitle": null,
+    "extra_lines": [],
+    "preheader_content": null
+  },
+
+  "column_spec": [
+    { "id": "col_0", "align": "left", "align_char": null, "width": "auto", "min_width": null, "max_width": null, "style_id": null, "hidden": false, "label": "Item" },
+    { "id": "col_1", "align": "right", "align_char": null, "width": "auto", "min_width": null, "max_width": null, "style_id": null, "hidden": false, "label": "Qty" },
+    { "id": "col_2", "align": "right", "align_char": null, "width": "auto", "min_width": null, "max_width": null, "style_id": null, "hidden": false, "label": "Total" }
+  ],
+
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            { "content": [{ "type": "text", "value": "Item" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": true, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": "string" },
+            { "content": [{ "type": "text", "value": "Qty" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": "integer" },
+            { "content": [{ "type": "text", "value": "Total" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": "number" }
+          ]
+        }
+      ]
+    },
+
+    "tbody": [
+      {
+        "group_id": "grp_order",
+        "label": {
+          "content": [{ "type": "text", "value": "Order #1234" }],
+          "style_id": null,
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null, "style_id": null,
+            "cells": [
+              { "content": [{ "type": "text", "value": "Apples" }], "typed_value": { "type": "string", "value": "Apples" }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": true, "is_placeholder": false, "data_type": "string", "sort_key": "apples" },
+              { "content": [{ "type": "text", "value": "5" }], "typed_value": { "type": "integer", "value": 5 }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "integer", "sort_key": 5 },
+              { "content": [{ "type": "text", "value": "$7.50" }], "typed_value": { "type": "number", "value": 7.50 }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "number", "sort_key": 7.50 }
+            ]
+          },
+          {
+            "role": null, "style_id": null,
+            "cells": [
+              { "content": [{ "type": "text", "value": "Bread" }], "typed_value": { "type": "string", "value": "Bread" }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": true, "is_placeholder": false, "data_type": "string", "sort_key": "bread" },
+              { "content": [{ "type": "text", "value": "2" }], "typed_value": { "type": "integer", "value": 2 }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "integer", "sort_key": 2 },
+              { "content": [{ "type": "text", "value": "$8.00" }], "typed_value": { "type": "number", "value": 8.00 }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "number", "sort_key": 8.00 }
+            ]
+          }
+        ],
+        "summary_rows": [
+          {
+            "role": "summary_row",
+            "style_id": null,
+            "cells": [
+              { "content": [{ "type": "text", "value": "Total" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": "summary_style", "is_stub": true, "is_placeholder": false, "data_type": null, "sort_key": null },
+              { "content": [{ "type": "text", "value": "7" }], "typed_value": { "type": "integer", "value": 7 }, "colspan": 1, "rowspan": 1, "style_id": "summary_style", "is_stub": false, "is_placeholder": false, "data_type": "integer", "sort_key": 7 },
+              { "content": [{ "type": "text", "value": "$15.50" }], "typed_value": { "type": "number", "value": 15.50 }, "colspan": 1, "rowspan": 1, "style_id": "summary_style", "is_stub": false, "is_placeholder": false, "data_type": "number", "sort_key": 15.50 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  "footer": { "footnotes": [], "source_notes": [] },
+  "extensions": {}
+}
