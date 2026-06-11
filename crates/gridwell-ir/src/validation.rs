@@ -47,3 +47,20 @@ impl fmt::Display for ValidationError {
     }
 }
 
+/// Validate a table IR, returning all errors found.
+pub fn validate(table: &Table) -> Vec<ValidationError> {
+    let mut errors = Vec::new();
+
+    validate_colspec_length(table, &mut errors);
+    validate_header_row_count(table, &mut errors);
+    validate_body_row_count(table, &mut errors);
+    validate_col_counts(table, &mut errors);
+    validate_style_refs(table, &mut errors);
+    validate_footnote_refs(table, &mut errors);
+    validate_summary_requires_stub(table, &mut errors);
+    validate_spans(table, &mut errors);
+    validate_placeholder_content(table, &mut errors);
+
+    errors
+}
+
