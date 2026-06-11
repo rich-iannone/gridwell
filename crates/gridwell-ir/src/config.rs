@@ -43,3 +43,10 @@ pub struct Config {
     pub summary: Option<String>,
 }
 
+fn default_locale() -> String {
+    "en-US".to_string()
+}
+
+fn default_page_break_mode() -> String {
+    "avoid".to_string()
+}
