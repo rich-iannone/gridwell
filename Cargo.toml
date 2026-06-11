@@ -13,6 +13,7 @@ members = [
     "crates/gridwell-writer-docx",
     "crates/gridwell-writer-xlsx",
     "crates/gridwell-writer-pptx",
+    "crates/gridwell-ffi",
 ]
 resolver = "2"
 
