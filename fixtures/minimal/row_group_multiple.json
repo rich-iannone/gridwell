@@ -1,0 +1,118 @@
+{
+  "ir_version": "1.0",
+
+  "config": {
+    "table_cols": 3,
+    "header_rows": 1,
+    "body_rows": 4,
+    "stub_cols": 1,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null
+  },
+
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+
+  "header": {
+    "title": null,
+    "subtitle": null,
+    "extra_lines": [],
+    "preheader_content": null
+  },
+
+  "column_spec": [
+    { "id": "col_0", "align": "left", "align_char": null, "width": "auto", "min_width": null, "max_width": null, "style_id": null, "hidden": false, "label": "City" },
+    { "id": "col_1", "align": "right", "align_char": null, "width": "auto", "min_width": null, "max_width": null, "style_id": null, "hidden": false, "label": "Pop" },
+    { "id": "col_2", "align": "right", "align_char": null, "width": "auto", "min_width": null, "max_width": null, "style_id": null, "hidden": false, "label": "Area" }
+  ],
+
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            { "content": [{ "type": "text", "value": "City" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": true, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": "string" },
+            { "content": [{ "type": "text", "value": "Pop (M)" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": "number" },
+            { "content": [{ "type": "text", "value": "Area (km\u00b2)" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": "number" }
+          ]
+        }
+      ]
+    },
+
+    "tbody": [
+      {
+        "group_id": "grp_asia",
+        "label": {
+          "content": [{ "type": "text", "value": "Asia" }],
+          "style_id": null,
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null, "style_id": null,
+            "cells": [
+              { "content": [{ "type": "text", "value": "Tokyo" }], "typed_value": { "type": "string", "value": "Tokyo" }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": true, "is_placeholder": false, "data_type": "string", "sort_key": "tokyo" },
+              { "content": [{ "type": "text", "value": "13.96" }], "typed_value": { "type": "number", "value": 13.96 }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "number", "sort_key": 13.96 },
+              { "content": [{ "type": "text", "value": "2,194" }], "typed_value": { "type": "number", "value": 2194 }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "number", "sort_key": 2194 }
+            ]
+          },
+          {
+            "role": null, "style_id": null,
+            "cells": [
+              { "content": [{ "type": "text", "value": "Seoul" }], "typed_value": { "type": "string", "value": "Seoul" }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": true, "is_placeholder": false, "data_type": "string", "sort_key": "seoul" },
+              { "content": [{ "type": "text", "value": "9.74" }], "typed_value": { "type": "number", "value": 9.74 }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "number", "sort_key": 9.74 },
+              { "content": [{ "type": "text", "value": "605" }], "typed_value": { "type": "number", "value": 605 }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "number", "sort_key": 605 }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "grp_europe",
+        "label": {
+          "content": [{ "type": "text", "value": "Europe" }],
+          "style_id": null,
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null, "style_id": null,
+            "cells": [
+              { "content": [{ "type": "text", "value": "London" }], "typed_value": { "type": "string", "value": "London" }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": true, "is_placeholder": false, "data_type": "string", "sort_key": "london" },
+              { "content": [{ "type": "text", "value": "8.98" }], "typed_value": { "type": "number", "value": 8.98 }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "number", "sort_key": 8.98 },
+              { "content": [{ "type": "text", "value": "1,572" }], "typed_value": { "type": "number", "value": 1572 }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "number", "sort_key": 1572 }
+            ]
+          },
+          {
+            "role": null, "style_id": null,
+            "cells": [
+              { "content": [{ "type": "text", "value": "Paris" }], "typed_value": { "type": "string", "value": "Paris" }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": true, "is_placeholder": false, "data_type": "string", "sort_key": "paris" },
+              { "content": [{ "type": "text", "value": "2.16" }], "typed_value": { "type": "number", "value": 2.16 }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "number", "sort_key": 2.16 },
+              { "content": [{ "type": "text", "value": "105" }], "typed_value": { "type": "number", "value": 105 }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "number", "sort_key": 105 }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ]
+  },
+
+  "footer": { "footnotes": [], "source_notes": [] },
+  "extensions": {}
+}
