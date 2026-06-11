@@ -3,6 +3,8 @@ members = [
     "crates/gridwell-ir",
     "crates/gridwell-core",
     "crates/gridwell-writer-html",
+    "crates/gridwell-writer-latex",
+    "crates/gridwell-writer-typst",
 ]
 resolver = "2"
 
