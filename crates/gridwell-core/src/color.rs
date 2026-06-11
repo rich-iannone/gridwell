@@ -97,3 +97,10 @@ impl Serialize for Color {
     }
 }
 
+impl<'de> Deserialize<'de> for Color {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let s = String::deserialize(deserializer)?;
+        Color::from_str(&s).map_err(serde::de::Error::custom)
+    }
+}
+
