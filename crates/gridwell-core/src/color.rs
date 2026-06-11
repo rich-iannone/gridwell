@@ -176,3 +176,65 @@ fn named_color(name: &str) -> Option<Color> {
     Some(c)
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_hex_6() {
+        assert_eq!("#FF0000".parse::<Color>().unwrap(), Color::rgb(255, 0, 0));
+        assert_eq!("#333333".parse::<Color>().unwrap(), Color::rgb(51, 51, 51));
+    }
+
+    #[test]
+    fn parse_hex_3() {
+        assert_eq!("#F00".parse::<Color>().unwrap(), Color::rgb(255, 0, 0));
+    }
+
+    #[test]
+    fn parse_hex_8() {
+        assert_eq!(
+            "#FF000080".parse::<Color>().unwrap(),
+            Color::new(255, 0, 0, 128)
+        );
+    }
+
+    #[test]
+    fn parse_rgb_func() {
+        assert_eq!(
+            "rgb(255, 0, 0)".parse::<Color>().unwrap(),
+            Color::rgb(255, 0, 0)
+        );
+    }
+
+    #[test]
+    fn parse_rgba_func() {
+        assert_eq!(
+            "rgba(255, 0, 0, 0.5)".parse::<Color>().unwrap(),
+            Color::new(255, 0, 0, 128)
+        );
+    }
+
+    #[test]
+    fn parse_named() {
+        assert_eq!("red".parse::<Color>().unwrap(), Color::rgb(255, 0, 0));
+        assert_eq!("Black".parse::<Color>().unwrap(), Color::rgb(0, 0, 0));
+    }
+
+    #[test]
+    fn parse_transparent() {
+        assert_eq!("transparent".parse::<Color>().unwrap(), Color::TRANSPARENT);
+    }
+
+    #[test]
+    fn parse_invalid() {
+        assert!("nope".parse::<Color>().is_err());
+        assert!("#GG0000".parse::<Color>().is_err());
+    }
+
+    #[test]
+    fn to_hex_format() {
+        assert_eq!(Color::rgb(255, 0, 0).to_hex(), "#FF0000");
+        assert_eq!(Color::new(255, 0, 0, 128).to_hex(), "#FF000080");
+    }
+}
