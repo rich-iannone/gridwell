@@ -118,6 +118,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "extendr-api"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "67505d96c7faa49d20e749dba7ba2447db52c40a788fd88cc2b6bef02c02277a"
+dependencies = [
+ "extendr-macros",
+ "libR-sys",
+ "once_cell",
+ "paste",
+]
+
+[[package]]
+name = "extendr-macros"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "81b58838056f294411d0b2c35ac1a2b24c507d6828b75f2c1e74f00ee9b99267"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "fastrand"
 version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -206,6 +229,26 @@ dependencies = [
  "gridwell-writer-typst",
  "gridwell-writer-xlsx",
  "pyo3",
+ "serde_json",
+]
+
+[[package]]
+name = "gridwell-r"
+version = "0.1.0"
+dependencies = [
+ "extendr-api",
+ "gridwell-ir",
+ "gridwell-writer-ansi",
+ "gridwell-writer-docx",
+ "gridwell-writer-html",
+ "gridwell-writer-latex",
+ "gridwell-writer-pandoc",
+ "gridwell-writer-pptx",
+ "gridwell-writer-quarto",
+ "gridwell-writer-rtf",
+ "gridwell-writer-svg",
+ "gridwell-writer-typst",
+ "gridwell-writer-xlsx",
  "serde_json",
 ]
 
@@ -412,6 +455,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09edd9e8b54e49e587e4f6295a7d29c3ea94d469cb40ab8ca70b288248a81db2"
 
 [[package]]
+name = "libR-sys"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "06ac9752bc1e83f5a354a62b9e81bd8db4468b1008e29f262441e7f0e91e6bb3"
+
+[[package]]
 name = "libc"
 version = "0.2.186"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -459,6 +508,12 @@ name = "once_cell"
 version = "1.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
+
+[[package]]
+name = "paste"
+version = "1.0.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
 name = "portable-atomic"
