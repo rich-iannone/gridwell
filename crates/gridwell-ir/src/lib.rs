@@ -122,3 +122,20 @@ pub struct Footer {
     pub source_notes: Vec<SourceNote>,
 }
 
+/// A footnote definition.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Footnote {
+    pub id: String,
+    pub mark: String,
+    pub content: Vec<ContentNode>,
+    #[serde(default)]
+    pub style_id: Option<String>,
+}
+
+/// A source note.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SourceNote {
+    pub content: Vec<ContentNode>,
+    #[serde(default)]
+    pub style_id: Option<String>,
+}
