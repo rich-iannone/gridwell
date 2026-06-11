@@ -1,0 +1,17 @@
+[package]
+name = "gridwell-writer-quarto"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Quarto AST writer for gridwell: IR → Quarto-flavored Pandoc AST JSON"
+
+[dependencies]
+gridwell-ir = { path = "../gridwell-ir" }
+gridwell-core = { path = "../gridwell-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
