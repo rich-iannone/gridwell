@@ -143,6 +143,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "gridwell-writer-quarto"
+version = "0.1.0"
+dependencies = [
+ "gridwell-core",
+ "gridwell-ir",
+ "insta",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "gridwell-writer-rtf"
 version = "0.1.0"
 dependencies = [
