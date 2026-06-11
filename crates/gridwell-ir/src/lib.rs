@@ -37,3 +37,21 @@ pub struct Table {
     pub extensions: Option<serde_json::Value>,
 }
 
+impl Table {
+    /// Parse a table from a JSON string.
+    pub fn from_json(json: &str) -> Result<Self, ParseError> {
+        let table: Table = serde_json::from_str(json)?;
+        Ok(table)
+    }
+
+    /// Serialize the table to a JSON string.
+    pub fn to_json(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string_pretty(self)
+    }
+
+    /// Validate the table, returning all validation errors found.
+    pub fn validate(&self) -> Vec<ValidationError> {
+        validate(self)
+    }
+}
+
