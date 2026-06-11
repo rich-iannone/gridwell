@@ -1,0 +1,18 @@
+[package]
+name = "gridwell-writer-xlsx"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Excel (.xlsx) writer for gridwell: IR → SpreadsheetML"
+
+[dependencies]
+gridwell-ir = { path = "../gridwell-ir" }
+gridwell-core = { path = "../gridwell-core" }
+thiserror = { workspace = true }
+zip = { workspace = true }
+quick-xml = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+serde_json = { workspace = true }
