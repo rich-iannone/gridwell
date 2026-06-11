@@ -45,3 +45,40 @@ enum Command {
     Formats,
 }
 
+#[derive(Clone, ValueEnum)]
+enum OutputFormat {
+    Html,
+    Latex,
+    Typst,
+    Rtf,
+    Svg,
+    Ansi,
+    Pandoc,
+    Quarto,
+    Docx,
+    Xlsx,
+    Pptx,
+}
+
+impl OutputFormat {
+    fn is_binary(&self) -> bool {
+        matches!(self, Self::Docx | Self::Xlsx | Self::Pptx)
+    }
+
+    fn extension(&self) -> &'static str {
+        match self {
+            Self::Html => "html",
+            Self::Latex => "tex",
+            Self::Typst => "typ",
+            Self::Rtf => "rtf",
+            Self::Svg => "svg",
+            Self::Ansi => "txt",
+            Self::Pandoc => "json",
+            Self::Quarto => "qmd",
+            Self::Docx => "docx",
+            Self::Xlsx => "xlsx",
+            Self::Pptx => "pptx",
+        }
+    }
+}
+
