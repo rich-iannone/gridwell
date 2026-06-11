@@ -1,0 +1,28 @@
+[package]
+name = "gridwell-python"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Python bindings for gridwell table rendering"
+
+[lib]
+name = "gridwell"
+crate-type = ["cdylib"]
+
+[dependencies]
+gridwell-ir = { path = "../gridwell-ir" }
+gridwell-writer-html = { path = "../gridwell-writer-html" }
+gridwell-writer-latex = { path = "../gridwell-writer-latex" }
+gridwell-writer-typst = { path = "../gridwell-writer-typst" }
+gridwell-writer-rtf = { path = "../gridwell-writer-rtf" }
+gridwell-writer-svg = { path = "../gridwell-writer-svg" }
+gridwell-writer-ansi = { path = "../gridwell-writer-ansi" }
+gridwell-writer-pandoc = { path = "../gridwell-writer-pandoc" }
+gridwell-writer-quarto = { path = "../gridwell-writer-quarto" }
+gridwell-writer-docx = { path = "../gridwell-writer-docx" }
+gridwell-writer-xlsx = { path = "../gridwell-writer-xlsx" }
+gridwell-writer-pptx = { path = "../gridwell-writer-pptx" }
+pyo3 = { workspace = true }
+serde_json = { workspace = true }
