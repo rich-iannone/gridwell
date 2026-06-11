@@ -1,0 +1,42 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: "render(\"minimal/row_group_multiple.json\")"
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="204" viewBox="0 0 360 204">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
+<line x1="0" y1="28" x2="120" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="24" font-weight="bold">City</text>
+<line x1="120" y1="28" x2="240" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="24" font-weight="bold">Pop (M)</text>
+<line x1="240" y1="28" x2="360" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="24" font-weight="bold">Area (km²)</text>
+<line x1="0" y1="28" x2="360" y2="28" stroke="#333333" stroke-width="1.5"/>
+<rect x="0" y="28" width="360" height="28" fill="#f0f0f0"/>
+<text x="8" y="52" font-weight="bold">Asia</text>
+<line x1="0" y1="84" x2="120" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="80">Tokyo</text>
+<line x1="120" y1="84" x2="240" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="80">13.96</text>
+<line x1="240" y1="84" x2="360" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="80">2,194</text>
+<line x1="0" y1="112" x2="120" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="108">Seoul</text>
+<line x1="120" y1="112" x2="240" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="108">9.74</text>
+<line x1="240" y1="112" x2="360" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="108">605</text>
+<rect x="0" y="112" width="360" height="28" fill="#f0f0f0"/>
+<text x="8" y="136" font-weight="bold">Europe</text>
+<line x1="0" y1="168" x2="120" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="164">London</text>
+<line x1="120" y1="168" x2="240" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="164">8.98</text>
+<line x1="240" y1="168" x2="360" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="164">1,572</text>
+<line x1="0" y1="196" x2="120" y2="196" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="192">Paris</text>
+<line x1="120" y1="196" x2="240" y2="196" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="192">2.16</text>
+<line x1="240" y1="196" x2="360" y2="196" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="192">105</text>
+</svg>

@@ -1,0 +1,37 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: "render(\"minimal/summary_rows.json\")"
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="148" viewBox="0 0 360 148">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
+<line x1="0" y1="28" x2="120" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="24" font-weight="bold">Item</text>
+<line x1="120" y1="28" x2="240" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="24" font-weight="bold">Qty</text>
+<line x1="240" y1="28" x2="360" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="24" font-weight="bold">Total</text>
+<line x1="0" y1="28" x2="360" y2="28" stroke="#333333" stroke-width="1.5"/>
+<rect x="0" y="28" width="360" height="28" fill="#f0f0f0"/>
+<text x="8" y="52" font-weight="bold">Order #1234</text>
+<line x1="0" y1="84" x2="120" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="80">Apples</text>
+<line x1="120" y1="84" x2="240" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="80">5</text>
+<line x1="240" y1="84" x2="360" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="80">$7.50</text>
+<line x1="0" y1="112" x2="120" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="108">Bread</text>
+<line x1="120" y1="112" x2="240" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="108">2</text>
+<line x1="240" y1="112" x2="360" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="108">$8.00</text>
+<rect x="0" y="112" width="120" height="28" fill="#F5F5F5"/>
+<line x1="0" y1="140" x2="120" y2="140" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="136" fill="#555555">Total</text>
+<rect x="120" y="112" width="120" height="28" fill="#F5F5F5"/>
+<line x1="120" y1="140" x2="240" y2="140" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="136" fill="#555555">7</text>
+<rect x="240" y="112" width="120" height="28" fill="#F5F5F5"/>
+<line x1="240" y1="140" x2="360" y2="140" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="136" fill="#555555">$15.50</text>
+</svg>

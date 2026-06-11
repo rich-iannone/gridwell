@@ -1,0 +1,21 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: "render(\"minimal/unicode_cjk.json\")"
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="120" viewBox="0 0 240 120">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
+<text x="8" y="24" font-weight="bold" font-size="19.599999999999998px">世界の都市</text>
+<line x1="0" y1="56" x2="120" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="52" font-weight="bold">都市</text>
+<line x1="120" y1="56" x2="240" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="52" font-weight="bold">人口 (万人)</text>
+<line x1="0" y1="56" x2="240" y2="56" stroke="#333333" stroke-width="1.5"/>
+<line x1="0" y1="84" x2="120" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="80">東京</text>
+<line x1="120" y1="84" x2="240" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="80">1,396</text>
+<line x1="0" y1="112" x2="120" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="108">大阪</text>
+<line x1="120" y1="112" x2="240" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="108">884</text>
+</svg>

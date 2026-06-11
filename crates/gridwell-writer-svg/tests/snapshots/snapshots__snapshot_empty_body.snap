@@ -1,0 +1,14 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: "render(\"minimal/empty_body.json\")"
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="36" viewBox="0 0 360 36">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
+<line x1="0" y1="28" x2="120" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="24" font-weight="bold">Name</text>
+<line x1="120" y1="28" x2="240" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="24" font-weight="bold">Age</text>
+<line x1="240" y1="28" x2="360" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="24" font-weight="bold">City</text>
+<line x1="0" y1="28" x2="360" y2="28" stroke="#333333" stroke-width="1.5"/>
+</svg>

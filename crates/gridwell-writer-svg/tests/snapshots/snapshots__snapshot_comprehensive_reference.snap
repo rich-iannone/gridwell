@@ -1,0 +1,117 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: "render(\"comprehensive/reference_table.json\")"
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="456" viewBox="0 0 600 456">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
+<text x="8" y="24" font-weight="bold" font-size="19.599999999999998px">Regional Sales Performance</text>
+<text x="8" y="52" font-size="15.400000000000002px">Fiscal years 2023–2024 (in millions USD)</text>
+<line x1="0" y1="84" x2="120" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="120" y1="84" x2="240" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="240" y1="84" x2="600" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="80" font-weight="bold" fill="#333333">Financials</text>
+<line x1="0" y1="84" x2="600" y2="84" stroke="#333333" stroke-width="1.5"/>
+<line x1="0" y1="112" x2="120" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="108" font-weight="bold" fill="#333333">Country</text>
+<line x1="120" y1="112" x2="240" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="108" font-weight="bold" fill="#333333">Year</text>
+<line x1="240" y1="112" x2="360" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="108" font-weight="bold" fill="#333333">Revenue</text>
+<line x1="360" y1="112" x2="480" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="108" font-weight="bold" fill="#333333">Expenses</text>
+<line x1="480" y1="112" x2="600" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="488" y="108" font-weight="bold" fill="#333333">Profit</text>
+<line x1="0" y1="112" x2="600" y2="112" stroke="#333333" stroke-width="1.5"/>
+<rect x="0" y="112" width="600" height="28" fill="#f0f0f0"/>
+<text x="8" y="136" font-weight="bold">North America</text>
+<line x1="0" y1="168" x2="120" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="164" fill="#333333">United States</text>
+<line x1="120" y1="168" x2="240" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="164" fill="#333333">2023</text>
+<line x1="240" y1="168" x2="360" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="164" fill="#333333">1,250.3</text>
+<line x1="360" y1="168" x2="480" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="164" fill="#333333">980.2</text>
+<line x1="480" y1="168" x2="600" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="488" y="164" fill="#333333">270.1</text>
+<line x1="120" y1="196" x2="240" y2="196" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="192" fill="#333333">2024</text>
+<line x1="240" y1="196" x2="360" y2="196" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="192" fill="#333333">1,380.7</text>
+<line x1="360" y1="196" x2="480" y2="196" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="192" fill="#333333">1,050.41</text>
+<line x1="480" y1="196" x2="600" y2="196" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="488" y="192" fill="#333333">330.3</text>
+<line x1="0" y1="224" x2="120" y2="224" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="220" fill="#333333">Canada</text>
+<line x1="120" y1="224" x2="240" y2="224" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="220" fill="#333333">2024</text>
+<line x1="240" y1="224" x2="360" y2="224" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="220" fill="#333333">420.1</text>
+<line x1="360" y1="224" x2="480" y2="224" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="220" fill="#333333">310.6</text>
+<line x1="480" y1="224" x2="600" y2="224" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="488" y="220" fill="#333333">109.5</text>
+<rect x="0" y="224" width="120" height="28" fill="#FAFAFA"/>
+<line x1="0" y1="252" x2="120" y2="252" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="248" fill="#555555">Total</text>
+<rect x="120" y="224" width="120" height="28" fill="#FAFAFA"/>
+<line x1="120" y1="252" x2="240" y2="252" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="248" fill="#555555">—</text>
+<rect x="240" y="224" width="120" height="28" fill="#FAFAFA"/>
+<line x1="240" y1="252" x2="360" y2="252" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="248" fill="#555555">3,051.1</text>
+<rect x="360" y="224" width="120" height="28" fill="#FAFAFA"/>
+<line x1="360" y1="252" x2="480" y2="252" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="248" fill="#555555">2,341.2</text>
+<rect x="480" y="224" width="120" height="28" fill="#FAFAFA"/>
+<line x1="480" y1="252" x2="600" y2="252" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="488" y="248" fill="#555555">709.9</text>
+<rect x="0" y="252" width="600" height="28" fill="#f0f0f0"/>
+<text x="8" y="276" font-weight="bold">Europe</text>
+<line x1="0" y1="308" x2="120" y2="308" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="304" fill="#333333">Germany</text>
+<line x1="120" y1="308" x2="240" y2="308" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="304" fill="#333333">2023</text>
+<line x1="240" y1="308" x2="360" y2="308" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="304" fill="#333333">890.5</text>
+<line x1="360" y1="308" x2="480" y2="308" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="304" fill="#333333">720.1</text>
+<line x1="480" y1="308" x2="600" y2="308" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="488" y="304" fill="#333333">170.4</text>
+<line x1="120" y1="336" x2="240" y2="336" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="332" fill="#333333">2024</text>
+<line x1="240" y1="336" x2="360" y2="336" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="332" fill="#333333">945.2</text>
+<line x1="360" y1="336" x2="480" y2="336" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="332" fill="#333333">780.3</text>
+<line x1="480" y1="336" x2="600" y2="336" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="488" y="332" fill="#333333">164.9</text>
+<line x1="0" y1="364" x2="120" y2="364" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="360" fill="#333333">France</text>
+<line x1="120" y1="364" x2="240" y2="364" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="360" fill="#333333">2024</text>
+<line x1="240" y1="364" x2="360" y2="364" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="360" fill="#333333">610.8</text>
+<line x1="360" y1="364" x2="480" y2="364" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="360" fill="#333333">490.2</text>
+<line x1="480" y1="364" x2="600" y2="364" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="488" y="360" fill="#333333">120.6</text>
+<rect x="0" y="364" width="120" height="28" fill="#FAFAFA"/>
+<line x1="0" y1="392" x2="120" y2="392" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="388" fill="#555555">Total</text>
+<rect x="120" y="364" width="120" height="28" fill="#FAFAFA"/>
+<line x1="120" y1="392" x2="240" y2="392" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="388" fill="#555555">—</text>
+<rect x="240" y="364" width="120" height="28" fill="#FAFAFA"/>
+<line x1="240" y1="392" x2="360" y2="392" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="388" fill="#555555">2,446.5</text>
+<rect x="360" y="364" width="120" height="28" fill="#FAFAFA"/>
+<line x1="360" y1="392" x2="480" y2="392" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="388" fill="#555555">1,990.6</text>
+<rect x="480" y="364" width="120" height="28" fill="#FAFAFA"/>
+<line x1="480" y1="392" x2="600" y2="392" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="488" y="388" fill="#555555">455.9</text>
+<text x="8" y="417" font-size="11.9px"><tspan font-size="9.799999999999999px" baseline-shift="super">1</tspan> Includes one-time restructuring charge.</text>
+<text x="8" y="446" font-size="11.9px">Source: Internal finance database, June 2025.</text>
+</svg>

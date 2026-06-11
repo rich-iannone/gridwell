@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: "render(\"minimal/minimal_1x1.json\")"
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="64" viewBox="0 0 120 64">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
+<line x1="0" y1="28" x2="120" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="24" font-weight="bold">Value</text>
+<line x1="0" y1="28" x2="120" y2="28" stroke="#333333" stroke-width="1.5"/>
+<line x1="0" y1="56" x2="120" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="52">Hello</text>
+</svg>
