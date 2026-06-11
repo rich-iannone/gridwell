@@ -108,6 +108,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "gridwell-writer-latex"
+version = "0.1.0"
+dependencies = [
+ "gridwell-core",
+ "gridwell-ir",
+ "insta",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
+name = "gridwell-writer-typst"
+version = "0.1.0"
+dependencies = [
+ "gridwell-core",
+ "gridwell-ir",
+ "insta",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "hashbrown"
 version = "0.15.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
