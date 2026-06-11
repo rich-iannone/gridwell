@@ -26,3 +26,15 @@ pub struct Cell {
     pub data_type: Option<String>,
 }
 
+fn default_one() -> u32 {
+    1
+}
+
+/// A typed value (raw data alongside display text).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TypedValue {
+    #[serde(rename = "type")]
+    pub value_type: String,
+    pub value: serde_json::Value,
+}
+
