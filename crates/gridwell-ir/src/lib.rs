@@ -106,3 +106,19 @@ fn default_width() -> String {
     "auto".to_string()
 }
 
+/// The table block containing thead and tbody.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TableBlock {
+    pub thead: TableHead,
+    pub tbody: Vec<RowGroup>,
+}
+
+/// The footer block containing footnotes and source notes.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Footer {
+    #[serde(default)]
+    pub footnotes: Vec<Footnote>,
+    #[serde(default)]
+    pub source_notes: Vec<SourceNote>,
+}
+
