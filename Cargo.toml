@@ -18,7 +18,7 @@ members = [
     "crates/gridwell-r",
     "crates/gridwell-cli",
 ]
-exclude = ["r-package/src/rust"]
+exclude = ["r-package/src/rust", "fuzz"]
 resolver = "2"
 
 [workspace.package]
