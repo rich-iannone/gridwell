@@ -1,0 +1,26 @@
+---
+source: crates/gridwell-writer-xlsx/tests/snapshots.rs
+expression: "render_xml(\"comprehensive/reference_table.json\")"
+---
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<cols><col min="1" max="1" width="12.00" customWidth="1"/><col min="2" max="2" width="12.00" customWidth="1"/><col min="3" max="3" width="12.00" customWidth="1"/><col min="4" max="4" width="12.00" customWidth="1"/><col min="5" max="5" width="12.00" customWidth="1"/></cols>
+<sheetData>
+<row r="1"><c r="A1" t="inlineStr" s="1"><is><t>Regional Sales Performance</t></is></c></row>
+<row r="2"><c r="A2" t="inlineStr"><is><t>Fiscal years 2023–2024 (in millions USD)</t></is></c></row>
+<row r="3"><c r="C3" t="inlineStr" s="1"><is><t>Financials</t></is></c></row>
+<row r="4"><c r="A4" t="inlineStr" s="1"><is><t>Country</t></is></c><c r="B4" t="inlineStr" s="1"><is><t>Year</t></is></c><c r="C4" t="inlineStr" s="1"><is><t>Revenue</t></is></c><c r="D4" t="inlineStr" s="1"><is><t>Expenses</t></is></c><c r="E4" t="inlineStr" s="1"><is><t>Profit</t></is></c></row>
+<row r="5"><c r="A5" t="inlineStr" s="1"><is><t>North America</t></is></c></row>
+<row r="6"><c r="A6" t="inlineStr"><is><t>United States</t></is></c><c r="B6" t="inlineStr"><is><t>2023</t></is></c><c r="C6"><v>1250.3</v></c><c r="D6"><v>980.2</v></c><c r="E6"><v>270.1</v></c></row>
+<row r="7"><c r="B7" t="inlineStr"><is><t>2024</t></is></c><c r="C7"><v>1380.7</v></c><c r="D7"><v>1050.4</v></c><c r="E7"><v>330.3</v></c></row>
+<row r="8"><c r="A8" t="inlineStr"><is><t>Canada</t></is></c><c r="B8" t="inlineStr"><is><t>2024</t></is></c><c r="C8"><v>420.1</v></c><c r="D8"><v>310.6</v></c><c r="E8"><v>109.5</v></c></row>
+<row r="9"><c r="A9" t="inlineStr" s="1"><is><t>Total</t></is></c><c r="B9" t="inlineStr" s="1"><is><t>—</t></is></c><c r="C9" s="1"><v>3051.1</v></c><c r="D9" s="1"><v>2341.2</v></c><c r="E9" s="1"><v>709.9</v></c></row>
+<row r="10"><c r="A10" t="inlineStr" s="1"><is><t>Europe</t></is></c></row>
+<row r="11"><c r="A11" t="inlineStr"><is><t>Germany</t></is></c><c r="B11" t="inlineStr"><is><t>2023</t></is></c><c r="C11"><v>890.5</v></c><c r="D11"><v>720.1</v></c><c r="E11"><v>170.4</v></c></row>
+<row r="12"><c r="B12" t="inlineStr"><is><t>2024</t></is></c><c r="C12"><v>945.2</v></c><c r="D12"><v>780.3</v></c><c r="E12"><v>164.9</v></c></row>
+<row r="13"><c r="A13" t="inlineStr"><is><t>France</t></is></c><c r="B13" t="inlineStr"><is><t>2024</t></is></c><c r="C13"><v>610.8</v></c><c r="D13"><v>490.2</v></c><c r="E13"><v>120.6</v></c></row>
+<row r="14"><c r="A14" t="inlineStr" s="1"><is><t>Total</t></is></c><c r="B14" t="inlineStr" s="1"><is><t>—</t></is></c><c r="C14" s="1"><v>2446.5</v></c><c r="D14" s="1"><v>1990.6</v></c><c r="E14" s="1"><v>455.9</v></c></row>
+<row r="16"><c r="A16" t="inlineStr"><is><t>1 Includes one-time restructuring charge.</t></is></c></row>
+<row r="18"><c r="A18" t="inlineStr"><is><t>Source: Internal finance database, June 2025.</t></is></c></row>
+</sheetData>
+</worksheet>

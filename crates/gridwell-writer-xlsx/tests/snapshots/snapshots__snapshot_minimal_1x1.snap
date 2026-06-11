@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-xlsx/tests/snapshots.rs
+expression: "render_xml(\"minimal/minimal_1x1.json\")"
+---
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<cols><col min="1" max="1" width="12.00" customWidth="1"/></cols>
+<sheetData>
+<row r="1"><c r="A1" t="inlineStr" s="1"><is><t>Value</t></is></c></row>
+<row r="2"><c r="A2" t="inlineStr"><is><t>Hello</t></is></c></row>
+</sheetData>
+</worksheet>

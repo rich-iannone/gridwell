@@ -1,0 +1,14 @@
+---
+source: crates/gridwell-writer-xlsx/tests/snapshots.rs
+expression: "render_xml(\"minimal/rowspan_basic.json\")"
+---
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<cols><col min="1" max="1" width="12.00" customWidth="1"/><col min="2" max="2" width="12.00" customWidth="1"/></cols>
+<sheetData>
+<row r="1"><c r="A1" t="inlineStr" s="1"><is><t>Country</t></is></c><c r="B1" t="inlineStr" s="1"><is><t>Value</t></is></c></row>
+<row r="2"><c r="A2" t="inlineStr"><is><t>Japan</t></is></c><c r="B2"><v>100</v></c></row>
+<row r="3"><c r="B3"><v>110</v></c></row>
+<row r="4"><c r="A4" t="inlineStr"><is><t>Korea</t></is></c><c r="B4"><v>80</v></c></row>
+</sheetData>
+</worksheet>

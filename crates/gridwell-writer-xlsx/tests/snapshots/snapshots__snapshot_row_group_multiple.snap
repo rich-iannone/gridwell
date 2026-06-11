@@ -1,0 +1,17 @@
+---
+source: crates/gridwell-writer-xlsx/tests/snapshots.rs
+expression: "render_xml(\"minimal/row_group_multiple.json\")"
+---
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<cols><col min="1" max="1" width="12.00" customWidth="1"/><col min="2" max="2" width="12.00" customWidth="1"/><col min="3" max="3" width="12.00" customWidth="1"/></cols>
+<sheetData>
+<row r="1"><c r="A1" t="inlineStr" s="1"><is><t>City</t></is></c><c r="B1" t="inlineStr" s="1"><is><t>Pop (M)</t></is></c><c r="C1" t="inlineStr" s="1"><is><t>Area (km²)</t></is></c></row>
+<row r="2"><c r="A2" t="inlineStr" s="1"><is><t>Asia</t></is></c></row>
+<row r="3"><c r="A3" t="inlineStr"><is><t>Tokyo</t></is></c><c r="B3"><v>13.96</v></c><c r="C3"><v>2194</v></c></row>
+<row r="4"><c r="A4" t="inlineStr"><is><t>Seoul</t></is></c><c r="B4"><v>9.74</v></c><c r="C4"><v>605</v></c></row>
+<row r="5"><c r="A5" t="inlineStr" s="1"><is><t>Europe</t></is></c></row>
+<row r="6"><c r="A6" t="inlineStr"><is><t>London</t></is></c><c r="B6"><v>8.98</v></c><c r="C6"><v>1572</v></c></row>
+<row r="7"><c r="A7" t="inlineStr"><is><t>Paris</t></is></c><c r="B7"><v>2.16</v></c><c r="C7"><v>105</v></c></row>
+</sheetData>
+</worksheet>
