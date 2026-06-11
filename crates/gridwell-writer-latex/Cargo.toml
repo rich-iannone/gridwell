@@ -1,0 +1,16 @@
+[package]
+name = "gridwell-writer-latex"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "LaTeX writer for gridwell: IR → LaTeX (booktabs, longtable, multirow)"
+
+[dependencies]
+gridwell-ir = { path = "../gridwell-ir" }
+gridwell-core = { path = "../gridwell-core" }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+serde_json = { workspace = true }
