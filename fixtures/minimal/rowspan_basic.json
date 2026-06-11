@@ -1,0 +1,139 @@
+{
+  "ir_version": "1.0",
+
+  "config": {
+    "table_cols": 2,
+    "header_rows": 1,
+    "body_rows": 3,
+    "stub_cols": 1,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null
+  },
+
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+
+  "header": {
+    "title": null,
+    "subtitle": null,
+    "extra_lines": [],
+    "preheader_content": null
+  },
+
+  "column_spec": [
+    { "id": "col_0", "align": "left", "align_char": null, "width": "auto", "min_width": null, "max_width": null, "style_id": null, "hidden": false, "label": "Country" },
+    { "id": "col_1", "align": "right", "align_char": null, "width": "auto", "min_width": null, "max_width": null, "style_id": null, "hidden": false, "label": "Value" }
+  ],
+
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [{ "type": "text", "value": "Country" }],
+              "colspan": 1, "rowspan": 1, "style_id": null,
+              "is_stub": true, "is_placeholder": false,
+              "scope": "col", "sort_key": null, "data_type": "string"
+            },
+            {
+              "content": [{ "type": "text", "value": "Value" }],
+              "colspan": 1, "rowspan": 1, "style_id": null,
+              "is_stub": false, "is_placeholder": false,
+              "scope": "col", "sort_key": null, "data_type": "number"
+            }
+          ]
+        }
+      ]
+    },
+
+    "tbody": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [{ "type": "text", "value": "Japan" }],
+                "typed_value": { "type": "string", "value": "Japan" },
+                "colspan": 1, "rowspan": 2,
+                "style_id": null, "is_stub": true, "is_placeholder": false,
+                "data_type": "string", "sort_key": "japan"
+              },
+              {
+                "content": [{ "type": "text", "value": "100" }],
+                "typed_value": { "type": "number", "value": 100 },
+                "colspan": 1, "rowspan": 1,
+                "style_id": null, "is_stub": false, "is_placeholder": false,
+                "data_type": "number", "sort_key": 100
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [],
+                "typed_value": null,
+                "colspan": 1, "rowspan": 1,
+                "style_id": null, "is_stub": true, "is_placeholder": true,
+                "data_type": null, "sort_key": null
+              },
+              {
+                "content": [{ "type": "text", "value": "110" }],
+                "typed_value": { "type": "number", "value": 110 },
+                "colspan": 1, "rowspan": 1,
+                "style_id": null, "is_stub": false, "is_placeholder": false,
+                "data_type": "number", "sort_key": 110
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [{ "type": "text", "value": "Korea" }],
+                "typed_value": { "type": "string", "value": "Korea" },
+                "colspan": 1, "rowspan": 1,
+                "style_id": null, "is_stub": true, "is_placeholder": false,
+                "data_type": "string", "sort_key": "korea"
+              },
+              {
+                "content": [{ "type": "text", "value": "80" }],
+                "typed_value": { "type": "number", "value": 80 },
+                "colspan": 1, "rowspan": 1,
+                "style_id": null, "is_stub": false, "is_placeholder": false,
+                "data_type": "number", "sort_key": 80
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ]
+  },
+
+  "footer": { "footnotes": [], "source_notes": [] },
+  "extensions": {}
+}
