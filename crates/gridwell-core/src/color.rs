@@ -52,3 +52,36 @@ impl Color {
     }
 }
 
+impl FromStr for Color {
+    type Err = ColorParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let s = s.trim();
+
+        if s.eq_ignore_ascii_case("transparent") {
+            return Ok(Color::TRANSPARENT);
+        }
+
+        // Named colors (subset — the most common ones)
+        if let Some(c) = named_color(s) {
+            return Ok(c);
+        }
+
+        // Hex
+        if let Some(hex) = s.strip_prefix('#') {
+            return parse_hex(hex).ok_or_else(|| ColorParseError(s.to_string()));
+        }
+
+        // rgb()/rgba()
+        if let Some(inner) = s
+            .strip_prefix("rgba(")
+            .and_then(|s| s.strip_suffix(')'))
+            .or_else(|| s.strip_prefix("rgb(").and_then(|s| s.strip_suffix(')')))
+        {
+            return parse_rgb_func(inner).ok_or_else(|| ColorParseError(s.to_string()));
+        }
+
+        Err(ColorParseError(s.to_string()))
+    }
+}
+
