@@ -38,3 +38,13 @@ pub struct TypedValue {
     pub value: serde_json::Value,
 }
 
+/// A table row.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Row {
+    #[serde(default)]
+    pub role: Option<String>,
+    #[serde(default)]
+    pub style_id: Option<String>,
+    pub cells: Vec<Cell>,
+}
+
