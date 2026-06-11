@@ -98,3 +98,11 @@ pub struct ColumnSpec {
     pub label: Option<String>,
 }
 
+fn default_align() -> String {
+    "left".to_string()
+}
+
+fn default_width() -> String {
+    "auto".to_string()
+}
+
