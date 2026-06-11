@@ -76,3 +76,25 @@ pub struct HeaderLine {
     pub style_id: Option<String>,
 }
 
+/// Column specification.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ColumnSpec {
+    pub id: String,
+    #[serde(default = "default_align")]
+    pub align: String,
+    #[serde(default)]
+    pub align_char: Option<String>,
+    #[serde(default = "default_width")]
+    pub width: String,
+    #[serde(default)]
+    pub min_width: Option<String>,
+    #[serde(default)]
+    pub max_width: Option<String>,
+    #[serde(default)]
+    pub style_id: Option<String>,
+    #[serde(default)]
+    pub hidden: bool,
+    #[serde(default)]
+    pub label: Option<String>,
+}
+
