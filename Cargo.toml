@@ -9,6 +9,7 @@ members = [
     "crates/gridwell-writer-svg",
     "crates/gridwell-writer-ansi",
     "crates/gridwell-writer-pandoc",
+    "crates/gridwell-writer-quarto",
 ]
 resolver = "2"
 
