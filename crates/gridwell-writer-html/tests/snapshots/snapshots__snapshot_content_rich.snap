@@ -1,0 +1,35 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: "render(\"minimal/content_rich.json\")"
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th scope="col">Label</th>
+        <th scope="col">Content</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Rich content</td>
+        <td>
+          Normal text, <span>bold text</span><br>second line with <sup><a href="#fn1">*</a></sup>
+        </td>
+      </tr>
+      <tr>
+        <td>Image cell</td>
+        <td>
+          Trend: <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==" alt="sparkline" style="width: 60px; height: 16px">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="gw_footer">
+    <div class="gw_footnotes">
+      <p id="fn1" >
+        <sup>*</sup> Estimated value.
+      </p>
+    </div>
+  </div>
+</div>

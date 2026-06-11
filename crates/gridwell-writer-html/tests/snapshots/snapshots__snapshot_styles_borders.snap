@@ -1,0 +1,37 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: "render(\"minimal/styles_borders.json\")"
+---
+<div class="gw_container">
+  <style>
+    .gw_border_all { padding: 4px 6px; border-top: 1px solid #000000; border-right: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000 }
+    .gw_border_dashed { padding: 4px 6px; border-top: 1px dashed #999999; border-right: 1px dashed #999999; border-bottom: 1px dashed #999999; border-left: 1px dashed #999999 }
+    .gw_border_heavy_bottom { font-weight: bold; padding: 4px 6px; border-bottom: 3px double #333333 }
+  </style>
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th class="gw_border_heavy_bottom" scope="col">A</th>
+        <th class="gw_border_heavy_bottom" scope="col">B</th>
+        <th class="gw_border_heavy_bottom" scope="col">C</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="gw_border_all">all borders</td>
+        <td class="gw_border_all">all borders</td>
+        <td class="gw_border_all">all borders</td>
+      </tr>
+      <tr>
+        <td class="gw_border_dashed">dashed</td>
+        <td class="gw_border_dashed">dashed</td>
+        <td class="gw_border_dashed">dashed</td>
+      </tr>
+      <tr>
+        <td>none</td>
+        <td>none</td>
+        <td>none</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

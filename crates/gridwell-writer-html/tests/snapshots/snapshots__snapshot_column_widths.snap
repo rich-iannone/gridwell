@@ -1,0 +1,40 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: "render(\"minimal/column_widths.json\")"
+---
+<div class="gw_container">
+  <table class="gw_table" style="width: 100%">
+    <colgroup>
+      <col style="width: 200px">
+      <col style="width: 20%">
+      <col style="width: 1fr">
+      <col style="width: 2fr">
+      <col>
+    </colgroup>
+    <thead>
+      <tr>
+        <th scope="col">Fixed PX</th>
+        <th scope="col">Percent</th>
+        <th scope="col">Fractional</th>
+        <th scope="col">2x Fractional</th>
+        <th scope="col">Auto</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>200px wide</td>
+        <td>20% wide</td>
+        <td>1fr</td>
+        <td>2fr</td>
+        <td>auto</td>
+      </tr>
+      <tr>
+        <td>content</td>
+        <td>content</td>
+        <td>content</td>
+        <td>content</td>
+        <td>content</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

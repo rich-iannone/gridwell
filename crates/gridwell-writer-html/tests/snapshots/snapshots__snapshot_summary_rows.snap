@@ -1,0 +1,40 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: "render(\"minimal/summary_rows.json\")"
+---
+<div class="gw_container">
+  <style>
+    .gw_summary_style { font-weight: bold; font-style: italic; color: #555555; background-color: #F5F5F5; border-top: 1px solid #CCCCCC }
+  </style>
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th scope="col">Item</th>
+        <th scope="col">Qty</th>
+        <th scope="col">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan="3">
+          Order #1234
+        </td>
+      </tr>
+      <tr>
+        <td>Apples</td>
+        <td>5</td>
+        <td>$7.50</td>
+      </tr>
+      <tr>
+        <td>Bread</td>
+        <td>2</td>
+        <td>$8.00</td>
+      </tr>
+      <tr>
+        <td class="gw_summary_style">Total</td>
+        <td class="gw_summary_style">7</td>
+        <td class="gw_summary_style">$15.50</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

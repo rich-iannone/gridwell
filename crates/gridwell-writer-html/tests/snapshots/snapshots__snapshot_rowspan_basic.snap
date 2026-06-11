@@ -1,0 +1,27 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: "render(\"minimal/rowspan_basic.json\")"
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th scope="col">Country</th>
+        <th scope="col">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td rowspan="2">Japan</td>
+        <td>100</td>
+      </tr>
+      <tr>
+        <td>110</td>
+      </tr>
+      <tr>
+        <td>Korea</td>
+        <td>80</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,31 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: "render(\"minimal/colspan_basic.json\")"
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th></th>
+        <th scope="colgroup" colspan="2">Scores</th>
+      </tr>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Q1</th>
+        <th scope="col">Q2</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Alice</td>
+        <td>90</td>
+        <td>95</td>
+      </tr>
+      <tr>
+        <td>Bob</td>
+        <td>85</td>
+        <td>88</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

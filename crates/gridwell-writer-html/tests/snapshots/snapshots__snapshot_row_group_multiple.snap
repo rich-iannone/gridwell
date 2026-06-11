@@ -1,0 +1,49 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: "render(\"minimal/row_group_multiple.json\")"
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th scope="col">City</th>
+        <th scope="col">Pop (M)</th>
+        <th scope="col">Area (km²)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan="3">
+          Asia
+        </td>
+      </tr>
+      <tr>
+        <td>Tokyo</td>
+        <td>13.96</td>
+        <td>2,194</td>
+      </tr>
+      <tr>
+        <td>Seoul</td>
+        <td>9.74</td>
+        <td>605</td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <td colspan="3">
+          Europe
+        </td>
+      </tr>
+      <tr>
+        <td>London</td>
+        <td>8.98</td>
+        <td>1,572</td>
+      </tr>
+      <tr>
+        <td>Paris</td>
+        <td>2.16</td>
+        <td>105</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

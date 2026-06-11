@@ -1,0 +1,127 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: "render(\"comprehensive/reference_table.json\")"
+---
+<div class="gw_container" style="max-width: 900px; overflow: auto">
+  <style>
+    .gw_body_numeric { font-family: Courier New, monospace; font-size: 13px; font-weight: normal; font-style: normal; color: #333333; text-align: right; vertical-align: middle; padding: 4px 8px }
+    .gw_body_profit { font-family: Courier New, monospace; font-size: 13px; font-weight: bold; font-style: normal; color: #333333; text-align: right; vertical-align: middle; padding: 4px 8px }
+    .gw_body_stub { font-size: 13px; font-weight: normal; font-style: normal; color: #333333; text-align: left; vertical-align: middle; padding: 4px 8px 4px 12px }
+    .gw_body_year { font-size: 13px; font-weight: normal; font-style: normal; color: #333333; text-align: center; vertical-align: middle; padding: 4px 8px }
+    .gw_col_label { font-size: 13px; font-weight: bold; font-style: normal; color: #333333; text-align: center; vertical-align: bottom; padding: 4px 8px; border-bottom: 2px solid #000000 }
+    .gw_col_label_stub { font-size: 13px; font-weight: bold; font-style: normal; color: #333333; text-align: left; vertical-align: bottom; padding: 4px 8px; border-bottom: 2px solid #000000 }
+    .gw_footer_text { font-size: 11px; font-weight: normal; font-style: normal; color: #666666; text-align: left; padding: 4px 8px }
+    .gw_footnote_mark { font-size: 10px; font-weight: normal; font-style: normal; color: #666666; vertical-align: super }
+    .gw_group_label { font-size: 13px; font-weight: bold; font-style: normal; color: #333333; background-color: #F0F0F0; text-align: left; vertical-align: middle; padding: 6px 8px; border-top: 1px solid #D3D3D3; border-bottom: 1px solid #D3D3D3 }
+    .gw_header_subtitle { font-size: 14px; font-weight: normal; font-style: normal; color: #666666; text-align: left; padding: 0px 8px 8px 8px }
+    .gw_header_title { font-size: 18px; font-weight: bold; font-style: normal; color: #333333; text-align: left; padding: 4px 8px 0px 8px }
+    .gw_spanner_label { font-size: 13px; font-weight: bold; font-style: normal; color: #333333; text-align: center; vertical-align: bottom; padding: 4px 8px; border-bottom: 1px solid #A8A8A8 }
+    .gw_summary_label { font-size: 13px; font-weight: bold; font-style: italic; color: #555555; background-color: #FAFAFA; text-align: left; vertical-align: middle; padding: 4px 8px 4px 12px; border-top: 1px solid #D3D3D3 }
+    .gw_summary_numeric { font-family: Courier New, monospace; font-size: 13px; font-weight: bold; font-style: normal; color: #555555; background-color: #FAFAFA; text-align: right; vertical-align: middle; padding: 4px 8px; border-top: 1px solid #D3D3D3 }
+  </style>
+  <div class="gw_header_title" role="heading" aria-level="1">
+    Regional Sales Performance
+  </div>
+  <div class="gw_header_subtitle" role="heading" aria-level="2">
+    Fiscal years 2023–2024 (in millions USD)
+  </div>
+  <table class="gw_table" aria-label="Regional Sales Performance table">
+    <caption class="gw_caption">Sales revenue, expenses, profit, and margin percentage for North America and Europe, fiscal years 2023-2024.</caption>
+    <thead>
+      <tr>
+        <th class="gw_spanner_label"></th>
+        <th class="gw_spanner_label"></th>
+        <th class="gw_spanner_label" scope="colgroup" colspan="3">Financials</th>
+      </tr>
+      <tr>
+        <th class="gw_col_label_stub" scope="col">Country</th>
+        <th class="gw_col_label" scope="col">Year</th>
+        <th class="gw_col_label" scope="col">Revenue</th>
+        <th class="gw_col_label" scope="col">Expenses</th>
+        <th class="gw_col_label" scope="col">Profit</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan="5" class="gw_group_label">
+          North America
+        </td>
+      </tr>
+      <tr>
+        <td class="gw_body_stub" rowspan="2">United States</td>
+        <td class="gw_body_year">2023</td>
+        <td class="gw_body_numeric">1,250.3</td>
+        <td class="gw_body_numeric">980.2</td>
+        <td class="gw_body_profit">270.1</td>
+      </tr>
+      <tr>
+        <td class="gw_body_year">2024</td>
+        <td class="gw_body_numeric">1,380.7</td>
+        <td class="gw_body_numeric">
+          1,050.4<sup><a href="#fn1">1</a></sup>
+        </td>
+        <td class="gw_body_profit">330.3</td>
+      </tr>
+      <tr>
+        <td class="gw_body_stub">Canada</td>
+        <td class="gw_body_year">2024</td>
+        <td class="gw_body_numeric">420.1</td>
+        <td class="gw_body_numeric">310.6</td>
+        <td class="gw_body_profit">109.5</td>
+      </tr>
+      <tr>
+        <td class="gw_summary_label">Total</td>
+        <td class="gw_summary_numeric">—</td>
+        <td class="gw_summary_numeric">3,051.1</td>
+        <td class="gw_summary_numeric">2,341.2</td>
+        <td class="gw_summary_numeric">709.9</td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <td colspan="5" class="gw_group_label">
+          Europe
+        </td>
+      </tr>
+      <tr>
+        <td class="gw_body_stub" rowspan="2">Germany</td>
+        <td class="gw_body_year">2023</td>
+        <td class="gw_body_numeric">890.5</td>
+        <td class="gw_body_numeric">720.1</td>
+        <td class="gw_body_profit">170.4</td>
+      </tr>
+      <tr>
+        <td class="gw_body_year">2024</td>
+        <td class="gw_body_numeric">945.2</td>
+        <td class="gw_body_numeric">780.3</td>
+        <td class="gw_body_profit">164.9</td>
+      </tr>
+      <tr>
+        <td class="gw_body_stub">France</td>
+        <td class="gw_body_year">2024</td>
+        <td class="gw_body_numeric">610.8</td>
+        <td class="gw_body_numeric">490.2</td>
+        <td class="gw_body_profit">120.6</td>
+      </tr>
+      <tr>
+        <td class="gw_summary_label">Total</td>
+        <td class="gw_summary_numeric">—</td>
+        <td class="gw_summary_numeric">2,446.5</td>
+        <td class="gw_summary_numeric">1,990.6</td>
+        <td class="gw_summary_numeric">455.9</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="gw_footer">
+    <div class="gw_footnotes">
+      <p id="fn1" class="gw_footer_text">
+        <sup>1</sup> Includes one-time restructuring charge.
+      </p>
+    </div>
+    <div class="gw_source_notes">
+      <p class="gw_footer_text">
+        Source: Internal finance database, June 2025.
+      </p>
+    </div>
+  </div>
+</div>
