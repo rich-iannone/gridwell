@@ -14,6 +14,7 @@ members = [
     "crates/gridwell-writer-xlsx",
     "crates/gridwell-writer-pptx",
     "crates/gridwell-ffi",
+    "crates/gridwell-python",
 ]
 resolver = "2"
 
@@ -31,3 +32,4 @@ thiserror = "2"
 insta = "1"
 zip = { version = "2", default-features = false, features = ["deflate"] }
 quick-xml = { version = "0.37", features = ["serialize"] }
+pyo3 = { version = "0.23", features = ["extension-module"] }
