@@ -108,3 +108,11 @@ pub struct ConditionalStyle {
     pub style: StyleDef,
 }
 
+/// Selector for conditional styles.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConditionalSelector {
+    #[serde(default)]
+    pub row_parity: Option<String>,
+    #[serde(default)]
+    pub scope: Option<String>,
+}
