@@ -104,3 +104,31 @@ impl<'de> Deserialize<'de> for Color {
     }
 }
 
+fn parse_hex(hex: &str) -> Option<Color> {
+    match hex.len() {
+        // #RGB
+        3 => {
+            let r = u8::from_str_radix(&hex[0..1], 16).ok()? * 17;
+            let g = u8::from_str_radix(&hex[1..2], 16).ok()? * 17;
+            let b = u8::from_str_radix(&hex[2..3], 16).ok()? * 17;
+            Some(Color::rgb(r, g, b))
+        }
+        // #RRGGBB
+        6 => {
+            let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
+            let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
+            let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
+            Some(Color::rgb(r, g, b))
+        }
+        // #RRGGBBAA
+        8 => {
+            let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
+            let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
+            let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
+            let a = u8::from_str_radix(&hex[6..8], 16).ok()?;
+            Some(Color::new(r, g, b, a))
+        }
+        _ => None,
+    }
+}
+
