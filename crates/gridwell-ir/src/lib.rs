@@ -55,3 +55,24 @@ impl Table {
     }
 }
 
+/// The header block (title, subtitle, extra lines).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Header {
+    #[serde(default)]
+    pub title: Option<HeaderLine>,
+    #[serde(default)]
+    pub subtitle: Option<HeaderLine>,
+    #[serde(default)]
+    pub extra_lines: Vec<HeaderLine>,
+    #[serde(default)]
+    pub preheader_content: Option<serde_json::Value>,
+}
+
+/// A single header line (title or subtitle).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HeaderLine {
+    pub content: Vec<ContentNode>,
+    #[serde(default)]
+    pub style_id: Option<String>,
+}
+
