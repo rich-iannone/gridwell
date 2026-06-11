@@ -1,0 +1,374 @@
+---
+source: crates/gridwell-writer-pandoc/tests/snapshots.rs
+expression: "render(\"minimal/content_rich.json\")"
+---
+{
+  "c": [
+    [
+      "",
+      [],
+      []
+    ],
+    [
+      null,
+      []
+    ],
+    [
+      [
+        {
+          "t": "AlignLeft"
+        },
+        {
+          "t": "ColWidthDefault"
+        }
+      ],
+      [
+        {
+          "t": "AlignLeft"
+        },
+        {
+          "t": "ColWidthDefault"
+        }
+      ]
+    ],
+    [
+      [
+        "",
+        [],
+        []
+      ],
+      [
+        [
+          [
+            "",
+            [],
+            []
+          ],
+          [
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              1,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "Label",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Plain"
+                }
+              ]
+            ],
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              1,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "Content",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Plain"
+                }
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        [
+          "",
+          [],
+          []
+        ],
+        0,
+        [],
+        [
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            [
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "Rich",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "content",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ],
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "Normal",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "text,",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "bold",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "text",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "LineBreak"
+                      },
+                      {
+                        "c": "second",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "line",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "with",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": [
+                          {
+                            "c": "*",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Superscript"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            [
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "Image",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "cell",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ],
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "Trend:",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": [
+                          [
+                            "",
+                            [],
+                            []
+                          ],
+                          [
+                            {
+                              "c": "sparkline",
+                              "t": "Str"
+                            }
+                          ],
+                          [
+                            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==",
+                            ""
+                          ]
+                        ],
+                        "t": "Image"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        "",
+        [],
+        []
+      ],
+      [
+        [
+          [
+            "",
+            [],
+            []
+          ],
+          [
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              2,
+              [
+                {
+                  "c": [
+                    {
+                      "c": [
+                        {
+                          "c": "*",
+                          "t": "Str"
+                        }
+                      ],
+                      "t": "Superscript"
+                    },
+                    {
+                      "t": "Space"
+                    },
+                    {
+                      "c": "Estimated",
+                      "t": "Str"
+                    },
+                    {
+                      "t": "Space"
+                    },
+                    {
+                      "c": "value.",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Para"
+                }
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+  ],
+  "t": "Table"
+}

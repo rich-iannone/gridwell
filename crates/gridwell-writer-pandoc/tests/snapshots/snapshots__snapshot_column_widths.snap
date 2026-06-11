@@ -1,0 +1,491 @@
+---
+source: crates/gridwell-writer-pandoc/tests/snapshots.rs
+expression: "render(\"minimal/column_widths.json\")"
+---
+{
+  "c": [
+    [
+      "",
+      [],
+      []
+    ],
+    [
+      null,
+      []
+    ],
+    [
+      [
+        {
+          "t": "AlignLeft"
+        },
+        {
+          "c": 0.25,
+          "t": "ColWidth"
+        }
+      ],
+      [
+        {
+          "t": "AlignLeft"
+        },
+        {
+          "t": "ColWidthDefault"
+        }
+      ],
+      [
+        {
+          "t": "AlignLeft"
+        },
+        {
+          "t": "ColWidthDefault"
+        }
+      ],
+      [
+        {
+          "t": "AlignLeft"
+        },
+        {
+          "t": "ColWidthDefault"
+        }
+      ],
+      [
+        {
+          "t": "AlignLeft"
+        },
+        {
+          "t": "ColWidthDefault"
+        }
+      ]
+    ],
+    [
+      [
+        "",
+        [],
+        []
+      ],
+      [
+        [
+          [
+            "",
+            [],
+            []
+          ],
+          [
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              1,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "Fixed",
+                      "t": "Str"
+                    },
+                    {
+                      "t": "Space"
+                    },
+                    {
+                      "c": "PX",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Plain"
+                }
+              ]
+            ],
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              1,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "Percent",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Plain"
+                }
+              ]
+            ],
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              1,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "Fractional",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Plain"
+                }
+              ]
+            ],
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              1,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "2x",
+                      "t": "Str"
+                    },
+                    {
+                      "t": "Space"
+                    },
+                    {
+                      "c": "Fractional",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Plain"
+                }
+              ]
+            ],
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              1,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "Auto",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Plain"
+                }
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        [
+          "",
+          [],
+          []
+        ],
+        0,
+        [],
+        [
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            [
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "200px",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "wide",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ],
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "20%",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "wide",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ],
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "1fr",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ],
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "2fr",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ],
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "auto",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            [
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "content",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ],
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "content",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ],
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "content",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ],
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "content",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ],
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "content",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        "",
+        [],
+        []
+      ],
+      []
+    ]
+  ],
+  "t": "Table"
+}
