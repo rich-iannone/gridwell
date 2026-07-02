@@ -243,16 +243,32 @@ impl<'a> AnsiRenderer<'a> {
         self.buf.push_str(self.bc.v);
         let mut col_idx = 0;
 
-        for cell in &row.cells {
+        // A cell's index in the row equals its starting grid column (IR invariant),
+        // so `pos < col_idx` means this position was already consumed by a preceding
+        // colspan in *this* row (a horizontal placeholder) and produces no output;
+        // `pos == col_idx` is a vertical (rowspan) placeholder that still occupies a
+        // visible, blank column.
+        for (pos, cell) in row.cells.iter().enumerate() {
             if col_idx >= self.col_widths.len() {
                 break;
             }
             if cell.is_placeholder {
+                if pos < col_idx {
+                    continue; // horizontal fill — already covered by a colspan
+                }
+                let w = self.col_widths[col_idx];
+                for _ in 0..w {
+                    self.buf.push(' ');
+                }
                 col_idx += 1;
+                if col_idx < self.col_widths.len() {
+                    self.buf.push_str(self.bc.v);
+                }
                 continue;
             }
 
-            let span = cell.colspan as usize;
+            // Clamp the span to the remaining columns so malformed input can't panic.
+            let span = (cell.colspan as usize).min(self.col_widths.len() - col_idx);
             let total_w: usize = self.col_widths[col_idx..col_idx + span].iter().sum::<usize>()
                 + (span - 1); // account for removed separators
 
