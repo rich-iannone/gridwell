@@ -1,0 +1,69 @@
+---
+title: "Gridwell"
+subtitle: "Fast multi-format table rendering from a declarative IR"
+---
+
+**Gridwell** is a Rust library that accepts a rich table Intermediate Representation (IR) and
+renders it to many output formats. It serves as a universal table rendering backend.
+
+## Key Features
+
+- **11 output formats** from a single declarative JSON input
+- **Sub-millisecond rendering** for typical tables (Rust core)
+- **Language bindings** for Python (PyO3), R (extendr), and C (FFI)
+- **Rigorous validation** catches structural errors before rendering
+- **CLI tool** for command-line conversions
+
+## Supported Formats
+
+| Format | Type   | Description               |
+|--------|--------|---------------------------|
+| HTML   | Text   | Semantic HTML5 table      |
+| LaTeX  | Text   | longtable with booktabs   |
+| Typst  | Text   | Typst table markup        |
+| RTF    | Text   | Rich Text Format          |
+| SVG    | Text   | Standalone SVG image      |
+| ANSI   | Text   | Terminal output            |
+| Pandoc | Text   | Pandoc AST JSON           |
+| Quarto | Text   | Quarto Markdown           |
+| DOCX   | Binary | Microsoft Word            |
+| XLSX   | Binary | Microsoft Excel           |
+| PPTX   | Binary | Microsoft PowerPoint      |
+
+## How It Works
+
+```text
+┌─────────────────────────┐
+│  Upstream Tool          │
+│  (gt / Great Tables)    │
+└───────────┬─────────────┘
+            │ IR (JSON)
+            ▼
+┌─────────────────────────┐
+│  gridwell               │
+│  Parse → Validate       │
+│  → Render               │
+└───────────┬─────────────┘
+            │
+    ┌───────┼───────┐
+    ▼       ▼       ▼
+  HTML    LaTeX   DOCX  ... (11 formats)
+```
+
+## Quick Example
+
+```bash
+# Convert a table IR to HTML
+gridwell convert table.json --to html
+
+# Validate an IR file
+gridwell validate table.json
+
+# Pipe from stdin
+cat table.json | gridwell convert --to latex
+```
+
+## Getting Started
+
+Head to the [Getting Started guide](guide/getting-started.qmd) or browse the
+[live demos](demos/index.qmd) to see gridwell in action.
