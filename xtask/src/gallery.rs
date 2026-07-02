@@ -43,7 +43,9 @@ pub fn run(root: &Path, check: bool, accept: bool) -> Result<bool, String> {
     let gallery = root.join("harness/gallery");
     let out_dir = gallery.join("out");
     let img_dir = gallery.join("img");
-    let work_dir = gallery.join(".work");
+    // Temp scratch for the rasterizers lives OUTSIDE the published gallery dir
+    // so only index.html + img/ + out/ are served on GitHub Pages.
+    let work_dir = root.join("harness/.work");
     for d in [&out_dir, &img_dir, &work_dir] {
         fs::create_dir_all(d).map_err(|e| format!("mkdir {}: {e}", d.display()))?;
     }
@@ -346,27 +348,43 @@ fn cell_html(cell: &Cell) -> String {
 }
 
 const STYLE: &str = "<style>
-:root { color-scheme: light dark; }
-body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; margin: 20px; }
-h1 { font-size: 20px; }
-.meta, .legend { color: #666; font-size: 13px; }
-.grid { border-collapse: collapse; }
-.grid th, .grid td { border: 1px solid #ddd; padding: 6px; vertical-align: top; }
-.grid thead th { position: sticky; top: 0; background: #fafafa; z-index: 2; }
-th.gatedcol { background: #eef6ff; }
-td img { max-height: 160px; max-width: 260px; display: block; background: #fff; }
-.exh { position: sticky; left: 0; background: #fafafa; max-width: 220px; z-index: 1; }
-.exname { font-weight: 600; font-family: monospace; }
-.excat { color: #888; font-size: 11px; text-transform: uppercase; }
-.exdesc { font-size: 12px; color: #555; margin: 2px 0; }
-.tags { margin-top: 3px; }
-.tag { display: inline-block; font-size: 10px; background: #eee; color: #333; border-radius: 3px; padding: 0 4px; margin: 1px; }
-.src { font-size: 10px; max-height: 160px; max-width: 300px; overflow: auto; background: #f7f7f7; padding: 4px; margin: 0; }
-.raw { font-size: 11px; }
-.b { display: inline-block; font-size: 10px; border-radius: 3px; padding: 1px 5px; margin-top: 3px; }
-.gated { background: #eef6ff; color: #16497a; }
-.unavail { background: #f3f3f3; color: #999; }
-.err { background: #fdecea; color: #a61b1b; }
-.changed { background: #fff4e5; color: #a15c00; }
-.new { background: #e8f5e9; color: #1b5e20; }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px; background: #f6f7f9; color: #1c2024;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+.meta { color: #5b636c; font-size: 13px; margin: 0 0 10px; }
+.legend { color: #5b636c; font-size: 12px; margin: 0 0 20px; line-height: 1.9; }
+.grid { border-collapse: separate; border-spacing: 0; background: #fff;
+  border: 1px solid #e3e6ea; border-radius: 10px; overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.grid th, .grid td { border-bottom: 1px solid #eceef1; border-right: 1px solid #eceef1;
+  padding: 10px 12px; vertical-align: top; }
+.grid tr:last-child td { border-bottom: none; }
+.grid th:last-child, .grid td:last-child { border-right: none; }
+.grid thead th { position: sticky; top: 0; z-index: 3; background: #eef1f4; color: #33393f;
+  font-size: 11px; letter-spacing: .05em; text-transform: uppercase; font-weight: 700; text-align: left; }
+th.gatedcol { background: #e3eeff; color: #1c4e8a; }
+.exh { position: sticky; left: 0; background: #fbfcfd; z-index: 2; min-width: 190px; max-width: 220px; }
+thead th.exh { z-index: 4; }
+.exname { font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px; color: #14181c; word-break: break-word; }
+.excat { color: #8a929b; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; }
+.exdesc { font-size: 12px; color: #4a5159; margin: 5px 0; line-height: 1.4; }
+.tags { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 3px; }
+.tag { font-size: 10px; background: #eef1f4; color: #48505a; border-radius: 999px; padding: 1px 8px; }
+td a { display: inline-block; }
+td a img { display: block; max-height: 210px; max-width: 300px; width: auto; height: auto;
+  background: #fff; border: 1px solid #e3e6ea; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.src { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; line-height: 1.45;
+  max-height: 200px; max-width: 300px; overflow: auto; background: #f6f7f9; color: #2b3138;
+  border: 1px solid #e6e9ec; border-radius: 6px; padding: 8px; margin: 0 0 6px; white-space: pre; }
+.raw { font-size: 11px; color: #2f6fd0; text-decoration: none; }
+.raw:hover { text-decoration: underline; }
+.b { display: inline-block; font-size: 10px; font-weight: 600; border-radius: 999px;
+  padding: 2px 9px; margin-top: 6px; }
+.gated { background: #e3eeff; color: #1c4e8a; }
+.unavail { background: #eef1f4; color: #7c848d; }
+.err { background: #fdece9; color: #b42318; }
+.changed { background: #fff3e0; color: #a85800; }
+.new { background: #e7f7ec; color: #1a7f37; }
 </style>";
