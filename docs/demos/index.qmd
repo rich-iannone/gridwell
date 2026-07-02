@@ -1,0 +1,12 @@
+---
+title: "Demos"
+---
+
+These pages demonstrate gridwell converting table IR JSON into various output formats.
+Each demo shows the input fixture and the rendered output across multiple formats.
+
+- [Minimal Table](minimal.qmd) — 1×1, simplest possible table
+- [Grouped Table](grouped.qmd) — row groups with labels
+- [Spans](spans.qmd) — colspan and rowspan examples
+- [Comprehensive](comprehensive.qmd) — full-featured reference table
+- [GT Integration](gt-integration.qmd) — Great Tables → gridwell pipeline
