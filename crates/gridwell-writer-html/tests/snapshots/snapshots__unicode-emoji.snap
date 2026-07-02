@@ -1,0 +1,28 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>Mood</th>
+        <th>Icon</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>happy</td>
+        <td>😀</td>
+      </tr>
+      <tr>
+        <td>party</td>
+        <td>🎉🎊</td>
+      </tr>
+      <tr>
+        <td>family</td>
+        <td>👨‍👩‍👧‍👦</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

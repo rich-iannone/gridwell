@@ -1,0 +1,23 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Item]],
+    [#text(weight: "bold")[Amount]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Alpha],
+  [10],
+  [Beta],
+  [20],
+  [Gamma],
+  [30],
+  table.hline(stroke: 0.3pt),
+  table.hline(stroke: 0.3pt),
+  [Total],
+  [60],
+)

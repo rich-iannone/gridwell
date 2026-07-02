@@ -1,0 +1,16 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Item & Amount \\
+\midrule
+Alpha & 10 \\
+Beta & 20 \\
+Gamma & 30 \\
+\addlinespace
+\cmidrule(lr){1-2}
+Total & 60 \\
+\bottomrule
+\end{tabular}

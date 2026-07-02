@@ -1,0 +1,10 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────────────────────────────┐
+│[1m     #      [0m│[1m            Description             [0m│
+├────────────┼────────────────────────────────────┤
+│     1      │  A long descriptive line of text.  │
+│     2      │ Another spanning description here. │
+└────────────┴────────────────────────────────────┘

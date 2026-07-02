@@ -1,0 +1,192 @@
+---
+source: crates/gridwell-writer-pandoc/tests/snapshots.rs
+expression: out
+---
+{
+  "c": [
+    [
+      "",
+      [],
+      []
+    ],
+    [
+      null,
+      []
+    ],
+    [
+      [
+        {
+          "t": "AlignLeft"
+        },
+        {
+          "t": "ColWidthDefault"
+        }
+      ],
+      [
+        {
+          "t": "AlignLeft"
+        },
+        {
+          "t": "ColWidthDefault"
+        }
+      ]
+    ],
+    [
+      [
+        "",
+        [],
+        []
+      ],
+      [
+        [
+          [
+            "",
+            [],
+            []
+          ],
+          [
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              1,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "Icon",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Plain"
+                }
+              ]
+            ],
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              1,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "Label",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Plain"
+                }
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        [
+          "",
+          [],
+          []
+        ],
+        0,
+        [],
+        [
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            [
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": [
+                          [
+                            "",
+                            [],
+                            []
+                          ],
+                          [
+                            {
+                              "c": "logo",
+                              "t": "Str"
+                            }
+                          ],
+                          [
+                            "https://example.com/logo.png",
+                            ""
+                          ]
+                        ],
+                        "t": "Image"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ],
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "Brand",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        "",
+        [],
+        []
+      ],
+      []
+    ]
+  ],
+  "t": "Table"
+}

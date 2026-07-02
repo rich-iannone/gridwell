@@ -1,0 +1,17 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (40px, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[\#]],
+    [#text(weight: "bold")[Description]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [1],
+  [A long descriptive line of text.],
+  [2],
+  [Another spanning description here.],
+)

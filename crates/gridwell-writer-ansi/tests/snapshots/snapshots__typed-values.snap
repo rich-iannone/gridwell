@@ -1,0 +1,10 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┬────────────┐
+│[1m    Name    [0m│[1m   Score    [0m│[1m   Active   [0m│
+├────────────┼────────────┼────────────┤
+│   Alice    │     90     │    yes     │
+│    Bob     │     85     │     no     │
+└────────────┴────────────┴────────────┘

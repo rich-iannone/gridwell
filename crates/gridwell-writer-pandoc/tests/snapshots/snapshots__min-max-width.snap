@@ -1,0 +1,211 @@
+---
+source: crates/gridwell-writer-pandoc/tests/snapshots.rs
+expression: out
+---
+{
+  "c": [
+    [
+      "",
+      [],
+      []
+    ],
+    [
+      null,
+      []
+    ],
+    [
+      [
+        {
+          "t": "AlignLeft"
+        },
+        {
+          "t": "ColWidthDefault"
+        }
+      ],
+      [
+        {
+          "t": "AlignLeft"
+        },
+        {
+          "t": "ColWidthDefault"
+        }
+      ]
+    ],
+    [
+      [
+        "",
+        [],
+        []
+      ],
+      [
+        [
+          [
+            "",
+            [],
+            []
+          ],
+          [
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              1,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "Constrained",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Plain"
+                }
+              ]
+            ],
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              1,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "Free",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Plain"
+                }
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        [
+          "",
+          [],
+          []
+        ],
+        0,
+        [],
+        [
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            [
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "clamped",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "between",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "80",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "and",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "200px",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ],
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "grows",
+                        "t": "Str"
+                      },
+                      {
+                        "t": "Space"
+                      },
+                      {
+                        "c": "freely",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        "",
+        [],
+        []
+      ],
+      []
+    ]
+  ],
+  "t": "Table"
+}

@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┐
+│[1m  Country   [0m│[1m    GDP     [0m│
+├────────────┼────────────┤
+│ Atlantis*  │    N/A     │
+│   Utopia   │    999     │
+└────────────┴────────────┘
+  * Fictional; illustrative only.

@@ -1,0 +1,17 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Label]],
+    [#text(weight: "bold")[Temp]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Fire],
+  table.cell(fill: rgb("#c0392b"))[#text(fill: rgb("#ffffff"))[hot]],
+  [Ice],
+  table.cell(fill: rgb("#2980b9"))[#text(fill: rgb("#ffffff"))[cold]],
+)

@@ -1,0 +1,27 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <div role="heading" aria-level="1">
+    販売実績
+  </div>
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>地域</th>
+        <th>売上</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>東京</td>
+        <td>1,250</td>
+      </tr>
+      <tr>
+        <td>大阪</td>
+        <td>980</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

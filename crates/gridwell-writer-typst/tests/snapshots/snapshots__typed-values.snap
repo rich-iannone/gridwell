@@ -1,0 +1,20 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Name]],
+    [#text(weight: "bold")[Score]],
+    [#text(weight: "bold")[Active]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Alice],
+  [90],
+  [yes],
+  [Bob],
+  [85],
+  [no],
+)

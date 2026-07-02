@@ -1,0 +1,112 @@
+---
+source: crates/gridwell-writer-xlsx/tests/snapshots.rs
+expression: xml
+---
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<cols><col min="1" max="1" width="12.00" customWidth="1"/><col min="2" max="2" width="12.00" customWidth="1"/><col min="3" max="3" width="12.00" customWidth="1"/></cols>
+<sheetData>
+<row r="1"><c r="A1" t="inlineStr" s="1"><is><t>Sequence</t></is></c></row>
+<row r="2"><c r="A2" t="inlineStr" s="1"><is><t>n</t></is></c><c r="B2" t="inlineStr" s="1"><is><t>2n</t></is></c><c r="C2" t="inlineStr" s="1"><is><t>n^2</t></is></c></row>
+<row r="3"><c r="A3" t="inlineStr"><is><t>row 0</t></is></c><c r="B3" t="inlineStr"><is><t>0</t></is></c><c r="C3" t="inlineStr"><is><t>0</t></is></c></row>
+<row r="4"><c r="A4" t="inlineStr"><is><t>row 1</t></is></c><c r="B4" t="inlineStr"><is><t>2</t></is></c><c r="C4" t="inlineStr"><is><t>1</t></is></c></row>
+<row r="5"><c r="A5" t="inlineStr"><is><t>row 2</t></is></c><c r="B5" t="inlineStr"><is><t>4</t></is></c><c r="C5" t="inlineStr"><is><t>4</t></is></c></row>
+<row r="6"><c r="A6" t="inlineStr"><is><t>row 3</t></is></c><c r="B6" t="inlineStr"><is><t>6</t></is></c><c r="C6" t="inlineStr"><is><t>9</t></is></c></row>
+<row r="7"><c r="A7" t="inlineStr"><is><t>row 4</t></is></c><c r="B7" t="inlineStr"><is><t>8</t></is></c><c r="C7" t="inlineStr"><is><t>16</t></is></c></row>
+<row r="8"><c r="A8" t="inlineStr"><is><t>row 5</t></is></c><c r="B8" t="inlineStr"><is><t>10</t></is></c><c r="C8" t="inlineStr"><is><t>25</t></is></c></row>
+<row r="9"><c r="A9" t="inlineStr"><is><t>row 6</t></is></c><c r="B9" t="inlineStr"><is><t>12</t></is></c><c r="C9" t="inlineStr"><is><t>36</t></is></c></row>
+<row r="10"><c r="A10" t="inlineStr"><is><t>row 7</t></is></c><c r="B10" t="inlineStr"><is><t>14</t></is></c><c r="C10" t="inlineStr"><is><t>49</t></is></c></row>
+<row r="11"><c r="A11" t="inlineStr"><is><t>row 8</t></is></c><c r="B11" t="inlineStr"><is><t>16</t></is></c><c r="C11" t="inlineStr"><is><t>64</t></is></c></row>
+<row r="12"><c r="A12" t="inlineStr"><is><t>row 9</t></is></c><c r="B12" t="inlineStr"><is><t>18</t></is></c><c r="C12" t="inlineStr"><is><t>81</t></is></c></row>
+<row r="13"><c r="A13" t="inlineStr"><is><t>row 10</t></is></c><c r="B13" t="inlineStr"><is><t>20</t></is></c><c r="C13" t="inlineStr"><is><t>100</t></is></c></row>
+<row r="14"><c r="A14" t="inlineStr"><is><t>row 11</t></is></c><c r="B14" t="inlineStr"><is><t>22</t></is></c><c r="C14" t="inlineStr"><is><t>121</t></is></c></row>
+<row r="15"><c r="A15" t="inlineStr"><is><t>row 12</t></is></c><c r="B15" t="inlineStr"><is><t>24</t></is></c><c r="C15" t="inlineStr"><is><t>144</t></is></c></row>
+<row r="16"><c r="A16" t="inlineStr"><is><t>row 13</t></is></c><c r="B16" t="inlineStr"><is><t>26</t></is></c><c r="C16" t="inlineStr"><is><t>169</t></is></c></row>
+<row r="17"><c r="A17" t="inlineStr"><is><t>row 14</t></is></c><c r="B17" t="inlineStr"><is><t>28</t></is></c><c r="C17" t="inlineStr"><is><t>196</t></is></c></row>
+<row r="18"><c r="A18" t="inlineStr"><is><t>row 15</t></is></c><c r="B18" t="inlineStr"><is><t>30</t></is></c><c r="C18" t="inlineStr"><is><t>225</t></is></c></row>
+<row r="19"><c r="A19" t="inlineStr"><is><t>row 16</t></is></c><c r="B19" t="inlineStr"><is><t>32</t></is></c><c r="C19" t="inlineStr"><is><t>256</t></is></c></row>
+<row r="20"><c r="A20" t="inlineStr"><is><t>row 17</t></is></c><c r="B20" t="inlineStr"><is><t>34</t></is></c><c r="C20" t="inlineStr"><is><t>289</t></is></c></row>
+<row r="21"><c r="A21" t="inlineStr"><is><t>row 18</t></is></c><c r="B21" t="inlineStr"><is><t>36</t></is></c><c r="C21" t="inlineStr"><is><t>324</t></is></c></row>
+<row r="22"><c r="A22" t="inlineStr"><is><t>row 19</t></is></c><c r="B22" t="inlineStr"><is><t>38</t></is></c><c r="C22" t="inlineStr"><is><t>361</t></is></c></row>
+<row r="23"><c r="A23" t="inlineStr"><is><t>row 20</t></is></c><c r="B23" t="inlineStr"><is><t>40</t></is></c><c r="C23" t="inlineStr"><is><t>400</t></is></c></row>
+<row r="24"><c r="A24" t="inlineStr"><is><t>row 21</t></is></c><c r="B24" t="inlineStr"><is><t>42</t></is></c><c r="C24" t="inlineStr"><is><t>441</t></is></c></row>
+<row r="25"><c r="A25" t="inlineStr"><is><t>row 22</t></is></c><c r="B25" t="inlineStr"><is><t>44</t></is></c><c r="C25" t="inlineStr"><is><t>484</t></is></c></row>
+<row r="26"><c r="A26" t="inlineStr"><is><t>row 23</t></is></c><c r="B26" t="inlineStr"><is><t>46</t></is></c><c r="C26" t="inlineStr"><is><t>529</t></is></c></row>
+<row r="27"><c r="A27" t="inlineStr"><is><t>row 24</t></is></c><c r="B27" t="inlineStr"><is><t>48</t></is></c><c r="C27" t="inlineStr"><is><t>576</t></is></c></row>
+<row r="28"><c r="A28" t="inlineStr"><is><t>row 25</t></is></c><c r="B28" t="inlineStr"><is><t>50</t></is></c><c r="C28" t="inlineStr"><is><t>625</t></is></c></row>
+<row r="29"><c r="A29" t="inlineStr"><is><t>row 26</t></is></c><c r="B29" t="inlineStr"><is><t>52</t></is></c><c r="C29" t="inlineStr"><is><t>676</t></is></c></row>
+<row r="30"><c r="A30" t="inlineStr"><is><t>row 27</t></is></c><c r="B30" t="inlineStr"><is><t>54</t></is></c><c r="C30" t="inlineStr"><is><t>729</t></is></c></row>
+<row r="31"><c r="A31" t="inlineStr"><is><t>row 28</t></is></c><c r="B31" t="inlineStr"><is><t>56</t></is></c><c r="C31" t="inlineStr"><is><t>784</t></is></c></row>
+<row r="32"><c r="A32" t="inlineStr"><is><t>row 29</t></is></c><c r="B32" t="inlineStr"><is><t>58</t></is></c><c r="C32" t="inlineStr"><is><t>841</t></is></c></row>
+<row r="33"><c r="A33" t="inlineStr"><is><t>row 30</t></is></c><c r="B33" t="inlineStr"><is><t>60</t></is></c><c r="C33" t="inlineStr"><is><t>900</t></is></c></row>
+<row r="34"><c r="A34" t="inlineStr"><is><t>row 31</t></is></c><c r="B34" t="inlineStr"><is><t>62</t></is></c><c r="C34" t="inlineStr"><is><t>961</t></is></c></row>
+<row r="35"><c r="A35" t="inlineStr"><is><t>row 32</t></is></c><c r="B35" t="inlineStr"><is><t>64</t></is></c><c r="C35" t="inlineStr"><is><t>1024</t></is></c></row>
+<row r="36"><c r="A36" t="inlineStr"><is><t>row 33</t></is></c><c r="B36" t="inlineStr"><is><t>66</t></is></c><c r="C36" t="inlineStr"><is><t>1089</t></is></c></row>
+<row r="37"><c r="A37" t="inlineStr"><is><t>row 34</t></is></c><c r="B37" t="inlineStr"><is><t>68</t></is></c><c r="C37" t="inlineStr"><is><t>1156</t></is></c></row>
+<row r="38"><c r="A38" t="inlineStr"><is><t>row 35</t></is></c><c r="B38" t="inlineStr"><is><t>70</t></is></c><c r="C38" t="inlineStr"><is><t>1225</t></is></c></row>
+<row r="39"><c r="A39" t="inlineStr"><is><t>row 36</t></is></c><c r="B39" t="inlineStr"><is><t>72</t></is></c><c r="C39" t="inlineStr"><is><t>1296</t></is></c></row>
+<row r="40"><c r="A40" t="inlineStr"><is><t>row 37</t></is></c><c r="B40" t="inlineStr"><is><t>74</t></is></c><c r="C40" t="inlineStr"><is><t>1369</t></is></c></row>
+<row r="41"><c r="A41" t="inlineStr"><is><t>row 38</t></is></c><c r="B41" t="inlineStr"><is><t>76</t></is></c><c r="C41" t="inlineStr"><is><t>1444</t></is></c></row>
+<row r="42"><c r="A42" t="inlineStr"><is><t>row 39</t></is></c><c r="B42" t="inlineStr"><is><t>78</t></is></c><c r="C42" t="inlineStr"><is><t>1521</t></is></c></row>
+<row r="43"><c r="A43" t="inlineStr"><is><t>row 40</t></is></c><c r="B43" t="inlineStr"><is><t>80</t></is></c><c r="C43" t="inlineStr"><is><t>1600</t></is></c></row>
+<row r="44"><c r="A44" t="inlineStr"><is><t>row 41</t></is></c><c r="B44" t="inlineStr"><is><t>82</t></is></c><c r="C44" t="inlineStr"><is><t>1681</t></is></c></row>
+<row r="45"><c r="A45" t="inlineStr"><is><t>row 42</t></is></c><c r="B45" t="inlineStr"><is><t>84</t></is></c><c r="C45" t="inlineStr"><is><t>1764</t></is></c></row>
+<row r="46"><c r="A46" t="inlineStr"><is><t>row 43</t></is></c><c r="B46" t="inlineStr"><is><t>86</t></is></c><c r="C46" t="inlineStr"><is><t>1849</t></is></c></row>
+<row r="47"><c r="A47" t="inlineStr"><is><t>row 44</t></is></c><c r="B47" t="inlineStr"><is><t>88</t></is></c><c r="C47" t="inlineStr"><is><t>1936</t></is></c></row>
+<row r="48"><c r="A48" t="inlineStr"><is><t>row 45</t></is></c><c r="B48" t="inlineStr"><is><t>90</t></is></c><c r="C48" t="inlineStr"><is><t>2025</t></is></c></row>
+<row r="49"><c r="A49" t="inlineStr"><is><t>row 46</t></is></c><c r="B49" t="inlineStr"><is><t>92</t></is></c><c r="C49" t="inlineStr"><is><t>2116</t></is></c></row>
+<row r="50"><c r="A50" t="inlineStr"><is><t>row 47</t></is></c><c r="B50" t="inlineStr"><is><t>94</t></is></c><c r="C50" t="inlineStr"><is><t>2209</t></is></c></row>
+<row r="51"><c r="A51" t="inlineStr"><is><t>row 48</t></is></c><c r="B51" t="inlineStr"><is><t>96</t></is></c><c r="C51" t="inlineStr"><is><t>2304</t></is></c></row>
+<row r="52"><c r="A52" t="inlineStr"><is><t>row 49</t></is></c><c r="B52" t="inlineStr"><is><t>98</t></is></c><c r="C52" t="inlineStr"><is><t>2401</t></is></c></row>
+<row r="53"><c r="A53" t="inlineStr"><is><t>row 50</t></is></c><c r="B53" t="inlineStr"><is><t>100</t></is></c><c r="C53" t="inlineStr"><is><t>2500</t></is></c></row>
+<row r="54"><c r="A54" t="inlineStr"><is><t>row 51</t></is></c><c r="B54" t="inlineStr"><is><t>102</t></is></c><c r="C54" t="inlineStr"><is><t>2601</t></is></c></row>
+<row r="55"><c r="A55" t="inlineStr"><is><t>row 52</t></is></c><c r="B55" t="inlineStr"><is><t>104</t></is></c><c r="C55" t="inlineStr"><is><t>2704</t></is></c></row>
+<row r="56"><c r="A56" t="inlineStr"><is><t>row 53</t></is></c><c r="B56" t="inlineStr"><is><t>106</t></is></c><c r="C56" t="inlineStr"><is><t>2809</t></is></c></row>
+<row r="57"><c r="A57" t="inlineStr"><is><t>row 54</t></is></c><c r="B57" t="inlineStr"><is><t>108</t></is></c><c r="C57" t="inlineStr"><is><t>2916</t></is></c></row>
+<row r="58"><c r="A58" t="inlineStr"><is><t>row 55</t></is></c><c r="B58" t="inlineStr"><is><t>110</t></is></c><c r="C58" t="inlineStr"><is><t>3025</t></is></c></row>
+<row r="59"><c r="A59" t="inlineStr"><is><t>row 56</t></is></c><c r="B59" t="inlineStr"><is><t>112</t></is></c><c r="C59" t="inlineStr"><is><t>3136</t></is></c></row>
+<row r="60"><c r="A60" t="inlineStr"><is><t>row 57</t></is></c><c r="B60" t="inlineStr"><is><t>114</t></is></c><c r="C60" t="inlineStr"><is><t>3249</t></is></c></row>
+<row r="61"><c r="A61" t="inlineStr"><is><t>row 58</t></is></c><c r="B61" t="inlineStr"><is><t>116</t></is></c><c r="C61" t="inlineStr"><is><t>3364</t></is></c></row>
+<row r="62"><c r="A62" t="inlineStr"><is><t>row 59</t></is></c><c r="B62" t="inlineStr"><is><t>118</t></is></c><c r="C62" t="inlineStr"><is><t>3481</t></is></c></row>
+<row r="63"><c r="A63" t="inlineStr"><is><t>row 60</t></is></c><c r="B63" t="inlineStr"><is><t>120</t></is></c><c r="C63" t="inlineStr"><is><t>3600</t></is></c></row>
+<row r="64"><c r="A64" t="inlineStr"><is><t>row 61</t></is></c><c r="B64" t="inlineStr"><is><t>122</t></is></c><c r="C64" t="inlineStr"><is><t>3721</t></is></c></row>
+<row r="65"><c r="A65" t="inlineStr"><is><t>row 62</t></is></c><c r="B65" t="inlineStr"><is><t>124</t></is></c><c r="C65" t="inlineStr"><is><t>3844</t></is></c></row>
+<row r="66"><c r="A66" t="inlineStr"><is><t>row 63</t></is></c><c r="B66" t="inlineStr"><is><t>126</t></is></c><c r="C66" t="inlineStr"><is><t>3969</t></is></c></row>
+<row r="67"><c r="A67" t="inlineStr"><is><t>row 64</t></is></c><c r="B67" t="inlineStr"><is><t>128</t></is></c><c r="C67" t="inlineStr"><is><t>4096</t></is></c></row>
+<row r="68"><c r="A68" t="inlineStr"><is><t>row 65</t></is></c><c r="B68" t="inlineStr"><is><t>130</t></is></c><c r="C68" t="inlineStr"><is><t>4225</t></is></c></row>
+<row r="69"><c r="A69" t="inlineStr"><is><t>row 66</t></is></c><c r="B69" t="inlineStr"><is><t>132</t></is></c><c r="C69" t="inlineStr"><is><t>4356</t></is></c></row>
+<row r="70"><c r="A70" t="inlineStr"><is><t>row 67</t></is></c><c r="B70" t="inlineStr"><is><t>134</t></is></c><c r="C70" t="inlineStr"><is><t>4489</t></is></c></row>
+<row r="71"><c r="A71" t="inlineStr"><is><t>row 68</t></is></c><c r="B71" t="inlineStr"><is><t>136</t></is></c><c r="C71" t="inlineStr"><is><t>4624</t></is></c></row>
+<row r="72"><c r="A72" t="inlineStr"><is><t>row 69</t></is></c><c r="B72" t="inlineStr"><is><t>138</t></is></c><c r="C72" t="inlineStr"><is><t>4761</t></is></c></row>
+<row r="73"><c r="A73" t="inlineStr"><is><t>row 70</t></is></c><c r="B73" t="inlineStr"><is><t>140</t></is></c><c r="C73" t="inlineStr"><is><t>4900</t></is></c></row>
+<row r="74"><c r="A74" t="inlineStr"><is><t>row 71</t></is></c><c r="B74" t="inlineStr"><is><t>142</t></is></c><c r="C74" t="inlineStr"><is><t>5041</t></is></c></row>
+<row r="75"><c r="A75" t="inlineStr"><is><t>row 72</t></is></c><c r="B75" t="inlineStr"><is><t>144</t></is></c><c r="C75" t="inlineStr"><is><t>5184</t></is></c></row>
+<row r="76"><c r="A76" t="inlineStr"><is><t>row 73</t></is></c><c r="B76" t="inlineStr"><is><t>146</t></is></c><c r="C76" t="inlineStr"><is><t>5329</t></is></c></row>
+<row r="77"><c r="A77" t="inlineStr"><is><t>row 74</t></is></c><c r="B77" t="inlineStr"><is><t>148</t></is></c><c r="C77" t="inlineStr"><is><t>5476</t></is></c></row>
+<row r="78"><c r="A78" t="inlineStr"><is><t>row 75</t></is></c><c r="B78" t="inlineStr"><is><t>150</t></is></c><c r="C78" t="inlineStr"><is><t>5625</t></is></c></row>
+<row r="79"><c r="A79" t="inlineStr"><is><t>row 76</t></is></c><c r="B79" t="inlineStr"><is><t>152</t></is></c><c r="C79" t="inlineStr"><is><t>5776</t></is></c></row>
+<row r="80"><c r="A80" t="inlineStr"><is><t>row 77</t></is></c><c r="B80" t="inlineStr"><is><t>154</t></is></c><c r="C80" t="inlineStr"><is><t>5929</t></is></c></row>
+<row r="81"><c r="A81" t="inlineStr"><is><t>row 78</t></is></c><c r="B81" t="inlineStr"><is><t>156</t></is></c><c r="C81" t="inlineStr"><is><t>6084</t></is></c></row>
+<row r="82"><c r="A82" t="inlineStr"><is><t>row 79</t></is></c><c r="B82" t="inlineStr"><is><t>158</t></is></c><c r="C82" t="inlineStr"><is><t>6241</t></is></c></row>
+<row r="83"><c r="A83" t="inlineStr"><is><t>row 80</t></is></c><c r="B83" t="inlineStr"><is><t>160</t></is></c><c r="C83" t="inlineStr"><is><t>6400</t></is></c></row>
+<row r="84"><c r="A84" t="inlineStr"><is><t>row 81</t></is></c><c r="B84" t="inlineStr"><is><t>162</t></is></c><c r="C84" t="inlineStr"><is><t>6561</t></is></c></row>
+<row r="85"><c r="A85" t="inlineStr"><is><t>row 82</t></is></c><c r="B85" t="inlineStr"><is><t>164</t></is></c><c r="C85" t="inlineStr"><is><t>6724</t></is></c></row>
+<row r="86"><c r="A86" t="inlineStr"><is><t>row 83</t></is></c><c r="B86" t="inlineStr"><is><t>166</t></is></c><c r="C86" t="inlineStr"><is><t>6889</t></is></c></row>
+<row r="87"><c r="A87" t="inlineStr"><is><t>row 84</t></is></c><c r="B87" t="inlineStr"><is><t>168</t></is></c><c r="C87" t="inlineStr"><is><t>7056</t></is></c></row>
+<row r="88"><c r="A88" t="inlineStr"><is><t>row 85</t></is></c><c r="B88" t="inlineStr"><is><t>170</t></is></c><c r="C88" t="inlineStr"><is><t>7225</t></is></c></row>
+<row r="89"><c r="A89" t="inlineStr"><is><t>row 86</t></is></c><c r="B89" t="inlineStr"><is><t>172</t></is></c><c r="C89" t="inlineStr"><is><t>7396</t></is></c></row>
+<row r="90"><c r="A90" t="inlineStr"><is><t>row 87</t></is></c><c r="B90" t="inlineStr"><is><t>174</t></is></c><c r="C90" t="inlineStr"><is><t>7569</t></is></c></row>
+<row r="91"><c r="A91" t="inlineStr"><is><t>row 88</t></is></c><c r="B91" t="inlineStr"><is><t>176</t></is></c><c r="C91" t="inlineStr"><is><t>7744</t></is></c></row>
+<row r="92"><c r="A92" t="inlineStr"><is><t>row 89</t></is></c><c r="B92" t="inlineStr"><is><t>178</t></is></c><c r="C92" t="inlineStr"><is><t>7921</t></is></c></row>
+<row r="93"><c r="A93" t="inlineStr"><is><t>row 90</t></is></c><c r="B93" t="inlineStr"><is><t>180</t></is></c><c r="C93" t="inlineStr"><is><t>8100</t></is></c></row>
+<row r="94"><c r="A94" t="inlineStr"><is><t>row 91</t></is></c><c r="B94" t="inlineStr"><is><t>182</t></is></c><c r="C94" t="inlineStr"><is><t>8281</t></is></c></row>
+<row r="95"><c r="A95" t="inlineStr"><is><t>row 92</t></is></c><c r="B95" t="inlineStr"><is><t>184</t></is></c><c r="C95" t="inlineStr"><is><t>8464</t></is></c></row>
+<row r="96"><c r="A96" t="inlineStr"><is><t>row 93</t></is></c><c r="B96" t="inlineStr"><is><t>186</t></is></c><c r="C96" t="inlineStr"><is><t>8649</t></is></c></row>
+<row r="97"><c r="A97" t="inlineStr"><is><t>row 94</t></is></c><c r="B97" t="inlineStr"><is><t>188</t></is></c><c r="C97" t="inlineStr"><is><t>8836</t></is></c></row>
+<row r="98"><c r="A98" t="inlineStr"><is><t>row 95</t></is></c><c r="B98" t="inlineStr"><is><t>190</t></is></c><c r="C98" t="inlineStr"><is><t>9025</t></is></c></row>
+<row r="99"><c r="A99" t="inlineStr"><is><t>row 96</t></is></c><c r="B99" t="inlineStr"><is><t>192</t></is></c><c r="C99" t="inlineStr"><is><t>9216</t></is></c></row>
+<row r="100"><c r="A100" t="inlineStr"><is><t>row 97</t></is></c><c r="B100" t="inlineStr"><is><t>194</t></is></c><c r="C100" t="inlineStr"><is><t>9409</t></is></c></row>
+<row r="101"><c r="A101" t="inlineStr"><is><t>row 98</t></is></c><c r="B101" t="inlineStr"><is><t>196</t></is></c><c r="C101" t="inlineStr"><is><t>9604</t></is></c></row>
+<row r="102"><c r="A102" t="inlineStr"><is><t>row 99</t></is></c><c r="B102" t="inlineStr"><is><t>198</t></is></c><c r="C102" t="inlineStr"><is><t>9801</t></is></c></row>
+</sheetData>
+</worksheet>

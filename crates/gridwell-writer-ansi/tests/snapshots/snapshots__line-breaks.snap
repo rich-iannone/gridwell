@@ -1,0 +1,9 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬───────────────────────────────┐
+│[1m    Name    [0m│[1m            Address            [0m│
+├────────────┼───────────────────────────────┤
+│     HQ     │ 123 Main St Suite 100 Anytown │
+└────────────┴───────────────────────────────┘

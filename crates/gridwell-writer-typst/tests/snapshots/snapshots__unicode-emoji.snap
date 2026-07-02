@@ -1,0 +1,19 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Mood]],
+    [#text(weight: "bold")[Icon]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [happy],
+  [😀],
+  [party],
+  [🎉🎊],
+  [family],
+  [👨‍👩‍👧‍👦],
+)

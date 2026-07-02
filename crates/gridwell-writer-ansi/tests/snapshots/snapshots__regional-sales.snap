@@ -1,0 +1,23 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+[1mRegional Sales Performance[0m
+Fiscal years 2023–2024 (in millions USD)
+┌───────────────┬────────────┬────────────┬────────────┐
+│[1m               [0m│[1m            [0m│[1m       Financials        [0m│
+│[1m    Country    [0m│[1m    Year    [0m│[1m  Revenue   [0m│[1m   Profit   [0m│
+├───────────────┼────────────┼────────────┼────────────┤
+│[1m North America                                        [0m│
+├───────────────┼────────────┼────────────┼────────────┤
+│ United States │    2023    │  1,250.3   │   270.11   │
+│               │    2024    │  1,380.7   │   330.3    │
+│    Canada     │    2024    │   420.1    │   109.5    │
+├───────────────┼────────────┼────────────┼────────────┤
+│[1m Europe                                               [0m│
+├───────────────┼────────────┼────────────┼────────────┤
+│    Germany    │    2024    │   945.2    │   164.9    │
+│    France     │    2024    │   610.8    │   120.6    │
+└───────────────┴────────────┴────────────┴────────────┘
+  1 Includes one-time restructuring charge.
+  Source: Internal finance database, June 2026.

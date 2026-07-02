@@ -1,0 +1,25 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <style>
+    .gw_em { font-style: italic; color: #8e44ad }
+  </style>
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>Term</th>
+        <th>Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Rust</td>
+        <td>
+          A <span class="gw_em">systems</span> language.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

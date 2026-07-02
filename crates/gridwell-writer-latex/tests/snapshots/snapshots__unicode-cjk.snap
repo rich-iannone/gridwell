@@ -1,0 +1,13 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+{\large\bfseries 販売実績}\\
+\begin{tabular}{ll}
+\toprule
+地域 & 売上 \\
+\midrule
+東京 & 1,250 \\
+大阪 & 980 \\
+\bottomrule
+\end{tabular}

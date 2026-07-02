@@ -1,0 +1,20 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Country & Value \\
+\midrule
+\midrule
+\multicolumn{2}{l}{\bfseries North America} \\
+\midrule
+USA & 1250 \\
+Canada & 420 \\
+\midrule
+\multicolumn{2}{l}{\bfseries Europe} \\
+\midrule
+Germany & 890 \\
+France & 610 \\
+\bottomrule
+\end{tabular}

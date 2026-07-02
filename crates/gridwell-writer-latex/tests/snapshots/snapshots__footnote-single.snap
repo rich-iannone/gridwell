@@ -1,0 +1,14 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Name & Score \\
+\midrule
+Alice & 90\textsuperscript{1} \\
+Bob & 85 \\
+\bottomrule
+\end{tabular}
+
+\textsuperscript{1} Includes bonus points.\\

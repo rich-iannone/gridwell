@@ -1,0 +1,18 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+{\large\bfseries Reaction rate constants}\\
+\begin{tabular}{lrrr}
+\toprule
+Compound & k (s⁻¹)\textsuperscript{a} & T (K) & Ea (kJ/mol) \\
+\midrule
+A & 1.2×10³ & 298 & 52.3 \\
+B & 3.4×10² & 298 & 61.0 \\
+C & 8.9×10¹ & 310 & 70.8 \\
+\bottomrule
+\end{tabular}
+
+\textsuperscript{a} Measured under pseudo-first-order conditions.\\
+
+{\footnotesize Source: laboratory notebook, 2026.}\\

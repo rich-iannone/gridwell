@@ -1,0 +1,52 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan="2">
+          Q1
+        </td>
+      </tr>
+      <tr>
+        <td>Jan</td>
+        <td>10</td>
+      </tr>
+      <tr>
+        <td>Feb</td>
+        <td>20</td>
+      </tr>
+      <tr>
+        <td>Subtotal</td>
+        <td>30</td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <td colspan="2">
+          Q2
+        </td>
+      </tr>
+      <tr>
+        <td>Apr</td>
+        <td>15</td>
+      </tr>
+      <tr>
+        <td>May</td>
+        <td>25</td>
+      </tr>
+      <tr>
+        <td>Subtotal</td>
+        <td>40</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

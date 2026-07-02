@@ -1,0 +1,21 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Test]],
+    [#text(weight: "bold")[Result]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [A],
+  [pass#super[1]],
+  [B],
+  [fail],
+)
+
+#text(size: 9pt)[#super[1] Re-run confirmed.]
+
+#text(size: 9pt, fill: luma(100))[Source: CI pipeline.]

@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Visible 1 & Hidden & Visible 2 \\
+\midrule
+a & secret & b \\
+c & secret & d \\
+\bottomrule
+\end{tabular}

@@ -1,0 +1,13 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Form & Text \\
+\midrule
+composed & café \\
+decomposed & café \\
+stacked & à́̂ \\
+\bottomrule
+\end{tabular}

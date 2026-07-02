@@ -1,0 +1,15 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (100px, 120px),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Label]],
+    [#text(weight: "bold")[Token]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [URL],
+  [https://example.com/very/long/path/that/should/not/break/nicely?query=1],
+)

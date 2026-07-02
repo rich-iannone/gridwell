@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-xlsx/tests/snapshots.rs
+expression: xml
+---
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<cols><col min="1" max="1" width="12.00" customWidth="1"/><col min="2" max="2" width="12.00" customWidth="1"/><col min="3" max="3" width="12.00" customWidth="1"/><col min="4" max="4" width="12.00" customWidth="1"/></cols>
+<sheetData>
+<row r="1"><c r="A1" t="inlineStr" s="1"><is><t>W</t></is></c><c r="B1" t="inlineStr" s="1"><is><t>X</t></is></c><c r="C1" t="inlineStr" s="1"><is><t>Y</t></is></c><c r="D1" t="inlineStr" s="1"><is><t>Z</t></is></c></row>
+<row r="2"><c r="A2" t="inlineStr"><is><t>1</t></is></c><c r="B2" t="inlineStr"><is><t>2</t></is></c><c r="C2" t="inlineStr"><is><t>3</t></is></c><c r="D2" t="inlineStr"><is><t>4</t></is></c></row>
+</sheetData>
+</worksheet>

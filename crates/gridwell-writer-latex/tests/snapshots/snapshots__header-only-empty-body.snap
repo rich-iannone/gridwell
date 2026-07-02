@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+{\large\bfseries Empty}\\
+\begin{tabular}{lll}
+\toprule
+A & B & C \\
+\midrule
+\bottomrule
+\end{tabular}

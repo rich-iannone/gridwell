@@ -1,0 +1,16 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: out
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="64" viewBox="0 0 220 64">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
+<line x1="0" y1="28" x2="100" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="24" font-weight="bold">Label</text>
+<line x1="100" y1="28" x2="220" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="108" y="24" font-weight="bold">Token</text>
+<line x1="0" y1="28" x2="220" y2="28" stroke="#333333" stroke-width="1.5"/>
+<line x1="0" y1="56" x2="100" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="52">URL</text>
+<line x1="100" y1="56" x2="220" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="108" y="52">https://example.com/very/long/path/that/should/not/break/nicely?query=1</text>
+</svg>

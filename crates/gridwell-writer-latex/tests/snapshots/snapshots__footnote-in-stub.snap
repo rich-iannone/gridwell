@@ -1,0 +1,14 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Country & GDP \\
+\midrule
+Atlantis\textsuperscript{*} & N/A \\
+Utopia & 999 \\
+\bottomrule
+\end{tabular}
+
+\textsuperscript{*} Fictional; illustrative only.\\

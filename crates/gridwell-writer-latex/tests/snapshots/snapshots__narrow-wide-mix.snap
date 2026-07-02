@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{p{40px}l}
+\toprule
+\# & Description \\
+\midrule
+1 & A long descriptive line of text. \\
+2 & Another spanning description here. \\
+\bottomrule
+\end{tabular}

@@ -1,0 +1,17 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┐
+│[1m  Country   [0m│[1m   Value    [0m│
+├────────────┼────────────┤
+│[1m North America           [0m│
+├────────────┼────────────┤
+│    USA     │    1250    │
+│   Canada   │    420     │
+├────────────┼────────────┤
+│[1m Europe                  [0m│
+├────────────┼────────────┤
+│  Germany   │    890     │
+│   France   │    610     │
+└────────────┴────────────┘

@@ -1,0 +1,10 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┬────────────┐
+│[1m   Region   [0m│[1m   Sales    [0m│[1m   Growth   [0m│
+├────────────┼────────────┼────────────┤
+│    East    │    120     │     4%     │
+│    West    │     98     │     2%     │
+└────────────┴────────────┴────────────┘

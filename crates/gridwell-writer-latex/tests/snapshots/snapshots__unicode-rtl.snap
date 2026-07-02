@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+الاسم & القيمة \\
+\midrule
+مرحبا & ١٢٣ \\
+שלום & 456 \\
+\bottomrule
+\end{tabular}

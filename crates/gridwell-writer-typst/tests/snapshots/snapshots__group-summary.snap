@@ -1,0 +1,34 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Item]],
+    [#text(weight: "bold")[Amount]],
+    table.hline(stroke: 0.5pt),
+  ),
+  table.hline(stroke: 0.5pt),
+  table.cell(colspan: 2, fill: luma(240))[#text(weight: "bold")[Q1]],
+  table.hline(stroke: 0.5pt),
+  [Jan],
+  [10],
+  [Feb],
+  [20],
+  table.hline(stroke: 0.3pt),
+  [Subtotal],
+  [30],
+  table.hline(stroke: 0.3pt),
+  table.hline(stroke: 0.5pt),
+  table.cell(colspan: 2, fill: luma(240))[#text(weight: "bold")[Q2]],
+  table.hline(stroke: 0.5pt),
+  [Apr],
+  [15],
+  [May],
+  [25],
+  table.hline(stroke: 0.3pt),
+  [Subtotal],
+  [40],
+)

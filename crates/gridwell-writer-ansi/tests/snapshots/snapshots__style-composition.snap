@@ -1,0 +1,10 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┐
+│[1m    Key     [0m│[1m   Value    [0m│
+├────────────┼────────────┤
+│   normal   │     42     │
+│  special   │     99     │
+└────────────┴────────────┘

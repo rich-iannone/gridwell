@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{p{100px}p{120px}}
+\toprule
+Label & Token \\
+\midrule
+URL & https://example.com/very/long/path/that/should/not/break/nicely?query=1 \\
+\bottomrule
+\end{tabular}

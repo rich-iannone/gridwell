@@ -1,0 +1,30 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>Region</th>
+        <th>City</th>
+        <th>Sales</th>
+        <th>Growth</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>East</td>
+        <td>NYC</td>
+        <td>60</td>
+        <td>3%</td>
+      </tr>
+      <tr>
+        <td>West</td>
+        <td>LA</td>
+        <td>50</td>
+        <td>2%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

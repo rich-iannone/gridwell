@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{lrr}
+\toprule
+Region & Sales & Growth \\
+\midrule
+East & 120 & 4\% \\
+West & 98 & 2\% \\
+\bottomrule
+\end{tabular}

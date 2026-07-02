@@ -1,0 +1,62 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: out
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="456" viewBox="0 0 240 456">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
+<line x1="0" y1="28" x2="120" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="24" font-weight="bold">Key</text>
+<line x1="120" y1="28" x2="240" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="24" font-weight="bold">Value</text>
+<line x1="0" y1="28" x2="240" y2="28" stroke="#333333" stroke-width="1.5"/>
+<rect x="0" y="28" width="240" height="28" fill="#f0f0f0"/>
+<text x="8" y="52" font-weight="bold">Group 1</text>
+<line x1="0" y1="84" x2="120" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="80">k1a</text>
+<line x1="120" y1="84" x2="240" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="80">10</text>
+<line x1="0" y1="112" x2="120" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="108">k1b</text>
+<line x1="120" y1="112" x2="240" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="108">20</text>
+<rect x="0" y="112" width="240" height="28" fill="#f0f0f0"/>
+<text x="8" y="136" font-weight="bold">Group 2</text>
+<line x1="0" y1="168" x2="120" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="164">k2a</text>
+<line x1="120" y1="168" x2="240" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="164">20</text>
+<line x1="0" y1="196" x2="120" y2="196" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="192">k2b</text>
+<line x1="120" y1="196" x2="240" y2="196" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="192">40</text>
+<rect x="0" y="196" width="240" height="28" fill="#f0f0f0"/>
+<text x="8" y="220" font-weight="bold">Group 3</text>
+<line x1="0" y1="252" x2="120" y2="252" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="248">k3a</text>
+<line x1="120" y1="252" x2="240" y2="252" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="248">30</text>
+<line x1="0" y1="280" x2="120" y2="280" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="276">k3b</text>
+<line x1="120" y1="280" x2="240" y2="280" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="276">60</text>
+<rect x="0" y="280" width="240" height="28" fill="#f0f0f0"/>
+<text x="8" y="304" font-weight="bold">Group 4</text>
+<line x1="0" y1="336" x2="120" y2="336" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="332">k4a</text>
+<line x1="120" y1="336" x2="240" y2="336" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="332">40</text>
+<line x1="0" y1="364" x2="120" y2="364" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="360">k4b</text>
+<line x1="120" y1="364" x2="240" y2="364" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="360">80</text>
+<rect x="0" y="364" width="240" height="28" fill="#f0f0f0"/>
+<text x="8" y="388" font-weight="bold">Group 5</text>
+<line x1="0" y1="420" x2="120" y2="420" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="416">k5a</text>
+<line x1="120" y1="420" x2="240" y2="420" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="416">50</text>
+<line x1="0" y1="448" x2="120" y2="448" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="444">k5b</text>
+<line x1="120" y1="448" x2="240" y2="448" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="444">100</text>
+</svg>

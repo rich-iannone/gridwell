@@ -1,0 +1,35 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Key & Value \\
+\midrule
+\midrule
+\multicolumn{2}{l}{\bfseries Group 1} \\
+\midrule
+k1a & 10 \\
+k1b & 20 \\
+\midrule
+\multicolumn{2}{l}{\bfseries Group 2} \\
+\midrule
+k2a & 20 \\
+k2b & 40 \\
+\midrule
+\multicolumn{2}{l}{\bfseries Group 3} \\
+\midrule
+k3a & 30 \\
+k3b & 60 \\
+\midrule
+\multicolumn{2}{l}{\bfseries Group 4} \\
+\midrule
+k4a & 40 \\
+k4b & 80 \\
+\midrule
+\multicolumn{2}{l}{\bfseries Group 5} \\
+\midrule
+k5a & 50 \\
+k5b & 100 \\
+\bottomrule
+\end{tabular}

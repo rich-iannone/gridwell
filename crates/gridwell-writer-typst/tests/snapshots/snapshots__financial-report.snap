@@ -1,0 +1,30 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#align(left)[#text(size: 16pt, weight: "bold")[Quarterly P&L]]
+#table(
+  columns: (auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Line item]],
+    [#text(weight: "bold")[Q1]],
+    [#text(weight: "bold")[Q2]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Revenue],
+  [\$1,200],
+  [\$1,350],
+  [COGS],
+  [\$700],
+  [\$760],
+  [Opex],
+  [\$300],
+  [\$320],
+  table.hline(stroke: 0.3pt),
+  table.cell(fill: rgb("#f5f5f5"))[#text(weight: "bold")[Net income]],
+  table.cell(fill: rgb("#f5f5f5"))[#text(weight: "bold")[\$200]],
+  table.cell(fill: rgb("#f5f5f5"))[#text(weight: "bold")[\$270]],
+)
+
+#text(size: 9pt, fill: luma(100))[Unaudited management figures.]

@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{llll}
+\toprule
+W & X & Y & Z \\
+\midrule
+1 & 2 & 3 & 4 \\
+\bottomrule
+\end{tabular}

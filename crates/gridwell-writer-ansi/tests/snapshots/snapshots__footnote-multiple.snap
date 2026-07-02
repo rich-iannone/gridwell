@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┐
+│[1m   Namea    [0m│[1m   Score    [0m│
+├────────────┼────────────┤
+│   Alice    │    90b     │
+│    Bobb    │     85     │
+└────────────┴────────────┘
+  a Given name only.
+  b Provisional value.

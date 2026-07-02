@@ -1,8 +1,0 @@
----
-source: crates/gridwell-writer-ansi/tests/snapshots.rs
-expression: "render(\"minimal/empty_body.json\")"
----
-┌────────────┬────────────┬────────────┐
-│[1m    Name    [0m│[1m    Age     [0m│[1m    City    [0m│
-├────────────┼────────────┼────────────┤
-└────────────┴────────────┴────────────┘

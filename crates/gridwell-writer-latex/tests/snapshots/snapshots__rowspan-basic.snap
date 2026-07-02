@@ -1,0 +1,13 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{lr}
+\toprule
+Country & Value \\
+\midrule
+\multirow{2}{*}{Japan} & 100 \\
+110 \\
+Korea & 80 \\
+\bottomrule
+\end{tabular}

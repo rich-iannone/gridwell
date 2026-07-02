@@ -1,0 +1,10 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┬────────────┐
+│[1m Visible 1  [0m│[1m   Hidden   [0m│[1m Visible 2  [0m│
+├────────────┼────────────┼────────────┤
+│     a      │   secret   │     b      │
+│     c      │   secret   │     d      │
+└────────────┴────────────┴────────────┘

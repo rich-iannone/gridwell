@@ -1,0 +1,16 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Test & Result \\
+\midrule
+A & pass\textsuperscript{1} \\
+B & fail \\
+\bottomrule
+\end{tabular}
+
+\textsuperscript{1} Re-run confirmed.\\
+
+{\footnotesize Source: CI pipeline.}\\

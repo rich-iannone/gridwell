@@ -1,0 +1,10 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┬────────────┐
+│[1m  Product   [0m│[1m    Qty     [0m│[1m   Price    [0m│
+├────────────┼────────────┼────────────┤
+│   Widget   │     12     │    3.50    │
+│   Gadget   │     4      │   19.99    │
+└────────────┴────────────┴────────────┘

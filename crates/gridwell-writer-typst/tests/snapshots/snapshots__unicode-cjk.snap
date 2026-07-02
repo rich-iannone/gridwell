@@ -1,0 +1,18 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#align(left)[#text(size: 16pt, weight: "bold")[販売実績]]
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[地域]],
+    [#text(weight: "bold")[売上]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [東京],
+  [1,250],
+  [大阪],
+  [980],
+)

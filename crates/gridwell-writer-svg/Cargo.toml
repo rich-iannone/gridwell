@@ -12,5 +12,6 @@ gridwell-core = { path = "../gridwell-core" }
 thiserror = { workspace = true }
 
 [dev-dependencies]
+gridwell-testkit = { path = "../gridwell-testkit" }
 insta = { workspace = true }
 serde_json = { workspace = true }

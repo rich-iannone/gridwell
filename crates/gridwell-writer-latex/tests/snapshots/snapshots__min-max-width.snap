@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Constrained & Free \\
+\midrule
+clamped between 80 and 200px & grows freely \\
+\bottomrule
+\end{tabular}

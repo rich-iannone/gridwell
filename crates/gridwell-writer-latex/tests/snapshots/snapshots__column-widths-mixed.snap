@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{p{120px}p{25%}p{1fr}l}
+\toprule
+Fixed & Percent & Fraction & Auto \\
+\midrule
+120px & 25\% & 1fr & auto \\
+\bottomrule
+\end{tabular}

@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┐
+│[1m    Form    [0m│[1m    Text    [0m│
+├────────────┼────────────┤
+│  composed  │    café    │
+│ decomposed │    café    │
+│  stacked   │     à́̂      │
+└────────────┴────────────┘

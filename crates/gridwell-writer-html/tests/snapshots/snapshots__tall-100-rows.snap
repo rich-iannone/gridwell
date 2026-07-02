@@ -1,0 +1,520 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <div role="heading" aria-level="1">
+    Sequence
+  </div>
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>n</th>
+        <th>2n</th>
+        <th>n^2</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>row 0</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>row 1</td>
+        <td>2</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>row 2</td>
+        <td>4</td>
+        <td>4</td>
+      </tr>
+      <tr>
+        <td>row 3</td>
+        <td>6</td>
+        <td>9</td>
+      </tr>
+      <tr>
+        <td>row 4</td>
+        <td>8</td>
+        <td>16</td>
+      </tr>
+      <tr>
+        <td>row 5</td>
+        <td>10</td>
+        <td>25</td>
+      </tr>
+      <tr>
+        <td>row 6</td>
+        <td>12</td>
+        <td>36</td>
+      </tr>
+      <tr>
+        <td>row 7</td>
+        <td>14</td>
+        <td>49</td>
+      </tr>
+      <tr>
+        <td>row 8</td>
+        <td>16</td>
+        <td>64</td>
+      </tr>
+      <tr>
+        <td>row 9</td>
+        <td>18</td>
+        <td>81</td>
+      </tr>
+      <tr>
+        <td>row 10</td>
+        <td>20</td>
+        <td>100</td>
+      </tr>
+      <tr>
+        <td>row 11</td>
+        <td>22</td>
+        <td>121</td>
+      </tr>
+      <tr>
+        <td>row 12</td>
+        <td>24</td>
+        <td>144</td>
+      </tr>
+      <tr>
+        <td>row 13</td>
+        <td>26</td>
+        <td>169</td>
+      </tr>
+      <tr>
+        <td>row 14</td>
+        <td>28</td>
+        <td>196</td>
+      </tr>
+      <tr>
+        <td>row 15</td>
+        <td>30</td>
+        <td>225</td>
+      </tr>
+      <tr>
+        <td>row 16</td>
+        <td>32</td>
+        <td>256</td>
+      </tr>
+      <tr>
+        <td>row 17</td>
+        <td>34</td>
+        <td>289</td>
+      </tr>
+      <tr>
+        <td>row 18</td>
+        <td>36</td>
+        <td>324</td>
+      </tr>
+      <tr>
+        <td>row 19</td>
+        <td>38</td>
+        <td>361</td>
+      </tr>
+      <tr>
+        <td>row 20</td>
+        <td>40</td>
+        <td>400</td>
+      </tr>
+      <tr>
+        <td>row 21</td>
+        <td>42</td>
+        <td>441</td>
+      </tr>
+      <tr>
+        <td>row 22</td>
+        <td>44</td>
+        <td>484</td>
+      </tr>
+      <tr>
+        <td>row 23</td>
+        <td>46</td>
+        <td>529</td>
+      </tr>
+      <tr>
+        <td>row 24</td>
+        <td>48</td>
+        <td>576</td>
+      </tr>
+      <tr>
+        <td>row 25</td>
+        <td>50</td>
+        <td>625</td>
+      </tr>
+      <tr>
+        <td>row 26</td>
+        <td>52</td>
+        <td>676</td>
+      </tr>
+      <tr>
+        <td>row 27</td>
+        <td>54</td>
+        <td>729</td>
+      </tr>
+      <tr>
+        <td>row 28</td>
+        <td>56</td>
+        <td>784</td>
+      </tr>
+      <tr>
+        <td>row 29</td>
+        <td>58</td>
+        <td>841</td>
+      </tr>
+      <tr>
+        <td>row 30</td>
+        <td>60</td>
+        <td>900</td>
+      </tr>
+      <tr>
+        <td>row 31</td>
+        <td>62</td>
+        <td>961</td>
+      </tr>
+      <tr>
+        <td>row 32</td>
+        <td>64</td>
+        <td>1024</td>
+      </tr>
+      <tr>
+        <td>row 33</td>
+        <td>66</td>
+        <td>1089</td>
+      </tr>
+      <tr>
+        <td>row 34</td>
+        <td>68</td>
+        <td>1156</td>
+      </tr>
+      <tr>
+        <td>row 35</td>
+        <td>70</td>
+        <td>1225</td>
+      </tr>
+      <tr>
+        <td>row 36</td>
+        <td>72</td>
+        <td>1296</td>
+      </tr>
+      <tr>
+        <td>row 37</td>
+        <td>74</td>
+        <td>1369</td>
+      </tr>
+      <tr>
+        <td>row 38</td>
+        <td>76</td>
+        <td>1444</td>
+      </tr>
+      <tr>
+        <td>row 39</td>
+        <td>78</td>
+        <td>1521</td>
+      </tr>
+      <tr>
+        <td>row 40</td>
+        <td>80</td>
+        <td>1600</td>
+      </tr>
+      <tr>
+        <td>row 41</td>
+        <td>82</td>
+        <td>1681</td>
+      </tr>
+      <tr>
+        <td>row 42</td>
+        <td>84</td>
+        <td>1764</td>
+      </tr>
+      <tr>
+        <td>row 43</td>
+        <td>86</td>
+        <td>1849</td>
+      </tr>
+      <tr>
+        <td>row 44</td>
+        <td>88</td>
+        <td>1936</td>
+      </tr>
+      <tr>
+        <td>row 45</td>
+        <td>90</td>
+        <td>2025</td>
+      </tr>
+      <tr>
+        <td>row 46</td>
+        <td>92</td>
+        <td>2116</td>
+      </tr>
+      <tr>
+        <td>row 47</td>
+        <td>94</td>
+        <td>2209</td>
+      </tr>
+      <tr>
+        <td>row 48</td>
+        <td>96</td>
+        <td>2304</td>
+      </tr>
+      <tr>
+        <td>row 49</td>
+        <td>98</td>
+        <td>2401</td>
+      </tr>
+      <tr>
+        <td>row 50</td>
+        <td>100</td>
+        <td>2500</td>
+      </tr>
+      <tr>
+        <td>row 51</td>
+        <td>102</td>
+        <td>2601</td>
+      </tr>
+      <tr>
+        <td>row 52</td>
+        <td>104</td>
+        <td>2704</td>
+      </tr>
+      <tr>
+        <td>row 53</td>
+        <td>106</td>
+        <td>2809</td>
+      </tr>
+      <tr>
+        <td>row 54</td>
+        <td>108</td>
+        <td>2916</td>
+      </tr>
+      <tr>
+        <td>row 55</td>
+        <td>110</td>
+        <td>3025</td>
+      </tr>
+      <tr>
+        <td>row 56</td>
+        <td>112</td>
+        <td>3136</td>
+      </tr>
+      <tr>
+        <td>row 57</td>
+        <td>114</td>
+        <td>3249</td>
+      </tr>
+      <tr>
+        <td>row 58</td>
+        <td>116</td>
+        <td>3364</td>
+      </tr>
+      <tr>
+        <td>row 59</td>
+        <td>118</td>
+        <td>3481</td>
+      </tr>
+      <tr>
+        <td>row 60</td>
+        <td>120</td>
+        <td>3600</td>
+      </tr>
+      <tr>
+        <td>row 61</td>
+        <td>122</td>
+        <td>3721</td>
+      </tr>
+      <tr>
+        <td>row 62</td>
+        <td>124</td>
+        <td>3844</td>
+      </tr>
+      <tr>
+        <td>row 63</td>
+        <td>126</td>
+        <td>3969</td>
+      </tr>
+      <tr>
+        <td>row 64</td>
+        <td>128</td>
+        <td>4096</td>
+      </tr>
+      <tr>
+        <td>row 65</td>
+        <td>130</td>
+        <td>4225</td>
+      </tr>
+      <tr>
+        <td>row 66</td>
+        <td>132</td>
+        <td>4356</td>
+      </tr>
+      <tr>
+        <td>row 67</td>
+        <td>134</td>
+        <td>4489</td>
+      </tr>
+      <tr>
+        <td>row 68</td>
+        <td>136</td>
+        <td>4624</td>
+      </tr>
+      <tr>
+        <td>row 69</td>
+        <td>138</td>
+        <td>4761</td>
+      </tr>
+      <tr>
+        <td>row 70</td>
+        <td>140</td>
+        <td>4900</td>
+      </tr>
+      <tr>
+        <td>row 71</td>
+        <td>142</td>
+        <td>5041</td>
+      </tr>
+      <tr>
+        <td>row 72</td>
+        <td>144</td>
+        <td>5184</td>
+      </tr>
+      <tr>
+        <td>row 73</td>
+        <td>146</td>
+        <td>5329</td>
+      </tr>
+      <tr>
+        <td>row 74</td>
+        <td>148</td>
+        <td>5476</td>
+      </tr>
+      <tr>
+        <td>row 75</td>
+        <td>150</td>
+        <td>5625</td>
+      </tr>
+      <tr>
+        <td>row 76</td>
+        <td>152</td>
+        <td>5776</td>
+      </tr>
+      <tr>
+        <td>row 77</td>
+        <td>154</td>
+        <td>5929</td>
+      </tr>
+      <tr>
+        <td>row 78</td>
+        <td>156</td>
+        <td>6084</td>
+      </tr>
+      <tr>
+        <td>row 79</td>
+        <td>158</td>
+        <td>6241</td>
+      </tr>
+      <tr>
+        <td>row 80</td>
+        <td>160</td>
+        <td>6400</td>
+      </tr>
+      <tr>
+        <td>row 81</td>
+        <td>162</td>
+        <td>6561</td>
+      </tr>
+      <tr>
+        <td>row 82</td>
+        <td>164</td>
+        <td>6724</td>
+      </tr>
+      <tr>
+        <td>row 83</td>
+        <td>166</td>
+        <td>6889</td>
+      </tr>
+      <tr>
+        <td>row 84</td>
+        <td>168</td>
+        <td>7056</td>
+      </tr>
+      <tr>
+        <td>row 85</td>
+        <td>170</td>
+        <td>7225</td>
+      </tr>
+      <tr>
+        <td>row 86</td>
+        <td>172</td>
+        <td>7396</td>
+      </tr>
+      <tr>
+        <td>row 87</td>
+        <td>174</td>
+        <td>7569</td>
+      </tr>
+      <tr>
+        <td>row 88</td>
+        <td>176</td>
+        <td>7744</td>
+      </tr>
+      <tr>
+        <td>row 89</td>
+        <td>178</td>
+        <td>7921</td>
+      </tr>
+      <tr>
+        <td>row 90</td>
+        <td>180</td>
+        <td>8100</td>
+      </tr>
+      <tr>
+        <td>row 91</td>
+        <td>182</td>
+        <td>8281</td>
+      </tr>
+      <tr>
+        <td>row 92</td>
+        <td>184</td>
+        <td>8464</td>
+      </tr>
+      <tr>
+        <td>row 93</td>
+        <td>186</td>
+        <td>8649</td>
+      </tr>
+      <tr>
+        <td>row 94</td>
+        <td>188</td>
+        <td>8836</td>
+      </tr>
+      <tr>
+        <td>row 95</td>
+        <td>190</td>
+        <td>9025</td>
+      </tr>
+      <tr>
+        <td>row 96</td>
+        <td>192</td>
+        <td>9216</td>
+      </tr>
+      <tr>
+        <td>row 97</td>
+        <td>194</td>
+        <td>9409</td>
+      </tr>
+      <tr>
+        <td>row 98</td>
+        <td>196</td>
+        <td>9604</td>
+      </tr>
+      <tr>
+        <td>row 99</td>
+        <td>198</td>
+        <td>9801</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

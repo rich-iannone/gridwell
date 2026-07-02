@@ -1,0 +1,25 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto, auto, auto),
+  stroke: none,
+  table.header(
+    table.cell(colspan: 2)[#text(weight: "bold")[Group A]],
+    table.cell(colspan: 2)[#text(weight: "bold")[Group B]],
+    [#text(weight: "bold")[A1]],
+    [#text(weight: "bold")[A2]],
+    [#text(weight: "bold")[B1]],
+    [#text(weight: "bold")[B2]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [1],
+  [2],
+  [3],
+  [4],
+  [5],
+  [6],
+  [7],
+  [8],
+)

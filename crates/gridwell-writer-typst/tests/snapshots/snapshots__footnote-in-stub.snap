@@ -1,0 +1,19 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Country]],
+    [#text(weight: "bold")[GDP]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Atlantis#super[*]],
+  [N/A],
+  [Utopia],
+  [999],
+)
+
+#text(size: 9pt)[#super[*] Fictional; illustrative only.]

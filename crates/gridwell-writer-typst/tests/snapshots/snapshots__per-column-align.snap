@@ -1,0 +1,19 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[L]],
+    [#text(weight: "bold")[C]],
+    [#text(weight: "bold")[R]],
+    [#text(weight: "bold")[J]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [left],
+  [center],
+  [right],
+  [justified text here],
+)

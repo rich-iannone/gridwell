@@ -1,0 +1,15 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Icon]],
+    [#text(weight: "bold")[Label]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [logo],
+  [Brand],
+)

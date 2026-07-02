@@ -1,0 +1,23 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[A]],
+    [#text(weight: "bold")[B]],
+    [#text(weight: "bold")[C]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [1],
+  [2],
+  [3],
+  [4],
+  [5],
+  [6],
+  [7],
+  [8],
+  [9],
+)

@@ -1,0 +1,42 @@
+---
+source: crates/gridwell-writer-rtf/tests/snapshots.rs
+expression: out
+---
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}}
+{\colortbl ;\red0\green0\blue0;\red255\green255\blue255;}
+\trowd\trhdr\cellx2160\cellx4320
+\pard\intbl\b Item\cell
+\pard\intbl\b Amount\cell
+\row
+\trowd\trqc\cellx4320
+\pard\intbl\b Q1\b0\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl Jan\cell
+\pard\intbl 10\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl Feb\cell
+\pard\intbl 20\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl Subtotal\cell
+\pard\intbl 30\cell
+\row
+\trowd\trqc\cellx4320
+\pard\intbl\b Q2\b0\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl Apr\cell
+\pard\intbl 15\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl May\cell
+\pard\intbl 25\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl Subtotal\cell
+\pard\intbl 40\cell
+\row
+}

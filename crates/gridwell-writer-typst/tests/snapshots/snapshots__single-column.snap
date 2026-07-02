@@ -1,0 +1,15 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Item]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [First],
+  [Second],
+  [Third],
+)

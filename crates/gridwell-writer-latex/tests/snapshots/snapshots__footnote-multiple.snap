@@ -1,0 +1,15 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Name\textsuperscript{a} & Score \\
+\midrule
+Alice & 90\textsuperscript{b} \\
+Bob\textsuperscript{b} & 85 \\
+\bottomrule
+\end{tabular}
+
+\textsuperscript{a} Given name only.\\
+\textsuperscript{b} Provisional value.\\

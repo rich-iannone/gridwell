@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┐
+│[1m    Mood    [0m│[1m    Icon    [0m│
+├────────────┼────────────┤
+│   happy    │     😀     │
+│   party    │    🎉🎊    │
+│   family   │     👨‍👩‍👧‍👦     │
+└────────────┴────────────┘

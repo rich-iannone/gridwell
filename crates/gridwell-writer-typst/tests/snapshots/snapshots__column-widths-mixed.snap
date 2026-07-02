@@ -1,0 +1,19 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (120px, 25%, 1fr, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Fixed]],
+    [#text(weight: "bold")[Percent]],
+    [#text(weight: "bold")[Fraction]],
+    [#text(weight: "bold")[Auto]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [120px],
+  [25%],
+  [1fr],
+  [auto],
+)

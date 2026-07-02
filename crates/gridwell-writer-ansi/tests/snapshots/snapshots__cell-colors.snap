@@ -1,0 +1,10 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┐
+│[1m   Label    [0m│[1m    Temp    [0m│
+├────────────┼────────────┤
+│    Fire    │[38;2;255;255;255m    hot     [0m│
+│    Ice     │[38;2;255;255;255m    cold    [0m│
+└────────────┴────────────┘
