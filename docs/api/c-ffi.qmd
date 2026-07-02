@@ -1,0 +1,90 @@
+---
+title: "C FFI API"
+---
+
+The C API provides a stable ABI for embedding gridwell in any language with C interop.
+
+## Types
+
+```c
+typedef struct GridwellTable GridwellTable;
+typedef struct GridwellError GridwellError;
+
+typedef struct {
+    char *text;
+    size_t len;
+} GridwellTextResult;
+
+typedef struct {
+    uint8_t *data;
+    size_t len;
+} GridwellBinaryResult;
+
+#define GRIDWELL_ERR_PARSE       1
+#define GRIDWELL_ERR_VALIDATE    2
+#define GRIDWELL_ERR_RENDER      3
+#define GRIDWELL_ERR_INVALID_ARG 4
+```
+
+## Functions
+
+```c
+// Parse
+GridwellTable *gridwell_parse_ir(const char *json, size_t len, GridwellError **err);
+
+// Validate
+GridwellError *gridwell_validate(const GridwellTable *table);
+
+// Render text (html, latex, typst, rtf, svg, ansi, pandoc, quarto)
+GridwellTextResult gridwell_render_text(
+    const GridwellTable *table, const char *format, GridwellError **err);
+
+// Render binary (docx, xlsx, pptx)
+GridwellBinaryResult gridwell_render_binary(
+    const GridwellTable *table, const char *format, GridwellError **err);
+
+// Error inspection
+const char *gridwell_error_message(const GridwellError *err);
+uint32_t gridwell_error_code(const GridwellError *err);
+
+// Memory management
+void gridwell_free_table(GridwellTable *table);
+void gridwell_free_error(GridwellError *err);
+void gridwell_free_text_result(GridwellTextResult result);
+void gridwell_free_binary_result(GridwellBinaryResult result);
+```
+
+## Example
+
+```c
+#include "gridwell.h"
+#include <stdio.h>
+#include <string.h>
+
+int main(void) {
+    const char *json = "{ ... }";
+    GridwellError *err = NULL;
+
+    GridwellTable *table = gridwell_parse_ir(json, strlen(json), &err);
+    if (!table) {
+        fprintf(stderr, "Parse error: %s\n", gridwell_error_message(err));
+        gridwell_free_error(err);
+        return 1;
+    }
+
+    GridwellTextResult result = gridwell_render_text(table, "html", &err);
+    if (result.text) {
+        printf("%.*s\n", (int)result.len, result.text);
+        gridwell_free_text_result(result);
+    }
+
+    gridwell_free_table(table);
+    return 0;
+}
+```
+
+## Linking
+
+```bash
+cc -o myapp myapp.c -L/path/to/target/release -lgridwell_ffi
+```
