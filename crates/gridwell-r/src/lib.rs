@@ -6,9 +6,7 @@ use gridwell_ir::Table;
 macro_rules! with_table {
     ($table_ptr:expr, |$table:ident| $body:expr) => {{
         let ptr: ExternalPtr<Table> = (&$table_ptr).try_into().unwrap_or_else(|_| {
-            panic!(
-                "Expected a gridwell table pointer. Did you pass the result of gw_parse_ir()?"
-            )
+            panic!("Expected a gridwell table pointer. Did you pass the result of gw_parse_ir()?")
         });
         let $table = ptr.as_ref();
         $body
@@ -44,8 +42,11 @@ fn gw_parse_ir(json: &str) -> Robj {
 #[extendr]
 fn gw_validate(table_ptr: Robj) -> Strings {
     with_table!(table_ptr, |table| {
-        let errors: Vec<String> =
-            table.validate().into_iter().map(|e| e.to_string()).collect();
+        let errors: Vec<String> = table
+            .validate()
+            .into_iter()
+            .map(|e| e.to_string())
+            .collect();
         Strings::from_values(errors)
     })
 }
@@ -195,12 +196,8 @@ fn gw_render(table_ptr: Robj, format: &str) -> String {
             "rtf" => gridwell_writer_rtf::render_rtf(table).map_err(|e| e.to_string()),
             "svg" => gridwell_writer_svg::render_svg(table).map_err(|e| e.to_string()),
             "ansi" => gridwell_writer_ansi::render_ansi(table).map_err(|e| e.to_string()),
-            "pandoc" => {
-                gridwell_writer_pandoc::render_pandoc(table).map_err(|e| e.to_string())
-            }
-            "quarto" => {
-                gridwell_writer_quarto::render_quarto(table).map_err(|e| e.to_string())
-            }
+            "pandoc" => gridwell_writer_pandoc::render_pandoc(table).map_err(|e| e.to_string()),
+            "quarto" => gridwell_writer_quarto::render_quarto(table).map_err(|e| e.to_string()),
             _ => Err(format!(
                 "Unknown format: '{format}'. \
                  Supported: html, latex, typst, rtf, svg, ansi, pandoc, quarto"
