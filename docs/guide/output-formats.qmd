@@ -1,0 +1,86 @@
+---
+title: "Output Formats"
+---
+
+Gridwell renders the table IR to 11 output formats, split into text (returns a string) and
+binary (returns bytes).
+
+## Text Formats
+
+### HTML
+
+- Semantic HTML5 with `<table>`, `<thead>`, `<tbody>`, `<tfoot>`
+- Scoped `<style>` block with generated class names
+- Optional inline-style mode for email/embedded contexts
+- Footnote marks as `<sup>` linked to footer
+- Accessibility: `scope`, `aria-label`, `<caption>`
+
+### LaTeX
+
+- Uses `booktabs` (`\toprule`, `\midrule`, `\bottomrule`)
+- `\multicolumn` and `\multirow` for spans
+- Column alignment via `l`, `r`, `c`, `p{width}`
+- Color via `\cellcolor`, `\rowcolor` (requires `xcolor`)
+- Special characters escaped: `& % $ # _ { } ~ ^ \`
+
+### Typst
+
+- Uses Typst's `#table()` function with named parameters
+- `table.cell(colspan: N, rowspan: N)` for spans
+- Column widths mapped to Typst length values
+- Styles via `table.cell(fill: ...)`, `text(weight: "bold")`
+
+### RTF
+
+- Full RTF document with color and font tables
+- Cell merging via `\clmgf`/`\clmrg` and `\clvmgf`/`\clvmrg`
+- Column widths in twips (1/1440 inch)
+- Borders on all four sides of each cell
+
+### SVG
+
+- Standalone SVG image with embedded text
+- Text as `<text>` elements with computed positions
+- Backgrounds as `<rect>`, borders as `<line>` strokes
+- Self-contained (no external dependencies)
+
+### ANSI (Terminal)
+
+- Box-drawing characters for borders (Unicode)
+- 24-bit ANSI color sequences
+- Column widths computed from content
+- Text truncation with ellipsis for overflow
+
+### Pandoc
+
+- Pandoc JSON AST format (`Table` constructor)
+- Supports all inline formatting (Strong, Emph, Superscript, etc.)
+- Usable with `pandoc -f json -t docx/pdf/epub/...`
+
+### Quarto
+
+- Pipe table Markdown with Quarto div wrappers
+- Cross-reference support via `tbl-` prefix IDs
+- Caption as Quarto figure caption syntax
+
+## Binary Formats
+
+### DOCX (Microsoft Word)
+
+- Valid Office Open XML archive (ZIP)
+- Table in `word/document.xml`
+- Horizontal merge via `<w:gridSpan>`, vertical via `<w:vMerge>`
+- Full style support (fonts, borders, shading)
+
+### XLSX (Microsoft Excel)
+
+- SpreadsheetML format
+- Cells preserve typed values (numbers stay numeric)
+- Merge regions via `<mergeCells>`
+- Styles in `xl/styles.xml` (fonts, fills, borders)
+
+### PPTX (Microsoft PowerPoint)
+
+- DrawingML table (`<a:tbl>`) in a slide shape
+- Grid-based spans with `gridSpan`/`rowSpan` attributes
+- Full text and cell styling support
