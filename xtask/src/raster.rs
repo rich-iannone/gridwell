@@ -265,10 +265,61 @@ fn run_simple(bin: &str, args: &[&Path], png: &Path) -> RasterOutcome {
 /// Turn a command result + expected PNG into an outcome.
 fn finish(out: std::io::Result<std::process::Output>, png: &Path) -> RasterOutcome {
     match check(out) {
-        Ok(()) if png.exists() => RasterOutcome::Png(png.to_path_buf()),
+        Ok(()) if png.exists() => {
+            crop_to_content(png);
+            RasterOutcome::Png(png.to_path_buf())
+        }
         Ok(()) => RasterOutcome::Failed("tool produced no png".into()),
         Err(e) => RasterOutcome::Failed(e),
     }
+}
+
+/// Trim the uniform background margin around a rendered PNG so previews show the
+/// table, not a sea of whitespace. The background color is taken from the
+/// top-left pixel; a small margin is kept. Best-effort and deterministic (so
+/// goldens crop identically) — on any error the original is left untouched.
+fn crop_to_content(png: &Path) {
+    const TOL: u8 = 10;
+    const PAD: u32 = 10;
+
+    let img = match image::open(png) {
+        Ok(i) => i.to_rgba8(),
+        Err(_) => return,
+    };
+    let (w, h) = img.dimensions();
+    if w == 0 || h == 0 {
+        return;
+    }
+    let bg = *img.get_pixel(0, 0);
+    let differs = |p: &image::Rgba<u8>| {
+        p.0.iter()
+            .zip(bg.0.iter())
+            .any(|(a, b)| a.abs_diff(*b) > TOL)
+    };
+
+    let (mut min_x, mut min_y, mut max_x, mut max_y) = (w, h, 0u32, 0u32);
+    for (x, y, p) in img.enumerate_pixels() {
+        if differs(p) {
+            min_x = min_x.min(x);
+            min_y = min_y.min(y);
+            max_x = max_x.max(x);
+            max_y = max_y.max(y);
+        }
+    }
+    if max_x < min_x || max_y < min_y {
+        return; // entirely background
+    }
+
+    let x0 = min_x.saturating_sub(PAD);
+    let y0 = min_y.saturating_sub(PAD);
+    let x1 = (max_x + PAD).min(w - 1);
+    let y1 = (max_y + PAD).min(h - 1);
+    let (cw, ch) = (x1 - x0 + 1, y1 - y0 + 1);
+    if cw == w && ch == h {
+        return; // nothing to trim
+    }
+    let cropped = image::imageops::crop_imm(&img, x0, y0, cw, ch).to_image();
+    let _ = cropped.save(png);
 }
 
 /// Interpret a command result, returning the trimmed stderr on failure.
