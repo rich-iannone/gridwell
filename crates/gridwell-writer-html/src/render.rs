@@ -114,7 +114,9 @@ impl<'a> HtmlRenderer<'a> {
         }
 
         let styles = &self.table.styles;
-        if styles.defs.is_empty() && styles.compositions.is_empty() && styles.conditionals.is_empty()
+        if styles.defs.is_empty()
+            && styles.compositions.is_empty()
+            && styles.conditionals.is_empty()
         {
             return;
         }
@@ -287,15 +289,11 @@ impl<'a> HtmlRenderer<'a> {
 
             // Group label row
             if let Some(ref label) = group.label {
-                let colspan = label
-                    .colspan
-                    .unwrap_or(self.table.config.table_cols);
+                let colspan = label.colspan.unwrap_or(self.table.config.table_cols);
                 let class = self.style_class_attr(&label.style_id);
                 self.write_line("<tr>");
                 self.push_indent();
-                self.write_line(&format!(
-                    "<td colspan=\"{colspan}\"{class}>",
-                ));
+                self.write_line(&format!("<td colspan=\"{colspan}\"{class}>",));
                 self.push_indent();
                 self.render_content_nodes(&label.content);
                 self.pop_indent();
@@ -429,11 +427,7 @@ impl<'a> HtmlRenderer<'a> {
                 ));
                 self.push_indent();
                 let indent = self.indent();
-                let _ = write!(
-                    self.buf,
-                    "{indent}<sup>{}</sup> ",
-                    escape_html(&note.mark)
-                );
+                let _ = write!(self.buf, "{indent}<sup>{}</sup> ", escape_html(&note.mark));
                 self.render_content_nodes_inline(&note.content);
                 let nl = self.nl();
                 let _ = write!(self.buf, "{nl}");
@@ -724,16 +718,31 @@ fn border_to_css(b: &Border) -> Option<String> {
 
 fn merge_style_def(base: &StyleDef, overrides: &StyleDef) -> StyleDef {
     StyleDef {
-        font_family: overrides.font_family.clone().or_else(|| base.font_family.clone()),
-        font_size: overrides.font_size.clone().or_else(|| base.font_size.clone()),
-        font_weight: overrides.font_weight.clone().or_else(|| base.font_weight.clone()),
-        font_style: overrides.font_style.clone().or_else(|| base.font_style.clone()),
+        font_family: overrides
+            .font_family
+            .clone()
+            .or_else(|| base.font_family.clone()),
+        font_size: overrides
+            .font_size
+            .clone()
+            .or_else(|| base.font_size.clone()),
+        font_weight: overrides
+            .font_weight
+            .clone()
+            .or_else(|| base.font_weight.clone()),
+        font_style: overrides
+            .font_style
+            .clone()
+            .or_else(|| base.font_style.clone()),
         color: overrides.color.clone().or_else(|| base.color.clone()),
         background_color: overrides
             .background_color
             .clone()
             .or_else(|| base.background_color.clone()),
-        text_align: overrides.text_align.clone().or_else(|| base.text_align.clone()),
+        text_align: overrides
+            .text_align
+            .clone()
+            .or_else(|| base.text_align.clone()),
         vertical_align: overrides
             .vertical_align
             .clone()
@@ -746,18 +755,30 @@ fn merge_style_def(base: &StyleDef, overrides: &StyleDef) -> StyleDef {
             .text_decoration
             .clone()
             .or_else(|| base.text_decoration.clone()),
-        white_space: overrides.white_space.clone().or_else(|| base.white_space.clone()),
+        white_space: overrides
+            .white_space
+            .clone()
+            .or_else(|| base.white_space.clone()),
         padding: overrides.padding.clone().or_else(|| base.padding.clone()),
         border: overrides.border.clone().or_else(|| base.border.clone()),
         indent: overrides.indent.clone().or_else(|| base.indent.clone()),
-        word_break: overrides.word_break.clone().or_else(|| base.word_break.clone()),
+        word_break: overrides
+            .word_break
+            .clone()
+            .or_else(|| base.word_break.clone()),
         overflow: overrides.overflow.clone().or_else(|| base.overflow.clone()),
         text_overflow: overrides
             .text_overflow
             .clone()
             .or_else(|| base.text_overflow.clone()),
-        min_width: overrides.min_width.clone().or_else(|| base.min_width.clone()),
-        max_width: overrides.max_width.clone().or_else(|| base.max_width.clone()),
+        min_width: overrides
+            .min_width
+            .clone()
+            .or_else(|| base.min_width.clone()),
+        max_width: overrides
+            .max_width
+            .clone()
+            .or_else(|| base.max_width.clone()),
     }
 }
 
