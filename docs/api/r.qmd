@@ -1,0 +1,82 @@
+---
+title: "R API"
+---
+
+## Installation
+
+```r
+# From source (requires Rust toolchain):
+install.packages("gridwell", repos = NULL, type = "source")
+```
+
+## Parsing
+
+```r
+library(gridwell)
+
+json <- paste(readLines("table.json", warn = FALSE), collapse = "\n")
+tbl <- gw_parse_ir(json)
+```
+
+## Validation
+
+```r
+errors <- gw_validate(tbl)
+if (length(errors) > 0) {
+  message("Errors: ", paste(errors, collapse = "; "))
+}
+```
+
+## Text Rendering
+
+```r
+html   <- gw_render_html(tbl)
+latex  <- gw_render_latex(tbl)
+typst  <- gw_render_typst(tbl)
+rtf    <- gw_render_rtf(tbl)
+svg    <- gw_render_svg(tbl)
+ansi   <- gw_render_ansi(tbl)
+pandoc <- gw_render_pandoc(tbl)
+quarto <- gw_render_quarto(tbl)
+
+# Generic by name
+html <- gw_render(tbl, "html")
+```
+
+## Binary Rendering
+
+```r
+docx_raw <- gw_render_docx(tbl)    # raw vector
+xlsx_raw <- gw_render_xlsx(tbl)
+pptx_raw <- gw_render_pptx(tbl)
+
+# Write to file
+writeBin(gw_render_docx(tbl), "output.docx")
+```
+
+## Serialization
+
+```r
+json_out <- gw_to_json(tbl)
+```
+
+## gt Integration
+
+```r
+library(gt)
+library(gridwell)
+
+tbl <- gt(exibble, rowname_col = "row", groupname_col = "group")
+ir_json <- gt_to_ir(tbl)
+table_ptr <- gw_parse_ir(ir_json)
+html <- gw_render_html(table_ptr)
+```
+
+## Error Handling
+
+```r
+tryCatch(
+  gw_parse_ir("invalid json"),
+  error = function(e) message("Parse error: ", conditionMessage(e))
+)
+```
