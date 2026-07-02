@@ -1,0 +1,86 @@
+---
+title: "Styles"
+---
+
+Styles are defined once in a palette and referenced by ID.
+
+## Structure
+
+```json
+{
+  "styles": {
+    "defs": { "<style_id>": StyleDef, ... },
+    "compositions": { "<comp_id>": { "extends": "base", "overrides": {...} } },
+    "conditionals": [ConditionalRule, ...]
+  }
+}
+```
+
+## Style Definition Fields
+
+All fields are optional — only specify what you need:
+
+| Field              | Type    | Description                    |
+|--------------------|---------|--------------------------------|
+| `font_weight`      | string  | `"normal"`, `"bold"`           |
+| `font_style`       | string  | `"normal"`, `"italic"`         |
+| `font_size`        | string  | CSS font-size value            |
+| `font_family`      | string  | Font family name               |
+| `color`            | string  | Text color                     |
+| `background_color` | string  | Background color               |
+| `text_align`       | string  | `"left"`, `"center"`, `"right"`|
+| `vertical_align`   | string  | `"top"`, `"middle"`, `"bottom"`|
+| `text_decoration`  | string  | `"none"`, `"underline"`, etc.  |
+| `text_transform`   | string  | `"none"`, `"uppercase"`, etc.  |
+| `white_space`      | string  | CSS white-space value          |
+| `padding`          | object  | `{ top, right, bottom, left }` |
+| `border`           | object  | `{ top, right, bottom, left }` |
+| `indent`           | string  | Text indent value              |
+
+### Border Side
+
+| Field   | Type   | Description                                                    |
+|---------|--------|----------------------------------------------------------------|
+| `width` | string | Border width (e.g. `"1px"`)                                    |
+| `style` | string | `"solid"`, `"dashed"`, `"dotted"`, `"double"`, `"none"`        |
+| `color` | string | Border color                                                   |
+
+## Example
+
+```json
+{
+  "styles": {
+    "defs": {
+      "header_bold": {
+        "font_weight": "bold",
+        "background_color": "#f0f0f0",
+        "border": {
+          "bottom": { "width": "2px", "style": "solid", "color": "#333333" }
+        }
+      },
+      "numeric": {
+        "font_family": "Courier New, monospace",
+        "text_align": "right"
+      }
+    },
+    "compositions": {
+      "header_numeric": {
+        "extends": "header_bold",
+        "overrides": { "text_align": "right" }
+      }
+    },
+    "conditionals": [{
+      "id": "stripe",
+      "selector": { "row_parity": "even", "scope": "tbody" },
+      "style": { "background_color": "#FAFAFA" }
+    }]
+  }
+}
+```
+
+## Color Values
+
+- Hex: `#RGB`, `#RRGGBB`, `#RRGGBBAA`
+- Functional: `rgb(R, G, B)`, `rgba(R, G, B, A)`
+- Named: CSS named colors (`red`, `steelblue`, etc.)
+- Keyword: `transparent`
