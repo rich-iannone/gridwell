@@ -1,0 +1,107 @@
+---
+title: "CLI Tool"
+---
+
+The `gridwell` CLI converts table IR files to any supported format.
+
+## Installation
+
+```bash
+cargo install gridwell-cli
+```
+
+## Commands
+
+### `gridwell convert`
+
+Convert a table IR JSON file to an output format.
+
+```bash
+gridwell convert [OPTIONS] --to <FORMAT> [INPUT]
+```
+
+**Arguments:**
+
+- `[INPUT]` — Input file path (use `-` or omit for stdin)
+
+**Options:**
+
+- `-t, --to <FORMAT>` — Output format (required)
+- `-o, --output <FILE>` — Output file (defaults to stdout for text; required for binary)
+
+**Examples:**
+
+```bash
+# Render to HTML (stdout)
+gridwell convert table.json --to html
+
+# Render to file
+gridwell convert table.json --to latex -o table.tex
+
+# Binary format requires -o
+gridwell convert table.json --to docx -o report.docx
+
+# From stdin
+cat table.json | gridwell convert --to html
+
+# Pipe through other tools
+gridwell convert table.json --to html | pbcopy
+```
+
+### `gridwell validate`
+
+Check an IR file for structural errors. Exits with code 0 if valid, code 1 if errors found.
+
+```bash
+gridwell validate [INPUT]
+```
+
+```{.bash filename="Example output"}
+$ gridwell validate valid_table.json
+Valid: no errors found.
+
+$ gridwell validate broken_table.json
+Found 2 validation error(s):
+  - [ColCount] tbody group 0 row 0 has 4 cells but config.table_cols is 3
+  - [SpanOverflowRight] cell at (row=1, col=3) has colspan=2 but table has 3 columns
+```
+
+### `gridwell formats`
+
+List all supported output formats.
+
+```{.bash filename="Example output"}
+$ gridwell formats
+Supported output formats:
+
+  Text formats:
+    html     HTML5 table
+    latex    LaTeX longtable
+    typst    Typst table markup
+    rtf      Rich Text Format
+    svg      SVG image
+    ansi     ANSI terminal output
+    pandoc   Pandoc AST JSON
+    quarto   Quarto Markdown
+
+  Binary formats:
+    docx     Microsoft Word
+    xlsx     Microsoft Excel
+    pptx     Microsoft PowerPoint
+```
+
+## Format Values
+
+| Value    | Format             |
+|----------|--------------------|
+| `html`   | HTML5              |
+| `latex`  | LaTeX              |
+| `typst`  | Typst              |
+| `rtf`    | Rich Text Format   |
+| `svg`    | SVG                |
+| `ansi`   | Terminal output     |
+| `pandoc` | Pandoc AST JSON    |
+| `quarto` | Quarto Markdown    |
+| `docx`   | Microsoft Word     |
+| `xlsx`   | Microsoft Excel    |
+| `pptx`   | Microsoft PowerPoint|
