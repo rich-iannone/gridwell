@@ -1,0 +1,25 @@
+[package]
+name = "xtask"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+description = "Gridwell visual test harness: corpus generation, render gallery, and image diffing"
+
+[dependencies]
+gridwell-ir = { path = "../crates/gridwell-ir" }
+gridwell-testkit = { path = "../crates/gridwell-testkit" }
+gridwell-writer-html = { path = "../crates/gridwell-writer-html" }
+gridwell-writer-latex = { path = "../crates/gridwell-writer-latex" }
+gridwell-writer-typst = { path = "../crates/gridwell-writer-typst" }
+gridwell-writer-rtf = { path = "../crates/gridwell-writer-rtf" }
+gridwell-writer-svg = { path = "../crates/gridwell-writer-svg" }
+gridwell-writer-ansi = { path = "../crates/gridwell-writer-ansi" }
+gridwell-writer-pandoc = { path = "../crates/gridwell-writer-pandoc" }
+gridwell-writer-quarto = { path = "../crates/gridwell-writer-quarto" }
+gridwell-writer-docx = { path = "../crates/gridwell-writer-docx" }
+gridwell-writer-xlsx = { path = "../crates/gridwell-writer-xlsx" }
+gridwell-writer-pptx = { path = "../crates/gridwell-writer-pptx" }
+clap = { workspace = true }
+serde_json = { workspace = true }
+image = { version = "0.25", default-features = false, features = ["png"] }
