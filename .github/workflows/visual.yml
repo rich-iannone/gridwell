@@ -63,7 +63,10 @@ jobs:
             gridwell-harness:ci \
             cargo xtask gallery --check
 
-      # Container writes as root; hand ownership back so upload/caching can read.
+      # The container runs as root, so it leaves root-owned files (some mode 700,
+      # e.g. the LibreOffice profile) in the workspace. Hand the whole tree back
+      # to the runner so later steps — cache save, artifact upload, and the
+      # cache post step's key hashing — can read everything.
       - name: Fix permissions
         if: always()
         run: sudo chown -R "$(id -u):$(id -g)" harness/gallery .ci-cargo target || true
