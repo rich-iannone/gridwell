@@ -1,0 +1,46 @@
+name: Harness image
+
+# Builds and publishes the pinned renderer toolchain used by the visual harness.
+# Runs only when the Dockerfile changes (or on demand). The tag is fixed to the
+# toolchain set — bump it here and in .github/workflows/visual.yml together when
+# introducing a new renderer version.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "harness/Dockerfile"
+      - ".github/workflows/harness-image.yml"
+  workflow_dispatch:
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/gridwell-harness
+  TAG: pinned-2026-07
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: harness/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE }}:${{ env.TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
