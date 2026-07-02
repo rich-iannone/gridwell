@@ -1,0 +1,63 @@
+---
+title: "IR Schema"
+---
+
+The gridwell IR (Intermediate Representation) is a JSON document that fully describes a table's
+structure, content, and styling.
+
+## Design Principles
+
+1. **Declarative** — describes *what* to render, not *how*
+2. **Flat where possible** — uses indices/references, avoids deep nesting
+3. **Typed values** — cells carry typed data alongside formatted text
+4. **Styling by reference** — styles defined in a palette, referenced by ID
+5. **Span-aware** — row/column spans are first-class with explicit placeholders
+6. **Versioned** — `ir_version` allows future evolution
+
+## Top-Level Structure
+
+```json
+{
+  "ir_version": "1.0",
+  "config": { },
+  "styles": { },
+  "header": { },
+  "column_spec": [ ],
+  "table": { },
+  "footer": { },
+  "extensions": { }
+}
+```
+
+| Field         | Type     | Required | Description                            |
+|---------------|----------|----------|----------------------------------------|
+| `ir_version`  | string   | Yes      | Schema version (currently `"1.0"`)     |
+| `config`      | object   | Yes      | Table-level configuration              |
+| `styles`      | object   | Yes      | Style palette                          |
+| `header`      | object   | No       | Title, subtitle, extra header content  |
+| `column_spec` | array    | Yes      | Column definitions                     |
+| `table`       | object   | Yes      | Table data (thead + tbody)             |
+| `footer`      | object   | No       | Footnotes and source notes             |
+| `extensions`  | object   | No       | Arbitrary extension data               |
+
+## Content Nodes
+
+Cell content is an array of content nodes:
+
+| Type           | Fields              | Description                |
+|----------------|---------------------|----------------------------|
+| `text`         | `value`             | Plain text                 |
+| `styled_text`  | `value`, `style_id` | Text with a style applied  |
+| `line_break`   | —                   | Line break within cell     |
+| `footnote_mark`| `ref`, `mark_text`  | Footnote reference mark    |
+| `image`        | `src`, `alt`, `width`, `height` | Inline image |
+| `raw`          | `format`, `value`   | Format-specific passthrough|
+
+## Sections
+
+- [Config](config.qmd) — table-level configuration
+- [Columns](columns.qmd) — column specification
+- [Table Data](table-data.qmd) — thead and tbody structure
+- [Styles](styles.qmd) — style palette and references
+- [Footer](footer.qmd) — footnotes and source notes
+- [Validation](validation.qmd) — structural validation rules
