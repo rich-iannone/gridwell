@@ -17,12 +17,14 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # System renderers from the bookworm apt snapshot:
 #  - chromium          : HTML screenshots (gated)
+#  - librsvg2-bin       : rsvg-convert, SVG -> PNG (gated)
 #  - poppler-utils      : pdftoppm (PDF -> PNG for LaTeX/LibreOffice)
 #  - texlive-*          : xelatex + standalone.cls (LaTeX -> PDF)
 #  - libreoffice        : RTF/DOCX/XLSX/PPTX -> PDF
 #  - fonts-noto*        : CJK / emoji / RTL coverage for LaTeX & Typst
 RUN apt-get update && apt-get install -y --no-install-recommends \
         chromium \
+        librsvg2-bin \
         poppler-utils \
         texlive-latex-base \
         texlive-latex-extra \
@@ -38,9 +40,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git-lfs \
     && rm -rf /var/lib/apt/lists/*
 
-# Renderers not packaged for bookworm: install pinned CLIs via cargo.
-RUN cargo install typst-cli --version 0.12.0 --locked \
-    && cargo install resvg --version 0.44.0 --locked
+# Typst isn't packaged for bookworm; install a pinned CLI via cargo. (SVG uses
+# librsvg2-bin's rsvg-convert above, which is more reliable than `cargo install
+# resvg`, whose recent releases are library-only.)
+RUN cargo install typst-cli --version 0.12.0 --locked
 
 # Chromium in a container must run without the sandbox; the xtask already
 # passes --no-sandbox, but export a hint for anything else that shells out.
