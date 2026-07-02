@@ -11,7 +11,11 @@
 #             cargo xtask gallery --check
 
 # Pinned Rust + Debian bookworm base.
-FROM rust:1.83-bookworm
+# Latest stable Rust on Debian bookworm. The Rust version is intentionally NOT
+# pinned to an exact toolchain: it doesn't affect the rendered pixels (the
+# renderers below are what's pinned), and floating it avoids breakage when a
+# dependency raises its minimum (e.g. edition 2024 needs Rust >= 1.85).
+FROM rust:1-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive
 
