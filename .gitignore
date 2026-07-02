@@ -38,3 +38,5 @@ target
 /harness/corpus/
 /harness/gallery/
 /harness/.work/
+# CI-only cargo home (CARGO_HOME) for the containerized visual job.
+/.ci-cargo/
