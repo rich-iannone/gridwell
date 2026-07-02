@@ -20,6 +20,31 @@ members = [
     "crates/gridwell-cli",
     "xtask",
 ]
+# The language-binding crates need external toolchains at build time
+# (gridwell-r → R via libR-sys; gridwell-python → a Python interpreter via pyo3)
+# and are built by maturin / R's own tooling, not by plain `cargo`. Excluding
+# them from the default set keeps bare `cargo check|test|clippy` (locally and in
+# CI) buildable without R/Python installed. Target them explicitly with
+# `-p gridwell-r` / `-p gridwell-python` (or `--workspace`) when needed.
+default-members = [
+    "crates/gridwell-ir",
+    "crates/gridwell-core",
+    "crates/gridwell-testkit",
+    "crates/gridwell-writer-html",
+    "crates/gridwell-writer-latex",
+    "crates/gridwell-writer-typst",
+    "crates/gridwell-writer-rtf",
+    "crates/gridwell-writer-svg",
+    "crates/gridwell-writer-ansi",
+    "crates/gridwell-writer-pandoc",
+    "crates/gridwell-writer-quarto",
+    "crates/gridwell-writer-docx",
+    "crates/gridwell-writer-xlsx",
+    "crates/gridwell-writer-pptx",
+    "crates/gridwell-ffi",
+    "crates/gridwell-cli",
+    "xtask",
+]
 exclude = ["r-package/src/rust", "fuzz"]
 resolver = "2"
 
