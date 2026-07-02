@@ -221,15 +221,9 @@ fn render_text(table: &Table, format: &OutputFormat) -> String {
 
 fn render_binary(table: &Table, format: &OutputFormat) -> Vec<u8> {
     let result = match format {
-        OutputFormat::Docx => {
-            gridwell_writer_docx::render_docx(table).map_err(|e| e.to_string())
-        }
-        OutputFormat::Xlsx => {
-            gridwell_writer_xlsx::render_xlsx(table).map_err(|e| e.to_string())
-        }
-        OutputFormat::Pptx => {
-            gridwell_writer_pptx::render_pptx(table).map_err(|e| e.to_string())
-        }
+        OutputFormat::Docx => gridwell_writer_docx::render_docx(table).map_err(|e| e.to_string()),
+        OutputFormat::Xlsx => gridwell_writer_xlsx::render_xlsx(table).map_err(|e| e.to_string()),
+        OutputFormat::Pptx => gridwell_writer_pptx::render_pptx(table).map_err(|e| e.to_string()),
         _ => unreachable!(),
     };
 
