@@ -1,0 +1,80 @@
+---
+title: "Validation Rules"
+---
+
+The IR validator enforces structural correctness before any writer runs.
+
+## Structural Rules
+
+| Rule | Description |
+|------|-------------|
+| `ColCount` | Sum of colspans in every row == `config.table_cols` |
+| `StubContiguous` | Stub columns start at index 0 and are contiguous |
+| `StyleRefsValid` | All `style_id` values reference a defined style |
+| `FootnoteRefsValid` | All footnote mark refs have a matching definition |
+| `SummaryRequiresStub` | Summary rows require `config.stub_cols >= 1` |
+
+## Span Rules
+
+| Rule | Description |
+|------|-------------|
+| `SpanOverflowRight` | `col + colspan > table_cols` — span exceeds right edge |
+| `SpanOverflowBottom` | `row + rowspan > section_rows` — span exceeds bottom |
+| `SpanOverlap` | Two spans claim the same `(row, col)` position |
+| `PlaceholderHasContent` | Placeholder cell has non-empty content |
+
+## How Validation Works
+
+The validator materializes a **2D occupancy grid** for each section:
+
+1. Allocate a `rows × cols` grid
+2. Walk every cell in document order
+3. For each cell with `rowspan=R, colspan=C` at position `(r, c)`:
+   - Claim all positions `(r..r+R, c..c+C)`
+   - If already occupied → `SpanOverlap` error
+   - If out of bounds → `SpanOverflow` error
+4. Verify placeholder cells align with spanned positions
+
+## Error Output
+
+Each error includes the rule name, location, and a human-readable message:
+
+```text
+[ColCount] tbody group 0 row 0 has 4 cells but config.table_cols is 3
+[SpanOverflowRight] cell at (row=1, col=4) has colspan=3 but table has 5 columns
+[PlaceholderHasContent] placeholder cell at (row=2, col=1) has non-empty content
+```
+
+## Usage
+
+::: {.panel-tabset}
+
+### CLI
+
+```bash
+gridwell validate table.json
+# Exit code 0 = valid, 1 = errors found
+```
+
+### Rust
+
+```rust
+let errors = table.validate();
+// errors: Vec<ValidationError>
+```
+
+### Python
+
+```python
+errors = table.validate()
+# errors: list[str]
+```
+
+### R
+
+```r
+errors <- gw_validate(tbl)
+# errors: character vector
+```
+
+:::
