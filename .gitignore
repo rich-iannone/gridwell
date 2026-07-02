@@ -37,3 +37,4 @@ target
 # harness regenerates on demand is ignored.
 /harness/corpus/
 /harness/gallery/
+/harness/.work/
