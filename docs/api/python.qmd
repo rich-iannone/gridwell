@@ -1,0 +1,93 @@
+---
+title: "Python API"
+---
+
+## Installation
+
+```bash
+pip install gridwell
+```
+
+## Parsing
+
+```python
+import gridwell
+
+# From JSON string
+table = gridwell.Table.from_json(json_str)
+
+# From dict
+table = gridwell.Table.from_dict({"ir_version": "1.0", ...})
+
+# Shorthand
+table = gridwell.parse_ir(json_str)
+```
+
+## Validation
+
+```python
+errors = table.validate()  # returns list[str]
+if errors:
+    for e in errors:
+        print(f"Error: {e}")
+```
+
+## Text Rendering
+
+```python
+html = table.render_html()
+latex = table.render_latex()
+typst = table.render_typst()
+rtf = table.render_rtf()
+svg = table.render_svg()
+ansi = table.render_ansi()
+pandoc = table.render_pandoc()
+quarto = table.render_quarto()
+
+# Generic by name
+output = table.render("html")
+```
+
+## Binary Rendering
+
+```python
+docx_bytes = table.render_docx()    # returns bytes
+xlsx_bytes = table.render_xlsx()
+pptx_bytes = table.render_pptx()
+
+# Generic by name
+data = table.render_binary("docx")
+
+# Write to file
+with open("output.docx", "wb") as f:
+    f.write(table.render_docx())
+```
+
+## Serialization
+
+```python
+json_str = table.to_json()
+```
+
+## Great Tables Integration
+
+```python
+from great_tables import GT, exibble
+import gridwell
+
+gt = GT(exibble.head(5))
+ir_json = gridwell.gt_to_ir(gt)
+table = gridwell.parse_ir(ir_json)
+html = table.render_html()
+```
+
+## Error Handling
+
+`ValueError` is raised for parse errors and render failures.
+
+```python
+try:
+    table = gridwell.Table.from_json(bad_json)
+except ValueError as e:
+    print(f"Parse error: {e}")
+```

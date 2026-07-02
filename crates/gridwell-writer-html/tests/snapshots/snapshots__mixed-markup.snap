@@ -1,0 +1,30 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <style>
+    .gw_warn { font-weight: bold; color: #e67e22 }
+  </style>
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>Message</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          Status: <span class="gw_warn">degraded</span><br>Retry advised<sup><a href="#fn1">†</a></sup>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="gw_footer">
+    <div class="gw_footnotes">
+      <p id="fn1" >
+        <sup>†</sup> See runbook section 4.
+      </p>
+    </div>
+  </div>
+</div>

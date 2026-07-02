@@ -1,0 +1,30 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Users</td>
+        <td>1,024</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="gw_footer">
+    <div class="gw_source_notes">
+      <p>
+        Source: internal analytics.
+      </p>
+      <p>
+        Collected June 2026.
+      </p>
+    </div>
+  </div>
+</div>

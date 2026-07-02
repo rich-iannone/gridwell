@@ -1,0 +1,129 @@
+---
+title: "Getting Started"
+---
+
+## Installation
+
+### Rust (as a library)
+
+Add gridwell crates to your `Cargo.toml`:
+
+```toml
+[dependencies]
+gridwell-ir = "0.1"
+gridwell-writer-html = "0.1"
+# ... add other writers as needed
+```
+
+### Python
+
+```bash
+pip install gridwell
+```
+
+### R
+
+```r
+# From source (requires Rust toolchain):
+install.packages("gridwell", repos = NULL, type = "source")
+```
+
+### CLI Tool
+
+```bash
+cargo install gridwell-cli
+```
+
+Or build from source:
+
+```bash
+git clone https://github.com/rich-iannone/gridwell.git
+cd gridwell
+cargo build --release -p gridwell-cli
+# Binary at: target/release/gridwell
+```
+
+## First Table
+
+Create a minimal table IR file called `hello.json`:
+
+```{.json filename="hello.json"}
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 2,
+    "header_rows": 1,
+    "body_rows": 2,
+    "stub_cols": 0,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "locale": "en-US",
+    "page_break_mode": "avoid"
+  },
+  "styles": { "defs": {}, "compositions": {}, "conditionals": [] },
+  "header": null,
+  "column_spec": [
+    { "id": "col_0", "align": "left", "width": "auto", "hidden": false, "label": "Name" },
+    { "id": "col_1", "align": "right", "width": "auto", "hidden": false, "label": "Score" }
+  ],
+  "table": {
+    "thead": {
+      "rows": [{
+        "role": "column_label",
+        "cells": [
+          { "content": [{"type": "text", "value": "Name"}], "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "scope": "col" },
+          { "content": [{"type": "text", "value": "Score"}], "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "scope": "col" }
+        ]
+      }]
+    },
+    "tbody": [{
+      "rows": [
+        { "cells": [
+          { "content": [{"type": "text", "value": "Alice"}], "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "data_type": "string" },
+          { "content": [{"type": "text", "value": "95"}], "typed_value": {"type": "number", "value": 95}, "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "data_type": "number" }
+        ]},
+        { "cells": [
+          { "content": [{"type": "text", "value": "Bob"}], "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "data_type": "string" },
+          { "content": [{"type": "text", "value": "87"}], "typed_value": {"type": "number", "value": 87}, "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "data_type": "number" }
+        ]}
+      ],
+      "summary_rows": []
+    }]
+  },
+  "footer": { "footnotes": [], "source_notes": [] }
+}
+```
+
+Then render it:
+
+```bash
+gridwell convert hello.json --to html
+gridwell convert hello.json --to latex
+gridwell convert hello.json --to docx -o hello.docx
+```
+
+## Using with Great Tables (Python)
+
+```python
+from great_tables import GT, exibble
+import gridwell
+
+gt = GT(exibble.head(3))
+ir_json = gridwell.gt_to_ir(gt)
+table = gridwell.parse_ir(ir_json)
+html = table.render_html()
+```
+
+## Using with gt (R)
+
+```r
+library(gt)
+library(gridwell)
+
+tbl <- gt(exibble[1:3, ], rowname_col = "row", groupname_col = "group")
+ir_json <- gt_to_ir(tbl)
+table_ptr <- gw_parse_ir(ir_json)
+html <- gw_render_html(table_ptr)
+```

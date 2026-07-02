@@ -1,0 +1,89 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>Key</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan="2">
+          Group 1
+        </td>
+      </tr>
+      <tr>
+        <td>k1a</td>
+        <td>10</td>
+      </tr>
+      <tr>
+        <td>k1b</td>
+        <td>20</td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <td colspan="2">
+          Group 2
+        </td>
+      </tr>
+      <tr>
+        <td>k2a</td>
+        <td>20</td>
+      </tr>
+      <tr>
+        <td>k2b</td>
+        <td>40</td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <td colspan="2">
+          Group 3
+        </td>
+      </tr>
+      <tr>
+        <td>k3a</td>
+        <td>30</td>
+      </tr>
+      <tr>
+        <td>k3b</td>
+        <td>60</td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <td colspan="2">
+          Group 4
+        </td>
+      </tr>
+      <tr>
+        <td>k4a</td>
+        <td>40</td>
+      </tr>
+      <tr>
+        <td>k4b</td>
+        <td>80</td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <td colspan="2">
+          Group 5
+        </td>
+      </tr>
+      <tr>
+        <td>k5a</td>
+        <td>50</td>
+      </tr>
+      <tr>
+        <td>k5b</td>
+        <td>100</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

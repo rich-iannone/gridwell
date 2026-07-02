@@ -60,7 +60,9 @@ impl<'a> TypstRenderer<'a> {
             if let Some(ref title) = header.title {
                 let text = content_to_typst(&title.content);
                 if !text.is_empty() {
-                    self.line(&format!("#align(left)[#text(size: 16pt, weight: \"bold\")[{text}]]"));
+                    self.line(&format!(
+                        "#align(left)[#text(size: 16pt, weight: \"bold\")[{text}]]"
+                    ));
                 }
             }
             if let Some(ref subtitle) = header.subtitle {
@@ -288,9 +290,7 @@ impl<'a> TypstRenderer<'a> {
                 for note in &footer.footnotes {
                     let text = content_to_typst(&note.content);
                     let mark = escape_typst(&note.mark);
-                    self.line(&format!(
-                        "#text(size: 9pt)[#super[{mark}] {text}]"
-                    ));
+                    self.line(&format!("#text(size: 9pt)[#super[{mark}] {text}]"));
                 }
             }
             if !footer.source_notes.is_empty() {
@@ -372,16 +372,31 @@ fn color_to_typst(color: &str) -> Option<String> {
 
 fn merge_style_def(base: &StyleDef, overrides: &StyleDef) -> StyleDef {
     StyleDef {
-        font_family: overrides.font_family.clone().or_else(|| base.font_family.clone()),
-        font_size: overrides.font_size.clone().or_else(|| base.font_size.clone()),
-        font_weight: overrides.font_weight.clone().or_else(|| base.font_weight.clone()),
-        font_style: overrides.font_style.clone().or_else(|| base.font_style.clone()),
+        font_family: overrides
+            .font_family
+            .clone()
+            .or_else(|| base.font_family.clone()),
+        font_size: overrides
+            .font_size
+            .clone()
+            .or_else(|| base.font_size.clone()),
+        font_weight: overrides
+            .font_weight
+            .clone()
+            .or_else(|| base.font_weight.clone()),
+        font_style: overrides
+            .font_style
+            .clone()
+            .or_else(|| base.font_style.clone()),
         color: overrides.color.clone().or_else(|| base.color.clone()),
         background_color: overrides
             .background_color
             .clone()
             .or_else(|| base.background_color.clone()),
-        text_align: overrides.text_align.clone().or_else(|| base.text_align.clone()),
+        text_align: overrides
+            .text_align
+            .clone()
+            .or_else(|| base.text_align.clone()),
         vertical_align: overrides
             .vertical_align
             .clone()
@@ -394,17 +409,29 @@ fn merge_style_def(base: &StyleDef, overrides: &StyleDef) -> StyleDef {
             .text_decoration
             .clone()
             .or_else(|| base.text_decoration.clone()),
-        white_space: overrides.white_space.clone().or_else(|| base.white_space.clone()),
+        white_space: overrides
+            .white_space
+            .clone()
+            .or_else(|| base.white_space.clone()),
         padding: overrides.padding.clone().or_else(|| base.padding.clone()),
         border: overrides.border.clone().or_else(|| base.border.clone()),
         indent: overrides.indent.clone().or_else(|| base.indent.clone()),
-        word_break: overrides.word_break.clone().or_else(|| base.word_break.clone()),
+        word_break: overrides
+            .word_break
+            .clone()
+            .or_else(|| base.word_break.clone()),
         overflow: overrides.overflow.clone().or_else(|| base.overflow.clone()),
         text_overflow: overrides
             .text_overflow
             .clone()
             .or_else(|| base.text_overflow.clone()),
-        min_width: overrides.min_width.clone().or_else(|| base.min_width.clone()),
-        max_width: overrides.max_width.clone().or_else(|| base.max_width.clone()),
+        min_width: overrides
+            .min_width
+            .clone()
+            .or_else(|| base.min_width.clone()),
+        max_width: overrides
+            .max_width
+            .clone()
+            .or_else(|| base.max_width.clone()),
     }
 }

@@ -1,0 +1,28 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Country]],
+    [#text(weight: "bold")[Value]],
+    table.hline(stroke: 0.5pt),
+  ),
+  table.hline(stroke: 0.5pt),
+  table.cell(colspan: 2, fill: luma(240))[#text(weight: "bold")[North America]],
+  table.hline(stroke: 0.5pt),
+  [USA],
+  [1250],
+  [Canada],
+  [420],
+  table.hline(stroke: 0.3pt),
+  table.hline(stroke: 0.5pt),
+  table.cell(colspan: 2, fill: luma(240))[#text(weight: "bold")[Europe]],
+  table.hline(stroke: 0.5pt),
+  [Germany],
+  [890],
+  [France],
+  [610],
+)

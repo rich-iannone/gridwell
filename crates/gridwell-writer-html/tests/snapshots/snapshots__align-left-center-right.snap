@@ -1,0 +1,27 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>Left</th>
+        <th>Center</th>
+        <th>Right</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>aaa</td>
+        <td>bbb</td>
+        <td>ccc</td>
+      </tr>
+      <tr>
+        <td>d</td>
+        <td>e</td>
+        <td>f</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

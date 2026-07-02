@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{lcrl}
+\toprule
+L & C & R & J \\
+\midrule
+left & center & right & justified text here \\
+\bottomrule
+\end{tabular}

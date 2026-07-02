@@ -1,0 +1,53 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <div role="heading" aria-level="1">
+    Reaction rate constants
+  </div>
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>Compound</th>
+        <th>
+          k (s⁻¹)<sup><a href="#fn1">a</a></sup>
+        </th>
+        <th>T (K)</th>
+        <th>Ea (kJ/mol)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>A</td>
+        <td>1.2×10³</td>
+        <td>298</td>
+        <td>52.3</td>
+      </tr>
+      <tr>
+        <td>B</td>
+        <td>3.4×10²</td>
+        <td>298</td>
+        <td>61.0</td>
+      </tr>
+      <tr>
+        <td>C</td>
+        <td>8.9×10¹</td>
+        <td>310</td>
+        <td>70.8</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="gw_footer">
+    <div class="gw_footnotes">
+      <p id="fn1" >
+        <sup>a</sup> Measured under pseudo-first-order conditions.
+      </p>
+    </div>
+    <div class="gw_source_notes">
+      <p>
+        Source: laboratory notebook, 2026.
+      </p>
+    </div>
+  </div>
+</div>

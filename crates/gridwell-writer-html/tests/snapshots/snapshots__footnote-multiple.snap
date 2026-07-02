@@ -1,0 +1,40 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>
+          Name<sup><a href="#fa">a</a></sup>
+        </th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Alice</td>
+        <td>
+          90<sup><a href="#fb">b</a></sup>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Bob<sup><a href="#fb">b</a></sup>
+        </td>
+        <td>85</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="gw_footer">
+    <div class="gw_footnotes">
+      <p id="fa" >
+        <sup>a</sup> Given name only.
+      </p>
+      <p id="fb" >
+        <sup>b</sup> Provisional value.
+      </p>
+    </div>
+  </div>
+</div>

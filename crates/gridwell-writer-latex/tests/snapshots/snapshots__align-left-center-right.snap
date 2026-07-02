@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{lcr}
+\toprule
+Left & Center & Right \\
+\midrule
+aaa & bbb & ccc \\
+d & e & f \\
+\bottomrule
+\end{tabular}

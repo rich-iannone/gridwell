@@ -1,0 +1,20 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: out
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="92" viewBox="0 0 160 92">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
+<line x1="0" y1="28" x2="40" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="24" font-weight="bold">#</text>
+<line x1="40" y1="28" x2="160" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="48" y="24" font-weight="bold">Description</text>
+<line x1="0" y1="28" x2="160" y2="28" stroke="#333333" stroke-width="1.5"/>
+<line x1="0" y1="56" x2="40" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="52">1</text>
+<line x1="40" y1="56" x2="160" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="48" y="52">A long descriptive line of text.</text>
+<line x1="0" y1="84" x2="40" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="80">2</text>
+<line x1="40" y1="84" x2="160" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="48" y="80">Another spanning description here.</text>
+</svg>

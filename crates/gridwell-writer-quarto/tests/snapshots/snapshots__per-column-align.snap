@@ -1,0 +1,313 @@
+---
+source: crates/gridwell-writer-quarto/tests/snapshots.rs
+expression: out
+---
+{
+  "c": [
+    [
+      "",
+      [
+        "quarto-table",
+        "cell-output-display"
+      ],
+      []
+    ],
+    [
+      {
+        "c": [
+          [
+            "",
+            [],
+            []
+          ],
+          [
+            null,
+            []
+          ],
+          [
+            [
+              {
+                "t": "AlignLeft"
+              },
+              {
+                "t": "ColWidthDefault"
+              }
+            ],
+            [
+              {
+                "t": "AlignCenter"
+              },
+              {
+                "t": "ColWidthDefault"
+              }
+            ],
+            [
+              {
+                "t": "AlignRight"
+              },
+              {
+                "t": "ColWidthDefault"
+              }
+            ],
+            [
+              {
+                "t": "AlignDefault"
+              },
+              {
+                "t": "ColWidthDefault"
+              }
+            ]
+          ],
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            [
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                [
+                  [
+                    [
+                      "",
+                      [],
+                      []
+                    ],
+                    {
+                      "t": "AlignDefault"
+                    },
+                    1,
+                    1,
+                    [
+                      {
+                        "c": [
+                          {
+                            "c": "L",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Plain"
+                      }
+                    ]
+                  ],
+                  [
+                    [
+                      "",
+                      [],
+                      []
+                    ],
+                    {
+                      "t": "AlignDefault"
+                    },
+                    1,
+                    1,
+                    [
+                      {
+                        "c": [
+                          {
+                            "c": "C",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Plain"
+                      }
+                    ]
+                  ],
+                  [
+                    [
+                      "",
+                      [],
+                      []
+                    ],
+                    {
+                      "t": "AlignDefault"
+                    },
+                    1,
+                    1,
+                    [
+                      {
+                        "c": [
+                          {
+                            "c": "R",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Plain"
+                      }
+                    ]
+                  ],
+                  [
+                    [
+                      "",
+                      [],
+                      []
+                    ],
+                    {
+                      "t": "AlignDefault"
+                    },
+                    1,
+                    1,
+                    [
+                      {
+                        "c": [
+                          {
+                            "c": "J",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Plain"
+                      }
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              0,
+              [],
+              [
+                [
+                  [
+                    "",
+                    [],
+                    []
+                  ],
+                  [
+                    [
+                      [
+                        "",
+                        [],
+                        []
+                      ],
+                      {
+                        "t": "AlignDefault"
+                      },
+                      1,
+                      1,
+                      [
+                        {
+                          "c": [
+                            {
+                              "c": "left",
+                              "t": "Str"
+                            }
+                          ],
+                          "t": "Plain"
+                        }
+                      ]
+                    ],
+                    [
+                      [
+                        "",
+                        [],
+                        []
+                      ],
+                      {
+                        "t": "AlignDefault"
+                      },
+                      1,
+                      1,
+                      [
+                        {
+                          "c": [
+                            {
+                              "c": "center",
+                              "t": "Str"
+                            }
+                          ],
+                          "t": "Plain"
+                        }
+                      ]
+                    ],
+                    [
+                      [
+                        "",
+                        [],
+                        []
+                      ],
+                      {
+                        "t": "AlignDefault"
+                      },
+                      1,
+                      1,
+                      [
+                        {
+                          "c": [
+                            {
+                              "c": "right",
+                              "t": "Str"
+                            }
+                          ],
+                          "t": "Plain"
+                        }
+                      ]
+                    ],
+                    [
+                      [
+                        "",
+                        [],
+                        []
+                      ],
+                      {
+                        "t": "AlignDefault"
+                      },
+                      1,
+                      1,
+                      [
+                        {
+                          "c": [
+                            {
+                              "c": "justified",
+                              "t": "Str"
+                            },
+                            {
+                              "t": "Space"
+                            },
+                            {
+                              "c": "text",
+                              "t": "Str"
+                            },
+                            {
+                              "t": "Space"
+                            },
+                            {
+                              "c": "here",
+                              "t": "Str"
+                            }
+                          ],
+                          "t": "Plain"
+                        }
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            []
+          ]
+        ],
+        "t": "Table"
+      }
+    ]
+  ],
+  "t": "Div"
+}

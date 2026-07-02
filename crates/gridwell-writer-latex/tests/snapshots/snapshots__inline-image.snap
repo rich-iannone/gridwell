@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Icon & Label \\
+\midrule
+logo & Brand \\
+\bottomrule
+\end{tabular}

@@ -1,0 +1,24 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>الاسم</th>
+        <th>القيمة</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>مرحبا</td>
+        <td>١٢٣</td>
+      </tr>
+      <tr>
+        <td>שלום</td>
+        <td>456</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

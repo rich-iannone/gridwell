@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Name & Address \\
+\midrule
+HQ & 123 Main St\newline Suite 100\newline Anytown \\
+\bottomrule
+\end{tabular}

@@ -1,0 +1,28 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+{\large\bfseries Regional Sales Performance}\\
+{\small Fiscal years 2023–2024 (in millions USD)}\\[6pt]
+\begin{tabular}{lrrr}
+\toprule
+ &  & \multicolumn{2}{l}{Financials} \\
+Country & Year & Revenue & Profit \\
+\midrule
+\midrule
+\multicolumn{4}{l}{\bfseries North America} \\
+\midrule
+\multirow{2}{*}{United States} & 2023 & 1,250.3 & 270.1\textsuperscript{1} \\
+2024 & 1,380.7 & 330.3 \\
+Canada & 2024 & 420.1 & 109.5 \\
+\midrule
+\multicolumn{4}{l}{\bfseries Europe} \\
+\midrule
+Germany & 2024 & 945.2 & 164.9 \\
+France & 2024 & 610.8 & 120.6 \\
+\bottomrule
+\end{tabular}
+
+\textsuperscript{1} Includes one-time restructuring charge.\\
+
+{\footnotesize Source: Internal finance database, June 2026.}\\

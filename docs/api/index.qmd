@@ -1,0 +1,10 @@
+---
+title: "API Reference"
+---
+
+Gridwell provides APIs in four languages:
+
+- [Rust](rust.qmd) — native crate API
+- [Python](python.qmd) — PyO3 bindings
+- [R](r.qmd) — extendr bindings
+- [C FFI](c-ffi.qmd) — stable C ABI for embedding

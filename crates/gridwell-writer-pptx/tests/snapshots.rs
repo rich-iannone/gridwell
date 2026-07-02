@@ -1,111 +1,29 @@
-use gridwell_ir::Table;
-use gridwell_writer_pptx::PptxWriter;
-use std::fs;
-use std::path::PathBuf;
+//! Snapshot + validity tests over the shared example corpus.
+//!
+//! Snapshots capture the unzipped XML (human-reviewable); a separate test
+//! confirms the packaged bytes are a valid zip. Review changes with
+//! `cargo insta review`; regenerate with `INSTA_UPDATE=always cargo test`.
 
-fn fixtures_dir() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .unwrap()
-        .parent()
-        .unwrap()
-        .join("fixtures")
-}
-
-fn load_fixture(path: &str) -> Table {
-    let full_path = fixtures_dir().join(path);
-    let json = fs::read_to_string(&full_path)
-        .unwrap_or_else(|e| panic!("Failed to read {}: {e}", full_path.display()));
-    Table::from_json(&json)
-        .unwrap_or_else(|e| panic!("Failed to parse {}: {e}", full_path.display()))
-}
-
-fn render_xml(path: &str) -> String {
-    let table = load_fixture(path);
-    PptxWriter::new()
-        .render_slide_xml(&table)
-        .unwrap_or_else(|e| panic!("Failed to render {path}: {e}"))
-}
-
-fn render_bytes(path: &str) -> Vec<u8> {
-    let table = load_fixture(path);
-    PptxWriter::new()
-        .render(&table)
-        .unwrap_or_else(|e| panic!("Failed to render {path}: {e}"))
-}
-
-// ─── XML snapshot tests ───
+use gridwell_testkit::examples;
+use gridwell_writer_pptx::{render_pptx, PptxWriter};
 
 #[test]
-fn snapshot_minimal_1x1() {
-    insta::assert_snapshot!(render_xml("minimal/minimal_1x1.json"));
+fn snapshots() {
+    let writer = PptxWriter::new();
+    for ex in examples() {
+        let xml = writer
+            .render_slide_xml(&ex.table())
+            .unwrap_or_else(|e| panic!("render '{}' failed: {e}", ex.name));
+        insta::assert_snapshot!(ex.name, xml);
+    }
 }
-
-#[test]
-fn snapshot_minimal_no_header() {
-    insta::assert_snapshot!(render_xml("minimal/minimal_no_header.json"));
-}
-
-#[test]
-fn snapshot_colspan_basic() {
-    insta::assert_snapshot!(render_xml("minimal/colspan_basic.json"));
-}
-
-#[test]
-fn snapshot_rowspan_basic() {
-    insta::assert_snapshot!(render_xml("minimal/rowspan_basic.json"));
-}
-
-#[test]
-fn snapshot_footnote_single() {
-    insta::assert_snapshot!(render_xml("minimal/footnote_single.json"));
-}
-
-#[test]
-fn snapshot_row_group_multiple() {
-    insta::assert_snapshot!(render_xml("minimal/row_group_multiple.json"));
-}
-
-#[test]
-fn snapshot_summary_rows() {
-    insta::assert_snapshot!(render_xml("minimal/summary_rows.json"));
-}
-
-#[test]
-fn snapshot_empty_body() {
-    insta::assert_snapshot!(render_xml("minimal/empty_body.json"));
-}
-
-#[test]
-fn snapshot_styles_borders() {
-    insta::assert_snapshot!(render_xml("minimal/styles_borders.json"));
-}
-
-#[test]
-fn snapshot_content_rich() {
-    insta::assert_snapshot!(render_xml("minimal/content_rich.json"));
-}
-
-#[test]
-fn snapshot_unicode_cjk() {
-    insta::assert_snapshot!(render_xml("minimal/unicode_cjk.json"));
-}
-
-#[test]
-fn snapshot_column_widths() {
-    insta::assert_snapshot!(render_xml("minimal/column_widths.json"));
-}
-
-#[test]
-fn snapshot_comprehensive_reference() {
-    insta::assert_snapshot!(render_xml("comprehensive/reference_table.json"));
-}
-
-// ─── Binary output tests ───
 
 #[test]
 fn binary_output_is_valid_zip() {
-    let bytes = render_bytes("minimal/minimal_1x1.json");
-    assert!(bytes.len() > 100, "pptx output too small");
-    assert_eq!(&bytes[0..4], b"PK\x03\x04");
+    for ex in examples() {
+        let bytes =
+            render_pptx(&ex.table()).unwrap_or_else(|e| panic!("render '{}' failed: {e}", ex.name));
+        assert!(bytes.len() > 100, "{}: output too small", ex.name);
+        assert_eq!(&bytes[0..4], b"PK\x03\x04", "{}: bad zip magic", ex.name);
+    }
 }

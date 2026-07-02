@@ -1,0 +1,9 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌──────────────────────────────┬──────────────┐
+│[1m         Constrained          [0m│[1m     Free     [0m│
+├──────────────────────────────┼──────────────┤
+│ clamped between 80 and 200px │ grows freely │
+└──────────────────────────────┴──────────────┘

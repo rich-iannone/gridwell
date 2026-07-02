@@ -1,0 +1,32 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: out
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="120" viewBox="0 0 360 120">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
+<line x1="0" y1="28" x2="120" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="24" font-weight="bold">A</text>
+<line x1="120" y1="28" x2="240" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="24" font-weight="bold">B</text>
+<line x1="240" y1="28" x2="360" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="24" font-weight="bold">C</text>
+<line x1="0" y1="28" x2="360" y2="28" stroke="#333333" stroke-width="1.5"/>
+<line x1="0" y1="56" x2="120" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="52">1</text>
+<line x1="120" y1="56" x2="240" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="52">2</text>
+<line x1="240" y1="56" x2="360" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="52">3</text>
+<line x1="0" y1="84" x2="120" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="80">4</text>
+<line x1="120" y1="84" x2="240" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="80">5</text>
+<line x1="240" y1="84" x2="360" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="80">6</text>
+<line x1="0" y1="112" x2="120" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="108">7</text>
+<line x1="120" y1="112" x2="240" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="108">8</text>
+<line x1="240" y1="112" x2="360" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="108">9</text>
+</svg>

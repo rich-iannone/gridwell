@@ -1,0 +1,86 @@
+---
+title: "Table Data"
+---
+
+The `table` block contains the actual table data, split into `thead` and `tbody`.
+
+## Structure
+
+```json
+{
+  "table": {
+    "thead": { "rows": [...] },
+    "tbody": [RowGroup, ...]
+  }
+}
+```
+
+## thead
+
+```json
+{
+  "thead": {
+    "rows": [{
+      "role": "column_label",
+      "style_id": null,
+      "cells": [{
+        "content": [{ "type": "text", "value": "Name" }],
+        "colspan": 1, "rowspan": 1,
+        "style_id": null,
+        "is_stub": false, "is_placeholder": false,
+        "scope": "col"
+      }]
+    }]
+  }
+}
+```
+
+## tbody (Row Groups)
+
+The body is an array of row groups. Each group has a label, data rows, and optional summary rows.
+
+```json
+{
+  "tbody": [{
+    "group_id": "grp_1",
+    "label": {
+      "content": [{ "type": "text", "value": "North America" }],
+      "style_id": null,
+      "colspan": null
+    },
+    "rows": [{ "role": null, "cells": [...] }],
+    "summary_rows": []
+  }]
+}
+```
+
+## Cell Fields
+
+| Field           | Type    | Required | Description                       |
+|-----------------|---------|----------|-----------------------------------|
+| `content`       | array   | Yes      | Array of ContentNode              |
+| `typed_value`   | object? | No       | Typed data value                  |
+| `colspan`       | integer | Yes      | Column span (≥ 1)                 |
+| `rowspan`       | integer | Yes      | Row span (≥ 1)                    |
+| `style_id`      | string? | No       | Style reference                   |
+| `is_stub`       | boolean | Yes      | Whether cell is a row label       |
+| `is_placeholder`| boolean | Yes      | Whether cell is a span placeholder|
+| `scope`         | string? | No       | `"col"`, `"row"`, `"colgroup"`, `"rowgroup"` |
+| `sort_key`      | any?    | No       | Sort value                        |
+| `data_type`     | string? | No       | Data type hint                    |
+
+## Spans and Placeholders
+
+Cells with `colspan` or `rowspan` > 1 span multiple positions. Spanned-over positions
+**must** contain placeholder cells:
+
+```json
+[
+  { "content": [{"type": "text", "value": "Wide"}], "colspan": 2, "is_placeholder": false, ... },
+  { "content": [], "colspan": 1, "is_placeholder": true, "is_stub": false, ... }
+]
+```
+
+::: {.callout-warning}
+Placeholder cells must have **empty** `content`. The validator rejects non-empty placeholders.
+:::

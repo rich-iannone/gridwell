@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┐
+│[1m    Name    [0m│[1m   Score    [0m│
+├────────────┼────────────┤
+│   Alice    │    901     │
+│    Bob     │     85     │
+└────────────┴────────────┘
+  1 Includes bonus points.

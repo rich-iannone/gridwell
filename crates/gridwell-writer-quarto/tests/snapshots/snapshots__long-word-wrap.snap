@@ -1,0 +1,193 @@
+---
+source: crates/gridwell-writer-quarto/tests/snapshots.rs
+expression: out
+---
+{
+  "c": [
+    [
+      "",
+      [
+        "quarto-table",
+        "cell-output-display"
+      ],
+      []
+    ],
+    [
+      {
+        "c": [
+          [
+            "",
+            [],
+            []
+          ],
+          [
+            null,
+            []
+          ],
+          [
+            [
+              {
+                "t": "AlignLeft"
+              },
+              {
+                "c": 0.125,
+                "t": "ColWidth"
+              }
+            ],
+            [
+              {
+                "t": "AlignLeft"
+              },
+              {
+                "c": 0.15,
+                "t": "ColWidth"
+              }
+            ]
+          ],
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            [
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                [
+                  [
+                    [
+                      "",
+                      [],
+                      []
+                    ],
+                    {
+                      "t": "AlignDefault"
+                    },
+                    1,
+                    1,
+                    [
+                      {
+                        "c": [
+                          {
+                            "c": "Label",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Plain"
+                      }
+                    ]
+                  ],
+                  [
+                    [
+                      "",
+                      [],
+                      []
+                    ],
+                    {
+                      "t": "AlignDefault"
+                    },
+                    1,
+                    1,
+                    [
+                      {
+                        "c": [
+                          {
+                            "c": "Token",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Plain"
+                      }
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              0,
+              [],
+              [
+                [
+                  [
+                    "",
+                    [],
+                    []
+                  ],
+                  [
+                    [
+                      [
+                        "",
+                        [],
+                        []
+                      ],
+                      {
+                        "t": "AlignDefault"
+                      },
+                      1,
+                      1,
+                      [
+                        {
+                          "c": [
+                            {
+                              "c": "URL",
+                              "t": "Str"
+                            }
+                          ],
+                          "t": "Plain"
+                        }
+                      ]
+                    ],
+                    [
+                      [
+                        "",
+                        [],
+                        []
+                      ],
+                      {
+                        "t": "AlignDefault"
+                      },
+                      1,
+                      1,
+                      [
+                        {
+                          "c": [
+                            {
+                              "c": "https://example.com/very/long/path/that/should/not/break/nicely?query=1",
+                              "t": "Str"
+                            }
+                          ],
+                          "t": "Plain"
+                        }
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            []
+          ]
+        ],
+        "t": "Table"
+      }
+    ]
+  ],
+  "t": "Div"
+}

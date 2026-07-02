@@ -1,0 +1,18 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Metric]],
+    [#text(weight: "bold")[Value]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Users],
+  [1,024],
+)
+
+#text(size: 9pt, fill: luma(100))[Source: internal analytics.]
+#text(size: 9pt, fill: luma(100))[Collected June 2026.]

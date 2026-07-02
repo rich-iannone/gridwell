@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┐
+│[1m   Metric   [0m│[1m   Value    [0m│
+├────────────┼────────────┤
+│   Users    │   1,024    │
+└────────────┴────────────┘
+  Source: internal analytics.
+  Collected June 2026.

@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┐
+│[1m    Item    [0m│
+├────────────┤
+│   First    │
+│   Second   │
+│   Third    │
+└────────────┘

@@ -1,0 +1,4 @@
+# Golden reference images are binary and can accumulate; store them via Git LFS.
+# Requires `git lfs install` once per clone. Goldens are seeded from the pinned
+# Docker toolchain (see harness/README.md), not from arbitrary local machines.
+*.png filter=lfs diff=lfs merge=lfs -text

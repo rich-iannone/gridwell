@@ -1,0 +1,244 @@
+---
+source: crates/gridwell-writer-pandoc/tests/snapshots.rs
+expression: out
+---
+{
+  "c": [
+    [
+      "",
+      [],
+      []
+    ],
+    [
+      null,
+      []
+    ],
+    [
+      [
+        {
+          "t": "AlignLeft"
+        },
+        {
+          "t": "ColWidthDefault"
+        }
+      ],
+      [
+        {
+          "t": "AlignLeft"
+        },
+        {
+          "t": "ColWidthDefault"
+        }
+      ]
+    ],
+    [
+      [
+        "",
+        [],
+        []
+      ],
+      [
+        [
+          [
+            "",
+            [],
+            []
+          ],
+          [
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              1,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "Metric",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Plain"
+                }
+              ]
+            ],
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              1,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "Value",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Plain"
+                }
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        [
+          "",
+          [],
+          []
+        ],
+        0,
+        [],
+        [
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            [
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "Users",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ],
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                {
+                  "t": "AlignDefault"
+                },
+                1,
+                1,
+                [
+                  {
+                    "c": [
+                      {
+                        "c": "1,024",
+                        "t": "Str"
+                      }
+                    ],
+                    "t": "Plain"
+                  }
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        "",
+        [],
+        []
+      ],
+      [
+        [
+          [
+            "",
+            [],
+            []
+          ],
+          [
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              {
+                "t": "AlignDefault"
+              },
+              1,
+              2,
+              [
+                {
+                  "c": [
+                    {
+                      "c": "Source:",
+                      "t": "Str"
+                    },
+                    {
+                      "t": "Space"
+                    },
+                    {
+                      "c": "internal",
+                      "t": "Str"
+                    },
+                    {
+                      "t": "Space"
+                    },
+                    {
+                      "c": "analytics.",
+                      "t": "Str"
+                    },
+                    {
+                      "t": "LineBreak"
+                    },
+                    {
+                      "c": "Collected",
+                      "t": "Str"
+                    },
+                    {
+                      "t": "Space"
+                    },
+                    {
+                      "c": "June",
+                      "t": "Str"
+                    },
+                    {
+                      "t": "Space"
+                    },
+                    {
+                      "c": "2026.",
+                      "t": "Str"
+                    }
+                  ],
+                  "t": "Para"
+                }
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+  ],
+  "t": "Table"
+}

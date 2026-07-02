@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{lrl}
+\toprule
+Name & Score & Active \\
+\midrule
+Alice & 90 & yes \\
+Bob & 85 & no \\
+\bottomrule
+\end{tabular}

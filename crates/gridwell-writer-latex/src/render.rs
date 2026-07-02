@@ -182,8 +182,12 @@ impl<'a> LatexRenderer<'a> {
             if !group.summary_rows.is_empty() {
                 // Light separator before summary
                 if self.config.booktabs {
-                    writeln!(self.buf, "\\cmidrule(lr){{1-{}}}", self.table.config.table_cols)
-                        .unwrap();
+                    writeln!(
+                        self.buf,
+                        "\\cmidrule(lr){{1-{}}}",
+                        self.table.config.table_cols
+                    )
+                    .unwrap();
                 }
                 for row in &group.summary_rows {
                     self.render_row(row);
@@ -412,16 +416,31 @@ fn hex_to_latex_color(color: &str) -> Option<String> {
 
 fn merge_style_def(base: &StyleDef, overrides: &StyleDef) -> StyleDef {
     StyleDef {
-        font_family: overrides.font_family.clone().or_else(|| base.font_family.clone()),
-        font_size: overrides.font_size.clone().or_else(|| base.font_size.clone()),
-        font_weight: overrides.font_weight.clone().or_else(|| base.font_weight.clone()),
-        font_style: overrides.font_style.clone().or_else(|| base.font_style.clone()),
+        font_family: overrides
+            .font_family
+            .clone()
+            .or_else(|| base.font_family.clone()),
+        font_size: overrides
+            .font_size
+            .clone()
+            .or_else(|| base.font_size.clone()),
+        font_weight: overrides
+            .font_weight
+            .clone()
+            .or_else(|| base.font_weight.clone()),
+        font_style: overrides
+            .font_style
+            .clone()
+            .or_else(|| base.font_style.clone()),
         color: overrides.color.clone().or_else(|| base.color.clone()),
         background_color: overrides
             .background_color
             .clone()
             .or_else(|| base.background_color.clone()),
-        text_align: overrides.text_align.clone().or_else(|| base.text_align.clone()),
+        text_align: overrides
+            .text_align
+            .clone()
+            .or_else(|| base.text_align.clone()),
         vertical_align: overrides
             .vertical_align
             .clone()
@@ -434,17 +453,29 @@ fn merge_style_def(base: &StyleDef, overrides: &StyleDef) -> StyleDef {
             .text_decoration
             .clone()
             .or_else(|| base.text_decoration.clone()),
-        white_space: overrides.white_space.clone().or_else(|| base.white_space.clone()),
+        white_space: overrides
+            .white_space
+            .clone()
+            .or_else(|| base.white_space.clone()),
         padding: overrides.padding.clone().or_else(|| base.padding.clone()),
         border: overrides.border.clone().or_else(|| base.border.clone()),
         indent: overrides.indent.clone().or_else(|| base.indent.clone()),
-        word_break: overrides.word_break.clone().or_else(|| base.word_break.clone()),
+        word_break: overrides
+            .word_break
+            .clone()
+            .or_else(|| base.word_break.clone()),
         overflow: overrides.overflow.clone().or_else(|| base.overflow.clone()),
         text_overflow: overrides
             .text_overflow
             .clone()
             .or_else(|| base.text_overflow.clone()),
-        min_width: overrides.min_width.clone().or_else(|| base.min_width.clone()),
-        max_width: overrides.max_width.clone().or_else(|| base.max_width.clone()),
+        min_width: overrides
+            .min_width
+            .clone()
+            .or_else(|| base.min_width.clone()),
+        max_width: overrides
+            .max_width
+            .clone()
+            .or_else(|| base.max_width.clone()),
     }
 }

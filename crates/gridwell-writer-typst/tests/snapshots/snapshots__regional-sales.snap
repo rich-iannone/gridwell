@@ -1,0 +1,51 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#align(left)[#text(size: 16pt, weight: "bold")[Regional Sales Performance]]
+#align(left)[#text(size: 12pt, fill: luma(100))[Fiscal years 2023–2024 (in millions USD)]]
+#v(6pt)
+#table(
+  columns: (auto, auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[]],
+    [#text(weight: "bold")[]],
+    table.cell(colspan: 2)[#text(weight: "bold")[Financials]],
+    [#text(weight: "bold")[Country]],
+    [#text(weight: "bold")[Year]],
+    [#text(weight: "bold")[Revenue]],
+    [#text(weight: "bold")[Profit]],
+    table.hline(stroke: 0.5pt),
+  ),
+  table.hline(stroke: 0.5pt),
+  table.cell(colspan: 4, fill: luma(240))[#text(weight: "bold")[North America]],
+  table.hline(stroke: 0.5pt),
+  table.cell(rowspan: 2)[United States],
+  [2023],
+  [1,250.3],
+  [270.1#super[1]],
+  [2024],
+  [1,380.7],
+  [330.3],
+  [Canada],
+  [2024],
+  [420.1],
+  [109.5],
+  table.hline(stroke: 0.3pt),
+  table.hline(stroke: 0.5pt),
+  table.cell(colspan: 4, fill: luma(240))[#text(weight: "bold")[Europe]],
+  table.hline(stroke: 0.5pt),
+  [Germany],
+  [2024],
+  [945.2],
+  [164.9],
+  [France],
+  [2024],
+  [610.8],
+  [120.6],
+)
+
+#text(size: 9pt)[#super[1] Includes one-time restructuring charge.]
+
+#text(size: 9pt, fill: luma(100))[Source: Internal finance database, June 2026.]

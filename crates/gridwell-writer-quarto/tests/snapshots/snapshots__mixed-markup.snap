@@ -1,0 +1,209 @@
+---
+source: crates/gridwell-writer-quarto/tests/snapshots.rs
+expression: out
+---
+{
+  "c": [
+    [
+      "",
+      [
+        "quarto-table",
+        "cell-output-display"
+      ],
+      []
+    ],
+    [
+      {
+        "c": [
+          [
+            "",
+            [],
+            []
+          ],
+          [
+            null,
+            []
+          ],
+          [
+            [
+              {
+                "t": "AlignLeft"
+              },
+              {
+                "t": "ColWidthDefault"
+              }
+            ]
+          ],
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            [
+              [
+                [
+                  "",
+                  [],
+                  []
+                ],
+                [
+                  [
+                    [
+                      "",
+                      [],
+                      []
+                    ],
+                    {
+                      "t": "AlignDefault"
+                    },
+                    1,
+                    1,
+                    [
+                      {
+                        "c": [
+                          {
+                            "c": "Message",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Plain"
+                      }
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              [
+                "",
+                [],
+                []
+              ],
+              0,
+              [],
+              [
+                [
+                  [
+                    "",
+                    [],
+                    []
+                  ],
+                  [
+                    [
+                      [
+                        "",
+                        [],
+                        []
+                      ],
+                      {
+                        "t": "AlignDefault"
+                      },
+                      1,
+                      1,
+                      [
+                        {
+                          "c": [
+                            {
+                              "c": "Status:",
+                              "t": "Str"
+                            },
+                            {
+                              "t": "Space"
+                            },
+                            {
+                              "c": "degraded",
+                              "t": "Str"
+                            },
+                            {
+                              "t": "LineBreak"
+                            },
+                            {
+                              "c": "Retry",
+                              "t": "Str"
+                            },
+                            {
+                              "t": "Space"
+                            },
+                            {
+                              "c": "advised",
+                              "t": "Str"
+                            },
+                            {
+                              "c": [
+                                {
+                                  "c": "†",
+                                  "t": "Str"
+                                }
+                              ],
+                              "t": "Superscript"
+                            }
+                          ],
+                          "t": "Plain"
+                        }
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "",
+              [],
+              []
+            ],
+            []
+          ]
+        ],
+        "t": "Table"
+      },
+      {
+        "c": [
+          {
+            "c": [
+              {
+                "c": "†",
+                "t": "Str"
+              }
+            ],
+            "t": "Superscript"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "c": "See",
+            "t": "Str"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "c": "runbook",
+            "t": "Str"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "c": "section",
+            "t": "Str"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "c": "4.",
+            "t": "Str"
+          }
+        ],
+        "t": "Para"
+      }
+    ]
+  ],
+  "t": "Div"
+}

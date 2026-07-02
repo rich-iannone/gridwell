@@ -1,0 +1,126 @@
+---
+title: "Grouped Table"
+---
+
+A table with multiple row groups, each with a label.
+
+## Input IR (abbreviated)
+
+```{.json filename="fixtures/minimal/row_group_multiple.json"}
+{
+  "config": { "table_cols": 3, "header_rows": 1, "body_rows": 4 },
+  "table": {
+    "thead": { "rows": [{ "cells": ["City", "Pop (M)", "Area (km²)"] }] },
+    "tbody": [
+      { "group_id": "asia", "label": "Asia", "rows": [
+        ["Tokyo", "13.96", "2,194"],
+        ["Seoul", "9.74", "605"]
+      ]},
+      { "group_id": "europe", "label": "Europe", "rows": [
+        ["London", "8.98", "1,572"],
+        ["Paris", "2.16", "105"]
+      ]}
+    ]
+  }
+}
+```
+
+::: {.callout-note}
+The JSON above is simplified for readability. The actual fixture includes full cell objects
+with `colspan`, `rowspan`, `is_placeholder`, etc.
+:::
+
+## Output
+
+::: {.panel-tabset}
+
+### HTML
+
+```html
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th scope="col">City</th>
+        <th scope="col">Pop (M)</th>
+        <th scope="col">Area (km²)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="3">Asia</td></tr>
+      <tr><td>Tokyo</td><td>13.96</td><td>2,194</td></tr>
+      <tr><td>Seoul</td><td>9.74</td><td>605</td></tr>
+    </tbody>
+    <tbody>
+      <tr><td colspan="3">Europe</td></tr>
+      <tr><td>London</td><td>8.98</td><td>1,572</td></tr>
+      <tr><td>Paris</td><td>2.16</td><td>105</td></tr>
+    </tbody>
+  </table>
+</div>
+```
+
+### LaTeX
+
+```latex
+\begin{tabular}{lrr}
+\toprule
+City & Pop (M) & Area (km²) \\
+\midrule
+\midrule
+\multicolumn{3}{l}{\bfseries Asia} \\
+\midrule
+Tokyo & 13.96 & 2,194 \\
+Seoul & 9.74 & 605 \\
+\midrule
+\multicolumn{3}{l}{\bfseries Europe} \\
+\midrule
+London & 8.98 & 1,572 \\
+Paris & 2.16 & 105 \\
+\bottomrule
+\end{tabular}
+```
+
+### Typst
+
+```typst
+#table(
+  columns: (auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[City]],
+    [#text(weight: "bold")[Pop (M)]],
+    [#text(weight: "bold")[Area (km²)]],
+    table.hline(stroke: 0.5pt),
+  ),
+  table.cell(colspan: 3, fill: luma(240))[#text(weight: "bold")[Asia]],
+  table.hline(stroke: 0.5pt),
+  [Tokyo], [13.96], [2,194],
+  [Seoul], [9.74], [605],
+  table.hline(stroke: 0.3pt),
+  table.cell(colspan: 3, fill: luma(240))[#text(weight: "bold")[Europe]],
+  table.hline(stroke: 0.5pt),
+  [London], [8.98], [1,572],
+  [Paris], [2.16], [105],
+)
+```
+
+### ANSI
+
+```text
+┌────────────┬────────────┬────────────┐
+│    City    │  Pop (M)   │ Area (km²) │
+├────────────┼────────────┼────────────┤
+│ Asia                                 │
+├────────────┼────────────┼────────────┤
+│   Tokyo    │   13.96    │   2,194    │
+│   Seoul    │    9.74    │    605     │
+├────────────┼────────────┼────────────┤
+│ Europe                               │
+├────────────┼────────────┼────────────┤
+│   London   │    8.98    │   1,572    │
+│   Paris    │    2.16    │    105     │
+└────────────┴────────────┴────────────┘
+```
+
+:::

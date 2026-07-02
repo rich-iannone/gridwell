@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{llll}
+\toprule
+Region & City & Sales & Growth \\
+\midrule
+East & NYC & 60 & 3\% \\
+West & LA & 50 & 2\% \\
+\bottomrule
+\end{tabular}

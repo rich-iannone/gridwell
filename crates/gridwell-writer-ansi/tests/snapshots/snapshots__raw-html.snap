@@ -1,0 +1,9 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌─────────────┬────────────┐
+│[1m    Kind     [0m│[1m  Rendered  [0m│
+├─────────────┼────────────┤
+│ bold+italic │            │
+└─────────────┴────────────┘

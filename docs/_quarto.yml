@@ -1,0 +1,66 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Gridwell"
+  description: "Fast multi-format table rendering from a declarative IR"
+  repo-url: https://github.com/rich-iannone/gridwell
+  repo-actions: [edit, issue]
+  navbar:
+    left:
+      - text: "Guide"
+        href: guide/index.qmd
+      - text: "IR Schema"
+        href: schema/index.qmd
+      - text: "API"
+        href: api/index.qmd
+      - text: "Demos"
+        href: demos/index.qmd
+      # Served next to the docs on GitHub Pages (see .github/workflows/visual.yml).
+      # Site-absolute link: resolves on the deployed Pages site, but 404s during
+      # local `quarto preview` where the gallery isn't present.
+      - text: "Gallery"
+        href: /gridwell/gallery/
+    right:
+      - icon: github
+        href: https://github.com/rich-iannone/gridwell
+  sidebar:
+    - title: "Guide"
+      contents:
+        - guide/index.qmd
+        - guide/getting-started.qmd
+        - guide/cli.qmd
+        - guide/output-formats.qmd
+        - guide/integration-great-tables.qmd
+        - guide/integration-gt.qmd
+    - title: "IR Schema"
+      contents:
+        - schema/index.qmd
+        - schema/config.qmd
+        - schema/columns.qmd
+        - schema/table-data.qmd
+        - schema/styles.qmd
+        - schema/footer.qmd
+        - schema/validation.qmd
+    - title: "API"
+      contents:
+        - api/index.qmd
+        - api/rust.qmd
+        - api/python.qmd
+        - api/r.qmd
+        - api/c-ffi.qmd
+    - title: "Demos"
+      contents:
+        - demos/index.qmd
+        - demos/minimal.qmd
+        - demos/grouped.qmd
+        - demos/spans.qmd
+        - demos/comprehensive.qmd
+        - demos/gt-integration.qmd
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-overflow: wrap

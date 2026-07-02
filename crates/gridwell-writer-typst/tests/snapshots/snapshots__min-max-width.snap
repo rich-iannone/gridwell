@@ -1,0 +1,15 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Constrained]],
+    [#text(weight: "bold")[Free]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [clamped between 80 and 200px],
+  [grows freely],
+)

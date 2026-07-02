@@ -1,0 +1,20 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Visible 1]],
+    [#text(weight: "bold")[Hidden]],
+    [#text(weight: "bold")[Visible 2]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [a],
+  [secret],
+  [b],
+  [c],
+  [secret],
+  [d],
+)

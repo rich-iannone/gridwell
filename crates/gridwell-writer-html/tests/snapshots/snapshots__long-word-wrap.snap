@@ -1,0 +1,24 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <colgroup>
+      <col style="width: 100px">
+      <col style="width: 120px">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Label</th>
+        <th>Token</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>URL</td>
+        <td>https://example.com/very/long/path/that/should/not/break/nicely?query=1</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,15 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+[1mQuarterly P&L[0m
+┌────────────┬────────────┬────────────┐
+│[1m Line item  [0m│[1m     Q1     [0m│[1m     Q2     [0m│
+├────────────┼────────────┼────────────┤
+│  Revenue   │   $1,200   │   $1,350   │
+│    COGS    │    $700    │    $760    │
+│    Opex    │    $300    │    $320    │
+├────────────┼────────────┼────────────┤
+│[1m Net income [0m│[1m    $200    [0m│[1m    $270    [0m│
+└────────────┴────────────┴────────────┘
+  Unaudited management figures.

@@ -1,0 +1,43 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: out
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="204" viewBox="0 0 480 204">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
+<text x="8" y="24" font-weight="bold" font-size="19.599999999999998px">Reaction rate constants</text>
+<line x1="0" y1="56" x2="120" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="52" font-weight="bold">Compound</text>
+<line x1="120" y1="56" x2="240" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="52" font-weight="bold">k (s⁻¹)a</text>
+<line x1="240" y1="56" x2="360" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="52" font-weight="bold">T (K)</text>
+<line x1="360" y1="56" x2="480" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="52" font-weight="bold">Ea (kJ/mol)</text>
+<line x1="0" y1="56" x2="480" y2="56" stroke="#333333" stroke-width="1.5"/>
+<line x1="0" y1="84" x2="120" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="80">A</text>
+<line x1="120" y1="84" x2="240" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="80">1.2×10³</text>
+<line x1="240" y1="84" x2="360" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="80">298</text>
+<line x1="360" y1="84" x2="480" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="80">52.3</text>
+<line x1="0" y1="112" x2="120" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="108">B</text>
+<line x1="120" y1="112" x2="240" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="108">3.4×10²</text>
+<line x1="240" y1="112" x2="360" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="108">298</text>
+<line x1="360" y1="112" x2="480" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="108">61.0</text>
+<line x1="0" y1="140" x2="120" y2="140" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="136">C</text>
+<line x1="120" y1="140" x2="240" y2="140" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="136">8.9×10¹</text>
+<line x1="240" y1="140" x2="360" y2="140" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="136">310</text>
+<line x1="360" y1="140" x2="480" y2="140" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="136">70.8</text>
+<text x="8" y="165" font-size="11.9px"><tspan font-size="9.799999999999999px" baseline-shift="super">a</tspan> Measured under pseudo-first-order conditions.</text>
+<text x="8" y="194" font-size="11.9px">Source: laboratory notebook, 2026.</text>
+</svg>

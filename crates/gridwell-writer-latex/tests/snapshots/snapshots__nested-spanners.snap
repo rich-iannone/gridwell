@@ -1,0 +1,13 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{llll}
+\toprule
+\multicolumn{2}{l}{Group A} & \multicolumn{2}{l}{Group B} \\
+A1 & A2 & B1 & B2 \\
+\midrule
+1 & 2 & 3 & 4 \\
+5 & 6 & 7 & 8 \\
+\bottomrule
+\end{tabular}

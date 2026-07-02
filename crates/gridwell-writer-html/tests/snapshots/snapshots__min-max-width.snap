@@ -1,0 +1,20 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>Constrained</th>
+        <th>Free</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>clamped between 80 and 200px</td>
+        <td>grows freely</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

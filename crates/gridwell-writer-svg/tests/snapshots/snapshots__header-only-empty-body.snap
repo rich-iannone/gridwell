@@ -1,0 +1,15 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: out
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="64" viewBox="0 0 360 64">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
+<text x="8" y="24" font-weight="bold" font-size="19.599999999999998px">Empty</text>
+<line x1="0" y1="56" x2="120" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="52" font-weight="bold">A</text>
+<line x1="120" y1="56" x2="240" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="52" font-weight="bold">B</text>
+<line x1="240" y1="56" x2="360" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="52" font-weight="bold">C</text>
+<line x1="0" y1="56" x2="360" y2="56" stroke="#333333" stroke-width="1.5"/>
+</svg>

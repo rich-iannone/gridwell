@@ -1,0 +1,13 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Item & Amount \\
+\midrule
+A & 1234.5 \\
+B & 6.789 \\
+C & 42.0 \\
+\bottomrule
+\end{tabular}

@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┐
+│[1m    Item    [0m│[1m   Amount   [0m│
+├────────────┼────────────┤
+│     A      │   1234.5   │
+│     B      │   6.789    │
+│     C      │    42.0    │
+└────────────┴────────────┘

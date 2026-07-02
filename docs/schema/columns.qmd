@@ -1,0 +1,41 @@
+---
+title: "Columns"
+---
+
+The `column_spec` array defines one entry per column.
+
+## Fields
+
+| Field       | Type    | Required | Description                          |
+|-------------|---------|----------|--------------------------------------|
+| `id`        | string  | Yes      | Unique column identifier             |
+| `align`     | string  | Yes      | `"left"`, `"center"`, `"right"`, or `"char"` |
+| `align_char`| string? | No       | Character for char alignment (e.g. `"."`) |
+| `width`     | string  | Yes      | `"auto"` or CSS length               |
+| `min_width` | string? | No       | Minimum width                        |
+| `max_width` | string? | No       | Maximum width                        |
+| `style_id`  | string? | No       | Default style for all cells in column|
+| `hidden`    | boolean | Yes      | Whether column is hidden             |
+| `label`     | string? | No       | Column display label (accessibility) |
+
+## Example
+
+```json
+{
+  "column_spec": [
+    { "id": "col_0", "align": "left", "width": "150px", "hidden": false, "label": "Country" },
+    { "id": "col_1", "align": "right", "width": "auto", "hidden": false, "label": "Population" },
+    { "id": "col_2", "align": "center", "width": "1fr", "hidden": false, "label": "Region" }
+  ]
+}
+```
+
+## Width Values
+
+| Value   | Description                                    |
+|---------|------------------------------------------------|
+| `auto`  | Content-determined width                       |
+| `120px` | Fixed pixel width                              |
+| `25%`   | Percentage of container                        |
+| `1fr`   | Fractional unit (like CSS grid)                |
+| `3cm`   | Absolute length (cm, mm, in, pt)               |

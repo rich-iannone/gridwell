@@ -1,0 +1,20 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[A]],
+    [#text(weight: "bold")[B]],
+    [#text(weight: "bold")[C]],
+    table.hline(stroke: 0.5pt),
+  ),
+  table.cell(colspan: 2, rowspan: 2)[2x2 block],
+  [top-right],
+  [mid-right],
+  [x],
+  [y],
+  [z],
+)

@@ -1,0 +1,67 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: out
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="372" viewBox="0 0 480 372">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
+<text x="8" y="24" font-weight="bold" font-size="19.599999999999998px">Regional Sales Performance</text>
+<text x="8" y="52" font-size="15.400000000000002px">Fiscal years 2023–2024 (in millions USD)</text>
+<line x1="0" y1="84" x2="120" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="120" y1="84" x2="240" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="240" y1="84" x2="480" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="80" font-weight="bold">Financials</text>
+<line x1="0" y1="84" x2="480" y2="84" stroke="#333333" stroke-width="1.5"/>
+<line x1="0" y1="112" x2="120" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="108" font-weight="bold">Country</text>
+<line x1="120" y1="112" x2="240" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="108" font-weight="bold">Year</text>
+<line x1="240" y1="112" x2="360" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="108" font-weight="bold">Revenue</text>
+<line x1="360" y1="112" x2="480" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="108" font-weight="bold">Profit</text>
+<line x1="0" y1="112" x2="480" y2="112" stroke="#333333" stroke-width="1.5"/>
+<rect x="0" y="112" width="480" height="28" fill="#f0f0f0"/>
+<text x="8" y="136" font-weight="bold">North America</text>
+<line x1="0" y1="168" x2="120" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="164">United States</text>
+<line x1="120" y1="168" x2="240" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="164">2023</text>
+<line x1="240" y1="168" x2="360" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="164">1,250.3</text>
+<line x1="360" y1="168" x2="480" y2="168" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="164">270.11</text>
+<line x1="120" y1="196" x2="240" y2="196" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="192">2024</text>
+<line x1="240" y1="196" x2="360" y2="196" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="192">1,380.7</text>
+<line x1="360" y1="196" x2="480" y2="196" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="192">330.3</text>
+<line x1="0" y1="224" x2="120" y2="224" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="220">Canada</text>
+<line x1="120" y1="224" x2="240" y2="224" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="220">2024</text>
+<line x1="240" y1="224" x2="360" y2="224" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="220">420.1</text>
+<line x1="360" y1="224" x2="480" y2="224" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="220">109.5</text>
+<rect x="0" y="224" width="480" height="28" fill="#f0f0f0"/>
+<text x="8" y="248" font-weight="bold">Europe</text>
+<line x1="0" y1="280" x2="120" y2="280" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="276">Germany</text>
+<line x1="120" y1="280" x2="240" y2="280" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="276">2024</text>
+<line x1="240" y1="280" x2="360" y2="280" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="276">945.2</text>
+<line x1="360" y1="280" x2="480" y2="280" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="276">164.9</text>
+<line x1="0" y1="308" x2="120" y2="308" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="8" y="304">France</text>
+<line x1="120" y1="308" x2="240" y2="308" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="128" y="304">2024</text>
+<line x1="240" y1="308" x2="360" y2="308" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="304">610.8</text>
+<line x1="360" y1="308" x2="480" y2="308" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="368" y="304">120.6</text>
+<text x="8" y="333" font-size="11.9px"><tspan font-size="9.799999999999999px" baseline-shift="super">1</tspan> Includes one-time restructuring charge.</text>
+<text x="8" y="362" font-size="11.9px">Source: Internal finance database, June 2026.</text>
+</svg>

@@ -1,0 +1,32 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#align(left)[#text(size: 16pt, weight: "bold")[Reaction rate constants]]
+#table(
+  columns: (auto, auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Compound]],
+    [#text(weight: "bold")[k (s⁻¹)#super[a]]],
+    [#text(weight: "bold")[T (K)]],
+    [#text(weight: "bold")[Ea (kJ/mol)]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [A],
+  [1.2×10³],
+  [298],
+  [52.3],
+  [B],
+  [3.4×10²],
+  [298],
+  [61.0],
+  [C],
+  [8.9×10¹],
+  [310],
+  [70.8],
+)
+
+#text(size: 9pt)[#super[a] Measured under pseudo-first-order conditions.]
+
+#text(size: 9pt, fill: luma(100))[Source: laboratory notebook, 2026.]

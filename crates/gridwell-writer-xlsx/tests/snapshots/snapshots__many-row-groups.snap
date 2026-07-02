@@ -1,0 +1,26 @@
+---
+source: crates/gridwell-writer-xlsx/tests/snapshots.rs
+expression: xml
+---
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<cols><col min="1" max="1" width="12.00" customWidth="1"/><col min="2" max="2" width="12.00" customWidth="1"/></cols>
+<sheetData>
+<row r="1"><c r="A1" t="inlineStr" s="1"><is><t>Key</t></is></c><c r="B1" t="inlineStr" s="1"><is><t>Value</t></is></c></row>
+<row r="2"><c r="A2" t="inlineStr" s="1"><is><t>Group 1</t></is></c></row>
+<row r="3"><c r="A3" t="inlineStr"><is><t>k1a</t></is></c><c r="B3" t="inlineStr"><is><t>10</t></is></c></row>
+<row r="4"><c r="A4" t="inlineStr"><is><t>k1b</t></is></c><c r="B4" t="inlineStr"><is><t>20</t></is></c></row>
+<row r="5"><c r="A5" t="inlineStr" s="1"><is><t>Group 2</t></is></c></row>
+<row r="6"><c r="A6" t="inlineStr"><is><t>k2a</t></is></c><c r="B6" t="inlineStr"><is><t>20</t></is></c></row>
+<row r="7"><c r="A7" t="inlineStr"><is><t>k2b</t></is></c><c r="B7" t="inlineStr"><is><t>40</t></is></c></row>
+<row r="8"><c r="A8" t="inlineStr" s="1"><is><t>Group 3</t></is></c></row>
+<row r="9"><c r="A9" t="inlineStr"><is><t>k3a</t></is></c><c r="B9" t="inlineStr"><is><t>30</t></is></c></row>
+<row r="10"><c r="A10" t="inlineStr"><is><t>k3b</t></is></c><c r="B10" t="inlineStr"><is><t>60</t></is></c></row>
+<row r="11"><c r="A11" t="inlineStr" s="1"><is><t>Group 4</t></is></c></row>
+<row r="12"><c r="A12" t="inlineStr"><is><t>k4a</t></is></c><c r="B12" t="inlineStr"><is><t>40</t></is></c></row>
+<row r="13"><c r="A13" t="inlineStr"><is><t>k4b</t></is></c><c r="B13" t="inlineStr"><is><t>80</t></is></c></row>
+<row r="14"><c r="A14" t="inlineStr" s="1"><is><t>Group 5</t></is></c></row>
+<row r="15"><c r="A15" t="inlineStr"><is><t>k5a</t></is></c><c r="B15" t="inlineStr"><is><t>50</t></is></c></row>
+<row r="16"><c r="A16" t="inlineStr"><is><t>k5b</t></is></c><c r="B16" t="inlineStr"><is><t>100</t></is></c></row>
+</sheetData>
+</worksheet>

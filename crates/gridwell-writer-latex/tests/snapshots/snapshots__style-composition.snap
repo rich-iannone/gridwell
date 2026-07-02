@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Key & Value \\
+\midrule
+normal & 42 \\
+\cellcolor{[HTML]{F1C40F}}\textcolor{[HTML]{2C3E50}}{\textbf{special}} & 99 \\
+\bottomrule
+\end{tabular}

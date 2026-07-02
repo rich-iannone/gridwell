@@ -1,0 +1,14 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+[1mReaction rate constants[0m
+┌────────────┬────────────┬────────────┬─────────────┐
+│[1m  Compound  [0m│[1m  k (s⁻¹)a  [0m│[1m   T (K)    [0m│[1m Ea (kJ/mol) [0m│
+├────────────┼────────────┼────────────┼─────────────┤
+│     A      │  1.2×10³   │    298     │    52.3     │
+│     B      │  3.4×10²   │    298     │    61.0     │
+│     C      │  8.9×10¹   │    310     │    70.8     │
+└────────────┴────────────┴────────────┴─────────────┘
+  a Measured under pseudo-first-order conditions.
+  Source: laboratory notebook, 2026.

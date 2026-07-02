@@ -92,13 +92,7 @@ fn render_thead(table: &Table) -> Value {
     let rows: Vec<Value> = if table.config.column_labels_hidden {
         vec![]
     } else {
-        table
-            .table
-            .thead
-            .rows
-            .iter()
-            .map(render_row)
-            .collect()
+        table.table.thead.rows.iter().map(render_row).collect()
     };
     json!([null_attr(), rows])
 }
@@ -186,13 +180,7 @@ fn render_cell(cell: &gridwell_ir::Cell) -> Value {
             "c": content_to_inlines(&cell.content)
         })]
     };
-    json!([
-        null_attr(),
-        align,
-        cell.rowspan,
-        cell.colspan,
-        blocks
-    ])
+    json!([null_attr(), align, cell.rowspan, cell.colspan, blocks])
 }
 
 fn content_to_inlines(nodes: &[ContentNode]) -> Vec<Value> {

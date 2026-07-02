@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┐
+│[1m  Country   [0m│[1m   Value    [0m│
+├────────────┼────────────┤
+│   Japan    │    100     │
+│            │    110     │
+│   Korea    │     80     │
+└────────────┴────────────┘

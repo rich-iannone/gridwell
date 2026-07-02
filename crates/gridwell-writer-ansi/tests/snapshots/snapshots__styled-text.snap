@@ -1,0 +1,9 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬─────────────────────┐
+│[1m    Term    [0m│[1m        Note         [0m│
+├────────────┼─────────────────────┤
+│    Rust    │ A systems language. │
+└────────────┴─────────────────────┘

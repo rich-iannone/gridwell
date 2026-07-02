@@ -1,0 +1,28 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <style>
+    .gw_cool { color: #ffffff; background-color: #2980b9 }
+    .gw_hot { color: #ffffff; background-color: #c0392b }
+  </style>
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>Label</th>
+        <th>Temp</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Fire</td>
+        <td class="gw_hot">hot</td>
+      </tr>
+      <tr>
+        <td>Ice</td>
+        <td class="gw_cool">cold</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

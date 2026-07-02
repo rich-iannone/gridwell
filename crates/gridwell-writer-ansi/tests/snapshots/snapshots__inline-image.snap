@@ -1,0 +1,9 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┐
+│[1m    Icon    [0m│[1m   Label    [0m│
+├────────────┼────────────┤
+│    logo    │   Brand    │
+└────────────┴────────────┘

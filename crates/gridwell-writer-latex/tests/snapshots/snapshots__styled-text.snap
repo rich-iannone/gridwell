@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Term & Note \\
+\midrule
+Rust & A systems language. \\
+\bottomrule
+\end{tabular}

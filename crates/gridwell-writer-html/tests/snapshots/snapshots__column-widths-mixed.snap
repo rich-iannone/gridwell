@@ -1,0 +1,30 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <table class="gw_table" style="width: 100%">
+    <colgroup>
+      <col style="width: 120px">
+      <col style="width: 25%">
+      <col style="width: 1fr">
+      <col>
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Fixed</th>
+        <th>Percent</th>
+        <th>Fraction</th>
+        <th>Auto</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>120px</td>
+        <td>25%</td>
+        <td>1fr</td>
+        <td>auto</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,139 @@
+name: Visual harness
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded build runs on the same ref (the Pages deploy job below opts
+# out of cancellation via its own concurrency group).
+concurrency:
+  group: visual-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gallery:
+    name: Render gallery + gated diff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true # golden PNGs live in Git LFS
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Build the pinned renderer toolchain straight from the Dockerfile in this
+      # branch (buildx layer cache keeps it fast after the first run). No GHCR
+      # image or registry auth is required, and the exact Dockerfile under review
+      # is what runs.
+      - name: Build harness image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: harness/Dockerfile
+          tags: gridwell-harness:ci
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # CARGO_HOME + target live on the mounted workspace, so persist them here
+      # to avoid recompiling the workspace from scratch inside the container.
+      - name: Cache cargo + target
+        uses: actions/cache@v4
+        with:
+          path: |
+            .ci-cargo
+            target
+          # Key off the root workspace lock only — a recursive `**/Cargo.lock`
+          # would try to walk root-owned render scratch (e.g. the LibreOffice
+          # profile) the container leaves behind and fail to hash.
+          key: visual-${{ hashFiles('Cargo.lock') }}
+          restore-keys: visual-
+
+      # Renders every example to every format, rasterizes, writes the gallery,
+      # and diffs the gated (HTML/SVG/Typst) formats against harness/goldens.
+      # Exits non-zero only on a gated regression, so a missing golden (first
+      # run, before goldens are seeded) passes.
+      - name: Render gallery and check gated formats
+        run: |
+          docker run --rm \
+            -v "$PWD:/w" -w /w \
+            -e CARGO_HOME=/w/.ci-cargo \
+            gridwell-harness:ci \
+            cargo xtask gallery --check
+
+      # The container runs as root, so it leaves root-owned files (some mode 700,
+      # e.g. the LibreOffice profile) in the workspace. Hand the whole tree back
+      # to the runner so later steps — cache save, artifact upload, and the
+      # cache post step's key hashing — can read everything.
+      - name: Fix permissions
+        if: always()
+        run: sudo chown -R "$(id -u):$(id -g)" . || true
+
+      - name: Upload gallery
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gallery
+          path: harness/gallery
+          retention-days: 14
+
+  docs:
+    name: Build docs site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: quarto-dev/quarto-actions/setup@v2
+      # No executable code chunks, so no Python/R runtime is needed.
+      - name: Render Quarto docs
+        run: quarto render docs
+      - name: Upload docs site
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-site
+          path: docs/_site
+          retention-days: 14
+
+  # Combined site: Quarto docs at the root, render gallery under /gallery/.
+  # Deploys only on pushes to main; PRs keep the downloadable artifacts above.
+  deploy:
+    name: Deploy combined site to Pages
+    needs: [gallery, docs]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    # Serialize Pages deploys without cancelling an in-flight one.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+
+      - name: Fetch docs site (→ root)
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-site
+          path: site
+
+      - name: Fetch gallery (→ /gallery)
+        uses: actions/download-artifact@v4
+        with:
+          name: gallery
+          path: site/gallery
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v4

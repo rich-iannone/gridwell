@@ -1,0 +1,79 @@
+---
+title: "gt Integration"
+---
+
+Gridwell integrates with [gt](https://gt.rstudio.com/) to render gt table objects to all 11
+output formats from R.
+
+## Quick Start
+
+```r
+library(gt)
+library(gridwell)
+
+tbl <- gt(exibble, rowname_col = "row", groupname_col = "group") |>
+  tab_header(title = "Example", subtitle = "From exibble")
+
+table_ptr <- gw_parse_ir(gt_to_ir(tbl))
+html <- gw_render_html(table_ptr)
+```
+
+## Functions
+
+### `gt_to_ir(gt_tbl)`
+
+Converts a `gt_tbl` object to gridwell IR JSON string.
+
+```r
+ir_json <- gt_to_ir(tbl)
+```
+
+### `gt_to_ir_list(gt_tbl)`
+
+Converts a `gt_tbl` object to an R list (IR structure).
+
+```r
+ir_list <- gt_to_ir_list(tbl)
+```
+
+## What Gets Converted
+
+| gt Feature | IR Mapping |
+|------------|-----------|
+| Column labels (`_boxhead`) | `thead` rows |
+| Row groups (`_row_groups`) | `tbody` array with group labels |
+| Stub column (`rowname_col`) | Cells with `is_stub: true` |
+| Title/subtitle (`_heading`) | `header` block |
+| Source notes (`_source_notes`) | `footer.source_notes` |
+| Column alignment | `column_spec[].align` |
+| Column widths | `column_spec[].width` |
+| Data values | Cell `content` and `typed_value` |
+
+## Full Pipeline Example
+
+```r
+library(gt)
+library(gridwell)
+
+tbl <- gt(exibble, rowname_col = "row", groupname_col = "group") |>
+  tab_header(title = "Example", subtitle = "Demo") |>
+  tab_source_note(source_note = "Source: gt package")
+
+table_ptr <- gw_parse_ir(gt_to_ir(tbl))
+
+# Validate
+errors <- gw_validate(table_ptr)
+stopifnot(length(errors) == 0)
+
+# Text formats
+for (fmt in c("html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto")) {
+  result <- gw_render(table_ptr, fmt)
+  cat(sprintf("  %s: %d chars\n", fmt, nchar(result)))
+}
+
+# Binary formats
+for (fmt in c("docx", "xlsx", "pptx")) {
+  data <- gw_render_binary(table_ptr, fmt)
+  cat(sprintf("  %s: %d bytes\n", fmt, length(data)))
+}
+```

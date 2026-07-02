@@ -1,0 +1,17 @@
+---
+source: crates/gridwell-writer-xlsx/tests/snapshots.rs
+expression: xml
+---
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<cols><col min="1" max="1" width="12.00" customWidth="1"/><col min="2" max="2" width="12.00" customWidth="1"/><col min="3" max="3" width="12.00" customWidth="1"/><col min="4" max="4" width="12.00" customWidth="1"/></cols>
+<sheetData>
+<row r="1"><c r="A1" t="inlineStr" s="1"><is><t>Reaction rate constants</t></is></c></row>
+<row r="2"><c r="A2" t="inlineStr" s="1"><is><t>Compound</t></is></c><c r="B2" t="inlineStr" s="1"><is><t>k (s⁻¹)a</t></is></c><c r="C2" t="inlineStr" s="1"><is><t>T (K)</t></is></c><c r="D2" t="inlineStr" s="1"><is><t>Ea (kJ/mol)</t></is></c></row>
+<row r="3"><c r="A3" t="inlineStr"><is><t>A</t></is></c><c r="B3" t="inlineStr"><is><t>1.2×10³</t></is></c><c r="C3" t="inlineStr"><is><t>298</t></is></c><c r="D3" t="inlineStr"><is><t>52.3</t></is></c></row>
+<row r="4"><c r="A4" t="inlineStr"><is><t>B</t></is></c><c r="B4" t="inlineStr"><is><t>3.4×10²</t></is></c><c r="C4" t="inlineStr"><is><t>298</t></is></c><c r="D4" t="inlineStr"><is><t>61.0</t></is></c></row>
+<row r="5"><c r="A5" t="inlineStr"><is><t>C</t></is></c><c r="B5" t="inlineStr"><is><t>8.9×10¹</t></is></c><c r="C5" t="inlineStr"><is><t>310</t></is></c><c r="D5" t="inlineStr"><is><t>70.8</t></is></c></row>
+<row r="7"><c r="A7" t="inlineStr"><is><t>a Measured under pseudo-first-order conditions.</t></is></c></row>
+<row r="9"><c r="A9" t="inlineStr"><is><t>Source: laboratory notebook, 2026.</t></is></c></row>
+</sheetData>
+</worksheet>

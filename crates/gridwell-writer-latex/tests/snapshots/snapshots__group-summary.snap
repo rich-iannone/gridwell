@@ -1,0 +1,24 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Item & Amount \\
+\midrule
+\midrule
+\multicolumn{2}{l}{\bfseries Q1} \\
+\midrule
+Jan & 10 \\
+Feb & 20 \\
+\cmidrule(lr){1-2}
+Subtotal & 30 \\
+\midrule
+\multicolumn{2}{l}{\bfseries Q2} \\
+\midrule
+Apr & 15 \\
+May & 25 \\
+\cmidrule(lr){1-2}
+Subtotal & 40 \\
+\bottomrule
+\end{tabular}

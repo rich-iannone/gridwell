@@ -13,5 +13,6 @@ thiserror = { workspace = true }
 unicode-width = "0.2"
 
 [dev-dependencies]
+gridwell-testkit = { path = "../gridwell-testkit" }
 insta = { workspace = true }
 serde_json = { workspace = true }

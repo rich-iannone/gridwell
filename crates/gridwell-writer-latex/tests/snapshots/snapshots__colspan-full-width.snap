@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{lll}
+\toprule
+\multicolumn{3}{l}{Full-width spanner} \\
+A & B & C \\
+\midrule
+1 & 2 & 3 \\
+\bottomrule
+\end{tabular}

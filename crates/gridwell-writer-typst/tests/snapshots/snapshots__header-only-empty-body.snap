@@ -1,0 +1,15 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#align(left)[#text(size: 16pt, weight: "bold")[Empty]]
+#table(
+  columns: (auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[A]],
+    [#text(weight: "bold")[B]],
+    [#text(weight: "bold")[C]],
+    table.hline(stroke: 0.5pt),
+  ),
+)

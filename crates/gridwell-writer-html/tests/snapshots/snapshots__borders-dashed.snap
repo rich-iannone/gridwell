@@ -1,0 +1,30 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <style>
+    .gw_bordered { padding: 4px; border-top: 1px dashed #333333; border-right: 1px dashed #333333; border-bottom: 1px dashed #333333; border-left: 1px dashed #333333 }
+  </style>
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th class="gw_bordered">A</th>
+        <th class="gw_bordered">B</th>
+        <th class="gw_bordered">C</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="gw_bordered">1</td>
+        <td class="gw_bordered">2</td>
+        <td class="gw_bordered">3</td>
+      </tr>
+      <tr>
+        <td class="gw_bordered">4</td>
+        <td class="gw_bordered">5</td>
+        <td class="gw_bordered">6</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

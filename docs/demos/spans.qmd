@@ -1,0 +1,156 @@
+---
+title: "Spans"
+---
+
+Demonstrations of `colspan` (spanning columns) and `rowspan` (spanning rows).
+
+## Colspan: Spanner Header
+
+A header row with a spanning label "Scores" over two columns.
+
+::: {.panel-tabset}
+
+### HTML
+
+```html
+<table class="gw_table">
+  <thead>
+    <tr>
+      <th></th>
+      <th scope="colgroup" colspan="2">Scores</th>
+    </tr>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Q1</th>
+      <th scope="col">Q2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Alice</td><td>90</td><td>95</td></tr>
+    <tr><td>Bob</td><td>85</td><td>88</td></tr>
+  </tbody>
+</table>
+```
+
+### LaTeX
+
+```latex
+\begin{tabular}{lrr}
+\toprule
+ & \multicolumn{2}{c}{Scores} \\
+Name & Q1 & Q2 \\
+\midrule
+Alice & 90 & 95 \\
+Bob & 85 & 88 \\
+\bottomrule
+\end{tabular}
+```
+
+### Typst
+
+```typst
+#table(
+  columns: (auto, auto, auto),
+  stroke: none,
+  table.header(
+    [], table.cell(colspan: 2)[#text(weight: "bold")[Scores]],
+    [#text(weight: "bold")[Name]],
+    [#text(weight: "bold")[Q1]],
+    [#text(weight: "bold")[Q2]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Alice], [90], [95],
+  [Bob], [85], [88],
+)
+```
+
+### ANSI
+
+```text
+┌────────────┬────────────┬────────────┐
+│            │         Scores          │
+│    Name    │     Q1     │     Q2     │
+├────────────┼────────────┼────────────┤
+│   Alice    │     90     │     95     │
+│    Bob     │     85     │     88     │
+└────────────┴────────────┴────────────┘
+```
+
+:::
+
+## Rowspan: Merged Row Cells
+
+A cell "Japan" spanning two rows in the body.
+
+::: {.panel-tabset}
+
+### HTML
+
+```html
+<table class="gw_table">
+  <thead>
+    <tr>
+      <th scope="col">Country</th>
+      <th scope="col">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2">Japan</td>
+      <td>100</td>
+    </tr>
+    <tr>
+      <td>110</td>
+    </tr>
+    <tr>
+      <td>Korea</td>
+      <td>80</td>
+    </tr>
+  </tbody>
+</table>
+```
+
+### LaTeX
+
+```latex
+\begin{tabular}{lr}
+\toprule
+Country & Value \\
+\midrule
+\multirow{2}{*}{Japan} & 100 \\
+ & 110 \\
+Korea & 80 \\
+\bottomrule
+\end{tabular}
+```
+
+### Typst
+
+```typst
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Country]],
+    [#text(weight: "bold")[Value]],
+    table.hline(stroke: 0.5pt),
+  ),
+  table.cell(rowspan: 2)[Japan], [100],
+  [110],
+  [Korea], [80],
+)
+```
+
+### ANSI
+
+```text
+┌────────────┬────────────┐
+│  Country   │   Value    │
+├────────────┼────────────┤
+│   Japan    │    100     │
+│            │    110     │
+│   Korea    │     80     │
+└────────────┴────────────┘
+```
+
+:::

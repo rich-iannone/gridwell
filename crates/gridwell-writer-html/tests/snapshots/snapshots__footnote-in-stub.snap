@@ -1,0 +1,33 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>Country</th>
+        <th>GDP</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          Atlantis<sup><a href="#fn1">*</a></sup>
+        </td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>Utopia</td>
+        <td>999</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="gw_footer">
+    <div class="gw_footnotes">
+      <p id="fn1" >
+        <sup>*</sup> Fictional; illustrative only.
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,28 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <style>
+    .gw_base { font-weight: bold; color: #2c3e50 }
+    .gw_emphasis { font-weight: bold; color: #2c3e50; background-color: #f1c40f }
+  </style>
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th>Key</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>normal</td>
+        <td>42</td>
+      </tr>
+      <tr>
+        <td class="gw_emphasis">special</td>
+        <td>99</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

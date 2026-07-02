@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌────────────┬────────────┬────────────┐
+│[1m     A      [0m│[1m     B      [0m│[1m     C      [0m│
+├────────────┼────────────┼────────────┤
+│        2x2 block        │ top-right  │
+│            │            │ mid-right  │
+│     x      │     y      │     z      │
+└────────────┴────────────┴────────────┘

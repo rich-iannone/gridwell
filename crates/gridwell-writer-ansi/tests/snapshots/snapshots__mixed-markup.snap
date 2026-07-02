@@ -1,0 +1,10 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌─────────────────────────────────┐
+│[1m             Message             [0m│
+├─────────────────────────────────┤
+│ Status: degraded Retry advised† │
+└─────────────────────────────────┘
+  † See runbook section 4.

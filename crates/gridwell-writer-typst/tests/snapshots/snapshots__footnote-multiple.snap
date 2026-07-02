@@ -1,0 +1,20 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Name#super[a]]],
+    [#text(weight: "bold")[Score]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Alice],
+  [90#super[b]],
+  [Bob#super[b]],
+  [85],
+)
+
+#text(size: 9pt)[#super[a] Given name only.]
+#text(size: 9pt)[#super[b] Provisional value.]

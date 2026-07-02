@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Label & Temp \\
+\midrule
+Fire & \cellcolor{[HTML]{C0392B}}\textcolor{[HTML]{FFFFFF}}{hot} \\
+Ice & \cellcolor{[HTML]{2980B9}}\textcolor{[HTML]{FFFFFF}}{cold} \\
+\bottomrule
+\end{tabular}

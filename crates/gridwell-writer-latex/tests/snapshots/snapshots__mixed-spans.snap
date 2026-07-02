@@ -1,0 +1,13 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{lll}
+\toprule
+A & B & C \\
+\midrule
+\multicolumn{2}{l}{2x2 block} & top-right \\
+mid-right \\
+x & y & z \\
+\bottomrule
+\end{tabular}

@@ -1,0 +1,14 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Metric & Value \\
+\midrule
+Users & 1,024 \\
+\bottomrule
+\end{tabular}
+
+{\footnotesize Source: internal analytics.}\\
+{\footnotesize Collected June 2026.}\\

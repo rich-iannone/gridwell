@@ -1,0 +1,11 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{l}
+\toprule
+Value \\
+\midrule
+Hello \\
+\bottomrule
+\end{tabular}

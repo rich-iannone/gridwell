@@ -1,0 +1,14 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Index & Value \\
+\midrule
+0 & a \\
+1 & b \\
+2 & c \\
+3 & d \\
+\bottomrule
+\end{tabular}

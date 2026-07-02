@@ -239,8 +239,11 @@ impl<'a> RtfRenderer<'a> {
                 for note in &footer.footnotes {
                     let text = content_to_rtf(&note.content);
                     let mark = escape_rtf(&note.mark);
-                    writeln!(self.buf, "\\pard\\fs18 \\super {mark}\\nosupersub  {text}\\par")
-                        .unwrap();
+                    writeln!(
+                        self.buf,
+                        "\\pard\\fs18 \\super {mark}\\nosupersub  {text}\\par"
+                    )
+                    .unwrap();
                 }
             }
             if !footer.source_notes.is_empty() {

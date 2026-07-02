@@ -1,0 +1,12 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{lrr}
+\toprule
+Product & Qty & Price \\
+\midrule
+Widget & 12 & 3.50 \\
+Gadget & 4 & 19.99 \\
+\bottomrule
+\end{tabular}

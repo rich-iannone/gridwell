@@ -1,0 +1,23 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto, auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Region]],
+    [#text(weight: "bold")[City]],
+    [#text(weight: "bold")[Sales]],
+    [#text(weight: "bold")[Growth]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [East],
+  [NYC],
+  [60],
+  [3%],
+  [West],
+  [LA],
+  [50],
+  [2%],
+)

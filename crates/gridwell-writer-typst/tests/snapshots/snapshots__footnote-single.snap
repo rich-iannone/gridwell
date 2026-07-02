@@ -1,0 +1,19 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Name]],
+    [#text(weight: "bold")[Score]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Alice],
+  [90#super[1]],
+  [Bob],
+  [85],
+)
+
+#text(size: 9pt)[#super[1] Includes bonus points.]
