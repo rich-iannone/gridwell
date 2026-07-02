@@ -99,16 +99,34 @@ git lfs install
 git add harness/goldens && git commit -m "Seed harness goldens"
 ```
 
+Instead of building locally you can pull the published image. Trigger the
+**Harness image** workflow (Actions → Harness image → *Run workflow*) from any
+branch — it accepts an optional tag — then:
+
+```bash
+docker pull ghcr.io/<owner>/gridwell-harness:pinned-2026-07
+# ...and use it in the `docker run` above.
+```
+
+The GHCR package is private by default, so either `docker login ghcr.io` with a
+PAT (scope `read:packages`) first, or set the package visibility to public in
+its GHCR settings.
+
 ## CI
 
 - **`ci.yml`** runs `cargo test` (the textual gate) on Linux/macOS/Windows and,
   on failure, uploads pending `.snap.new` files with a review hint.
 - **`harness-image.yml`** builds + pushes the pinned image to GHCR when the
-  Dockerfile changes.
+  Dockerfile changes, so contributors can `docker pull` it for local
+  golden-seeding instead of building it themselves.
 - **`visual.yml`** has three jobs:
-  - `gallery` runs `cargo xtask gallery --check` inside the pinned image, writes
-    a per-format summary table, and uploads the gallery as a build artifact
-    (PR review = download + open `index.html`). Fails only on a gated regression.
+  - `gallery` builds the pinned image from `harness/Dockerfile` (buildx layer
+    cache) and runs `cargo xtask gallery --check` inside it via `docker run`.
+    Building the image in-workflow means no GHCR image or registry auth is
+    needed and the exact Dockerfile under review is what runs. Writes a
+    per-format summary and uploads the gallery artifact (PR review = download +
+    open `index.html`). Fails only on a gated regression, so the first run
+    (before goldens are seeded) passes.
   - `docs` renders the Quarto docs site (`quarto render docs`).
   - `deploy` (pushes to `main` only) assembles a **combined GitHub Pages site** —
     the docs at the root and the render gallery under `/gallery/` — and publishes
@@ -121,6 +139,7 @@ git add harness/goldens && git commit -m "Seed harness goldens"
 
 ## Testing multiple renderer versions (deferred)
 
-The Docker image tag encodes the toolchain set. `visual.yml` uses a one-entry
-`strategy.matrix.toolchain`; to test another renderer version, build a new image
-tag and add it to that matrix — no other changes required.
+The Dockerfile pins the toolchain set. To test another renderer version, add a
+build argument (or a second Dockerfile) selecting the version and fan the
+`gallery` job out over a `strategy.matrix` that passes it as a `build-args` to
+the image build — no other changes required.
