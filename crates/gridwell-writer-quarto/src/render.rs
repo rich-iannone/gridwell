@@ -58,11 +58,7 @@ fn render_quarto_block(table: &Table, config: &QuartoConfig) -> Value {
     // Add cell-level class for Quarto table processing
     classes.push("cell-output-display");
 
-    let attr = json!([
-        id,
-        classes,
-        kv_pairs
-    ]);
+    let attr = json!([id, classes, kv_pairs]);
 
     // Quarto structure: Div(attr, [Table, ...footnote blocks])
     let mut blocks = vec![table_block];
@@ -226,13 +222,7 @@ fn render_cell(cell: &gridwell_ir::Cell) -> Value {
             "c": content_to_inlines(&cell.content)
         })]
     };
-    json!([
-        null_attr(),
-        align,
-        cell.rowspan,
-        cell.colspan,
-        blocks
-    ])
+    json!([null_attr(), align, cell.rowspan, cell.colspan, blocks])
 }
 
 fn content_to_inlines(nodes: &[ContentNode]) -> Vec<Value> {
