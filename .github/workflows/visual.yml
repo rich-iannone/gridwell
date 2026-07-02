@@ -69,7 +69,7 @@ jobs:
       # cache post step's key hashing — can read everything.
       - name: Fix permissions
         if: always()
-        run: sudo chown -R "$(id -u):$(id -g)" harness/gallery .ci-cargo target || true
+        run: sudo chown -R "$(id -u):$(id -g)" . || true
 
       - name: Upload gallery
         if: always()
