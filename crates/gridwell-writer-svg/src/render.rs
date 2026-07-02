@@ -238,7 +238,11 @@ impl<'a> SvgRenderer<'a> {
             if !text.is_empty() {
                 let tx = x + self.config.cell_padding_x;
                 let ty = self.y_offset - self.config.cell_padding_y;
-                let weight = if is_header { " font-weight=\"bold\"" } else { "" };
+                let weight = if is_header {
+                    " font-weight=\"bold\""
+                } else {
+                    ""
+                };
                 let mut color_attr = String::new();
                 if let Some(ref style_id) = cell.style_id {
                     if let Some(def) = self.table.styles.defs.get(style_id.as_str()) {
