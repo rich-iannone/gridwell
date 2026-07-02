@@ -24,8 +24,7 @@ pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
 
     let buf = Cursor::new(Vec::new());
     let mut zip = ZipWriter::new(buf);
-    let options = SimpleFileOptions::default()
-        .compression_method(zip::CompressionMethod::Deflated);
+    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
     zip.start_file("[Content_Types].xml", options)?;
     std::io::Write::write_all(&mut zip, xml::CONTENT_TYPES.as_bytes())?;
@@ -202,7 +201,10 @@ fn write_row(
             if let Some(def) = table.styles.defs.get(style_id.as_str()) {
                 if let Some(ref bg) = def.background_color {
                     if let Some(color) = xml::hex_to_ooxml_color(bg) {
-                        write!(buf, "<w:shd w:val=\"clear\" w:color=\"auto\" w:fill=\"{color}\"/>")?;
+                        write!(
+                            buf,
+                            "<w:shd w:val=\"clear\" w:color=\"auto\" w:fill=\"{color}\"/>"
+                        )?;
                     }
                 }
             }
@@ -289,7 +291,11 @@ fn write_run(
         }
         buf.push_str("</w:rPr>");
     }
-    write!(buf, "<w:t xml:space=\"preserve\">{}</w:t>", escape_xml(text))?;
+    write!(
+        buf,
+        "<w:t xml:space=\"preserve\">{}</w:t>",
+        escape_xml(text)
+    )?;
     buf.push_str("</w:r>");
     Ok(())
 }
