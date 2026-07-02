@@ -1,0 +1,95 @@
+---
+title: "Minimal Table"
+---
+
+The simplest possible gridwell table: 1 column, 1 row.
+
+## Input IR
+
+```{.json filename="fixtures/minimal/minimal_1x1.json"}
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 1, "header_rows": 1, "body_rows": 1,
+    "stub_cols": 0, "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "locale": "en-US", "page_break_mode": "avoid"
+  },
+  "styles": { "defs": {}, "compositions": {}, "conditionals": [] },
+  "column_spec": [
+    { "id": "col_0", "align": "left", "width": "auto", "hidden": false, "label": "Value" }
+  ],
+  "table": {
+    "thead": { "rows": [{ "role": "column_label", "cells": [
+      { "content": [{"type": "text", "value": "Value"}], "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "scope": "col" }
+    ]}]},
+    "tbody": [{ "rows": [{ "cells": [
+      { "content": [{"type": "text", "value": "Hello"}], "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "data_type": "string" }
+    ]}], "summary_rows": [] }]
+  },
+  "footer": { "footnotes": [], "source_notes": [] }
+}
+```
+
+## Output
+
+::: {.panel-tabset}
+
+### HTML
+
+```html
+<div class="gw_container">
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th scope="col">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Hello</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+### LaTeX
+
+```latex
+\begin{tabular}{l}
+\toprule
+Value \\
+\midrule
+Hello \\
+\bottomrule
+\end{tabular}
+```
+
+### Typst
+
+```typst
+#table(
+  columns: (auto),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Value]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Hello],
+)
+```
+
+### ANSI
+
+```text
+┌────────────┐
+│   Value    │
+├────────────┤
+│   Hello    │
+└────────────┘
+```
+
+:::
