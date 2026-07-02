@@ -219,12 +219,7 @@ impl<'a> AnsiRenderer<'a> {
         Ok(())
     }
 
-    fn write_border_line(
-        &mut self,
-        left: &str,
-        mid: &str,
-        right: &str,
-    ) -> Result<(), RenderError> {
+    fn write_border_line(&mut self, left: &str, mid: &str, right: &str) -> Result<(), RenderError> {
         self.buf.push_str(left);
         for (i, w) in self.col_widths.iter().enumerate() {
             for _ in 0..*w {
@@ -269,7 +264,9 @@ impl<'a> AnsiRenderer<'a> {
 
             // Clamp the span to the remaining columns so malformed input can't panic.
             let span = (cell.colspan as usize).min(self.col_widths.len() - col_idx);
-            let total_w: usize = self.col_widths[col_idx..col_idx + span].iter().sum::<usize>()
+            let total_w: usize = self.col_widths[col_idx..col_idx + span]
+                .iter()
+                .sum::<usize>()
                 + (span - 1); // account for removed separators
 
             let text = content_to_text(&cell.content);
@@ -310,11 +307,7 @@ impl<'a> AnsiRenderer<'a> {
                 let pad = total_w - display_width;
                 let lpad = pad / 2;
                 let rpad = pad - lpad;
-                format!(
-                    "{}{text}{}",
-                    " ".repeat(lpad),
-                    " ".repeat(rpad)
-                )
+                format!("{}{text}{}", " ".repeat(lpad), " ".repeat(rpad))
             };
 
             cell_text.push_str(&padded);
@@ -348,8 +341,7 @@ impl<'a> AnsiRenderer<'a> {
     }
 
     fn write_group_label(&mut self, text: &str) -> Result<(), RenderError> {
-        let total_inner: usize =
-            self.col_widths.iter().sum::<usize>() + self.col_widths.len() - 1;
+        let total_inner: usize = self.col_widths.iter().sum::<usize>() + self.col_widths.len() - 1;
         let display_width = UnicodeWidthStr::width(text);
 
         self.buf.push_str(self.bc.v);
