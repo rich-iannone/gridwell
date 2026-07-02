@@ -1,0 +1,96 @@
+---
+title: "Rust API"
+---
+
+## Crates
+
+| Crate | Purpose |
+|-------|---------|
+| `gridwell-ir` | IR types, parsing, validation |
+| `gridwell-core` | Shared utilities (colors, units) |
+| `gridwell-writer-html` | HTML renderer |
+| `gridwell-writer-latex` | LaTeX renderer |
+| `gridwell-writer-typst` | Typst renderer |
+| `gridwell-writer-rtf` | RTF renderer |
+| `gridwell-writer-svg` | SVG renderer |
+| `gridwell-writer-ansi` | Terminal renderer |
+| `gridwell-writer-pandoc` | Pandoc AST renderer |
+| `gridwell-writer-quarto` | Quarto renderer |
+| `gridwell-writer-docx` | Word renderer |
+| `gridwell-writer-xlsx` | Excel renderer |
+| `gridwell-writer-pptx` | PowerPoint renderer |
+
+## Parsing
+
+```rust
+use gridwell_ir::Table;
+
+let json = std::fs::read_to_string("table.json")?;
+let table = Table::from_json(&json)?;
+```
+
+## Validation
+
+```rust
+let errors = table.validate();
+if errors.is_empty() {
+    println!("Table is valid");
+} else {
+    for err in &errors {
+        eprintln!("Validation error: {err}");
+    }
+}
+```
+
+## Text Rendering
+
+```rust
+use gridwell_writer_html::{render_html, HtmlWriter, HtmlWriterConfig};
+
+// Default settings
+let html = render_html(&table)?;
+
+// Custom config
+let config = HtmlWriterConfig {
+    inline_styles: true,
+    pretty_print: false,
+    class_prefix: "my-table".to_string(),
+};
+let writer = HtmlWriter::with_config(config);
+let html = writer.render(&table)?;
+```
+
+### All Text Writers
+
+```rust
+gridwell_writer_html::render_html(&table)?;
+gridwell_writer_latex::render_latex(&table)?;
+gridwell_writer_typst::render_typst(&table)?;
+gridwell_writer_rtf::render_rtf(&table)?;
+gridwell_writer_svg::render_svg(&table)?;
+gridwell_writer_ansi::render_ansi(&table)?;
+gridwell_writer_pandoc::render_pandoc(&table)?;
+gridwell_writer_quarto::render_quarto(&table)?;
+```
+
+## Binary Rendering
+
+```rust
+use gridwell_writer_docx::render_docx;
+use gridwell_writer_xlsx::render_xlsx;
+use gridwell_writer_pptx::render_pptx;
+
+let docx_bytes = render_docx(&table)?;
+std::fs::write("output.docx", &docx_bytes)?;
+```
+
+## Error Handling
+
+```rust
+use gridwell_ir::{Table, ParseError};
+
+match Table::from_json(input) {
+    Ok(table) => { /* use table */ },
+    Err(ParseError::Json(e)) => eprintln!("Invalid JSON: {e}"),
+}
+```
