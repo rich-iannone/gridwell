@@ -20,7 +20,7 @@ pub enum RasterOutcome {
 /// Detected external tools (probed once at startup).
 pub struct Tools {
     pub chromium: Option<String>,
-    pub resvg: Option<String>,
+    pub rsvg: Option<String>,
     pub typst: Option<String>,
     pub xelatex: Option<String>,
     pub soffice: Option<String>,
@@ -41,7 +41,9 @@ impl Tools {
                 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
                 "/Applications/Chromium.app/Contents/MacOS/Chromium",
             ]),
-            resvg: which(&["resvg"]),
+            // rsvg-convert (librsvg2-bin, apt-installable) is preferred; resvg
+            // is accepted too if present.
+            rsvg: which(&["rsvg-convert", "resvg"]),
             typst: which(&["typst"]),
             xelatex: which(&["xelatex", "pdflatex"]),
             soffice: which(&[
@@ -58,9 +60,9 @@ impl Tools {
     pub fn summary(&self) -> String {
         let f = |o: &Option<String>| if o.is_some() { "yes" } else { "no" };
         format!(
-            "chromium={} resvg={} typst={} xelatex={} soffice={} pdftoppm={}",
+            "chromium={} rsvg={} typst={} xelatex={} soffice={} pdftoppm={}",
             f(&self.chromium),
-            f(&self.resvg),
+            f(&self.rsvg),
             f(&self.typst),
             f(&self.xelatex),
             f(&self.soffice),
@@ -82,9 +84,9 @@ pub fn rasterize(
             Some(bin) => browser(bin, output_path, png_path, work_dir),
             None => RasterOutcome::Unavailable("chromium"),
         },
-        Raster::Resvg => match &tools.resvg {
-            Some(bin) => run_simple(bin, &[output_path, png_path], png_path),
-            None => RasterOutcome::Unavailable("resvg"),
+        Raster::Resvg => match &tools.rsvg {
+            Some(bin) => svg(bin, output_path, png_path),
+            None => RasterOutcome::Unavailable("rsvg-convert"),
         },
         Raster::Typst => match &tools.typst {
             Some(bin) => typst(bin, output_path, png_path, work_dir),
@@ -257,8 +259,22 @@ fn pdf_to_png(ppm_bin: &str, pdf: &Path, png: &Path) -> RasterOutcome {
     finish(out, png)
 }
 
-fn run_simple(bin: &str, args: &[&Path], png: &Path) -> RasterOutcome {
-    let out = Command::new(bin).args(args).output();
+fn svg(bin: &str, svg_in: &Path, png: &Path) -> RasterOutcome {
+    // rsvg-convert writes the output with `-o`; resvg takes `<in> <out>`
+    // positionally. Both accept `--zoom`.
+    let out = if bin.contains("rsvg-convert") {
+        Command::new(bin)
+            .args(["--zoom", "2", "-o"])
+            .arg(png)
+            .arg(svg_in)
+            .output()
+    } else {
+        Command::new(bin)
+            .args(["--zoom", "2"])
+            .arg(svg_in)
+            .arg(png)
+            .output()
+    };
     finish(out, png)
 }
 
