@@ -17,8 +17,7 @@ impl PyTable {
     /// Parse a table from a JSON string.
     #[staticmethod]
     fn from_json(json: &str) -> PyResult<Self> {
-        let table =
-            Table::from_json(json).map_err(|e| PyValueError::new_err(format!("{e}")))?;
+        let table = Table::from_json(json).map_err(|e| PyValueError::new_err(format!("{e}")))?;
         Ok(PyTable { inner: table })
     }
 
@@ -26,16 +25,18 @@ impl PyTable {
     #[staticmethod]
     fn from_dict(py: Python<'_>, dict: &Bound<'_, PyAny>) -> PyResult<Self> {
         let json_mod = py.import("json")?;
-        let json_str: String = json_mod
-            .call_method1("dumps", (dict,))?
-            .extract()?;
+        let json_str: String = json_mod.call_method1("dumps", (dict,))?.extract()?;
         Self::from_json(&json_str)
     }
 
     /// Validate the table IR, returning a list of error messages.
     /// Returns an empty list if the table is valid.
     fn validate(&self) -> Vec<String> {
-        self.inner.validate().into_iter().map(|e| e.to_string()).collect()
+        self.inner
+            .validate()
+            .into_iter()
+            .map(|e| e.to_string())
+            .collect()
     }
 
     /// Serialize the table back to a JSON string.
