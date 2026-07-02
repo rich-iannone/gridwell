@@ -113,9 +113,9 @@ touching the others.
       HTML / PDF / DOCX / XLSX / … output
 ```
 
-Here, **Table** is the in-memory, validated `gridwell_ir::Table` — the single
-representation every input funnels into and every writer reads from (not a separate
-artifact; it's the same schema as the IR JSON, just parsed and checked).
+Here, **Table** is the in-memory, validated `gridwell_ir::Table`. It's the single
+representation that every input funnels into and every writer reads from (not a
+separate artifact as it's the same schema as the IR JSON, just parsed and checked).
 
 The workspace is a set of small, focused crates:
 
@@ -153,12 +153,12 @@ apply to which cells, then, the fully-baked IR is emitted.
 - **Gridwell renders** that IR faithfully to each target and it does not re-run
 formatting logic or interpret data.
 
-The one deliberate extra is a cell's **`typed_value`**: the raw typed value (e.g. a
+The one deliberate extra is a cell's `typed_value`: the raw typed value (e.g. a
 number, boolean, or date) that travels alongside the human-readable `content`, so
 value-aware targets (Excel cells, sortable HTML) can use the real value while every
 other target uses the pre-formatted text.
 
-> A secondary, planned mode lifts existing **HTML+CSS** (the kind Great Tables/gt
+> A secondary, planned mode lifts existing **HTML+CSS** (the kind that Great Tables/gt
 > already produce) back into the IR, enabling format conversion without upstream
 > changes.
 
@@ -187,12 +187,12 @@ the ergonomic way to construct valid IR without hand-writing JSON.
 The same example corpus (defined once in `gridwell-testkit`) feeds two layers:
 
 - **Textual snapshots**: every writer renders every example and asserts an `insta`
-  snapshot; the committed `.snap` files are the accepted baseline, reviewed with
-  `cargo insta review`.
+snapshot; the committed `.snap` files are the accepted baseline, reviewed with
+`cargo insta review`.
 - **Visual harness**: `cargo xtask gallery` renders each example to each format,
-  rasterizes to PNGs, and builds a browsable gallery; a perceptual image diff gates a
-  deterministic subset (HTML/SVG/Typst) against committed goldens produced in a pinned
-  Docker toolchain.
+rasterizes to PNGs, and builds a browsable gallery; a perceptual image diff gates a
+deterministic subset (HTML/SVG/Typst) against committed goldens produced in a pinned
+Docker toolchain.
 
 See [`harness/README.md`](harness/README.md) for the full workflow.
 
@@ -205,7 +205,7 @@ cargo xtask gallery        # build the local render gallery (harness/gallery/ind
 
 Gridwell is under active development. User-facing documentation (the guide, the
 full IR schema, the API reference, and rendered demos) is published at
-**<https://rich-iannone.github.io/gridwell/>**, built from the Quarto sources in
+<https://rich-iannone.github.io/gridwell/>, built from the Quarto sources in
 [`docs/`](docs/) via CI.
 
 ## License
