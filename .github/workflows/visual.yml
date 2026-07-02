@@ -6,7 +6,8 @@ on:
   pull_request:
     branches: [main]
 
-# Cancel superseded runs on the same ref.
+# Cancel superseded build runs on the same ref (the Pages deploy job below opts
+# out of cancellation via its own concurrency group).
 concurrency:
   group: visual-${{ github.ref }}
   cancel-in-progress: true
@@ -39,8 +40,8 @@ jobs:
       - name: Render gallery and check gated formats
         run: cargo xtask gallery --check
 
-      # Always publish the gallery so reviewers can eyeball every format,
-      # including the non-gated ones (Word/RTF/PDF/Excel/PowerPoint).
+      # Publish the gallery for PR review (download + open index.html) and as
+      # the input the deploy job assembles into the Pages site on main.
       - name: Upload gallery
         if: always()
         uses: actions/upload-artifact@v4
@@ -48,3 +49,62 @@ jobs:
           name: gallery-${{ matrix.toolchain }}
           path: harness/gallery
           retention-days: 14
+
+  docs:
+    name: Build docs site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: quarto-dev/quarto-actions/setup@v2
+      # No executable code chunks, so no Python/R runtime is needed.
+      - name: Render Quarto docs
+        run: quarto render docs
+      - name: Upload docs site
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-site
+          path: docs/_site
+          retention-days: 14
+
+  # Combined site: Quarto docs at the root, render gallery under /gallery/.
+  # Deploys only on pushes to main; PRs keep the downloadable artifacts above.
+  deploy:
+    name: Deploy combined site to Pages
+    needs: [gallery, docs]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    # Serialize Pages deploys without cancelling an in-flight one.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+
+      - name: Fetch docs site (→ root)
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-site
+          path: site
+
+      - name: Fetch gallery (→ /gallery)
+        uses: actions/download-artifact@v4
+        with:
+          name: gallery-pinned-2026-07
+          path: site/gallery
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v4
