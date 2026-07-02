@@ -45,7 +45,10 @@ jobs:
           path: |
             .ci-cargo
             target
-          key: visual-${{ hashFiles('**/Cargo.lock') }}
+          # Key off the root workspace lock only — a recursive `**/Cargo.lock`
+          # would try to walk root-owned render scratch (e.g. the LibreOffice
+          # profile) the container leaves behind and fail to hash.
+          key: visual-${{ hashFiles('Cargo.lock') }}
           restore-keys: visual-
 
       # Renders every example to every format, rasterizes, writes the gallery,
