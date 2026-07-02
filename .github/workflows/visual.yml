@@ -1,0 +1,50 @@
+name: Visual harness
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: visual-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gallery:
+    name: Render gallery + gated diff
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # A single pinned toolchain today. To test another renderer version,
+        # build a new image tag (see harness/Dockerfile) and add it here.
+        toolchain: ["pinned-2026-07"]
+    container:
+      image: ghcr.io/rich-iannone/gridwell-harness:${{ matrix.toolchain }}
+      options: --user root
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true # golden PNGs live in Git LFS
+
+      - uses: Swatinem/rust-cache@v2
+
+      # Renders every example to every format, rasterizes, writes the gallery,
+      # and diffs the gated (HTML/SVG/Typst) formats against harness/goldens.
+      # Exits non-zero only on a gated regression; new/other-format changes are
+      # reported in the job summary but do not fail the build. The step summary
+      # table is written by the xtask via $GITHUB_STEP_SUMMARY.
+      - name: Render gallery and check gated formats
+        run: cargo xtask gallery --check
+
+      # Always publish the gallery so reviewers can eyeball every format,
+      # including the non-gated ones (Word/RTF/PDF/Excel/PowerPoint).
+      - name: Upload gallery
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gallery-${{ matrix.toolchain }}
+          path: harness/gallery
+          retention-days: 14
