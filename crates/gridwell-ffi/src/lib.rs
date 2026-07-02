@@ -91,9 +91,7 @@ pub unsafe extern "C" fn gridwell_parse_ir(
 /// # Safety
 /// - `table` must be a valid pointer returned by `gridwell_parse_ir`.
 #[no_mangle]
-pub unsafe extern "C" fn gridwell_validate(
-    table: *const GridwellTable,
-) -> *mut GridwellError {
+pub unsafe extern "C" fn gridwell_validate(table: *const GridwellTable) -> *mut GridwellError {
     if table.is_null() {
         return make_error(ERR_INVALID_ARG, "table pointer is null");
     }
@@ -242,9 +240,7 @@ pub unsafe extern "C" fn gridwell_free_text_result(result: GridwellTextResult) {
     if !result.text.is_null() {
         // The allocation is len + 1 (includes null terminator)
         let alloc_len = result.len + 1;
-        drop(unsafe {
-            Vec::from_raw_parts(result.text as *mut u8, alloc_len, alloc_len)
-        });
+        drop(unsafe { Vec::from_raw_parts(result.text as *mut u8, alloc_len, alloc_len) });
     }
 }
 
@@ -278,9 +274,7 @@ pub unsafe extern "C" fn gridwell_free_error(err: *mut GridwellError) {
 /// # Safety
 /// - `err` must be a valid pointer to a GridwellError.
 #[no_mangle]
-pub unsafe extern "C" fn gridwell_error_message(
-    err: *const GridwellError,
-) -> *const c_char {
+pub unsafe extern "C" fn gridwell_error_message(err: *const GridwellError) -> *const c_char {
     if err.is_null() {
         return b"(null error)\0".as_ptr() as *const c_char;
     }
