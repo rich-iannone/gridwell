@@ -26,8 +26,7 @@ pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
 
     let buf = Cursor::new(Vec::new());
     let mut zip = ZipWriter::new(buf);
-    let options = SimpleFileOptions::default()
-        .compression_method(zip::CompressionMethod::Deflated);
+    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
     zip.start_file("[Content_Types].xml", options)?;
     std::io::Write::write_all(&mut zip, xml::CONTENT_TYPES.as_bytes())?;
@@ -71,7 +70,9 @@ pub fn render_sheet_xml(table: &Table) -> Result<String, RenderError> {
 fn write_sheet_xml(buf: &mut String, table: &Table) -> Result<(), RenderError> {
     buf.push_str(r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>"#);
     buf.push('\n');
-    buf.push_str(r#"<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">"#);
+    buf.push_str(
+        r#"<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">"#,
+    );
     buf.push('\n');
 
     // Column widths
