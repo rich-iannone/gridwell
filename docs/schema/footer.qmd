@@ -1,0 +1,74 @@
+---
+title: "Footer"
+---
+
+The `footer` block contains footnotes and source notes displayed below the table.
+
+## Structure
+
+```json
+{
+  "footer": {
+    "footnotes": [...],
+    "source_notes": [...]
+  }
+}
+```
+
+## Footnotes
+
+Footnotes are referenced from cells via `footnote_mark` content nodes.
+
+```json
+{
+  "footnotes": [
+    {
+      "id": "fn1",
+      "mark": "1",
+      "content": [{ "type": "text", "value": "Adjusted for inflation." }],
+      "style_id": null
+    }
+  ]
+}
+```
+
+| Field     | Type    | Description                             |
+|-----------|---------|------------------------------------------|
+| `id`      | string  | Unique identifier (referenced by cells)  |
+| `mark`    | string  | Display mark (`"1"`, `"*"`, `"†"`)       |
+| `content` | array   | Array of ContentNode                     |
+| `style_id`| string? | Style reference                          |
+
+### Referencing from Cells
+
+```json
+{
+  "content": [
+    { "type": "text", "value": "Revenue" },
+    { "type": "footnote_mark", "ref": "fn1", "mark_text": "1" }
+  ]
+}
+```
+
+## Source Notes
+
+Source notes provide attribution for the entire table.
+
+```json
+{
+  "source_notes": [
+    {
+      "content": [
+        { "type": "text", "value": "Source: " },
+        { "type": "styled_text", "value": "World Bank", "style_id": "italic" }
+      ],
+      "style_id": null
+    }
+  ]
+}
+```
+
+| Field     | Type    | Description                   |
+|-----------|---------|-------------------------------|
+| `content` | array   | Array of ContentNode          |
+| `style_id`| string? | Style reference               |
