@@ -17,6 +17,11 @@ website:
         href: api/index.qmd
       - text: "Demos"
         href: demos/index.qmd
+      # Served next to the docs on GitHub Pages (see .github/workflows/visual.yml).
+      # Site-absolute link: resolves on the deployed Pages site, but 404s during
+      # local `quarto preview` where the gallery isn't present.
+      - text: "Gallery"
+        href: /gridwell/gallery/
     right:
       - icon: github
         href: https://github.com/rich-iannone/gridwell
