@@ -1,0 +1,79 @@
+---
+title: "Great Tables Integration"
+---
+
+Gridwell integrates with [Great Tables](https://posit-dev.github.io/great-tables/) to render
+GT objects to all 11 output formats from Python.
+
+## Quick Start
+
+```python
+from great_tables import GT, exibble
+import gridwell
+
+gt = GT(exibble.head(5), rowname_col="row", groupname_col="group")
+
+# Convert to IR and render
+table = gridwell.parse_ir(gridwell.gt_to_ir(gt))
+html = table.render_html()
+```
+
+## Functions
+
+### `gridwell.gt_to_ir(gt)`
+
+Converts a Great Tables `GT` object to gridwell IR JSON string.
+
+```python
+ir_json = gridwell.gt_to_ir(gt)  # returns str (JSON)
+```
+
+### `gridwell.gt_to_dict(gt)`
+
+Converts a GT object to a Python dict (IR structure).
+
+```python
+ir_dict = gridwell.gt_to_dict(gt)  # returns dict
+```
+
+## What Gets Converted
+
+| GT Feature | IR Mapping |
+|------------|-----------|
+| Column labels | `thead` rows |
+| Row groups | `tbody` array with group labels |
+| Stub column | Cells with `is_stub: true` |
+| Title/subtitle | `header` block |
+| Source notes | `footer.source_notes` |
+| Column alignment | `column_spec[].align` |
+| Column widths | `column_spec[].width` |
+| Formatted values | Cell `content` (display text) |
+| Raw data | Cell `typed_value` |
+
+## Full Pipeline Example
+
+```python
+from great_tables import GT, exibble
+import gridwell
+
+gt = (
+    GT(exibble, rowname_col="row", groupname_col="group")
+    .tab_header(title="Example Table", subtitle="From exibble")
+    .tab_source_note(source_note="Source: great_tables package")
+)
+
+# Convert and validate
+table = gridwell.parse_ir(gridwell.gt_to_ir(gt))
+errors = table.validate()
+assert errors == []
+
+# Render all text formats
+for fmt in ["html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto"]:
+    output = table.render(fmt)
+    print(f"{fmt}: {len(output)} chars")
+
+# Render binary formats
+for fmt in ["docx", "xlsx", "pptx"]:
+    data = table.render_binary(fmt)
+    print(f"{fmt}: {len(data)} bytes")
+```
