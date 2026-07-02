@@ -1,0 +1,53 @@
+---
+title: "Config"
+---
+
+The `config` block contains table-level metadata used for validation and rendering.
+
+## Fields
+
+| Field                        | Type    | Default   | Description                      |
+|------------------------------|---------|-----------|----------------------------------|
+| `table_cols`                 | integer | —         | Number of columns (required)     |
+| `header_rows`                | integer | —         | Number of header rows (required) |
+| `body_rows`                  | integer | —         | Number of body data rows (required) |
+| `stub_cols`                  | integer | 0         | Number of stub columns           |
+| `row_striping`               | boolean | false     | Enable alternating row colors    |
+| `row_striping_include_stub`  | boolean | false     | Include stub in striping         |
+| `row_striping_include_body`  | boolean | false     | Include body in striping         |
+| `column_labels_hidden`       | boolean | false     | Hide column header row           |
+| `table_width`                | string? | null      | CSS-like width value             |
+| `container_width`            | string? | null      | Container width                  |
+| `container_height`           | string? | null      | Container height                 |
+| `container_overflow`         | string? | null      | Overflow behavior                |
+| `locale`                     | string  | "en-US"   | Locale identifier                |
+| `page_break_mode`            | string  | "avoid"   | `"avoid"`, `"allow"`, `"force-between-groups"` |
+| `aria_label`                 | string? | null      | Accessibility label              |
+| `aria_describedby`           | string? | null      | Accessibility description ref    |
+| `summary`                    | string? | null      | Table summary / caption          |
+
+## Example
+
+```json
+{
+  "config": {
+    "table_cols": 5,
+    "header_rows": 2,
+    "body_rows": 10,
+    "stub_cols": 1,
+    "row_striping": true,
+    "row_striping_include_stub": true,
+    "row_striping_include_body": true,
+    "column_labels_hidden": false,
+    "table_width": "100%",
+    "container_width": "900px",
+    "locale": "en-US",
+    "page_break_mode": "avoid"
+  }
+}
+```
+
+::: {.callout-note}
+`body_rows` counts **data rows only** — summary rows are not included.
+Stub columns must be contiguous starting from column 0.
+:::
