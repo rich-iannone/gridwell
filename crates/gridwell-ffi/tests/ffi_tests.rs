@@ -26,9 +26,7 @@ fn parse_valid_ir() {
     let json = load_fixture_json("minimal/minimal_1x1.json");
     let mut err: *mut GridwellError = ptr::null_mut();
 
-    let table = unsafe {
-        gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err)
-    };
+    let table = unsafe { gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err) };
 
     assert!(!table.is_null(), "parse should succeed");
     assert!(err.is_null(), "no error expected");
@@ -40,9 +38,7 @@ fn parse_invalid_json() {
     let json = "{ not valid json }}}";
     let mut err: *mut GridwellError = ptr::null_mut();
 
-    let table = unsafe {
-        gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err)
-    };
+    let table = unsafe { gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err) };
 
     assert!(table.is_null(), "parse should fail");
     assert!(!err.is_null(), "error expected");
@@ -76,13 +72,14 @@ fn validate_valid_table() {
     let json = load_fixture_json("minimal/minimal_1x1.json");
     let mut err: *mut GridwellError = ptr::null_mut();
 
-    let table = unsafe {
-        gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err)
-    };
+    let table = unsafe { gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err) };
     assert!(!table.is_null());
 
     let validation_err = unsafe { gridwell_validate(table) };
-    assert!(validation_err.is_null(), "valid table should pass validation");
+    assert!(
+        validation_err.is_null(),
+        "valid table should pass validation"
+    );
 
     unsafe { gridwell_free_table(table) };
 }
@@ -92,13 +89,14 @@ fn validate_invalid_table() {
     let json = load_fixture_json("invalid/col_count_mismatch.json");
     let mut err: *mut GridwellError = ptr::null_mut();
 
-    let table = unsafe {
-        gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err)
-    };
+    let table = unsafe { gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err) };
     assert!(!table.is_null());
 
     let validation_err = unsafe { gridwell_validate(table) };
-    assert!(!validation_err.is_null(), "invalid table should fail validation");
+    assert!(
+        !validation_err.is_null(),
+        "invalid table should fail validation"
+    );
 
     let code = unsafe { gridwell_error_code(validation_err) };
     assert_eq!(code, 2); // ERR_VALIDATE
@@ -114,9 +112,7 @@ fn render_html() {
     let json = load_fixture_json("minimal/minimal_1x1.json");
     let mut err: *mut GridwellError = ptr::null_mut();
 
-    let table = unsafe {
-        gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err)
-    };
+    let table = unsafe { gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err) };
     assert!(!table.is_null());
 
     let format = CString::new("html").unwrap();
@@ -128,8 +124,11 @@ fn render_html() {
 
     // Check it contains HTML
     let output = unsafe {
-        std::str::from_utf8(std::slice::from_raw_parts(result.text as *const u8, result.len))
-            .unwrap()
+        std::str::from_utf8(std::slice::from_raw_parts(
+            result.text as *const u8,
+            result.len,
+        ))
+        .unwrap()
     };
     assert!(output.contains("<table"), "output should be HTML");
 
@@ -144,12 +143,12 @@ fn render_all_text_formats() {
     let json = load_fixture_json("minimal/minimal_1x1.json");
     let mut err: *mut GridwellError = ptr::null_mut();
 
-    let table = unsafe {
-        gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err)
-    };
+    let table = unsafe { gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err) };
     assert!(!table.is_null());
 
-    let formats = ["html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto"];
+    let formats = [
+        "html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto",
+    ];
 
     for fmt in &formats {
         let format = CString::new(*fmt).unwrap();
@@ -173,9 +172,7 @@ fn render_unknown_format() {
     let json = load_fixture_json("minimal/minimal_1x1.json");
     let mut err: *mut GridwellError = ptr::null_mut();
 
-    let table = unsafe {
-        gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err)
-    };
+    let table = unsafe { gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err) };
     assert!(!table.is_null());
 
     let format = CString::new("nosuchformat").unwrap();
@@ -200,9 +197,7 @@ fn render_all_binary_formats() {
     let json = load_fixture_json("minimal/minimal_1x1.json");
     let mut err: *mut GridwellError = ptr::null_mut();
 
-    let table = unsafe {
-        gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err)
-    };
+    let table = unsafe { gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err) };
     assert!(!table.is_null());
 
     let formats = ["docx", "xlsx", "pptx"];
