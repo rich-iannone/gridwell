@@ -105,9 +105,19 @@ git add harness/goldens && git commit -m "Seed harness goldens"
   on failure, uploads pending `.snap.new` files with a review hint.
 - **`harness-image.yml`** builds + pushes the pinned image to GHCR when the
   Dockerfile changes.
-- **`visual.yml`** runs `cargo xtask gallery --check` inside the pinned image,
-  uploads the gallery as a build artifact, and writes a per-format summary
-  table. It fails only on a gated regression.
+- **`visual.yml`** has three jobs:
+  - `gallery` runs `cargo xtask gallery --check` inside the pinned image, writes
+    a per-format summary table, and uploads the gallery as a build artifact
+    (PR review = download + open `index.html`). Fails only on a gated regression.
+  - `docs` renders the Quarto docs site (`quarto render docs`).
+  - `deploy` (pushes to `main` only) assembles a **combined GitHub Pages site** —
+    the docs at the root and the render gallery under `/gallery/` — and publishes
+    it. PRs keep the per-run artifacts instead of deploying.
+
+  **One-time setup:** in the repo, set *Settings → Pages → Build and deployment →
+  Source = GitHub Actions*. The published URL is
+  `https://<owner>.github.io/gridwell/` (gallery at `…/gridwell/gallery/`); the
+  docs navbar "Gallery" link assumes that `/gridwell/` base path.
 
 ## Testing multiple renderer versions (deferred)
 
