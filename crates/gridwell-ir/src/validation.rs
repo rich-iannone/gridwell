@@ -22,6 +22,9 @@ pub enum ValidationRule {
     SpanPlaceholderMismatch,
     SpanZeroValue,
     SummaryRequiresStub,
+    /// The table exceeds a configured size limit (see [`Limits`]). When this fires,
+    /// the remaining checks are skipped: they could be arbitrarily expensive.
+    LimitExceeded,
 }
 
 impl fmt::Display for ValidationRule {
@@ -47,9 +50,48 @@ impl fmt::Display for ValidationError {
     }
 }
 
-/// Validate a table IR, returning all errors found.
+/// Size limits enforced before any other validation work.
+///
+/// IR may come from untrusted producers (including across the FFI boundary), and
+/// declared dimensions such as `config.table_cols` drive allocation in the validator
+/// and in writers. These limits bound that work. The defaults are generous for real
+/// tables; `max_table_cols` and `max_rows_per_section` match Excel's sheet limits.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Limits {
+    /// Maximum `config.table_cols`.
+    pub max_table_cols: u32,
+    /// Maximum rows in any one section (thead, a group's data rows, or a group's
+    /// summary rows).
+    pub max_rows_per_section: u32,
+    /// Maximum total number of cell objects across the whole table.
+    pub max_total_cells: u64,
+}
+
+impl Default for Limits {
+    fn default() -> Self {
+        Self {
+            max_table_cols: 16_384,
+            max_rows_per_section: 1_048_576,
+            max_total_cells: 50_000_000,
+        }
+    }
+}
+
+/// Validate a table IR with the default [`Limits`], returning all errors found.
 pub fn validate(table: &Table) -> Vec<ValidationError> {
+    validate_with_limits(table, &Limits::default())
+}
+
+/// Validate a table IR with explicit [`Limits`], returning all errors found.
+///
+/// If any limit is exceeded, only the `LIMIT_EXCEEDED` errors are returned.
+pub fn validate_with_limits(table: &Table, limits: &Limits) -> Vec<ValidationError> {
     let mut errors = Vec::new();
+
+    validate_limits(table, limits, &mut errors);
+    if !errors.is_empty() {
+        return errors;
+    }
 
     validate_colspec_length(table, &mut errors);
     validate_header_row_count(table, &mut errors);
@@ -62,6 +104,62 @@ pub fn validate(table: &Table) -> Vec<ValidationError> {
     validate_placeholder_content(table, &mut errors);
 
     errors
+}
+
+/// LIMIT_EXCEEDED: declared and actual dimensions within [`Limits`].
+fn validate_limits(table: &Table, limits: &Limits, errors: &mut Vec<ValidationError>) {
+    let limit_error = |section: &str, row_group: Option<u32>, message: String| ValidationError {
+        rule: ValidationRule::LimitExceeded,
+        section: section.to_string(),
+        row_group,
+        row: None,
+        col: None,
+        message,
+    };
+
+    if table.config.table_cols > limits.max_table_cols {
+        errors.push(limit_error(
+            "config",
+            None,
+            format!(
+                "config.table_cols is {} but the limit is {}",
+                table.config.table_cols, limits.max_table_cols
+            ),
+        ));
+    }
+
+    let mut total_cells: u64 = 0;
+    let mut check_section = |rows: &[crate::cell::Row], section: &str, row_group: Option<u32>| {
+        if rows.len() as u64 > limits.max_rows_per_section as u64 {
+            errors.push(limit_error(
+                section,
+                row_group,
+                format!(
+                    "{section} has {} rows but the per-section limit is {}",
+                    rows.len(),
+                    limits.max_rows_per_section
+                ),
+            ));
+        }
+        total_cells += rows.iter().map(|r| r.cells.len() as u64).sum::<u64>();
+    };
+
+    check_section(&table.table.thead.rows, "thead", None);
+    for (g, group) in table.table.tbody.iter().enumerate() {
+        check_section(&group.rows, "tbody", Some(g as u32));
+        check_section(&group.summary_rows, "tbody_summary", Some(g as u32));
+    }
+
+    if total_cells > limits.max_total_cells {
+        errors.push(limit_error(
+            "table",
+            None,
+            format!(
+                "table has {total_cells} cells but the limit is {}",
+                limits.max_total_cells
+            ),
+        ));
+    }
 }
 
 /// COLSPEC_LENGTH: column_spec array length == config.table_cols
@@ -352,23 +450,31 @@ fn validate_summary_requires_stub(table: &Table, errors: &mut Vec<ValidationErro
 }
 
 /// Validate spans using grid materialization.
+///
+/// Each section (thead, each group's data rows, each group's summary rows) gets its own
+/// grid. A section is only materialized when every row has exactly `table_cols` cells:
+/// otherwise COL_COUNT has already reported it, span errors would be noise, and — more
+/// importantly — the grid size stays bounded by the number of cells actually present in
+/// the input rather than by the declared `table_cols`.
 fn validate_spans(table: &Table, errors: &mut Vec<ValidationError>) {
     let table_cols = table.config.table_cols;
 
-    // Materialize thead grid
-    if !table.table.thead.rows.is_empty() {
-        let (_grid, span_errors) =
-            OccupancyGrid::materialize(&table.table.thead.rows, table_cols, "thead", None);
-        errors.extend(span_errors);
-    }
-
-    // Materialize each row group's grid independently
-    for (g, group) in table.table.tbody.iter().enumerate() {
-        if !group.rows.is_empty() {
-            let (_grid, span_errors) =
-                OccupancyGrid::materialize(&group.rows, table_cols, "tbody", Some(g as u32));
-            errors.extend(span_errors);
+    let mut check_section = |rows: &[crate::cell::Row], section: &str, row_group: Option<u32>| {
+        if rows.is_empty()
+            || rows
+                .iter()
+                .any(|r| r.cells.len() as u64 != table_cols as u64)
+        {
+            return;
         }
+        let (_grid, span_errors) = OccupancyGrid::materialize(rows, table_cols, section, row_group);
+        errors.extend(span_errors);
+    };
+
+    check_section(&table.table.thead.rows, "thead", None);
+    for (g, group) in table.table.tbody.iter().enumerate() {
+        check_section(&group.rows, "tbody", Some(g as u32));
+        check_section(&group.summary_rows, "tbody_summary", Some(g as u32));
     }
 }
 
@@ -405,6 +511,22 @@ fn validate_placeholder_content(table: &Table, errors: &mut Vec<ValidationError>
                         col: Some(c as u32),
                         message: format!(
                             "Placeholder cell at tbody group {g} (row={r}, col={c}) has non-empty content"
+                        ),
+                    });
+                }
+            }
+        }
+        for (r, row) in group.summary_rows.iter().enumerate() {
+            for (c, cell) in row.cells.iter().enumerate() {
+                if cell.is_placeholder && !cell.content.is_empty() {
+                    errors.push(ValidationError {
+                        rule: ValidationRule::SpanPlaceholderHasContent,
+                        section: "tbody_summary".to_string(),
+                        row_group: Some(g as u32),
+                        row: Some(r as u32),
+                        col: Some(c as u32),
+                        message: format!(
+                            "Placeholder cell at tbody group {g} summary (row={r}, col={c}) has non-empty content"
                         ),
                     });
                 }
