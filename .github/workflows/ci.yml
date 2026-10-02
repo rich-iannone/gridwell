@@ -226,7 +226,11 @@ jobs:
         run: |
           for t in fuzz_parse_ir fuzz_validate fuzz_render_html; do
             echo "::group::$t"
-            cargo fuzz run "$t" -- -max_total_time=60 -rss_limit_mb=2048 -max_len=65536
+            # Explicit target: the prebuilt cargo-fuzz binary is a musl build and
+            # otherwise defaults to x86_64-unknown-linux-musl, which has no std
+            # installed and can't use the sanitizer with static libc.
+            cargo fuzz run --target x86_64-unknown-linux-gnu "$t" -- \
+              -max_total_time=60 -rss_limit_mb=2048 -max_len=65536
             echo "::endgroup::"
           done
       - name: Upload crashes
