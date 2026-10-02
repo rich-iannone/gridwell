@@ -25,3 +25,6 @@ gridwell-writer-docx = { path = "../gridwell-writer-docx" }
 gridwell-writer-xlsx = { path = "../gridwell-writer-xlsx" }
 gridwell-writer-pptx = { path = "../gridwell-writer-pptx" }
 clap = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
