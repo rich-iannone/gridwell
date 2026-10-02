@@ -253,15 +253,29 @@ fn each_footnote_and_source_note_is_its_own_line() {
         .source_note("Source two.")
         .build();
     let lines = pdf_lines("notes", &render_typst(&table).unwrap());
-    for want in [
-        "a First note.",
-        "b Second note.",
-        "Source one.",
-        "Source two.",
-    ] {
+    // The regression: consecutive notes were joined into one paragraph. Check that no
+    // extracted line holds two notes. (Whether pdftotext keeps a raised mark on its
+    // note's line varies by Poppler version, so marks are only checked for presence.)
+    let notes = ["First note.", "Second note.", "Source one.", "Source two."];
+    for line in &lines {
+        let on_line: Vec<_> = notes.iter().filter(|n| line.contains(*n)).collect();
         assert!(
-            lines.iter().any(|l| l == want),
-            "missing line {want:?} in {lines:?}"
+            on_line.len() <= 1,
+            "notes joined on one line: {line:?} (all: {lines:?})"
+        );
+    }
+    for want in notes {
+        assert!(
+            lines.iter().any(|l| l.contains(want)),
+            "missing {want:?} in {lines:?}"
+        );
+    }
+    for mark in ["a", "b"] {
+        assert!(
+            lines
+                .iter()
+                .any(|l| l == mark || l.starts_with(&format!("{mark} "))),
+            "missing mark {mark:?} in {lines:?}"
         );
     }
 }
