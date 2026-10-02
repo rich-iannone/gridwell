@@ -70,6 +70,17 @@ Missing renderers degrade gracefully: the cell is marked *unavailable* instead o
 failing the run, so the gallery is useful even on a machine without the full
 toolchain.
 
+Rendering details that keep previews faithful:
+
+- **HTML** is screenshotted in a 1200×1600 CSS-px window. If the table reaches the
+  window's right or bottom edge, it is re-rendered at 3000×4800. If it still
+  doesn't fit, the cell fails rather than showing a silently clipped table.
+- **Typst** renders on an auto-width page, except when `columns:` uses `fr` or `%`.
+  On an auto-width page those collapse to zero width, so such tables get a 16cm
+  page, as in a real document.
+- **SVG** is rasterized on white, like the other formats.
+- Images in the corpus are embedded `data:` URIs, since renderers run offline.
+
 ## Visual regression gate (gated subset)
 
 Pixel-diffing rasterized output is only reliable for **deterministic** renderers,
