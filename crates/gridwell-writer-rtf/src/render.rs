@@ -1,5 +1,5 @@
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{Row, Table};
+use gridwell_ir::{vmerge_layout, MergeCell, Row, Table, VMerge};
 use std::collections::HashMap;
 use std::fmt::Write;
 use thiserror::Error;
@@ -130,13 +130,11 @@ impl<'a> RtfRenderer<'a> {
 
     fn write_table(&mut self) {
         let col_widths = self.col_widths_twips();
-        let table_cols = self.table.config.table_cols as usize;
 
         // Thead
         if !self.table.config.column_labels_hidden {
-            for row in &self.table.table.thead.rows {
-                self.write_row(row, &col_widths, table_cols, true);
-            }
+            let rows = &self.table.table.thead.rows;
+            self.write_section(rows, &col_widths, true);
         }
 
         // Tbody
@@ -151,62 +149,61 @@ impl<'a> RtfRenderer<'a> {
                 .unwrap();
             }
 
-            for row in &group.rows {
-                self.write_row(row, &col_widths, table_cols, false);
-            }
-
-            for row in &group.summary_rows {
-                self.write_row(row, &col_widths, table_cols, false);
-            }
+            self.write_section(&group.rows, &col_widths, false);
+            self.write_section(&group.summary_rows, &col_widths, false);
         }
     }
 
-    fn write_row(&mut self, row: &Row, col_widths: &[u32], table_cols: usize, is_header: bool) {
+    /// Write one section (thead, a group's rows, or its summary rows). Spans are
+    /// resolved per section: a rowspan never crosses a section boundary.
+    fn write_section(&mut self, rows: &[Row], col_widths: &[u32], is_header: bool) {
+        for cells in vmerge_layout(rows) {
+            self.write_row(&cells, col_widths, is_header);
+        }
+    }
+
+    fn write_row(&mut self, cells: &[MergeCell<'_>], col_widths: &[u32], is_header: bool) {
         // Row definition
         self.buf.push_str("\\trowd");
         if is_header {
             self.buf.push_str("\\trhdr");
         }
 
-        // Cell positions (cumulative widths)
-        let mut pos = 0u32;
-        let mut col_idx = 0;
-        for cell in &row.cells {
-            if cell.is_placeholder {
-                col_idx += 1;
-                continue;
-            }
-            let span = cell.colspan as usize;
-            let width: u32 = col_widths[col_idx..col_idx + span.min(table_cols - col_idx)]
-                .iter()
-                .sum();
-            pos += width;
+        // Cell definitions. `\cellx` is the cell's right edge (cumulative twips), so
+        // it is derived from the grid column, never from a running count of emitted
+        // cells.
+        for rc in cells {
+            let end = (rc.col + rc.span).min(col_widths.len());
+            let right_edge: u32 = col_widths[..end].iter().sum();
 
-            // Vertical merge
-            if cell.rowspan > 1 {
-                self.buf.push_str("\\clvmgf");
+            match rc.vmerge {
+                VMerge::Start => self.buf.push_str("\\clvmgf"),
+                VMerge::Continue => self.buf.push_str("\\clvmrg"),
+                VMerge::None => {}
             }
 
             // Background color
-            if let Some(ref style_id) = cell.style_id {
-                if let Some(def) = self.table.styles.defs.get(style_id.as_str()) {
-                    if let Some(ref bg) = def.background_color {
-                        let ci = self.color_map.get(bg).copied().unwrap_or(0);
-                        write!(self.buf, "\\clcbpat{}", ci + 1).unwrap();
+            if let Some(cell) = rc.cell {
+                if let Some(ref style_id) = cell.style_id {
+                    if let Some(def) = self.table.styles.defs.get(style_id.as_str()) {
+                        if let Some(ref bg) = def.background_color {
+                            let ci = self.color_map.get(bg).copied().unwrap_or(0);
+                            write!(self.buf, "\\clcbpat{}", ci + 1).unwrap();
+                        }
                     }
                 }
             }
 
-            write!(self.buf, "\\cellx{pos}").unwrap();
-            col_idx += span;
+            write!(self.buf, "\\cellx{right_edge}").unwrap();
         }
         self.buf.push('\n');
 
-        // Cell contents
-        for cell in &row.cells {
-            if cell.is_placeholder {
+        // Cell contents (one `\cell` per definition above, in the same order)
+        for rc in cells {
+            let Some(cell) = rc.cell else {
+                self.buf.push_str("\\pard\\intbl\\cell\n");
                 continue;
-            }
+            };
             let text = content_to_rtf(&cell.content);
             let mut fmt = String::new();
             if is_header {
