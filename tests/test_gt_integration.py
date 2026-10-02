@@ -2,9 +2,12 @@
 
 import json
 
-import pandas as pd
 import pytest
-from great_tables import GT, exibble
+
+# Optional dependencies (the `gt` extra): skip this module when they're absent.
+pd = pytest.importorskip("pandas")
+great_tables = pytest.importorskip("great_tables")
+GT, exibble = great_tables.GT, great_tables.exibble
 
 import gridwell
 
