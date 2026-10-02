@@ -145,8 +145,21 @@ its GHCR settings.
 
 ## CI
 
-- **`ci.yml`** runs `cargo test` (the textual gate) on Linux/macOS/Windows and,
-  on failure, uploads pending `.snap.new` files with a review hint.
+- **`ci.yml`** is the main gate:
+  - `fmt` and `clippy --all-targets` (workspace and the R glue crate).
+  - `test` runs `cargo test` on Linux/macOS/Windows. On failure it uploads pending
+    `.snap.new` files with a review hint. Tests that need external tools are made
+    mandatory where the tools exist: `GRIDWELL_REQUIRE_C_TOOLCHAIN` (C/C++/ASan smoke
+    test on Linux/macOS) and `GRIDWELL_REQUIRE_TYPST` (Linux; Typst 0.12.0, the same
+    as the harness image, plus Poppler).
+  - `msrv` runs `cargo check` on Rust 1.85, the `rust-version` floor.
+  - `python-wheel` builds one abi3 wheel. `python-test` installs it on Python
+    3.10–3.14, both bare (`core`, which must lack pandas) and with `[gt]`, and runs
+    pytest outside the checkout so the installed wheel is what's tested.
+  - `r` runs `R CMD INSTALL` plus the testthat suite. A full `R CMD check` waits on
+    vendoring (roadmap M6).
+  - `fuzz` runs a 60 s smoke per cargo-fuzz target, seeded from the fixtures and
+    the example corpus, and uploads any crash.
 - **`harness-image.yml`** builds + pushes the pinned image to GHCR when the
   Dockerfile changes, so contributors can `docker pull` it for local
   golden-seeding instead of building it themselves.
