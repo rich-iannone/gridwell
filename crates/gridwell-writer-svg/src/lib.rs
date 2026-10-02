@@ -1,3 +1,4 @@
+pub mod measure;
 mod render;
 
 use gridwell_ir::Table;
