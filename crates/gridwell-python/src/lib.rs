@@ -1,8 +1,17 @@
+use pyo3::create_exception;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 
 use gridwell_ir::Table;
+
+create_exception!(
+    gridwell,
+    InvalidTableError,
+    PyValueError,
+    "Raised when rendering a table whose IR fails validation. Subclass of ValueError; \
+     the message lists the validation errors."
+);
 
 /// A parsed gridwell table IR.
 ///
@@ -10,6 +19,17 @@ use gridwell_ir::Table;
 #[pyclass(name = "Table")]
 struct PyTable {
     inner: Table,
+}
+
+impl PyTable {
+    /// The table, if it passes validation. Every renderer goes through this: writers
+    /// assume valid IR.
+    fn valid(&self) -> PyResult<&Table> {
+        self.inner
+            .ensure_valid()
+            .map_err(|e| InvalidTableError::new_err(e.to_string()))?;
+        Ok(&self.inner)
+    }
 }
 
 #[pymethods]
@@ -50,49 +70,49 @@ impl PyTable {
 
     /// Render the table to HTML.
     fn render_html(&self) -> PyResult<String> {
-        gridwell_writer_html::render_html(&self.inner)
+        gridwell_writer_html::render_html(self.valid()?)
             .map_err(|e| PyValueError::new_err(format!("{e}")))
     }
 
     /// Render the table to LaTeX.
     fn render_latex(&self) -> PyResult<String> {
-        gridwell_writer_latex::render_latex(&self.inner)
+        gridwell_writer_latex::render_latex(self.valid()?)
             .map_err(|e| PyValueError::new_err(format!("{e}")))
     }
 
     /// Render the table to Typst.
     fn render_typst(&self) -> PyResult<String> {
-        gridwell_writer_typst::render_typst(&self.inner)
+        gridwell_writer_typst::render_typst(self.valid()?)
             .map_err(|e| PyValueError::new_err(format!("{e}")))
     }
 
     /// Render the table to RTF.
     fn render_rtf(&self) -> PyResult<String> {
-        gridwell_writer_rtf::render_rtf(&self.inner)
+        gridwell_writer_rtf::render_rtf(self.valid()?)
             .map_err(|e| PyValueError::new_err(format!("{e}")))
     }
 
     /// Render the table to SVG.
     fn render_svg(&self) -> PyResult<String> {
-        gridwell_writer_svg::render_svg(&self.inner)
+        gridwell_writer_svg::render_svg(self.valid()?)
             .map_err(|e| PyValueError::new_err(format!("{e}")))
     }
 
     /// Render the table with ANSI escape codes.
     fn render_ansi(&self) -> PyResult<String> {
-        gridwell_writer_ansi::render_ansi(&self.inner)
+        gridwell_writer_ansi::render_ansi(self.valid()?)
             .map_err(|e| PyValueError::new_err(format!("{e}")))
     }
 
     /// Render the table to Pandoc AST JSON.
     fn render_pandoc(&self) -> PyResult<String> {
-        gridwell_writer_pandoc::render_pandoc(&self.inner)
+        gridwell_writer_pandoc::render_pandoc(self.valid()?)
             .map_err(|e| PyValueError::new_err(format!("{e}")))
     }
 
     /// Render the table to Quarto-flavored Markdown.
     fn render_quarto(&self) -> PyResult<String> {
-        gridwell_writer_quarto::render_quarto(&self.inner)
+        gridwell_writer_quarto::render_quarto(self.valid()?)
             .map_err(|e| PyValueError::new_err(format!("{e}")))
     }
 
@@ -120,21 +140,21 @@ impl PyTable {
 
     /// Render the table to a DOCX file (returns bytes).
     fn render_docx<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
-        let bytes = gridwell_writer_docx::render_docx(&self.inner)
+        let bytes = gridwell_writer_docx::render_docx(self.valid()?)
             .map_err(|e| PyValueError::new_err(format!("{e}")))?;
         Ok(PyBytes::new(py, &bytes))
     }
 
     /// Render the table to an XLSX file (returns bytes).
     fn render_xlsx<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
-        let bytes = gridwell_writer_xlsx::render_xlsx(&self.inner)
+        let bytes = gridwell_writer_xlsx::render_xlsx(self.valid()?)
             .map_err(|e| PyValueError::new_err(format!("{e}")))?;
         Ok(PyBytes::new(py, &bytes))
     }
 
     /// Render the table to a PPTX file (returns bytes).
     fn render_pptx<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
-        let bytes = gridwell_writer_pptx::render_pptx(&self.inner)
+        let bytes = gridwell_writer_pptx::render_pptx(self.valid()?)
             .map_err(|e| PyValueError::new_err(format!("{e}")))?;
         Ok(PyBytes::new(py, &bytes))
     }
@@ -171,6 +191,7 @@ fn parse_ir(json: &str) -> PyResult<PyTable> {
 #[pyo3(name = "_native")]
 fn gridwell(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyTable>()?;
+    m.add("InvalidTableError", m.py().get_type::<InvalidTableError>())?;
     m.add_function(wrap_pyfunction!(parse_ir, m)?)?;
     Ok(())
 }
