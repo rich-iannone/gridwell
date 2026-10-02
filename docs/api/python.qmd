@@ -5,8 +5,12 @@ title: "Python API"
 ## Installation
 
 ```bash
-pip install gridwell
+pip install gridwell          # core: parse, validate, render (no runtime dependencies)
+pip install 'gridwell[gt]'    # + Great Tables emitter (gt_to_ir / gt_to_dict)
 ```
+
+Requires Python 3.10 or newer. Wheels use the stable ABI (`abi3`), so one wheel per
+platform serves every supported Python version.
 
 ## Parsing
 
