@@ -22,7 +22,6 @@ pub enum RenderError {
 pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
     let sheet_xml = render_sheet_xml(table)?;
     let shared_strings_xml = render_shared_strings(table)?;
-    let merge_cells_xml = render_merge_cells(table);
 
     let buf = Cursor::new(Vec::new());
     let mut zip = ZipWriter::new(buf);
@@ -46,15 +45,8 @@ pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
     zip.start_file("xl/sharedStrings.xml", options)?;
     std::io::Write::write_all(&mut zip, shared_strings_xml.as_bytes())?;
 
-    // Combine sheet XML with merge cells
-    let full_sheet = if merge_cells_xml.is_empty() {
-        sheet_xml
-    } else {
-        sheet_xml.replace("</worksheet>", &format!("{merge_cells_xml}</worksheet>"))
-    };
-
     zip.start_file("xl/worksheets/sheet1.xml", options)?;
-    std::io::Write::write_all(&mut zip, full_sheet.as_bytes())?;
+    std::io::Write::write_all(&mut zip, sheet_xml.as_bytes())?;
 
     let cursor = zip.finish()?;
     Ok(cursor.into_inner())
@@ -194,6 +186,8 @@ fn write_sheet_xml(buf: &mut String, table: &Table) -> Result<(), RenderError> {
     }
 
     buf.push_str("</sheetData>\n");
+    // <mergeCells> must follow <sheetData> (CT_Worksheet element order).
+    buf.push_str(&render_merge_cells(table));
     buf.push_str("</worksheet>\n");
     Ok(())
 }
@@ -207,10 +201,10 @@ fn write_sheet_row(
 ) -> Result<(), RenderError> {
     write!(buf, "<row r=\"{row_num}\">")?;
 
-    let mut col_idx = 0;
-    for cell in &row.cells {
+    // A cell's index in `row.cells` is its grid column (IR contract). Placeholders
+    // write nothing; their positions are covered by a <mergeCell>.
+    for (col_idx, cell) in row.cells.iter().enumerate() {
         if cell.is_placeholder {
-            col_idx += 1;
             continue;
         }
 
@@ -223,7 +217,6 @@ fn write_sheet_row(
             if typed.value_type == "number" {
                 if let Some(num) = typed.value.as_f64() {
                     write!(buf, "<c r=\"{cell_ref}\"{style_attr}><v>{num}</v></c>")?;
-                    col_idx += cell.colspan as usize;
                     continue;
                 }
             }
@@ -236,8 +229,6 @@ fn write_sheet_row(
                 escape_xml(&text)
             )?;
         }
-
-        col_idx += cell.colspan as usize;
     }
 
     buf.push_str("</row>\n");
@@ -303,10 +294,8 @@ fn render_merge_cells(table: &Table) -> String {
 }
 
 fn collect_merges(merges: &mut Vec<String>, row: &Row, row_num: usize) {
-    let mut col_idx = 0;
-    for cell in &row.cells {
+    for (col_idx, cell) in row.cells.iter().enumerate() {
         if cell.is_placeholder {
-            col_idx += 1;
             continue;
         }
         if cell.colspan > 1 || cell.rowspan > 1 {
@@ -318,7 +307,6 @@ fn collect_merges(merges: &mut Vec<String>, row: &Row, row_num: usize) {
                 merges.push(format!("{start}:{end}"));
             }
         }
-        col_idx += cell.colspan as usize;
     }
 }
 
