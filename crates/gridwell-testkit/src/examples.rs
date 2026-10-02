@@ -1074,11 +1074,16 @@ fn line_breaks() -> Table {
         .build()
 }
 
+/// A 24×24 PNG (blue square, white dot) as a data URI.
+const LOGO_PNG: &str = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAYUlEQVR42mP8//8/AzUAEwOVAAuEUkt5Q7YRt+aIUNNFw9ggFmICkpgIYSLSFEwusQZh1YbHLCbiTcEvNeLSEZ6YxiXFRJIGPBbg8xqaNvwJkkDKJr54GS1GCAPGQVeLAACHNx+lIoe2YQAAAABJRU5ErkJggg==";
+
 fn inline_image() -> Table {
     TableBuilder::new(2)
         .head(row(vec![cell("Icon"), cell("Label")]).role("column_label"))
         .body(vec![row(vec![
-            cell_content(vec![image("https://example.com/logo.png", "logo")]),
+            // Embedded (data: URI) so every renderer can show it offline: a network
+            // URL renders as a broken-image icon in the harness.
+            cell_content(vec![image(LOGO_PNG, "logo")]),
             cell("Brand"),
         ])])
         .build()
