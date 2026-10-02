@@ -7,19 +7,16 @@ expression: out
     <thead>
       <tr>
         <th>Visible 1</th>
-        <th>Hidden</th>
         <th>Visible 2</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>a</td>
-        <td>secret</td>
         <td>b</td>
       </tr>
       <tr>
         <td>c</td>
-        <td>secret</td>
         <td>d</td>
       </tr>
     </tbody>
