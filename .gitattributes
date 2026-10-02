@@ -1,0 +1,4 @@
+# Files whose exact bytes are checked by tests: keep LF on every platform
+# (Windows' core.autocrlf would otherwise rewrite them on checkout).
+crates/gridwell-ffi/cbindgen.toml text eol=lf
+crates/gridwell-ffi/include/gridwell.h text eol=lf
