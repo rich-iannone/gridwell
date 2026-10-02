@@ -7,19 +7,29 @@ name = "gridwell"
 version = "0.1.0"
 description = "Fast multi-format table rendering from a declarative IR"
 license = { text = "MIT" }
-requires-python = ">=3.9"
+requires-python = ">=3.10"
+dependencies = []
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: MIT License",
     "Topic :: Text Processing :: Markup",
 ]
+
+[project.optional-dependencies]
+# Great Tables -> IR emitter (gridwell.gt_to_ir / gt_to_dict).
+gt = ["great-tables>=0.17", "pandas>=2"]
+
+[dependency-groups]
+test = ["pytest>=8"]
+test-gt = ["pytest>=8", "great-tables>=0.17", "pandas>=2"]
 
 [tool.maturin]
 manifest-path = "crates/gridwell-python/Cargo.toml"
