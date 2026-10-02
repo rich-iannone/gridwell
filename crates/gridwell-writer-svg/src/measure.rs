@@ -69,10 +69,19 @@ fn ascii_em(c: char) -> f64 {
     }
 }
 
+/// Extra width per visible glyph, in px. At small sizes renderers hint glyph
+/// advances to whole device pixels, which adds up to ~0.5px per glyph at 1× zoom on
+/// top of the proportional width (a 24-character footnote at 11.9px ran ~8px wider
+/// than its scaled advances). Calibrated by `tests/calibration.rs` at real sizes.
+pub const HINTING_SLACK_PX: f64 = 0.5;
+
 /// Estimated rendered width of `s` in px at `font_size` px.
 pub fn text_width(s: &str, font_size: f64, bold: bool) -> f64 {
-    let em: f64 = s.chars().map(char_em).sum();
-    em * font_size * if bold { BOLD_FACTOR } else { 1.0 }
+    let (em, glyphs) = s.chars().fold((0.0, 0usize), |(em, n), c| {
+        let w = char_em(c);
+        (em + w, n + usize::from(w > 0.0))
+    });
+    em * font_size * if bold { BOLD_FACTOR } else { 1.0 } + glyphs as f64 * HINTING_SLACK_PX
 }
 
 /// A run of text with uniform formatting, as measured and emitted by the layout.
@@ -231,7 +240,12 @@ mod tests {
     fn widths_are_positive_and_scale_with_size() {
         let w14 = text_width("Hello", 14.0, false);
         assert!(w14 > 0.0);
-        assert!((text_width("Hello", 28.0, false) - 2.0 * w14).abs() < 1e-9);
+        // Proportional part doubles with the size; the per-glyph slack does not.
+        let slack = 5.0 * HINTING_SLACK_PX;
+        assert!((text_width("Hello", 28.0, false) - slack - 2.0 * (w14 - slack)).abs() < 1e-9);
+        assert_eq!(text_width("", 14.0, false), 0.0);
+        // Zero-width characters get no slack.
+        assert_eq!(text_width("\u{0301}\u{200D}", 14.0, false), 0.0);
         assert!(text_width("Hello", 14.0, true) > w14);
     }
 
