@@ -1,3 +1,4 @@
+use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::style::StyleDef;
 use gridwell_ir::{Cell, Row, Table};
@@ -105,13 +106,8 @@ impl<'a> TypstRenderer<'a> {
             .column_spec
             .iter()
             .filter(|c| !c.hidden)
-            .map(|col| {
-                if col.width == "auto" {
-                    "auto".to_string()
-                } else {
-                    col.width.clone()
-                }
-            })
+            // Unparseable widths fall back to `auto` rather than emitting invalid Typst.
+            .map(|col| typst_length(&col.width).unwrap_or_else(|| "auto".to_string()))
             .collect::<Vec<_>>()
             .join(", ")
     }
@@ -246,7 +242,7 @@ impl<'a> TypstRenderer<'a> {
             }
         }
 
-        if let Some(ref size) = def.font_size {
+        if let Some(size) = def.font_size.as_deref().and_then(typst_length) {
             text_attrs.push(format!("size: {size}"));
         }
 
@@ -348,15 +344,51 @@ fn content_to_typst(nodes: &[ContentNode]) -> String {
 
 // ─── Escaping ───
 
+/// Escape text for Typst markup so it renders verbatim.
+///
+/// Every ASCII punctuation character gets a backslash. Typst accepts `\<char>` for
+/// any of them, and escaping all of them (not just the obvious `# [ ] $ \\`) also
+/// neutralizes emphasis (`*`, `_`), raw (`` ` ``), comments (`//`, `/*`), labels and
+/// references (`<`, `>`, `@`), line-start markers (`=`, `-`, `+`, `/ term:`), and
+/// shorthands (`--`, `...`, `~`, `-5` → minus sign, smart quotes). Raw newlines
+/// become spaces; explicit breaks are `line_break` content nodes.
 fn escape_typst(s: &str) -> String {
-    s.replace('\\', "\\\\")
-        .replace('#', "\\#")
-        .replace('[', "\\[")
-        .replace(']', "\\]")
-        .replace('<', "\\<")
-        .replace('>', "\\>")
-        .replace('@', "\\@")
-        .replace('$', "\\$")
+    let mut out = String::with_capacity(s.len() + s.len() / 4);
+    for ch in s.chars() {
+        match ch {
+            '\r' | '\n' => out.push(' '),
+            c if c.is_ascii_punctuation() => {
+                out.push('\\');
+                out.push(c);
+            }
+            c => out.push(c),
+        }
+    }
+    out
+}
+
+/// Convert an IR length (CSS-like) to a Typst length, or `None` if it can't be
+/// expressed. Typst has no `px` or `rem`: px → pt at 0.75pt/px (CSS reference pixel),
+/// rem → em (Typst has no root font size).
+fn typst_length(s: &str) -> Option<String> {
+    fn num(v: f64) -> Option<String> {
+        // f64 Display never uses exponent notation for these magnitudes and drops
+        // a trailing ".0", which is what Typst wants.
+        v.is_finite()
+            .then(|| format!("{}", (v * 1e4).round() / 1e4))
+    }
+    let length: Length = s.parse().ok()?;
+    Some(match length {
+        Length::Auto => "auto".to_string(),
+        Length::Px(v) => format!("{}pt", num(v * 0.75)?),
+        Length::Pt(v) => format!("{}pt", num(v)?),
+        Length::Em(v) | Length::Rem(v) => format!("{}em", num(v)?),
+        Length::In(v) => format!("{}in", num(v)?),
+        Length::Cm(v) => format!("{}cm", num(v)?),
+        Length::Mm(v) => format!("{}mm", num(v)?),
+        Length::Percent(v) => format!("{}%", num(v)?),
+        Length::Fr(v) => format!("{}fr", num(v)?),
+    })
 }
 
 // ─── Color ───
@@ -433,5 +465,49 @@ fn merge_style_def(base: &StyleDef, overrides: &StyleDef) -> StyleDef {
             .max_width
             .clone()
             .or_else(|| base.max_width.clone()),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn lengths_convert_to_valid_typst() {
+        for (input, want) in [
+            ("auto", Some("auto")),
+            ("120px", Some("90pt")),
+            ("15px", Some("11.25pt")),
+            ("12pt", Some("12pt")),
+            ("1.5em", Some("1.5em")),
+            ("2rem", Some("2em")),
+            ("1in", Some("1in")),
+            ("2.5cm", Some("2.5cm")),
+            ("10mm", Some("10mm")),
+            ("25%", Some("25%")),
+            ("1fr", Some("1fr")),
+            ("2fr", Some("2fr")),
+            ("", None),
+            ("wide", None),
+            ("12", None),
+            ("NaNpx", None),
+            ("infpt", None),
+        ] {
+            assert_eq!(typst_length(input).as_deref(), want, "input {input:?}");
+        }
+    }
+
+    #[test]
+    fn escape_backslashes_all_ascii_punctuation_only() {
+        assert_eq!(escape_typst("a*b"), "a\\*b");
+        assert_eq!(escape_typst("-5 // x"), "\\-5 \\/\\/ x");
+        assert_eq!(escape_typst("é 東京 😀 abc 123"), "é 東京 😀 abc 123");
+        assert_eq!(escape_typst("a\nb\r\nc"), "a b  c");
+        for c in (0u8..128)
+            .map(char::from)
+            .filter(|c| c.is_ascii_punctuation())
+        {
+            assert_eq!(escape_typst(&c.to_string()), format!("\\{c}"));
+        }
     }
 }
