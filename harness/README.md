@@ -83,10 +83,41 @@ cargo xtask gallery --accept   # update goldens from the current render (the vis
 ```
 
 A comparison is a regression when more than 0.5% of pixels differ beyond a small
-per-channel tolerance, or dimensions change. New/other-format changes are
-reported but non-blocking.
+per-channel tolerance, or dimensions change. For the gated formats, `--check` also
+fails when:
 
-### Seeding goldens
+- a golden is **missing** (otherwise an empty `goldens/` makes the gate a no-op),
+- a gated cell could **not be rendered** (the pinned image has every gated
+  renderer, so this is a real failure rather than graceful degradation), or
+- a golden is **stale** (no example of that name exists any more).
+
+Changes in ungated formats are reported but never block. Locally, without the
+pinned toolchain, expect `--check` to fail. Use it in Docker or rely on CI.
+
+Every run also writes `harness/proposed-goldens/<fmt>/<name>.png`: each gated
+render, laid out exactly like `harness/goldens/`.
+
+### Blessing goldens from CI (no Docker needed)
+
+The `gallery` job in `visual.yml` uploads a **`proposed-goldens`** artifact on
+every run, rendered in the pinned image. To seed or update goldens:
+
+1. Open the workflow run (for a PR, its own run) → *Artifacts* → download
+   `proposed-goldens`.
+2. Look at the images, or at the gallery artifact from the same run, and confirm
+   the new renderings are correct.
+3. Replace the goldens and commit (they're stored with Git LFS):
+
+```bash
+git lfs install                      # once per clone
+rm -rf harness/goldens/{html,svg,typst}
+unzip proposed-goldens.zip -d harness/goldens
+git add harness/goldens && git commit -m "Bless visual goldens"
+```
+
+Copy only the formats or images you meant to change when updating a subset.
+
+### Seeding goldens locally
 
 Goldens must be reproducible, so generate them **inside the pinned Docker image**,
 not on an arbitrary machine:
@@ -125,8 +156,9 @@ its GHCR settings.
     Building the image in-workflow means no GHCR image or registry auth is
     needed and the exact Dockerfile under review is what runs. Writes a
     per-format summary and uploads the gallery artifact (PR review = download +
-    open `index.html`). Fails only on a gated regression, so the first run
-    (before goldens are seeded) passes.
+    open `index.html`) plus the `proposed-goldens` artifact used for blessing.
+    Fails on any gated regression, missing or stale golden, or unrendered gated
+    cell.
   - `docs` renders the Quarto docs site (`quarto render docs`).
   - `deploy` (pushes to `main` only) assembles a **combined GitHub Pages site** —
     the docs at the root and the render gallery under `/gallery/` — and publishes
