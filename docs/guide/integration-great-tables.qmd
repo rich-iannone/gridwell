@@ -5,6 +5,17 @@ title: "Great Tables Integration"
 Gridwell integrates with [Great Tables](https://posit-dev.github.io/great-tables/) to render
 GT objects to all 11 output formats from Python.
 
+## Installation
+
+The Great Tables integration needs the optional `gt` extra (Great Tables and pandas):
+
+```bash
+pip install 'gridwell[gt]'
+```
+
+Without it, `import gridwell` still works. Calling `gridwell.gt_to_ir` then raises an
+`ImportError` that explains how to install the extra.
+
 ## Quick Start
 
 ```python
