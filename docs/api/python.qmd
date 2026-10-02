@@ -85,9 +85,19 @@ html = table.render_html()
 
 `ValueError` is raised for parse errors and render failures.
 
+Every `render_*` method validates the table first. If the IR is invalid it raises
+`gridwell.InvalidTableError` (a subclass of `ValueError`) whose message lists the
+validation errors, e.g. `[SPAN_OVERFLOW_RIGHT] Cell at (row=1, col=3) ...`. Use
+`table.validate()` to get the errors as a list without raising.
+
 ```python
 try:
     table = gridwell.Table.from_json(bad_json)
 except ValueError as e:
     print(f"Parse error: {e}")
+
+try:
+    html = table.render_html()
+except gridwell.InvalidTableError as e:
+    print(f"Invalid IR: {e}")
 ```
