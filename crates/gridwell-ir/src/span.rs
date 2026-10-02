@@ -64,8 +64,13 @@ impl OccupancyGrid {
                     continue;
                 }
 
+                // Span arithmetic is done in u64: colspan/rowspan come straight from
+                // untrusted JSON and may be as large as u32::MAX.
+                let col_end = c as u64 + colspan as u64;
+                let row_end = r as u64 + rowspan as u64;
+
                 // Check overflow right
-                if c + colspan > table_cols {
+                if col_end > table_cols as u64 {
                     errors.push(ValidationError {
                         rule: ValidationRule::SpanOverflowRight,
                         section: section.to_string(),
@@ -74,14 +79,14 @@ impl OccupancyGrid {
                         col: Some(c),
                         message: format!(
                             "Cell at (row={r}, col={c}) has colspan={colspan} but table only has {table_cols} columns (would need col index up to {})",
-                            c + colspan - 1
+                            col_end - 1
                         ),
                     });
                     continue;
                 }
 
                 // Check overflow bottom
-                if r + rowspan > num_rows {
+                if row_end > num_rows as u64 {
                     errors.push(ValidationError {
                         rule: ValidationRule::SpanOverflowBottom,
                         section: section.to_string(),
@@ -90,7 +95,7 @@ impl OccupancyGrid {
                         col: Some(c),
                         message: format!(
                             "Cell at (row={r}, col={c}) has rowspan={rowspan} but section only has {num_rows} rows (would need row index up to {})",
-                            r + rowspan - 1
+                            row_end - 1
                         ),
                     });
                     // Still claim what we can within bounds
@@ -145,6 +150,9 @@ impl OccupancyGrid {
 }
 
 /// Claim cells in the grid, reporting overlaps.
+///
+/// Callers must have bounds-checked the span first (`start + span <= grid size`), so the
+/// additions below cannot overflow.
 #[allow(clippy::too_many_arguments)]
 fn claim_cells(
     grid: &mut OccupancyGrid,
