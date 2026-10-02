@@ -140,7 +140,7 @@ expression: out
                             }
                           ],
                           [
-                            "https://example.com/logo.png",
+                            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAYUlEQVR42mP8//8/AzUAEwOVAAuEUkt5Q7YRt+aIUNNFw9ggFmICkpgIYSLSFEwusQZh1YbHLCbiTcEvNeLSEZ6YxiXFRJIGPBbg8xqaNvwJkkDKJr54GS1GCAPGQVeLAACHNx+lIoe2YQAAAABJRU5ErkJggg==",
                             ""
                           ]
                         ],
