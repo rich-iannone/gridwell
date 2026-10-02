@@ -11,8 +11,8 @@ expression: out
 <text x="71.67" y="70.3" font-size="14px" xml:space="preserve">Suite 100</text>
 <text x="71.67" y="89.9" font-size="14px" xml:space="preserve">Anytown</text>
 <line x1="0" y1="32" x2="63.67" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="63.67" y1="32" x2="165.21" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="63.67" y1="32" x2="165.63" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="0" y1="98.8" x2="63.67" y2="98.8" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="63.67" y1="98.8" x2="165.21" y2="98.8" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="165.21" y2="32" stroke="#333333" stroke-width="1.5"/>
+<line x1="63.67" y1="98.8" x2="165.63" y2="98.8" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="165.63" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

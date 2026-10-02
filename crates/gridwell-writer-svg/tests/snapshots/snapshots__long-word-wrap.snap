@@ -8,11 +8,11 @@ expression: out
 <text x="108" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Token</tspan></text>
 <text x="8" y="99.7" font-size="14px" xml:space="preserve">URL</text>
 <text x="108" y="50.7" font-size="14px" xml:space="preserve">https://examp</text>
-<text x="108" y="70.3" font-size="14px" xml:space="preserve">le.com/very/lo</text>
-<text x="108" y="89.9" font-size="14px" xml:space="preserve">ng/path/that/s</text>
-<text x="108" y="109.5" font-size="14px" xml:space="preserve">hould/not/bre</text>
-<text x="108" y="129.1" font-size="14px" xml:space="preserve">ak/nicely?que</text>
-<text x="108" y="148.7" font-size="14px" xml:space="preserve">ry=1</text>
+<text x="108" y="70.3" font-size="14px" xml:space="preserve">le.com/very/l</text>
+<text x="108" y="89.9" font-size="14px" xml:space="preserve">ong/path/that</text>
+<text x="108" y="109.5" font-size="14px" xml:space="preserve">/should/not/br</text>
+<text x="108" y="129.1" font-size="14px" xml:space="preserve">eak/nicely?qu</text>
+<text x="108" y="148.7" font-size="14px" xml:space="preserve">ery=1</text>
 <line x1="0" y1="32" x2="100" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="100" y1="32" x2="220" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="0" y1="157.6" x2="100" y2="157.6" stroke="#d0d0d0" stroke-width="0.5"/>
