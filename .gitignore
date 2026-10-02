@@ -23,6 +23,7 @@ target
 /*.md
 !README.md
 !ROADMAP.md
+!CHANGELOG.md
 .DS_Store
 
 # Virtual environment for Python dependencies
@@ -40,3 +41,10 @@ target
 /harness/.work/
 # CI-only cargo home (CARGO_HOME) for the containerized visual job.
 /.ci-cargo/
+
+# Compiled native extensions / shared libraries (built by maturin, R, or cargo;
+# never committed).
+*.so
+*.pyd
+*.dylib
+*.dll
