@@ -194,21 +194,20 @@ impl<'a> SvgRenderer<'a> {
         self.y_offset += self.config.row_height;
         let y_top = self.y_offset - self.config.row_height;
 
-        let mut x = 0.0;
-        let mut col_idx = 0;
-
-        for cell in &row.cells {
+        // A cell's index in `row.cells` is its grid column (IR contract), so x and
+        // width come from the column widths directly; placeholders draw nothing.
+        // (Rowspans are not drawn across rows yet: the origin occupies its own row.)
+        for (col, cell) in row.cells.iter().enumerate() {
             if cell.is_placeholder {
-                x += self.col_widths.get(col_idx).copied().unwrap_or(0.0);
-                col_idx += 1;
                 continue;
             }
 
-            let span = cell.colspan as usize;
-            let cell_width: f64 = self.col_widths
-                [col_idx..col_idx + span.min(self.col_widths.len() - col_idx)]
-                .iter()
-                .sum();
+            let ncols = self.col_widths.len();
+            let start = col.min(ncols);
+            let end = col.saturating_add(cell.colspan.max(1) as usize).min(ncols);
+            // fold from +0.0: `Sum for f64` starts at -0.0, which prints as "-0".
+            let x = self.col_widths[..start].iter().fold(0.0, |a, w| a + w);
+            let cell_width = self.col_widths[start..end].iter().fold(0.0, |a, w| a + w);
 
             // Cell background
             if let Some(ref style_id) = cell.style_id {
@@ -257,9 +256,6 @@ impl<'a> SvgRenderer<'a> {
                     text = escape_xml(&text)
                 )?;
             }
-
-            x += cell_width;
-            col_idx += span;
         }
 
         // Header bottom border (thicker)
