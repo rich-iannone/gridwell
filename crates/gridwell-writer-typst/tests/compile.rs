@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use gridwell_testkit::spans::tilings;
-use gridwell_testkit::{cell, examples, group, row, TableBuilder};
+use gridwell_testkit::{cell, column, examples, group, row, CellExt, ColumnExt, TableBuilder};
 use gridwell_writer_typst::render_typst;
 
 /// Whether `tool` can be launched. Exit status is deliberately ignored: tools disagree
@@ -161,4 +161,116 @@ fn tricky_text_renders_verbatim() {
         missing.is_empty(),
         "not rendered verbatim: {missing:?}\n\npdftotext output:\n{text}"
     );
+}
+
+/// Compile `src` and return its text, one trimmed, whitespace-collapsed line per
+/// entry.
+fn pdf_lines(stem: &str, src: &str) -> Vec<String> {
+    let dir = work_dir(stem);
+    let pdf = compile(&dir, stem, src)
+        .unwrap_or_else(|e| panic!("compile failed:\n{e}\n\nsource:\n{src}"));
+    let out = Command::new("pdftotext")
+        .arg("-layout")
+        .arg(&pdf)
+        .arg("-")
+        .output()
+        .unwrap();
+    String::from_utf8_lossy(&out.stdout)
+        .lines()
+        .map(|l| l.split_whitespace().collect::<Vec<_>>().join(" "))
+        .filter(|l| !l.is_empty())
+        .collect()
+}
+
+#[test]
+fn hidden_columns_are_dropped_and_cells_stay_aligned() {
+    if !require("typst") || !require("pdftotext") {
+        return;
+    }
+    // Columns: visible, hidden, visible, hidden(spanned into). The spanner covers
+    // grid columns 1..4 (hidden, visible, hidden) and must shrink to one column.
+    let table = TableBuilder::new(4)
+        .columns(vec![
+            column("a", "A"),
+            column("h1", "H1").hidden(),
+            column("b", "B"),
+            column("h2", "H2").hidden(),
+        ])
+        .head(row(vec![
+            cell("left"),
+            cell("span").colspan(3),
+            gridwell_testkit::placeholder(),
+            gridwell_testkit::placeholder(),
+        ]))
+        .body(vec![
+            row(vec![
+                cell("A1"),
+                cell("SECRET1"),
+                cell("B1"),
+                cell("SECRET2"),
+            ]),
+            row(vec![
+                cell("A2"),
+                cell("SECRET3"),
+                cell("B2"),
+                cell("SECRET4"),
+            ]),
+        ])
+        .build();
+    assert!(table.validate().is_empty(), "{:?}", table.validate());
+    let src = render_typst(&table).unwrap();
+    assert!(!src.contains("SECRET"), "hidden content emitted:\n{src}");
+    let lines = pdf_lines("hidden", &src);
+    assert_eq!(lines, vec!["left span", "A1 B1", "A2 B2"], "source:\n{src}");
+}
+
+#[test]
+fn every_column_hidden_compiles() {
+    if !require("typst") {
+        return;
+    }
+    let table = TableBuilder::new(2)
+        .columns(vec![column("a", "A").hidden(), column("b", "B").hidden()])
+        .body(vec![row(vec![cell("x"), cell("y")])])
+        .footnote("f1", "1", "still shown")
+        .build();
+    let src = render_typst(&table).unwrap();
+    assert!(!src.contains("#table("), "{src}");
+    compile(&work_dir("allhidden"), "allhidden", &src).unwrap_or_else(|e| panic!("{e}\n{src}"));
+}
+
+#[test]
+fn each_footnote_and_source_note_is_its_own_line() {
+    if !require("typst") || !require("pdftotext") {
+        return;
+    }
+    let table = TableBuilder::new(1)
+        .head(row(vec![cell("H")]))
+        .body(vec![row(vec![cell("x")])])
+        .footnote("f1", "a", "First note.")
+        .footnote("f2", "b", "Second note.")
+        .source_note("Source one.")
+        .source_note("Source two.")
+        .build();
+    let lines = pdf_lines("notes", &render_typst(&table).unwrap());
+    for want in [
+        "a First note.",
+        "b Second note.",
+        "Source one.",
+        "Source two.",
+    ] {
+        assert!(
+            lines.iter().any(|l| l == want),
+            "missing line {want:?} in {lines:?}"
+        );
+    }
+}
+
+#[test]
+fn no_header_rule_without_header_rows() {
+    let table = TableBuilder::new(2)
+        .body(vec![row(vec![cell("a"), cell("b")])])
+        .build();
+    let src = render_typst(&table).unwrap();
+    assert!(!src.contains("table.hline"), "{src}");
 }
