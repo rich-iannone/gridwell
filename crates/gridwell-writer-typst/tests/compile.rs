@@ -127,7 +127,12 @@ fn tricky_text_renders_verbatim() {
         "<label> @ref #code [content]",
         "C:\\path\\to\\file",
         "https://example.com/a_b*c",
-        "café 東京 😀",
+        // Accented Latin is covered by Typst's bundled fonts. CJK and emoji are
+        // deliberately absent: without system fonts for them (as on CI runners)
+        // every missing glyph maps to the same box and pdftotext can't tell them
+        // apart, which tests the environment rather than our escaping.
+        // escape_typst's unit test covers that non-ASCII passes through untouched.
+        "café naïve Ærø",
     ];
     let mut b = TableBuilder::new(1).head(row(vec![cell("header")]));
     let rows = texts.iter().map(|t| row(vec![cell(t)])).collect();
