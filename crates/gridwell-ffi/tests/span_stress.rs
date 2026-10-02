@@ -419,3 +419,107 @@ fn rtf_violation(out: &str) -> Option<String> {
     }
     None
 }
+
+// ─── Hidden columns ───
+
+/// Writers that still render hidden-column content (roadmap M1: the shared layout
+/// layer). The test fails if one of these stops leaking, so the list stays accurate.
+const KNOWN_HIDDEN_LEAKS: &[&str] = &[
+    "latex", "rtf", "ansi", "pandoc", "quarto", "docx", "xlsx", "pptx",
+];
+
+#[test]
+fn hidden_columns_are_dropped_by_fixed_writers() {
+    use gridwell_ir::ColumnVisibility;
+
+    let default_hook = panic::take_hook();
+    panic::set_hook(Box::new(|_| {}));
+
+    let mut panics: Vec<String> = Vec::new();
+    let mut missing: BTreeMap<&str, Vec<String>> = BTreeMap::new();
+    let mut leaks: BTreeMap<&str, usize> = BTreeMap::new();
+    let mut scenarios = 0;
+
+    for (rows, cols) in [(1, 3), (2, 3), (3, 3), (2, 4)] {
+        for tiling in tilings(rows, cols) {
+            for hidden in 0..cols {
+                let mut table = TableBuilder::new(cols as u32)
+                    .head(plain_row("h", cols))
+                    .group(group(tiling.to_rows()))
+                    .build();
+                table.column_spec[hidden].hidden = true;
+                let vis = ColumnVisibility::from_spec(&table.column_spec);
+                let (visible, invisible): (Vec<_>, Vec<_>) = tiling
+                    .rects
+                    .iter()
+                    .map(|r| {
+                        (
+                            gridwell_testkit::spans::label(r.row, r.col),
+                            vis.project(r.col, r.colspan).is_some(),
+                        )
+                    })
+                    .partition(|(_, v)| *v);
+                let ctx = format!("{} hide {hidden}", tiling.ascii());
+                scenarios += 1;
+
+                for (name, render) in writers() {
+                    let out = match panic::catch_unwind(AssertUnwindSafe(|| render(&table))) {
+                        Ok(Ok(out)) => out,
+                        Ok(Err(e)) => {
+                            panics.push(format!("{name} {ctx}: error {e}"));
+                            continue;
+                        }
+                        Err(p) => {
+                            panics.push(format!("{name} {ctx}: panic {}", panic_message(p)));
+                            continue;
+                        }
+                    };
+                    let lost: Vec<&String> = visible
+                        .iter()
+                        .map(|(l, _)| l)
+                        .filter(|l| !out.contains(l.as_str()))
+                        .collect();
+                    if !lost.is_empty() {
+                        missing
+                            .entry(name)
+                            .or_default()
+                            .push(format!("{ctx}: lost {lost:?}"));
+                    }
+                    if invisible.iter().any(|(l, _)| out.contains(l.as_str())) {
+                        *leaks.entry(name).or_default() += 1;
+                    }
+                }
+            }
+        }
+    }
+    panic::set_hook(default_hook);
+
+    let mut failures = String::new();
+    for p in panics.iter().take(5) {
+        failures += &format!("\n  {p}");
+    }
+    for (w, items) in &missing {
+        failures += &format!(
+            "\n  {w}: dropped visible cells in {} scenario(s), e.g. {}",
+            items.len(),
+            items[0]
+        );
+    }
+    for (w, n) in &leaks {
+        if !KNOWN_HIDDEN_LEAKS.contains(w) {
+            failures += &format!("\n  {w}: rendered hidden-column content in {n} scenario(s)");
+        }
+    }
+    for w in KNOWN_HIDDEN_LEAKS {
+        if !leaks.contains_key(w) {
+            failures += &format!(
+                "\n  STALE: {w} no longer leaks hidden content — remove it from KNOWN_HIDDEN_LEAKS"
+            );
+        }
+    }
+    assert!(scenarios > 1000, "only {scenarios} scenarios");
+    assert!(
+        failures.is_empty(),
+        "hidden-column failures over {scenarios} scenarios:{failures}"
+    );
+}
