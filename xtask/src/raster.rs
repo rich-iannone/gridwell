@@ -125,6 +125,12 @@ body { margin: 0; padding: 16px; background: #fff; font-family: Arial, Helvetica
 .gw_table thead th { font-weight: bold; border-bottom: 2px solid #333; }
 ";
 
+/// Browser window sizes (CSS px) to try, smallest first. A screenshot only captures
+/// the window, so a table larger than the window is silently cut off; when content
+/// reaches the right or bottom edge we retry with the next size. The sizes are fixed
+/// so the choice is deterministic (goldens must not depend on timing).
+const BROWSER_WINDOWS: &[(u32, u32)] = &[(1200, 1600), (3000, 4800)];
+
 fn browser(bin: &str, html: &Path, png: &Path, work_dir: &Path) -> RasterOutcome {
     let fragment = match std::fs::read_to_string(html) {
         Ok(s) => s,
@@ -137,20 +143,58 @@ fn browser(bin: &str, html: &Path, png: &Path, work_dir: &Path) -> RasterOutcome
     if let Err(e) = std::fs::write(&wrapped_path, wrapped) {
         return RasterOutcome::Failed(format!("write wrapper: {e}"));
     }
-    let out = Command::new(bin)
-        .args([
-            "--headless=new",
-            "--no-sandbox",
-            "--disable-gpu",
-            "--hide-scrollbars",
-            "--force-device-scale-factor=2",
-            "--default-background-color=ffffffff",
-            "--window-size=1200,1600",
-        ])
-        .arg(format!("--screenshot={}", png.display()))
-        .arg(&wrapped_path)
-        .output();
-    finish(out, png)
+    for &(w, h) in BROWSER_WINDOWS {
+        let out = Command::new(bin)
+            .args([
+                "--headless=new",
+                "--no-sandbox",
+                "--disable-gpu",
+                "--hide-scrollbars",
+                "--force-device-scale-factor=2",
+                "--default-background-color=ffffffff",
+            ])
+            .arg(format!("--window-size={w},{h}"))
+            .arg(format!("--screenshot={}", png.display()))
+            .arg(&wrapped_path)
+            .output();
+        if let Err(e) = check(out) {
+            return RasterOutcome::Failed(e);
+        }
+        if !png.exists() {
+            return RasterOutcome::Failed("tool produced no png".into());
+        }
+        match touches_far_edge(png) {
+            Some(false) => {
+                crop_to_content(png);
+                return RasterOutcome::Png(png.to_path_buf());
+            }
+            Some(true) => continue, // clipped: try a larger window
+            None => return RasterOutcome::Failed("could not read screenshot".into()),
+        }
+    }
+    let (w, h) = BROWSER_WINDOWS[BROWSER_WINDOWS.len() - 1];
+    RasterOutcome::Failed(format!(
+        "content is clipped even at the largest window ({w}x{h} CSS px)"
+    ))
+}
+
+/// Whether any non-background pixel lies on the image's last column or last row,
+/// i.e. content may continue past the captured area. `None` if unreadable.
+fn touches_far_edge(png: &Path) -> Option<bool> {
+    let img = image::open(png).ok()?.to_rgba8();
+    let (w, h) = img.dimensions();
+    if w == 0 || h == 0 {
+        return Some(false);
+    }
+    let bg = *img.get_pixel(0, 0);
+    let differs = |p: &image::Rgba<u8>| {
+        p.0.iter()
+            .zip(bg.0.iter())
+            .any(|(a, b)| a.abs_diff(*b) > 10)
+    };
+    let right = (0..h).any(|y| differs(img.get_pixel(w - 1, y)));
+    let bottom = (0..w).any(|x| differs(img.get_pixel(x, h - 1)));
+    Some(right || bottom)
 }
 
 fn typst(bin: &str, typ: &Path, png: &Path, work_dir: &Path) -> RasterOutcome {
@@ -158,7 +202,10 @@ fn typst(bin: &str, typ: &Path, png: &Path, work_dir: &Path) -> RasterOutcome {
         Ok(s) => s,
         Err(e) => return RasterOutcome::Failed(format!("read typ: {e}")),
     };
-    let wrapped = format!("#set page(width: auto, height: auto, margin: 10pt)\n{src}\n");
+    let wrapped = format!(
+        "#set page(width: {}, height: auto, margin: 10pt)\n{src}\n",
+        typst_page_width(&src)
+    );
     let wrapped_path = work_dir.join("doc.typ");
     if let Err(e) = std::fs::write(&wrapped_path, wrapped) {
         return RasterOutcome::Failed(format!("write typ: {e}"));
@@ -169,6 +216,22 @@ fn typst(bin: &str, typ: &Path, png: &Path, work_dir: &Path) -> RasterOutcome {
         .arg(png)
         .output();
     finish(out, png)
+}
+
+/// Page width for the Typst preview. An auto-width page sizes to the content, but
+/// in it relative columns (`fr`, `%`) have nothing to divide and collapse to zero
+/// width, overprinting their neighbours. Those tables get a fixed text width, like
+/// a real document; everything else keeps its natural width (and is cropped).
+fn typst_page_width(src: &str) -> &'static str {
+    let relative = src.lines().any(|l| {
+        let l = l.trim();
+        l.starts_with("columns:") && (l.contains("fr") || l.contains('%'))
+    });
+    if relative {
+        "16cm"
+    } else {
+        "auto"
+    }
 }
 
 const LATEX_PACKAGES: &str = "\
@@ -261,16 +324,17 @@ fn pdf_to_png(ppm_bin: &str, pdf: &Path, png: &Path) -> RasterOutcome {
 
 fn svg(bin: &str, svg_in: &Path, png: &Path) -> RasterOutcome {
     // rsvg-convert writes the output with `-o`; resvg takes `<in> <out>`
-    // positionally. Both accept `--zoom`.
+    // positionally. Both accept `--zoom`. A white background matches the other
+    // formats' previews (SVG itself is transparent).
     let out = if bin.contains("rsvg-convert") {
         Command::new(bin)
-            .args(["--zoom", "2", "-o"])
+            .args(["--zoom", "2", "--background-color", "white", "-o"])
             .arg(png)
             .arg(svg_in)
             .output()
     } else {
         Command::new(bin)
-            .args(["--zoom", "2"])
+            .args(["--zoom", "2", "--background", "white"])
             .arg(svg_in)
             .arg(png)
             .output()
@@ -406,4 +470,65 @@ pub fn strip_ansi(s: &str) -> String {
         }
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn typst_page_width_is_fixed_only_for_relative_columns() {
+        assert_eq!(
+            typst_page_width("#table(\n  columns: (90pt, 25%, 1fr, auto),\n"),
+            "16cm"
+        );
+        assert_eq!(
+            typst_page_width("#table(\n  columns: (1fr, 2fr),\n"),
+            "16cm"
+        );
+        assert_eq!(
+            typst_page_width("#table(\n  columns: (auto, auto),\n"),
+            "auto"
+        );
+        assert_eq!(
+            typst_page_width("#table(\n  columns: (30pt, auto),\n  [frog],\n"),
+            "auto"
+        );
+    }
+
+    fn write_png(name: &str, w: u32, h: u32, ink: &[(u32, u32)]) -> std::path::PathBuf {
+        let mut img = image::RgbaImage::from_pixel(w, h, image::Rgba([255, 255, 255, 255]));
+        for &(x, y) in ink {
+            img.put_pixel(x, y, image::Rgba([0, 0, 0, 255]));
+        }
+        let path =
+            std::env::temp_dir().join(format!("gridwell-raster-{}-{name}.png", std::process::id()));
+        img.save(&path).unwrap();
+        path
+    }
+
+    #[test]
+    fn far_edge_detection() {
+        assert_eq!(
+            touches_far_edge(&write_png("clear", 10, 10, &[(5, 5)])),
+            Some(false)
+        );
+        assert_eq!(
+            touches_far_edge(&write_png("right", 10, 10, &[(9, 3)])),
+            Some(true)
+        );
+        assert_eq!(
+            touches_far_edge(&write_png("bottom", 10, 10, &[(3, 9)])),
+            Some(true)
+        );
+        // Ink on the near (left/top) edges is padding-side and not clipping.
+        assert_eq!(
+            touches_far_edge(&write_png("near", 10, 10, &[(0, 5), (5, 0)])),
+            Some(false)
+        );
+        assert_eq!(
+            touches_far_edge(std::path::Path::new("/nonexistent.png")),
+            None
+        );
+    }
 }
