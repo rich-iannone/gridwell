@@ -15,4 +15,5 @@ expression: out
 )
 
 #text(size: 9pt, fill: luma(100))[Source\: internal analytics\.]
+
 #text(size: 9pt, fill: luma(100))[Collected June 2026\.]

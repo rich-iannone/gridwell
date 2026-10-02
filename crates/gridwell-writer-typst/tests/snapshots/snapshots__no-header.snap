@@ -6,7 +6,6 @@ expression: out
   columns: (auto, auto),
   stroke: none,
   table.header(
-    table.hline(stroke: 0.5pt),
   ),
   [a],
   [b],

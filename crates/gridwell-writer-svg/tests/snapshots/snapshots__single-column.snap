@@ -2,15 +2,15 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
-<style>text { font-family: Arial, sans-serif; font-size: 14px; } </style>
-<line x1="0" y1="28" x2="120" y2="28" stroke="#d0d0d0" stroke-width="0.5"/>
-<text x="8" y="24" font-weight="bold">Item</text>
-<line x1="0" y1="28" x2="120" y2="28" stroke="#333333" stroke-width="1.5"/>
-<line x1="0" y1="56" x2="120" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
-<text x="8" y="52">First</text>
-<line x1="0" y1="84" x2="120" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
-<text x="8" y="80">Second</text>
-<line x1="0" y1="112" x2="120" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>
-<text x="8" y="108">Third</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="70" height="124" viewBox="0 0 70 124">
+<style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
+<text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Item</tspan></text>
+<text x="8" y="50.9" font-size="14px" xml:space="preserve">First</text>
+<text x="8" y="78.9" font-size="14px" xml:space="preserve">Second</text>
+<text x="8" y="106.9" font-size="14px" xml:space="preserve">Third</text>
+<line x1="0" y1="32" x2="69.48" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="69.48" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="88" x2="69.48" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="116" x2="69.48" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="69.48" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>
