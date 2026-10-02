@@ -53,8 +53,9 @@ jobs:
 
       # Renders every example to every format, rasterizes, writes the gallery,
       # and diffs the gated (HTML/SVG/Typst) formats against harness/goldens.
-      # Exits non-zero only on a gated regression, so a missing golden (first
-      # run, before goldens are seeded) passes.
+      # Fails on any gated change, missing golden, unrendered gated cell, or stale
+      # golden. To bless: download this run's `proposed-goldens` artifact and copy
+      # it over harness/goldens/ (see harness/README.md).
       - name: Render gallery and check gated formats
         run: |
           docker run --rm \
@@ -78,6 +79,17 @@ jobs:
           name: gallery
           path: harness/gallery
           retention-days: 14
+
+      # Every gated render in the harness/goldens layout, from the pinned image.
+      # This is how goldens are blessed without a local Docker toolchain.
+      - name: Upload proposed goldens
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proposed-goldens
+          path: harness/proposed-goldens
+          retention-days: 30
+          if-no-files-found: warn
 
   docs:
     name: Build docs site
