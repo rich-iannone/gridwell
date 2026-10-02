@@ -16,7 +16,11 @@ fn generate() -> String {
         .generate()
         .expect("cbindgen failed")
         .write(&mut out);
-    String::from_utf8(out).expect("header is UTF-8")
+    // Normalize to LF: on Windows checkouts cbindgen.toml has CRLF line endings, and
+    // its multi-line `header` string carries the `\r`s into the output.
+    String::from_utf8(out)
+        .expect("header is UTF-8")
+        .replace('\r', "")
 }
 
 #[test]
@@ -29,13 +33,33 @@ fn header_is_up_to_date() {
         return;
     }
 
-    let committed = std::fs::read_to_string(&path).unwrap_or_default();
-    // Compare ignoring line-ending differences (Windows checkouts).
-    assert!(
-        committed.replace("\r\n", "\n") == generated,
-        "include/gridwell.h is stale. Regenerate with:\n    \
-         GRIDWELL_BLESS=1 cargo test -p gridwell-ffi --test header"
-    );
+    let committed = std::fs::read_to_string(&path)
+        .unwrap_or_default()
+        .replace('\r', "");
+    if committed != generated {
+        let first_diff = committed
+            .lines()
+            .zip(generated.lines())
+            .enumerate()
+            .find(|(_, (c, g))| c != g)
+            .map(|(i, (c, g))| {
+                format!(
+                    "first difference at line {}:\n  committed: {c:?}\n  generated: {g:?}",
+                    i + 1
+                )
+            })
+            .unwrap_or_else(|| {
+                format!(
+                    "lengths differ: committed {} lines, generated {} lines",
+                    committed.lines().count(),
+                    generated.lines().count()
+                )
+            });
+        panic!(
+            "include/gridwell.h is stale ({first_diff}).\nRegenerate with:\n    \
+             GRIDWELL_BLESS=1 cargo test -p gridwell-ffi --test header"
+        );
+    }
 }
 
 #[test]
