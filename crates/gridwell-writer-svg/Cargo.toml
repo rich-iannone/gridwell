@@ -10,8 +10,10 @@ description = "SVG writer for gridwell: IR → self-contained SVG table image"
 gridwell-ir = { path = "../gridwell-ir" }
 gridwell-core = { path = "../gridwell-core" }
 thiserror = { workspace = true }
+unicode-width = "0.2"
 
 [dev-dependencies]
 gridwell-testkit = { path = "../gridwell-testkit" }
 insta = { workspace = true }
 serde_json = { workspace = true }
+image = { version = "0.25", default-features = false, features = ["png"] }
