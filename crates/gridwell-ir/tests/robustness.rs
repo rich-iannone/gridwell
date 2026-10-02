@@ -283,3 +283,54 @@ fn limit_exceeded_serializes_screaming_snake() {
     let s = serde_json::to_string(&ValidationRule::LimitExceeded).unwrap();
     assert_eq!(s, "\"LIMIT_EXCEEDED\"");
 }
+
+// ─── ensure_valid / display ───
+
+#[test]
+fn every_rule_displays_as_its_serialized_id() {
+    use ValidationRule::*;
+    for rule in [
+        ColCount,
+        RowCount,
+        ColspecLength,
+        StubContiguous,
+        StyleRefsValid,
+        FootnoteRefsValid,
+        SpanOverflowRight,
+        SpanOverflowBottom,
+        SpanOverlap,
+        SpanGap,
+        SpanPlaceholderHasContent,
+        SpanPlaceholderMismatch,
+        SpanZeroValue,
+        SummaryRequiresStub,
+        LimitExceeded,
+    ] {
+        let serialized = serde_json::to_string(&rule).unwrap();
+        assert_eq!(format!("\"{rule}\""), serialized);
+    }
+}
+
+#[test]
+fn ensure_valid_ok_for_valid_table() {
+    let t = parse(table_json(1, vec![], vec![vec![text_cell("a")]]));
+    assert!(t.ensure_valid().is_ok());
+}
+
+#[test]
+fn ensure_valid_lists_errors_and_truncates() {
+    // 12 rows with the wrong cell count → 12 COL_COUNT errors (+ ROW_COUNT is fine).
+    let body: Vec<Vec<Value>> = (0..12).map(|_| vec![text_cell("a")]).collect();
+    let mut v = table_json(1, vec![], body);
+    v["config"]["table_cols"] = json!(2);
+    v["column_spec"] = json!([{ "id": "a" }, { "id": "b" }]);
+    let err = parse(v).ensure_valid().unwrap_err();
+    assert_eq!(err.errors.len(), 12);
+    let msg = err.to_string();
+    assert!(
+        msg.starts_with("table IR failed validation with 12 errors"),
+        "{msg}"
+    );
+    assert_eq!(msg.matches("[COL_COUNT]").count(), 10, "{msg}");
+    assert!(msg.ends_with("… and 2 more"), "{msg}");
+}
