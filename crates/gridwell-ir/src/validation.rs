@@ -27,11 +27,68 @@ pub enum ValidationRule {
     LimitExceeded,
 }
 
-impl fmt::Display for ValidationRule {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
+impl ValidationRule {
+    /// The rule's documented identifier, e.g. `SPAN_OVERFLOW_RIGHT` (the same string
+    /// it serializes to).
+    pub fn id(self) -> &'static str {
+        match self {
+            ValidationRule::ColCount => "COL_COUNT",
+            ValidationRule::RowCount => "ROW_COUNT",
+            ValidationRule::ColspecLength => "COLSPEC_LENGTH",
+            ValidationRule::StubContiguous => "STUB_CONTIGUOUS",
+            ValidationRule::StyleRefsValid => "STYLE_REFS_VALID",
+            ValidationRule::FootnoteRefsValid => "FOOTNOTE_REFS_VALID",
+            ValidationRule::SpanOverflowRight => "SPAN_OVERFLOW_RIGHT",
+            ValidationRule::SpanOverflowBottom => "SPAN_OVERFLOW_BOTTOM",
+            ValidationRule::SpanOverlap => "SPAN_OVERLAP",
+            ValidationRule::SpanGap => "SPAN_GAP",
+            ValidationRule::SpanPlaceholderHasContent => "SPAN_PLACEHOLDER_HAS_CONTENT",
+            ValidationRule::SpanPlaceholderMismatch => "SPAN_PLACEHOLDER_MISMATCH",
+            ValidationRule::SpanZeroValue => "SPAN_ZERO_VALUE",
+            ValidationRule::SummaryRequiresStub => "SUMMARY_REQUIRES_STUB",
+            ValidationRule::LimitExceeded => "LIMIT_EXCEEDED",
+        }
     }
 }
+
+impl fmt::Display for ValidationRule {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.id())
+    }
+}
+
+/// Returned by [`Table::ensure_valid`](crate::Table::ensure_valid) when the IR fails
+/// validation. Render entry points (CLI, FFI, Python, R) refuse such tables rather
+/// than handing malformed IR to a writer.
+#[derive(Debug, Clone)]
+pub struct InvalidTable {
+    pub errors: Vec<ValidationError>,
+}
+
+impl InvalidTable {
+    /// How many errors `Display` lists before summarizing the rest.
+    pub const DISPLAY_LIMIT: usize = 10;
+}
+
+impl fmt::Display for InvalidTable {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let n = self.errors.len();
+        write!(
+            f,
+            "table IR failed validation with {n} error{}",
+            if n == 1 { "" } else { "s" }
+        )?;
+        for e in self.errors.iter().take(Self::DISPLAY_LIMIT) {
+            write!(f, "\n  - {e}")?;
+        }
+        if n > Self::DISPLAY_LIMIT {
+            write!(f, "\n  … and {} more", n - Self::DISPLAY_LIMIT)?;
+        }
+        Ok(())
+    }
+}
+
+impl std::error::Error for InvalidTable {}
 
 /// A validation error with location context.
 #[derive(Debug, Clone, Serialize, Deserialize)]
