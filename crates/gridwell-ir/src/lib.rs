@@ -4,6 +4,7 @@ pub mod content;
 pub mod span;
 pub mod style;
 pub mod validation;
+pub mod visibility;
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -14,6 +15,7 @@ pub use content::ContentNode;
 pub use span::{resolve_slots, vmerge_layout, MergeCell, Slot, VMerge};
 pub use style::{StyleDef, StylePalette};
 pub use validation::{validate, InvalidTable, ValidationError, ValidationRule};
+pub use visibility::ColumnVisibility;
 
 /// Parse error for IR JSON.
 #[derive(Debug, Error)]
