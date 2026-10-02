@@ -18,7 +18,8 @@ gridwell-writer-html = "0.1"
 ### Python
 
 ```bash
-pip install gridwell
+pip install gridwell          # Python 3.10+
+pip install 'gridwell[gt]'    # include the Great Tables integration
 ```
 
 ### R
