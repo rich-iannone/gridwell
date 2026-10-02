@@ -112,6 +112,9 @@ pub unsafe extern "C" fn gridwell_validate(table: *const GridwellTable) -> *mut 
 
 /// Render a table to a text format.
 ///
+/// The table is validated first; invalid IR fails with error code 2 (validation)
+/// and a message listing the errors.
+///
 /// Supported formats: "html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto".
 ///
 /// # Safety
@@ -147,6 +150,12 @@ pub unsafe extern "C" fn gridwell_render_text(
         }
     };
 
+    // Writers assume valid IR; refuse anything else (ERR_VALIDATE).
+    if let Err(invalid) = table.ensure_valid() {
+        set_error(err, ERR_VALIDATE, &invalid.to_string());
+        return empty;
+    }
+
     let result = render_text_format(table, format_str);
     match result {
         Ok(text) => {
@@ -168,6 +177,9 @@ pub unsafe extern "C" fn gridwell_render_text(
 // ─── Binary rendering ───
 
 /// Render a table to a binary format.
+///
+/// The table is validated first; invalid IR fails with error code 2 (validation)
+/// and a message listing the errors.
 ///
 /// Supported formats: "docx", "xlsx", "pptx".
 ///
@@ -203,6 +215,12 @@ pub unsafe extern "C" fn gridwell_render_binary(
             return empty;
         }
     };
+
+    // Writers assume valid IR; refuse anything else (ERR_VALIDATE).
+    if let Err(invalid) = table.ensure_valid() {
+        set_error(err, ERR_VALIDATE, &invalid.to_string());
+        return empty;
+    }
 
     let result = render_binary_format(table, format_str);
     match result {
