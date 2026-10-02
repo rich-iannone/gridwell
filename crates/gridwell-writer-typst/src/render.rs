@@ -1,7 +1,7 @@
 use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::style::StyleDef;
-use gridwell_ir::{Cell, Row, Table};
+use gridwell_ir::{Cell, ColumnVisibility, Row, Table};
 use std::fmt::Write;
 use thiserror::Error;
 
@@ -18,6 +18,9 @@ struct TypstRenderer<'a> {
     config: &'a TypstWriterConfig,
     buf: String,
     indent_level: usize,
+    /// Hidden columns are excluded from `columns:`, so every cell's position and span
+    /// must be projected onto the visible columns.
+    visibility: ColumnVisibility,
 }
 
 impl<'a> TypstRenderer<'a> {
@@ -27,6 +30,7 @@ impl<'a> TypstRenderer<'a> {
             config,
             buf: String::with_capacity(4096),
             indent_level: 0,
+            visibility: ColumnVisibility::from_spec(&table.column_spec),
         }
     }
 
@@ -81,6 +85,11 @@ impl<'a> TypstRenderer<'a> {
     // ─── Table ───
 
     fn render_table(&mut self) {
+        // With every column hidden there is no table to draw (and `columns: ()` would
+        // not compile).
+        if self.visibility.visible_len() == 0 {
+            return;
+        }
         let columns = self.build_columns();
         self.line("#table(");
         self.push();
@@ -122,8 +131,10 @@ impl<'a> TypstRenderer<'a> {
             self.render_row(row, true);
         }
 
-        // Horizontal line after header
-        self.line("table.hline(stroke: 0.5pt),");
+        // Horizontal line after header (none when there is no header row)
+        if !self.table.table.thead.rows.is_empty() {
+            self.line("table.hline(stroke: 0.5pt),");
+        }
 
         self.pop();
         if self.config.repeat_header {
@@ -136,7 +147,7 @@ impl<'a> TypstRenderer<'a> {
             // Group label
             if let Some(ref label) = group.label {
                 let text = content_to_typst(&label.content);
-                let cols = self.table.config.table_cols;
+                let cols = self.visibility.visible_len();
                 self.line("table.hline(stroke: 0.5pt),");
                 self.line(&format!(
                     "table.cell(colspan: {cols}, fill: luma(240))[#text(weight: \"bold\")[{text}]],"
@@ -165,22 +176,27 @@ impl<'a> TypstRenderer<'a> {
     }
 
     fn render_row(&mut self, row: &Row, is_header: bool) {
-        for cell in &row.cells {
+        for (col, cell) in row.cells.iter().enumerate() {
             if cell.is_placeholder {
                 continue;
             }
-            self.render_cell(cell, is_header);
+            // Cells entirely in hidden columns are dropped; spans crossing hidden
+            // columns shrink.
+            let Some((_, colspan)) = self.visibility.project(col, cell.colspan as usize) else {
+                continue;
+            };
+            self.render_cell(cell, colspan, is_header);
         }
     }
 
-    fn render_cell(&mut self, cell: &Cell, is_header: bool) {
+    fn render_cell(&mut self, cell: &Cell, colspan: usize, is_header: bool) {
         let content = content_to_typst(&cell.content);
 
         // Build cell attributes
         let mut attrs = Vec::new();
 
-        if cell.colspan > 1 {
-            attrs.push(format!("colspan: {}", cell.colspan));
+        if colspan > 1 {
+            attrs.push(format!("colspan: {colspan}"));
         }
         if cell.rowspan > 1 {
             attrs.push(format!("rowspan: {}", cell.rowspan));
@@ -283,7 +299,12 @@ impl<'a> TypstRenderer<'a> {
         if let Some(ref footer) = self.table.footer {
             if !footer.footnotes.is_empty() {
                 self.line("");
-                for note in &footer.footnotes {
+                // A blank line between notes: consecutive source lines would be
+                // joined into one paragraph.
+                for (i, note) in footer.footnotes.iter().enumerate() {
+                    if i > 0 {
+                        self.line("");
+                    }
                     let text = content_to_typst(&note.content);
                     let mark = escape_typst(&note.mark);
                     self.line(&format!("#text(size: 9pt)[#super[{mark}] {text}]"));
@@ -291,7 +312,10 @@ impl<'a> TypstRenderer<'a> {
             }
             if !footer.source_notes.is_empty() {
                 self.line("");
-                for note in &footer.source_notes {
+                for (i, note) in footer.source_notes.iter().enumerate() {
+                    if i > 0 {
+                        self.line("");
+                    }
                     let text = content_to_typst(&note.content);
                     self.line(&format!("#text(size: 9pt, fill: luma(100))[{text}]"));
                 }
