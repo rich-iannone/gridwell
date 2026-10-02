@@ -40,8 +40,8 @@ The validator materializes a **2D occupancy grid** for each section:
 Each error includes the rule name, location, and a human-readable message:
 
 ```text
-[ColCount] tbody group 0 row 0 has 4 cells but config.table_cols is 3
-[SpanOverflowRight] cell at (row=1, col=4) has colspan=3 but table has 5 columns
+[COL_COUNT] tbody group 0 row 0 has 4 cells but config.table_cols is 3
+[SPAN_OVERFLOW_RIGHT] cell at (row=1, col=4) has colspan=3 but table has 5 columns
 [PlaceholderHasContent] placeholder cell at (row=2, col=1) has non-empty content
 ```
 
