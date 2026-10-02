@@ -2,23 +2,23 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="161" height="124" viewBox="0 0 161 124">
+<svg xmlns="http://www.w3.org/2000/svg" width="168" height="124" viewBox="0 0 168 124">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Form</tspan></text>
-<text x="116.4" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Text</tspan></text>
+<text x="121.4" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Text</tspan></text>
 <text x="8" y="50.9" font-size="14px" xml:space="preserve">composed</text>
-<text x="116.4" y="50.9" font-size="14px" xml:space="preserve">café</text>
+<text x="121.4" y="50.9" font-size="14px" xml:space="preserve">café</text>
 <text x="8" y="78.9" font-size="14px" xml:space="preserve">decomposed</text>
-<text x="116.4" y="78.9" font-size="14px" xml:space="preserve">café</text>
+<text x="121.4" y="78.9" font-size="14px" xml:space="preserve">café</text>
 <text x="8" y="106.9" font-size="14px" xml:space="preserve">stacked</text>
-<text x="116.4" y="106.9" font-size="14px" xml:space="preserve">à́̂</text>
-<line x1="0" y1="32" x2="108.4" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="108.4" y1="32" x2="160.15" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="108.4" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="108.4" y1="60" x2="160.15" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="108.4" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="108.4" y1="88" x2="160.15" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="116" x2="108.4" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="108.4" y1="116" x2="160.15" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="160.15" y2="32" stroke="#333333" stroke-width="1.5"/>
+<text x="121.4" y="106.9" font-size="14px" xml:space="preserve">à́̂</text>
+<line x1="0" y1="32" x2="113.4" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="113.4" y1="32" x2="167.15" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="113.4" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="113.4" y1="60" x2="167.15" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="88" x2="113.4" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="113.4" y1="88" x2="167.15" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="116" x2="113.4" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="113.4" y1="116" x2="167.15" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="167.15" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

@@ -2,27 +2,27 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="123" height="152" viewBox="0 0 123 152">
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="152" viewBox="0 0 128 152">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Index</tspan></text>
-<text x="69" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Value</tspan></text>
+<text x="71.5" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Value</tspan></text>
 <text x="8" y="50.9" font-size="14px" xml:space="preserve">0</text>
-<text x="69" y="50.9" font-size="14px" xml:space="preserve">a</text>
+<text x="71.5" y="50.9" font-size="14px" xml:space="preserve">a</text>
 <text x="8" y="78.9" font-size="14px" xml:space="preserve">1</text>
-<text x="69" y="78.9" font-size="14px" xml:space="preserve">b</text>
+<text x="71.5" y="78.9" font-size="14px" xml:space="preserve">b</text>
 <text x="8" y="106.9" font-size="14px" xml:space="preserve">2</text>
-<text x="69" y="106.9" font-size="14px" xml:space="preserve">c</text>
+<text x="71.5" y="106.9" font-size="14px" xml:space="preserve">c</text>
 <text x="8" y="134.9" font-size="14px" xml:space="preserve">3</text>
-<text x="69" y="134.9" font-size="14px" xml:space="preserve">d</text>
-<line x1="0" y1="32" x2="61" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="61" y1="32" x2="122.79" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="61" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="61" y1="60" x2="122.79" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="61" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="61" y1="88" x2="122.79" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="116" x2="61" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="61" y1="116" x2="122.79" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="144" x2="61" y2="144" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="61" y1="144" x2="122.79" y2="144" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="122.79" y2="32" stroke="#333333" stroke-width="1.5"/>
+<text x="71.5" y="134.9" font-size="14px" xml:space="preserve">d</text>
+<line x1="0" y1="32" x2="63.5" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="63.5" y1="32" x2="127.79" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="63.5" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="63.5" y1="60" x2="127.79" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="88" x2="63.5" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="63.5" y1="88" x2="127.79" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="116" x2="63.5" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="63.5" y1="116" x2="127.79" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="144" x2="63.5" y2="144" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="63.5" y1="144" x2="127.79" y2="144" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="127.79" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

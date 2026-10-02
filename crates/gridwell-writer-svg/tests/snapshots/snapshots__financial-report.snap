@@ -2,42 +2,42 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="239" height="203" viewBox="0 0 239 203">
+<svg xmlns="http://www.w3.org/2000/svg" width="250" height="203" viewBox="0 0 250 203">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="24.58" font-size="19.6px" xml:space="preserve"><tspan font-weight="bold">Quarterly P&amp;L</tspan></text>
-<rect x="0" y="147.44" width="108.51" height="28" fill="#f5f5f5"/>
-<rect x="108.51" y="147.44" width="65" height="28" fill="#f5f5f5"/>
-<rect x="173.51" y="147.44" width="65" height="28" fill="#f5f5f5"/>
+<rect x="0" y="147.44" width="113.51" height="28" fill="#f5f5f5"/>
+<rect x="113.51" y="147.44" width="68" height="28" fill="#f5f5f5"/>
+<rect x="181.51" y="147.44" width="68" height="28" fill="#f5f5f5"/>
 <text x="8" y="54.34" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Line item</tspan></text>
-<text x="165.51" y="54.34" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Q1</tspan></text>
-<text x="230.51" y="54.34" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Q2</tspan></text>
+<text x="173.51" y="54.34" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Q1</tspan></text>
+<text x="241.51" y="54.34" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Q2</tspan></text>
 <text x="8" y="82.34" font-size="14px" xml:space="preserve">Revenue</text>
-<text x="165.51" y="82.34" font-size="14px" text-anchor="end" xml:space="preserve">$1,200</text>
-<text x="230.51" y="82.34" font-size="14px" text-anchor="end" xml:space="preserve">$1,350</text>
+<text x="173.51" y="82.34" font-size="14px" text-anchor="end" xml:space="preserve">$1,200</text>
+<text x="241.51" y="82.34" font-size="14px" text-anchor="end" xml:space="preserve">$1,350</text>
 <text x="8" y="110.34" font-size="14px" xml:space="preserve">COGS</text>
-<text x="165.51" y="110.34" font-size="14px" text-anchor="end" xml:space="preserve">$700</text>
-<text x="230.51" y="110.34" font-size="14px" text-anchor="end" xml:space="preserve">$760</text>
+<text x="173.51" y="110.34" font-size="14px" text-anchor="end" xml:space="preserve">$700</text>
+<text x="241.51" y="110.34" font-size="14px" text-anchor="end" xml:space="preserve">$760</text>
 <text x="8" y="138.34" font-size="14px" xml:space="preserve">Opex</text>
-<text x="165.51" y="138.34" font-size="14px" text-anchor="end" xml:space="preserve">$300</text>
-<text x="230.51" y="138.34" font-size="14px" text-anchor="end" xml:space="preserve">$320</text>
+<text x="173.51" y="138.34" font-size="14px" text-anchor="end" xml:space="preserve">$300</text>
+<text x="241.51" y="138.34" font-size="14px" text-anchor="end" xml:space="preserve">$320</text>
 <text x="8" y="166.34" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Net income</tspan></text>
-<text x="165.51" y="166.34" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">$200</tspan></text>
-<text x="230.51" y="166.34" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">$270</tspan></text>
-<line x1="0" y1="63.44" x2="108.51" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="108.51" y1="63.44" x2="173.51" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="173.51" y1="63.44" x2="238.51" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="91.44" x2="108.51" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="108.51" y1="91.44" x2="173.51" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="173.51" y1="91.44" x2="238.51" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="119.44" x2="108.51" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="108.51" y1="119.44" x2="173.51" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="173.51" y1="119.44" x2="238.51" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="147.44" x2="108.51" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="108.51" y1="147.44" x2="173.51" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="173.51" y1="147.44" x2="238.51" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="175.44" x2="108.51" y2="175.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="108.51" y1="175.44" x2="173.51" y2="175.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="173.51" y1="175.44" x2="238.51" y2="175.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="63.44" x2="238.51" y2="63.44" stroke="#333333" stroke-width="1.5"/>
+<text x="173.51" y="166.34" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">$200</tspan></text>
+<text x="241.51" y="166.34" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">$270</tspan></text>
+<line x1="0" y1="63.44" x2="113.51" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="113.51" y1="63.44" x2="181.51" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="181.51" y1="63.44" x2="249.51" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="91.44" x2="113.51" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="113.51" y1="91.44" x2="181.51" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="181.51" y1="91.44" x2="249.51" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="119.44" x2="113.51" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="113.51" y1="119.44" x2="181.51" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="181.51" y1="119.44" x2="249.51" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="147.44" x2="113.51" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="113.51" y1="147.44" x2="181.51" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="181.51" y1="147.44" x2="249.51" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="175.44" x2="113.51" y2="175.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="113.51" y1="175.44" x2="181.51" y2="175.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="181.51" y1="175.44" x2="249.51" y2="175.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="63.44" x2="249.51" y2="63.44" stroke="#333333" stroke-width="1.5"/>
 <text x="8" y="191.94" font-size="11.9px" xml:space="preserve">Unaudited management figures.</text>
 </svg>

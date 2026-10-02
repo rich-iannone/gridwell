@@ -2,15 +2,15 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="111" height="68" viewBox="0 0 111 68">
+<svg xmlns="http://www.w3.org/2000/svg" width="116" height="68" viewBox="0 0 116 68">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Icon</tspan></text>
-<text x="58.34" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Label</tspan></text>
+<text x="60.34" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Label</tspan></text>
 <text x="8" y="50.9" font-size="14px" xml:space="preserve">logo</text>
-<text x="58.34" y="50.9" font-size="14px" xml:space="preserve">Brand</text>
-<line x1="0" y1="32" x2="50.34" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="50.34" y1="32" x2="110.56" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="50.34" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="50.34" y1="60" x2="110.56" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="110.56" y2="32" stroke="#333333" stroke-width="1.5"/>
+<text x="60.34" y="50.9" font-size="14px" xml:space="preserve">Brand</text>
+<line x1="0" y1="32" x2="52.34" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="52.34" y1="32" x2="115.06" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="52.34" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="52.34" y1="60" x2="115.06" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="115.06" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

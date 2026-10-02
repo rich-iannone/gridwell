@@ -2,23 +2,23 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="299" height="68" viewBox="0 0 299 68">
+<svg xmlns="http://www.w3.org/2000/svg" width="316" height="68" viewBox="0 0 316 68">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">L</tspan></text>
-<text x="71.74" y="22.9" font-size="14px" text-anchor="middle" xml:space="preserve"><tspan font-weight="bold">C</tspan></text>
-<text x="145.28" y="22.9" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">R</tspan></text>
-<text x="161.28" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">J</tspan></text>
+<text x="75.24" y="22.9" font-size="14px" text-anchor="middle" xml:space="preserve"><tspan font-weight="bold">C</tspan></text>
+<text x="152.78" y="22.9" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">R</tspan></text>
+<text x="168.78" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">J</tspan></text>
 <text x="8" y="50.9" font-size="14px" xml:space="preserve">left</text>
-<text x="71.74" y="50.9" font-size="14px" text-anchor="middle" xml:space="preserve">center</text>
-<text x="145.28" y="50.9" font-size="14px" text-anchor="end" xml:space="preserve">right</text>
-<text x="161.28" y="50.9" font-size="14px" xml:space="preserve">justified text here</text>
-<line x1="0" y1="32" x2="40.36" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="40.36" y1="32" x2="103.12" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="103.12" y1="32" x2="153.28" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="153.28" y1="32" x2="298.64" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="40.36" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="40.36" y1="60" x2="103.12" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="103.12" y1="60" x2="153.28" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="153.28" y1="60" x2="298.64" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="298.64" y2="32" stroke="#333333" stroke-width="1.5"/>
+<text x="75.24" y="50.9" font-size="14px" text-anchor="middle" xml:space="preserve">center</text>
+<text x="152.78" y="50.9" font-size="14px" text-anchor="end" xml:space="preserve">right</text>
+<text x="168.78" y="50.9" font-size="14px" xml:space="preserve">justified text here</text>
+<line x1="0" y1="32" x2="42.36" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="42.36" y1="32" x2="108.12" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="108.12" y1="32" x2="160.78" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="160.78" y1="32" x2="315.64" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="42.36" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="42.36" y1="60" x2="108.12" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="108.12" y1="60" x2="160.78" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="160.78" y1="60" x2="315.64" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="315.64" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

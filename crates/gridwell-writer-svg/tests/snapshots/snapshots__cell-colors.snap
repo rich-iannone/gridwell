@@ -2,21 +2,21 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="123" height="96" viewBox="0 0 123 96">
+<svg xmlns="http://www.w3.org/2000/svg" width="127" height="96" viewBox="0 0 127 96">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
-<rect x="60.22" y="32" width="61.79" height="28" fill="#c0392b"/>
-<rect x="60.22" y="60" width="61.79" height="28" fill="#2980b9"/>
+<rect x="62.72" y="32" width="63.79" height="28" fill="#c0392b"/>
+<rect x="62.72" y="60" width="63.79" height="28" fill="#2980b9"/>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Label</tspan></text>
-<text x="68.22" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Temp</tspan></text>
+<text x="70.72" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Temp</tspan></text>
 <text x="8" y="50.9" font-size="14px" xml:space="preserve">Fire</text>
-<text x="68.22" y="50.9" font-size="14px" xml:space="preserve"><tspan fill="#ffffff">hot</tspan></text>
+<text x="70.72" y="50.9" font-size="14px" xml:space="preserve"><tspan fill="#ffffff">hot</tspan></text>
 <text x="8" y="78.9" font-size="14px" xml:space="preserve">Ice</text>
-<text x="68.22" y="78.9" font-size="14px" xml:space="preserve"><tspan fill="#ffffff">cold</tspan></text>
-<line x1="0" y1="32" x2="60.22" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="60.22" y1="32" x2="122" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="60.22" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="60.22" y1="60" x2="122" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="60.22" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="60.22" y1="88" x2="122" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="122" y2="32" stroke="#333333" stroke-width="1.5"/>
+<text x="70.72" y="78.9" font-size="14px" xml:space="preserve"><tspan fill="#ffffff">cold</tspan></text>
+<line x1="0" y1="32" x2="62.72" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="62.72" y1="32" x2="126.5" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="62.72" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="62.72" y1="60" x2="126.5" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="88" x2="62.72" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="62.72" y1="88" x2="126.5" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="126.5" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

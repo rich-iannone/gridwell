@@ -2,23 +2,23 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="336" height="68" viewBox="0 0 336 68">
+<svg xmlns="http://www.w3.org/2000/svg" width="345" height="68" viewBox="0 0 345 68">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Fixed</tspan></text>
 <text x="128" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Percent</tspan></text>
-<text x="207.35" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Fraction</tspan></text>
-<text x="289.83" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Auto</tspan></text>
+<text x="210.85" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Fraction</tspan></text>
+<text x="297.33" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Auto</tspan></text>
 <text x="8" y="50.9" font-size="14px" xml:space="preserve">120px</text>
 <text x="128" y="50.9" font-size="14px" xml:space="preserve">25%</text>
-<text x="207.35" y="50.9" font-size="14px" xml:space="preserve">1fr</text>
-<text x="289.83" y="50.9" font-size="14px" xml:space="preserve">auto</text>
+<text x="210.85" y="50.9" font-size="14px" xml:space="preserve">1fr</text>
+<text x="297.33" y="50.9" font-size="14px" xml:space="preserve">auto</text>
 <line x1="0" y1="32" x2="120" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="120" y1="32" x2="199.35" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="199.35" y1="32" x2="281.83" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="281.83" y1="32" x2="335.15" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="120" y1="32" x2="202.85" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="202.85" y1="32" x2="289.33" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="289.33" y1="32" x2="344.65" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="0" y1="60" x2="120" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="120" y1="60" x2="199.35" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="199.35" y1="60" x2="281.83" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="281.83" y1="60" x2="335.15" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="335.15" y2="32" stroke="#333333" stroke-width="1.5"/>
+<line x1="120" y1="60" x2="202.85" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="202.85" y1="60" x2="289.33" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="289.33" y1="60" x2="344.65" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="344.65" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

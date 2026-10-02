@@ -2,25 +2,25 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="169" height="124" viewBox="0 0 169 124">
+<svg xmlns="http://www.w3.org/2000/svg" width="178" height="124" viewBox="0 0 178 124">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">A</tspan></text>
-<text x="50.58" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">B</tspan></text>
-<text x="93.16" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">C</tspan></text>
+<text x="52.83" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">B</tspan></text>
+<text x="97.66" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">C</tspan></text>
 <text x="8" y="64.9" font-size="14px" xml:space="preserve">2x2 block</text>
-<text x="93.16" y="50.9" font-size="14px" xml:space="preserve">top-right</text>
-<text x="93.16" y="78.9" font-size="14px" xml:space="preserve">mid-right</text>
+<text x="97.66" y="50.9" font-size="14px" xml:space="preserve">top-right</text>
+<text x="97.66" y="78.9" font-size="14px" xml:space="preserve">mid-right</text>
 <text x="8" y="106.9" font-size="14px" xml:space="preserve">x</text>
-<text x="50.58" y="106.9" font-size="14px" xml:space="preserve">y</text>
-<text x="93.16" y="106.9" font-size="14px" xml:space="preserve">z</text>
-<line x1="0" y1="32" x2="42.58" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="42.58" y1="32" x2="85.16" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="85.16" y1="32" x2="168.08" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="85.16" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="85.16" y1="60" x2="168.08" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="85.16" y1="88" x2="168.08" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="116" x2="42.58" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="42.58" y1="116" x2="85.16" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="85.16" y1="116" x2="168.08" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="168.08" y2="32" stroke="#333333" stroke-width="1.5"/>
+<text x="52.83" y="106.9" font-size="14px" xml:space="preserve">y</text>
+<text x="97.66" y="106.9" font-size="14px" xml:space="preserve">z</text>
+<line x1="0" y1="32" x2="44.83" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="44.83" y1="32" x2="89.66" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="89.66" y1="32" x2="177.08" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="88" x2="89.66" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="89.66" y1="60" x2="177.08" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="89.66" y1="88" x2="177.08" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="116" x2="44.83" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="44.83" y1="116" x2="89.66" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="89.66" y1="116" x2="177.08" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="177.08" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

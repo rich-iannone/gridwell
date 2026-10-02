@@ -2,7 +2,7 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="312" height="96" viewBox="0 0 312 96">
+<svg xmlns="http://www.w3.org/2000/svg" width="329" height="96" viewBox="0 0 329 96">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="32" y="22.9" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">#</tspan></text>
 <text x="48" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Description</tspan></text>
@@ -11,10 +11,10 @@ expression: out
 <text x="32" y="78.9" font-size="14px" text-anchor="end" xml:space="preserve">2</text>
 <text x="48" y="78.9" font-size="14px" xml:space="preserve">Another spanning description here.</text>
 <line x1="0" y1="32" x2="40" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="40" y1="32" x2="311.36" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="40" y1="32" x2="328.36" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="0" y1="60" x2="40" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="40" y1="60" x2="311.36" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="40" y1="60" x2="328.36" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="0" y1="88" x2="40" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="40" y1="88" x2="311.36" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="311.36" y2="32" stroke="#333333" stroke-width="1.5"/>
+<line x1="40" y1="88" x2="328.36" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="328.36" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

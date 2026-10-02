@@ -2,20 +2,20 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="184" height="115" viewBox="0 0 184 115">
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="115" viewBox="0 0 200 115">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Country</tspan></text>
-<text x="88.92" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">GDP</tspan></text>
+<text x="92.42" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">GDP</tspan></text>
 <text x="8" y="50.9" font-size="14px" xml:space="preserve">Atlantis<tspan font-size="9.8px" baseline-shift="super">*</tspan></text>
-<text x="88.92" y="50.9" font-size="14px" xml:space="preserve">N/A</text>
+<text x="92.42" y="50.9" font-size="14px" xml:space="preserve">N/A</text>
 <text x="8" y="78.9" font-size="14px" xml:space="preserve">Utopia</text>
-<text x="88.92" y="78.9" font-size="14px" xml:space="preserve">999</text>
-<line x1="0" y1="32" x2="80.92" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="80.92" y1="32" x2="132.98" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="80.92" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="80.92" y1="60" x2="132.98" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="80.92" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="80.92" y1="88" x2="132.98" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="132.98" y2="32" stroke="#333333" stroke-width="1.5"/>
+<text x="92.42" y="78.9" font-size="14px" xml:space="preserve">999</text>
+<line x1="0" y1="32" x2="84.42" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="84.42" y1="32" x2="137.98" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="84.42" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="84.42" y1="60" x2="137.98" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="88" x2="84.42" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="84.42" y1="88" x2="137.98" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="137.98" y2="32" stroke="#333333" stroke-width="1.5"/>
 <text x="8" y="104.5" font-size="11.9px" xml:space="preserve"><tspan font-size="8.33px" baseline-shift="super">*</tspan> Fictional; illustrative only.</text>
 </svg>

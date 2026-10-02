@@ -2,17 +2,17 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="166" height="107" viewBox="0 0 166 107">
+<svg xmlns="http://www.w3.org/2000/svg" width="174" height="107" viewBox="0 0 174 107">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Name</tspan></text>
-<text x="71.67" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Address</tspan></text>
+<text x="73.67" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Address</tspan></text>
 <text x="8" y="70.3" font-size="14px" xml:space="preserve">HQ</text>
-<text x="71.67" y="50.7" font-size="14px" xml:space="preserve">123 Main St</text>
-<text x="71.67" y="70.3" font-size="14px" xml:space="preserve">Suite 100</text>
-<text x="71.67" y="89.9" font-size="14px" xml:space="preserve">Anytown</text>
-<line x1="0" y1="32" x2="63.67" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="63.67" y1="32" x2="165.63" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="98.8" x2="63.67" y2="98.8" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="63.67" y1="98.8" x2="165.63" y2="98.8" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="165.63" y2="32" stroke="#333333" stroke-width="1.5"/>
+<text x="73.67" y="50.7" font-size="14px" xml:space="preserve">123 Main St</text>
+<text x="73.67" y="70.3" font-size="14px" xml:space="preserve">Suite 100</text>
+<text x="73.67" y="89.9" font-size="14px" xml:space="preserve">Anytown</text>
+<line x1="0" y1="32" x2="65.67" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="65.67" y1="32" x2="173.13" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="98.8" x2="65.67" y2="98.8" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="65.67" y1="98.8" x2="173.13" y2="98.8" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="173.13" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

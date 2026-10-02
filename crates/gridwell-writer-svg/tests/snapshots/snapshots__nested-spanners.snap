@@ -2,35 +2,35 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="164" height="124" viewBox="0 0 164 124">
+<svg xmlns="http://www.w3.org/2000/svg" width="171" height="124" viewBox="0 0 171 124">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Group A</tspan></text>
-<text x="89.86" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Group B</tspan></text>
+<text x="93.36" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Group B</tspan></text>
 <text x="8" y="50.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">A1</tspan></text>
-<text x="48.93" y="50.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">A2</tspan></text>
-<text x="89.86" y="50.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">B1</tspan></text>
-<text x="130.78" y="50.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">B2</tspan></text>
+<text x="50.68" y="50.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">A2</tspan></text>
+<text x="93.36" y="50.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">B1</tspan></text>
+<text x="136.03" y="50.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">B2</tspan></text>
 <text x="8" y="78.9" font-size="14px" xml:space="preserve">1</text>
-<text x="48.93" y="78.9" font-size="14px" xml:space="preserve">2</text>
-<text x="89.86" y="78.9" font-size="14px" xml:space="preserve">3</text>
-<text x="130.78" y="78.9" font-size="14px" xml:space="preserve">4</text>
+<text x="50.68" y="78.9" font-size="14px" xml:space="preserve">2</text>
+<text x="93.36" y="78.9" font-size="14px" xml:space="preserve">3</text>
+<text x="136.03" y="78.9" font-size="14px" xml:space="preserve">4</text>
 <text x="8" y="106.9" font-size="14px" xml:space="preserve">5</text>
-<text x="48.93" y="106.9" font-size="14px" xml:space="preserve">6</text>
-<text x="89.86" y="106.9" font-size="14px" xml:space="preserve">7</text>
-<text x="130.78" y="106.9" font-size="14px" xml:space="preserve">8</text>
-<line x1="0" y1="32" x2="81.86" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="81.86" y1="32" x2="163.71" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="40.93" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="40.93" y1="60" x2="81.86" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="81.86" y1="60" x2="122.78" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="122.78" y1="60" x2="163.71" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="40.93" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="40.93" y1="88" x2="81.86" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="81.86" y1="88" x2="122.78" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="122.78" y1="88" x2="163.71" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="116" x2="40.93" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="40.93" y1="116" x2="81.86" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="81.86" y1="116" x2="122.78" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="122.78" y1="116" x2="163.71" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="163.71" y2="60" stroke="#333333" stroke-width="1.5"/>
+<text x="50.68" y="106.9" font-size="14px" xml:space="preserve">6</text>
+<text x="93.36" y="106.9" font-size="14px" xml:space="preserve">7</text>
+<text x="136.03" y="106.9" font-size="14px" xml:space="preserve">8</text>
+<line x1="0" y1="32" x2="85.36" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="85.36" y1="32" x2="170.71" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="42.68" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="42.68" y1="60" x2="85.36" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="85.36" y1="60" x2="128.03" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="128.03" y1="60" x2="170.71" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="88" x2="42.68" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="42.68" y1="88" x2="85.36" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="85.36" y1="88" x2="128.03" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="128.03" y1="88" x2="170.71" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="116" x2="42.68" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="42.68" y1="116" x2="85.36" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="85.36" y1="116" x2="128.03" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="128.03" y1="116" x2="170.71" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="170.71" y2="60" stroke="#333333" stroke-width="1.5"/>
 </svg>

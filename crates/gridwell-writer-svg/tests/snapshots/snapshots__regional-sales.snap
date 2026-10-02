@@ -2,65 +2,66 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="345" height="359" viewBox="0 0 345 359">
+<svg xmlns="http://www.w3.org/2000/svg" width="355" height="380" viewBox="0 0 355 380">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="24.58" font-size="19.6px" xml:space="preserve"><tspan font-weight="bold">Regional Sales Performance</tspan></text>
-<text x="8" y="51.61" font-size="15.4px" xml:space="preserve">Fiscal years 2023–2024 (in millions USD)</text>
-<rect x="0" y="117" width="318.63" height="28" fill="#f0f0f0"/>
-<rect x="0" y="229" width="318.63" height="28" fill="#f0f0f0"/>
-<text x="310.63" y="79.9" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Financials</tspan></text>
-<text x="8" y="107.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Country</tspan></text>
-<text x="160.82" y="107.9" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Year</tspan></text>
-<text x="248.32" y="107.9" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Revenue</tspan></text>
-<text x="310.63" y="107.9" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Profit</tspan></text>
-<text x="8" y="177.9" font-size="14px" xml:space="preserve">United States</text>
-<text x="160.82" y="163.9" font-size="14px" text-anchor="end" xml:space="preserve">2023</text>
-<text x="248.32" y="163.9" font-size="14px" text-anchor="end" xml:space="preserve">1,250.3</text>
-<text x="310.63" y="163.9" font-size="14px" text-anchor="end" xml:space="preserve">270.1<tspan font-size="9.8px" baseline-shift="super">1</tspan></text>
-<text x="160.82" y="191.9" font-size="14px" text-anchor="end" xml:space="preserve">2024</text>
-<text x="248.32" y="191.9" font-size="14px" text-anchor="end" xml:space="preserve">1,380.7</text>
-<text x="310.63" y="191.9" font-size="14px" text-anchor="end" xml:space="preserve">330.3</text>
-<text x="8" y="219.9" font-size="14px" xml:space="preserve">Canada</text>
-<text x="160.82" y="219.9" font-size="14px" text-anchor="end" xml:space="preserve">2024</text>
-<text x="248.32" y="219.9" font-size="14px" text-anchor="end" xml:space="preserve">420.1</text>
-<text x="310.63" y="219.9" font-size="14px" text-anchor="end" xml:space="preserve">109.5</text>
-<text x="8" y="275.9" font-size="14px" xml:space="preserve">Germany</text>
-<text x="160.82" y="275.9" font-size="14px" text-anchor="end" xml:space="preserve">2024</text>
-<text x="248.32" y="275.9" font-size="14px" text-anchor="end" xml:space="preserve">945.2</text>
-<text x="310.63" y="275.9" font-size="14px" text-anchor="end" xml:space="preserve">164.9</text>
-<text x="8" y="303.9" font-size="14px" xml:space="preserve">France</text>
-<text x="160.82" y="303.9" font-size="14px" text-anchor="end" xml:space="preserve">2024</text>
-<text x="248.32" y="303.9" font-size="14px" text-anchor="end" xml:space="preserve">610.8</text>
-<text x="310.63" y="303.9" font-size="14px" text-anchor="end" xml:space="preserve">120.6</text>
-<text x="8" y="135.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">North America</tspan></text>
-<text x="8" y="247.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Europe</tspan></text>
-<line x1="0" y1="89" x2="114.56" y2="89" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="114.56" y1="89" x2="168.82" y2="89" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="168.82" y1="89" x2="318.63" y2="89" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="117" x2="114.56" y2="117" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="114.56" y1="117" x2="168.82" y2="117" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="168.82" y1="117" x2="256.32" y2="117" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="256.32" y1="117" x2="318.63" y2="117" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="201" x2="114.56" y2="201" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="114.56" y1="173" x2="168.82" y2="173" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="168.82" y1="173" x2="256.32" y2="173" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="256.32" y1="173" x2="318.63" y2="173" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="114.56" y1="201" x2="168.82" y2="201" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="168.82" y1="201" x2="256.32" y2="201" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="256.32" y1="201" x2="318.63" y2="201" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="229" x2="114.56" y2="229" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="114.56" y1="229" x2="168.82" y2="229" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="168.82" y1="229" x2="256.32" y2="229" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="256.32" y1="229" x2="318.63" y2="229" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="285" x2="114.56" y2="285" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="114.56" y1="285" x2="168.82" y2="285" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="168.82" y1="285" x2="256.32" y2="285" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="256.32" y1="285" x2="318.63" y2="285" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="313" x2="114.56" y2="313" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="114.56" y1="313" x2="168.82" y2="313" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="168.82" y1="313" x2="256.32" y2="313" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="256.32" y1="313" x2="318.63" y2="313" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="117" x2="318.63" y2="117" stroke="#333333" stroke-width="1.5"/>
-<text x="8" y="329.5" font-size="11.9px" xml:space="preserve"><tspan font-size="8.33px" baseline-shift="super">1</tspan> Includes one-time restructuring charge.</text>
-<text x="8" y="348.16" font-size="11.9px" xml:space="preserve">Source: Internal finance database, June 2026.</text>
+<text x="8" y="51.61" font-size="15.4px" xml:space="preserve">Fiscal years 2023–2024 (in millions</text>
+<text x="8" y="73.17" font-size="15.4px" xml:space="preserve">USD)</text>
+<rect x="0" y="138.56" width="333.63" height="28" fill="#f0f0f0"/>
+<rect x="0" y="250.56" width="333.63" height="28" fill="#f0f0f0"/>
+<text x="325.63" y="101.46" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Financials</tspan></text>
+<text x="8" y="129.46" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Country</tspan></text>
+<text x="169.32" y="129.46" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Year</tspan></text>
+<text x="260.32" y="129.46" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Revenue</tspan></text>
+<text x="325.63" y="129.46" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Profit</tspan></text>
+<text x="8" y="199.46" font-size="14px" xml:space="preserve">United States</text>
+<text x="169.32" y="185.46" font-size="14px" text-anchor="end" xml:space="preserve">2023</text>
+<text x="260.32" y="185.46" font-size="14px" text-anchor="end" xml:space="preserve">1,250.3</text>
+<text x="325.63" y="185.46" font-size="14px" text-anchor="end" xml:space="preserve">270.1<tspan font-size="9.8px" baseline-shift="super">1</tspan></text>
+<text x="169.32" y="213.46" font-size="14px" text-anchor="end" xml:space="preserve">2024</text>
+<text x="260.32" y="213.46" font-size="14px" text-anchor="end" xml:space="preserve">1,380.7</text>
+<text x="325.63" y="213.46" font-size="14px" text-anchor="end" xml:space="preserve">330.3</text>
+<text x="8" y="241.46" font-size="14px" xml:space="preserve">Canada</text>
+<text x="169.32" y="241.46" font-size="14px" text-anchor="end" xml:space="preserve">2024</text>
+<text x="260.32" y="241.46" font-size="14px" text-anchor="end" xml:space="preserve">420.1</text>
+<text x="325.63" y="241.46" font-size="14px" text-anchor="end" xml:space="preserve">109.5</text>
+<text x="8" y="297.46" font-size="14px" xml:space="preserve">Germany</text>
+<text x="169.32" y="297.46" font-size="14px" text-anchor="end" xml:space="preserve">2024</text>
+<text x="260.32" y="297.46" font-size="14px" text-anchor="end" xml:space="preserve">945.2</text>
+<text x="325.63" y="297.46" font-size="14px" text-anchor="end" xml:space="preserve">164.9</text>
+<text x="8" y="325.46" font-size="14px" xml:space="preserve">France</text>
+<text x="169.32" y="325.46" font-size="14px" text-anchor="end" xml:space="preserve">2024</text>
+<text x="260.32" y="325.46" font-size="14px" text-anchor="end" xml:space="preserve">610.8</text>
+<text x="325.63" y="325.46" font-size="14px" text-anchor="end" xml:space="preserve">120.6</text>
+<text x="8" y="157.46" font-size="14px" xml:space="preserve"><tspan font-weight="bold">North America</tspan></text>
+<text x="8" y="269.46" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Europe</tspan></text>
+<line x1="0" y1="110.56" x2="121.06" y2="110.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="121.06" y1="110.56" x2="177.32" y2="110.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="177.32" y1="110.56" x2="333.63" y2="110.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="138.56" x2="121.06" y2="138.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="121.06" y1="138.56" x2="177.32" y2="138.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="177.32" y1="138.56" x2="268.32" y2="138.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="268.32" y1="138.56" x2="333.63" y2="138.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="222.56" x2="121.06" y2="222.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="121.06" y1="194.56" x2="177.32" y2="194.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="177.32" y1="194.56" x2="268.32" y2="194.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="268.32" y1="194.56" x2="333.63" y2="194.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="121.06" y1="222.56" x2="177.32" y2="222.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="177.32" y1="222.56" x2="268.32" y2="222.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="268.32" y1="222.56" x2="333.63" y2="222.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="250.56" x2="121.06" y2="250.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="121.06" y1="250.56" x2="177.32" y2="250.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="177.32" y1="250.56" x2="268.32" y2="250.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="268.32" y1="250.56" x2="333.63" y2="250.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="306.56" x2="121.06" y2="306.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="121.06" y1="306.56" x2="177.32" y2="306.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="177.32" y1="306.56" x2="268.32" y2="306.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="268.32" y1="306.56" x2="333.63" y2="306.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="334.56" x2="121.06" y2="334.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="121.06" y1="334.56" x2="177.32" y2="334.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="177.32" y1="334.56" x2="268.32" y2="334.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="268.32" y1="334.56" x2="333.63" y2="334.56" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="138.56" x2="333.63" y2="138.56" stroke="#333333" stroke-width="1.5"/>
+<text x="8" y="351.06" font-size="11.9px" xml:space="preserve"><tspan font-size="8.33px" baseline-shift="super">1</tspan> Includes one-time restructuring charge.</text>
+<text x="8" y="369.72" font-size="11.9px" xml:space="preserve">Source: Internal finance database, June 2026.</text>
 </svg>

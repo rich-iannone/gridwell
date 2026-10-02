@@ -2,7 +2,7 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="90" height="72" viewBox="0 0 90 72">
+<svg xmlns="http://www.w3.org/2000/svg" width="92" height="72" viewBox="0 0 92 72">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="24.58" font-size="19.6px" xml:space="preserve"><tspan font-weight="bold">Empty</tspan></text>
 <text x="8" y="54.34" font-size="14px" xml:space="preserve"><tspan font-weight="bold">A</tspan></text>

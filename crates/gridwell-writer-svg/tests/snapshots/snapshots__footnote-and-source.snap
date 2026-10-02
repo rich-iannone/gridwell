@@ -2,21 +2,21 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="138" height="134" viewBox="0 0 138 134">
+<svg xmlns="http://www.w3.org/2000/svg" width="147" height="134" viewBox="0 0 147 134">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Test</tspan></text>
-<text x="59.12" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Result</tspan></text>
+<text x="61.12" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Result</tspan></text>
 <text x="8" y="50.9" font-size="14px" xml:space="preserve">A</text>
-<text x="59.12" y="50.9" font-size="14px" xml:space="preserve">pass<tspan font-size="9.8px" baseline-shift="super">1</tspan></text>
+<text x="61.12" y="50.9" font-size="14px" xml:space="preserve">pass<tspan font-size="9.8px" baseline-shift="super">1</tspan></text>
 <text x="8" y="78.9" font-size="14px" xml:space="preserve">B</text>
-<text x="59.12" y="78.9" font-size="14px" xml:space="preserve">fail</text>
-<line x1="0" y1="32" x2="51.12" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="51.12" y1="32" x2="118.87" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="51.12" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="51.12" y1="60" x2="118.87" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="51.12" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="51.12" y1="88" x2="118.87" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="118.87" y2="32" stroke="#333333" stroke-width="1.5"/>
+<text x="61.12" y="78.9" font-size="14px" xml:space="preserve">fail</text>
+<line x1="0" y1="32" x2="53.12" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="53.12" y1="32" x2="123.87" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="53.12" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="53.12" y1="60" x2="123.87" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="88" x2="53.12" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="53.12" y1="88" x2="123.87" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="123.87" y2="32" stroke="#333333" stroke-width="1.5"/>
 <text x="8" y="104.5" font-size="11.9px" xml:space="preserve"><tspan font-size="8.33px" baseline-shift="super">1</tspan> Re-run confirmed.</text>
 <text x="8" y="123.16" font-size="11.9px" xml:space="preserve">Source: CI pipeline.</text>
 </svg>
