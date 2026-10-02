@@ -64,3 +64,19 @@ quick-xml = { version = "0.37", features = ["serialize"] }
 pyo3 = { version = "0.23", features = ["extension-module"] }
 extendr-api = "0.7"
 clap = { version = "4", features = ["derive"] }
+
+# Compression is hot in tests: every OOXML render deflates a zip, and unoptimized
+# miniz_oxide makes the writer test suites several times slower in debug builds.
+# Optimizing just these dependencies keeps `cargo test` fast without affecting how
+# our own crates are compiled or debugged.
+[profile.dev.package.miniz_oxide]
+opt-level = 3
+
+[profile.dev.package.flate2]
+opt-level = 3
+
+[profile.dev.package.crc32fast]
+opt-level = 3
+
+[profile.dev.package.zip]
+opt-level = 3
