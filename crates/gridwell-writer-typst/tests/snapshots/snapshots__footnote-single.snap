@@ -16,4 +16,4 @@ expression: out
   [85],
 )
 
-#text(size: 9pt)[#super[1] Includes bonus points.]
+#text(size: 9pt)[#super[1] Includes bonus points\.]

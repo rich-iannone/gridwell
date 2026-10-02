@@ -10,6 +10,6 @@ expression: out
     [#text(weight: "bold")[Rendered]],
     table.hline(stroke: 0.5pt),
   ),
-  [bold+italic],
+  [bold\+italic],
   [],
 )

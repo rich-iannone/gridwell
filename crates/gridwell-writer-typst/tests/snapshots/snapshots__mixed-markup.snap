@@ -9,7 +9,7 @@ expression: out
     [#text(weight: "bold")[Message]],
     table.hline(stroke: 0.5pt),
   ),
-  [Status: degraded\ Retry advised#super[†]],
+  [Status\: degraded\ Retry advised#super[†]],
 )
 
-#text(size: 9pt)[#super[†] See runbook section 4.]
+#text(size: 9pt)[#super[†] See runbook section 4\.]

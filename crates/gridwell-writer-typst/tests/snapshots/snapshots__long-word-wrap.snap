@@ -3,7 +3,7 @@ source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
 #table(
-  columns: (100px, 120px),
+  columns: (75pt, 90pt),
   stroke: none,
   table.header(
     [#text(weight: "bold")[Label]],
@@ -11,5 +11,5 @@ expression: out
     table.hline(stroke: 0.5pt),
   ),
   [URL],
-  [https://example.com/very/long/path/that/should/not/break/nicely?query=1],
+  [https\:\/\/example\.com\/very\/long\/path\/that\/should\/not\/break\/nicely\?query\=1],
 )

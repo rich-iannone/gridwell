@@ -16,5 +16,5 @@ expression: out
   [85],
 )
 
-#text(size: 9pt)[#super[a] Given name only.]
-#text(size: 9pt)[#super[b] Provisional value.]
+#text(size: 9pt)[#super[a] Given name only\.]
+#text(size: 9pt)[#super[b] Provisional value\.]

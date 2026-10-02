@@ -16,6 +16,6 @@ expression: out
   [fail],
 )
 
-#text(size: 9pt)[#super[1] Re-run confirmed.]
+#text(size: 9pt)[#super[1] Re\-run confirmed\.]
 
-#text(size: 9pt, fill: luma(100))[Source: CI pipeline.]
+#text(size: 9pt, fill: luma(100))[Source\: CI pipeline\.]

@@ -10,10 +10,10 @@ expression: out
     [#text(weight: "bold")[GDP]],
     table.hline(stroke: 0.5pt),
   ),
-  [Atlantis#super[*]],
-  [N/A],
+  [Atlantis#super[\*]],
+  [N\/A],
   [Utopia],
   [999],
 )
 
-#text(size: 9pt)[#super[*] Fictional; illustrative only.]
+#text(size: 9pt)[#super[\*] Fictional\; illustrative only\.]

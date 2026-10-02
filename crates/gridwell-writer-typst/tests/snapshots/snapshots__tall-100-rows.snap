@@ -9,7 +9,7 @@ expression: out
   table.header(
     [#text(weight: "bold")[n]],
     [#text(weight: "bold")[2n]],
-    [#text(weight: "bold")[n^2]],
+    [#text(weight: "bold")[n\^2]],
     table.hline(stroke: 0.5pt),
   ),
   [row 0],

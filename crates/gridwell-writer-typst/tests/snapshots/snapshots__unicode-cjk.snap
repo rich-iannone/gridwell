@@ -12,7 +12,7 @@ expression: out
     table.hline(stroke: 0.5pt),
   ),
   [東京],
-  [1,250],
+  [1\,250],
   [大阪],
   [980],
 )

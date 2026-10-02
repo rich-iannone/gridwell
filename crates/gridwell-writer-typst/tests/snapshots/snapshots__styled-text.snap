@@ -11,5 +11,5 @@ expression: out
     table.hline(stroke: 0.5pt),
   ),
   [Rust],
-  [A systems language.],
+  [A systems language\.],
 )

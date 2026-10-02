@@ -3,7 +3,7 @@ source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
 #table(
-  columns: (120px, 25%, 1fr, auto),
+  columns: (90pt, 25%, 1fr, auto),
   stroke: none,
   table.header(
     [#text(weight: "bold")[Fixed]],
@@ -13,7 +13,7 @@ expression: out
     table.hline(stroke: 0.5pt),
   ),
   [120px],
-  [25%],
+  [25\%],
   [1fr],
   [auto],
 )
