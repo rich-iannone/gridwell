@@ -34,7 +34,7 @@ target
 /target
 
 # Gridwell test harness — generated artifacts.
-# Goldens under harness/goldens/ ARE committed (via Git LFS); everything the
+# Goldens under harness/goldens/ ARE committed (as ordinary files); everything the
 # harness regenerates on demand is ignored.
 /harness/corpus/
 /harness/gallery/
