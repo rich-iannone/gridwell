@@ -24,5 +24,6 @@ gridwell-writer-quarto = { path = "../gridwell-writer-quarto" }
 gridwell-writer-docx = { path = "../gridwell-writer-docx" }
 gridwell-writer-xlsx = { path = "../gridwell-writer-xlsx" }
 gridwell-writer-pptx = { path = "../gridwell-writer-pptx" }
-pyo3 = { workspace = true }
+# abi3: one wheel per platform covers every CPython >= 3.10 (requires-python).
+pyo3 = { workspace = true, features = ["abi3-py310"] }
 serde_json = { workspace = true }
