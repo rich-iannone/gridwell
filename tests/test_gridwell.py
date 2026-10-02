@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 import gridwell
 
 FIXTURES = Path(__file__).parent.parent / "fixtures"
@@ -188,3 +190,87 @@ def test_render_binary_unknown():
         assert False, "Should have raised"
     except ValueError as e:
         assert "pdf" in str(e)
+
+
+# ─── Rendering refuses invalid IR ───
+
+TEXT_RENDERERS = [
+    "render_html",
+    "render_latex",
+    "render_typst",
+    "render_rtf",
+    "render_svg",
+    "render_ansi",
+    "render_pandoc",
+    "render_quarto",
+]
+BINARY_RENDERERS = ["render_docx", "render_xlsx", "render_pptx"]
+
+
+def test_invalid_table_error_is_a_value_error():
+    assert issubclass(gridwell.InvalidTableError, ValueError)
+
+
+@pytest.mark.parametrize("method", TEXT_RENDERERS + BINARY_RENDERERS)
+def test_renderers_refuse_invalid_ir(method):
+    table = gridwell.Table.from_json(load_fixture("invalid/span_overflow_right.json"))
+    with pytest.raises(gridwell.InvalidTableError) as exc:
+        getattr(table, method)()
+    msg = str(exc.value)
+    assert "failed validation" in msg
+    assert "[SPAN_OVERFLOW_RIGHT]" in msg
+
+
+@pytest.mark.parametrize("fmt", ["html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto"])
+def test_render_by_name_refuses_invalid_ir(fmt):
+    table = gridwell.Table.from_json(load_fixture("invalid/col_count_mismatch.json"))
+    with pytest.raises(gridwell.InvalidTableError, match=r"\[COL_COUNT\]"):
+        table.render(fmt)
+
+
+@pytest.mark.parametrize("fmt", ["docx", "xlsx", "pptx"])
+def test_render_binary_by_name_refuses_invalid_ir(fmt):
+    table = gridwell.Table.from_json(load_fixture("invalid/col_count_mismatch.json"))
+    with pytest.raises(gridwell.InvalidTableError, match=r"\[COL_COUNT\]"):
+        table.render_binary(fmt)
+
+
+def test_unknown_format_still_reported_for_valid_table():
+    table = gridwell.Table.from_json(load_fixture("minimal/minimal_1x1.json"))
+    with pytest.raises(ValueError, match="Unknown text format"):
+        table.render("nope")
+
+
+def test_validate_returns_documented_rule_ids():
+    table = gridwell.Table.from_json(load_fixture("invalid/span_overlap.json"))
+    errors = table.validate()
+    assert errors and all(e.startswith("[") for e in errors)
+    assert any(e.startswith("[SPAN_OVERLAP]") for e in errors), errors
+
+
+def _adjacent_colspans_ir():
+    def cell(text, colspan=1):
+        return {"content": [{"type": "text", "value": text}], "colspan": colspan}
+
+    placeholder = {"content": [], "is_placeholder": True}
+    cells = [cell("A", 2), placeholder, cell("B", 2), placeholder, cell("C"), cell("D")]
+    return {
+        "ir_version": "1.0",
+        "config": {"table_cols": 6, "header_rows": 0, "body_rows": 1},
+        "styles": {"defs": {}, "compositions": {}, "conditionals": []},
+        "column_spec": [{"id": f"c{i}"} for i in range(6)],
+        "table": {"thead": {"rows": []}, "tbody": [{"rows": [{"cells": cells}]}]},
+    }
+
+
+@pytest.mark.parametrize("method", TEXT_RENDERERS + BINARY_RENDERERS)
+def test_regression_adjacent_colspans_render(method):
+    # Valid IR that used to panic the RTF/SVG writers (surfacing in Python as
+    # pyo3_runtime.PanicException) and drop cells in DOCX/PPTX/XLSX.
+    table = gridwell.Table.from_dict(_adjacent_colspans_ir())
+    assert table.validate() == []
+    out = getattr(table, method)()
+    assert len(out) > 0
+    if isinstance(out, str):
+        for label in "ABCD":
+            assert label in out, (method, label)
