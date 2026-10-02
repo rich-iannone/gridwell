@@ -104,9 +104,11 @@ jobs:
       # Keep in sync with `workspace.package.rust-version` in Cargo.toml.
       - uses: dtolnay/rust-toolchain@1.85
       - uses: Swatinem/rust-cache@v2
-      # xtask is a dev tool with heavier deps (image needs a newer Rust) and is not
-      # shipped; the Python crate is checked in the python job.
-      - run: cargo check --locked --workspace --exclude xtask --exclude gridwell-python --all-targets
+      # The MSRV promise covers what users compile: libraries and binaries. Tests and
+      # dev tools may use newer dependencies (e.g. the `image` crate, Rust 1.88, used
+      # by xtask and SVG calibration tests). The Python crate is checked in the
+      # python job.
+      - run: cargo check --locked --workspace --exclude xtask --exclude gridwell-python --lib --bins
 
   python-wheel:
     name: Python wheel (abi3)
