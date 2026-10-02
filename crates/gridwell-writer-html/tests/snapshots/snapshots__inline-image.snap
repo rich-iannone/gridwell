@@ -13,7 +13,7 @@ expression: out
     <tbody>
       <tr>
         <td>
-          <img src="https://example.com/logo.png" alt="logo">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAYUlEQVR42mP8//8/AzUAEwOVAAuEUkt5Q7YRt+aIUNNFw9ggFmICkpgIYSLSFEwusQZh1YbHLCbiTcEvNeLSEZ6YxiXFRJIGPBbg8xqaNvwJkkDKJr54GS1GCAPGQVeLAACHNx+lIoe2YQAAAABJRU5ErkJggg==" alt="logo">
         </td>
         <td>Brand</td>
       </tr>
