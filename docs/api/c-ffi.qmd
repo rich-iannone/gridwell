@@ -35,7 +35,9 @@ GridwellTable *gridwell_parse_ir(const char *json, size_t len, GridwellError **e
 // Validate
 GridwellError *gridwell_validate(const GridwellTable *table);
 
-// Render text (html, latex, typst, rtf, svg, ansi, pandoc, quarto)
+// Render text (html, latex, typst, rtf, svg, ansi, pandoc, quarto).
+// Both render functions validate first: invalid IR returns an empty result and an
+// error with code GRIDWELL_ERR_VALIDATE whose message lists the validation errors.
 GridwellTextResult gridwell_render_text(
     const GridwellTable *table, const char *format, GridwellError **err);
 
