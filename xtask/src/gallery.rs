@@ -50,6 +50,13 @@ pub fn run(root: &Path, check: bool, accept: bool) -> Result<bool, String> {
         fs::create_dir_all(d).map_err(|e| format!("mkdir {}: {e}", d.display()))?;
     }
     let goldens = root.join("harness/goldens");
+    // Every gated render, laid out like harness/goldens. CI uploads it as an artifact,
+    // so blessing goldens never requires a local Docker toolchain: download, copy over
+    // harness/goldens, commit.
+    let proposed = root.join("harness/proposed-goldens");
+    if proposed.exists() {
+        fs::remove_dir_all(&proposed).map_err(|e| format!("clean {}: {e}", proposed.display()))?;
+    }
 
     let tools = Tools::detect();
     eprintln!("renderers: {}", tools.summary());
@@ -98,6 +105,10 @@ pub fn run(root: &Path, check: bool, accept: bool) -> Result<bool, String> {
                             let rel = format!("img/{}", p.file_name().unwrap().to_string_lossy());
                             let diff = if fmt.gated {
                                 let golden = goldens.join(fmt.id).join(format!("{}.png", ex.name));
+                                copy_golden(
+                                    &p,
+                                    &proposed.join(fmt.id).join(format!("{}.png", ex.name)),
+                                )?;
                                 if accept {
                                     copy_golden(&p, &golden)?;
                                     Some(Comparison::Unchanged)
@@ -136,7 +147,12 @@ pub fn run(root: &Path, check: bool, accept: bool) -> Result<bool, String> {
     fs::write(&index, render_html(&rows, &tools)).map_err(|e| format!("write index: {e}"))?;
     eprintln!("gallery: {}", index.display());
 
-    let (regressions, summary) = summarize(&rows, check, accept);
+    let stale = if check {
+        stale_goldens(&goldens, &rows)?
+    } else {
+        Vec::new()
+    };
+    let (regressions, summary) = summarize(&rows, &stale, check, accept);
     eprint!("{summary}");
     write_gh_summary(&summary);
 
@@ -162,8 +178,72 @@ fn truncate(s: &str, max: usize) -> String {
 
 // ─────────────────────────────── summary ─────────────────────────────────
 
-fn summarize(rows: &[GalleryRow], check: bool, accept: bool) -> (bool, String) {
-    let mut regressions = false;
+/// Why a gated cell fails `--check`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum GateFailure {
+    /// Differs from the golden beyond tolerance.
+    Changed,
+    /// Golden and render have different dimensions.
+    SizeMismatch,
+    /// No golden committed for this example/format.
+    MissingGolden,
+    /// The gated format could not be rendered or rasterized. The pinned image has
+    /// every gated renderer, so this is a failure, not a graceful degradation.
+    NotRendered,
+}
+
+impl GateFailure {
+    fn label(self) -> &'static str {
+        match self {
+            GateFailure::Changed => "changed",
+            GateFailure::SizeMismatch => "size changed",
+            GateFailure::MissingGolden => "missing golden",
+            GateFailure::NotRendered => "not rendered",
+        }
+    }
+}
+
+/// The `--check` verdict for one cell of a gated format (`None` = passes).
+fn gate_failure(status: &CellStatus) -> Option<GateFailure> {
+    match status {
+        CellStatus::Png { diff, .. } => match diff {
+            Some(Comparison::Changed { .. }) => Some(GateFailure::Changed),
+            Some(Comparison::SizeMismatch) => Some(GateFailure::SizeMismatch),
+            Some(Comparison::New) => Some(GateFailure::MissingGolden),
+            Some(Comparison::Unchanged) | None => None,
+        },
+        CellStatus::Unavailable(_) | CellStatus::Error(_) => Some(GateFailure::NotRendered),
+        // Gated formats are always rasterized; a text cell would be a harness bug.
+        CellStatus::Text { .. } => Some(GateFailure::NotRendered),
+    }
+}
+
+/// Goldens on disk (for gated formats) whose example no longer exists.
+fn stale_goldens(goldens: &Path, rows: &[GalleryRow]) -> Result<Vec<String>, String> {
+    let mut stale = Vec::new();
+    for fmt in FORMATS.iter().filter(|f| f.gated) {
+        let dir = goldens.join(fmt.id);
+        let Ok(entries) = fs::read_dir(&dir) else {
+            continue;
+        };
+        for entry in entries {
+            let path = entry
+                .map_err(|e| format!("read {}: {e}", dir.display()))?
+                .path();
+            if path.extension().is_some_and(|e| e == "png") {
+                let name = path.file_stem().unwrap().to_string_lossy().into_owned();
+                if !rows.iter().any(|r| r.name == name) {
+                    stale.push(format!("{}/{name}.png", fmt.id));
+                }
+            }
+        }
+    }
+    stale.sort();
+    Ok(stale)
+}
+
+fn summarize(rows: &[GalleryRow], stale: &[String], check: bool, accept: bool) -> (bool, String) {
+    let mut failures: Vec<(String, GateFailure)> = Vec::new();
     let mut lines = String::new();
     let _ = writeln!(lines, "## Gridwell visual harness\n");
     let _ = writeln!(
@@ -174,39 +254,36 @@ fn summarize(rows: &[GalleryRow], check: bool, accept: bool) -> (bool, String) {
     );
     let _ = writeln!(
         lines,
-        "| format | ok | text | unavailable | error | gated changes |"
+        "| format | ok | text | unavailable | error | gated failures |"
     );
     let _ = writeln!(
         lines,
-        "|--------|----|------|-------------|-------|---------------|"
+        "|--------|----|------|-------------|-------|----------------|"
     );
     for fmt in FORMATS {
         let mut ok = 0;
         let mut text = 0;
         let mut unavail = 0;
         let mut err = 0;
-        let mut changed = 0;
+        let mut gated_failures = 0;
         for row in rows {
             if let Some(cell) = row.cells.iter().find(|c| c.format_id == fmt.id) {
                 match &cell.status {
-                    CellStatus::Png { diff, .. } => {
-                        ok += 1;
-                        if matches!(
-                            diff,
-                            Some(Comparison::Changed { .. }) | Some(Comparison::SizeMismatch)
-                        ) {
-                            changed += 1;
-                            regressions = true;
-                        }
-                    }
+                    CellStatus::Png { .. } => ok += 1,
                     CellStatus::Text { .. } => text += 1,
                     CellStatus::Unavailable(_) => unavail += 1,
                     CellStatus::Error(_) => err += 1,
                 }
+                if fmt.gated {
+                    if let Some(f) = gate_failure(&cell.status) {
+                        gated_failures += 1;
+                        failures.push((format!("{}/{}", fmt.id, row.name), f));
+                    }
+                }
             }
         }
         let gated = if fmt.gated {
-            changed.to_string()
+            gated_failures.to_string()
         } else {
             "—".into()
         };
@@ -216,21 +293,44 @@ fn summarize(rows: &[GalleryRow], check: bool, accept: bool) -> (bool, String) {
             fmt.id
         );
     }
+
     if accept {
         let _ = writeln!(lines, "\n_Goldens updated for gated formats._");
-        regressions = false;
-    } else if check {
-        let _ = writeln!(
-            lines,
-            "\n{}",
-            if regressions {
-                "❌ Gated visual regressions detected."
-            } else {
-                "✅ No gated visual regressions."
-            }
-        );
+        return (false, lines);
     }
-    (regressions && check, lines)
+    if !check {
+        return (false, lines);
+    }
+
+    let failed = !failures.is_empty() || !stale.is_empty();
+    if failed {
+        let _ = writeln!(lines, "\n❌ Gated visual check failed.\n");
+        for (cell, f) in &failures {
+            let _ = writeln!(lines, "- `{cell}`: {}", f.label());
+        }
+        for path in stale {
+            let _ = writeln!(
+                lines,
+                "- `{path}`: stale golden (no such example); delete it"
+            );
+        }
+        if failures.iter().any(|(_, f)| {
+            matches!(
+                f,
+                GateFailure::MissingGolden | GateFailure::Changed | GateFailure::SizeMismatch
+            )
+        }) {
+            let _ = writeln!(
+                lines,
+                "\nIf the new rendering is correct, bless it: download the \
+                 `proposed-goldens` artifact from this run and copy it over \
+                 `harness/goldens/` (see harness/README.md)."
+            );
+        }
+    } else {
+        let _ = writeln!(lines, "\n✅ No gated visual regressions.");
+    }
+    (failed, lines)
 }
 
 fn write_gh_summary(summary: &str) {
@@ -388,3 +488,148 @@ td a img { display: block; max-height: 210px; max-width: 300px; width: auto; hei
 .changed { background: #fff3e0; color: #a85800; }
 .new { background: #e7f7ec; color: #1a7f37; }
 </style>";
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn row(name: &'static str, statuses: Vec<(&'static str, CellStatus)>) -> GalleryRow {
+        GalleryRow {
+            name,
+            category: "structure",
+            description: "",
+            tags: vec![],
+            cells: statuses
+                .into_iter()
+                .map(|(format_id, status)| Cell {
+                    format_id,
+                    rel_out: None,
+                    status,
+                })
+                .collect(),
+        }
+    }
+
+    fn png(diff: Option<Comparison>) -> CellStatus {
+        CellStatus::Png {
+            rel: String::new(),
+            diff,
+        }
+    }
+
+    fn gated_ids() -> Vec<&'static str> {
+        FORMATS.iter().filter(|f| f.gated).map(|f| f.id).collect()
+    }
+
+    #[test]
+    fn gated_formats_are_html_svg_typst() {
+        assert_eq!(gated_ids(), vec!["html", "svg", "typst"]);
+    }
+
+    #[test]
+    fn gate_failure_classifies_every_status() {
+        assert_eq!(gate_failure(&png(Some(Comparison::Unchanged))), None);
+        assert_eq!(gate_failure(&png(None)), None);
+        assert_eq!(
+            gate_failure(&png(Some(Comparison::New))),
+            Some(GateFailure::MissingGolden)
+        );
+        assert_eq!(
+            gate_failure(&png(Some(Comparison::Changed { fraction: 0.1 }))),
+            Some(GateFailure::Changed)
+        );
+        assert_eq!(
+            gate_failure(&png(Some(Comparison::SizeMismatch))),
+            Some(GateFailure::SizeMismatch)
+        );
+        assert_eq!(
+            gate_failure(&CellStatus::Unavailable("typst")),
+            Some(GateFailure::NotRendered)
+        );
+        assert_eq!(
+            gate_failure(&CellStatus::Error("boom".into())),
+            Some(GateFailure::NotRendered)
+        );
+    }
+
+    #[test]
+    fn check_passes_only_when_every_gated_cell_matches() {
+        let all_unchanged = row(
+            "a",
+            gated_ids()
+                .into_iter()
+                .map(|id| (id, png(Some(Comparison::Unchanged))))
+                .collect(),
+        );
+        let (failed, summary) = summarize(&[all_unchanged], &[], true, false);
+        assert!(!failed, "{summary}");
+        assert!(summary.contains("✅"));
+    }
+
+    #[test]
+    fn missing_golden_fails_check_and_explains_how_to_bless() {
+        // Before this change a missing golden passed silently, so an empty goldens
+        // directory made the gate a no-op.
+        let r = row("a", vec![("html", png(Some(Comparison::New)))]);
+        let (failed, summary) = summarize(&[r], &[], true, false);
+        assert!(failed);
+        assert!(summary.contains("`html/a`: missing golden"), "{summary}");
+        assert!(summary.contains("proposed-goldens"), "{summary}");
+    }
+
+    #[test]
+    fn unavailable_gated_renderer_fails_check() {
+        let r = row("a", vec![("typst", CellStatus::Unavailable("typst"))]);
+        let (failed, summary) = summarize(&[r], &[], true, false);
+        assert!(failed);
+        assert!(summary.contains("`typst/a`: not rendered"), "{summary}");
+    }
+
+    #[test]
+    fn ungated_format_problems_never_fail_check() {
+        let r = row(
+            "a",
+            vec![
+                ("latex", CellStatus::Unavailable("xelatex")),
+                ("docx", CellStatus::Error("libreoffice".into())),
+            ],
+        );
+        let (failed, _) = summarize(&[r], &[], true, false);
+        assert!(!failed);
+    }
+
+    #[test]
+    fn stale_goldens_fail_check() {
+        let (failed, summary) = summarize(&[], &["svg/gone.png".to_string()], true, false);
+        assert!(failed);
+        assert!(
+            summary.contains("`svg/gone.png`: stale golden"),
+            "{summary}"
+        );
+    }
+
+    #[test]
+    fn without_check_nothing_fails() {
+        let r = row("a", vec![("html", png(Some(Comparison::New)))]);
+        assert!(!summarize(&[r], &["svg/x.png".into()], false, false).0);
+    }
+
+    #[test]
+    fn accept_never_fails() {
+        let r = row("a", vec![("html", CellStatus::Error("x".into()))]);
+        assert!(!summarize(&[r], &[], true, true).0);
+    }
+
+    #[test]
+    fn stale_goldens_found_on_disk() {
+        let dir = std::env::temp_dir().join(format!("gridwell-stale-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(dir.join("svg")).unwrap();
+        fs::write(dir.join("svg/kept.png"), b"").unwrap();
+        fs::write(dir.join("svg/gone.png"), b"").unwrap();
+        fs::write(dir.join("svg/notes.txt"), b"").unwrap();
+        let rows = [row("kept", vec![])];
+        assert_eq!(stale_goldens(&dir, &rows).unwrap(), vec!["svg/gone.png"]);
+        let _ = fs::remove_dir_all(&dir);
+    }
+}
