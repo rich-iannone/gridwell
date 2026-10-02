@@ -1,5 +1,5 @@
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{Row, Table};
+use gridwell_ir::{resolve_slots, Row, Slot, Table};
 use std::fmt::Write;
 use std::io::Cursor;
 use thiserror::Error;
@@ -126,9 +126,7 @@ fn write_slide_xml(buf: &mut String, table: &Table) -> Result<(), RenderError> {
 
     // Header rows
     if !table.config.column_labels_hidden {
-        for row in &table.table.thead.rows {
-            write_table_row(buf, row, &col_widths, table, true)?;
-        }
+        write_section(buf, &table.table.thead.rows, &col_widths, table, true)?;
     }
 
     // Body rows
@@ -136,12 +134,8 @@ fn write_slide_xml(buf: &mut String, table: &Table) -> Result<(), RenderError> {
         if let Some(ref label) = group.label {
             write_group_label_row(buf, label, &col_widths)?;
         }
-        for row in &group.rows {
-            write_table_row(buf, row, &col_widths, table, false)?;
-        }
-        for row in &group.summary_rows {
-            write_table_row(buf, row, &col_widths, table, true)?;
-        }
+        write_section(buf, &group.rows, &col_widths, table, false)?;
+        write_section(buf, &group.summary_rows, &col_widths, table, true)?;
     }
 
     buf.push_str("</a:tbl>\n");
@@ -151,37 +145,64 @@ fn write_slide_xml(buf: &mut String, table: &Table) -> Result<(), RenderError> {
     Ok(())
 }
 
+/// Write one section (thead, a group's rows, or its summary rows). Spans are resolved
+/// per section, so a merge never crosses a section boundary.
+fn write_section(
+    buf: &mut String,
+    rows: &[Row],
+    col_widths: &[u32],
+    table: &Table,
+    is_header: bool,
+) -> Result<(), RenderError> {
+    let slots = resolve_slots(rows);
+    for (row, row_slots) in rows.iter().zip(&slots) {
+        write_table_row(buf, row, row_slots, col_widths, table, is_header)?;
+    }
+    Ok(())
+}
+
+/// Write one `<a:tr>`. DrawingML needs an `<a:tc>` for every grid position: origins
+/// carry `gridSpan`/`rowSpan`; covered positions are empty cells marked `hMerge`
+/// (covered from the left) and/or `vMerge` (covered from above).
 fn write_table_row(
     buf: &mut String,
     row: &Row,
+    row_slots: &[Slot],
     col_widths: &[u32],
     table: &Table,
     is_header: bool,
 ) -> Result<(), RenderError> {
     write!(buf, "<a:tr h=\"{}\">", xml::DEFAULT_ROW_HEIGHT_EMU)?;
 
-    let mut col_idx = 0;
-    for cell in &row.cells {
-        if col_idx >= col_widths.len() {
+    for (col, (cell, slot)) in row.cells.iter().zip(row_slots).enumerate() {
+        if col >= col_widths.len() {
             break;
         }
-        if cell.is_placeholder {
-            // Merged continuation
-            buf.push_str("<a:tc hMerge=\"1\"><a:txBody><a:bodyPr/><a:lstStyle/>");
-            buf.push_str("<a:p><a:endParaRPr/></a:p></a:txBody><a:tcPr/></a:tc>");
-            col_idx += 1;
-            continue;
-        }
+        let (colspan, rowspan) = match *slot {
+            Slot::Origin { colspan, rowspan } => (colspan, rowspan),
+            Slot::CoveredH { .. } => {
+                write_merged_cell(buf, true, false);
+                continue;
+            }
+            Slot::CoveredV { origin_col, .. } => {
+                write_merged_cell(buf, col != origin_col, true);
+                continue;
+            }
+            // Invalid IR only: an empty, unmerged cell keeps the grid intact.
+            Slot::Orphan => {
+                write_merged_cell(buf, false, false);
+                continue;
+            }
+        };
 
-        let colspan = cell.colspan as usize;
         let text = content_to_text(&cell.content);
 
         buf.push_str("<a:tc");
         if colspan > 1 {
             write!(buf, " gridSpan=\"{colspan}\"")?;
         }
-        if cell.rowspan > 1 {
-            write!(buf, " rowSpan=\"{}\"", cell.rowspan)?;
+        if rowspan > 1 {
+            write!(buf, " rowSpan=\"{rowspan}\"")?;
         }
         buf.push('>');
 
@@ -228,12 +249,23 @@ fn write_table_row(
         }
         buf.push_str("</a:tcPr>");
         buf.push_str("</a:tc>");
-
-        col_idx += colspan;
     }
 
     buf.push_str("</a:tr>\n");
     Ok(())
+}
+
+/// An empty `<a:tc>` for a position covered by another cell's span.
+fn write_merged_cell(buf: &mut String, h_merge: bool, v_merge: bool) {
+    buf.push_str("<a:tc");
+    if h_merge {
+        buf.push_str(" hMerge=\"1\"");
+    }
+    if v_merge {
+        buf.push_str(" vMerge=\"1\"");
+    }
+    buf.push_str("><a:txBody><a:bodyPr/><a:lstStyle/>");
+    buf.push_str("<a:p><a:endParaRPr/></a:p></a:txBody><a:tcPr/></a:tc>");
 }
 
 fn write_group_label_row(
