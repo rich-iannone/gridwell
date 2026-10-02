@@ -286,6 +286,7 @@ dependencies = [
  "gridwell-writer-svg",
  "gridwell-writer-typst",
  "gridwell-writer-xlsx",
+ "serde_json",
 ]
 
 [[package]]
@@ -301,6 +302,7 @@ name = "gridwell-ffi"
 version = "0.1.0"
 dependencies = [
  "gridwell-ir",
+ "gridwell-testkit",
  "gridwell-writer-ansi",
  "gridwell-writer-docx",
  "gridwell-writer-html",
