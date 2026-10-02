@@ -14,6 +14,7 @@
 
 pub mod builder;
 pub mod examples;
+pub mod spans;
 
 pub use builder::*;
 
