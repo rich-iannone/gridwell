@@ -3,28 +3,41 @@ title: "C FFI API"
 ---
 
 The C API provides a stable ABI for embedding gridwell in any language with C interop.
+The header is
+[`crates/gridwell-ffi/include/gridwell.h`](https://github.com/rich-iannone/gridwell/blob/main/crates/gridwell-ffi/include/gridwell.h).
+It is generated from the Rust source by cbindgen, and a test fails if the committed
+copy goes stale, so the header is the authoritative reference. The summary below
+mirrors it.
 
 ## Types
 
 ```c
-typedef struct GridwellTable GridwellTable;
-typedef struct GridwellError GridwellError;
+typedef struct GridwellTable GridwellTable;   // opaque
+typedef struct GridwellError GridwellError;   // opaque
 
-typedef struct {
-    char *text;
-    size_t len;
+typedef struct GridwellTextResult {
+    char *text;     // NUL-terminated UTF-8; null on failure
+    size_t len;     // bytes, excluding the terminator
 } GridwellTextResult;
 
-typedef struct {
-    uint8_t *data;
+typedef struct GridwellBinaryResult {
+    uint8_t *data;  // null on failure
     size_t len;
 } GridwellBinaryResult;
-
-#define GRIDWELL_ERR_PARSE       1
-#define GRIDWELL_ERR_VALIDATE    2
-#define GRIDWELL_ERR_RENDER      3
-#define GRIDWELL_ERR_INVALID_ARG 4
 ```
+
+## Error codes
+
+| Code | Constant | Meaning |
+|---|---|---|
+| 1 | `GRIDWELL_ERR_PARSE` | Invalid UTF-8 or JSON, or JSON that isn't a table IR |
+| 2 | `GRIDWELL_ERR_VALIDATE` | The IR failed validation; the message lists the errors |
+| 3 | `GRIDWELL_ERR_RENDER` | A writer failed, or the format name is unknown |
+| 4 | `GRIDWELL_ERR_INVALID_ARG` | A required pointer was null, or a string wasn't UTF-8 |
+| 5 | `GRIDWELL_ERR_PANIC` | An internal panic was caught at the boundary (always a gridwell bug; please report it) |
+
+No Rust panic ever unwinds into C: each function catches panics and reports them as
+`GRIDWELL_ERR_PANIC`.
 
 ## Functions
 
@@ -32,7 +45,7 @@ typedef struct {
 // Parse
 GridwellTable *gridwell_parse_ir(const char *json, size_t len, GridwellError **err);
 
-// Validate
+// Validate: null on success, else an error listing every problem.
 GridwellError *gridwell_validate(const GridwellTable *table);
 
 // Render text (html, latex, typst, rtf, svg, ansi, pandoc, quarto).
@@ -46,15 +59,17 @@ GridwellBinaryResult gridwell_render_binary(
     const GridwellTable *table, const char *format, GridwellError **err);
 
 // Error inspection
-const char *gridwell_error_message(const GridwellError *err);
-uint32_t gridwell_error_code(const GridwellError *err);
+const char *gridwell_error_message(const GridwellError *err);  // valid until freed
+int32_t gridwell_error_code(const GridwellError *err);         // 0 if err is null
 
-// Memory management
+// Memory management (all accept null / failed results)
 void gridwell_free_table(GridwellTable *table);
 void gridwell_free_error(GridwellError *err);
 void gridwell_free_text_result(GridwellTextResult result);
 void gridwell_free_binary_result(GridwellBinaryResult result);
 ```
+
+Every `err` out-parameter may be null if you don't need the error.
 
 ## Example
 
@@ -87,6 +102,12 @@ int main(void) {
 
 ## Linking
 
+Build the library with `cargo build --release -p gridwell-ffi`. That produces
+`libgridwell_ffi.{so,dylib}` and `libgridwell_ffi.a` in `target/release/`. Then:
+
 ```bash
-cc -o myapp myapp.c -L/path/to/target/release -lgridwell_ffi
+cc -o myapp myapp.c -I crates/gridwell-ffi/include -L target/release -lgridwell_ffi
 ```
+
+`crates/gridwell-ffi/tests/c/smoke.c` is a complete working example. The test suite
+compiles it as C99, as C++, and under AddressSanitizer.
