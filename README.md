@@ -136,9 +136,10 @@ crates/
   gridwell-writer-pptx/    ─┘
   gridwell-ffi/           C ABI surface (cdylib / staticlib)
   gridwell-python/        Python bindings (PyO3, built with maturin)
-  gridwell-r/             R bindings (extendr)
   gridwell-cli/           `gridwell` command-line tool
   gridwell-testkit/       shared example corpus + a builder DSL for the IR
+python/                   Python package sources (`gridwell`, built with maturin)
+r-package/                R package (extendr; Rust glue in r-package/src/rust)
 xtask/                    visual test harness (render gallery + image diff)
 docs/                     Quarto documentation site
 harness/                  pinned renderer toolchain + goldens for visual tests
