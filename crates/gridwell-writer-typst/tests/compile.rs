@@ -28,7 +28,7 @@ fn require(tool: &str) -> bool {
     if tool_available(tool) {
         return true;
     }
-    if std::env::var_os("GRIDWELL_REQUIRE_TYPST").is_some() {
+    if std::env::var_os("GRIDWELL_REQUIRE_TYPST").is_some_and(|v| !v.is_empty()) {
         panic!("{tool} not found but GRIDWELL_REQUIRE_TYPST is set");
     }
     eprintln!("skipping: {tool} not found");
