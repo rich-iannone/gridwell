@@ -1,6 +1,6 @@
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::style::{Border, BorderSet, Padding, StyleDef};
-use gridwell_ir::{Cell, Row, Table};
+use gridwell_ir::{Cell, ColumnVisibility, Row, Table};
 use std::fmt::Write;
 use thiserror::Error;
 
@@ -18,6 +18,8 @@ struct HtmlRenderer<'a> {
     config: &'a HtmlWriterConfig,
     buf: String,
     indent_level: usize,
+    /// Hidden columns get no `<col>` and no cells; spans crossing them shrink.
+    visibility: ColumnVisibility,
 }
 
 impl<'a> HtmlRenderer<'a> {
@@ -27,6 +29,7 @@ impl<'a> HtmlRenderer<'a> {
             config,
             buf: String::with_capacity(4096),
             indent_level: 0,
+            visibility: ColumnVisibility::from_spec(&table.column_spec),
         }
     }
 
@@ -289,7 +292,9 @@ impl<'a> HtmlRenderer<'a> {
 
             // Group label row
             if let Some(ref label) = group.label {
-                let colspan = label.colspan.unwrap_or(self.table.config.table_cols);
+                // The label spans the full (visible) width; validation guarantees a
+                // declared colspan is either absent or the full table width.
+                let colspan = self.visibility.visible_len();
                 let class = self.style_class_attr(&label.style_id);
                 self.write_line("<tr>");
                 self.push_indent();
@@ -322,18 +327,22 @@ impl<'a> HtmlRenderer<'a> {
         self.write_line(&format!("<tr{row_class}>"));
         self.push_indent();
 
-        for cell in &row.cells {
+        for (col, cell) in row.cells.iter().enumerate() {
             if cell.is_placeholder {
                 continue; // Spanned-over positions are not rendered
             }
-            self.render_cell(cell, is_header);
+            // Cells entirely in hidden columns are not rendered at all.
+            let Some((_, colspan)) = self.visibility.project(col, cell.colspan as usize) else {
+                continue;
+            };
+            self.render_cell(cell, colspan, is_header);
         }
 
         self.pop_indent();
         self.write_line("</tr>");
     }
 
-    fn render_cell(&mut self, cell: &Cell, is_header: bool) {
+    fn render_cell(&mut self, cell: &Cell, colspan: usize, is_header: bool) {
         let tag = if is_header { "th" } else { "td" };
         let mut attrs = Vec::new();
 
@@ -360,8 +369,8 @@ impl<'a> HtmlRenderer<'a> {
         }
 
         // Colspan/rowspan
-        if cell.colspan > 1 {
-            attrs.push(format!("colspan=\"{}\"", cell.colspan));
+        if colspan > 1 {
+            attrs.push(format!("colspan=\"{colspan}\""));
         }
         if cell.rowspan > 1 {
             attrs.push(format!("rowspan=\"{}\"", cell.rowspan));
