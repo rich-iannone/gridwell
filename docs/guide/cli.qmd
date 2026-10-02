@@ -14,7 +14,9 @@ cargo install gridwell-cli
 
 ### `gridwell convert`
 
-Convert a table IR JSON file to an output format.
+Convert a table IR JSON file to an output format. The input is validated first; if it
+is invalid, the validation errors are printed to stderr, nothing is written, and the
+exit code is 1.
 
 ```bash
 gridwell convert [OPTIONS] --to <FORMAT> [INPUT]
@@ -62,8 +64,8 @@ Valid: no errors found.
 
 $ gridwell validate broken_table.json
 Found 2 validation error(s):
-  - [ColCount] tbody group 0 row 0 has 4 cells but config.table_cols is 3
-  - [SpanOverflowRight] cell at (row=1, col=3) has colspan=2 but table has 3 columns
+  - [COL_COUNT] tbody group 0 row 0 has 4 cells but config.table_cols is 3
+  - [SPAN_OVERFLOW_RIGHT] cell at (row=1, col=3) has colspan=2 but table has 3 columns
 ```
 
 ### `gridwell formats`
