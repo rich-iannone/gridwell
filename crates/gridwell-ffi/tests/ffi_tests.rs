@@ -240,3 +240,75 @@ fn free_null_pointers_safe() {
         });
     }
 }
+
+// ─── Render refuses invalid IR ───
+
+fn parse(json: &str) -> *mut GridwellTable {
+    let mut err: *mut GridwellError = ptr::null_mut();
+    let table = unsafe { gridwell_parse_ir(json.as_ptr() as *const i8, json.len(), &mut err) };
+    assert!(!table.is_null() && err.is_null(), "parse failed");
+    table
+}
+
+fn error_message(err: *const GridwellError) -> String {
+    unsafe { std::ffi::CStr::from_ptr(gridwell_error_message(err)) }
+        .to_string_lossy()
+        .into_owned()
+}
+
+#[test]
+fn render_text_refuses_invalid_ir() {
+    let table = parse(&load_fixture_json("invalid/span_overflow_right.json"));
+    for fmt in [
+        "html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto",
+    ] {
+        let format = CString::new(fmt).unwrap();
+        let mut err: *mut GridwellError = ptr::null_mut();
+        let result = unsafe { gridwell_render_text(table, format.as_ptr(), &mut err) };
+        assert!(
+            result.text.is_null() && result.len == 0,
+            "{fmt}: rendered invalid IR"
+        );
+        assert!(!err.is_null(), "{fmt}: no error");
+        assert_eq!(
+            unsafe { gridwell_error_code(err) },
+            2,
+            "{fmt}: expected ERR_VALIDATE"
+        );
+        let msg = error_message(err);
+        assert!(msg.contains("[SPAN_OVERFLOW_RIGHT]"), "{fmt}: {msg}");
+        unsafe { gridwell_free_error(err) };
+    }
+    unsafe { gridwell_free_table(table) };
+}
+
+#[test]
+fn render_binary_refuses_invalid_ir() {
+    let table = parse(&load_fixture_json("invalid/col_count_mismatch.json"));
+    for fmt in ["docx", "xlsx", "pptx"] {
+        let format = CString::new(fmt).unwrap();
+        let mut err: *mut GridwellError = ptr::null_mut();
+        let result = unsafe { gridwell_render_binary(table, format.as_ptr(), &mut err) };
+        assert!(
+            result.data.is_null() && result.len == 0,
+            "{fmt}: rendered invalid IR"
+        );
+        assert_eq!(
+            unsafe { gridwell_error_code(err) },
+            2,
+            "{fmt}: expected ERR_VALIDATE"
+        );
+        assert!(error_message(err).contains("[COL_COUNT]"), "{fmt}");
+        unsafe { gridwell_free_error(err) };
+    }
+    unsafe { gridwell_free_table(table) };
+}
+
+#[test]
+fn render_invalid_ir_with_null_err_pointer_does_not_crash() {
+    let table = parse(&load_fixture_json("invalid/span_overlap.json"));
+    let format = CString::new("html").unwrap();
+    let result = unsafe { gridwell_render_text(table, format.as_ptr(), ptr::null_mut()) };
+    assert!(result.text.is_null());
+    unsafe { gridwell_free_table(table) };
+}
