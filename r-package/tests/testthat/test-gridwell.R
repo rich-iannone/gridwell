@@ -156,3 +156,63 @@ test_that("gw_render_binary errors on unknown format", {
     tbl <- gw_parse_ir(json)
     expect_error(gw_render_binary(tbl, "pdf"), "Unknown binary format")
 })
+
+# ─── Rendering refuses invalid IR ───
+
+text_renderers <- list(
+    gw_render_html, gw_render_latex, gw_render_typst, gw_render_rtf,
+    gw_render_svg, gw_render_ansi, gw_render_pandoc, gw_render_quarto
+)
+binary_renderers <- list(gw_render_docx, gw_render_xlsx, gw_render_pptx)
+
+test_that("every renderer refuses invalid IR with the validation errors", {
+    tbl <- gw_parse_ir(load_fixture("invalid/span_overflow_right.json"))
+    for (render in c(text_renderers, binary_renderers)) {
+        expect_error(render(tbl), "failed validation")
+        expect_error(render(tbl), "[SPAN_OVERFLOW_RIGHT]", fixed = TRUE)
+    }
+})
+
+test_that("gw_render and gw_render_binary refuse invalid IR", {
+    tbl <- gw_parse_ir(load_fixture("invalid/col_count_mismatch.json"))
+    for (fmt in c("html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto")) {
+        expect_error(gw_render(tbl, fmt), "[COL_COUNT]", fixed = TRUE)
+    }
+    for (fmt in c("docx", "xlsx", "pptx")) {
+        expect_error(gw_render_binary(tbl, fmt), "[COL_COUNT]", fixed = TRUE)
+    }
+})
+
+test_that("gw_validate reports documented rule ids", {
+    tbl <- gw_parse_ir(load_fixture("invalid/span_overlap.json"))
+    errors <- gw_validate(tbl)
+    expect_true(any(startsWith(errors, "[SPAN_OVERLAP]")))
+})
+
+test_that("adjacent colspans render in every format (regression)", {
+    # Valid IR that used to panic the RTF/SVG writers and drop cells elsewhere.
+    cell <- function(text, colspan = 1) {
+        sprintf('{"content":[{"type":"text","value":"%s"}],"colspan":%d}', text, colspan)
+    }
+    ph <- '{"content":[],"is_placeholder":true}'
+    cells <- paste(c(cell("A", 2), ph, cell("B", 2), ph, cell("C"), cell("D")), collapse = ",")
+    spec <- paste(sprintf('{"id":"c%d"}', 0:5), collapse = ",")
+    json <- sprintf(
+        paste0(
+            '{"ir_version":"1.0","config":{"table_cols":6,"header_rows":0,"body_rows":1},',
+            '"styles":{"defs":{},"compositions":{},"conditionals":[]},',
+            '"column_spec":[%s],',
+            '"table":{"thead":{"rows":[]},"tbody":[{"rows":[{"cells":[%s]}]}]}}'
+        ),
+        spec, cells
+    )
+    tbl <- gw_parse_ir(json)
+    expect_equal(length(gw_validate(tbl)), 0)
+    for (render in text_renderers) {
+        out <- render(tbl)
+        for (label in c("A", "B", "C", "D")) expect_true(grepl(label, out, fixed = TRUE))
+    }
+    for (render in binary_renderers) {
+        expect_gt(length(render(tbl)), 0)
+    }
+})
