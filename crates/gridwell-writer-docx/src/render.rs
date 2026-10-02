@@ -1,5 +1,5 @@
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{Row, Table};
+use gridwell_ir::{vmerge_layout, MergeCell, Row, Table, VMerge};
 use std::fmt::Write;
 use std::io::Cursor;
 use thiserror::Error;
@@ -124,9 +124,7 @@ fn write_table(buf: &mut String, table: &Table) -> Result<(), RenderError> {
 
     // Header rows
     if !table.config.column_labels_hidden {
-        for row in &table.table.thead.rows {
-            write_row(buf, row, &col_widths, table_cols, table, true)?;
-        }
+        write_section(buf, &table.table.thead.rows, &col_widths, table, true)?;
     }
 
     // Body rows
@@ -134,23 +132,35 @@ fn write_table(buf: &mut String, table: &Table) -> Result<(), RenderError> {
         if let Some(ref label) = group.label {
             write_group_label_row(buf, label, &col_widths, table_cols)?;
         }
-        for row in &group.rows {
-            write_row(buf, row, &col_widths, table_cols, table, false)?;
-        }
-        for row in &group.summary_rows {
-            write_row(buf, row, &col_widths, table_cols, table, false)?;
-        }
+        write_section(buf, &group.rows, &col_widths, table, false)?;
+        write_section(buf, &group.summary_rows, &col_widths, table, false)?;
     }
 
     buf.push_str("</w:tbl>\n");
     Ok(())
 }
 
+/// Write one section (thead, a group's rows, or its summary rows). Spans are resolved
+/// per section, so a `vMerge` range never crosses a section boundary.
+fn write_section(
+    buf: &mut String,
+    rows: &[Row],
+    col_widths: &[u32],
+    table: &Table,
+    is_header: bool,
+) -> Result<(), RenderError> {
+    for cells in vmerge_layout(rows) {
+        write_row(buf, &cells, col_widths, table, is_header)?;
+    }
+    Ok(())
+}
+
+/// Write one `<w:tr>`. Each emitted cell carries its grid column, so `gridSpan` and
+/// widths come from the grid, and the `gridSpan`s of a valid row sum to `table_cols`.
 fn write_row(
     buf: &mut String,
-    row: &Row,
+    cells: &[MergeCell<'_>],
     col_widths: &[u32],
-    table_cols: usize,
     table: &Table,
     is_header: bool,
 ) -> Result<(), RenderError> {
@@ -159,42 +169,32 @@ fn write_row(
         buf.push_str("<w:trPr><w:tblHeader/></w:trPr>");
     }
 
-    let mut col_idx = 0;
-    for cell in &row.cells {
-        if col_idx >= table_cols {
-            break;
-        }
-        if cell.is_placeholder {
-            // Vertically merged continuation cell
-            let w = col_widths[col_idx];
-            buf.push_str("<w:tc>");
-            write!(buf, "<w:tcPr><w:tcW w:w=\"{w}\" w:type=\"dxa\"/>")?;
-            buf.push_str("<w:vMerge/>");
-            buf.push_str("</w:tcPr>");
-            buf.push_str("<w:p/>");
-            buf.push_str("</w:tc>");
-            col_idx += 1;
-            continue;
-        }
-
-        let colspan = cell.colspan as usize;
-        let cell_width: u32 = col_widths[col_idx..col_idx + colspan.min(table_cols - col_idx)]
-            .iter()
-            .sum();
+    for mc in cells {
+        let start = mc.col.min(col_widths.len());
+        let end = (mc.col + mc.span).min(col_widths.len());
+        let cell_width: u32 = col_widths[start..end].iter().sum();
 
         buf.push_str("<w:tc>");
         buf.push_str("<w:tcPr>");
         write!(buf, "<w:tcW w:w=\"{cell_width}\" w:type=\"dxa\"/>")?;
 
         // Horizontal merge (gridSpan)
-        if colspan > 1 {
-            write!(buf, "<w:gridSpan w:val=\"{colspan}\"/>")?;
+        if mc.span > 1 {
+            write!(buf, "<w:gridSpan w:val=\"{}\"/>", mc.span)?;
         }
 
-        // Vertical merge start
-        if cell.rowspan > 1 {
-            buf.push_str("<w:vMerge w:val=\"restart\"/>");
+        // Vertical merge
+        match mc.vmerge {
+            VMerge::Start => buf.push_str("<w:vMerge w:val=\"restart\"/>"),
+            VMerge::Continue => buf.push_str("<w:vMerge/>"),
+            VMerge::None => {}
         }
+
+        let Some(cell) = mc.cell else {
+            // Continuation (or orphan): properties only, empty paragraph.
+            buf.push_str("</w:tcPr><w:p/></w:tc>");
+            continue;
+        };
 
         // Background color from style
         if let Some(ref style_id) = cell.style_id {
@@ -238,8 +238,6 @@ fn write_row(
         }
         buf.push_str("</w:p>");
         buf.push_str("</w:tc>");
-
-        col_idx += colspan;
     }
 
     buf.push_str("</w:tr>\n");
