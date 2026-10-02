@@ -25,3 +25,4 @@ gridwell-writer-pptx = { path = "../gridwell-writer-pptx" }
 
 [dev-dependencies]
 serde_json = { workspace = true }
+gridwell-testkit = { path = "../gridwell-testkit" }
