@@ -49,6 +49,18 @@ jobs:
           key: visual-${{ hashFiles('Cargo.lock') }}
           restore-keys: visual-
 
+      # The SVG writer lays text out with estimated widths. Check the estimate against
+      # real rendering in the same font environment that produces the goldens, and
+      # that every example's SVG renders.
+      - name: SVG width calibration (pinned fonts)
+        run: |
+          docker run --rm \
+            -v "$PWD:/w" -w /w \
+            -e CARGO_HOME=/w/.ci-cargo \
+            -e GRIDWELL_REQUIRE_RSVG=1 \
+            gridwell-harness:ci \
+            cargo test --release -p gridwell-writer-svg --test calibration --test rsvg
+
       # Renders every example to every format, rasterizes, writes the gallery,
       # and diffs the gated (HTML/SVG/Typst) formats against harness/goldens.
       # Fails on any gated change, missing golden, unrendered gated cell, or stale
