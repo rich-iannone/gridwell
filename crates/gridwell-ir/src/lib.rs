@@ -11,8 +11,9 @@ use thiserror::Error;
 pub use cell::{Cell, Row, RowGroup, TableBody, TableHead};
 pub use config::Config;
 pub use content::ContentNode;
+pub use span::{resolve_slots, vmerge_layout, MergeCell, Slot, VMerge};
 pub use style::{StyleDef, StylePalette};
-pub use validation::{validate, ValidationError, ValidationRule};
+pub use validation::{validate, InvalidTable, ValidationError, ValidationRule};
 
 /// Parse error for IR JSON.
 #[derive(Debug, Error)]
@@ -52,6 +53,19 @@ impl Table {
     /// Validate the table, returning all validation errors found.
     pub fn validate(&self) -> Vec<ValidationError> {
         validate(self)
+    }
+
+    /// `Ok(())` if the table passes validation, otherwise every error found.
+    ///
+    /// Writers assume valid IR; call this (or [`validate`](Self::validate)) before
+    /// rendering input you did not construct yourself.
+    pub fn ensure_valid(&self) -> Result<(), InvalidTable> {
+        let errors = self.validate();
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(InvalidTable { errors })
+        }
     }
 }
 
