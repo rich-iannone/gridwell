@@ -74,6 +74,10 @@ html <- gw_render_html(table_ptr)
 
 ## Error Handling
 
+Every `gw_render*()` function validates the table first and signals an R error
+listing the validation errors if the IR is invalid. Use `gw_validate()` to get them
+as a character vector instead.
+
 ```r
 tryCatch(
   gw_parse_ir("invalid json"),
