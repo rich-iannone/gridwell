@@ -36,17 +36,20 @@ fn is_emoji(c: char) -> bool {
 }
 
 /// Advance widths (in em) for printable ASCII: DejaVu Sans, rounded up, raised where
-/// calibration against Arial/Helvetica showed a wider glyph (see tests/calibration.rs).
+/// calibration showed a wider glyph: Arial/Helvetica on macOS, and the pinned harness
+/// image's fallback fonts (`*`, `/`, `\\`, `I`, `M`, `|`). See tests/calibration.rs.
 fn ascii_em(c: char) -> f64 {
     match c {
         ' ' => 0.32,
-        'i' | 'j' | 'l' | '\'' | '.' | ',' | 'I' | '|' => 0.30,
-        ':' | ';' | '/' | '\\' => 0.34,
+        'i' | 'j' | 'l' | '\'' | '.' | ',' => 0.30,
+        'I' => 0.35,
+        ':' | ';' => 0.34,
+        '/' | '\\' => 0.38,
         'f' | 't' | '-' | '(' | ')' | '[' | ']' | '!' | '`' => 0.40,
         'r' | '"' => 0.46,
-        '*' => 0.50,
+        '|' => 0.50,
         'J' | '_' => 0.58,
-        's' | 'z' | 'c' | '?' => 0.56,
+        's' | 'z' | 'c' | '?' | '*' => 0.56,
         'k' | 'v' | 'x' | 'y' | 'F' | 'L' => 0.60,
         'a' | 'e' | 'o' | 'T' => 0.64,
         'P' | 'Y' | 'E' | 'S' => 0.70,
@@ -57,7 +60,7 @@ fn ascii_em(c: char) -> f64 {
         'U' | 'N' | 'H' => 0.76,
         'D' | 'G' | 'O' | 'Q' | '&' => 0.80,
         '#' | '+' | '=' | '<' | '>' | '~' | '^' | 'w' => 0.84,
-        'M' => 0.87,
+        'M' => 0.90,
         '%' | 'm' | 'W' => 1.0,
         '@' => 1.06,
         // Control characters take no space (they are not rendered).
