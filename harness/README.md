@@ -14,7 +14,7 @@ crates/gridwell-testkit/   # builder DSL + the example registry (source of truth
 xtask/                     # harness tooling: corpus, gallery, image diff
 harness/
   Dockerfile               # pinned renderer toolchain (chromium/xelatex/typst/libreoffice/…)
-  goldens/<fmt>/<name>.png # committed golden images for the gated subset (Git LFS)
+  goldens/<fmt>/<name>.png # committed golden images for the gated subset
   corpus/                  # generated IR JSON            (gitignored)
   gallery/                 # generated gallery + previews (gitignored)
 ```
@@ -106,10 +106,9 @@ every run, rendered in the pinned image. To seed or update goldens:
    `proposed-goldens`.
 2. Look at the images, or at the gallery artifact from the same run, and confirm
    the new renderings are correct.
-3. Replace the goldens and commit (they're stored with Git LFS):
+3. Replace the goldens and commit (they're ordinary binary files):
 
 ```bash
-git lfs install                      # once per clone
 rm -rf harness/goldens/{html,svg,typst}
 unzip proposed-goldens.zip -d harness/goldens
 git add harness/goldens && git commit -m "Bless visual goldens"
@@ -126,7 +125,6 @@ not on an arbitrary machine:
 docker build -f harness/Dockerfile -t gridwell-harness:pinned-2026-07 .
 docker run --rm -v "$PWD:/w" -w /w gridwell-harness:pinned-2026-07 \
     cargo xtask gallery --accept
-git lfs install
 git add harness/goldens && git commit -m "Seed harness goldens"
 ```
 
