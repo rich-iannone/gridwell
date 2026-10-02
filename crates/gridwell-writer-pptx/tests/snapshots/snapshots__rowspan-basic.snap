@@ -17,7 +17,7 @@ expression: xml
 <a:tblGrid><a:gridCol w="914400"/><a:gridCol w="914400"/></a:tblGrid>
 <a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Country</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Value</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
 <a:tr h="320040"><a:tc rowSpan="2"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Japan</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>100</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
-<a:tr h="320040"><a:tc hMerge="1"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:endParaRPr/></a:p></a:txBody><a:tcPr/></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>110</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="320040"><a:tc vMerge="1"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:endParaRPr/></a:p></a:txBody><a:tcPr/></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>110</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
 <a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Korea</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>80</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
 </a:tbl>
 </a:graphicData></a:graphic>

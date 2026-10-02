@@ -15,7 +15,7 @@ expression: xml
 <a:tbl>
 <a:tblPr firstRow="1" bandRow="1"/>
 <a:tblGrid><a:gridCol w="914400"/><a:gridCol w="914400"/><a:gridCol w="914400"/></a:tblGrid>
-<a:tr h="320040"><a:tc gridSpan="3"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Full-width spanner</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="320040"><a:tc gridSpan="3"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Full-width spanner</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc hMerge="1"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:endParaRPr/></a:p></a:txBody><a:tcPr/></a:tc><a:tc hMerge="1"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:endParaRPr/></a:p></a:txBody><a:tcPr/></a:tc></a:tr>
 <a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>A</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>B</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>C</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
 <a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>1</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>2</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>3</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
 </a:tbl>

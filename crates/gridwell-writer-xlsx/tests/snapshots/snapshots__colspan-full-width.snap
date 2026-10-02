@@ -10,4 +10,5 @@ expression: xml
 <row r="2"><c r="A2" t="inlineStr" s="1"><is><t>A</t></is></c><c r="B2" t="inlineStr" s="1"><is><t>B</t></is></c><c r="C2" t="inlineStr" s="1"><is><t>C</t></is></c></row>
 <row r="3"><c r="A3" t="inlineStr"><is><t>1</t></is></c><c r="B3" t="inlineStr"><is><t>2</t></is></c><c r="C3" t="inlineStr"><is><t>3</t></is></c></row>
 </sheetData>
+<mergeCells count="1"><mergeCell ref="A1:C1"/></mergeCells>
 </worksheet>

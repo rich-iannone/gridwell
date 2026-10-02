@@ -23,4 +23,5 @@ expression: xml
 <row r="15"><c r="A15" t="inlineStr"><is><t>k5a</t></is></c><c r="B15" t="inlineStr"><is><t>50</t></is></c></row>
 <row r="16"><c r="A16" t="inlineStr"><is><t>k5b</t></is></c><c r="B16" t="inlineStr"><is><t>100</t></is></c></row>
 </sheetData>
+<mergeCells count="5"><mergeCell ref="A2:B2"/><mergeCell ref="A5:B5"/><mergeCell ref="A8:B8"/><mergeCell ref="A11:B11"/><mergeCell ref="A14:B14"/></mergeCells>
 </worksheet>

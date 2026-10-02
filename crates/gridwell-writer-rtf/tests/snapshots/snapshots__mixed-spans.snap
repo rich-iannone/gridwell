@@ -10,11 +10,12 @@ expression: out
 \pard\intbl\b B\cell
 \pard\intbl\b C\cell
 \row
-\trowd\clvmgf\cellx4320\cellx4320
+\trowd\clvmgf\cellx4320\cellx6480
 \pard\intbl 2x2 block\cell
 \pard\intbl top-right\cell
 \row
-\trowd\cellx2160
+\trowd\clvmrg\cellx4320\cellx6480
+\pard\intbl\cell
 \pard\intbl mid-right\cell
 \row
 \trowd\cellx2160\cellx4320\cellx6480

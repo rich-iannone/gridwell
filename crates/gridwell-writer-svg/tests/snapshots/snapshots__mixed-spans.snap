@@ -13,8 +13,8 @@ expression: out
 <line x1="0" y1="28" x2="360" y2="28" stroke="#333333" stroke-width="1.5"/>
 <line x1="0" y1="56" x2="240" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
 <text x="8" y="52">2x2 block</text>
-<line x1="360" y1="56" x2="360" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
-<text x="368" y="52">top-right</text>
+<line x1="240" y1="56" x2="360" y2="56" stroke="#d0d0d0" stroke-width="0.5"/>
+<text x="248" y="52">top-right</text>
 <line x1="240" y1="84" x2="360" y2="84" stroke="#d0d0d0" stroke-width="0.5"/>
 <text x="248" y="80">mid-right</text>
 <line x1="0" y1="112" x2="120" y2="112" stroke="#d0d0d0" stroke-width="0.5"/>

@@ -20,4 +20,5 @@ expression: xml
 <row r="13"><c r="A13" t="inlineStr"><is><t>1 Includes one-time restructuring charge.</t></is></c></row>
 <row r="15"><c r="A15" t="inlineStr"><is><t>Source: Internal finance database, June 2026.</t></is></c></row>
 </sheetData>
+<mergeCells count="4"><mergeCell ref="C3:D3"/><mergeCell ref="A5:D5"/><mergeCell ref="A6:A7"/><mergeCell ref="A9:D9"/></mergeCells>
 </worksheet>
