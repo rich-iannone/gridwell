@@ -97,18 +97,27 @@ fn main() {
 }
 
 fn cmd_convert(input: Option<PathBuf>, format: OutputFormat, output: Option<PathBuf>) {
+    // Check arguments before doing any work.
+    if format.is_binary() && output.is_none() {
+        eprintln!(
+            "Error: binary format '{}' requires --output file",
+            format.extension()
+        );
+        process::exit(1);
+    }
+
     let json = read_input(input.as_deref());
     let table = parse_table(&json);
 
+    // Writers assume valid IR; never hand them anything else.
+    if let Err(invalid) = table.ensure_valid() {
+        eprintln!("Error: {invalid}");
+        process::exit(1);
+    }
+
     if format.is_binary() {
         let bytes = render_binary(&table, &format);
-        let out_path = output.unwrap_or_else(|| {
-            eprintln!(
-                "Error: binary format '{}' requires --output file",
-                format.extension()
-            );
-            process::exit(1);
-        });
+        let out_path = output.expect("checked above");
         if let Err(e) = fs::write(&out_path, &bytes) {
             eprintln!("Error writing {}: {e}", out_path.display());
             process::exit(1);
