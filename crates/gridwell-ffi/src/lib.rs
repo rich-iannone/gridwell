@@ -307,8 +307,7 @@ pub unsafe extern "C" fn gridwell_free_error(err: *mut GridwellError) {
 #[no_mangle]
 pub unsafe extern "C" fn gridwell_error_message(err: *const GridwellError) -> *const c_char {
     if err.is_null() {
-        // (Not a `c"..."` literal: those need Rust 1.77; MSRV is 1.75.)
-        return b"(null error)\0".as_ptr() as *const c_char;
+        return c"(null error)".as_ptr();
     }
     let err = unsafe { &*err };
     // `make_error` guarantees a trailing NUL and no interior NULs.
