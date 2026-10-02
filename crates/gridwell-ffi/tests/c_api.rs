@@ -86,7 +86,7 @@ fn compiler(var: &str, default: &str) -> Option<String> {
 }
 
 fn skip_or_fail(reason: &str) {
-    if std::env::var_os("GRIDWELL_REQUIRE_C_TOOLCHAIN").is_some() {
+    if std::env::var_os("GRIDWELL_REQUIRE_C_TOOLCHAIN").is_some_and(|v| !v.is_empty()) {
         panic!("C API test cannot run: {reason}");
     }
     eprintln!("skipping C API test: {reason}");
