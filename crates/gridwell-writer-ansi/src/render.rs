@@ -284,6 +284,12 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
                 let c = c.flatten();
                 let _ = write!(open, "\x1b[38;2;{};{};{}m", c.r, c.g, c.b);
             }
+            if self.config.background_colors {
+                if let Some(c) = style.fill() {
+                    let c = c.flatten();
+                    let _ = write!(open, "\x1b[48;2;{};{};{}m", c.r, c.g, c.b);
+                }
+            }
         }
         let close = if open.is_empty() { "" } else { RESET };
         (open, close)
@@ -360,23 +366,7 @@ fn sanitize(s: &str) -> String {
 }
 
 fn content_to_text(nodes: &[ContentNode]) -> String {
-    let mut out = String::new();
-    for node in nodes {
-        match node {
-            ContentNode::Text { value } | ContentNode::StyledText { value, .. } => {
-                out.push_str(&sanitize(value))
-            }
-            ContentNode::LineBreak {} => out.push(' '),
-            ContentNode::FootnoteMark { mark_text, .. } => out.push_str(&sanitize(mark_text)),
-            ContentNode::Image { alt, .. } => {
-                if let Some(alt_text) = alt {
-                    out.push_str(&sanitize(alt_text));
-                }
-            }
-            ContentNode::Raw { .. } | ContentNode::Unknown => {}
-        }
-    }
-    out
+    sanitize(&gridwell_layout::plain_text(nodes, " "))
 }
 
 /// `text` laid out in exactly `width` terminal columns: one space of padding on
