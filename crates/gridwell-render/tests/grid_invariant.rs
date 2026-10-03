@@ -11,16 +11,23 @@
 //! | PPTX | quick-xml: `a:tr`/`a:tc`, `gridSpan`/`rowSpan`/`hMerge`/`vMerge` |
 //! | RTF | tokenizer: `\trowd`, `\cellx` boundaries, `\clvmrg`, `\cell`, `\row` |
 //! | Pandoc, Quarto | JSON AST: `Table` head, bodies (intermediate head + rows) |
+//! | Typst | `typst query`: each cell's resolved position, spans and text |
+//! | LaTeX | LuaLaTeX → PDF; cell edges and words by position (`pdftotext -bbox`) |
 //!
-//! LaTeX, Typst, SVG and ANSI have their own structural oracles in their crates.
+//! The typeset formats need their tools (see `support::typeset`); they skip
+//! without them unless `GRIDWELL_REQUIRE_TYPST` / `GRIDWELL_REQUIRE_LATEX` is set.
+//! SVG and ANSI have their own structural oracles in their crates.
 
 mod support;
 
 use gridwell_ir::Table;
 use gridwell_testkit::spans::tilings;
-use gridwell_testkit::{cell, column, examples, group, labeled_group, row, TableBuilder};
+use gridwell_testkit::{
+    cell, column, examples, group, labeled_group, placeholder, row, CellExt, TableBuilder,
+};
 use support::readers::{html_grid, pandoc_grid, rtf_grid, xlsx_grid};
-use support::{compare, expected, ooxml, Grid};
+use support::typeset::{latex_compare, latex_observable, latex_tables, latex_tabular, typst_grids};
+use support::{compare, expected, ooxml, typeset, Grid};
 
 type Reader = fn(&Table, &support::Expected) -> Option<Grid>;
 
@@ -208,4 +215,146 @@ fn every_readable_format_shows_the_ir_grid() {
     for ((format, ..), n) in readers.iter().zip(&checked) {
         assert!(*n > scenarios.len() / 2, "{format}: only {n} checked");
     }
+}
+
+/// Collect failures (the first 15 in full) and fail with all of them.
+fn report(what: &str, failures: &[String]) {
+    assert!(
+        failures.is_empty(),
+        "{} {what} mismatch(es):\n\n{}",
+        failures.len(),
+        failures
+            .iter()
+            .take(15)
+            .cloned()
+            .collect::<Vec<_>>()
+            .join("\n\n")
+    );
+}
+
+#[test]
+fn typst_shows_the_ir_grid() {
+    if !typeset::require("typst", "GRIDWELL_REQUIRE_TYPST") {
+        return;
+    }
+    let scenarios = scenarios();
+    let sources: Vec<String> = scenarios
+        .iter()
+        .map(|(_, t)| gridwell_writer_typst::render_typst(t).unwrap())
+        .collect();
+    let mut failures = Vec::new();
+    for ((name, table), got) in scenarios.iter().zip(typst_grids(&sources)) {
+        if let Err(e) = got.and_then(|g| compare(&g, &expected(table), false)) {
+            failures.push(format!("typst / {name}: {e}"));
+        }
+    }
+    report("Typst grid", &failures);
+}
+
+#[test]
+fn latex_shows_the_ir_grid() {
+    if !typeset::require("lualatex", "GRIDWELL_REQUIRE_LATEX")
+        || !typeset::require("pdftotext", "GRIDWELL_REQUIRE_LATEX")
+    {
+        return;
+    }
+    let scenarios = scenarios();
+    let mut checked = Vec::new();
+    let mut tabulars = Vec::new();
+    let mut unobservable = 0;
+    for (name, table) in &scenarios {
+        let want = expected(table);
+        if !latex_observable(&want) {
+            unobservable += 1;
+            continue;
+        }
+        let src = gridwell_writer_latex::render_latex(table).unwrap();
+        match latex_tabular(&src) {
+            Some(t) => {
+                tabulars.push(t.to_string());
+                checked.push((name, want));
+            }
+            None => assert!(want.rows.is_empty(), "{name}: no tabular\n{src}"),
+        }
+    }
+    let mut failures = Vec::new();
+    for ((name, want), got) in checked.iter().zip(latex_tables(&tabulars)) {
+        if let Err(e) = got.and_then(|g| latex_compare(&g, want)) {
+            failures.push(format!("latex / {name}: {e}"));
+        }
+    }
+    report("LaTeX grid", &failures);
+    assert!(
+        checked.len() * 2 > scenarios.len(),
+        "only {} checked",
+        checked.len()
+    );
+    // As for RTF: every scenario has a plain row, so this must stay rare.
+    assert!(
+        unobservable * 20 < scenarios.len(),
+        "{unobservable} unobservable LaTeX grids"
+    );
+}
+
+/// TeX gives a column that only spanned cells cover no width of its own: here
+/// zero (two column boundaries at one position) and negative (column 1 ends left
+/// of where it starts). The LaTeX reader must not assume edges are ordered or
+/// distinct by position. Both came from the property test.
+#[test]
+fn latex_columns_only_spans_cover() {
+    if !typeset::require("lualatex", "GRIDWELL_REQUIRE_LATEX")
+        || !typeset::require("pdftotext", "GRIDWELL_REQUIRE_LATEX")
+    {
+        return;
+    }
+    let p = placeholder;
+    // Column 1: the span over columns 0–1 is exactly as wide as column 0.
+    let zero = TableBuilder::new(4)
+        .body(vec![
+            row(vec![cell("same"), cell("b").colspan(2), p(), cell("d")]),
+            row(vec![
+                cell("same").colspan(2),
+                p(),
+                cell("cd").colspan(2),
+                p(),
+            ]),
+            row(vec![cell("abc").colspan(3), p(), p(), cell("d")]),
+        ])
+        .build();
+    // Column 1: the span over columns 0–1 is narrower than column 0.
+    let negative = TableBuilder::new(3)
+        .body(vec![
+            row(vec![cell("ab").colspan(2), p(), cell("c")]),
+            row(vec![
+                cell("a rather long first cell"),
+                cell("bc").colspan(2),
+                p(),
+            ]),
+        ])
+        .build();
+    let tables = [&zero, &negative];
+    let tabulars: Vec<String> = tables
+        .iter()
+        .map(|t| {
+            latex_tabular(&gridwell_writer_latex::render_latex(t).unwrap())
+                .unwrap()
+                .to_string()
+        })
+        .collect();
+    let got: Vec<_> = latex_tables(&tabulars)
+        .into_iter()
+        .map(Result::unwrap)
+        .collect();
+    for (t, g) in tables.iter().zip(&got) {
+        assert!(t.validate().is_empty(), "{:?}", t.validate());
+        latex_compare(g, &expected(t)).unwrap();
+    }
+    // The layouts really are degenerate: 4 columns with 4 distinct boundary
+    // positions, and column 1's right boundary left of its left one.
+    assert_eq!(got[0].boundaries.len(), 4, "{:?}", got[0]);
+    let x = |row: usize, cell: usize, right: bool| {
+        let c = &got[1].rows[row][cell];
+        got[1].boundaries[if right { c.to } else { c.from }]
+    };
+    assert!(x(0, 0, true) < x(1, 0, true), "{:?}", got[1]);
 }
