@@ -24,6 +24,10 @@ serde_json = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
+gridwell-ooxml = { path = "../gridwell-ooxml" }
+proptest = "1.11"
+calamine = "0.35"
+scraper = "0.27"
 gridwell-core = { path = "../gridwell-core" }
 gridwell-testkit = { path = "../gridwell-testkit" }
 quick-xml = { workspace = true }
