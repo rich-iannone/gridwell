@@ -1,6 +1,6 @@
 use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{Keyword, Table};
+use gridwell_ir::{HAlign, Keyword, Table};
 use gridwell_layout::{
     resolve, ResolvedBorder, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, Sides,
 };
@@ -26,6 +26,8 @@ struct HtmlRenderer<'r, 'a> {
     /// (column defaults, striping, conditionals): emitted as generated classes
     /// `{prefix}__c{n}`, in first-use order.
     cell_styles: Vec<ResolvedStyle>,
+    /// Alignment classes `{prefix}__al_<value>` the cells use, in a fixed order.
+    alignments: Vec<&'static str>,
 }
 
 impl<'r, 'a> HtmlRenderer<'r, 'a> {
@@ -37,11 +39,18 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             buf: String::with_capacity(4096),
             indent_level: 0,
             cell_styles: Vec::new(),
+            alignments: Vec::new(),
         };
         if !config.inline_styles {
             for section in rt.sections() {
+                let is_header = section.kind == gridwell_layout::SectionKind::Head;
                 for row in &section.rows {
                     for cell in row.cells() {
+                        if let Some(a) = cell_alignment(cell, is_header) {
+                            if !r.alignments.contains(&a) {
+                                r.alignments.push(a);
+                            }
+                        }
                         if r.needs_generated_class(row, cell)
                             && !r.cell_styles.contains(&cell.style)
                         {
@@ -154,12 +163,28 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         }
 
         let styles = &self.table.styles;
-        if styles.defs.is_empty() && styles.compositions.is_empty() && self.cell_styles.is_empty() {
+        if styles.defs.is_empty()
+            && styles.compositions.is_empty()
+            && self.cell_styles.is_empty()
+            && self.alignments.is_empty()
+        {
             return;
         }
 
         self.write_line("<style>");
         self.push_indent();
+
+        // Column alignment first: a style that sets its own alignment comes later
+        // and wins (and agrees anyway: a cell's alignment already reflects it).
+        let mut alignments = self.alignments.clone();
+        alignments.sort_unstable();
+        for a in alignments {
+            let line = format!(
+                ".{}__al_{a} {{ text-align: {a} }}",
+                self.config.class_prefix
+            );
+            self.write_line(&line);
+        }
 
         // Emit style definitions as CSS classes
         let mut style_ids: Vec<&String> = styles.defs.keys().collect();
@@ -370,13 +395,24 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         let tag = if is_header { "th" } else { "td" };
         let mut attrs = Vec::new();
 
+        let align = cell_alignment(cell, is_header);
         if self.config.inline_styles {
-            let css = style_css(&cell.style);
+            let mut css = style_css(&cell.style);
+            // The cascade's own text-align, if any, already equals the cell's.
+            if let (Some(a), None) = (align, &cell.style.text_align) {
+                if !css.is_empty() {
+                    css.push_str("; ");
+                }
+                css.push_str(&format!("text-align: {a}"));
+            }
             if !css.is_empty() {
                 attrs.push(format!("style=\"{}\"", escape_attr(&css)));
             }
         } else {
             let mut classes = Vec::new();
+            if let Some(a) = align {
+                classes.push(format!("{}__al_{a}", self.config.class_prefix));
+            }
             if let Some(id) = &cell.cell.style_id {
                 classes.push(format!("{}_{}", self.config.class_prefix, id));
             }
@@ -606,6 +642,19 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 pub fn render(table: &Table, config: &HtmlWriterConfig) -> Result<String, RenderError> {
     let rt = resolve(table);
     HtmlRenderer::new(&rt, config).render()
+}
+
+/// The `text-align` a cell needs, if any: header cells always (browsers centre
+/// `<th>` by default), body cells unless left-aligned (the default for `<td>`).
+/// Decimal (`char`) alignment is approximated by right alignment.
+fn cell_alignment(cell: &ResolvedCell, is_header: bool) -> Option<&'static str> {
+    let a = match cell.align {
+        HAlign::Center => "center",
+        HAlign::Right | HAlign::Char => "right",
+        HAlign::Justify => "justify",
+        _ => "left",
+    };
+    (is_header || a != "left").then_some(a)
 }
 
 // ─── CSS Generation ───
