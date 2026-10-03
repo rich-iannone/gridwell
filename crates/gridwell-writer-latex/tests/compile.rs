@@ -239,3 +239,60 @@ fn tricky_text_renders_verbatim() {
         "not verbatim: {missing:?}\n\npdftotext:\n{text}"
     );
 }
+
+#[test]
+fn styled_titles_labels_and_notes_compile() {
+    if !require("pdflatex") || !require("pdftotext") {
+        return;
+    }
+    let style = |color: &str, bg: Option<&str>| gridwell_ir::StyleDef {
+        color: Some(color.into()),
+        background_color: bg.map(Into::into),
+        font_style: Some("italic".into()),
+        ..Default::default()
+    };
+    let mut t = TableBuilder::new(2)
+        .title("Styled title")
+        .subtitle("Styled subtitle")
+        .extra_line("Extra line")
+        .style_def("t", style("#AA0000", None))
+        .style_def("l", style("#00AA00", Some("#EEEEEE")))
+        .style_def("n", style("#0000AA", None))
+        .group(
+            gridwell_testkit::labeled_group("Styled label", vec![row(vec![cell("a"), cell("b")])])
+                .label_style("l"),
+        )
+        .footnote("f", "1", "Styled footnote")
+        .source_note("Styled source")
+        .build();
+    let h = t.header.as_mut().unwrap();
+    h.title.as_mut().unwrap().style_id = Some("t".into());
+    h.subtitle.as_mut().unwrap().style_id = Some("t".into());
+    let f = t.footer.as_mut().unwrap();
+    f.footnotes[0].style_id = Some("n".into());
+    f.source_notes[0].style_id = Some("n".into());
+    let src = render_latex(&t).unwrap();
+    for want in [
+        "\\textcolor[HTML]{AA0000}{\\textit{Styled title}}",
+        "\\textcolor[HTML]{AA0000}{\\textit{Styled subtitle}}",
+        "{\\small Extra line}",
+        "\\cellcolor[HTML]{EEEEEE}\\textcolor[HTML]{00AA00}{\\textit{Styled label}}",
+        "\\textcolor[HTML]{0000AA}{\\textit{Styled footnote}}",
+        "\\textcolor[HTML]{0000AA}{\\textit{Styled source}}",
+    ] {
+        assert!(src.contains(want), "missing {want:?}:\n{src}");
+    }
+    let dir = work_dir("styled-lines");
+    let pdf = compile(&dir, "styled", &src).unwrap_or_else(|e| panic!("{e}\n{src}"));
+    let text = pdf_text(&pdf);
+    for line in [
+        "Styled title",
+        "Styled subtitle",
+        "Extra line",
+        "Styled label",
+        "Styled footnote",
+        "Styled source",
+    ] {
+        assert!(text.contains(line), "{line} missing from PDF:\n{text}");
+    }
+}
