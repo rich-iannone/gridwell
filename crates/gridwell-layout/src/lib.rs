@@ -22,6 +22,7 @@
 //! [`Slot::Empty`].
 
 pub mod style;
+pub mod text;
 
 use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
@@ -30,6 +31,7 @@ use gridwell_ir::{
     RowRole, SelectorScope, Table, VMerge,
 };
 pub use style::{ResolvedBorder, ResolvedStyle, Sides};
+pub use text::plain_text;
 
 use gridwell_core::Color;
 use gridwell_ir::cell::{Row, TypedValue};
@@ -79,6 +81,35 @@ impl<'a> ResolvedTable<'a> {
             }
         }
         ResolvedStyle::from_def(&def)
+    }
+
+    /// Every piece of content the writer will emit, in document order: header lines,
+    /// cells (visible ones only), group labels, footnotes, source notes. For writers
+    /// that must collect things (colours, fonts) before writing.
+    pub fn contents(&self) -> Vec<&'a [ContentNode]> {
+        let h = &self.header;
+        let mut out: Vec<&'a [ContentNode]> = h
+            .title
+            .iter()
+            .chain(&h.subtitle)
+            .chain(&h.extra_lines)
+            .map(|l| l.content)
+            .collect();
+        out.extend(
+            self.head
+                .rows
+                .iter()
+                .flat_map(|r| r.cells().map(|c| c.content)),
+        );
+        for g in &self.groups {
+            out.extend(g.label.iter().map(|l| l.content));
+            for r in g.rows.rows.iter().chain(&g.summary_rows.rows) {
+                out.extend(r.cells().map(|c| c.content));
+            }
+        }
+        out.extend(self.footer.footnotes.iter().map(|n| n.content));
+        out.extend(self.footer.source_notes.iter().map(|n| n.content));
+        out
     }
 
     /// True if no column is visible: writers emit no table body at all.
@@ -132,9 +163,14 @@ pub struct ResolvedFooter<'a> {
     pub source_notes: Vec<Line<'a>>,
 }
 
-impl ResolvedFooter<'_> {
+impl<'a> ResolvedFooter<'a> {
     pub fn is_empty(&self) -> bool {
         self.footnotes.is_empty() && self.source_notes.is_empty()
+    }
+
+    /// The footnote a `footnote_mark`'s `ref` points at.
+    pub fn footnote(&self, id: &str) -> Option<&Footnote<'a>> {
+        self.footnotes.iter().find(|n| n.id == id)
     }
 }
 
@@ -146,6 +182,9 @@ pub struct Footnote<'a> {
     pub content: &'a [ContentNode],
     pub style_id: Option<&'a str>,
     pub style: ResolvedStyle,
+    /// Whether any `footnote_mark` in the table (cells, header, labels, notes)
+    /// refers to this footnote. Unreferenced footnotes are still rendered.
+    pub referenced: bool,
 }
 
 /// A row group.
@@ -407,6 +446,7 @@ pub fn resolve(table: &Table) -> ResolvedTable<'_> {
                 .collect(),
         })
         .unwrap_or_default();
+    let referenced = footnote_refs(table);
     let footer = table
         .footer
         .as_ref()
@@ -420,6 +460,7 @@ pub fn resolve(table: &Table) -> ResolvedTable<'_> {
                     content: &n.content,
                     style_id: n.style_id.as_deref(),
                     style: style::resolve_id(table, n.style_id.as_deref()),
+                    referenced: referenced.contains(n.id.as_str()),
                 })
                 .collect(),
             source_notes: f
@@ -439,6 +480,40 @@ pub fn resolve(table: &Table) -> ResolvedTable<'_> {
         groups,
         footer,
     }
+}
+
+/// Every footnote id some `footnote_mark` refers to, anywhere in the table.
+fn footnote_refs(table: &Table) -> std::collections::HashSet<&str> {
+    let mut contents: Vec<&[ContentNode]> = Vec::new();
+    if let Some(h) = &table.header {
+        let lines = h.title.iter().chain(&h.subtitle).chain(&h.extra_lines);
+        contents.extend(lines.map(|l| l.content.as_slice()));
+    }
+    let groups = &table.table.tbody;
+    let rows = table.table.thead.rows.iter().chain(
+        groups
+            .iter()
+            .flat_map(|g| g.rows.iter().chain(&g.summary_rows)),
+    );
+    contents.extend(rows.flat_map(|r| r.cells.iter().map(|c| c.content.as_slice())));
+    contents.extend(
+        groups
+            .iter()
+            .filter_map(|g| g.label.as_ref())
+            .map(|l| l.content.as_slice()),
+    );
+    if let Some(f) = &table.footer {
+        contents.extend(f.footnotes.iter().map(|n| n.content.as_slice()));
+        contents.extend(f.source_notes.iter().map(|n| n.content.as_slice()));
+    }
+    contents
+        .into_iter()
+        .flatten()
+        .filter_map(|n| match n {
+            ContentNode::FootnoteMark { reference, .. } => Some(reference.as_str()),
+            _ => None,
+        })
+        .collect()
 }
 
 fn line<'a>(table: &'a Table, content: &'a [ContentNode], style_id: Option<&'a str>) -> Line<'a> {
