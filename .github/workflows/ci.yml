@@ -96,6 +96,37 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+  # Format-native oracles that need large external programs, kept out of the test
+  # matrix: pandoc reads our Pandoc/Quarto AST back, LibreOffice opens every RTF/
+  # DOCX/XLSX/PPTX file, and LaTeX output compiles (pdfLaTeX and LuaLaTeX). Every
+  # tool is required: a missing tool fails the job rather than skipping.
+  oracles:
+    name: External oracles (pandoc, LibreOffice, LaTeX)
+    runs-on: ubuntu-latest
+    env:
+      GRIDWELL_REQUIRE_PANDOC: "1"
+      GRIDWELL_REQUIRE_SOFFICE: "1"
+      GRIDWELL_REQUIRE_LATEX: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install pandoc, LibreOffice, TeX Live, Poppler
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends \
+            pandoc \
+            libreoffice-writer libreoffice-calc libreoffice-impress \
+            texlive-latex-base texlive-latex-recommended texlive-latex-extra \
+            texlive-luatex texlive-fonts-recommended lmodern \
+            poppler-utils
+          pandoc --version | head -1
+          soffice --version || true
+      - name: pandoc and LibreOffice oracles
+        run: cargo test --locked -p gridwell-render --test external
+      - name: LaTeX compile oracle
+        run: cargo test --locked -p gridwell-writer-latex --test compile
+
   msrv:
     name: MSRV (Rust 1.85)
     runs-on: ubuntu-latest
@@ -221,7 +252,7 @@ jobs:
       - name: Seed corpus
         run: |
           cargo xtask corpus
-          for t in fuzz_parse_ir fuzz_validate fuzz_render_html fuzz_layout; do
+          for t in fuzz_parse_ir fuzz_validate fuzz_render_html fuzz_layout fuzz_render_all; do
             mkdir -p "fuzz/corpus/$t"
             cp fixtures/*/*.json harness/corpus/*.json "fuzz/corpus/$t/"
           done
@@ -235,7 +266,7 @@ jobs:
           done
       - name: Fuzz
         run: |
-          for t in fuzz_parse_ir fuzz_validate fuzz_render_html fuzz_parse_values fuzz_layout; do
+          for t in fuzz_parse_ir fuzz_validate fuzz_render_html fuzz_parse_values fuzz_layout fuzz_render_all; do
             echo "::group::$t"
             # Explicit target: the prebuilt cargo-fuzz binary is a musl build and
             # otherwise defaults to x86_64-unknown-linux-musl, which has no std
