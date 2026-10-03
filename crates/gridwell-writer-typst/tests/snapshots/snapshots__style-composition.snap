@@ -12,6 +12,6 @@ expression: out
   ),
   [normal],
   [42],
-  table.cell(fill: rgb("#f1c40f"))[#text(weight: "bold", fill: rgb("#2c3e50"))[special]],
+  table.cell(fill: rgb("#F1C40F"))[#text(weight: "bold", fill: rgb("#2C3E50"))[special]],
   [99],
 )
