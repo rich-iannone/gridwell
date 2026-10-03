@@ -5,6 +5,7 @@ pub mod keywords;
 pub mod span;
 pub mod style;
 pub mod validation;
+mod value_checks;
 pub mod visibility;
 
 use serde::{Deserialize, Serialize};
