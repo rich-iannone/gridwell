@@ -4,12 +4,12 @@ expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="141" height="96" viewBox="0 0 141 96">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
-<rect x="0" y="60" width="76.58" height="28" fill="#f1c40f"/>
+<rect x="0" y="60" width="76.58" height="28" fill="#F1C40F"/>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Key</tspan></text>
 <text x="84.58" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Value</tspan></text>
 <text x="8" y="50.9" font-size="14px" xml:space="preserve">normal</text>
 <text x="84.58" y="50.9" font-size="14px" xml:space="preserve">42</text>
-<text x="8" y="78.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold" fill="#2c3e50">special</tspan></text>
+<text x="8" y="78.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold" fill="#2C3E50">special</tspan></text>
 <text x="84.58" y="78.9" font-size="14px" xml:space="preserve">99</text>
 <line x1="0" y1="32" x2="76.58" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="76.58" y1="32" x2="140.86" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
