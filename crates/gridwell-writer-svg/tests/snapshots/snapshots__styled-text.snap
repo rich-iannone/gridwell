@@ -7,7 +7,7 @@ expression: out
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Term</tspan></text>
 <text x="68.96" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Note</tspan></text>
 <text x="8" y="50.9" font-size="14px" xml:space="preserve">Rust</text>
-<text x="68.96" y="50.9" font-size="14px" xml:space="preserve">A <tspan font-style="italic" fill="#8e44ad">systems </tspan>language.</text>
+<text x="68.96" y="50.9" font-size="14px" xml:space="preserve">A <tspan font-style="italic" fill="#8E44AD">systems </tspan>language.</text>
 <line x1="0" y1="32" x2="60.96" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="60.96" y1="32" x2="236.82" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="0" y1="60" x2="60.96" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
