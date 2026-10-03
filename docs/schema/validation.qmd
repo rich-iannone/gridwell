@@ -22,7 +22,7 @@ and when errors are serialized.
 | `ROW_COUNT` | `thead` has `config.header_rows` rows; data rows (not summary rows) total `config.body_rows` |
 | `COLSPEC_LENGTH` | `column_spec` has `config.table_cols` entries |
 | `STYLE_REFS_VALID` | Every `style_id` refers to a style definition or composition |
-| `FOOTNOTE_REFS_VALID` | Every `footnote_mark` refers to a defined footnote |
+| `FOOTNOTE_REFS_VALID` | Every `footnote_mark` refers to a defined footnote, wherever it appears: cells (including summary rows), header lines, group labels, and the notes themselves |
 | `SUMMARY_REQUIRES_STUB` | A group with summary rows requires `config.stub_cols >= 1` |
 | `UNKNOWN_VALUE` | A keyword field holds a value outside its allowed set (see [Keyword values](#keyword-values)) |
 | `INVALID_COLOR` | A colour field is not a CSS colour (see [Colours](#colours)) |
