@@ -11,6 +11,9 @@
 
 pub mod ooxml;
 pub mod readers;
+pub mod typeset;
+
+use std::ops::Range;
 
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{Row, Table, ValueType};
@@ -37,6 +40,17 @@ pub struct Expected {
     pub numbers: Vec<Vec<Option<f64>>>,
     /// Header lines (title, subtitle, extra lines) above the table.
     pub header_lines: usize,
+    /// Every visible cell's area (rows, visible columns), group labels included:
+    /// the regions tile the grid. Readers that see merged areas rather than
+    /// expanded positions (LaTeX) compare region by region.
+    pub regions: Vec<Region>,
+}
+
+/// The area one cell covers, in grid rows and visible columns.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Region {
+    pub rows: Range<usize>,
+    pub cols: Range<usize>,
 }
 
 impl Expected {
@@ -74,11 +88,16 @@ fn want_of(content: &[ContentNode]) -> Want {
 pub fn expected(table: &Table) -> Expected {
     let hidden: Vec<bool> = table.column_spec.iter().map(|c| c.hidden).collect();
     let visible = hidden.iter().filter(|h| !**h).count();
-    type Section = (Vec<Vec<Want>>, Vec<Vec<Option<f64>>>);
+    // The visible index of each grid column (hidden columns take the next one).
+    let vis_before: Vec<usize> = (0..=hidden.len())
+        .map(|c| hidden[..c].iter().filter(|h| !**h).count())
+        .collect();
+    type Section = (Vec<Vec<Want>>, Vec<Vec<Option<f64>>>, Vec<Region>);
     let section = |rows: &[Row]| -> Section {
         let width = hidden.len();
         let mut grid = vec![vec![Want::Text(String::new()); width]; rows.len()];
         let mut nums = vec![vec![None; width]; rows.len()];
+        let mut regions = Vec::new();
         for (r, row) in rows.iter().enumerate() {
             for (c, cell) in row.cells.iter().enumerate() {
                 if cell.is_placeholder {
@@ -90,13 +109,21 @@ pub fn expected(table: &Table) -> Expected {
                     .as_ref()
                     .filter(|t| matches!(t.value_type, ValueType::Number | ValueType::Integer))
                     .and_then(|t| t.value.as_f64());
+                let end = (c + cell.colspan as usize).min(width);
+                let cols = vis_before[c]..vis_before[end];
+                if !cols.is_empty() {
+                    regions.push(Region {
+                        rows: r..(r + cell.rowspan as usize).min(rows.len()),
+                        cols,
+                    });
+                }
                 for (grid_row, num_row) in grid
                     .iter_mut()
                     .zip(nums.iter_mut())
                     .skip(r)
                     .take(cell.rowspan as usize)
                 {
-                    for cc in c..(c + cell.colspan as usize).min(width) {
+                    for cc in c..end {
                         grid_row[cc] = want.clone();
                         num_row[cc] = num;
                     }
@@ -113,11 +140,18 @@ pub fn expected(table: &Table) -> Expected {
         (
             grid.into_iter().map(|r| keep(r, &hidden)).collect(),
             nums.into_iter().map(|r| keep(r, &hidden)).collect(),
+            regions,
         )
     };
     let mut rows = Vec::new();
     let mut numbers = Vec::new();
-    let mut push = |(g, n): Section| {
+    let mut regions = Vec::new();
+    let mut push = |(g, n, reg): Section| {
+        let offset = rows.len();
+        regions.extend(reg.into_iter().map(|Region { rows, cols }| Region {
+            rows: rows.start + offset..rows.end + offset,
+            cols,
+        }));
         rows.extend(g);
         numbers.extend(n);
     };
@@ -129,6 +163,10 @@ pub fn expected(table: &Table) -> Expected {
             push((
                 vec![vec![want_of(&label.content); visible]],
                 vec![vec![None; visible]],
+                vec![Region {
+                    rows: 0..1,
+                    cols: 0..visible,
+                }],
             ));
         }
         push(section(&g.rows));
@@ -140,11 +178,13 @@ pub fn expected(table: &Table) -> Expected {
     if visible == 0 {
         rows.clear();
         numbers.clear();
+        regions.clear();
     }
     Expected {
         rows,
         numbers,
         header_lines,
+        regions,
     }
 }
 

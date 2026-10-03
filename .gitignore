@@ -39,6 +39,7 @@ target
 /harness/corpus/
 /harness/gallery/
 /harness/.work/
+/harness/.work-determinism/
 /harness/proposed-goldens/
 # CI-only cargo home (CARGO_HOME) for the containerized visual job.
 /.ci-cargo/

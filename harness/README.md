@@ -108,6 +108,23 @@ pinned toolchain, expect `--check` to fail. Use it in Docker or rely on CI.
 Every run also writes `harness/proposed-goldens/<fmt>/<name>.png`: each gated
 render, laid out exactly like `harness/goldens/`.
 
+### Which formats can be gated: the determinism probe
+
+A format is gated only once its images are shown to come out the same every time.
+
+```bash
+cargo xtask gallery        # first render
+cargo xtask determinism    # rasterize every ungated format again and compare
+```
+
+`determinism` re-rasterizes the gallery's LaTeX, RTF, DOCX, XLSX and PPTX output
+in a separate scratch directory (fresh LibreOffice profile, fresh TeX files) and
+reports, per format, how many images are pixel-identical, within the gate's
+tolerance, or different. It also adds those formats' gallery images to
+`harness/proposed-goldens/`, so a format found deterministic can be gated and
+blessed from the same CI run. The probe shows determinism within one run; the
+first gated run after blessing shows it across runs.
+
 ### Blessing goldens from CI (no Docker needed)
 
 The `gallery` job in `visual.yml` uploads a **`proposed-goldens`** artifact on
@@ -180,7 +197,8 @@ its GHCR settings.
     per-format summary and uploads the gallery artifact (PR review = download +
     open `index.html`) plus the `proposed-goldens` artifact used for blessing.
     Fails on any gated regression, missing or stale golden, or unrendered gated
-    cell.
+    cell. A report-only step then runs `cargo xtask determinism` on the
+    ungated formats (summary in the run page).
   - `docs` renders the Quarto docs site (`quarto render docs`).
   - `deploy` (pushes to `main` only) assembles a **combined GitHub Pages site** —
     the docs at the root and the render gallery under `/gallery/` — and publishes

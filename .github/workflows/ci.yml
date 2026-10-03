@@ -56,8 +56,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
 
-      # Typst + pdftotext for the Typst compile/verbatim oracle. Same Typst version
-      # as the pinned harness image (harness/Dockerfile).
+      # Typst + pdftotext for the Typst compile/verbatim oracle and the Typst grid
+      # read-back (`typst query`). Same Typst version as the pinned harness image
+      # (harness/Dockerfile).
       - name: Install Typst (Linux)
         if: matrix.os == 'ubuntu-latest'
         uses: typst-community/setup-typst@v5
@@ -72,7 +73,7 @@ jobs:
           echo "GRIDWELL_REQUIRE_RSVG=1" >> "$GITHUB_ENV"
 
       # Unit/validation tests, 594 writer snapshots, span stress, CLI end-to-end,
-      # FFI (Rust-side, generated-header drift, C/C++/ASan smoke), Typst oracle.
+      # FFI (Rust-side, generated-header drift, C/C++/ASan smoke), Typst oracles.
       - name: Test
         run: cargo test --locked
 
@@ -98,8 +99,9 @@ jobs:
 
   # Format-native oracles that need large external programs, kept out of the test
   # matrix: pandoc reads our Pandoc/Quarto AST back, LibreOffice opens every RTF/
-  # DOCX/XLSX/PPTX file, and LaTeX output compiles (pdfLaTeX and LuaLaTeX). Every
-  # tool is required: a missing tool fails the job rather than skipping.
+  # DOCX/XLSX/PPTX file, LaTeX output compiles (pdfLaTeX and LuaLaTeX) and shows
+  # the IR's grid in the PDF. Every tool is required: a missing tool fails the job
+  # rather than skipping.
   oracles:
     name: External oracles (pandoc, LibreOffice, LaTeX)
     runs-on: ubuntu-latest
@@ -126,6 +128,10 @@ jobs:
         run: cargo test --locked -p gridwell-render --test external
       - name: LaTeX compile oracle
         run: cargo test --locked -p gridwell-writer-latex --test compile
+      # LuaLaTeX → PDF → cells and words by position: the corpus/span grid
+      # invariant and the property test for LaTeX (the Typst ones run in `test`).
+      - name: LaTeX grid read-back
+        run: cargo test --locked -p gridwell-render --test grid_invariant --test properties latex
 
   msrv:
     name: MSRV (Rust 1.85)

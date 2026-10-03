@@ -333,7 +333,7 @@ fn summarize(rows: &[GalleryRow], stale: &[String], check: bool, accept: bool) -
     (failed, lines)
 }
 
-fn write_gh_summary(summary: &str) {
+pub fn write_gh_summary(summary: &str) {
     if let Ok(path) = std::env::var("GITHUB_STEP_SUMMARY") {
         use std::io::Write as _;
         if let Ok(mut f) = fs::OpenOptions::new().create(true).append(true).open(path) {
