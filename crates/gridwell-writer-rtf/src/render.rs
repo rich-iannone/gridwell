@@ -1,3 +1,4 @@
+use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{vmerge_layout, FontStyle, FontWeight, MergeCell, Row, Table, VMerge};
 use std::collections::HashMap;
@@ -42,9 +43,9 @@ impl<'a> RtfRenderer<'a> {
         if let Some(&idx) = self.color_map.get(hex) {
             return idx;
         }
-        if let Some((r, g, b)) = parse_hex_rgb(hex) {
+        if let Some(c) = paint(hex) {
             let idx = self.color_table.len();
-            self.color_table.push((r, g, b));
+            self.color_table.push((c.r, c.g, c.b));
             self.color_map.insert(hex.to_string(), idx);
             idx
         } else {
@@ -187,8 +188,10 @@ impl<'a> RtfRenderer<'a> {
                 if let Some(ref style_id) = cell.style_id {
                     if let Some(def) = self.table.styles.defs.get(style_id.as_str()) {
                         if let Some(ref bg) = def.background_color {
-                            let ci = self.color_map.get(bg).copied().unwrap_or(0);
-                            write!(self.buf, "\\clcbpat{}", ci + 1).unwrap();
+                            // Unregistered = not a paintable colour: no fill (not black).
+                            if let Some(&ci) = self.color_map.get(bg) {
+                                write!(self.buf, "\\clcbpat{}", ci + 1).unwrap();
+                            }
                         }
                     }
                 }
@@ -299,13 +302,8 @@ fn escape_rtf(s: &str) -> String {
     out
 }
 
-fn parse_hex_rgb(color: &str) -> Option<(u8, u8, u8)> {
-    let hex = color.strip_prefix('#')?;
-    if hex.len() != 6 {
-        return None;
-    }
-    let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
-    let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
-    let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
-    Some((r, g, b))
+/// Any CSS colour except a fully transparent one (RTF has no alpha; transparent
+/// means "don't paint").
+fn paint(color: &str) -> Option<Color> {
+    color.parse::<Color>().ok().filter(|c| !c.is_transparent())
 }
