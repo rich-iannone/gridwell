@@ -31,8 +31,8 @@ pub enum Raster {
 /// One output format.
 #[derive(Clone, Copy)]
 pub struct Format {
+    /// The registry name (see `gridwell_render::REGISTRY`).
     pub id: &'static str,
-    pub ext: &'static str,
     pub raster: Raster,
     /// Whether this format is part of the blocking visual-diff subset.
     pub gated: bool,
@@ -42,94 +42,88 @@ pub struct Format {
 pub const FORMATS: &[Format] = &[
     Format {
         id: "html",
-        ext: "html",
         raster: Raster::Browser,
         gated: true,
     },
     Format {
         id: "svg",
-        ext: "svg",
         raster: Raster::Resvg,
         gated: true,
     },
     Format {
         id: "typst",
-        ext: "typ",
         raster: Raster::Typst,
         gated: true,
     },
     Format {
         id: "latex",
-        ext: "tex",
         raster: Raster::Latex,
         gated: false,
     },
     Format {
         id: "rtf",
-        ext: "rtf",
         raster: Raster::Office,
         gated: false,
     },
     Format {
         id: "docx",
-        ext: "docx",
         raster: Raster::Office,
         gated: false,
     },
     Format {
         id: "xlsx",
-        ext: "xlsx",
         raster: Raster::Office,
         gated: false,
     },
     Format {
         id: "pptx",
-        ext: "pptx",
         raster: Raster::Office,
         gated: false,
     },
     Format {
         id: "ansi",
-        ext: "txt",
         raster: Raster::AnsiText,
         gated: false,
     },
     Format {
         id: "pandoc",
-        ext: "json",
         raster: Raster::SourceText,
         gated: false,
     },
     Format {
         id: "quarto",
-        ext: "qmd",
         raster: Raster::SourceText,
         gated: false,
     },
 ];
 
 impl Format {
-    /// Render a table to this format.
+    /// The file extension, from the format registry.
+    pub fn ext(&self) -> &'static str {
+        gridwell_render::find(self.id)
+            .expect("harness formats are registry names")
+            .extension()
+    }
+
+    /// Render a table to this format through the registry (which validates it).
     pub fn render(&self, table: &Table) -> Result<Output, String> {
-        fn text<E: std::fmt::Display>(r: Result<String, E>) -> Result<Output, String> {
-            r.map(Output::Text).map_err(|e| e.to_string())
+        match gridwell_render::render(table, self.id, None).map_err(|e| e.to_string())? {
+            gridwell_render::Output::Text(s) => Ok(Output::Text(s)),
+            gridwell_render::Output::Binary(b) => Ok(Output::Bytes(b)),
         }
-        fn bytes<E: std::fmt::Display>(r: Result<Vec<u8>, E>) -> Result<Output, String> {
-            r.map(Output::Bytes).map_err(|e| e.to_string())
-        }
-        match self.id {
-            "html" => text(gridwell_writer_html::render_html(table)),
-            "svg" => text(gridwell_writer_svg::render_svg(table)),
-            "typst" => text(gridwell_writer_typst::render_typst(table)),
-            "latex" => text(gridwell_writer_latex::render_latex(table)),
-            "rtf" => text(gridwell_writer_rtf::render_rtf(table)),
-            "ansi" => text(gridwell_writer_ansi::render_ansi(table)),
-            "pandoc" => text(gridwell_writer_pandoc::render_pandoc(table)),
-            "quarto" => text(gridwell_writer_quarto::render_quarto(table)),
-            "docx" => bytes(gridwell_writer_docx::render_docx(table)),
-            "xlsx" => bytes(gridwell_writer_xlsx::render_xlsx(table)),
-            "pptx" => bytes(gridwell_writer_pptx::render_pptx(table)),
-            other => Err(format!("unknown format {other}")),
-        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::FORMATS;
+
+    #[test]
+    fn harness_covers_exactly_the_registry() {
+        let mut ours: Vec<&str> = FORMATS.iter().map(|f| f.id).collect();
+        let mut registry = gridwell_render::names();
+        ours.sort();
+        registry.sort();
+        assert_eq!(ours, registry);
     }
 }
