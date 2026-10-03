@@ -71,6 +71,7 @@ name = "gridwell-fuzz"
 version = "0.0.0"
 dependencies = [
  "arbitrary",
+ "gridwell-core",
  "gridwell-ir",
  "gridwell-writer-html",
  "gridwell-writer-latex",
