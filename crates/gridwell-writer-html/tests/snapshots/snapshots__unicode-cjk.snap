@@ -4,7 +4,7 @@ expression: out
 ---
 <div class="gw_container">
   <style>
-    .gw__al_left { text-align: left }
+    .gw_table .gw__al_left { text-align: left }
   </style>
   <div role="heading" aria-level="1">
     販売実績

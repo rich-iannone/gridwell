@@ -4,9 +4,9 @@ expression: out
 ---
 <div class="gw_container">
   <style>
-    .gw__al_center { text-align: center }
-    .gw__al_left { text-align: left }
-    .gw__al_right { text-align: right }
+    .gw_table .gw__al_center { text-align: center }
+    .gw_table .gw__al_left { text-align: left }
+    .gw_table .gw__al_right { text-align: right }
     .gw_num { text-align: right }
   </style>
   <div role="heading" aria-level="1">

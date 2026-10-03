@@ -4,7 +4,7 @@ expression: out
 ---
 <div class="gw_container">
   <style>
-    .gw__al_left { text-align: left }
+    .gw_table .gw__al_left { text-align: left }
     .gw_bordered { padding: 4px; border-top: 1px solid #333333; border-right: 1px solid #333333; border-bottom: 1px solid #333333; border-left: 1px solid #333333 }
   </style>
   <table class="gw_table">

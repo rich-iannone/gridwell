@@ -4,8 +4,8 @@ expression: out
 ---
 <div class="gw_container">
   <style>
-    .gw__al_center { text-align: center }
-    .gw__al_left { text-align: left }
+    .gw_table .gw__al_center { text-align: center }
+    .gw_table .gw__al_left { text-align: left }
   </style>
   <table class="gw_table">
     <thead>
