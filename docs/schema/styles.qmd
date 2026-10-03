@@ -82,7 +82,12 @@ listed in [Keyword values](validation.qmd#keyword-values); anything else is repo
 
 ## Color Values
 
-- Hex: `#RGB`, `#RRGGBB`, `#RRGGBBAA`
-- Functional: `rgb(R, G, B)`, `rgba(R, G, B, A)`
-- Named: CSS named colors (`red`, `steelblue`, etc.)
+- Named: all 148 CSS named colors (`red`, `steelblue`, `rebeccapurple`, …)
+- Hex: `#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA`
+- Functional: `rgb()`/`rgba()` and `hsl()`/`hsla()`, in comma syntax
+  (`rgb(255, 0, 0)`) or space syntax with optional alpha (`rgb(255 0 0 / 50%)`)
 - Keyword: `transparent`
+
+Anything else fails validation with `INVALID_COLOR`; see
+[Validation](validation.qmd#colours) for details and for the length forms each field
+accepts.
