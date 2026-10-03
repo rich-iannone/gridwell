@@ -552,3 +552,49 @@ fn footnotes_are_linked_to_their_marks() {
     let referenced: Vec<(&str, bool)> = f.footnotes.iter().map(|n| (n.id, n.referenced)).collect();
     assert_eq!(referenced, vec![("a", true), ("b", true), ("c", false)]);
 }
+
+#[test]
+fn header_spanners_are_centred_unless_styled() {
+    let t = TableBuilder::new(3)
+        .columns(vec![
+            column("a", "A"),
+            column("b", "B").align("right"),
+            column("c", "C").align("right"),
+        ])
+        .style_def(
+            "left",
+            StyleDef {
+                text_align: Some("left".into()),
+                ..def()
+            },
+        )
+        .head(row(vec![
+            cell(""),
+            cell("Spanner").colspan(2),
+            gridwell_testkit::placeholder(),
+        ]))
+        .head(row(vec![
+            cell("A"),
+            cell("B").colspan(2).style("left"),
+            gridwell_testkit::placeholder(),
+        ]))
+        .body(vec![row(vec![
+            cell("x"),
+            cell("wide body").colspan(2),
+            gridwell_testkit::placeholder(),
+        ])])
+        .build();
+    let rt = resolve(&t);
+    let head: Vec<Vec<HAlign>> = rt
+        .head
+        .rows
+        .iter()
+        .map(|r| r.cells().map(|c| c.align.clone()).collect())
+        .collect();
+    assert_eq!(head[0], vec![HAlign::Left, HAlign::Center]);
+    // An explicit style still wins.
+    assert_eq!(head[1], vec![HAlign::Left, HAlign::Left]);
+    // Body cells spanning columns keep the column's alignment.
+    let body: Vec<HAlign> = body(&rt)[0].iter().map(|c| c.align.clone()).collect();
+    assert_eq!(body, vec![HAlign::Left, HAlign::Right]);
+}
