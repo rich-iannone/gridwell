@@ -5,7 +5,7 @@ expression: out
 <svg xmlns="http://www.w3.org/2000/svg" width="180" height="106" viewBox="0 0 180 106">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Message</tspan></text>
-<text x="8" y="50.7" font-size="14px" xml:space="preserve">Status: <tspan font-weight="bold" fill="#e67e22">degraded</tspan></text>
+<text x="8" y="50.7" font-size="14px" xml:space="preserve">Status: <tspan font-weight="bold" fill="#E67E22">degraded</tspan></text>
 <text x="8" y="70.3" font-size="14px" xml:space="preserve">Retry advised<tspan font-size="9.8px" baseline-shift="super">†</tspan></text>
 <line x1="0" y1="32" x2="157.46" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="0" y1="79.2" x2="157.46" y2="79.2" stroke="#d0d0d0" stroke-width="0.5"/>
