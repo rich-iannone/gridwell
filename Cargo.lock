@@ -321,6 +321,7 @@ name = "gridwell-ffi"
 version = "0.1.0"
 dependencies = [
  "cbindgen",
+ "gridwell-core",
  "gridwell-ir",
  "gridwell-testkit",
  "gridwell-writer-ansi",
@@ -334,6 +335,7 @@ dependencies = [
  "gridwell-writer-svg",
  "gridwell-writer-typst",
  "gridwell-writer-xlsx",
+ "quick-xml",
  "serde_json",
 ]
 
@@ -345,6 +347,16 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+]
+
+[[package]]
+name = "gridwell-layout"
+version = "0.1.0"
+dependencies = [
+ "gridwell-core",
+ "gridwell-ir",
+ "gridwell-testkit",
+ "serde_json",
 ]
 
 [[package]]
@@ -379,8 +391,8 @@ dependencies = [
 name = "gridwell-writer-ansi"
 version = "0.1.0"
 dependencies = [
- "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-testkit",
  "insta",
  "serde_json",
@@ -394,6 +406,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-testkit",
  "insta",
  "quick-xml",
@@ -408,6 +421,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-testkit",
  "insta",
  "serde_json",
@@ -420,6 +434,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-testkit",
  "insta",
  "serde_json",
@@ -432,6 +447,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-testkit",
  "insta",
  "serde",
@@ -445,6 +461,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-testkit",
  "insta",
  "quick-xml",
@@ -457,9 +474,10 @@ dependencies = [
 name = "gridwell-writer-quarto"
 version = "0.1.0"
 dependencies = [
- "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-testkit",
+ "gridwell-writer-pandoc",
  "insta",
  "serde",
  "serde_json",
@@ -472,6 +490,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-testkit",
  "insta",
  "serde_json",
@@ -484,6 +503,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-testkit",
  "image",
  "insta",
@@ -498,6 +518,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-testkit",
  "insta",
  "serde_json",
@@ -510,6 +531,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-testkit",
  "insta",
  "quick-xml",
