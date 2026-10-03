@@ -308,3 +308,20 @@ fn every_option_is_documented() {
         }
     }
 }
+
+#[test]
+fn every_format_is_deterministic() {
+    // Byte-identical across renders (OOXML zips included: fixed timestamps, fixed
+    // part order; no hash-map iteration order leaks into output).
+    for ex in examples() {
+        let t = ex.table();
+        // A re-parsed copy has fresh hash maps (new random seeds), so any output
+        // that followed map iteration order would differ.
+        let copy = Table::from_json(&t.to_json().unwrap()).unwrap();
+        for name in names() {
+            let a = render(&t, name, None).unwrap();
+            let b = render(&copy, name, None).unwrap();
+            assert!(a == b, "{name} not deterministic for {}", ex.name);
+        }
+    }
+}
