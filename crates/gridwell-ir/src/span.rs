@@ -61,6 +61,8 @@ impl OccupancyGrid {
                             "Cell at (row={r}, col={c}) has colspan={colspan}, rowspan={rowspan} — minimum is 1"
                         ),
                     });
+                    // The cell still occupies its own position (not also a gap).
+                    claim_cells(&mut grid, &mut errors, r, c, 1, 1, section, row_group);
                     continue;
                 }
 
@@ -82,6 +84,20 @@ impl OccupancyGrid {
                             col_end - 1
                         ),
                     });
+                    // Still claim what we can within bounds (and the rows it spans,
+                    // clamped), so the overflow isn't also reported as gaps.
+                    let effective_colspan = table_cols - c;
+                    let effective_rowspan = (rowspan as u64).min((num_rows - r) as u64) as u32;
+                    claim_cells(
+                        &mut grid,
+                        &mut errors,
+                        r,
+                        c,
+                        effective_rowspan,
+                        effective_colspan,
+                        section,
+                        row_group,
+                    );
                     continue;
                 }
 
@@ -131,15 +147,32 @@ impl OccupancyGrid {
         for r in 0..num_rows {
             for c in 0..table_cols {
                 if grid.grid[r as usize][c as usize].is_none() {
+                    // A placeholder nothing spans over is a different mistake from a
+                    // position with no cell object at all.
+                    let placeholder = rows[r as usize]
+                        .cells
+                        .get(c as usize)
+                        .is_some_and(|cell| cell.is_placeholder);
+                    let (rule, message) = if placeholder {
+                        (
+                            ValidationRule::SpanPlaceholderMismatch,
+                            format!(
+                                "Placeholder at (row={r}, col={c}) is not covered by any cell's colspan or rowspan"
+                            ),
+                        )
+                    } else {
+                        (
+                            ValidationRule::SpanGap,
+                            format!("Grid position (row={r}, col={c}) has no cell"),
+                        )
+                    };
                     errors.push(ValidationError {
-                        rule: ValidationRule::SpanGap,
+                        rule,
                         section: section.to_string(),
                         row_group,
                         row: Some(r),
                         col: Some(c),
-                        message: format!(
-                            "Grid position (row={r}, col={c}) is not owned by any cell (missing placeholder or cell)"
-                        ),
+                        message,
                     });
                 }
             }
