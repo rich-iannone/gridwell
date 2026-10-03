@@ -66,7 +66,7 @@ pub fn run(root: &Path, check: bool, accept: bool) -> Result<bool, String> {
         let table = ex.table();
         let mut cells = Vec::new();
         for fmt in FORMATS {
-            let out_name = format!("{}.{}", ex.name, fmt.ext);
+            let out_name = format!("{}.{}", ex.name, fmt.ext());
             let out_path = out_dir.join(&out_name);
             let rel_out = format!("out/{out_name}");
 
