@@ -21,7 +21,7 @@ pub use keywords::{
 };
 pub use span::{resolve_slots, vmerge_layout, MergeCell, Slot, VMerge};
 pub use style::{StyleDef, StylePalette};
-pub use validation::{validate, InvalidTable, ValidationError, ValidationRule};
+pub use validation::{validate, InvalidTable, Limits, ValidationError, ValidationRule};
 pub use visibility::ColumnVisibility;
 
 /// Parse error for IR JSON.
@@ -64,6 +64,13 @@ impl Table {
         validate(self)
     }
 
+    /// The table as a [`ValidatedTable`] if it passes validation, otherwise every
+    /// error found.
+    pub fn validated(&self) -> Result<ValidatedTable<'_>, InvalidTable> {
+        self.ensure_valid()?;
+        Ok(ValidatedTable { table: self })
+    }
+
     /// `Ok(())` if the table passes validation, otherwise every error found.
     ///
     /// Writers assume valid IR; call this (or [`validate`](Self::validate)) before
@@ -75,6 +82,30 @@ impl Table {
         } else {
             Err(InvalidTable { errors })
         }
+    }
+}
+
+/// A table that has passed validation (with the default [`Limits`]).
+///
+/// The only way to get one is [`Table::validated`], so an API that takes a
+/// `ValidatedTable` cannot be handed malformed IR. Derefs to the [`Table`].
+#[derive(Debug, Clone, Copy)]
+pub struct ValidatedTable<'a> {
+    table: &'a Table,
+}
+
+impl<'a> ValidatedTable<'a> {
+    /// The underlying table.
+    pub fn table(&self) -> &'a Table {
+        self.table
+    }
+}
+
+impl std::ops::Deref for ValidatedTable<'_> {
+    type Target = Table;
+
+    fn deref(&self) -> &Table {
+        self.table
     }
 }
 
