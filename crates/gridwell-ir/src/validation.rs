@@ -28,6 +28,12 @@ pub enum ValidationRule {
     /// A keyword field (alignment, role, border style, …) holds a value that is not
     /// one of its allowed values. The value is kept verbatim; see [`crate::keywords`].
     UnknownValue,
+    /// A colour field holds something that is not a CSS colour (see
+    /// [`gridwell_core::color`] for the accepted forms).
+    InvalidColor,
+    /// A length field does not parse, or uses a form its field does not allow
+    /// (e.g. a negative width or `fr` padding).
+    InvalidLength,
 }
 
 impl ValidationRule {
@@ -51,6 +57,8 @@ impl ValidationRule {
             ValidationRule::SummaryRequiresStub => "SUMMARY_REQUIRES_STUB",
             ValidationRule::LimitExceeded => "LIMIT_EXCEEDED",
             ValidationRule::UnknownValue => "UNKNOWN_VALUE",
+            ValidationRule::InvalidColor => "INVALID_COLOR",
+            ValidationRule::InvalidLength => "INVALID_LENGTH",
         }
     }
 }
@@ -164,6 +172,7 @@ pub fn validate_with_limits(table: &Table, limits: &Limits) -> Vec<ValidationErr
     validate_spans(table, &mut errors);
     validate_placeholder_content(table, &mut errors);
     validate_keywords(table, &mut errors);
+    crate::value_checks::validate_values(table, &mut errors);
 
     errors
 }
