@@ -205,3 +205,132 @@ fn invalid_summary_no_stub() {
         "expected SummaryRequiresStub error, got: {errors:#?}"
     );
 }
+
+// ─── Invalid fixtures: one per rule, each producing exactly its `_expect` ───
+
+/// Every invalid fixture with the rule ids it declares in `_expect`.
+fn invalid_fixtures() -> Vec<(String, Table, Vec<String>)> {
+    let dir = fixtures_dir().join("invalid");
+    let mut out = Vec::new();
+    for entry in fs::read_dir(&dir).unwrap() {
+        let path = entry.unwrap().path();
+        if path.extension().is_none_or(|e| e != "json") {
+            continue;
+        }
+        let json = fs::read_to_string(&path).unwrap();
+        let raw: serde_json::Value = serde_json::from_str(&json).unwrap();
+        let expect: Vec<String> = serde_json::from_value(raw["_expect"].clone())
+            .unwrap_or_else(|_| panic!("{} has no _expect list", path.display()));
+        let name = path.file_name().unwrap().to_string_lossy().into_owned();
+        out.push((name, Table::from_json(&json).unwrap(), expect));
+    }
+    out.sort_by(|a, b| a.0.cmp(&b.0));
+    out
+}
+
+#[test]
+fn every_invalid_fixture_reports_exactly_its_expected_rules() {
+    for (name, table, expect) in invalid_fixtures() {
+        let mut got: Vec<String> = table
+            .validate()
+            .iter()
+            .map(|e| e.rule.id().to_string())
+            .collect();
+        got.sort();
+        got.dedup();
+        let mut want = expect.clone();
+        want.sort();
+        assert_eq!(got, want, "{name}");
+    }
+}
+
+#[test]
+fn every_rule_has_an_invalid_fixture() {
+    use ValidationRule::*;
+    let covered: std::collections::HashSet<String> = invalid_fixtures()
+        .into_iter()
+        .flat_map(|(_, _, e)| e)
+        .collect();
+    // Exhaustive: a new rule fails to compile here until it is listed (and then
+    // fails at run time until a fixture produces it).
+    let all = [
+        ColCount,
+        RowCount,
+        ColspecLength,
+        StubContiguous,
+        StyleRefsValid,
+        FootnoteRefsValid,
+        SpanOverflowRight,
+        SpanOverflowBottom,
+        SpanOverlap,
+        SpanGap,
+        SpanPlaceholderHasContent,
+        SpanPlaceholderMismatch,
+        SpanZeroValue,
+        SummaryRequiresStub,
+        LimitExceeded,
+        UnknownValue,
+        InvalidColor,
+        InvalidLength,
+    ];
+    for rule in all {
+        match rule {
+            ColCount
+            | RowCount
+            | ColspecLength
+            | StubContiguous
+            | StyleRefsValid
+            | FootnoteRefsValid
+            | SpanOverflowRight
+            | SpanOverflowBottom
+            | SpanOverlap
+            | SpanPlaceholderHasContent
+            | SpanPlaceholderMismatch
+            | SpanZeroValue
+            | SummaryRequiresStub
+            | LimitExceeded
+            | UnknownValue
+            | InvalidColor
+            | InvalidLength => {
+                assert!(
+                    covered.contains(rule.id()),
+                    "no invalid fixture produces {rule}"
+                );
+            }
+            // With valid cell counts every position holds a cell object, so a gap
+            // only arises from the span grid on rows that are too short; see
+            // `span_gap_is_reported_by_the_span_grid_for_short_rows`.
+            SpanGap => assert!(!covered.contains(rule.id())),
+        }
+    }
+}
+
+#[test]
+fn span_gap_is_reported_by_the_span_grid_for_short_rows() {
+    // Two columns, but the row has one cell object: position (0,1) has no cell.
+    let row: gridwell_ir::Row = serde_json::from_value(serde_json::json!({
+        "cells": [{ "content": [{ "type": "text", "value": "a" }] }]
+    }))
+    .unwrap();
+    let (_, errors) = gridwell_ir::span::OccupancyGrid::materialize(&[row], 2, "tbody", Some(0));
+    let rules: Vec<_> = errors.iter().map(|e| (e.rule, e.col)).collect();
+    assert_eq!(rules, vec![(ValidationRule::SpanGap, Some(1))]);
+}
+
+#[test]
+fn valid_fixtures_and_corpus_have_no_stub_or_placeholder_errors() {
+    for dir in ["minimal", "comprehensive"] {
+        for entry in fs::read_dir(fixtures_dir().join(dir)).unwrap() {
+            let path = entry.unwrap().path();
+            if path.extension().is_some_and(|e| e == "json") {
+                let t = Table::from_json(&fs::read_to_string(&path).unwrap()).unwrap();
+                assert!(
+                    t.validate().is_empty(),
+                    "{}: {:?}",
+                    path.display(),
+                    t.validate()
+                );
+            }
+        }
+    }
+}
