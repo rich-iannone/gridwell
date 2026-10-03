@@ -417,13 +417,11 @@ fn typst_length(s: &str) -> Option<String> {
 
 // ─── Color ───
 
+/// Any CSS colour as a Typst `rgb("#RRGGBB[AA]")`; fully transparent means
+/// "don't paint".
 fn color_to_typst(color: &str) -> Option<String> {
-    let hex = color.strip_prefix('#')?;
-    if hex.len() == 6 && hex.chars().all(|c| c.is_ascii_hexdigit()) {
-        Some(format!("rgb(\"#{hex}\")"))
-    } else {
-        None
-    }
+    let c = color.parse::<gridwell_core::Color>().ok()?;
+    (!c.is_transparent()).then(|| format!("rgb(\"{}\")", c.to_hex()))
 }
 
 fn merge_style_def(base: &StyleDef, overrides: &StyleDef) -> StyleDef {
