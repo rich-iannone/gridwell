@@ -357,7 +357,9 @@ fn every_font_size_form_alignment_and_striping_compiles() {
         "size: 0.9em",
         "size: 24pt",
         "size: 0.8333em",
-        "align: right",
+        // Column `a` is right-aligned: only differing cell alignments are emitted.
+        "align: left",
+        "align: center",
         "fill: rgb(\"#0A141E4D\")",
     ] {
         assert!(src.contains(want), "missing {want:?}:\n{src}");
