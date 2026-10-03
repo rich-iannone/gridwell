@@ -261,3 +261,88 @@ fn formats_lists_every_format() {
         assert!(out.contains(fmt), "missing {fmt}");
     }
 }
+
+#[test]
+fn formats_json_matches_the_registry() {
+    let o = bin().args(["formats", "--json"]).output().unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    let list: Vec<serde_json::Value> = serde_json::from_slice(&o.stdout).unwrap();
+    let names: Vec<&str> = list.iter().map(|f| f["name"].as_str().unwrap()).collect();
+    let mut all: Vec<&str> = TEXT_FORMATS.iter().chain(BINARY_FORMATS).copied().collect();
+    all.sort();
+    let mut sorted = names.clone();
+    sorted.sort();
+    assert_eq!(sorted, all);
+    let html = list.iter().find(|f| f["name"] == "html").unwrap();
+    assert_eq!(html["kind"], "text");
+    assert_eq!(html["options"]["class_prefix"], "gw");
+    let docx = list.iter().find(|f| f["name"] == "docx").unwrap();
+    assert_eq!(docx["kind"], "binary");
+    assert_eq!(docx["options"], serde_json::json!({}));
+    // Quarto output is Pandoc JSON, not a .qmd document.
+    let quarto = list.iter().find(|f| f["name"] == "quarto").unwrap();
+    assert_eq!(quarto["extension"], "json");
+}
+
+#[test]
+fn convert_applies_options_inline_and_from_a_file() {
+    let input = fixture("comprehensive/reference_table.json");
+    let inline = bin()
+        .args(["convert", "-t", "latex", "-O", r#"{"booktabs": false}"#])
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert!(inline.status.success(), "{}", stderr(&inline));
+    assert!(!stdout(&inline).contains("\\toprule") && stdout(&inline).contains("\\hline"));
+
+    let opts = scratch_dir("opts").join("opts.json");
+    std::fs::write(&opts, r#"{"booktabs": false}"#).unwrap();
+    let from_file = bin()
+        .args(["convert", "-t", "latex", "--options-file"])
+        .arg(&opts)
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert!(from_file.status.success(), "{}", stderr(&from_file));
+    assert_eq!(stdout(&inline), stdout(&from_file));
+}
+
+#[test]
+fn convert_rejects_bad_options_cleanly() {
+    let input = fixture("comprehensive/reference_table.json");
+    for (opts, needle) in [
+        (r#"{"bookabs": false}"#, "unknown field"),
+        ("{not json", "not valid JSON"),
+        ("[]", "expected a JSON object"),
+    ] {
+        let o = bin()
+            .args(["convert", "-t", "latex", "-O", opts])
+            .arg(&input)
+            .output()
+            .unwrap();
+        assert_clean_failure(&o);
+        assert!(stderr(&o).contains(needle), "{opts}: {}", stderr(&o));
+    }
+}
+
+#[test]
+fn format_names_are_case_insensitive_and_unknown_ones_list_the_rest() {
+    let input = fixture("comprehensive/reference_table.json");
+    let o = bin()
+        .args(["convert", "-t", "HTML"])
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    let o = bin()
+        .args(["convert", "-t", "pdf"])
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert!(!o.status.success());
+    let err = stderr(&o);
+    assert!(err.contains("unknown format \"pdf\""), "{err}");
+    for fmt in TEXT_FORMATS.iter().chain(BINARY_FORMATS) {
+        assert!(err.contains(fmt), "{err}");
+    }
+}
