@@ -1,14 +1,12 @@
 use gridwell_core::xml::escape as escape_xml;
 use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{HAlign, Table, ValueType};
-use gridwell_layout::{resolve, ResolvedStyle, ResolvedTable, Section};
+use gridwell_ir::{BorderStyle, HAlign, Table, ValueType};
+use gridwell_layout::{resolve, ResolvedBorder, ResolvedStyle, ResolvedTable, Section};
+use gridwell_ooxml::{package, Part};
 use std::collections::HashMap;
 use std::fmt::Write;
-use std::io::Cursor;
 use thiserror::Error;
-use zip::write::SimpleFileOptions;
-use zip::ZipWriter;
 
 use crate::xml;
 
@@ -16,10 +14,8 @@ use crate::xml;
 pub enum RenderError {
     #[error("formatting error: {0}")]
     Fmt(#[from] std::fmt::Error),
-    #[error("zip error: {0}")]
-    Zip(#[from] zip::result::ZipError),
-    #[error("io error: {0}")]
-    Io(#[from] std::io::Error),
+    #[error("packaging error: {0}")]
+    Package(#[from] gridwell_ooxml::PackageError),
 }
 
 /// Render the full .xlsx ZIP file as bytes.
@@ -29,33 +25,15 @@ pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
     let sheet_xml = sheet_xml(&rt, &mut styles)?;
     let styles_xml = styles.to_xml()?;
 
-    let buf = Cursor::new(Vec::new());
-    let mut zip = ZipWriter::new(buf);
-    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
-
-    zip.start_file("[Content_Types].xml", options)?;
-    std::io::Write::write_all(&mut zip, xml::CONTENT_TYPES.as_bytes())?;
-
-    zip.start_file("_rels/.rels", options)?;
-    std::io::Write::write_all(&mut zip, xml::RELS.as_bytes())?;
-
-    zip.start_file("xl/_rels/workbook.xml.rels", options)?;
-    std::io::Write::write_all(&mut zip, xml::WORKBOOK_RELS.as_bytes())?;
-
-    zip.start_file("xl/workbook.xml", options)?;
-    std::io::Write::write_all(&mut zip, xml::WORKBOOK.as_bytes())?;
-
-    zip.start_file("xl/styles.xml", options)?;
-    std::io::Write::write_all(&mut zip, styles_xml.as_bytes())?;
-
-    zip.start_file("xl/sharedStrings.xml", options)?;
-    std::io::Write::write_all(&mut zip, xml::SHARED_STRINGS.as_bytes())?;
-
-    zip.start_file("xl/worksheets/sheet1.xml", options)?;
-    std::io::Write::write_all(&mut zip, sheet_xml.as_bytes())?;
-
-    let cursor = zip.finish()?;
-    Ok(cursor.into_inner())
+    Ok(package(&[
+        Part::new("[Content_Types].xml", xml::CONTENT_TYPES),
+        Part::new("_rels/.rels", xml::RELS),
+        Part::new("xl/_rels/workbook.xml.rels", xml::WORKBOOK_RELS),
+        Part::new("xl/workbook.xml", xml::WORKBOOK),
+        Part::new("xl/styles.xml", styles_xml.as_str()),
+        Part::new("xl/sharedStrings.xml", xml::SHARED_STRINGS),
+        Part::new("xl/worksheets/sheet1.xml", sheet_xml.as_str()),
+    ])?)
 }
 
 /// Render only the sheet XML content (for snapshot testing).
@@ -82,6 +60,49 @@ struct Format {
     /// `horizontal` alignment; `None` is Excel's "general" (text left, numbers
     /// right), which is also what a left-aligned column gets.
     align: Option<&'static str>,
+    /// Border edges in SpreadsheetML order: left, right, top, bottom.
+    border: [Option<Edge>; 4],
+}
+
+/// One drawn border edge: a SpreadsheetML line style and an optional colour
+/// (`None`: automatic, i.e. black).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+struct Edge {
+    style: &'static str,
+    color: Option<Color>,
+}
+
+impl Edge {
+    /// SpreadsheetML has named line weights, not widths: up to 1.5px is `thin`,
+    /// up to 2.5px `medium`, wider `thick`; dashed lines have thin and medium
+    /// forms; dotted and double have one each.
+    fn from(b: &ResolvedBorder) -> Self {
+        let px = b
+            .width
+            .as_ref()
+            .and_then(|w| w.to_pt(11.0, 11.0))
+            .map_or(1.0, |pt| pt / 0.75);
+        let weight = if px <= 1.5 {
+            0
+        } else if px <= 2.5 {
+            1
+        } else {
+            2
+        };
+        let style = match (&b.style, weight) {
+            (BorderStyle::Dashed, 0) => "dashed",
+            (BorderStyle::Dashed, _) => "mediumDashed",
+            (BorderStyle::Dotted, _) => "dotted",
+            (BorderStyle::Double, _) => "double",
+            (_, 0) => "thin",
+            (_, 1) => "medium",
+            _ => "thick",
+        };
+        Self {
+            style,
+            color: b.color.filter(|c| !c.is_transparent()).map(|c| c.flatten()),
+        }
+    }
 }
 
 impl Format {
@@ -97,6 +118,17 @@ impl Format {
                 HAlign::Justify => Some("justify"),
                 _ => None,
             },
+            border: [None; 4],
+        }
+    }
+
+    /// A cell's format: `new` plus its border edges.
+    fn cell(style: &ResolvedStyle, bold: bool, align: &HAlign) -> Self {
+        let b = &style.border;
+        let edge = |e: &Option<ResolvedBorder>| e.as_ref().map(Edge::from);
+        Self {
+            border: [edge(&b.left), edge(&b.right), edge(&b.top), edge(&b.bottom)],
+            ..Self::new(style, bold, align)
         }
     }
 }
@@ -125,6 +157,8 @@ impl StyleSheet {
         // Fonts and fills are deduplicated separately from formats.
         let mut fonts: Vec<(bool, bool, Option<Color>)> = vec![(false, false, None)];
         let mut fills: Vec<Color> = Vec::new();
+        // Border 0 is "no border".
+        let mut borders: Vec<[Option<Edge>; 4]> = vec![[None; 4]];
         let mut xfs = Vec::new();
         for f in &self.formats {
             let font_key = (f.bold, f.italic, f.color);
@@ -142,7 +176,14 @@ impl StyleSheet {
                     fills.len() - 1
                 })
             });
-            xfs.push((font, fill, f.align));
+            let border = borders
+                .iter()
+                .position(|k| *k == f.border)
+                .unwrap_or_else(|| {
+                    borders.push(f.border);
+                    borders.len() - 1
+                });
+            xfs.push((font, fill, border, f.align));
         }
 
         let mut buf = String::new();
@@ -177,22 +218,46 @@ impl StyleSheet {
             )?;
         }
         buf.push_str("  </fills>\n");
-        buf.push_str("  <borders count=\"1\">\n    <border><left/><right/><top/><bottom/><diagonal/></border>\n  </borders>\n");
+        writeln!(buf, "  <borders count=\"{}\">", borders.len())?;
+        for b in &borders {
+            buf.push_str("    <border>");
+            for (side, edge) in ["left", "right", "top", "bottom"].iter().zip(b) {
+                match edge {
+                    None => write!(buf, "<{side}/>")?,
+                    Some(Edge { style, color: None }) => {
+                        write!(buf, "<{side} style=\"{style}\"/>")?
+                    }
+                    Some(Edge {
+                        style,
+                        color: Some(c),
+                    }) => write!(
+                        buf,
+                        "<{side} style=\"{style}\"><color rgb=\"FF{}\"/></{side}>",
+                        c.to_rrggbb()
+                    )?,
+                }
+            }
+            buf.push_str("<diagonal/></border>\n");
+        }
+        buf.push_str("  </borders>\n");
         buf.push_str("  <cellStyleXfs count=\"1\">\n    <xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>\n  </cellStyleXfs>\n");
         writeln!(buf, "  <cellXfs count=\"{}\">", xfs.len() + 1)?;
         buf.push_str(
             "    <xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>\n",
         );
-        for (font, fill, align) in xfs {
+        for (font, fill, border, align) in xfs {
             write!(
                 buf,
-                "    <xf numFmtId=\"0\" fontId=\"{font}\" fillId=\"{fill}\" borderId=\"0\" xfId=\"0\""
+                "    <xf numFmtId=\"0\" fontId=\"{font}\" fillId=\"{fill}\" borderId=\"{border}\" xfId=\"0\""
             )?;
             if font != 0 {
                 buf.push_str(" applyFont=\"1\"");
             }
             if fill != 0 {
                 buf.push_str(" applyFill=\"1\"");
+            }
+            if border != 0 {
+                buf.push_str(" applyBorder=\"1\"");
             }
             match align {
                 Some(h) => writeln!(
@@ -344,7 +409,7 @@ impl Sheet<'_> {
                 let cell_ref = xml::cell_ref(cell.col, r);
                 let s = self
                     .styles
-                    .id(Format::new(&cell.style, strong, &cell.align));
+                    .id(Format::cell(&cell.style, strong, &cell.align));
                 if cell.colspan > 1 || cell.rowspan > 1 {
                     self.merges.push((
                         cell.col,
@@ -407,22 +472,7 @@ fn write_text_cell(
     Ok(())
 }
 
+/// A line break is a newline inside the cell (shown when wrapping is on).
 fn content_to_text(nodes: &[ContentNode]) -> String {
-    let mut out = String::new();
-    for node in nodes {
-        match node {
-            ContentNode::Text { value } => out.push_str(value),
-            ContentNode::StyledText { value, .. } => out.push_str(value),
-            // A line break inside an Excel cell (shown when wrapping is on).
-            ContentNode::LineBreak {} => out.push('\n'),
-            ContentNode::FootnoteMark { mark_text, .. } => out.push_str(mark_text),
-            ContentNode::Image { alt, .. } => {
-                if let Some(alt_text) = alt {
-                    out.push_str(alt_text);
-                }
-            }
-            ContentNode::Raw { .. } | ContentNode::Unknown => {}
-        }
-    }
-    out
+    gridwell_layout::plain_text(nodes, "\n")
 }
