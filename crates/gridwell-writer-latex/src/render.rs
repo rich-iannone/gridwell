@@ -401,13 +401,11 @@ fn escape_latex(s: &str) -> String {
 
 // ─── Color Handling ───
 
+/// Any CSS colour as an xcolor `[HTML]{RRGGBB}` spec; alpha is dropped and fully
+/// transparent means "no colour".
 fn hex_to_latex_color(color: &str) -> Option<String> {
-    let hex = color.strip_prefix('#')?;
-    if hex.len() == 6 && hex.chars().all(|c| c.is_ascii_hexdigit()) {
-        Some(format!("[HTML]{{{}}}", hex.to_uppercase()))
-    } else {
-        None
-    }
+    let c = color.parse::<gridwell_core::Color>().ok()?;
+    (!c.is_transparent()).then(|| format!("[HTML]{{{}}}", c.to_rrggbb()))
 }
 
 fn merge_style_def(base: &StyleDef, overrides: &StyleDef) -> StyleDef {
