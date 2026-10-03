@@ -16,18 +16,7 @@ path = "document.rs"
 [dependencies]
 extendr-api = "*"
 gridwell-ir = { path = "../../../crates/gridwell-ir" }
-gridwell-writer-html = { path = "../../../crates/gridwell-writer-html" }
-gridwell-writer-latex = { path = "../../../crates/gridwell-writer-latex" }
-gridwell-writer-typst = { path = "../../../crates/gridwell-writer-typst" }
-gridwell-writer-rtf = { path = "../../../crates/gridwell-writer-rtf" }
-gridwell-writer-svg = { path = "../../../crates/gridwell-writer-svg" }
-gridwell-writer-ansi = { path = "../../../crates/gridwell-writer-ansi" }
-gridwell-writer-pandoc = { path = "../../../crates/gridwell-writer-pandoc" }
-gridwell-writer-quarto = { path = "../../../crates/gridwell-writer-quarto" }
-gridwell-writer-docx = { path = "../../../crates/gridwell-writer-docx" }
-gridwell-writer-xlsx = { path = "../../../crates/gridwell-writer-xlsx" }
-gridwell-writer-pptx = { path = "../../../crates/gridwell-writer-pptx" }
-serde_json = "1"
+gridwell-render = { path = "../../../crates/gridwell-render" }
 
 [profile.release]
 lto = true
