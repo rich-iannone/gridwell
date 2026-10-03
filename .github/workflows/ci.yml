@@ -225,9 +225,17 @@ jobs:
             mkdir -p "fuzz/corpus/$t"
             cp fixtures/*/*.json harness/corpus/*.json "fuzz/corpus/$t/"
           done
+          # Colour/length seeds: one value per file.
+          mkdir -p fuzz/corpus/fuzz_parse_values
+          i=0
+          for v in '#1a2b3c' '#abcd' 'rgb(1, 2, 3)' 'rgba(1 2 3 / 50%)' \
+                   'hsl(120deg 50% 50%)' 'hsla(1turn, 10%, 90%, 0.3)' cornflowerblue \
+                   12px 1.5em 2rem 50% 1fr 0 auto 3.5cm 1in 10mm 9pt; do
+            printf '%s' "$v" > "fuzz/corpus/fuzz_parse_values/seed$i"; i=$((i+1))
+          done
       - name: Fuzz
         run: |
-          for t in fuzz_parse_ir fuzz_validate fuzz_render_html; do
+          for t in fuzz_parse_ir fuzz_validate fuzz_render_html fuzz_parse_values; do
             echo "::group::$t"
             # Explicit target: the prebuilt cargo-fuzz binary is a musl build and
             # otherwise defaults to x86_64-unknown-linux-musl, which has no std
