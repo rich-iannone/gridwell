@@ -3,11 +3,9 @@ use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{HAlign, Table, VMerge};
 use gridwell_layout::{resolve, MergeCell, ResolvedStyle, ResolvedTable, Section};
+use gridwell_ooxml::{package, Part};
 use std::fmt::Write;
-use std::io::Cursor;
 use thiserror::Error;
-use zip::write::SimpleFileOptions;
-use zip::ZipWriter;
 
 use crate::xml;
 
@@ -15,34 +13,20 @@ use crate::xml;
 pub enum RenderError {
     #[error("formatting error: {0}")]
     Fmt(#[from] std::fmt::Error),
-    #[error("zip error: {0}")]
-    Zip(#[from] zip::result::ZipError),
-    #[error("io error: {0}")]
-    Io(#[from] std::io::Error),
+    #[error("packaging error: {0}")]
+    Package(#[from] gridwell_ooxml::PackageError),
 }
 
 /// Render the full .docx ZIP file as bytes.
 pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
     let document_xml = render_document_xml(table)?;
 
-    let buf = Cursor::new(Vec::new());
-    let mut zip = ZipWriter::new(buf);
-    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
-
-    zip.start_file("[Content_Types].xml", options)?;
-    std::io::Write::write_all(&mut zip, xml::CONTENT_TYPES.as_bytes())?;
-
-    zip.start_file("_rels/.rels", options)?;
-    std::io::Write::write_all(&mut zip, xml::RELS.as_bytes())?;
-
-    zip.start_file("word/_rels/document.xml.rels", options)?;
-    std::io::Write::write_all(&mut zip, xml::DOCUMENT_RELS.as_bytes())?;
-
-    zip.start_file("word/document.xml", options)?;
-    std::io::Write::write_all(&mut zip, document_xml.as_bytes())?;
-
-    let cursor = zip.finish()?;
-    Ok(cursor.into_inner())
+    Ok(package(&[
+        Part::new("[Content_Types].xml", xml::CONTENT_TYPES),
+        Part::new("_rels/.rels", xml::RELS),
+        Part::new("word/_rels/document.xml.rels", xml::DOCUMENT_RELS),
+        Part::new("word/document.xml", document_xml.as_str()),
+    ])?)
 }
 
 /// Render only the document.xml content (for snapshot testing).
