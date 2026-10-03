@@ -15,6 +15,9 @@ serde_json = "1"
 [dependencies.gridwell-core]
 path = "../crates/gridwell-core"
 
+[dependencies.gridwell-render]
+path = "../crates/gridwell-render"
+
 [dependencies.gridwell-layout]
 path = "../crates/gridwell-layout"
 
@@ -58,6 +61,13 @@ bench = false
 [[bin]]
 name = "fuzz_layout"
 path = "fuzz_targets/fuzz_layout.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_render_all"
+path = "fuzz_targets/fuzz_render_all.rs"
 test = false
 doc = false
 bench = false
