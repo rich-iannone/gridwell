@@ -1,6 +1,11 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+use crate::keywords::{
+    BorderStyle, FontStyle, FontWeight, HAlign, Overflow, RowParity, SelectorScope, TextDecoration,
+    TextOverflow, TextTransform, VAlign, WhiteSpace, WordBreak,
+};
+
 /// The style palette: definitions, compositions, and conditionals.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StylePalette {
@@ -20,23 +25,23 @@ pub struct StyleDef {
     #[serde(default)]
     pub font_size: Option<String>,
     #[serde(default)]
-    pub font_weight: Option<String>,
+    pub font_weight: Option<FontWeight>,
     #[serde(default)]
-    pub font_style: Option<String>,
+    pub font_style: Option<FontStyle>,
     #[serde(default)]
     pub color: Option<String>,
     #[serde(default)]
     pub background_color: Option<String>,
     #[serde(default)]
-    pub text_align: Option<String>,
+    pub text_align: Option<HAlign>,
     #[serde(default)]
-    pub vertical_align: Option<String>,
+    pub vertical_align: Option<VAlign>,
     #[serde(default)]
-    pub text_transform: Option<String>,
+    pub text_transform: Option<TextTransform>,
     #[serde(default)]
-    pub text_decoration: Option<String>,
+    pub text_decoration: Option<TextDecoration>,
     #[serde(default)]
-    pub white_space: Option<String>,
+    pub white_space: Option<WhiteSpace>,
     #[serde(default)]
     pub padding: Option<Padding>,
     #[serde(default)]
@@ -44,11 +49,11 @@ pub struct StyleDef {
     #[serde(default)]
     pub indent: Option<String>,
     #[serde(default)]
-    pub word_break: Option<String>,
+    pub word_break: Option<WordBreak>,
     #[serde(default)]
-    pub overflow: Option<String>,
+    pub overflow: Option<Overflow>,
     #[serde(default)]
-    pub text_overflow: Option<String>,
+    pub text_overflow: Option<TextOverflow>,
     #[serde(default)]
     pub min_width: Option<String>,
     #[serde(default)]
@@ -87,7 +92,7 @@ pub struct Border {
     #[serde(default)]
     pub width: Option<String>,
     #[serde(default)]
-    pub style: Option<String>,
+    pub style: Option<BorderStyle>,
     #[serde(default)]
     pub color: Option<String>,
 }
@@ -112,7 +117,7 @@ pub struct ConditionalStyle {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConditionalSelector {
     #[serde(default)]
-    pub row_parity: Option<String>,
+    pub row_parity: Option<RowParity>,
     #[serde(default)]
-    pub scope: Option<String>,
+    pub scope: Option<SelectorScope>,
 }
