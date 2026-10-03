@@ -1,0 +1,15 @@
+[package]
+name = "gridwell-layout"
+description = "Resolved table layout shared by all gridwell writers: visible grid, spans, and the style cascade"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+gridwell-ir = { path = "../gridwell-ir" }
+gridwell-core = { path = "../gridwell-core" }
+
+[dev-dependencies]
+gridwell-testkit = { path = "../gridwell-testkit" }
+serde_json = { workspace = true }
