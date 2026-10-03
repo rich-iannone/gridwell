@@ -18,7 +18,8 @@
 // The IR parsed but failed validation; the message lists the errors.
 #define GRIDWELL_ERR_VALIDATE 2
 
-// A writer failed, or the format name is unknown.
+// A writer failed, the format name is unknown, or a text format was passed to a
+// binary render function (or vice versa).
 #define GRIDWELL_ERR_RENDER 3
 
 // A required pointer argument was null, or a string argument was not UTF-8.
@@ -26,6 +27,19 @@
 
 // An internal panic was caught at the boundary. This is always a gridwell bug.
 #define GRIDWELL_ERR_PANIC 5
+
+// The writer options are not valid: malformed JSON, not an object, an unknown
+// field, a wrong type, or a value out of range. The message says which.
+#define GRIDWELL_ERR_OPTIONS 6
+
+// `gridwell_format_kind`: no format has this name.
+#define GRIDWELL_FORMAT_UNKNOWN 0
+
+// `gridwell_format_kind`: a text format (render with `gridwell_render_text`).
+#define GRIDWELL_FORMAT_TEXT 1
+
+// `gridwell_format_kind`: a binary format (render with `gridwell_render_binary`).
+#define GRIDWELL_FORMAT_BINARY 2
 
 // Opaque error type.
 typedef struct GridwellError GridwellError;
@@ -73,35 +87,69 @@ struct GridwellTable *gridwell_parse_ir(const char *json, size_t len, struct Gri
 // - `table` must be a valid pointer returned by `gridwell_parse_ir`.
 struct GridwellError *gridwell_validate(const struct GridwellTable *table);
 
-// Render a table to a text format.
-//
-// The table is validated first; invalid IR fails with `GRIDWELL_ERR_VALIDATE` and a
-// message listing the errors.
-//
-// Supported formats: "html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto".
+// Render a table to a text format with default options. Same as
+// `gridwell_render_text_with_options` with null options.
 //
 // # Safety
-// - `table` must be a valid pointer returned by `gridwell_parse_ir`.
-// - `format` must be a valid null-terminated C string.
-// - `err` may be null; if non-null, `*err` is written on failure.
+// See `gridwell_render_text_with_options`.
 struct GridwellTextResult gridwell_render_text(const struct GridwellTable *table,
                                                const char *format,
                                                struct GridwellError **err);
 
-// Render a table to a binary format.
+// Render a table to a text format.
+//
+// `format` is a name from `gridwell_format_names()` (case-insensitive) whose kind
+// is `GRIDWELL_FORMAT_TEXT`. `options` is a JSON object of writer options, or null
+// (or empty) for the defaults; see the docs for each format's options.
 //
 // The table is validated first; invalid IR fails with `GRIDWELL_ERR_VALIDATE` and a
-// message listing the errors.
-//
-// Supported formats: "docx", "xlsx", "pptx".
+// message listing the errors. Bad options fail with `GRIDWELL_ERR_OPTIONS`; an
+// unknown or binary format with `GRIDWELL_ERR_RENDER`.
 //
 // # Safety
 // - `table` must be a valid pointer returned by `gridwell_parse_ir`.
 // - `format` must be a valid null-terminated C string.
+// - `options` must be null or a valid null-terminated C string.
 // - `err` may be null; if non-null, `*err` is written on failure.
+struct GridwellTextResult gridwell_render_text_with_options(const struct GridwellTable *table,
+                                                            const char *format,
+                                                            const char *options,
+                                                            struct GridwellError **err);
+
+// Render a table to a binary format with default options. Same as
+// `gridwell_render_binary_with_options` with null options.
+//
+// # Safety
+// See `gridwell_render_binary_with_options`.
 struct GridwellBinaryResult gridwell_render_binary(const struct GridwellTable *table,
                                                    const char *format,
                                                    struct GridwellError **err);
+
+// Render a table to a binary format (`GRIDWELL_FORMAT_BINARY`: "docx", "xlsx",
+// "pptx").
+//
+// Validation, options and errors are as for `gridwell_render_text_with_options`.
+//
+// # Safety
+// - `table` must be a valid pointer returned by `gridwell_parse_ir`.
+// - `format` must be a valid null-terminated C string.
+// - `options` must be null or a valid null-terminated C string.
+// - `err` may be null; if non-null, `*err` is written on failure.
+struct GridwellBinaryResult gridwell_render_binary_with_options(const struct GridwellTable *table,
+                                                                const char *format,
+                                                                const char *options,
+                                                                struct GridwellError **err);
+
+// The supported format names, comma-separated (e.g. "html,latex,…,pptx"). The
+// string is static: do not free it.
+const char *gridwell_format_names(void);
+
+// The kind of a format: `GRIDWELL_FORMAT_TEXT`, `GRIDWELL_FORMAT_BINARY`, or
+// `GRIDWELL_FORMAT_UNKNOWN` (also for a null or non-UTF-8 name).
+//
+// # Safety
+// - `format` must be null or a valid null-terminated C string.
+int32_t gridwell_format_kind(const char *format);
 
 // Free a table returned by `gridwell_parse_ir`.
 //
