@@ -22,9 +22,9 @@ expression: out
   [\$300],
   [\$320],
   table.hline(stroke: 0.3pt),
-  table.cell(fill: rgb("#f5f5f5"))[#text(weight: "bold")[Net income]],
-  table.cell(fill: rgb("#f5f5f5"))[#text(weight: "bold")[\$200]],
-  table.cell(fill: rgb("#f5f5f5"))[#text(weight: "bold")[\$270]],
+  table.cell(fill: rgb("#F5F5F5"))[#text(weight: "bold")[Net income]],
+  table.cell(fill: rgb("#F5F5F5"))[#text(weight: "bold")[\$200]],
+  table.cell(fill: rgb("#F5F5F5"))[#text(weight: "bold")[\$270]],
 )
 
 #text(size: 9pt, fill: luma(100))[Unaudited management figures\.]
