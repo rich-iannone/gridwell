@@ -524,3 +524,31 @@ fn every_style_def_field_survives_the_cascade() {
         .build();
     assert_eq!(body(&resolve(&t))[0][0].style, expected);
 }
+
+#[test]
+fn footnotes_are_linked_to_their_marks() {
+    let mut t = TableBuilder::new(1)
+        .title("T")
+        .body(vec![row(vec![gridwell_testkit::cell_content(vec![
+            gridwell_testkit::text("x"),
+            gridwell_testkit::footnote_mark("a", "1"),
+        ])])])
+        .footnote("a", "1", "used in a cell")
+        .footnote("b", "2", "used in the title")
+        .footnote("c", "3", "never used")
+        .build();
+    t.header
+        .as_mut()
+        .unwrap()
+        .title
+        .as_mut()
+        .unwrap()
+        .content
+        .push(gridwell_testkit::footnote_mark("b", "2"));
+    let rt = resolve(&t);
+    let f = &rt.footer;
+    assert_eq!(f.footnote("a").map(|n| n.mark), Some("1"));
+    assert!(f.footnote("missing").is_none());
+    let referenced: Vec<(&str, bool)> = f.footnotes.iter().map(|n| (n.id, n.referenced)).collect();
+    assert_eq!(referenced, vec![("a", true), ("b", true), ("c", false)]);
+}
