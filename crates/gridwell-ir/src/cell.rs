@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::content::ContentNode;
+use crate::keywords::{CellScope, RowRole, ValueType};
 
 /// A table cell.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -19,11 +20,11 @@ pub struct Cell {
     #[serde(default)]
     pub is_placeholder: bool,
     #[serde(default)]
-    pub scope: Option<String>,
+    pub scope: Option<CellScope>,
     #[serde(default)]
     pub sort_key: Option<serde_json::Value>,
     #[serde(default)]
-    pub data_type: Option<String>,
+    pub data_type: Option<ValueType>,
 }
 
 fn default_one() -> u32 {
@@ -34,7 +35,7 @@ fn default_one() -> u32 {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TypedValue {
     #[serde(rename = "type")]
-    pub value_type: String,
+    pub value_type: ValueType,
     pub value: serde_json::Value,
 }
 
@@ -42,7 +43,7 @@ pub struct TypedValue {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Row {
     #[serde(default)]
-    pub role: Option<String>,
+    pub role: Option<RowRole>,
     #[serde(default)]
     pub style_id: Option<String>,
     pub cells: Vec<Cell>,
