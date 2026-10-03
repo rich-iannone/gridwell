@@ -174,15 +174,16 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         self.write_line("<style>");
         self.push_indent();
 
-        // Column alignment first: a style that sets its own alignment comes later
-        // and wins (and agrees anyway: a cell's alignment already reflects it).
+        // Generated rules (alignment, cascaded cell styles) are scoped under the
+        // table class: two classes outrank the `.something td { text-align: … }`
+        // rules a host page commonly has, which a bare class would lose to. A
+        // cell's alignment already reflects any style that sets one, so this
+        // can't contradict a named style class.
+        let p = &self.config.class_prefix;
         let mut alignments = self.alignments.clone();
         alignments.sort_unstable();
         for a in alignments {
-            let line = format!(
-                ".{}__al_{a} {{ text-align: {a} }}",
-                self.config.class_prefix
-            );
+            let line = format!(".{p}_table .{p}__al_{a} {{ text-align: {a} }}");
             self.write_line(&line);
         }
 
@@ -217,11 +218,8 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             .iter()
             .enumerate()
             .map(|(n, style)| {
-                format!(
-                    ".{}__c{n} {{ {} }}",
-                    self.config.class_prefix,
-                    style_css(style)
-                )
+                let p = &self.config.class_prefix;
+                format!(".{p}_table .{p}__c{n} {{ {} }}", style_css(style))
             })
             .collect();
         for line in generated {
