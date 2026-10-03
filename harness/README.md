@@ -84,9 +84,12 @@ Rendering details that keep previews faithful:
 ## Visual regression gate (gated subset)
 
 Pixel-diffing rasterized output is only reliable for **deterministic** renderers,
-so the *blocking* image gate covers just **HTML, SVG, and Typst**. LaTeX and the
-LibreOffice-driven formats (font/version sensitive) appear in the gallery and the
-report but never fail CI on pixels.
+so the *blocking* image gate covers only formats shown to render the same every
+time in the pinned image: **HTML, SVG, Typst, RTF, DOCX, XLSX and PPTX** (the
+last four via LibreOffice; all 54 images pixel-identical on a second pass, CI run
+37148204369). LaTeX appears in the gallery and the report but doesn't fail CI on
+pixels yet: its `standalone` preview changed (`varwidth`, so titles and notes sit
+above and below the table) and is gated once the probe has seen the new images.
 
 ```bash
 cargo xtask gallery --check    # diff gated formats vs harness/goldens; exit 2 on regression
@@ -137,10 +140,14 @@ every run, rendered in the pinned image. To seed or update goldens:
 3. Replace the goldens and commit (they're ordinary binary files):
 
 ```bash
-rm -rf harness/goldens/{html,svg,typst}
-unzip proposed-goldens.zip -d harness/goldens
+rm -rf harness/goldens/{html,svg,typst,rtf,docx,xlsx,pptx}
+unzip proposed-goldens.zip 'html/*' 'svg/*' 'typst/*' 'rtf/*' 'docx/*' 'xlsx/*' 'pptx/*' \
+    -d harness/goldens
 git add harness/goldens && git commit -m "Bless visual goldens"
 ```
+
+The artifact also holds the *ungated* formats' images (from the determinism
+probe); copy those only when gating a format.
 
 Copy only the formats or images you meant to change when updating a subset.
 
