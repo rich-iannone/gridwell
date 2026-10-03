@@ -256,7 +256,11 @@ pub fn inlines(rt: &ResolvedTable, nodes: &[ContentNode]) -> Vec<Value> {
                 let alt: Vec<Value> = alt.iter().map(|a| json!({"t": "Str", "c": a})).collect();
                 out.push(json!({"t": "Image", "c": [null_attr(), alt, [src, ""]]}));
             }
-            ContentNode::Raw { value, .. } => out.push(json!({"t": "RawInline", "c": ["", value]})),
+            // The node's format names the target ("html", "latex", …), as Pandoc's
+            // RawInline expects; pandoc passes it through only to that format.
+            ContentNode::Raw { format, value } => {
+                out.push(json!({"t": "RawInline", "c": [format, value]}))
+            }
             ContentNode::Unknown => {}
         }
     }
