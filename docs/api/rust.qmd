@@ -9,6 +9,7 @@ title: "Rust API"
 | `gridwell-ir` | IR types, parsing, validation |
 | `gridwell-core` | Shared utilities (colors, lengths, font sizes, XML escaping) |
 | `gridwell-layout` | The resolved table every writer renders: visible grid, spans, style cascade |
+| `gridwell-ooxml` | Deterministic zip packaging for the DOCX/XLSX/PPTX writers |
 | `gridwell-render` | The format registry: `Writer` trait, every format by name, options as JSON |
 | `gridwell-writer-html` | HTML renderer |
 | `gridwell-writer-latex` | LaTeX renderer |
