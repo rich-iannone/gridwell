@@ -245,7 +245,7 @@ impl<'a> TypstRenderer<'a> {
         let mut text_attrs = Vec::new();
 
         if let Some(ref weight) = def.font_weight {
-            if weight == "bold" {
+            if weight.is_bold() {
                 text_attrs.push("weight: \"bold\"".to_string());
             }
         } else if is_header {
@@ -253,7 +253,7 @@ impl<'a> TypstRenderer<'a> {
         }
 
         if let Some(ref style) = def.font_style {
-            if style == "italic" {
+            if style.is_italic() {
                 text_attrs.push("style: \"italic\"".to_string());
             }
         }

@@ -1,5 +1,5 @@
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{vmerge_layout, MergeCell, Row, Table, VMerge};
+use gridwell_ir::{vmerge_layout, FontStyle, FontWeight, MergeCell, Row, Table, VMerge};
 use std::collections::HashMap;
 use std::fmt::Write;
 use thiserror::Error;
@@ -211,10 +211,10 @@ impl<'a> RtfRenderer<'a> {
             }
             if let Some(ref style_id) = cell.style_id {
                 if let Some(def) = self.table.styles.defs.get(style_id.as_str()) {
-                    if def.font_weight.as_deref() == Some("bold") {
+                    if def.font_weight.as_ref().is_some_and(FontWeight::is_bold) {
                         fmt.push_str("\\b");
                     }
-                    if def.font_style.as_deref() == Some("italic") {
+                    if def.font_style.as_ref().is_some_and(FontStyle::is_italic) {
                         fmt.push_str("\\i");
                     }
                     if let Some(ref color) = def.color {

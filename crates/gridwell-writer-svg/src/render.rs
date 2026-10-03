@@ -11,7 +11,7 @@ use std::fmt::Write;
 use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::style::StyleDef;
-use gridwell_ir::{resolve_slots, ColumnVisibility, Row, Slot, Table};
+use gridwell_ir::{resolve_slots, ColumnVisibility, HAlign, Row, Slot, Table};
 use thiserror::Error;
 
 use crate::measure::{max_width, wrap, Line, Run, RunStyle, SUP_SCALE};
@@ -155,9 +155,9 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
                         .find_map(|d| d.background_color.as_deref().and_then(valid_color));
                     let align = cell_def
                         .as_ref()
-                        .and_then(|d| d.text_align.as_deref())
-                        .map(parse_align)
-                        .unwrap_or_else(|| parse_align(&visible_spec[vcol].align));
+                        .and_then(|d| d.text_align.as_ref())
+                        .map(svg_align)
+                        .unwrap_or_else(|| svg_align(&visible_spec[vcol].align));
                     let runs = content_runs(&cell.content, &base, &styles);
                     let natural = paragraphs_width(&runs, fs);
                     cells.push(PendingCell {
@@ -502,24 +502,21 @@ fn content_runs(nodes: &[ContentNode], base: &RunStyle, styles: &Styles) -> Vec<
 
 fn apply_style(style: &mut RunStyle, def: &StyleDef) {
     if let Some(w) = &def.font_weight {
-        style.bold = matches!(
-            w.as_str(),
-            "bold" | "bolder" | "600" | "700" | "800" | "900"
-        );
+        style.bold = w.is_bold();
     }
     if let Some(s) = &def.font_style {
-        style.italic = s == "italic" || s == "oblique";
+        style.italic = s.is_italic();
     }
     if let Some(c) = def.color.as_deref().and_then(valid_color) {
         style.color = Some(c);
     }
 }
 
-fn parse_align(s: &str) -> Align {
-    match s {
-        "center" => Align::Center,
+fn svg_align(a: &HAlign) -> Align {
+    match a {
+        HAlign::Center => Align::Center,
         // Decimal ("char") alignment is approximated by right alignment.
-        "right" | "char" | "end" => Align::Right,
+        HAlign::Right | HAlign::Char => Align::Right,
         _ => Align::Left,
     }
 }

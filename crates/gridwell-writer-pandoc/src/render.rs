@@ -1,5 +1,5 @@
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{Row, Table};
+use gridwell_ir::{HAlign, Row, Table};
 use serde_json::{json, Value};
 use thiserror::Error;
 
@@ -66,10 +66,10 @@ fn render_colspecs(table: &Table) -> Value {
         .column_spec
         .iter()
         .map(|col| {
-            let align = match col.align.as_str() {
-                "left" => json!({"t": "AlignLeft"}),
-                "right" => json!({"t": "AlignRight"}),
-                "center" => json!({"t": "AlignCenter"}),
+            let align = match col.align {
+                HAlign::Left => json!({"t": "AlignLeft"}),
+                HAlign::Right => json!({"t": "AlignRight"}),
+                HAlign::Center => json!({"t": "AlignCenter"}),
                 _ => json!({"t": "AlignDefault"}),
             };
             let col_width = if col.width == "auto" {

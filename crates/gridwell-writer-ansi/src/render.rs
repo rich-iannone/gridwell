@@ -1,5 +1,5 @@
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{Row, Table};
+use gridwell_ir::{FontStyle, FontWeight, Row, Table};
 use std::fmt::Write;
 use thiserror::Error;
 use unicode_width::UnicodeWidthStr;
@@ -281,11 +281,11 @@ impl<'a> AnsiRenderer<'a> {
                 has_style = true;
             } else if let Some(ref style_id) = cell.style_id {
                 if let Some(def) = self.table.styles.defs.get(style_id.as_str()) {
-                    if def.font_weight.as_deref() == Some("bold") {
+                    if def.font_weight.as_ref().is_some_and(FontWeight::is_bold) {
                         cell_text.push_str(BOLD);
                         has_style = true;
                     }
-                    if def.font_style.as_deref() == Some("italic") {
+                    if def.font_style.as_ref().is_some_and(FontStyle::is_italic) {
                         cell_text.push_str(ITALIC);
                         has_style = true;
                     }

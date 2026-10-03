@@ -1,5 +1,5 @@
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{Row, Table};
+use gridwell_ir::{Row, Table, ValueType};
 use std::fmt::Write;
 use std::io::Cursor;
 use thiserror::Error;
@@ -214,7 +214,8 @@ fn write_sheet_row(
 
         // Determine if cell holds a numeric value
         if let Some(ref typed) = cell.typed_value {
-            if typed.value_type == "number" {
+            // Integers are numbers too (they were written as text before typing).
+            if matches!(typed.value_type, ValueType::Number | ValueType::Integer) {
                 if let Some(num) = typed.value.as_f64() {
                     write!(buf, "<c r=\"{cell_ref}\"{style_attr}><v>{num}</v></c>")?;
                     continue;

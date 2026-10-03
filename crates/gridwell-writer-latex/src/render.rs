@@ -1,6 +1,6 @@
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::style::StyleDef;
-use gridwell_ir::{Cell, Row, Table};
+use gridwell_ir::{Cell, FontStyle, FontWeight, HAlign, Row, Table};
 use std::fmt::Write;
 use thiserror::Error;
 
@@ -97,9 +97,9 @@ impl<'a> LatexRenderer<'a> {
                     // Use p{width} for fixed-width columns
                     format!("p{{{}}}", col.width)
                 } else {
-                    match col.align.as_str() {
-                        "right" => "r".to_string(),
-                        "center" => "c".to_string(),
+                    match col.align {
+                        HAlign::Right => "r".to_string(),
+                        HAlign::Center => "c".to_string(),
                         _ => "l".to_string(),
                     }
                 }
@@ -241,9 +241,9 @@ impl<'a> LatexRenderer<'a> {
         if let Some(ref style_id) = cell.style_id {
             if let Some(def) = self.resolve_style(style_id) {
                 if let Some(ref align) = def.text_align {
-                    return match align.as_str() {
-                        "right" => "r",
-                        "center" => "c",
+                    return match align {
+                        HAlign::Right => "r",
+                        HAlign::Center => "c",
                         _ => "l",
                     };
                 }
@@ -261,17 +261,13 @@ impl<'a> LatexRenderer<'a> {
         let mut result = content.to_string();
 
         // Apply font weight
-        if let Some(ref weight) = def.font_weight {
-            if weight == "bold" {
-                result = format!("\\textbf{{{result}}}");
-            }
+        if def.font_weight.as_ref().is_some_and(FontWeight::is_bold) {
+            result = format!("\\textbf{{{result}}}");
         }
 
         // Apply font style
-        if let Some(ref style) = def.font_style {
-            if style == "italic" {
-                result = format!("\\textit{{{result}}}");
-            }
+        if def.font_style.as_ref().is_some_and(FontStyle::is_italic) {
+            result = format!("\\textit{{{result}}}");
         }
 
         // Apply color

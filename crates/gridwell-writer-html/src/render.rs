@@ -1,6 +1,6 @@
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::style::{Border, BorderSet, Padding, StyleDef};
-use gridwell_ir::{Cell, ColumnVisibility, Row, Table};
+use gridwell_ir::{BorderStyle, Cell, ColumnVisibility, Row, Table};
 use std::fmt::Write;
 use thiserror::Error;
 
@@ -716,8 +716,8 @@ fn border_set_to_css(b: &BorderSet) -> Vec<String> {
 }
 
 fn border_to_css(b: &Border) -> Option<String> {
-    let style = b.style.as_deref().unwrap_or("none");
-    if style == "none" {
+    let style = b.style.as_ref()?;
+    if matches!(style, BorderStyle::None | BorderStyle::Hidden) {
         return None;
     }
     let width = b.width.as_deref().unwrap_or("1px");

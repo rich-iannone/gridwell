@@ -1,5 +1,5 @@
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{resolve_slots, Row, Slot, Table};
+use gridwell_ir::{resolve_slots, FontStyle, FontWeight, Row, Slot, Table};
 use std::fmt::Write;
 use std::io::Cursor;
 use thiserror::Error;
@@ -216,10 +216,10 @@ fn write_table_row(
                 buf.push_str(" b=\"1\"");
             } else if let Some(ref style_id) = cell.style_id {
                 if let Some(def) = table.styles.defs.get(style_id.as_str()) {
-                    if def.font_weight.as_deref() == Some("bold") {
+                    if def.font_weight.as_ref().is_some_and(FontWeight::is_bold) {
                         buf.push_str(" b=\"1\"");
                     }
-                    if def.font_style.as_deref() == Some("italic") {
+                    if def.font_style.as_ref().is_some_and(FontStyle::is_italic) {
                         buf.push_str(" i=\"1\"");
                     }
                 }

@@ -1,5 +1,5 @@
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{vmerge_layout, MergeCell, Row, Table, VMerge};
+use gridwell_ir::{vmerge_layout, FontStyle, FontWeight, MergeCell, Row, Table, VMerge};
 use std::fmt::Write;
 use std::io::Cursor;
 use thiserror::Error;
@@ -219,12 +219,12 @@ fn write_row(
                 .style_id
                 .as_ref()
                 .and_then(|sid| table.styles.defs.get(sid.as_str()))
-                .is_some_and(|def| def.font_weight.as_deref() == Some("bold"));
+                .is_some_and(|def| def.font_weight.as_ref().is_some_and(FontWeight::is_bold));
         let is_italic = cell
             .style_id
             .as_ref()
             .and_then(|sid| table.styles.defs.get(sid.as_str()))
-            .is_some_and(|def| def.font_style.as_deref() == Some("italic"));
+            .is_some_and(|def| def.font_style.as_ref().is_some_and(FontStyle::is_italic));
         let color = cell
             .style_id
             .as_ref()
