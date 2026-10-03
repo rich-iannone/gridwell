@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::keywords::{Overflow, PageBreakMode};
+
 /// Table-level configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
@@ -27,13 +29,13 @@ pub struct Config {
     #[serde(default)]
     pub container_height: Option<String>,
     #[serde(default)]
-    pub container_overflow: Option<String>,
+    pub container_overflow: Option<Overflow>,
 
     #[serde(default = "default_locale")]
     pub locale: String,
 
-    #[serde(default = "default_page_break_mode")]
-    pub page_break_mode: String,
+    #[serde(default)]
+    pub page_break_mode: PageBreakMode,
 
     #[serde(default)]
     pub aria_label: Option<String>,
@@ -45,8 +47,4 @@ pub struct Config {
 
 fn default_locale() -> String {
     "en-US".to_string()
-}
-
-fn default_page_break_mode() -> String {
-    "avoid".to_string()
 }
