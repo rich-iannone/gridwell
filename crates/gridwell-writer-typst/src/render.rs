@@ -179,9 +179,11 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
         if let Some(fill) = cell.style.fill() {
             attrs.push(format!("fill: {}", typst_color(fill)));
         }
-        // Only a cell's own alignment; otherwise the column's applies.
-        if let Some(a) = &cell.style.text_align {
-            attrs.push(format!("align: {}", typst_align(a)));
+        // The column's alignment applies unless the cell's differs (its style, or a
+        // centred spanner label).
+        let own = typst_align(&cell.align);
+        if own != typst_align(&self.rt.columns[cell.col].align) {
+            attrs.push(format!("align: {own}"));
         }
 
         let styled = text_style(&content, &cell.style, is_header);
