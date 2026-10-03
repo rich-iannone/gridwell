@@ -10,7 +10,7 @@ expression: out
 \pard\intbl\b Amount\cell
 \row
 \trowd\trqc\cellx4320
-\pard\intbl\b Q1\b0\cell
+\pard\intbl{\b Q1}\cell
 \row
 \trowd\cellx2160\cellx4320
 \pard\intbl Jan\cell
@@ -25,7 +25,7 @@ expression: out
 \pard\intbl 30\cell
 \row
 \trowd\trqc\cellx4320
-\pard\intbl\b Q2\b0\cell
+\pard\intbl{\b Q2}\cell
 \row
 \trowd\cellx2160\cellx4320
 \pard\intbl Apr\cell

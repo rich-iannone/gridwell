@@ -10,7 +10,7 @@ expression: out
 \pard\intbl\b Value\cell
 \row
 \trowd\trqc\cellx4320
-\pard\intbl\b Group 1\b0\cell
+\pard\intbl{\b Group 1}\cell
 \row
 \trowd\cellx2160\cellx4320
 \pard\intbl k1a\cell
@@ -21,7 +21,7 @@ expression: out
 \pard\intbl 20\cell
 \row
 \trowd\trqc\cellx4320
-\pard\intbl\b Group 2\b0\cell
+\pard\intbl{\b Group 2}\cell
 \row
 \trowd\cellx2160\cellx4320
 \pard\intbl k2a\cell
@@ -32,7 +32,7 @@ expression: out
 \pard\intbl 40\cell
 \row
 \trowd\trqc\cellx4320
-\pard\intbl\b Group 3\b0\cell
+\pard\intbl{\b Group 3}\cell
 \row
 \trowd\cellx2160\cellx4320
 \pard\intbl k3a\cell
@@ -43,7 +43,7 @@ expression: out
 \pard\intbl 60\cell
 \row
 \trowd\trqc\cellx4320
-\pard\intbl\b Group 4\b0\cell
+\pard\intbl{\b Group 4}\cell
 \row
 \trowd\cellx2160\cellx4320
 \pard\intbl k4a\cell
@@ -54,7 +54,7 @@ expression: out
 \pard\intbl 80\cell
 \row
 \trowd\trqc\cellx4320
-\pard\intbl\b Group 5\b0\cell
+\pard\intbl{\b Group 5}\cell
 \row
 \trowd\cellx2160\cellx4320
 \pard\intbl k5a\cell

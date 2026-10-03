@@ -10,7 +10,7 @@ expression: out
 \pard\intbl\b GDP\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl Atlantis\super *\nosupersub \cell
+\pard\intbl Atlantis{\super *}\cell
 \pard\intbl N/A\cell
 \row
 \trowd\cellx2160\cellx4320
@@ -18,5 +18,5 @@ expression: out
 \pard\intbl 999\cell
 \row
 \par
-\pard\fs18 \super *\nosupersub  Fictional; illustrative only.\par
+\pard{\fs18 {\super *} Fictional; illustrative only.}\par
 }

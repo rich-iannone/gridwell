@@ -10,7 +10,7 @@ expression: out
 \pard\intbl\b Value\cell
 \row
 \trowd\trqc\cellx4320
-\pard\intbl\b North America\b0\cell
+\pard\intbl{\b North America}\cell
 \row
 \trowd\cellx2160\cellx4320
 \pard\intbl USA\cell
@@ -21,7 +21,7 @@ expression: out
 \pard\intbl 420\cell
 \row
 \trowd\trqc\cellx4320
-\pard\intbl\b Europe\b0\cell
+\pard\intbl{\b Europe}\cell
 \row
 \trowd\cellx2160\cellx4320
 \pard\intbl Germany\cell

@@ -11,12 +11,12 @@ expression: out
 \row
 \trowd\cellx2160\cellx4320
 \pard\intbl Alice\cell
-\pard\intbl 90\super 1\nosupersub \cell
+\pard\intbl 90{\super 1}\cell
 \row
 \trowd\cellx2160\cellx4320
 \pard\intbl Bob\cell
 \pard\intbl 85\cell
 \row
 \par
-\pard\fs18 \super 1\nosupersub  Includes bonus points.\par
+\pard{\fs18 {\super 1} Includes bonus points.}\par
 }
