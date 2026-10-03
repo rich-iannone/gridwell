@@ -16,8 +16,8 @@ use gridwell_ir::style::{
     Border, BorderSet, ConditionalSelector, ConditionalStyle, Padding, StyleComposition, StyleDef,
 };
 use gridwell_ir::{
-    Cell, ColumnSpec, Footer, Footnote, Header, HeaderLine, Row, RowGroup, SourceNote,
-    StylePalette, Table, TableBlock,
+    Cell, ColumnSpec, Footer, Footnote, HAlign, Header, HeaderLine, PageBreakMode, Row, RowGroup,
+    SourceNote, StylePalette, Table, TableBlock,
 };
 use std::collections::HashMap;
 
@@ -129,18 +129,18 @@ impl CellExt for Cell {
         self
     }
     fn scope(mut self, scope: &str) -> Self {
-        self.scope = Some(scope.to_string());
+        self.scope = Some(scope.into());
         self
     }
     fn typed(mut self, value_type: &str, value: serde_json::Value) -> Self {
         self.typed_value = Some(TypedValue {
-            value_type: value_type.to_string(),
+            value_type: value_type.into(),
             value,
         });
         self
     }
     fn data_type(mut self, data_type: &str) -> Self {
-        self.data_type = Some(data_type.to_string());
+        self.data_type = Some(data_type.into());
         self
     }
 }
@@ -164,7 +164,7 @@ pub trait RowExt {
 
 impl RowExt for Row {
     fn role(mut self, role: &str) -> Self {
-        self.role = Some(role.to_string());
+        self.role = Some(role.into());
         self
     }
     fn style(mut self, style_id: &str) -> Self {
@@ -233,7 +233,7 @@ impl GroupBuilder {
 pub fn border(width: &str, style: &str, color: &str) -> Border {
     Border {
         width: Some(width.to_string()),
-        style: Some(style.to_string()),
+        style: Some(style.into()),
         color: Some(color.to_string()),
     }
 }
@@ -264,7 +264,7 @@ pub fn padding_all(value: &str) -> Padding {
 pub fn column(id: &str, label: &str) -> ColumnSpec {
     ColumnSpec {
         id: id.to_string(),
-        align: "left".to_string(),
+        align: HAlign::Left,
         align_char: None,
         width: "auto".to_string(),
         min_width: None,
@@ -288,7 +288,7 @@ pub trait ColumnExt {
 
 impl ColumnExt for ColumnSpec {
     fn align(mut self, align: &str) -> Self {
-        self.align = align.to_string();
+        self.align = align.into();
         self
     }
     fn align_char(mut self, ch: &str) -> Self {
@@ -577,7 +577,7 @@ fn default_config(cols: u32) -> Config {
         container_height: None,
         container_overflow: None,
         locale: "en-US".to_string(),
-        page_break_mode: "avoid".to_string(),
+        page_break_mode: PageBreakMode::Avoid,
         aria_label: None,
         aria_describedby: None,
         summary: None,
