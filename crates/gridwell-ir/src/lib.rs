@@ -1,6 +1,7 @@
 pub mod cell;
 pub mod config;
 pub mod content;
+pub mod keywords;
 pub mod span;
 pub mod style;
 pub mod validation;
@@ -12,6 +13,11 @@ use thiserror::Error;
 pub use cell::{Cell, Row, RowGroup, TableBody, TableHead};
 pub use config::Config;
 pub use content::ContentNode;
+pub use keywords::{
+    BorderStyle, CellScope, FontStyle, FontWeight, HAlign, Keyword, Overflow, PageBreakMode,
+    RowParity, RowRole, SelectorScope, TextDecoration, TextOverflow, TextTransform, VAlign,
+    ValueType, WhiteSpace, WordBreak,
+};
 pub use span::{resolve_slots, vmerge_layout, MergeCell, Slot, VMerge};
 pub use style::{StyleDef, StylePalette};
 pub use validation::{validate, InvalidTable, ValidationError, ValidationRule};
@@ -96,8 +102,8 @@ pub struct HeaderLine {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ColumnSpec {
     pub id: String,
-    #[serde(default = "default_align")]
-    pub align: String,
+    #[serde(default)]
+    pub align: HAlign,
     #[serde(default)]
     pub align_char: Option<String>,
     #[serde(default = "default_width")]
@@ -112,10 +118,6 @@ pub struct ColumnSpec {
     pub hidden: bool,
     #[serde(default)]
     pub label: Option<String>,
-}
-
-fn default_align() -> String {
-    "left".to_string()
 }
 
 fn default_width() -> String {
