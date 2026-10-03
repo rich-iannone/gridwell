@@ -7,6 +7,7 @@ rust-version.workspace = true
 description = "Typst writer for gridwell: IR → Typst table markup"
 
 [dependencies]
+serde = { workspace = true }
 gridwell-ir = { path = "../gridwell-ir" }
 gridwell-core = { path = "../gridwell-core" }
 gridwell-layout = { path = "../gridwell-layout" }
