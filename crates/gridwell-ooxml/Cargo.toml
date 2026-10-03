@@ -1,0 +1,11 @@
+[package]
+name = "gridwell-ooxml"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "OOXML (DOCX/XLSX/PPTX) zip packaging shared by the gridwell writers"
+
+[dependencies]
+thiserror = { workspace = true }
+zip = { workspace = true }
