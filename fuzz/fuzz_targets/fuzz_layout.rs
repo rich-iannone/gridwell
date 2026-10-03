@@ -33,7 +33,11 @@ fuzz_target!(|data: &[u8]| {
                         let o = row.slots[*origin_col].origin().expect("CoveredH origin");
                         assert!(*origin_col < c && c < origin_col + o.colspan);
                     }
-                    Slot::CoveredV { origin_row, origin_col, .. } => {
+                    Slot::CoveredV {
+                        origin_row,
+                        origin_col,
+                        ..
+                    } => {
                         let o = section.rows[*origin_row].slots[*origin_col]
                             .origin()
                             .expect("CoveredV origin");
