@@ -11,7 +11,7 @@ expression: out
     table.hline(stroke: 0.5pt),
   ),
   [Fire],
-  table.cell(fill: rgb("#c0392b"))[#text(fill: rgb("#ffffff"))[hot]],
+  table.cell(fill: rgb("#C0392B"))[#text(fill: rgb("#FFFFFF"))[hot]],
   [Ice],
-  table.cell(fill: rgb("#2980b9"))[#text(fill: rgb("#ffffff"))[cold]],
+  table.cell(fill: rgb("#2980B9"))[#text(fill: rgb("#FFFFFF"))[cold]],
 )
