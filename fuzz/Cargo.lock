@@ -73,6 +73,7 @@ dependencies = [
  "arbitrary",
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-writer-html",
  "gridwell-writer-latex",
  "libfuzzer-sys",
@@ -90,11 +91,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "gridwell-layout"
+version = "0.1.0"
+dependencies = [
+ "gridwell-core",
+ "gridwell-ir",
+]
+
+[[package]]
 name = "gridwell-writer-html"
 version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "thiserror",
 ]
 
@@ -104,6 +114,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "thiserror",
 ]
 
