@@ -109,3 +109,19 @@ fn ansi_places_text_by_alignment() {
         "not right-aligned: {value:?}"
     );
 }
+
+#[test]
+fn html_alignment_rules_outrank_typical_page_css() {
+    // A bare `.gw__al_right` loses to a host page's `.gw_table td { text-align: left }`
+    // (one class + one element beats one class); scoped under the table class it
+    // wins. The visual harness wraps output in exactly such a page stylesheet.
+    let html = text("html");
+    assert!(
+        html.contains(".gw_table .gw__al_right { text-align: right }"),
+        "{html}"
+    );
+    assert!(
+        html.contains(".gw_table .gw__al_center { text-align: center }"),
+        "{html}"
+    );
+}
