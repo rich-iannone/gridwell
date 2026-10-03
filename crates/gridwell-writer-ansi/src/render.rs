@@ -111,7 +111,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
             rt,
             config,
             buf: String::with_capacity(4096),
-            col_widths: Self::compute_col_widths(rt),
+            col_widths: fit_widths(Self::compute_col_widths(rt), config.max_width),
             bc,
         }
     }
@@ -319,6 +319,33 @@ pub fn render(table: &Table, config: &AnsiConfig) -> Result<String, RenderError>
     AnsiRenderer::new(&rt, config).render()
 }
 
+/// Narrowest a column may be shrunk to: one character plus padding.
+const MIN_COL_WIDTH: usize = 3;
+
+/// Shrink columns until the whole grid (borders included) is at most `max_width`
+/// terminal columns, taking one column at a time from the widest. `0` means no
+/// limit. Cells that no longer fit are truncated with `…`. A grid with more columns
+/// than fit even at the minimum width stays at the minimum.
+fn fit_widths(mut widths: Vec<usize>, max_width: usize) -> Vec<usize> {
+    if max_width == 0 || widths.is_empty() {
+        return widths;
+    }
+    // Content widths plus one border character per column and the closing border.
+    let total = |w: &[usize]| w.iter().sum::<usize>() + w.len() + 1;
+    while total(&widths) > max_width {
+        let (i, &widest) = widths
+            .iter()
+            .enumerate()
+            .max_by_key(|&(i, w)| (*w, std::cmp::Reverse(i)))
+            .expect("non-empty");
+        if widest <= MIN_COL_WIDTH {
+            break;
+        }
+        widths[i] -= 1;
+    }
+    widths
+}
+
 /// Remove control characters (C0, DEL, C1 — including ESC) so table text can't
 /// emit terminal escape sequences or break the grid; tabs and newlines become
 /// spaces.
@@ -380,4 +407,20 @@ fn fit(text: &str, width: usize, align: &HAlign) -> String {
         _ => pad.min(1),
     };
     format!("{}{shown}{}", " ".repeat(left), " ".repeat(pad - left))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::fit_widths;
+
+    #[test]
+    fn widths_shrink_from_the_widest_until_they_fit() {
+        assert_eq!(fit_widths(vec![12, 30, 12], 0), vec![12, 30, 12]);
+        // 12 + 30 + 12 + 4 borders = 58.
+        assert_eq!(fit_widths(vec![12, 30, 12], 58), vec![12, 30, 12]);
+        assert_eq!(fit_widths(vec![12, 30, 12], 40), vec![12, 12, 12]);
+        assert_eq!(fit_widths(vec![12, 30, 12], 37), vec![11, 11, 11]);
+        // Never below the minimum, even if that overflows.
+        assert_eq!(fit_widths(vec![12, 12], 4), vec![3, 3]);
+    }
 }
