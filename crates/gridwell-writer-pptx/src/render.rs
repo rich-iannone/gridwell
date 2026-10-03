@@ -368,11 +368,9 @@ fn escape_xml(s: &str) -> String {
     out
 }
 
-fn hex_to_drawingml(hex: &str) -> Option<String> {
-    let h = hex.strip_prefix('#')?;
-    if h.len() == 6 && h.chars().all(|c| c.is_ascii_hexdigit()) {
-        Some(h.to_uppercase())
-    } else {
-        None
-    }
+/// Any CSS colour as DrawingML `RRGGBB`; alpha is dropped and fully transparent
+/// means "no fill".
+fn hex_to_drawingml(color: &str) -> Option<String> {
+    let c = color.parse::<gridwell_core::Color>().ok()?;
+    (!c.is_transparent()).then(|| c.to_rrggbb())
 }
