@@ -3,11 +3,9 @@ use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{HAlign, Table};
 use gridwell_layout::{resolve, ResolvedStyle, ResolvedTable, Section, Slot};
+use gridwell_ooxml::{package, Part};
 use std::fmt::Write;
-use std::io::Cursor;
 use thiserror::Error;
-use zip::write::SimpleFileOptions;
-use zip::ZipWriter;
 
 use crate::xml;
 
@@ -15,52 +13,32 @@ use crate::xml;
 pub enum RenderError {
     #[error("formatting error: {0}")]
     Fmt(#[from] std::fmt::Error),
-    #[error("zip error: {0}")]
-    Zip(#[from] zip::result::ZipError),
-    #[error("io error: {0}")]
-    Io(#[from] std::io::Error),
+    #[error("packaging error: {0}")]
+    Package(#[from] gridwell_ooxml::PackageError),
 }
 
 /// Render the full .pptx ZIP file as bytes.
 pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
     let slide_xml = render_slide_xml(table)?;
 
-    let buf = Cursor::new(Vec::new());
-    let mut zip = ZipWriter::new(buf);
-    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
-
-    zip.start_file("[Content_Types].xml", options)?;
-    std::io::Write::write_all(&mut zip, xml::CONTENT_TYPES.as_bytes())?;
-
-    zip.start_file("_rels/.rels", options)?;
-    std::io::Write::write_all(&mut zip, xml::RELS.as_bytes())?;
-
-    zip.start_file("ppt/presentation.xml", options)?;
-    std::io::Write::write_all(&mut zip, xml::PRESENTATION.as_bytes())?;
-
-    zip.start_file("ppt/_rels/presentation.xml.rels", options)?;
-    std::io::Write::write_all(&mut zip, xml::PRESENTATION_RELS.as_bytes())?;
-
-    zip.start_file("ppt/slides/slide1.xml", options)?;
-    std::io::Write::write_all(&mut zip, slide_xml.as_bytes())?;
-
-    zip.start_file("ppt/slides/_rels/slide1.xml.rels", options)?;
-    std::io::Write::write_all(&mut zip, xml::SLIDE_RELS.as_bytes())?;
-
-    zip.start_file("ppt/slideLayouts/slideLayout1.xml", options)?;
-    std::io::Write::write_all(&mut zip, xml::SLIDE_LAYOUT.as_bytes())?;
-
-    zip.start_file("ppt/slideLayouts/_rels/slideLayout1.xml.rels", options)?;
-    std::io::Write::write_all(&mut zip, xml::SLIDE_LAYOUT_RELS.as_bytes())?;
-
-    zip.start_file("ppt/slideMasters/slideMaster1.xml", options)?;
-    std::io::Write::write_all(&mut zip, xml::SLIDE_MASTER.as_bytes())?;
-
-    zip.start_file("ppt/slideMasters/_rels/slideMaster1.xml.rels", options)?;
-    std::io::Write::write_all(&mut zip, xml::SLIDE_MASTER_RELS.as_bytes())?;
-
-    let cursor = zip.finish()?;
-    Ok(cursor.into_inner())
+    Ok(package(&[
+        Part::new("[Content_Types].xml", xml::CONTENT_TYPES),
+        Part::new("_rels/.rels", xml::RELS),
+        Part::new("ppt/presentation.xml", xml::PRESENTATION),
+        Part::new("ppt/_rels/presentation.xml.rels", xml::PRESENTATION_RELS),
+        Part::new("ppt/slides/slide1.xml", slide_xml.as_str()),
+        Part::new("ppt/slides/_rels/slide1.xml.rels", xml::SLIDE_RELS),
+        Part::new("ppt/slideLayouts/slideLayout1.xml", xml::SLIDE_LAYOUT),
+        Part::new(
+            "ppt/slideLayouts/_rels/slideLayout1.xml.rels",
+            xml::SLIDE_LAYOUT_RELS,
+        ),
+        Part::new("ppt/slideMasters/slideMaster1.xml", xml::SLIDE_MASTER),
+        Part::new(
+            "ppt/slideMasters/_rels/slideMaster1.xml.rels",
+            xml::SLIDE_MASTER_RELS,
+        ),
+    ])?)
 }
 
 /// Render only the slide XML content (for snapshot testing).
@@ -87,10 +65,82 @@ fn write_slide_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
     );
     buf.push_str("<p:grpSpPr/>\n");
 
+    // Title lines above the table and notes below it, stacked as one block
+    // centred vertically on the 4:3 slide (9144000 × 6858000 EMU).
+    let header: Vec<(&gridwell_layout::Line, Fmt, u32)> = {
+        let h = &rt.header;
+        let title = h.title.iter().map(|l| {
+            let f = Fmt {
+                bold: true,
+                size: Some(2400),
+                ..Fmt::default()
+            };
+            (l, f, TITLE_LINE_EMU)
+        });
+        let rest = h.subtitle.iter().chain(&h.extra_lines).map(|l| {
+            let f = Fmt {
+                size: Some(1400),
+                ..Fmt::default()
+            };
+            (l, f, LINE_EMU)
+        });
+        title.chain(rest).collect()
+    };
+    let note_count = rt.footer.footnotes.len() + rt.footer.source_notes.len();
+    let header_h: u32 = header.iter().map(|(_, _, h)| h).sum();
+    let notes_h = note_count as u32 * NOTE_LINE_EMU;
     // A table with no grid columns is invalid DrawingML: with every column hidden
-    // the slide is empty.
+    // only the text boxes remain.
+    let (table_w, table_h) = if rt.is_empty() {
+        (0, 0)
+    } else {
+        table_size(rt)
+    };
+    let gap = |a: u32, b: u32| if a > 0 && b > 0 { GAP_EMU } else { 0 };
+    let total =
+        header_h + gap(header_h, table_h) + table_h + gap(table_h + header_h, notes_h) + notes_h;
+    let mut y = (SLIDE_H.saturating_sub(total) / 2).max(MARGIN_EMU);
+
+    if !header.is_empty() {
+        write_text_box(buf, 3, "Title", y, header_h, |buf| {
+            for (line, fmt, _) in &header {
+                write_paragraph(buf, rt, line.content, fmt.with(&line.style))?;
+            }
+            Ok(())
+        })?;
+        y += header_h + gap(header_h, table_h + notes_h);
+    }
     if !rt.is_empty() {
-        write_table_frame(buf, rt)?;
+        let x = SLIDE_W.saturating_sub(table_w) / 2;
+        write_table_frame(buf, rt, x, y)?;
+        y += table_h + gap(table_h, notes_h);
+    }
+    if note_count > 0 {
+        write_text_box(buf, 4, "Notes", y, notes_h, |buf| {
+            let base = Fmt {
+                size: Some(1000),
+                ..Fmt::default()
+            };
+            for n in &rt.footer.footnotes {
+                let fmt = base.with(&n.style);
+                buf.push_str("<a:p>");
+                write_run(
+                    buf,
+                    n.mark,
+                    Fmt {
+                        superscript: true,
+                        ..fmt
+                    },
+                )?;
+                write_run(buf, " ", fmt)?;
+                write_content(buf, rt, n.content, fmt)?;
+                buf.push_str("</a:p>");
+            }
+            for n in &rt.footer.source_notes {
+                write_paragraph(buf, rt, n.content, base.with(&n.style))?;
+            }
+            Ok(())
+        })?;
     }
 
     buf.push_str("</p:spTree></p:cSld>\n");
@@ -99,19 +149,77 @@ fn write_slide_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
     Ok(())
 }
 
-fn write_table_frame(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> {
-    let col_widths = compute_col_widths(rt);
-    let total_width: u32 = col_widths.iter().sum();
-    let total_rows = rt.head.rows.len()
+const SLIDE_W: u32 = 9_144_000;
+const SLIDE_H: u32 = 6_858_000;
+/// Space above the first shape when the content is taller than the slide.
+const MARGIN_EMU: u32 = 228_600;
+/// Space between the title box, the table and the notes box.
+const GAP_EMU: u32 = 91_440;
+const TITLE_LINE_EMU: u32 = 457_200;
+const LINE_EMU: u32 = 274_320;
+const NOTE_LINE_EMU: u32 = 228_600;
+/// Text boxes span the slide less half-inch margins.
+const TEXT_X: u32 = 457_200;
+const TEXT_W: u32 = 8_229_600;
+
+/// The table's width and height in EMU.
+fn table_size(rt: &ResolvedTable) -> (u32, u32) {
+    let width: u32 = compute_col_widths(rt).iter().sum();
+    let rows = rt.head.rows.len()
         + rt.groups
             .iter()
             .map(|g| usize::from(g.label.is_some()) + g.rows.rows.len() + g.summary_rows.rows.len())
             .sum::<usize>();
-    let total_height = (total_rows as u32).saturating_mul(xml::DEFAULT_ROW_HEIGHT_EMU);
+    (
+        width,
+        (rows as u32).saturating_mul(xml::DEFAULT_ROW_HEIGHT_EMU),
+    )
+}
 
-    // Centred on the 4:3 slide (9144000 × 6858000 EMU).
-    let offset_x = 9144000u32.saturating_sub(total_width) / 2;
-    let offset_y = 6858000u32.saturating_sub(total_height) / 2;
+/// A text box shape spanning the slide's text width.
+fn write_text_box(
+    buf: &mut String,
+    id: u32,
+    name: &str,
+    y: u32,
+    height: u32,
+    body: impl FnOnce(&mut String) -> Result<(), RenderError>,
+) -> Result<(), RenderError> {
+    write!(
+        buf,
+        "<p:sp><p:nvSpPr><p:cNvPr id=\"{id}\" name=\"{name}\"/><p:cNvSpPr txBox=\"1\"/><p:nvPr/></p:nvSpPr>\
+         <p:spPr><a:xfrm><a:off x=\"{TEXT_X}\" y=\"{y}\"/><a:ext cx=\"{TEXT_W}\" cy=\"{height}\"/></a:xfrm>\
+         <a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:noFill/></p:spPr>\
+         <p:txBody><a:bodyPr wrap=\"square\"/><a:lstStyle/>"
+    )?;
+    body(buf)?;
+    buf.push_str("</p:txBody></p:sp>\n");
+    Ok(())
+}
+
+/// One `<a:p>` of content (an empty paragraph if the content is empty).
+fn write_paragraph(
+    buf: &mut String,
+    rt: &ResolvedTable,
+    nodes: &[ContentNode],
+    fmt: Fmt,
+) -> Result<(), RenderError> {
+    buf.push_str("<a:p>");
+    if !write_content(buf, rt, nodes, fmt)? {
+        buf.push_str("<a:endParaRPr/>");
+    }
+    buf.push_str("</a:p>");
+    Ok(())
+}
+
+fn write_table_frame(
+    buf: &mut String,
+    rt: &ResolvedTable,
+    offset_x: u32,
+    offset_y: u32,
+) -> Result<(), RenderError> {
+    let col_widths = compute_col_widths(rt);
+    let (total_width, total_height) = table_size(rt);
 
     buf.push_str("<p:graphicFrame>\n");
     buf.push_str("<p:nvGraphicFramePr><p:cNvPr id=\"2\" name=\"Table\"/>");
@@ -242,6 +350,8 @@ struct Fmt {
     italic: bool,
     color: Option<Color>,
     superscript: bool,
+    /// Font size in hundredths of a point (`None`: inherited).
+    size: Option<u32>,
 }
 
 impl Fmt {
@@ -250,7 +360,7 @@ impl Fmt {
             bold: self.bold || style.is_bold(),
             italic: self.italic || style.is_italic(),
             color: style.paint().or(self.color),
-            superscript: self.superscript,
+            ..self
         }
     }
 }
@@ -305,6 +415,9 @@ fn write_run(buf: &mut String, text: &str, fmt: Fmt) -> Result<bool, RenderError
     }
     if fmt.italic {
         buf.push_str(" i=\"1\"");
+    }
+    if let Some(sz) = fmt.size {
+        write!(buf, " sz=\"{sz}\"")?;
     }
     if fmt.superscript {
         buf.push_str(" baseline=\"30000\"");
