@@ -265,17 +265,5 @@ pub fn inlines(rt: &ResolvedTable, nodes: &[ContentNode]) -> Vec<Value> {
 
 /// Content as plain text (for attributes such as Quarto's `tbl-cap`).
 pub fn plain_text(nodes: &[ContentNode]) -> String {
-    let mut out = String::new();
-    for node in nodes {
-        match node {
-            ContentNode::Text { value } | ContentNode::StyledText { value, .. } => {
-                out.push_str(value)
-            }
-            ContentNode::LineBreak {} => out.push(' '),
-            ContentNode::FootnoteMark { mark_text, .. } => out.push_str(mark_text),
-            ContentNode::Image { alt, .. } => out.push_str(alt.as_deref().unwrap_or("")),
-            ContentNode::Raw { .. } | ContentNode::Unknown => {}
-        }
-    }
-    out
+    gridwell_layout::plain_text(nodes, " ")
 }
