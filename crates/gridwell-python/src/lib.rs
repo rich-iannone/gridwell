@@ -182,7 +182,8 @@ impl PyTable {
         self.text(py, "svg", options.map(|d| d.as_any()))
     }
 
-    /// Render the table for a terminal. Options: box_drawing, true_color, max_width.
+    /// Render the table for a terminal. Options: box_drawing, true_color, max_width,
+    /// background_colors.
     #[pyo3(signature = (**options))]
     fn render_ansi(&self, py: Python<'_>, options: Option<&Bound<'_, PyDict>>) -> PyResult<String> {
         self.text(py, "ansi", options.map(|d| d.as_any()))
