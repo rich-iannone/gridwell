@@ -7,7 +7,9 @@ use gridwell_render::REGISTRY;
 
 fn table_from(ptr: &Robj) -> ExternalPtr<Table> {
     ptr.try_into().unwrap_or_else(|_| {
-        throw_r_error("Expected a gridwell table pointer. Did you pass the result of gw_parse_ir()?")
+        throw_r_error(
+            "Expected a gridwell table pointer. Did you pass the result of gw_parse_ir()?",
+        )
     })
 }
 
