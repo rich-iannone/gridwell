@@ -169,6 +169,7 @@ pub fn validate_with_limits(table: &Table, limits: &Limits) -> Vec<ValidationErr
     validate_style_refs(table, &mut errors);
     validate_footnote_refs(table, &mut errors);
     validate_summary_requires_stub(table, &mut errors);
+    validate_stub_contiguous(table, &mut errors);
     validate_spans(table, &mut errors);
     validate_placeholder_content(table, &mut errors);
     validate_keywords(table, &mut errors);
@@ -532,6 +533,49 @@ fn validate_footnote_refs(table: &Table, errors: &mut Vec<ValidationError>) {
     }
 }
 
+/// STUB_CONTIGUOUS: the stub is a block of `config.stub_cols` columns at the left:
+/// it fits in the table, and no cell flagged `is_stub` starts to its right.
+fn validate_stub_contiguous(table: &Table, errors: &mut Vec<ValidationError>) {
+    let stub = table.config.stub_cols;
+    if stub > table.config.table_cols {
+        errors.push(ValidationError {
+            rule: ValidationRule::StubContiguous,
+            section: "config".to_string(),
+            row_group: None,
+            row: None,
+            col: None,
+            message: format!(
+                "config.stub_cols is {stub} but the table has only {} columns",
+                table.config.table_cols
+            ),
+        });
+        return;
+    }
+    let mut check = |rows: &[crate::cell::Row], section: &str, row_group: Option<u32>| {
+        for (r, row) in rows.iter().enumerate() {
+            for (c, cell) in row.cells.iter().enumerate() {
+                if cell.is_stub && !cell.is_placeholder && c as u32 >= stub {
+                    errors.push(ValidationError {
+                        rule: ValidationRule::StubContiguous,
+                        section: section.to_string(),
+                        row_group,
+                        row: Some(r as u32),
+                        col: Some(c as u32),
+                        message: format!(
+                            "cell is flagged is_stub but column {c} is outside the stub columns (config.stub_cols is {stub})"
+                        ),
+                    });
+                }
+            }
+        }
+    };
+    check(&table.table.thead.rows, "thead", None);
+    for (g, group) in table.table.tbody.iter().enumerate() {
+        check(&group.rows, "tbody", Some(g as u32));
+        check(&group.summary_rows, "tbody_summary", Some(g as u32));
+    }
+}
+
 /// SUMMARY_REQUIRES_STUB: rows with summary role require stub_cols >= 1
 fn validate_summary_requires_stub(table: &Table, errors: &mut Vec<ValidationError>) {
     if table.config.stub_cols > 0 {
@@ -563,6 +607,11 @@ fn validate_spans(table: &Table, errors: &mut Vec<ValidationError>) {
     let table_cols = table.config.table_cols;
 
     let mut check_section = |rows: &[crate::cell::Row], section: &str, row_group: Option<u32>| {
+        // A row with the wrong number of cells is reported once, as COL_COUNT;
+        // checking the section's spans too would only add a SPAN_GAP per missing
+        // position. So with valid cell counts, an uncovered position is always a
+        // placeholder (SPAN_PLACEHOLDER_MISMATCH), and SPAN_GAP comes only from
+        // `OccupancyGrid::materialize` called on short rows directly.
         if rows.is_empty()
             || rows
                 .iter()
