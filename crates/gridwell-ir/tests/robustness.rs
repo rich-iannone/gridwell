@@ -305,6 +305,7 @@ fn every_rule_displays_as_its_serialized_id() {
         SpanZeroValue,
         SummaryRequiresStub,
         LimitExceeded,
+        UnknownValue,
     ] {
         let serialized = serde_json::to_string(&rule).unwrap();
         assert_eq!(format!("\"{rule}\""), serialized);
