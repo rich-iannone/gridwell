@@ -294,17 +294,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "gridwell-ir",
- "gridwell-writer-ansi",
- "gridwell-writer-docx",
- "gridwell-writer-html",
- "gridwell-writer-latex",
- "gridwell-writer-pandoc",
- "gridwell-writer-pptx",
- "gridwell-writer-quarto",
- "gridwell-writer-rtf",
- "gridwell-writer-svg",
- "gridwell-writer-typst",
- "gridwell-writer-xlsx",
+ "gridwell-render",
  "serde_json",
 ]
 
@@ -321,21 +311,9 @@ name = "gridwell-ffi"
 version = "0.1.0"
 dependencies = [
  "cbindgen",
- "gridwell-core",
  "gridwell-ir",
+ "gridwell-render",
  "gridwell-testkit",
- "gridwell-writer-ansi",
- "gridwell-writer-docx",
- "gridwell-writer-html",
- "gridwell-writer-latex",
- "gridwell-writer-pandoc",
- "gridwell-writer-pptx",
- "gridwell-writer-quarto",
- "gridwell-writer-rtf",
- "gridwell-writer-svg",
- "gridwell-writer-typst",
- "gridwell-writer-xlsx",
- "quick-xml",
  "serde_json",
 ]
 
@@ -364,6 +342,17 @@ name = "gridwell-python"
 version = "0.1.0"
 dependencies = [
  "gridwell-ir",
+ "gridwell-render",
+ "pyo3",
+]
+
+[[package]]
+name = "gridwell-render"
+version = "0.1.0"
+dependencies = [
+ "gridwell-core",
+ "gridwell-ir",
+ "gridwell-testkit",
  "gridwell-writer-ansi",
  "gridwell-writer-docx",
  "gridwell-writer-html",
@@ -375,8 +364,10 @@ dependencies = [
  "gridwell-writer-svg",
  "gridwell-writer-typst",
  "gridwell-writer-xlsx",
- "pyo3",
+ "quick-xml",
+ "serde",
  "serde_json",
+ "thiserror",
 ]
 
 [[package]]
@@ -395,6 +386,7 @@ dependencies = [
  "gridwell-layout",
  "gridwell-testkit",
  "insta",
+ "serde",
  "serde_json",
  "thiserror",
  "unicode-width",
@@ -424,6 +416,7 @@ dependencies = [
  "gridwell-layout",
  "gridwell-testkit",
  "insta",
+ "serde",
  "serde_json",
  "thiserror",
 ]
@@ -437,6 +430,7 @@ dependencies = [
  "gridwell-layout",
  "gridwell-testkit",
  "insta",
+ "serde",
  "serde_json",
  "thiserror",
 ]
@@ -507,6 +501,7 @@ dependencies = [
  "gridwell-testkit",
  "image",
  "insta",
+ "serde",
  "serde_json",
  "thiserror",
  "unicode-width",
@@ -521,6 +516,7 @@ dependencies = [
  "gridwell-layout",
  "gridwell-testkit",
  "insta",
+ "serde",
  "serde_json",
  "thiserror",
 ]
@@ -1230,18 +1226,8 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "gridwell-ir",
+ "gridwell-render",
  "gridwell-testkit",
- "gridwell-writer-ansi",
- "gridwell-writer-docx",
- "gridwell-writer-html",
- "gridwell-writer-latex",
- "gridwell-writer-pandoc",
- "gridwell-writer-pptx",
- "gridwell-writer-quarto",
- "gridwell-writer-rtf",
- "gridwell-writer-svg",
- "gridwell-writer-typst",
- "gridwell-writer-xlsx",
  "image",
  "serde_json",
 ]
