@@ -11,8 +11,7 @@ gridwell-ir = { path = "../gridwell-ir" }
 gridwell-core = { path = "../gridwell-core" }
 gridwell-layout = { path = "../gridwell-layout" }
 thiserror = { workspace = true }
-zip = { workspace = true }
-quick-xml = { workspace = true }
+gridwell-ooxml = { path = "../gridwell-ooxml" }
 
 [dev-dependencies]
 gridwell-testkit = { path = "../gridwell-testkit" }
