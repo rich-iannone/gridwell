@@ -5,7 +5,8 @@ use gridwell_ir::Table;
 pub use render::RenderError;
 
 /// Configuration for Typst output.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct TypstWriterConfig {
     /// Whether to repeat the header on each page.
     pub repeat_header: bool,
