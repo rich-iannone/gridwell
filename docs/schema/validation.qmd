@@ -25,6 +25,8 @@ and when errors are serialized.
 | `FOOTNOTE_REFS_VALID` | Every `footnote_mark` refers to a defined footnote |
 | `SUMMARY_REQUIRES_STUB` | A group with summary rows requires `config.stub_cols >= 1` |
 | `UNKNOWN_VALUE` | A keyword field holds a value outside its allowed set (see [Keyword values](#keyword-values)) |
+| `INVALID_COLOR` | A colour field is not a CSS colour (see [Colours](#colours)) |
+| `INVALID_LENGTH` | A length field does not parse, or uses a form its field does not allow (see [Lengths](#lengths)) |
 
 ## Span Rules
 
@@ -67,6 +69,46 @@ at once. Known values are written back in their canonical spelling.
 | conditional `selector.scope` | `tbody` (`body`), `thead` (`head`), `table` (`all`) |
 | `typed_value.type`, `cell.data_type` | `string`, `number`, `integer`, `boolean`, `date`, `datetime`, `time`, `duration` (plus common aliases such as `int`, `bool`, `float`) |
 
+## Colours
+
+`color`, `background_color` and `border.*.color` (in style definitions, composition
+overrides and conditional styles) accept, ignoring case and surrounding whitespace:
+
+| Form | Examples |
+|------|----------|
+| CSS named colour (all 148) | `red`, `steelblue`, `RebeccaPurple`, `grey` |
+| `transparent` | paints nothing |
+| Hex | `#abc`, `#abcd`, `#aabbcc`, `#aabbccdd` |
+| `rgb()` / `rgba()`, comma syntax | `rgb(255, 0, 0)`, `rgba(255, 0, 0, 0.5)`, `rgb(100%, 50%, 0%)` |
+| `rgb()` / `rgba()`, space syntax | `rgb(255 0 0)`, `rgb(255 0 0 / 50%)` |
+| `hsl()` / `hsla()` | `hsl(120, 100%, 25%)`, `hsl(120deg 100% 25% / 0.5)`; hue units `deg`, `grad`, `rad`, `turn` |
+
+Out-of-range channels clamp, as in CSS. Writers receive the parsed colour, never the
+source text: HTML and SVG emit `#RRGGBB` (or `rgba()` when translucent), Typst keeps
+alpha as `#RRGGBBAA`, and formats without alpha (LaTeX, RTF, DOCX, PPTX, ANSI) drop
+it. A fully transparent colour paints nothing in every format.
+
+## Lengths
+
+A length is a finite number followed by a unit, `px`, `pt`, `em`, `rem`, `in`, `cm`,
+`mm`, `%` or `fr` (case-insensitive, no space before the unit), or `auto`. A bare
+`0` is allowed; any other number needs a unit. Each field accepts only the forms
+that make sense for it:
+
+| Field | Units | `%` | `fr` | `auto` | Negative |
+|-------|:-----:|:---:|:----:|:------:|:--------:|
+| `column_spec[].width` | ✓ | ✓ | ✓ | ✓ | |
+| `column_spec[].min_width`, `max_width` | ✓ | ✓ | | | |
+| `config.table_width`, `container_width`, `container_height` | ✓ | ✓ | | ✓ | |
+| image `width`, `height` (any content) | ✓ | ✓ | | ✓ | |
+| style `min_width`, `max_width`, `padding.*` | ✓ | ✓ | | | |
+| style `indent` | ✓ | ✓ | | | ✓ |
+| style `border.*.width` | ✓ | | | | |
+| style `font_size` | ✓ | ✓ | | | |
+
+`font_size` also accepts the CSS size keywords `xx-small`, `x-small`, `small`,
+`medium`, `large`, `x-large`, `xx-large`, `xxx-large`, `smaller` and `larger`.
+
 ## How Validation Works
 
 The validator materializes a **2D occupancy grid** for each section:
@@ -86,7 +128,8 @@ Each error includes the rule name, location, and a human-readable message:
 ```text
 [COL_COUNT] tbody group 0 row 0 has 4 cells but config.table_cols is 3
 [SPAN_OVERFLOW_RIGHT] cell at (row=1, col=4) has colspan=3 but table has 5 columns
-[PlaceholderHasContent] placeholder cell at (row=2, col=1) has non-empty content
+[SPAN_PLACEHOLDER_HAS_CONTENT] placeholder cell at (row=2, col=1) has non-empty content
+[INVALID_LENGTH] column_spec[1].width is "-5px", which is not valid here: it is negative (expected a non-negative length (px, pt, em, rem, in, cm, mm), or a percentage, or a fraction (fr), or auto)
 ```
 
 ## Usage
