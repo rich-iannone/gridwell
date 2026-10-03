@@ -4,6 +4,12 @@ expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="105" height="152" viewBox="0 0 105 152">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
+<rect x="0" y="60" width="34.92" height="28" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="34.92" y="60" width="34.92" height="28" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="69.84" y="60" width="34.92" height="28" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="0" y="116" width="34.92" height="28" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="34.92" y="116" width="34.92" height="28" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="69.84" y="116" width="34.92" height="28" fill="rgba(128, 128, 128, 0.051)"/>
 <text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">A</tspan></text>
 <text x="42.92" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">B</tspan></text>
 <text x="77.84" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">C</tspan></text>

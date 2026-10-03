@@ -6,14 +6,14 @@ expression: out
 {\small Fiscal years 2023–2024 (in millions USD)}\\[6pt]
 \begin{tabular}{lrrr}
 \toprule
- &  & \multicolumn{2}{l}{Financials} \\
+ &  & \multicolumn{2}{r}{Financials} \\
 Country & Year & Revenue & Profit \\
 \midrule
 \midrule
 \multicolumn{4}{l}{\bfseries North America} \\
 \midrule
 \multirow{2}{*}{United States} & 2023 & 1,250.3 & 270.1\textsuperscript{1} \\
-2024 & 1,380.7 & 330.3 \\
+ & 2024 & 1,380.7 & 330.3 \\
 Canada & 2024 & 420.1 & 109.5 \\
 \midrule
 \multicolumn{4}{l}{\bfseries Europe} \\

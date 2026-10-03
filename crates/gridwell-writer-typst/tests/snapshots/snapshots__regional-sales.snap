@@ -6,11 +6,12 @@ expression: out
 #align(left)[#text(size: 12pt, fill: luma(100))[Fiscal years 2023–2024 \(in millions USD\)]]
 #v(6pt)
 #table(
-  columns: (auto, auto, auto, auto),
+  columns: (auto, auto, auto, auto,),
+  align: (left, right, right, right,),
   stroke: none,
   table.header(
-    [#text(weight: "bold")[]],
-    [#text(weight: "bold")[]],
+    [],
+    [],
     table.cell(colspan: 2)[#text(weight: "bold")[Financials]],
     [#text(weight: "bold")[Country]],
     [#text(weight: "bold")[Year]],

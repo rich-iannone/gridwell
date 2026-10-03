@@ -157,8 +157,13 @@ expression: out
                         "t": "Space"
                       },
                       {
-                        "c": "systems",
-                        "t": "Str"
+                        "c": [
+                          {
+                            "c": "systems",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Emph"
                       },
                       {
                         "t": "Space"

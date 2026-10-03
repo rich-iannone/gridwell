@@ -3,13 +3,11 @@ source: crates/gridwell-writer-pptx/tests/snapshots.rs
 expression: xml
 ---
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<p:sp xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-<p:nvSpPr><p:cNvPr id="2" name="Table"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr>
-<p:spPr><a:xfrm><a:off x="3200400" y="3108960"/><a:ext cx="2743200" cy="640080"/></a:xfrm></p:spPr>
-<p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:endParaRPr/></a:p></p:txBody>
-</p:sp>
+<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<p:cSld><p:spTree>
+<p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/>
 <p:graphicFrame>
-<p:nvGraphicFramePr><p:cNvPr id="3" name="Table"/><p:cNvGraphicFramePr><a:graphicFrameLocks noGrp="1"/></p:cNvGraphicFramePr><p:nvPr/></p:nvGraphicFramePr>
+<p:nvGraphicFramePr><p:cNvPr id="2" name="Table"/><p:cNvGraphicFramePr><a:graphicFrameLocks noGrp="1"/></p:cNvGraphicFramePr><p:nvPr/></p:nvGraphicFramePr>
 <p:xfrm><a:off x="3200400" y="3108960"/><a:ext cx="2743200" cy="640080"/></p:xfrm>
 <a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/table">
 <a:tbl>
@@ -20,3 +18,6 @@ expression: xml
 </a:tbl>
 </a:graphicData></a:graphic>
 </p:graphicFrame>
+</p:spTree></p:cSld>
+<p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr>
+</p:sld>

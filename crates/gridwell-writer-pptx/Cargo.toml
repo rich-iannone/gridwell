@@ -9,6 +9,7 @@ description = "PowerPoint (.pptx) writer for gridwell: IR → PresentationML tab
 [dependencies]
 gridwell-ir = { path = "../gridwell-ir" }
 gridwell-core = { path = "../gridwell-core" }
+gridwell-layout = { path = "../gridwell-layout" }
 thiserror = { workspace = true }
 zip = { workspace = true }
 quick-xml = { workspace = true }

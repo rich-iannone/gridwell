@@ -6,6 +6,6 @@ expression: out
 \toprule
 Term & Note \\
 \midrule
-Rust & A systems language. \\
+Rust & A \textcolor[HTML]{8E44AD}{\textit{systems}} language. \\
 \bottomrule
 \end{tabular}

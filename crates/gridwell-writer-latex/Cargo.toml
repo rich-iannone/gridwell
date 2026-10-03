@@ -9,6 +9,7 @@ description = "LaTeX writer for gridwell: IR → LaTeX (booktabs, longtable, mul
 [dependencies]
 gridwell-ir = { path = "../gridwell-ir" }
 gridwell-core = { path = "../gridwell-core" }
+gridwell-layout = { path = "../gridwell-layout" }
 thiserror = { workspace = true }
 
 [dev-dependencies]

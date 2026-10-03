@@ -182,8 +182,13 @@ expression: out
                   {
                     "c": [
                       {
-                        "c": "special",
-                        "t": "Str"
+                        "c": [
+                          {
+                            "c": "special",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Strong"
                       }
                     ],
                     "t": "Plain"

@@ -6,6 +6,6 @@ expression: out
 \toprule
 Name & Address \\
 \midrule
-HQ & 123 Main St\newline Suite 100\newline Anytown \\
+HQ & \begin{tabular}[t]{@{}l@{}}123 Main St\\Suite 100\\Anytown\end{tabular} \\
 \bottomrule
 \end{tabular}

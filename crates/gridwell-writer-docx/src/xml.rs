@@ -16,19 +16,5 @@ pub const DOCUMENT_RELS: &str = r#"<?xml version="1.0" encoding="UTF-8" standalo
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
 </Relationships>"#;
 
-// OOXML table widths use "dxa" (twentieths of a point): 1 inch = 1440 dxa.
-const DXA_PER_PX: f64 = 15.0; // 1px ≈ 15 dxa at 96dpi
-
-pub fn px_to_dxa(px: f64) -> u32 {
-    (px * DXA_PER_PX) as u32
-}
-
-/// Default column width in dxa (1.5 inches).
+/// Default column width in dxa (twentieths of a point; 1.5 inches).
 pub const DEFAULT_COL_WIDTH_DXA: u32 = 2160;
-
-/// Convert any CSS colour to OOXML's `RRGGBB`. Alpha is dropped (OOXML run and
-/// shading colours have none); fully transparent means "no colour".
-pub fn hex_to_ooxml_color(color: &str) -> Option<String> {
-    let c = color.parse::<gridwell_core::Color>().ok()?;
-    (!c.is_transparent()).then(|| c.to_rrggbb())
-}

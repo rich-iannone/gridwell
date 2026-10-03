@@ -60,15 +60,8 @@ pub const SLIDE_MASTER_RELS: &str = r#"<?xml version="1.0" encoding="UTF-8" stan
   <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>
 </Relationships>"#;
 
-/// EMU per pixel at 96 DPI.
-pub const EMU_PER_PX: u32 = 9525;
-
 /// Default column width in EMU (1 inch).
 pub const DEFAULT_COL_WIDTH_EMU: u32 = 914400;
 
 /// Default row height in EMU (0.35 inches).
 pub const DEFAULT_ROW_HEIGHT_EMU: u32 = 320040;
-
-pub fn px_to_emu(px: f64) -> u32 {
-    (px * EMU_PER_PX as f64) as u32
-}

@@ -9,6 +9,7 @@ description = "RTF writer for gridwell: IR → Rich Text Format"
 [dependencies]
 gridwell-ir = { path = "../gridwell-ir" }
 gridwell-core = { path = "../gridwell-core" }
+gridwell-layout = { path = "../gridwell-layout" }
 thiserror = { workspace = true }
 
 [dev-dependencies]

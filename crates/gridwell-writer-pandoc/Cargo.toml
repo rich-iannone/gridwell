@@ -9,6 +9,7 @@ description = "Pandoc AST JSON writer for gridwell: IR → Pandoc native table A
 [dependencies]
 gridwell-ir = { path = "../gridwell-ir" }
 gridwell-core = { path = "../gridwell-core" }
+gridwell-layout = { path = "../gridwell-layout" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

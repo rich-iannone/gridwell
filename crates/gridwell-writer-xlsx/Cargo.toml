@@ -9,6 +9,7 @@ description = "Excel (.xlsx) writer for gridwell: IR → SpreadsheetML"
 [dependencies]
 gridwell-ir = { path = "../gridwell-ir" }
 gridwell-core = { path = "../gridwell-core" }
+gridwell-layout = { path = "../gridwell-layout" }
 thiserror = { workspace = true }
 zip = { workspace = true }
 quick-xml = { workspace = true }

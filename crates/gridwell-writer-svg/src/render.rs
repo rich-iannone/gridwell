@@ -10,8 +10,8 @@ use std::fmt::Write;
 
 use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::style::StyleDef;
-use gridwell_ir::{resolve_slots, ColumnVisibility, HAlign, Row, Slot, Table};
+use gridwell_ir::{HAlign, Table};
+use gridwell_layout::{resolve, ResolvedStyle, ResolvedTable, Section};
 use thiserror::Error;
 
 use crate::measure::{max_width, wrap, Line, Run, RunStyle, SUP_SCALE};
@@ -114,13 +114,9 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     let fs = config.font_size;
     let pad_x = config.cell_padding_x;
     let pad_y = config.cell_padding_y;
-    let styles = Styles(table);
-    let vis = ColumnVisibility::from_spec(&table.column_spec);
-    let ncols = vis.visible_len();
-    let visible_spec: Vec<_> = vis
-        .visible_columns()
-        .map(|c| &table.column_spec[c])
-        .collect();
+    let rt = resolve(table);
+    let rt = &rt;
+    let ncols = rt.columns.len();
 
     // 1. Collect cells and bands in display order, assigning global row indices.
     let mut cells: Vec<PendingCell> = Vec::new();
@@ -129,69 +125,45 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     let mut nrows = 0usize;
 
     let add_section =
-        |rows: &[Row], is_header: bool, nrows: &mut usize, cells: &mut Vec<PendingCell>| {
-            let slots = resolve_slots(rows);
-            for (r, (row, row_slots)) in rows.iter().zip(&slots).enumerate() {
-                for (c, (cell, slot)) in row.cells.iter().zip(row_slots).enumerate() {
-                    let Slot::Origin { colspan, rowspan } = *slot else {
-                        continue;
-                    };
-                    // Cells entirely in hidden columns are dropped; spans shrink.
-                    let Some((vcol, vspan)) = vis.project(c, colspan) else {
-                        continue;
-                    };
+        |section: &Section, is_header: bool, nrows: &mut usize, cells: &mut Vec<PendingCell>| {
+            for (r, row) in section.rows.iter().enumerate() {
+                for cell in row.cells() {
                     let mut base = RunStyle {
                         bold: is_header,
                         ..Default::default()
                     };
-                    let cell_def = cell.style_id.as_deref().and_then(|id| styles.resolve(id));
-                    let row_def = row.style_id.as_deref().and_then(|id| styles.resolve(id));
-                    for def in [row_def.as_ref(), cell_def.as_ref()].into_iter().flatten() {
-                        apply_style(&mut base, def);
-                    }
-                    let fill = [cell_def.as_ref(), row_def.as_ref()]
-                        .into_iter()
-                        .flatten()
-                        .find_map(|d| d.background_color.as_deref().and_then(valid_color));
-                    let align = cell_def
-                        .as_ref()
-                        .and_then(|d| d.text_align.as_ref())
-                        .map(svg_align)
-                        .unwrap_or_else(|| svg_align(&visible_spec[vcol].align));
-                    let runs = content_runs(&cell.content, &base, &styles);
+                    apply_style(&mut base, &cell.style);
+                    let runs = content_runs(cell.content, &base, rt);
                     let natural = paragraphs_width(&runs, fs);
                     cells.push(PendingCell {
                         row: *nrows + r,
-                        col: vcol,
-                        colspan: vspan,
-                        // A rowspan never crosses its section (validated).
-                        rowspan: rowspan.min(rows.len() - r),
+                        col: cell.col,
+                        colspan: cell.colspan,
+                        rowspan: cell.rowspan,
                         runs,
                         natural,
-                        align,
-                        fill,
+                        align: svg_align(&cell.align),
+                        fill: cell.style.fill().map(|c| c.to_css()),
                     });
                 }
             }
-            *nrows += rows.len();
+            *nrows += section.rows.len();
         };
 
-    if !table.config.column_labels_hidden && !table.table.thead.rows.is_empty() {
-        add_section(&table.table.thead.rows, true, &mut nrows, &mut cells);
+    if !rt.head.is_empty() {
+        add_section(&rt.head, true, &mut nrows, &mut cells);
         rule_after_row = Some(nrows);
     }
-    for group in &table.table.tbody {
+    for group in &rt.groups {
         if let Some(label) = &group.label {
             let mut base = RunStyle {
                 bold: true,
                 ..Default::default()
             };
-            if let Some(def) = label.style_id.as_deref().and_then(|id| styles.resolve(id)) {
-                apply_style(&mut base, &def);
-            }
+            apply_style(&mut base, &label.style);
             bands.push(PendingBand {
                 row: nrows,
-                runs: content_runs(&label.content, &base, &styles),
+                runs: content_runs(label.content, &base, rt),
             });
             nrows += 1;
         }
@@ -202,11 +174,11 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     // 2. Column widths: fixed where the spec gives an absolute width, otherwise fit
     //    the widest single-column cell; clamp to min/max; then grow for spanners.
     let min_col = 2.0 * pad_x + fs;
-    let max_of = |v: usize| visible_spec[v].max_width.as_deref().and_then(px);
+    let max_of = |v: usize| rt.columns[v].max_width.as_ref().and_then(px);
     let mut widths = vec![0.0f64; ncols];
     let mut fixed = vec![false; ncols];
-    for (v, spec) in visible_spec.iter().enumerate() {
-        if let Some(w) = px(&spec.width) {
+    for (v, col) in rt.columns.iter().enumerate() {
+        if let Some(w) = col.width.as_ref().and_then(px) {
             widths[v] = w;
             fixed[v] = true;
         }
@@ -216,8 +188,8 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
             widths[cell.col] = widths[cell.col].max(cell.natural + 2.0 * pad_x);
         }
     }
-    for (v, spec) in visible_spec.iter().enumerate() {
-        let lo = spec.min_width.as_deref().and_then(px).unwrap_or(min_col);
+    for (v, col) in rt.columns.iter().enumerate() {
+        let lo = col.min_width.as_ref().and_then(px).unwrap_or(min_col);
         let hi = max_of(v).unwrap_or(f64::INFINITY).max(lo);
         widths[v] = widths[v].max(lo).min(hi);
     }
@@ -279,31 +251,21 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     let text_area = table_width.max(config.default_col_width * 3.0) - 2.0 * pad_x;
     let mut out = Layout::default();
     let mut y = pad_y;
-    let mut header_lines: Vec<(&[ContentNode], f64, bool)> = Vec::new();
-    if let Some(h) = &table.header {
-        header_lines.extend(
-            h.title
-                .iter()
-                .map(|t| (t.content.as_slice(), TITLE_SCALE, true)),
-        );
-        header_lines.extend(
-            h.subtitle
-                .iter()
-                .map(|t| (t.content.as_slice(), SUBTITLE_SCALE, false)),
-        );
-        header_lines.extend(
-            h.extra_lines
-                .iter()
-                .map(|t| (t.content.as_slice(), 1.0, false)),
-        );
-    }
-    for (content, scale, bold) in header_lines {
+    let h = &rt.header;
+    let header_lines = h
+        .title
+        .iter()
+        .map(|t| (t, TITLE_SCALE, true))
+        .chain(h.subtitle.iter().map(|t| (t, SUBTITLE_SCALE, false)))
+        .chain(h.extra_lines.iter().map(|t| (t, 1.0, false)));
+    for (line, scale, bold) in header_lines {
         let size = fs * scale;
-        let base = RunStyle {
+        let mut base = RunStyle {
             bold,
             ..Default::default()
         };
-        let lines = wrap_paragraphs(&content_runs(content, &base, &styles), size, text_area);
+        apply_style(&mut base, &line.style);
+        let lines = wrap_paragraphs(&content_runs(line.content, &base, rt), size, text_area);
         let h = lines.len() as f64 * size * LINE_HEIGHT;
         out.header.push(TextBlock {
             width: max_width(&lines).max(text_area),
@@ -374,13 +336,14 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
 
     // 6. Footnotes and source notes below the table.
     let mut y = row_y[nrows] + pad_y;
-    if let Some(footer) = &table.footer {
+    {
+        let footer = &rt.footer;
         let size = fs * NOTE_SCALE;
         let footnotes = footer.footnotes.iter().map(|n| {
-            let mut paragraphs = content_runs(&n.content, &RunStyle::default(), &styles);
+            let mut paragraphs = content_runs(n.content, &RunStyle::default(), rt);
             let mut first = vec![
                 Run {
-                    text: n.mark.clone(),
+                    text: n.mark.to_string(),
                     style: RunStyle {
                         sup: true,
                         ..Default::default()
@@ -398,7 +361,7 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
         let sources = footer
             .source_notes
             .iter()
-            .map(|n| content_runs(&n.content, &RunStyle::default(), &styles));
+            .map(|n| content_runs(n.content, &RunStyle::default(), rt));
         for paragraphs in footnotes.chain(sources) {
             let lines = wrap_paragraphs(&paragraphs, size, text_area);
             let h = lines.len() as f64 * size * LINE_HEIGHT;
@@ -453,7 +416,7 @@ fn paragraphs_width(paragraphs: &[Vec<Run>], font_size: f64) -> f64 {
 
 /// Convert content nodes to paragraphs of styled runs (`line_break` starts a new
 /// paragraph).
-fn content_runs(nodes: &[ContentNode], base: &RunStyle, styles: &Styles) -> Vec<Vec<Run>> {
+fn content_runs(nodes: &[ContentNode], base: &RunStyle, rt: &ResolvedTable) -> Vec<Vec<Run>> {
     let mut paragraphs: Vec<Vec<Run>> = vec![Vec::new()];
     for node in nodes {
         let current = paragraphs.last_mut().unwrap();
@@ -464,8 +427,8 @@ fn content_runs(nodes: &[ContentNode], base: &RunStyle, styles: &Styles) -> Vec<
             }),
             ContentNode::StyledText { value, style_id } => {
                 let mut style = base.clone();
-                if let Some(def) = style_id.as_deref().and_then(|id| styles.resolve(id)) {
-                    apply_style(&mut style, &def);
+                if let Some(id) = style_id.as_deref() {
+                    apply_style(&mut style, &rt.style(id));
                 }
                 current.push(Run {
                     text: value.clone(),
@@ -500,15 +463,16 @@ fn content_runs(nodes: &[ContentNode], base: &RunStyle, styles: &Styles) -> Vec<
     paragraphs
 }
 
-fn apply_style(style: &mut RunStyle, def: &StyleDef) {
-    if let Some(w) = &def.font_weight {
+/// Weight, slant and colour from a style; unset properties keep `style`'s value.
+fn apply_style(style: &mut RunStyle, s: &ResolvedStyle) {
+    if let Some(w) = &s.font_weight {
         style.bold = w.is_bold();
     }
-    if let Some(s) = &def.font_style {
-        style.italic = s.is_italic();
+    if let Some(f) = &s.font_style {
+        style.italic = f.is_italic();
     }
-    if let Some(c) = def.color.as_deref().and_then(valid_color) {
-        style.color = Some(c);
+    if let Some(c) = s.paint() {
+        style.color = Some(c.to_css());
     }
 }
 
@@ -523,42 +487,15 @@ fn svg_align(a: &HAlign) -> Align {
 
 /// A length in px, for widths with an absolute meaning. `%`, `fr`, `em` and `auto`
 /// have no container to resolve against in a standalone SVG: `None` (auto).
-fn px(s: &str) -> Option<f64> {
-    match s.parse::<Length>().ok()? {
-        Length::Px(v) => Some(v),
+fn px(l: &Length) -> Option<f64> {
+    match l {
+        &Length::Px(v) => Some(v),
         l @ (Length::Pt(_) | Length::In(_) | Length::Cm(_) | Length::Mm(_)) => {
             l.to_pt(0.0, 0.0).map(|pt| pt / 0.75)
         }
         _ => None,
     }
     .filter(|v| v.is_finite() && *v > 0.0)
-}
-
-/// Any CSS colour, re-emitted in normalized form (never the source text, so it is
-/// always safe inside an attribute). Fully transparent means "don't paint".
-fn valid_color(c: &str) -> Option<String> {
-    let c = c.parse::<gridwell_core::Color>().ok()?;
-    (!c.is_transparent()).then(|| c.to_css())
-}
-
-/// Style lookup with single-level compositions.
-struct Styles<'a>(&'a Table);
-
-impl Styles<'_> {
-    fn resolve(&self, id: &str) -> Option<StyleDef> {
-        let palette = &self.0.styles;
-        if let Some(def) = palette.defs.get(id) {
-            return Some(def.clone());
-        }
-        let comp = palette.compositions.get(id)?;
-        let mut def = palette.defs.get(&comp.extends)?.clone();
-        let o = &comp.overrides;
-        macro_rules! over {
-            ($($f:ident),*) => { $( if o.$f.is_some() { def.$f = o.$f.clone(); } )* };
-        }
-        over!(font_weight, font_style, color, background_color, text_align);
-        Some(def)
-    }
 }
 
 // ───────────────────────────────── emit ──────────────────────────────────

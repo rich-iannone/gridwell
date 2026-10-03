@@ -4,7 +4,8 @@ expression: out
 ---
 #align(left)[#text(size: 16pt, weight: "bold")[Sequence]]
 #table(
-  columns: (auto, auto, auto),
+  columns: (auto, auto, auto,),
+  align: (left, left, left,),
   stroke: none,
   table.header(
     [#text(weight: "bold")[n]],

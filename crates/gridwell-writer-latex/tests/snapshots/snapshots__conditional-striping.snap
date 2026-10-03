@@ -6,9 +6,9 @@ expression: out
 \toprule
 Index & Value \\
 \midrule
-0 & a \\
+\cellcolor[HTML]{ECF0F1}0 & \cellcolor[HTML]{ECF0F1}a \\
 1 & b \\
-2 & c \\
+\cellcolor[HTML]{ECF0F1}2 & \cellcolor[HTML]{ECF0F1}c \\
 3 & d \\
 \bottomrule
 \end{tabular}

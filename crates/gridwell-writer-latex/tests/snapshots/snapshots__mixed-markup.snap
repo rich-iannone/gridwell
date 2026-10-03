@@ -6,7 +6,7 @@ expression: out
 \toprule
 Message \\
 \midrule
-Status: degraded\newline Retry advised\textsuperscript{†} \\
+\begin{tabular}[t]{@{}l@{}}Status: \textcolor[HTML]{E67E22}{\textbf{degraded}}\\Retry advised\textsuperscript{†}\end{tabular} \\
 \bottomrule
 \end{tabular}
 

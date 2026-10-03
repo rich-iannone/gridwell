@@ -4,7 +4,8 @@ expression: out
 ---
 #align(left)[#text(size: 16pt, weight: "bold")[Reaction rate constants]]
 #table(
-  columns: (auto, auto, auto, auto),
+  columns: (auto, auto, auto, auto,),
+  align: (left, right, right, right,),
   stroke: none,
   table.header(
     [#text(weight: "bold")[Compound]],

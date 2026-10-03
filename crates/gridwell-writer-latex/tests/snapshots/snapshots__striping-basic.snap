@@ -7,8 +7,8 @@ expression: out
 A & B & C \\
 \midrule
 1 & 2 & 3 \\
-4 & 5 & 6 \\
+\cellcolor[HTML]{F9F9F9}4 & \cellcolor[HTML]{F9F9F9}5 & \cellcolor[HTML]{F9F9F9}6 \\
 7 & 8 & 9 \\
-10 & 11 & 12 \\
+\cellcolor[HTML]{F9F9F9}10 & \cellcolor[HTML]{F9F9F9}11 & \cellcolor[HTML]{F9F9F9}12 \\
 \bottomrule
 \end{tabular}

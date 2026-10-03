@@ -4,6 +4,7 @@ expression: out
 ---
 <div class="gw_container">
   <style>
+    .gw__c0 { background-color: #ECF0F1 }
   </style>
   <table class="gw_table">
     <thead>
@@ -14,16 +15,16 @@ expression: out
     </thead>
     <tbody>
       <tr>
-        <td>0</td>
-        <td>a</td>
+        <td class="gw__c0">0</td>
+        <td class="gw__c0">a</td>
       </tr>
       <tr>
         <td>1</td>
         <td>b</td>
       </tr>
       <tr>
-        <td>2</td>
-        <td>c</td>
+        <td class="gw__c0">2</td>
+        <td class="gw__c0">c</td>
       </tr>
       <tr>
         <td>3</td>

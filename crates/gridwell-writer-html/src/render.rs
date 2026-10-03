@@ -1,7 +1,9 @@
-use gridwell_core::{Color, FontSize, Length};
+use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::style::{Border, BorderSet, Padding, StyleDef};
-use gridwell_ir::{BorderStyle, Cell, ColumnVisibility, Keyword, Row, Table};
+use gridwell_ir::{Keyword, Table};
+use gridwell_layout::{
+    resolve, ResolvedBorder, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, Sides,
+};
 use std::fmt::Write;
 use thiserror::Error;
 
@@ -14,24 +16,58 @@ pub enum RenderError {
 }
 
 /// Internal writer state.
-struct HtmlRenderer<'a> {
+struct HtmlRenderer<'r, 'a> {
+    rt: &'r ResolvedTable<'a>,
     table: &'a Table,
-    config: &'a HtmlWriterConfig,
+    config: &'r HtmlWriterConfig,
     buf: String,
     indent_level: usize,
-    /// Hidden columns get no `<col>` and no cells; spans crossing them shrink.
-    visibility: ColumnVisibility,
+    /// Cascaded cell styles that the cell's own classes don't already produce
+    /// (column defaults, striping, conditionals): emitted as generated classes
+    /// `{prefix}__c{n}`, in first-use order.
+    cell_styles: Vec<ResolvedStyle>,
 }
 
-impl<'a> HtmlRenderer<'a> {
-    fn new(table: &'a Table, config: &'a HtmlWriterConfig) -> Self {
-        Self {
-            table,
+impl<'r, 'a> HtmlRenderer<'r, 'a> {
+    fn new(rt: &'r ResolvedTable<'a>, config: &'r HtmlWriterConfig) -> Self {
+        let mut r = Self {
+            rt,
+            table: rt.table,
             config,
             buf: String::with_capacity(4096),
             indent_level: 0,
-            visibility: ColumnVisibility::from_spec(&table.column_spec),
+            cell_styles: Vec::new(),
+        };
+        if !config.inline_styles {
+            for section in rt.sections() {
+                for row in &section.rows {
+                    for cell in row.cells() {
+                        if r.needs_generated_class(row, cell)
+                            && !r.cell_styles.contains(&cell.style)
+                        {
+                            r.cell_styles.push(cell.style.clone());
+                        }
+                    }
+                }
+            }
         }
+        r
+    }
+
+    /// Whether a cell's cascaded style differs from what its row and cell classes
+    /// give it (the row's class is on the `<tr>`, the cell's on the `<td>`).
+    fn needs_generated_class(&self, row: &ResolvedRow, cell: &ResolvedCell) -> bool {
+        let ids = [row.row.style_id.as_deref(), cell.cell.style_id.as_deref()];
+        cell.style != self.rt.styles(ids.into_iter().flatten())
+    }
+
+    /// The generated class for a cell, if it needs one.
+    fn generated_class(&self, row: &ResolvedRow, cell: &ResolvedCell) -> Option<String> {
+        if self.config.inline_styles || !self.needs_generated_class(row, cell) {
+            return None;
+        }
+        let n = self.cell_styles.iter().position(|s| *s == cell.style)?;
+        Some(format!("{}__c{n}", self.config.class_prefix))
     }
 
     fn indent(&self) -> String {
@@ -118,10 +154,7 @@ impl<'a> HtmlRenderer<'a> {
         }
 
         let styles = &self.table.styles;
-        if styles.defs.is_empty()
-            && styles.compositions.is_empty()
-            && styles.conditionals.is_empty()
-        {
+        if styles.defs.is_empty() && styles.compositions.is_empty() && self.cell_styles.is_empty() {
             return;
         }
 
@@ -132,9 +165,8 @@ impl<'a> HtmlRenderer<'a> {
         let mut style_ids: Vec<&String> = styles.defs.keys().collect();
         style_ids.sort();
         for id in style_ids {
-            let def = &styles.defs[id];
             let class_name = format!(".{}_{}", self.config.class_prefix, id);
-            let css = style_def_to_css(def);
+            let css = style_css(&self.rt.style(id));
             if !css.is_empty() {
                 self.write_line(&format!("{class_name} {{ {css} }}"));
             }
@@ -144,16 +176,31 @@ impl<'a> HtmlRenderer<'a> {
         let mut comp_ids: Vec<&String> = styles.compositions.keys().collect();
         comp_ids.sort();
         for id in comp_ids {
-            let comp = &styles.compositions[id];
-            // Resolve the full style (base + overrides)
-            if let Some(base) = styles.defs.get(&comp.extends) {
-                let merged = merge_style_def(base, &comp.overrides);
-                let class_name = format!(".{}_{}", self.config.class_prefix, id);
-                let css = style_def_to_css(&merged);
-                if !css.is_empty() {
-                    self.write_line(&format!("{class_name} {{ {css} }}"));
-                }
+            // A composition resolves to its base plus overrides (nothing if the
+            // base is missing).
+            let class_name = format!(".{}_{}", self.config.class_prefix, id);
+            let css = style_css(&self.rt.style(id));
+            if !css.is_empty() {
+                self.write_line(&format!("{class_name} {{ {css} }}"));
             }
+        }
+
+        // Generated classes for cascaded cell styles; after the named styles, so
+        // they win where both apply.
+        let generated: Vec<String> = self
+            .cell_styles
+            .iter()
+            .enumerate()
+            .map(|(n, style)| {
+                format!(
+                    ".{}__c{n} {{ {} }}",
+                    self.config.class_prefix,
+                    style_css(style)
+                )
+            })
+            .collect();
+        for line in generated {
+            self.write_line(&line);
         }
 
         self.pop_indent();
@@ -240,27 +287,20 @@ impl<'a> HtmlRenderer<'a> {
     }
 
     fn render_colgroup(&mut self) {
-        // An unparseable width is treated as auto.
-        let width = |c: &gridwell_ir::ColumnSpec| {
-            css_length(Some(&c.width)).filter(|w| w.as_str() != "auto")
-        };
-        let has_widths = self
-            .table
-            .column_spec
+        let widths: Vec<Option<String>> = self
+            .rt
+            .columns
             .iter()
-            .any(|c| !c.hidden && width(c).is_some());
-
-        if !has_widths {
+            .map(|c| c.width.as_ref().map(length_css))
+            .collect();
+        if widths.iter().all(Option::is_none) {
             return;
         }
 
         self.write_line("<colgroup>");
         self.push_indent();
-        for col in &self.table.column_spec {
-            if col.hidden {
-                continue;
-            }
-            match width(col) {
+        for w in widths {
+            match w {
                 Some(w) => self.write_line(&format!("<col style=\"width: {w}\">")),
                 None => self.write_line("<col>"),
             }
@@ -270,54 +310,42 @@ impl<'a> HtmlRenderer<'a> {
     }
 
     fn render_thead(&mut self) {
-        if self.table.table.thead.rows.is_empty() {
-            return;
-        }
-
-        if self.table.config.column_labels_hidden {
+        let rt = self.rt;
+        if rt.head.is_empty() {
             return;
         }
 
         self.write_line("<thead>");
         self.push_indent();
-
-        for row in &self.table.table.thead.rows {
+        for row in &rt.head.rows {
             self.render_row(row, true);
         }
-
         self.pop_indent();
         self.write_line("</thead>");
     }
 
     fn render_tbody(&mut self) {
-        for group in &self.table.table.tbody {
+        let rt = self.rt;
+        for group in &rt.groups {
             self.write_line("<tbody>");
             self.push_indent();
 
-            // Group label row
-            if let Some(ref label) = group.label {
-                // The label spans the full (visible) width; validation guarantees a
-                // declared colspan is either absent or the full table width.
-                let colspan = self.visibility.visible_len();
-                let class = self.style_class_attr(&label.style_id);
+            // Group label row, spanning the full (visible) width.
+            if let Some(label) = &group.label {
+                let colspan = rt.columns.len();
+                let class = self.style_class_attr(&label.style_id.map(str::to_string));
                 self.write_line("<tr>");
                 self.push_indent();
                 self.write_line(&format!("<td colspan=\"{colspan}\"{class}>",));
                 self.push_indent();
-                self.render_content_nodes(&label.content);
+                self.render_content_nodes(label.content);
                 self.pop_indent();
                 self.write_line("</td>");
                 self.pop_indent();
                 self.write_line("</tr>");
             }
 
-            // Data rows
-            for row in &group.rows {
-                self.render_row(row, false);
-            }
-
-            // Summary rows
-            for row in &group.summary_rows {
+            for row in group.rows.rows.iter().chain(&group.summary_rows.rows) {
                 self.render_row(row, false);
             }
 
@@ -326,55 +354,46 @@ impl<'a> HtmlRenderer<'a> {
         }
     }
 
-    fn render_row(&mut self, row: &Row, is_header: bool) {
-        let row_class = self.style_class_attr(&row.style_id);
+    fn render_row(&mut self, row: &ResolvedRow, is_header: bool) {
+        let row_class = self.style_class_attr(&row.row.style_id);
         self.write_line(&format!("<tr{row_class}>"));
         self.push_indent();
-
-        for (col, cell) in row.cells.iter().enumerate() {
-            if cell.is_placeholder {
-                continue; // Spanned-over positions are not rendered
-            }
-            // Cells entirely in hidden columns are not rendered at all.
-            let Some((_, colspan)) = self.visibility.project(col, cell.colspan as usize) else {
-                continue;
-            };
-            self.render_cell(cell, colspan, is_header);
+        // Covered positions are implied by the origins' spans.
+        for cell in row.cells() {
+            self.render_cell(row, cell, is_header);
         }
-
         self.pop_indent();
         self.write_line("</tr>");
     }
 
-    fn render_cell(&mut self, cell: &Cell, colspan: usize, is_header: bool) {
+    fn render_cell(&mut self, row: &ResolvedRow, cell: &ResolvedCell, is_header: bool) {
         let tag = if is_header { "th" } else { "td" };
         let mut attrs = Vec::new();
 
-        // Class from style_id
-        if let Some(ref style_id) = cell.style_id {
-            if !self.config.inline_styles {
-                attrs.push(format!(
-                    "class=\"{}_{}\"",
-                    self.config.class_prefix, style_id
-                ));
-            } else if let Some(style_def) = self.resolve_style(style_id) {
-                let css = style_def_to_css(&style_def);
-                if !css.is_empty() {
-                    attrs.push(format!("style=\"{}\"", escape_attr(&css)));
-                }
+        if self.config.inline_styles {
+            let css = style_css(&cell.style);
+            if !css.is_empty() {
+                attrs.push(format!("style=\"{}\"", escape_attr(&css)));
+            }
+        } else {
+            let mut classes = Vec::new();
+            if let Some(id) = &cell.cell.style_id {
+                classes.push(format!("{}_{}", self.config.class_prefix, id));
+            }
+            classes.extend(self.generated_class(row, cell));
+            if !classes.is_empty() {
+                attrs.push(format!("class=\"{}\"", classes.join(" ")));
             }
         }
 
-        // Scope for header cells
         if is_header {
-            if let Some(scope) = known(&cell.scope) {
+            if let Some(scope) = &cell.scope {
                 attrs.push(format!("scope=\"{scope}\""));
             }
         }
 
-        // Colspan/rowspan
-        if colspan > 1 {
-            attrs.push(format!("colspan=\"{colspan}\""));
+        if cell.colspan > 1 {
+            attrs.push(format!("colspan=\"{}\"", cell.colspan));
         }
         if cell.rowspan > 1 {
             attrs.push(format!("rowspan=\"{}\"", cell.rowspan));
@@ -387,11 +406,9 @@ impl<'a> HtmlRenderer<'a> {
         };
 
         // For simple single-text cells, render inline
-        if cell.content.len() == 1 {
-            if let Some(text) = single_text_content(&cell.content) {
-                self.write_line(&format!("<{tag}{attr_str}>{}</{tag}>", escape_html(text)));
-                return;
-            }
+        if let Some(text) = single_text_content(cell.content) {
+            self.write_line(&format!("<{tag}{attr_str}>{}</{tag}>", escape_html(text)));
+            return;
         }
 
         if cell.content.is_empty() {
@@ -401,7 +418,7 @@ impl<'a> HtmlRenderer<'a> {
 
         self.write_line(&format!("<{tag}{attr_str}>"));
         self.push_indent();
-        self.render_content_nodes(&cell.content);
+        self.render_content_nodes(cell.content);
         self.pop_indent();
         self.write_line(&format!("</{tag}>"));
     }
@@ -493,8 +510,9 @@ impl<'a> HtmlRenderer<'a> {
                 ContentNode::StyledText { value, style_id } => {
                     if let Some(ref id) = style_id {
                         if self.config.inline_styles {
-                            if let Some(style_def) = self.resolve_style(id) {
-                                let css = style_def_to_css(&style_def);
+                            let style = self.rt.style(id);
+                            if !style.is_empty() {
+                                let css = style_css(&style);
                                 let _ = write!(
                                     self.buf,
                                     "<span style=\"{}\">{}</span>",
@@ -572,115 +590,79 @@ impl<'a> HtmlRenderer<'a> {
                 format!(" class=\"{}_{}\"", self.config.class_prefix, id)
             }
             Some(id) if self.config.inline_styles => {
-                if let Some(style_def) = self.resolve_style(id) {
-                    let css = style_def_to_css(&style_def);
-                    if !css.is_empty() {
-                        return format!(" style=\"{css}\"");
-                    }
+                let css = style_css(&self.rt.style(id));
+                if css.is_empty() {
+                    String::new()
+                } else {
+                    format!(" style=\"{}\"", escape_attr(&css))
                 }
-                String::new()
             }
             _ => String::new(),
         }
-    }
-
-    fn resolve_style(&self, id: &str) -> Option<StyleDef> {
-        if let Some(def) = self.table.styles.defs.get(id) {
-            return Some(def.clone());
-        }
-        if let Some(comp) = self.table.styles.compositions.get(id) {
-            if let Some(base) = self.table.styles.defs.get(&comp.extends) {
-                return Some(merge_style_def(base, &comp.overrides));
-            }
-        }
-        None
     }
 }
 
 /// Main entry point for rendering.
 pub fn render(table: &Table, config: &HtmlWriterConfig) -> Result<String, RenderError> {
-    let renderer = HtmlRenderer::new(table, config);
-    renderer.render()
+    let rt = resolve(table);
+    HtmlRenderer::new(&rt, config).render()
 }
 
 // ─── CSS Generation ───
 
-/// CSS declarations for a style. Every free-form value is parsed and re-emitted in
-/// normalized form (or dropped if it doesn't parse), so the result is safe inside
-/// a `<style>` block; callers still attribute-escape it for `style="…"` (font
-/// family names may contain quotes).
-fn style_def_to_css(def: &StyleDef) -> String {
+/// CSS declarations for a resolved style. Every value is typed (parsed colours and
+/// lengths, known keywords, a sanitized family list), so the result is safe inside a
+/// `<style>` block; callers still attribute-escape it for `style="…"` (family names
+/// may contain quotes).
+fn style_css(s: &ResolvedStyle) -> String {
     let mut parts = Vec::new();
-
-    if let Some(v) = def.font_family.as_deref().and_then(css_font_family) {
-        parts.push(format!("font-family: {v}"));
+    let mut push = |prop: &str, v: Option<String>| {
+        if let Some(v) = v {
+            parts.push(format!("{prop}: {v}"));
+        }
+    };
+    push("font-family", s.font_family.clone());
+    push("font-size", s.font_size.as_ref().map(|f| f.to_string()));
+    push("font-weight", s.font_weight.as_ref().map(|v| v.to_string()));
+    push("font-style", s.font_style.as_ref().map(|v| v.to_string()));
+    push("color", s.color.map(color_css));
+    push("background-color", s.background_color.map(color_css));
+    push("text-align", s.text_align.as_ref().map(|v| v.to_string()));
+    push(
+        "vertical-align",
+        s.vertical_align.as_ref().map(|v| v.to_string()),
+    );
+    push(
+        "text-transform",
+        s.text_transform.as_ref().map(|v| v.to_string()),
+    );
+    push(
+        "text-decoration",
+        s.text_decoration.as_ref().map(|v| v.to_string()),
+    );
+    push("white-space", s.white_space.as_ref().map(|v| v.to_string()));
+    push("text-indent", s.indent.as_ref().map(length_css));
+    push("word-break", s.word_break.as_ref().map(|v| v.to_string()));
+    push("overflow", s.overflow.as_ref().map(|v| v.to_string()));
+    push(
+        "text-overflow",
+        s.text_overflow.as_ref().map(|v| v.to_string()),
+    );
+    push("min-width", s.min_width.as_ref().map(length_css));
+    push("max-width", s.max_width.as_ref().map(length_css));
+    if let Some(css) = padding_css(&s.padding) {
+        parts.push(css);
     }
-    if let Some(v) = def.font_size.as_deref().and_then(css_font_size) {
-        parts.push(format!("font-size: {v}"));
-    }
-    if let Some(v) = known(&def.font_weight) {
-        parts.push(format!("font-weight: {v}"));
-    }
-    if let Some(v) = known(&def.font_style) {
-        parts.push(format!("font-style: {v}"));
-    }
-    if let Some(v) = css_color(def.color.as_deref()) {
-        parts.push(format!("color: {v}"));
-    }
-    if let Some(v) = css_color(def.background_color.as_deref()) {
-        parts.push(format!("background-color: {v}"));
-    }
-    if let Some(v) = known(&def.text_align) {
-        parts.push(format!("text-align: {v}"));
-    }
-    if let Some(v) = known(&def.vertical_align) {
-        parts.push(format!("vertical-align: {v}"));
-    }
-    if let Some(v) = known(&def.text_transform) {
-        parts.push(format!("text-transform: {v}"));
-    }
-    if let Some(v) = known(&def.text_decoration) {
-        parts.push(format!("text-decoration: {v}"));
-    }
-    if let Some(v) = known(&def.white_space) {
-        parts.push(format!("white-space: {v}"));
-    }
-    if let Some(v) = css_length(def.indent.as_deref()) {
-        parts.push(format!("text-indent: {v}"));
-    }
-    if let Some(v) = known(&def.word_break) {
-        parts.push(format!("word-break: {v}"));
-    }
-    if let Some(v) = known(&def.overflow) {
-        parts.push(format!("overflow: {v}"));
-    }
-    if let Some(v) = known(&def.text_overflow) {
-        parts.push(format!("text-overflow: {v}"));
-    }
-    if let Some(v) = css_length(def.min_width.as_deref()) {
-        parts.push(format!("min-width: {v}"));
-    }
-    if let Some(v) = css_length(def.max_width.as_deref()) {
-        parts.push(format!("max-width: {v}"));
-    }
-
-    // Padding
-    if let Some(ref p) = def.padding {
-        if let Some(css) = padding_to_css(p) {
-            parts.push(css);
+    for (side, b) in s.border.iter() {
+        if let Some(b) = b {
+            parts.push(format!("border-{side}: {}", border_css(b)));
         }
     }
-
-    // Borders
-    if let Some(ref b) = def.border {
-        parts.extend(border_set_to_css(b));
-    }
-
     parts.join("; ")
 }
 
-fn padding_to_css(p: &Padding) -> Option<String> {
-    let side = |v: &Option<String>| css_length(v.as_deref()).unwrap_or_else(|| "0".into());
+fn padding_css(p: &Sides<Option<Length>>) -> Option<String> {
+    let side = |v: &Option<Length>| v.as_ref().map_or_else(|| "0".to_string(), length_css);
     let (top, right, bottom, left) = (side(&p.top), side(&p.right), side(&p.bottom), side(&p.left));
 
     if [&top, &right, &bottom, &left]
@@ -700,42 +682,34 @@ fn padding_to_css(p: &Padding) -> Option<String> {
     }
 }
 
-fn border_set_to_css(b: &BorderSet) -> Vec<String> {
-    let mut parts = Vec::new();
-    if let Some(ref t) = b.top {
-        if let Some(css) = border_to_css(t) {
-            parts.push(format!("border-top: {css}"));
-        }
-    }
-    if let Some(ref r) = b.right {
-        if let Some(css) = border_to_css(r) {
-            parts.push(format!("border-right: {css}"));
-        }
-    }
-    if let Some(ref bo) = b.bottom {
-        if let Some(css) = border_to_css(bo) {
-            parts.push(format!("border-bottom: {css}"));
-        }
-    }
-    if let Some(ref l) = b.left {
-        if let Some(css) = border_to_css(l) {
-            parts.push(format!("border-left: {css}"));
-        }
-    }
-    parts
+fn border_css(b: &ResolvedBorder) -> String {
+    let width = b
+        .width
+        .as_ref()
+        .map_or_else(|| "1px".to_string(), length_css);
+    let color = b
+        .color
+        .map_or_else(|| "currentColor".to_string(), color_css);
+    format!("{width} {} {color}", b.style)
 }
 
-fn border_to_css(b: &Border) -> Option<String> {
-    let style = known(&b.style)?;
-    if matches!(style, BorderStyle::None | BorderStyle::Hidden) {
-        return None;
+/// A length in CSS form; a zero length is plain `0`.
+fn length_css(l: &Length) -> String {
+    match l {
+        Length::Px(v) if *v == 0.0 => "0".into(),
+        l => l.to_string(),
     }
-    let width = css_length(b.width.as_deref()).unwrap_or_else(|| "1px".into());
-    let color = css_color(b.color.as_deref()).unwrap_or_else(|| "currentColor".into());
-    Some(format!("{width} {style} {color}"))
 }
 
-// ─── CSS values ───
+fn color_css(c: Color) -> String {
+    if c.is_transparent() {
+        "transparent".into()
+    } else {
+        c.to_css()
+    }
+}
+
+// ─── CSS values from raw IR strings (config and image sizes) ───
 
 /// A keyword field's value if it is one of the known values. Unknown values keep
 /// their source text (and `Display` it verbatim), so they must never reach CSS.
@@ -743,108 +717,9 @@ fn known<K: Keyword>(v: &Option<K>) -> Option<&K> {
     v.as_ref().filter(|k| k.is_known())
 }
 
-/// A length in normalized CSS form (`None` if absent or unparseable). A unitless
-/// zero comes out as `0`.
+/// A length in normalized CSS form (`None` if absent or unparseable).
 fn css_length(v: Option<&str>) -> Option<String> {
-    match v?.parse::<Length>().ok()? {
-        Length::Px(0.0) => Some("0".into()),
-        l => Some(l.to_string()),
-    }
-}
-
-/// A colour in normalized CSS form (`None` if absent or unparseable).
-fn css_color(v: Option<&str>) -> Option<String> {
-    let c = v?.parse::<Color>().ok()?;
-    Some(if c.is_transparent() {
-        "transparent".into()
-    } else {
-        c.to_css()
-    })
-}
-
-/// A font size: a validated length or keyword. Valid sizes contain only ASCII
-/// letters, digits, `.`, `+`, `-` and `%`, so the lowercased source is safe CSS.
-fn css_font_size(v: &str) -> Option<String> {
-    v.parse::<FontSize>().ok()?;
-    Some(v.trim().to_ascii_lowercase())
-}
-
-/// A font-family list with everything that could end a declaration, a rule or a
-/// `<style>` element removed (`;`, `{`, `}`, `<`, `>`, `\`, `/`, `:`, `(`, `)`, `@`,
-/// `!`, control characters). Names, commas, spaces, hyphens and quotes survive.
-fn css_font_family(v: &str) -> Option<String> {
-    let cleaned: String = v
-        .chars()
-        .filter(|&c| c.is_alphanumeric() || matches!(c, ' ' | ',' | '-' | '_' | '.' | '"' | '\''))
-        .collect();
-    let cleaned = cleaned.trim();
-    (!cleaned.is_empty()).then(|| cleaned.to_string())
-}
-
-fn merge_style_def(base: &StyleDef, overrides: &StyleDef) -> StyleDef {
-    StyleDef {
-        font_family: overrides
-            .font_family
-            .clone()
-            .or_else(|| base.font_family.clone()),
-        font_size: overrides
-            .font_size
-            .clone()
-            .or_else(|| base.font_size.clone()),
-        font_weight: overrides
-            .font_weight
-            .clone()
-            .or_else(|| base.font_weight.clone()),
-        font_style: overrides
-            .font_style
-            .clone()
-            .or_else(|| base.font_style.clone()),
-        color: overrides.color.clone().or_else(|| base.color.clone()),
-        background_color: overrides
-            .background_color
-            .clone()
-            .or_else(|| base.background_color.clone()),
-        text_align: overrides
-            .text_align
-            .clone()
-            .or_else(|| base.text_align.clone()),
-        vertical_align: overrides
-            .vertical_align
-            .clone()
-            .or_else(|| base.vertical_align.clone()),
-        text_transform: overrides
-            .text_transform
-            .clone()
-            .or_else(|| base.text_transform.clone()),
-        text_decoration: overrides
-            .text_decoration
-            .clone()
-            .or_else(|| base.text_decoration.clone()),
-        white_space: overrides
-            .white_space
-            .clone()
-            .or_else(|| base.white_space.clone()),
-        padding: overrides.padding.clone().or_else(|| base.padding.clone()),
-        border: overrides.border.clone().or_else(|| base.border.clone()),
-        indent: overrides.indent.clone().or_else(|| base.indent.clone()),
-        word_break: overrides
-            .word_break
-            .clone()
-            .or_else(|| base.word_break.clone()),
-        overflow: overrides.overflow.clone().or_else(|| base.overflow.clone()),
-        text_overflow: overrides
-            .text_overflow
-            .clone()
-            .or_else(|| base.text_overflow.clone()),
-        min_width: overrides
-            .min_width
-            .clone()
-            .or_else(|| base.min_width.clone()),
-        max_width: overrides
-            .max_width
-            .clone()
-            .or_else(|| base.max_width.clone()),
-    }
+    v?.parse::<Length>().ok().as_ref().map(length_css)
 }
 
 // ─── HTML Escaping ───

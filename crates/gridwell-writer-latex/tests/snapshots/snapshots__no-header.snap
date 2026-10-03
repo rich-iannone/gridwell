@@ -4,7 +4,6 @@ expression: out
 ---
 \begin{tabular}{ll}
 \toprule
-\midrule
 a & b \\
 c & d \\
 \bottomrule

@@ -3,10 +3,9 @@ source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
 #table(
-  columns: (auto, auto),
+  columns: (auto, auto,),
+  align: (left, left,),
   stroke: none,
-  table.header(
-  ),
   [a],
   [b],
   [c],

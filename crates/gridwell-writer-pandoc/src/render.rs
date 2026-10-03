@@ -1,5 +1,12 @@
+//! Pandoc JSON AST (pandoc-types 1.23+) from the resolved layout.
+//!
+//! The building blocks are public so the Quarto writer, which wraps the same table
+//! in a cross-referenceable `Div`, shares them instead of copying them.
+
+use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{HAlign, Row, Table};
+use gridwell_ir::{HAlign, Table};
+use gridwell_layout::{resolve, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable};
 use serde_json::{json, Value};
 use thiserror::Error;
 
@@ -10,241 +17,265 @@ pub enum RenderError {
 }
 
 /// Renders a gridwell IR Table to a Pandoc JSON AST Table block.
-///
-/// Produces a single-element JSON array containing the Table block
-/// in Pandoc's native AST format (pandoc-types 1.23+).
 pub fn render(table: &Table) -> Result<String, RenderError> {
-    let block = render_table_block(table);
-    let output = serde_json::to_string_pretty(&block)?;
-    Ok(output)
+    let rt = resolve(table);
+    let block = table_block(&rt, true);
+    Ok(serde_json::to_string_pretty(&block)?)
 }
 
-fn render_table_block(table: &Table) -> Value {
-    // Pandoc Table: (Attr, Caption, [ColSpec], TableHead, [TableBody], TableFoot)
-    let attr = null_attr();
-    let caption = render_caption(table);
-    let colspecs = render_colspecs(table);
-    let thead = render_thead(table);
-    let tbodies = render_tbodies(table);
-    let tfoot = render_tfoot(table);
-
+/// The `Table` block. With `notes_in_foot`, footnotes and source notes go in the
+/// table foot (one full-width cell); otherwise the foot is empty and the caller
+/// places them.
+pub fn table_block(rt: &ResolvedTable, notes_in_foot: bool) -> Value {
+    // Table: (Attr, Caption, [ColSpec], TableHead, [TableBody], TableFoot)
+    let foot_rows = if notes_in_foot {
+        notes_row(rt).into_iter().collect()
+    } else {
+        Vec::new()
+    };
     json!({
         "t": "Table",
-        "c": [attr, caption, colspecs, thead, tbodies, tfoot]
+        "c": [
+            null_attr(),
+            caption(rt),
+            colspecs(rt),
+            [null_attr(), rt.head.rows.iter().map(|r| row(rt, r)).collect::<Vec<_>>()],
+            bodies(rt),
+            [null_attr(), foot_rows],
+        ]
     })
 }
 
-fn null_attr() -> Value {
+pub fn null_attr() -> Value {
     json!(["", [], []])
 }
 
-fn render_caption(table: &Table) -> Value {
-    // Caption = (Maybe [Inline], [[Block]])
-    let short: Value = Value::Null;
-    let mut blocks = Vec::new();
-
-    if let Some(ref header) = table.header {
-        if let Some(ref title) = header.title {
-            blocks.push(json!({
-                "t": "Para",
-                "c": content_to_inlines(&title.content)
-            }));
-        }
-        if let Some(ref subtitle) = header.subtitle {
-            blocks.push(json!({
-                "t": "Para",
-                "c": content_to_inlines(&subtitle.content)
-            }));
-        }
-    }
-
-    json!([short, blocks])
+fn caption(rt: &ResolvedTable) -> Value {
+    // Caption: (Maybe ShortCaption, [Block])
+    let h = &rt.header;
+    let blocks: Vec<Value> = h
+        .title
+        .iter()
+        .chain(&h.subtitle)
+        .chain(&h.extra_lines)
+        .map(|line| json!({ "t": "Para", "c": styled(&line.style, inlines(rt, line.content)) }))
+        .collect();
+    json!([Value::Null, blocks])
 }
 
-fn render_colspecs(table: &Table) -> Value {
-    let specs: Vec<Value> = table
-        .column_spec
+fn alignment(align: &HAlign) -> Value {
+    match align {
+        HAlign::Left => json!({"t": "AlignLeft"}),
+        HAlign::Right => json!({"t": "AlignRight"}),
+        HAlign::Center => json!({"t": "AlignCenter"}),
+        _ => json!({"t": "AlignDefault"}),
+    }
+}
+
+fn colspecs(rt: &ResolvedTable) -> Value {
+    rt.columns
         .iter()
         .map(|col| {
-            let align = match col.align {
-                HAlign::Left => json!({"t": "AlignLeft"}),
-                HAlign::Right => json!({"t": "AlignRight"}),
-                HAlign::Center => json!({"t": "AlignCenter"}),
-                _ => json!({"t": "AlignDefault"}),
+            // ColWidth is a fraction of the text width. Absolute widths assume a
+            // 600pt (800px) line; `fr` and `auto` are left to Pandoc.
+            let width = match &col.width {
+                Some(Length::Percent(p)) => Some(p / 100.0),
+                Some(l) => l.to_pt(12.0, 12.0).map(|pt| pt / 600.0),
+                None => None,
             };
-            let col_width = if col.width == "auto" {
-                json!({"t": "ColWidthDefault"})
-            } else if let Some(px) = col.width.strip_suffix("px") {
-                // Normalize to fraction (rough: assume 800px total)
-                let frac = px.parse::<f64>().unwrap_or(100.0) / 800.0;
-                json!({"t": "ColWidth", "c": frac})
-            } else {
-                json!({"t": "ColWidthDefault"})
+            let width = match width.filter(|w| w.is_finite() && *w > 0.0) {
+                Some(w) => json!({"t": "ColWidth", "c": w}),
+                None => json!({"t": "ColWidthDefault"}),
             };
-            json!([align, col_width])
+            json!([alignment(&col.align), width])
         })
-        .collect();
-    Value::Array(specs)
+        .collect()
 }
 
-fn render_thead(table: &Table) -> Value {
-    // TableHead = (Attr, [Row])
-    let rows: Vec<Value> = if table.config.column_labels_hidden {
-        vec![]
-    } else {
-        table.table.thead.rows.iter().map(render_row).collect()
-    };
-    json!([null_attr(), rows])
-}
-
-fn render_tbodies(table: &Table) -> Value {
-    let bodies: Vec<Value> = table
-        .table
-        .tbody
+fn bodies(rt: &ResolvedTable) -> Value {
+    rt.groups
         .iter()
-        .map(|group| {
-            // TableBody = (Attr, RowHeadColumns, [Row], [Row])
-            // RowHeadColumns = number of row header columns
-            let head_rows: Vec<Value> = Vec::new();
-            let body_rows: Vec<Value> = group.rows.iter().map(render_row).collect();
-            json!([null_attr(), 0, head_rows, body_rows])
+        .map(|g| {
+            // TableBody: (Attr, RowHeadColumns, [Row] intermediate head, [Row] body).
+            // A group label is the body's intermediate head: one full-width cell.
+            let head: Vec<Value> = match &g.label {
+                Some(label) if !rt.columns.is_empty() => vec![json!([
+                    null_attr(),
+                    [cell_value(
+                        json!({"t": "AlignDefault"}),
+                        1,
+                        rt.columns.len(),
+                        styled(&label.style, inlines(rt, label.content)),
+                    )]
+                ])],
+                _ => Vec::new(),
+            };
+            let rows: Vec<Value> = g
+                .rows
+                .rows
+                .iter()
+                .chain(&g.summary_rows.rows)
+                .map(|r| row(rt, r))
+                .collect();
+            json!([null_attr(), rt.stub_cols, head, rows])
         })
-        .collect();
-    Value::Array(bodies)
+        .collect()
 }
 
-fn render_tfoot(table: &Table) -> Value {
-    // TableFoot = (Attr, [Row])
-    // We put footnotes as a paragraph in a single-cell row
-    let mut rows = Vec::new();
-
-    if let Some(ref footer) = table.footer {
-        if !footer.footnotes.is_empty() || !footer.source_notes.is_empty() {
-            let mut inlines = Vec::new();
-
-            for note in &footer.footnotes {
-                if !inlines.is_empty() {
-                    inlines.push(json!({"t": "LineBreak"}));
-                }
-                // Mark as superscript
-                inlines.push(json!({
-                    "t": "Superscript",
-                    "c": [{"t": "Str", "c": note.mark}]
-                }));
-                inlines.push(json!({"t": "Space"}));
-                inlines.extend(content_to_inlines(&note.content));
-            }
-
-            for note in &footer.source_notes {
-                if !inlines.is_empty() {
-                    inlines.push(json!({"t": "LineBreak"}));
-                }
-                inlines.extend(content_to_inlines(&note.content));
-            }
-
-            let num_cols = table.config.table_cols;
-            let cell = json!([
-                null_attr(),
-                {"t": "AlignDefault"},
-                1, // rowspan
-                num_cols, // colspan
-                [{"t": "Para", "c": inlines}]
-            ]);
-            let row = json!([null_attr(), [cell]]);
-            rows.push(row);
-        }
+/// Footnotes and source notes as a single full-width foot row.
+fn notes_row(rt: &ResolvedTable) -> Option<Value> {
+    if rt.footer.is_empty() || rt.columns.is_empty() {
+        return None;
     }
-
-    json!([null_attr(), rows])
+    let mut out = Vec::new();
+    for line in note_lines(rt) {
+        if !out.is_empty() {
+            out.push(json!({"t": "LineBreak"}));
+        }
+        out.extend(line);
+    }
+    Some(json!([
+        null_attr(),
+        [json!([
+            null_attr(),
+            {"t": "AlignDefault"},
+            1,
+            rt.columns.len(),
+            [{"t": "Para", "c": out}]
+        ])]
+    ]))
 }
 
-fn render_row(row: &Row) -> Value {
-    // Row = (Attr, [Cell])
-    let cells: Vec<Value> = row
-        .cells
+/// One inline run per footnote (superscript mark, space, text), then one per
+/// source note.
+pub fn note_lines(rt: &ResolvedTable) -> Vec<Vec<Value>> {
+    let mut lines = footnote_lines(rt);
+    lines.extend(source_note_lines(rt));
+    lines
+}
+
+pub fn footnote_lines(rt: &ResolvedTable) -> Vec<Vec<Value>> {
+    rt.footer
+        .footnotes
         .iter()
-        .filter(|c| !c.is_placeholder)
-        .map(render_cell)
-        .collect();
+        .map(|n| {
+            let mut line = vec![
+                json!({"t": "Superscript", "c": [{"t": "Str", "c": n.mark}]}),
+                json!({"t": "Space"}),
+            ];
+            line.extend(inlines(rt, n.content));
+            styled(&n.style, line)
+        })
+        .collect()
+}
+
+pub fn source_note_lines(rt: &ResolvedTable) -> Vec<Vec<Value>> {
+    rt.footer
+        .source_notes
+        .iter()
+        .map(|n| styled(&n.style, inlines(rt, n.content)))
+        .collect()
+}
+
+fn row(rt: &ResolvedTable, row: &ResolvedRow) -> Value {
+    // Row: (Attr, [Cell]); covered positions are implied by spans.
+    let cells: Vec<Value> = row.cells().map(|c| cell(rt, c)).collect();
     json!([null_attr(), cells])
 }
 
-fn render_cell(cell: &gridwell_ir::Cell) -> Value {
-    // Cell = (Attr, Alignment, RowSpan, ColSpan, [Block])
-    let align = json!({"t": "AlignDefault"});
-    let blocks = if cell.content.is_empty() {
-        vec![]
-    } else {
-        vec![json!({
-            "t": "Plain",
-            "c": content_to_inlines(&cell.content)
-        })]
+fn cell(rt: &ResolvedTable, c: &ResolvedCell) -> Value {
+    // A cell's own alignment only when its style sets one; otherwise the column's.
+    let align = match &c.style.text_align {
+        Some(a) => alignment(a),
+        None => json!({"t": "AlignDefault"}),
     };
-    json!([null_attr(), align, cell.rowspan, cell.colspan, blocks])
+    cell_value(
+        align,
+        c.rowspan,
+        c.colspan,
+        styled(&c.style, inlines(rt, c.content)),
+    )
 }
 
-fn content_to_inlines(nodes: &[ContentNode]) -> Vec<Value> {
-    let mut inlines = Vec::new();
+fn cell_value(align: Value, rowspan: usize, colspan: usize, content: Vec<Value>) -> Value {
+    // Cell: (Attr, Alignment, RowSpan, ColSpan, [Block])
+    let blocks = if content.is_empty() {
+        vec![]
+    } else {
+        vec![json!({ "t": "Plain", "c": content })]
+    };
+    json!([null_attr(), align, rowspan, colspan, blocks])
+}
+
+/// Wrap inlines in `Strong` / `Emph` for a bold / italic style. Pandoc has no
+/// other inline styling.
+pub fn styled(style: &ResolvedStyle, mut inlines: Vec<Value>) -> Vec<Value> {
+    if inlines.is_empty() {
+        return inlines;
+    }
+    if style.is_italic() {
+        inlines = vec![json!({"t": "Emph", "c": inlines})];
+    }
+    if style.is_bold() {
+        inlines = vec![json!({"t": "Strong", "c": inlines})];
+    }
+    inlines
+}
+
+fn words(value: &str) -> Vec<Value> {
+    let mut out = Vec::new();
+    for (i, word) in value.split(' ').enumerate() {
+        if i > 0 {
+            out.push(json!({"t": "Space"}));
+        }
+        if !word.is_empty() {
+            out.push(json!({"t": "Str", "c": word}));
+        }
+    }
+    out
+}
+
+pub fn inlines(rt: &ResolvedTable, nodes: &[ContentNode]) -> Vec<Value> {
+    let mut out = Vec::new();
     for node in nodes {
         match node {
-            ContentNode::Text { value } => {
-                // Split on spaces to produce Str/Space tokens
-                for (i, word) in value.split(' ').enumerate() {
-                    if i > 0 {
-                        inlines.push(json!({"t": "Space"}));
-                    }
-                    if !word.is_empty() {
-                        inlines.push(json!({"t": "Str", "c": word}));
-                    }
-                }
-            }
+            ContentNode::Text { value } => out.extend(words(value)),
             ContentNode::StyledText { value, style_id } => {
-                let inner: Vec<Value> = value
-                    .split(' ')
-                    .enumerate()
-                    .flat_map(|(i, word)| {
-                        let mut v = Vec::new();
-                        if i > 0 {
-                            v.push(json!({"t": "Space"}));
-                        }
-                        if !word.is_empty() {
-                            v.push(json!({"t": "Str", "c": word}));
-                        }
-                        v
-                    })
-                    .collect();
-                // Wrap in Emph if style_id hints italic (simple heuristic)
-                if style_id.as_deref().is_some_and(|s| s.contains("italic")) {
-                    inlines.push(json!({"t": "Emph", "c": inner}));
-                } else {
-                    inlines.extend(inner);
-                }
+                let style = style_id
+                    .as_deref()
+                    .map(|id| rt.style(id))
+                    .unwrap_or_default();
+                out.extend(styled(&style, words(value)));
             }
-            ContentNode::LineBreak {} => {
-                inlines.push(json!({"t": "LineBreak"}));
-            }
-            ContentNode::FootnoteMark { mark_text, .. } => {
-                inlines.push(json!({
-                    "t": "Superscript",
-                    "c": [{"t": "Str", "c": mark_text}]
-                }));
-            }
+            ContentNode::LineBreak {} => out.push(json!({"t": "LineBreak"})),
+            ContentNode::FootnoteMark { mark_text, .. } => out.push(json!({
+                "t": "Superscript",
+                "c": [{"t": "Str", "c": mark_text}]
+            })),
             ContentNode::Image { src, alt, .. } => {
-                let alt_inlines = if let Some(alt_text) = alt {
-                    vec![json!({"t": "Str", "c": alt_text})]
-                } else {
-                    vec![]
-                };
-                inlines.push(json!({
-                    "t": "Image",
-                    "c": [null_attr(), alt_inlines, [src, ""]]
-                }));
+                let alt: Vec<Value> = alt.iter().map(|a| json!({"t": "Str", "c": a})).collect();
+                out.push(json!({"t": "Image", "c": [null_attr(), alt, [src, ""]]}));
             }
-            ContentNode::Raw { value, .. } => {
-                inlines.push(json!({"t": "RawInline", "c": ["", value]}));
-            }
+            ContentNode::Raw { value, .. } => out.push(json!({"t": "RawInline", "c": ["", value]})),
             ContentNode::Unknown => {}
         }
     }
-    inlines
+    out
+}
+
+/// Content as plain text (for attributes such as Quarto's `tbl-cap`).
+pub fn plain_text(nodes: &[ContentNode]) -> String {
+    let mut out = String::new();
+    for node in nodes {
+        match node {
+            ContentNode::Text { value } | ContentNode::StyledText { value, .. } => {
+                out.push_str(value)
+            }
+            ContentNode::LineBreak {} => out.push(' '),
+            ContentNode::FootnoteMark { mark_text, .. } => out.push_str(mark_text),
+            ContentNode::Image { alt, .. } => out.push_str(alt.as_deref().unwrap_or("")),
+            ContentNode::Raw { .. } | ContentNode::Unknown => {}
+        }
+    }
+    out
 }

@@ -3,7 +3,8 @@ source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
 #table(
-  columns: (75pt, 90pt),
+  columns: (75pt, 90pt,),
+  align: (left, left,),
   stroke: none,
   table.header(
     [#text(weight: "bold")[Label]],

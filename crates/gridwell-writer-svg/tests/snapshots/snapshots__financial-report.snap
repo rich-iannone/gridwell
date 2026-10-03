@@ -5,6 +5,8 @@ expression: out
 <svg xmlns="http://www.w3.org/2000/svg" width="250" height="203" viewBox="0 0 250 203">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
 <text x="8" y="24.58" font-size="19.6px" xml:space="preserve"><tspan font-weight="bold">Quarterly P&amp;L</tspan></text>
+<rect x="113.51" y="91.44" width="68" height="28" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="181.51" y="91.44" width="68" height="28" fill="rgba(128, 128, 128, 0.051)"/>
 <rect x="0" y="147.44" width="113.51" height="28" fill="#F5F5F5"/>
 <rect x="113.51" y="147.44" width="68" height="28" fill="#F5F5F5"/>
 <rect x="181.51" y="147.44" width="68" height="28" fill="#F5F5F5"/>

@@ -322,3 +322,45 @@ fn every_colour_form_compiles() {
     assert!(src.contains("rgb(\"#12345678\")"), "{src}");
     compile(&work_dir("colours"), "colours", &src).unwrap_or_else(|e| panic!("{e}\n{src}"));
 }
+
+#[test]
+fn every_font_size_form_alignment_and_striping_compiles() {
+    if !require("typst") {
+        return;
+    }
+    let sizes = [
+        "12px", "9pt", "1.2em", "1.5rem", "90%", "0", "small", "xx-large", "smaller", "larger",
+    ];
+    let mut builder = TableBuilder::new(2)
+        .stub_cols(1)
+        .striping(true, true)
+        .columns(vec![
+            column("a", "A").align("right"),
+            column("b", "B").align("center"),
+        ]);
+    let mut rows = Vec::new();
+    for (i, size) in sizes.iter().enumerate() {
+        let id = format!("s{i}");
+        builder = builder.style_def(
+            &id,
+            gridwell_ir::StyleDef {
+                font_size: Some(size.to_string()),
+                text_align: Some(["left", "right", "center", "justify"][i % 4].into()),
+                background_color: Some("rgba(10, 20, 30, 0.3)".into()),
+                ..Default::default()
+            },
+        );
+        rows.push(row(vec![cell(size).style(&id), cell("x")]));
+    }
+    let src = render_typst(&builder.body(rows).build()).unwrap();
+    for want in [
+        "size: 0.9em",
+        "size: 24pt",
+        "size: 0.8333em",
+        "align: right",
+        "fill: rgb(\"#0A141E4D\")",
+    ] {
+        assert!(src.contains(want), "missing {want:?}:\n{src}");
+    }
+    compile(&work_dir("styles"), "styles", &src).unwrap_or_else(|e| panic!("{e}\n{src}"));
+}

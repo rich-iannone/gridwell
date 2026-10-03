@@ -3,6 +3,9 @@ source: crates/gridwell-writer-html/tests/snapshots.rs
 expression: out
 ---
 <div class="gw_container">
+  <style>
+    .gw__c0 { background-color: rgba(128, 128, 128, 0.051) }
+  </style>
   <table class="gw_table">
     <thead>
       <tr>
@@ -18,9 +21,9 @@ expression: out
         <td>3</td>
       </tr>
       <tr>
-        <td>4</td>
-        <td>5</td>
-        <td>6</td>
+        <td class="gw__c0">4</td>
+        <td class="gw__c0">5</td>
+        <td class="gw__c0">6</td>
       </tr>
       <tr>
         <td>7</td>
@@ -28,9 +31,9 @@ expression: out
         <td>9</td>
       </tr>
       <tr>
-        <td>10</td>
-        <td>11</td>
-        <td>12</td>
+        <td class="gw__c0">10</td>
+        <td class="gw__c0">11</td>
+        <td class="gw__c0">12</td>
       </tr>
     </tbody>
   </table>

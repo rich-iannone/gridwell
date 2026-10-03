@@ -3,7 +3,6 @@ source: crates/gridwell-writer-ansi/tests/snapshots.rs
 expression: out
 ---
 ┌────────────┬────────────┐
-├────────────┼────────────┤
-│     a      │     b      │
-│     c      │     d      │
+│ a          │ b          │
+│ c          │ d          │
 └────────────┴────────────┘

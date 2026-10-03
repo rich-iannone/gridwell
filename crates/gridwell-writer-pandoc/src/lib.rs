@@ -1,5 +1,13 @@
 mod render;
 
+/// AST building blocks, shared with the Quarto writer.
+pub mod ast {
+    pub use crate::render::{
+        footnote_lines, inlines, note_lines, null_attr, plain_text, source_note_lines, styled,
+        table_block,
+    };
+}
+
 use gridwell_ir::Table;
 
 pub use render::RenderError;

@@ -29,29 +29,9 @@ pub const WORKBOOK: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="y
   </sheets>
 </workbook>"#;
 
-pub const STYLES: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-  <fonts count="2">
-    <font><sz val="11"/><name val="Calibri"/></font>
-    <font><b/><sz val="11"/><name val="Calibri"/></font>
-  </fonts>
-  <fills count="2">
-    <fill><patternFill patternType="none"/></fill>
-    <fill><patternFill patternType="gray125"/></fill>
-  </fills>
-  <borders count="1">
-    <border>
-      <left/><right/><top/><bottom/><diagonal/>
-    </border>
-  </borders>
-  <cellStyleXfs count="1">
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>
-  </cellStyleXfs>
-  <cellXfs count="2">
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
-    <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>
-  </cellXfs>
-</styleSheet>"#;
+pub const SHARED_STRINGS: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="0" uniqueCount="0"></sst>
+"#;
 
 /// Convert column index (0-based) to Excel column letter(s).
 /// 0 -> A, 1 -> B, ..., 25 -> Z, 26 -> AA, etc.

@@ -40,14 +40,6 @@ expression: out
               {
                 "t": "ColWidthDefault"
               }
-            ],
-            [
-              {
-                "t": "AlignLeft"
-              },
-              {
-                "t": "ColWidthDefault"
-              }
             ]
           ],
           [
@@ -87,29 +79,6 @@ expression: out
                           },
                           {
                             "c": "1",
-                            "t": "Str"
-                          }
-                        ],
-                        "t": "Plain"
-                      }
-                    ]
-                  ],
-                  [
-                    [
-                      "",
-                      [],
-                      []
-                    ],
-                    {
-                      "t": "AlignDefault"
-                    },
-                    1,
-                    1,
-                    [
-                      {
-                        "c": [
-                          {
-                            "c": "Hidden",
                             "t": "Str"
                           }
                         ],
@@ -206,29 +175,6 @@ expression: out
                         {
                           "c": [
                             {
-                              "c": "secret",
-                              "t": "Str"
-                            }
-                          ],
-                          "t": "Plain"
-                        }
-                      ]
-                    ],
-                    [
-                      [
-                        "",
-                        [],
-                        []
-                      ],
-                      {
-                        "t": "AlignDefault"
-                      },
-                      1,
-                      1,
-                      [
-                        {
-                          "c": [
-                            {
                               "c": "b",
                               "t": "Str"
                             }
@@ -262,29 +208,6 @@ expression: out
                           "c": [
                             {
                               "c": "c",
-                              "t": "Str"
-                            }
-                          ],
-                          "t": "Plain"
-                        }
-                      ]
-                    ],
-                    [
-                      [
-                        "",
-                        [],
-                        []
-                      ],
-                      {
-                        "t": "AlignDefault"
-                      },
-                      1,
-                      1,
-                      [
-                        {
-                          "c": [
-                            {
-                              "c": "secret",
                               "t": "Str"
                             }
                           ],

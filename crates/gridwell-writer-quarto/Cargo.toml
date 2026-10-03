@@ -8,7 +8,8 @@ description = "Quarto AST writer for gridwell: IR → Quarto-flavored Pandoc AST
 
 [dependencies]
 gridwell-ir = { path = "../gridwell-ir" }
-gridwell-core = { path = "../gridwell-core" }
+gridwell-layout = { path = "../gridwell-layout" }
+gridwell-writer-pandoc = { path = "../gridwell-writer-pandoc" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

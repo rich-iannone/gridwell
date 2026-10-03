@@ -22,6 +22,11 @@ impl XlsxWriter {
     pub fn render_sheet_xml(&self, table: &Table) -> Result<String, RenderError> {
         render::render_sheet_xml(table)
     }
+
+    /// The `styles.xml` part: the cell formats the sheet uses.
+    pub fn render_styles_xml(&self, table: &Table) -> Result<String, RenderError> {
+        render::render_styles_xml(table)
+    }
 }
 
 impl Default for XlsxWriter {

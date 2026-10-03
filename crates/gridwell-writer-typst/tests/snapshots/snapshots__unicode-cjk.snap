@@ -4,7 +4,8 @@ expression: out
 ---
 #align(left)[#text(size: 16pt, weight: "bold")[販売実績]]
 #table(
-  columns: (auto, auto),
+  columns: (auto, auto,),
+  align: (left, left,),
   stroke: none,
   table.header(
     [#text(weight: "bold")[地域]],

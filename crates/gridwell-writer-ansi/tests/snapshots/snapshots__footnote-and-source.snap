@@ -3,10 +3,10 @@ source: crates/gridwell-writer-ansi/tests/snapshots.rs
 expression: out
 ---
 ┌────────────┬────────────┐
-│[1m    Test    [0m│[1m   Result   [0m│
+│[1m Test       [0m│[1m Result     [0m│
 ├────────────┼────────────┤
-│     A      │   pass1    │
-│     B      │    fail    │
+│ A          │ pass1      │
+│ B          │ fail       │
 └────────────┴────────────┘
   1 Re-run confirmed.
   Source: CI pipeline.

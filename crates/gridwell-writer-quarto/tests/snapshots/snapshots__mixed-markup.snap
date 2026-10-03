@@ -114,8 +114,13 @@ expression: out
                               "t": "Space"
                             },
                             {
-                              "c": "degraded",
-                              "t": "Str"
+                              "c": [
+                                {
+                                  "c": "degraded",
+                                  "t": "Str"
+                                }
+                              ],
+                              "t": "Strong"
                             },
                             {
                               "t": "LineBreak"

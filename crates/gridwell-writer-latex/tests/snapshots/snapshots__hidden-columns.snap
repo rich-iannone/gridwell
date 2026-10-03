@@ -4,9 +4,9 @@ expression: out
 ---
 \begin{tabular}{ll}
 \toprule
-Visible 1 & Hidden & Visible 2 \\
+Visible 1 & Visible 2 \\
 \midrule
-a & secret & b \\
-c & secret & d \\
+a & b \\
+c & d \\
 \bottomrule
 \end{tabular}

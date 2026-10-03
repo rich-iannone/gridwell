@@ -28,7 +28,8 @@ expression: out
           "t": "AlignLeft"
         },
         {
-          "t": "ColWidthDefault"
+          "c": 0.25,
+          "t": "ColWidth"
         }
       ],
       [

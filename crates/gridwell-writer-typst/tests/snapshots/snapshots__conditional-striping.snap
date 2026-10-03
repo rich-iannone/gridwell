@@ -3,19 +3,20 @@ source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
 #table(
-  columns: (auto, auto),
+  columns: (auto, auto,),
+  align: (left, left,),
   stroke: none,
   table.header(
     [#text(weight: "bold")[Index]],
     [#text(weight: "bold")[Value]],
     table.hline(stroke: 0.5pt),
   ),
-  [0],
-  [a],
+  table.cell(fill: rgb("#ECF0F1"))[0],
+  table.cell(fill: rgb("#ECF0F1"))[a],
   [1],
   [b],
-  [2],
-  [c],
+  table.cell(fill: rgb("#ECF0F1"))[2],
+  table.cell(fill: rgb("#ECF0F1"))[c],
   [3],
   [d],
 )

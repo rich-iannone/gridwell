@@ -1,6 +1,7 @@
+use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::style::StyleDef;
-use gridwell_ir::{Cell, FontStyle, FontWeight, HAlign, Row, Table};
+use gridwell_ir::{HAlign, Table};
+use gridwell_layout::{resolve, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, Slot};
 use std::fmt::Write;
 use thiserror::Error;
 
@@ -12,16 +13,16 @@ pub enum RenderError {
     Fmt(#[from] std::fmt::Error),
 }
 
-struct LatexRenderer<'a> {
-    table: &'a Table,
-    config: &'a LatexWriterConfig,
+struct LatexRenderer<'r, 'a> {
+    rt: &'r ResolvedTable<'a>,
+    config: &'r LatexWriterConfig,
     buf: String,
 }
 
-impl<'a> LatexRenderer<'a> {
-    fn new(table: &'a Table, config: &'a LatexWriterConfig) -> Self {
+impl<'r, 'a> LatexRenderer<'r, 'a> {
+    fn new(rt: &'r ResolvedTable<'a>, config: &'r LatexWriterConfig) -> Self {
         Self {
-            table,
+            rt,
             config,
             buf: String::with_capacity(4096),
         }
@@ -31,20 +32,28 @@ impl<'a> LatexRenderer<'a> {
         if self.config.longtable {
             return true;
         }
-        if let Some(threshold) = self.config.longtable_threshold {
-            return self.table.config.body_rows > threshold;
-        }
-        false
+        let body_rows: usize = self.rt.groups.iter().map(|g| g.rows.rows.len()).sum();
+        self.config
+            .longtable_threshold
+            .is_some_and(|t| body_rows > t as usize)
+    }
+
+    fn width(&self) -> usize {
+        self.rt.columns.len()
     }
 
     fn render(mut self) -> Result<String, RenderError> {
         self.render_title();
-        self.render_begin();
-        self.render_toprule();
-        self.render_thead();
-        self.render_tbody();
-        self.render_bottomrule();
-        self.render_end();
+        // A tabular needs at least one column: with every column hidden only the
+        // title and notes remain.
+        if !self.rt.is_empty() {
+            self.render_begin();
+            self.render_toprule();
+            self.render_thead();
+            self.render_tbody();
+            self.render_bottomrule();
+            self.render_end();
+        }
         self.render_footnotes();
         Ok(self.buf)
     }
@@ -52,18 +61,17 @@ impl<'a> LatexRenderer<'a> {
     // ─── Title / Subtitle ───
 
     fn render_title(&mut self) {
-        if let Some(ref header) = self.table.header {
-            if let Some(ref title) = header.title {
-                let text = content_to_latex(&title.content);
-                if !text.is_empty() {
-                    writeln!(self.buf, "{{\\large\\bfseries {text}}}\\\\").unwrap();
-                }
+        let header = &self.rt.header;
+        if let Some(title) = &header.title {
+            let text = self.content(title.content, &HAlign::Left);
+            if !text.is_empty() {
+                writeln!(self.buf, "{{\\large\\bfseries {text}}}\\\\").unwrap();
             }
-            if let Some(ref subtitle) = header.subtitle {
-                let text = content_to_latex(&subtitle.content);
-                if !text.is_empty() {
-                    writeln!(self.buf, "{{\\small {text}}}\\\\[6pt]").unwrap();
-                }
+        }
+        if let Some(subtitle) = &header.subtitle {
+            let text = self.content(subtitle.content, &HAlign::Left);
+            if !text.is_empty() {
+                writeln!(self.buf, "{{\\small {text}}}\\\\[6pt]").unwrap();
             }
         }
     }
@@ -72,94 +80,80 @@ impl<'a> LatexRenderer<'a> {
 
     fn render_begin(&mut self) {
         let col_spec = self.build_column_spec();
-        if self.use_longtable() {
-            writeln!(self.buf, "\\begin{{longtable}}{{{col_spec}}}").unwrap();
+        let env = if self.use_longtable() {
+            "longtable"
         } else {
-            writeln!(self.buf, "\\begin{{tabular}}{{{col_spec}}}").unwrap();
-        }
+            "tabular"
+        };
+        writeln!(self.buf, "\\begin{{{env}}}{{{col_spec}}}").unwrap();
     }
 
     fn render_end(&mut self) {
-        if self.use_longtable() {
-            writeln!(self.buf, "\\end{{longtable}}").unwrap();
+        let env = if self.use_longtable() {
+            "longtable"
         } else {
-            writeln!(self.buf, "\\end{{tabular}}").unwrap();
-        }
+            "tabular"
+        };
+        writeln!(self.buf, "\\end{{{env}}}").unwrap();
     }
 
+    /// `p{…}` for columns with a usable width, else the alignment letter.
     fn build_column_spec(&self) -> String {
-        self.table
-            .column_spec
+        self.rt
+            .columns
             .iter()
-            .filter(|c| !c.hidden)
-            .map(|col| {
-                if col.width != "auto" {
-                    // Use p{width} for fixed-width columns
-                    format!("p{{{}}}", col.width)
-                } else {
-                    match col.align {
-                        HAlign::Right => "r".to_string(),
-                        HAlign::Center => "c".to_string(),
-                        _ => "l".to_string(),
-                    }
-                }
+            .map(|col| match col.width.as_ref().and_then(latex_width) {
+                Some(w) => format!("p{{{w}}}"),
+                None => align_letter(&col.align).to_string(),
             })
-            .collect::<Vec<_>>()
-            .join("")
+            .collect()
     }
 
     // ─── Rules ───
 
-    fn render_toprule(&mut self) {
-        if self.config.booktabs {
-            writeln!(self.buf, "\\toprule").unwrap();
+    fn rule(&mut self, booktabs: &str) {
+        let rule = if self.config.booktabs {
+            booktabs
         } else {
-            writeln!(self.buf, "\\hline").unwrap();
-        }
+            "\\hline"
+        };
+        writeln!(self.buf, "{rule}").unwrap();
+    }
+
+    fn render_toprule(&mut self) {
+        self.rule("\\toprule");
     }
 
     fn render_midrule(&mut self) {
-        if self.config.booktabs {
-            writeln!(self.buf, "\\midrule").unwrap();
-        } else {
-            writeln!(self.buf, "\\hline").unwrap();
-        }
+        self.rule("\\midrule");
     }
 
     fn render_bottomrule(&mut self) {
-        if self.config.booktabs {
-            writeln!(self.buf, "\\bottomrule").unwrap();
-        } else {
-            writeln!(self.buf, "\\hline").unwrap();
-        }
+        self.rule("\\bottomrule");
     }
 
-    // ─── Thead ───
+    // ─── Rows ───
 
     fn render_thead(&mut self) {
-        if self.table.config.column_labels_hidden {
+        let rt = self.rt;
+        if rt.head.is_empty() {
             return;
         }
-
-        for row in &self.table.table.thead.rows {
-            self.render_row(row);
+        for (r, _) in rt.head.rows.iter().enumerate() {
+            self.render_row(&rt.head.rows, r);
         }
         self.render_midrule();
-
-        // For longtable, mark end of header
         if self.use_longtable() {
             writeln!(self.buf, "\\endhead").unwrap();
         }
     }
 
-    // ─── Tbody ───
-
     fn render_tbody(&mut self) {
-        for (g, group) in self.table.table.tbody.iter().enumerate() {
-            // Group label
-            if let Some(ref label) = group.label {
-                let text = content_to_latex(&label.content);
-                let cols = self.table.config.table_cols;
+        let rt = self.rt;
+        let cols = self.width();
+        for (g, group) in rt.groups.iter().enumerate() {
+            if let Some(label) = &group.label {
+                let text = self.content(label.content, &HAlign::Left);
                 if self.config.booktabs {
                     writeln!(self.buf, "\\midrule").unwrap();
                 }
@@ -173,161 +167,143 @@ impl<'a> LatexRenderer<'a> {
                 }
             }
 
-            // Data rows
-            for row in &group.rows {
-                self.render_row(row);
+            for r in 0..group.rows.rows.len() {
+                self.render_row(&group.rows.rows, r);
             }
 
-            // Summary rows
             if !group.summary_rows.is_empty() {
-                // Light separator before summary
                 if self.config.booktabs {
-                    writeln!(
-                        self.buf,
-                        "\\cmidrule(lr){{1-{}}}",
-                        self.table.config.table_cols
-                    )
-                    .unwrap();
+                    writeln!(self.buf, "\\cmidrule(lr){{1-{cols}}}").unwrap();
                 }
-                for row in &group.summary_rows {
-                    self.render_row(row);
+                for r in 0..group.summary_rows.rows.len() {
+                    self.render_row(&group.summary_rows.rows, r);
                 }
             }
 
-            // Separator between groups (not after last)
-            if g < self.table.table.tbody.len() - 1 && group.label.is_none() {
+            if g + 1 < rt.groups.len() && group.label.is_none() {
                 writeln!(self.buf, "\\addlinespace").unwrap();
             }
         }
     }
 
-    fn render_row(&mut self, row: &Row) {
-        let cells: Vec<String> = row
-            .cells
-            .iter()
-            .filter(|c| !c.is_placeholder)
-            .map(|cell| self.render_cell(cell))
-            .collect();
-
+    /// One `\\`-terminated row. Every visible column gets an entry: a position
+    /// covered from above is an empty cell (as wide as the spanning cell, via
+    /// `\multicolumn`, for a 2D span); positions covered from the left are absorbed
+    /// by the origin's `\multicolumn`.
+    fn render_row(&mut self, rows: &[ResolvedRow], r: usize) {
+        let row = &rows[r];
+        let mut cells: Vec<String> = Vec::new();
+        for (col, slot) in row.slots.iter().enumerate() {
+            match slot {
+                Slot::Origin(cell) => cells.push(self.render_cell(cell)),
+                Slot::CoveredV {
+                    origin_row,
+                    origin_col,
+                    ..
+                } if *origin_col == col => {
+                    let span = rows[*origin_row].slots[col]
+                        .origin()
+                        .map_or(1, |c| c.colspan);
+                    cells.push(if span > 1 {
+                        format!("\\multicolumn{{{span}}}{{l}}{{}}")
+                    } else {
+                        String::new()
+                    });
+                }
+                Slot::CoveredH { .. } | Slot::CoveredV { .. } => {}
+                Slot::Empty => cells.push(String::new()),
+            }
+        }
         writeln!(self.buf, "{} \\\\", cells.join(" & ")).unwrap();
     }
 
-    fn render_cell(&self, cell: &Cell) -> String {
-        let content = content_to_latex(&cell.content);
+    fn render_cell(&self, cell: &ResolvedCell) -> String {
+        let column = &self.rt.columns[cell.col];
+        let fixed_width = column.width.as_ref().and_then(latex_width).is_some();
+        let mut out = self.content(cell.content, &cell.align);
+        out = apply_style(&out, &cell.style);
 
-        // Apply style (bold, italic, color)
-        let styled = if let Some(ref style_id) = cell.style_id {
-            self.apply_style(&content, style_id)
-        } else {
-            content
-        };
-
-        // Handle multicolumn
-        if cell.colspan > 1 {
-            let align = self.cell_alignment(cell);
-            return format!("\\multicolumn{{{}}}{{{align}}}{{{styled}}}", cell.colspan);
-        }
-
-        // Handle multirow
         if cell.rowspan > 1 {
-            return format!("\\multirow{{{}}}{{*}}{{{styled}}}", cell.rowspan);
+            out = format!("\\multirow{{{}}}{{*}}{{{out}}}", cell.rowspan);
         }
-
-        styled
+        // A cell's own alignment differs from its column's: a one-column
+        // `\multicolumn` overrides it (not for fixed-width `p{}` columns, whose
+        // width it would drop).
+        let own_align = cell.colspan == 1
+            && !fixed_width
+            && align_letter(&cell.align) != align_letter(&column.align);
+        if cell.colspan > 1 || own_align {
+            out = format!(
+                "\\multicolumn{{{}}}{{{}}}{{{out}}}",
+                cell.colspan,
+                align_letter(&cell.align)
+            );
+        }
+        out
     }
 
-    fn cell_alignment(&self, cell: &Cell) -> &str {
-        // Try to infer alignment from the style
-        if let Some(ref style_id) = cell.style_id {
-            if let Some(def) = self.resolve_style(style_id) {
-                if let Some(ref align) = def.text_align {
-                    return match align {
-                        HAlign::Right => "r",
-                        HAlign::Center => "c",
-                        _ => "l",
-                    };
+    /// Content as LaTeX. Line breaks become a nested one-column tabular (the only
+    /// form that works in `l`/`c`/`r` columns as well as `p{}`).
+    fn content(&self, nodes: &[ContentNode], align: &HAlign) -> String {
+        let mut lines = vec![String::new()];
+        for node in nodes {
+            let out = lines.last_mut().unwrap();
+            match node {
+                ContentNode::Text { value } => out.push_str(&escape_latex(value)),
+                ContentNode::StyledText { value, style_id } => {
+                    let style = style_id
+                        .as_deref()
+                        .map(|id| self.rt.style(id))
+                        .unwrap_or_default();
+                    out.push_str(&apply_inline_style(&escape_latex(value), &style));
                 }
+                ContentNode::LineBreak {} => lines.push(String::new()),
+                ContentNode::FootnoteMark { mark_text, .. } => {
+                    write!(out, "\\textsuperscript{{{}}}", escape_latex(mark_text)).unwrap();
+                }
+                ContentNode::Image { alt, .. } => match alt {
+                    Some(alt) => out.push_str(&escape_latex(alt)),
+                    None => out.push_str("[image]"),
+                },
+                ContentNode::Raw { format, value } => {
+                    if format == "latex" {
+                        out.push_str(value);
+                    }
+                }
+                ContentNode::Unknown => {}
             }
         }
-        "l"
-    }
-
-    fn apply_style(&self, content: &str, style_id: &str) -> String {
-        let def = match self.resolve_style(style_id) {
-            Some(d) => d,
-            None => return content.to_string(),
-        };
-
-        let mut result = content.to_string();
-
-        // Apply font weight
-        if def.font_weight.as_ref().is_some_and(FontWeight::is_bold) {
-            result = format!("\\textbf{{{result}}}");
+        if lines.len() == 1 {
+            return lines.pop().unwrap();
         }
-
-        // Apply font style
-        if def.font_style.as_ref().is_some_and(FontStyle::is_italic) {
-            result = format!("\\textit{{{result}}}");
-        }
-
-        // Apply color
-        if let Some(ref color) = def.color {
-            if let Some(latex_color) = hex_to_latex_color(color) {
-                result = format!("\\textcolor{{{latex_color}}}{{{result}}}");
-            }
-        }
-
-        // Apply background color
-        if let Some(ref bg) = def.background_color {
-            if let Some(latex_color) = hex_to_latex_color(bg) {
-                result = format!("\\cellcolor{{{latex_color}}}{result}");
-            }
-        }
-
-        // Apply monospace font
-        if let Some(ref family) = def.font_family {
-            if family.contains("monospace") || family.contains("Courier") {
-                result = format!("\\texttt{{{result}}}");
-            }
-        }
-
-        result
-    }
-
-    fn resolve_style(&self, id: &str) -> Option<StyleDef> {
-        if let Some(def) = self.table.styles.defs.get(id) {
-            return Some(def.clone());
-        }
-        if let Some(comp) = self.table.styles.compositions.get(id) {
-            if let Some(base) = self.table.styles.defs.get(&comp.extends) {
-                return Some(merge_style_def(base, &comp.overrides));
-            }
-        }
-        None
+        format!(
+            "\\begin{{tabular}}[t]{{@{{}}{}@{{}}}}{}\\end{{tabular}}",
+            align_letter(align),
+            lines.join("\\\\")
+        )
     }
 
     // ─── Footnotes ───
 
     fn render_footnotes(&mut self) {
-        if let Some(ref footer) = self.table.footer {
-            if !footer.footnotes.is_empty() {
-                writeln!(self.buf).unwrap();
-                for note in &footer.footnotes {
-                    let text = content_to_latex(&note.content);
-                    writeln!(
-                        self.buf,
-                        "\\textsuperscript{{{mark}}} {text}\\\\",
-                        mark = escape_latex(&note.mark)
-                    )
-                    .unwrap();
-                }
+        let footer = &self.rt.footer;
+        if !footer.footnotes.is_empty() {
+            writeln!(self.buf).unwrap();
+            for note in &footer.footnotes {
+                let text = self.content(note.content, &HAlign::Left);
+                writeln!(
+                    self.buf,
+                    "\\textsuperscript{{{mark}}} {text}\\\\",
+                    mark = escape_latex(note.mark)
+                )
+                .unwrap();
             }
-            if !footer.source_notes.is_empty() {
-                writeln!(self.buf).unwrap();
-                for note in &footer.source_notes {
-                    let text = content_to_latex(&note.content);
-                    writeln!(self.buf, "{{\\footnotesize {text}}}\\\\").unwrap();
-                }
+        }
+        if !footer.source_notes.is_empty() {
+            writeln!(self.buf).unwrap();
+            for note in &footer.source_notes {
+                let text = self.content(note.content, &HAlign::Left);
+                writeln!(self.buf, "{{\\footnotesize {text}}}\\\\").unwrap();
             }
         }
     }
@@ -335,50 +311,80 @@ impl<'a> LatexRenderer<'a> {
 
 /// Main entry point for rendering.
 pub fn render(table: &Table, config: &LatexWriterConfig) -> Result<String, RenderError> {
-    let renderer = LatexRenderer::new(table, config);
-    renderer.render()
+    let rt = resolve(table);
+    LatexRenderer::new(&rt, config).render()
 }
 
-// ─── Content Rendering ───
-
-fn content_to_latex(nodes: &[ContentNode]) -> String {
-    let mut out = String::new();
-    for node in nodes {
-        match node {
-            ContentNode::Text { value } => {
-                out.push_str(&escape_latex(value));
-            }
-            ContentNode::StyledText { value, style_id: _ } => {
-                // Style is applied at the cell level; here we just output the text
-                out.push_str(&escape_latex(value));
-            }
-            ContentNode::LineBreak {} => {
-                out.push_str("\\newline ");
-            }
-            ContentNode::FootnoteMark { mark_text, .. } => {
-                write!(out, "\\textsuperscript{{{}}}", escape_latex(mark_text)).unwrap();
-            }
-            ContentNode::Image { alt, .. } => {
-                // LaTeX can't inline arbitrary images easily; use alt text
-                if let Some(ref alt_text) = alt {
-                    out.push_str(&escape_latex(alt_text));
-                } else {
-                    out.push_str("[image]");
-                }
-            }
-            ContentNode::Raw { format, value } => {
-                if format == "latex" {
-                    out.push_str(value);
-                }
-            }
-            ContentNode::Unknown => {}
-        }
+fn align_letter(align: &HAlign) -> &'static str {
+    match align {
+        HAlign::Right => "r",
+        HAlign::Center => "c",
+        _ => "l",
     }
-    out
+}
+
+/// A column width usable in `p{…}`: absolute units and `em` keep their unit
+/// (px → pt at 0.75pt/px), `%` is a fraction of `\linewidth`. `fr`, `auto` and
+/// non-positive widths have no `p{}` form.
+fn latex_width(w: &Length) -> Option<String> {
+    fn num(v: f64) -> Option<String> {
+        (v.is_finite() && v > 0.0).then(|| format!("{}", (v * 1e4).round() / 1e4))
+    }
+    Some(match *w {
+        Length::Px(v) => format!("{}pt", num(v * 0.75)?),
+        Length::Pt(v) => format!("{}pt", num(v)?),
+        Length::Em(v) | Length::Rem(v) => format!("{}em", num(v)?),
+        Length::In(v) => format!("{}in", num(v)?),
+        Length::Cm(v) => format!("{}cm", num(v)?),
+        Length::Mm(v) => format!("{}mm", num(v)?),
+        Length::Percent(v) => format!("{}\\linewidth", num(v / 100.0)?),
+        Length::Fr(_) | Length::Auto => return None,
+    })
+}
+
+/// Bold, italic and text colour for an inline run.
+fn apply_inline_style(content: &str, style: &ResolvedStyle) -> String {
+    let mut result = content.to_string();
+    if style.is_bold() {
+        result = format!("\\textbf{{{result}}}");
+    }
+    if style.is_italic() {
+        result = format!("\\textit{{{result}}}");
+    }
+    if let Some(c) = style.paint() {
+        result = format!("\\textcolor{}{{{result}}}", latex_color(c));
+    }
+    result
+}
+
+/// A cell's style: inline formatting, monospace families, and the cell
+/// background (`\cellcolor` must come first in the cell).
+fn apply_style(content: &str, style: &ResolvedStyle) -> String {
+    let mut result = apply_inline_style(content, style);
+    if style
+        .font_family
+        .as_deref()
+        .is_some_and(|f| f.contains("monospace") || f.contains("Courier"))
+    {
+        result = format!("\\texttt{{{result}}}");
+    }
+    if let Some(bg) = style.fill() {
+        result = format!("\\cellcolor{}{result}", latex_color(bg));
+    }
+    result
+}
+
+/// An xcolor `[HTML]{RRGGBB}` spec; LaTeX colours have no alpha, so translucent
+/// colours are flattened onto white.
+fn latex_color(c: Color) -> String {
+    format!("[HTML]{{{}}}", c.flatten().to_rrggbb())
 }
 
 // ─── LaTeX Escaping ───
 
+/// Escape text for LaTeX: the ten special characters, `<`, `>` and `|` (which
+/// print as other glyphs in the default OT1 encoding), newlines as spaces (a blank
+/// line would end the paragraph mid-table), other control characters dropped.
 fn escape_latex(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for c in s.chars() {
@@ -393,83 +399,43 @@ fn escape_latex(s: &str) -> String {
             '~' => out.push_str("\\textasciitilde{}"),
             '^' => out.push_str("\\textasciicircum{}"),
             '\\' => out.push_str("\\textbackslash{}"),
+            '<' => out.push_str("\\textless{}"),
+            '>' => out.push_str("\\textgreater{}"),
+            '|' => out.push_str("\\textbar{}"),
+            '\n' | '\r' | '\t' => out.push(' '),
+            c if c.is_control() => {}
             _ => out.push(c),
         }
     }
     out
 }
 
-// ─── Color Handling ───
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-/// Any CSS colour as an xcolor `[HTML]{RRGGBB}` spec; alpha is dropped and fully
-/// transparent means "no colour".
-fn hex_to_latex_color(color: &str) -> Option<String> {
-    let c = color.parse::<gridwell_core::Color>().ok()?;
-    (!c.is_transparent()).then(|| format!("[HTML]{{{}}}", c.to_rrggbb()))
-}
+    #[test]
+    fn widths_convert_to_latex_units() {
+        let w = |s: &str| latex_width(&s.parse().unwrap());
+        assert_eq!(w("120px").as_deref(), Some("90pt"));
+        assert_eq!(w("25%").as_deref(), Some("0.25\\linewidth"));
+        assert_eq!(w("3cm").as_deref(), Some("3cm"));
+        assert_eq!(w("1.5em").as_deref(), Some("1.5em"));
+        assert_eq!(w("1fr"), None);
+        assert_eq!(w("auto"), None);
+        assert_eq!(w("0"), None);
+    }
 
-fn merge_style_def(base: &StyleDef, overrides: &StyleDef) -> StyleDef {
-    StyleDef {
-        font_family: overrides
-            .font_family
-            .clone()
-            .or_else(|| base.font_family.clone()),
-        font_size: overrides
-            .font_size
-            .clone()
-            .or_else(|| base.font_size.clone()),
-        font_weight: overrides
-            .font_weight
-            .clone()
-            .or_else(|| base.font_weight.clone()),
-        font_style: overrides
-            .font_style
-            .clone()
-            .or_else(|| base.font_style.clone()),
-        color: overrides.color.clone().or_else(|| base.color.clone()),
-        background_color: overrides
-            .background_color
-            .clone()
-            .or_else(|| base.background_color.clone()),
-        text_align: overrides
-            .text_align
-            .clone()
-            .or_else(|| base.text_align.clone()),
-        vertical_align: overrides
-            .vertical_align
-            .clone()
-            .or_else(|| base.vertical_align.clone()),
-        text_transform: overrides
-            .text_transform
-            .clone()
-            .or_else(|| base.text_transform.clone()),
-        text_decoration: overrides
-            .text_decoration
-            .clone()
-            .or_else(|| base.text_decoration.clone()),
-        white_space: overrides
-            .white_space
-            .clone()
-            .or_else(|| base.white_space.clone()),
-        padding: overrides.padding.clone().or_else(|| base.padding.clone()),
-        border: overrides.border.clone().or_else(|| base.border.clone()),
-        indent: overrides.indent.clone().or_else(|| base.indent.clone()),
-        word_break: overrides
-            .word_break
-            .clone()
-            .or_else(|| base.word_break.clone()),
-        overflow: overrides.overflow.clone().or_else(|| base.overflow.clone()),
-        text_overflow: overrides
-            .text_overflow
-            .clone()
-            .or_else(|| base.text_overflow.clone()),
-        min_width: overrides
-            .min_width
-            .clone()
-            .or_else(|| base.min_width.clone()),
-        max_width: overrides
-            .max_width
-            .clone()
-            .or_else(|| base.max_width.clone()),
+    #[test]
+    fn escaping_covers_specials_and_controls() {
+        assert_eq!(
+            escape_latex("a&b%c$d#e_f{g}h"),
+            "a\\&b\\%c\\$d\\#e\\_f\\{g\\}h"
+        );
+        assert_eq!(
+            escape_latex("<|>"),
+            "\\textless{}\\textbar{}\\textgreater{}"
+        );
+        assert_eq!(escape_latex("x\n\ny\u{7}z"), "x  yz");
     }
 }

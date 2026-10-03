@@ -4,7 +4,7 @@ expression: out
 ---
 \begin{tabular}{lrr}
 \toprule
- & \multicolumn{2}{l}{Scores} \\
+ & \multicolumn{2}{r}{Scores} \\
 Name & Q1 & Q2 \\
 \midrule
 Alice & 90 & 95 \\

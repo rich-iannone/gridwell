@@ -6,8 +6,8 @@ expression: out
 \toprule
 A & B & C \\
 \midrule
-\multicolumn{2}{l}{2x2 block} & top-right \\
-mid-right \\
+\multicolumn{2}{l}{\multirow{2}{*}{2x2 block}} & top-right \\
+\multicolumn{2}{l}{} & mid-right \\
 x & y & z \\
 \bottomrule
 \end{tabular}

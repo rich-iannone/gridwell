@@ -4,7 +4,8 @@ expression: out
 ---
 #align(left)[#text(size: 16pt, weight: "bold")[Quarterly P\&L]]
 #table(
-  columns: (auto, auto, auto),
+  columns: (auto, auto, auto,),
+  align: (left, right, right,),
   stroke: none,
   table.header(
     [#text(weight: "bold")[Line item]],
@@ -16,8 +17,8 @@ expression: out
   [\$1\,200],
   [\$1\,350],
   [COGS],
-  [\$700],
-  [\$760],
+  table.cell(fill: rgb("#8080800D"))[\$700],
+  table.cell(fill: rgb("#8080800D"))[\$760],
   [Opex],
   [\$300],
   [\$320],
