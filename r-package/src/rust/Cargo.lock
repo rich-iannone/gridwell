@@ -145,6 +145,14 @@ version = "0.1.0"
 dependencies = [
  "extendr-api",
  "gridwell-ir",
+ "gridwell-render",
+]
+
+[[package]]
+name = "gridwell-render"
+version = "0.1.0"
+dependencies = [
+ "gridwell-ir",
  "gridwell-writer-ansi",
  "gridwell-writer-docx",
  "gridwell-writer-html",
@@ -156,7 +164,9 @@ dependencies = [
  "gridwell-writer-svg",
  "gridwell-writer-typst",
  "gridwell-writer-xlsx",
+ "serde",
  "serde_json",
+ "thiserror",
 ]
 
 [[package]]
@@ -165,6 +175,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-ir",
  "gridwell-layout",
+ "serde",
  "thiserror",
  "unicode-width",
 ]
@@ -188,6 +199,7 @@ dependencies = [
  "gridwell-core",
  "gridwell-ir",
  "gridwell-layout",
+ "serde",
  "thiserror",
 ]
 
@@ -198,6 +210,7 @@ dependencies = [
  "gridwell-core",
  "gridwell-ir",
  "gridwell-layout",
+ "serde",
  "thiserror",
 ]
 
@@ -254,6 +267,7 @@ dependencies = [
  "gridwell-core",
  "gridwell-ir",
  "gridwell-layout",
+ "serde",
  "thiserror",
  "unicode-width",
 ]
@@ -265,6 +279,7 @@ dependencies = [
  "gridwell-core",
  "gridwell-ir",
  "gridwell-layout",
+ "serde",
  "thiserror",
 ]
 
