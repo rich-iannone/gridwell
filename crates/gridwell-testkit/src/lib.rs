@@ -12,6 +12,7 @@
 //! counts and column specs so every example is *valid* by construction (see the
 //! `all_examples_validate` test).
 
+pub mod arb;
 pub mod builder;
 pub mod examples;
 pub mod spans;
