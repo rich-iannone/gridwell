@@ -1,6 +1,7 @@
+use gridwell_core::{Color, FontSize, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::style::{Border, BorderSet, Padding, StyleDef};
-use gridwell_ir::{BorderStyle, Cell, ColumnVisibility, Row, Table};
+use gridwell_ir::{BorderStyle, Cell, ColumnVisibility, Keyword, Row, Table};
 use std::fmt::Write;
 use thiserror::Error;
 
@@ -83,13 +84,13 @@ impl<'a> HtmlRenderer<'a> {
         attrs.push(format!("class=\"{}\"", self.container_class()));
 
         let mut style_parts = Vec::new();
-        if let Some(ref w) = self.table.config.container_width {
+        if let Some(w) = css_length(self.table.config.container_width.as_deref()) {
             style_parts.push(format!("max-width: {w}"));
         }
-        if let Some(ref h) = self.table.config.container_height {
+        if let Some(h) = css_length(self.table.config.container_height.as_deref()) {
             style_parts.push(format!("max-height: {h}"));
         }
-        if let Some(ref o) = self.table.config.container_overflow {
+        if let Some(o) = known(&self.table.config.container_overflow) {
             style_parts.push(format!("overflow: {o}"));
         }
         if !style_parts.is_empty() {
@@ -209,7 +210,7 @@ impl<'a> HtmlRenderer<'a> {
             attrs.push(format!("aria-label=\"{}\"", escape_attr(aria_label)));
         }
 
-        if let Some(ref w) = self.table.config.table_width {
+        if let Some(w) = css_length(self.table.config.table_width.as_deref()) {
             attrs.push(format!("style=\"width: {w}\""));
         }
 
@@ -239,11 +240,15 @@ impl<'a> HtmlRenderer<'a> {
     }
 
     fn render_colgroup(&mut self) {
+        // An unparseable width is treated as auto.
+        let width = |c: &gridwell_ir::ColumnSpec| {
+            css_length(Some(&c.width)).filter(|w| w.as_str() != "auto")
+        };
         let has_widths = self
             .table
             .column_spec
             .iter()
-            .any(|c| c.width != "auto" && !c.hidden);
+            .any(|c| !c.hidden && width(c).is_some());
 
         if !has_widths {
             return;
@@ -255,10 +260,9 @@ impl<'a> HtmlRenderer<'a> {
             if col.hidden {
                 continue;
             }
-            if col.width == "auto" {
-                self.write_line("<col>");
-            } else {
-                self.write_line(&format!("<col style=\"width: {}\">", col.width));
+            match width(col) {
+                Some(w) => self.write_line(&format!("<col style=\"width: {w}\">")),
+                None => self.write_line("<col>"),
             }
         }
         self.pop_indent();
@@ -356,14 +360,14 @@ impl<'a> HtmlRenderer<'a> {
             } else if let Some(style_def) = self.resolve_style(style_id) {
                 let css = style_def_to_css(&style_def);
                 if !css.is_empty() {
-                    attrs.push(format!("style=\"{css}\""));
+                    attrs.push(format!("style=\"{}\"", escape_attr(&css)));
                 }
             }
         }
 
         // Scope for header cells
         if is_header {
-            if let Some(ref scope) = cell.scope {
+            if let Some(scope) = known(&cell.scope) {
                 attrs.push(format!("scope=\"{scope}\""));
             }
         }
@@ -493,7 +497,8 @@ impl<'a> HtmlRenderer<'a> {
                                 let css = style_def_to_css(&style_def);
                                 let _ = write!(
                                     self.buf,
-                                    "<span style=\"{css}\">{}</span>",
+                                    "<span style=\"{}\">{}</span>",
+                                    escape_attr(&css),
                                     escape_html(value)
                                 );
                             } else {
@@ -537,10 +542,10 @@ impl<'a> HtmlRenderer<'a> {
                         img_attrs.push(format!("alt=\"{}\"", escape_attr(alt_text)));
                     }
                     let mut style_parts = Vec::new();
-                    if let Some(ref w) = width {
+                    if let Some(w) = css_length(width.as_deref()) {
                         style_parts.push(format!("width: {w}"));
                     }
-                    if let Some(ref h) = height {
+                    if let Some(h) = css_length(height.as_deref()) {
                         style_parts.push(format!("height: {h}"));
                     }
                     if !style_parts.is_empty() {
@@ -600,58 +605,62 @@ pub fn render(table: &Table, config: &HtmlWriterConfig) -> Result<String, Render
 
 // ─── CSS Generation ───
 
+/// CSS declarations for a style. Every free-form value is parsed and re-emitted in
+/// normalized form (or dropped if it doesn't parse), so the result is safe inside
+/// a `<style>` block; callers still attribute-escape it for `style="…"` (font
+/// family names may contain quotes).
 fn style_def_to_css(def: &StyleDef) -> String {
     let mut parts = Vec::new();
 
-    if let Some(ref v) = def.font_family {
+    if let Some(v) = def.font_family.as_deref().and_then(css_font_family) {
         parts.push(format!("font-family: {v}"));
     }
-    if let Some(ref v) = def.font_size {
+    if let Some(v) = def.font_size.as_deref().and_then(css_font_size) {
         parts.push(format!("font-size: {v}"));
     }
-    if let Some(ref v) = def.font_weight {
+    if let Some(v) = known(&def.font_weight) {
         parts.push(format!("font-weight: {v}"));
     }
-    if let Some(ref v) = def.font_style {
+    if let Some(v) = known(&def.font_style) {
         parts.push(format!("font-style: {v}"));
     }
-    if let Some(ref v) = def.color {
+    if let Some(v) = css_color(def.color.as_deref()) {
         parts.push(format!("color: {v}"));
     }
-    if let Some(ref v) = def.background_color {
+    if let Some(v) = css_color(def.background_color.as_deref()) {
         parts.push(format!("background-color: {v}"));
     }
-    if let Some(ref v) = def.text_align {
+    if let Some(v) = known(&def.text_align) {
         parts.push(format!("text-align: {v}"));
     }
-    if let Some(ref v) = def.vertical_align {
+    if let Some(v) = known(&def.vertical_align) {
         parts.push(format!("vertical-align: {v}"));
     }
-    if let Some(ref v) = def.text_transform {
+    if let Some(v) = known(&def.text_transform) {
         parts.push(format!("text-transform: {v}"));
     }
-    if let Some(ref v) = def.text_decoration {
+    if let Some(v) = known(&def.text_decoration) {
         parts.push(format!("text-decoration: {v}"));
     }
-    if let Some(ref v) = def.white_space {
+    if let Some(v) = known(&def.white_space) {
         parts.push(format!("white-space: {v}"));
     }
-    if let Some(ref v) = def.indent {
+    if let Some(v) = css_length(def.indent.as_deref()) {
         parts.push(format!("text-indent: {v}"));
     }
-    if let Some(ref v) = def.word_break {
+    if let Some(v) = known(&def.word_break) {
         parts.push(format!("word-break: {v}"));
     }
-    if let Some(ref v) = def.overflow {
+    if let Some(v) = known(&def.overflow) {
         parts.push(format!("overflow: {v}"));
     }
-    if let Some(ref v) = def.text_overflow {
+    if let Some(v) = known(&def.text_overflow) {
         parts.push(format!("text-overflow: {v}"));
     }
-    if let Some(ref v) = def.min_width {
+    if let Some(v) = css_length(def.min_width.as_deref()) {
         parts.push(format!("min-width: {v}"));
     }
-    if let Some(ref v) = def.max_width {
+    if let Some(v) = css_length(def.max_width.as_deref()) {
         parts.push(format!("max-width: {v}"));
     }
 
@@ -671,12 +680,13 @@ fn style_def_to_css(def: &StyleDef) -> String {
 }
 
 fn padding_to_css(p: &Padding) -> Option<String> {
-    let top = p.top.as_deref().unwrap_or("0");
-    let right = p.right.as_deref().unwrap_or("0");
-    let bottom = p.bottom.as_deref().unwrap_or("0");
-    let left = p.left.as_deref().unwrap_or("0");
+    let side = |v: &Option<String>| css_length(v.as_deref()).unwrap_or_else(|| "0".into());
+    let (top, right, bottom, left) = (side(&p.top), side(&p.right), side(&p.bottom), side(&p.left));
 
-    if top == "0" && right == "0" && bottom == "0" && left == "0" {
+    if [&top, &right, &bottom, &left]
+        .iter()
+        .all(|v| v.as_str() == "0")
+    {
         return None;
     }
 
@@ -716,13 +726,59 @@ fn border_set_to_css(b: &BorderSet) -> Vec<String> {
 }
 
 fn border_to_css(b: &Border) -> Option<String> {
-    let style = b.style.as_ref()?;
+    let style = known(&b.style)?;
     if matches!(style, BorderStyle::None | BorderStyle::Hidden) {
         return None;
     }
-    let width = b.width.as_deref().unwrap_or("1px");
-    let color = b.color.as_deref().unwrap_or("currentColor");
+    let width = css_length(b.width.as_deref()).unwrap_or_else(|| "1px".into());
+    let color = css_color(b.color.as_deref()).unwrap_or_else(|| "currentColor".into());
     Some(format!("{width} {style} {color}"))
+}
+
+// ─── CSS values ───
+
+/// A keyword field's value if it is one of the known values. Unknown values keep
+/// their source text (and `Display` it verbatim), so they must never reach CSS.
+fn known<K: Keyword>(v: &Option<K>) -> Option<&K> {
+    v.as_ref().filter(|k| k.is_known())
+}
+
+/// A length in normalized CSS form (`None` if absent or unparseable). A unitless
+/// zero comes out as `0`.
+fn css_length(v: Option<&str>) -> Option<String> {
+    match v?.parse::<Length>().ok()? {
+        Length::Px(0.0) => Some("0".into()),
+        l => Some(l.to_string()),
+    }
+}
+
+/// A colour in normalized CSS form (`None` if absent or unparseable).
+fn css_color(v: Option<&str>) -> Option<String> {
+    let c = v?.parse::<Color>().ok()?;
+    Some(if c.is_transparent() {
+        "transparent".into()
+    } else {
+        c.to_css()
+    })
+}
+
+/// A font size: a validated length or keyword. Valid sizes contain only ASCII
+/// letters, digits, `.`, `+`, `-` and `%`, so the lowercased source is safe CSS.
+fn css_font_size(v: &str) -> Option<String> {
+    v.parse::<FontSize>().ok()?;
+    Some(v.trim().to_ascii_lowercase())
+}
+
+/// A font-family list with everything that could end a declaration, a rule or a
+/// `<style>` element removed (`;`, `{`, `}`, `<`, `>`, `\`, `/`, `:`, `(`, `)`, `@`,
+/// `!`, control characters). Names, commas, spaces, hyphens and quotes survive.
+fn css_font_family(v: &str) -> Option<String> {
+    let cleaned: String = v
+        .chars()
+        .filter(|&c| c.is_alphanumeric() || matches!(c, ' ' | ',' | '-' | '_' | '.' | '"' | '\''))
+        .collect();
+    let cleaned = cleaned.trim();
+    (!cleaned.is_empty()).then(|| cleaned.to_string())
 }
 
 fn merge_style_def(base: &StyleDef, overrides: &StyleDef) -> StyleDef {
