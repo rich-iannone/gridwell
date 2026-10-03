@@ -70,6 +70,10 @@ fn header_declares_the_whole_api() {
         "gridwell_validate",
         "gridwell_render_text",
         "gridwell_render_binary",
+        "gridwell_render_text_with_options",
+        "gridwell_render_binary_with_options",
+        "gridwell_format_names",
+        "gridwell_format_kind",
         "gridwell_free_table",
         "gridwell_free_text_result",
         "gridwell_free_binary_result",
@@ -81,13 +85,23 @@ fn header_declares_the_whole_api() {
         "GRIDWELL_ERR_RENDER",
         "GRIDWELL_ERR_INVALID_ARG",
         "GRIDWELL_ERR_PANIC",
+        "GRIDWELL_ERR_OPTIONS",
+        "GRIDWELL_FORMAT_UNKNOWN",
+        "GRIDWELL_FORMAT_TEXT",
+        "GRIDWELL_FORMAT_BINARY",
         "typedef struct GridwellTable GridwellTable",
         "typedef struct GridwellError GridwellError",
     ] {
         assert!(h.contains(name), "header is missing {name}");
     }
     // Internal helpers must not leak into the C API.
-    for name in ["guard", "render_args", "make_error", "set_error"] {
+    for name in [
+        "guard",
+        "render_args",
+        "make_error",
+        "set_error",
+        "set_render_error",
+    ] {
         assert!(
             !h.contains(&format!(" {name}(")),
             "header exposes internal {name}"
