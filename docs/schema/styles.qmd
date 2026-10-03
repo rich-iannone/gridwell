@@ -80,6 +80,39 @@ listed in [Keyword values](validation.qmd#keyword-values); anything else is repo
 }
 ```
 
+## How Styles Combine
+
+Every writer resolves a cell's style the same way (in `gridwell-layout`). The layers,
+lowest to highest priority:
+
+1. the column's default style (`column_spec[].style_id`), for body and summary cells
+   (column labels are styled by their own row and cell styles);
+2. row striping (`config.row_striping`, see [Config](config.qmd#row-striping));
+3. each matching conditional style, in the order listed (later ones win);
+4. the row's style (`row.style_id`);
+5. the cell's style (`cell.style_id`).
+
+A layer overrides only the properties it sets; everything else shows through from the
+layers below. `padding` and `border` merge side by side, so a cell style that sets only
+`border.bottom` keeps a row style's `border.top`. A border edge whose style is `none`
+or `hidden` removes that edge. Values that don't parse (and keywords outside their
+allowed set) are ignored, so they never reach any output.
+
+A style id can name a definition or a composition. A composition is its `extends`
+definition with `overrides` laid over it; compositions don't chain.
+
+### Conditional selectors
+
+| Selector field | Values | Matches |
+|---|---|---|
+| `scope` | `tbody` (`body`) | data rows of every group (not summary rows) |
+| | `thead` (`head`) | column-label rows |
+| | `table` (`all`), or absent | every row |
+| `row_parity` | `odd`, `even` | rows numbered from 1, as in CSS `:nth-child(odd)`: data rows count across all groups, head rows within the head, summary rows within their group |
+| | absent | every row in scope |
+
+Unknown values match nothing (and are reported as `UNKNOWN_VALUE`).
+
 ## Color Values
 
 - Named: all 148 CSS named colors (`red`, `steelblue`, `rebeccapurple`, …)
