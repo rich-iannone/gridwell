@@ -13,8 +13,8 @@ pub struct FontSizeParseError(pub String);
 pub enum FontSize {
     /// An explicit length (`12px`, `1.2em`, `90%`, …).
     Length(Length),
-    /// An absolute-size keyword (`small`, `x-large`, …), as its CSS size in px.
-    Keyword(f64),
+    /// An absolute-size keyword (`small`, `x-large`, …) and its CSS size in px.
+    Keyword(&'static str, f64),
     /// `smaller`: one step down from the parent size.
     Smaller,
     /// `larger`: one step up from the parent size.
@@ -41,9 +41,21 @@ impl FontSize {
         match self {
             FontSize::Length(Length::Percent(p)) => Some(parent_pt * p / 100.0),
             FontSize::Length(l) => l.to_pt(parent_pt, root_pt),
-            FontSize::Keyword(px) => Some(px * 0.75),
+            FontSize::Keyword(_, px) => Some(px * 0.75),
             FontSize::Smaller => Some(parent_pt / 1.2),
             FontSize::Larger => Some(parent_pt * 1.2),
+        }
+    }
+}
+
+impl std::fmt::Display for FontSize {
+    /// CSS form: the keyword, or the normalized length.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FontSize::Length(l) => write!(f, "{l}"),
+            FontSize::Keyword(name, _) => f.write_str(name),
+            FontSize::Smaller => f.write_str("smaller"),
+            FontSize::Larger => f.write_str("larger"),
         }
     }
 }
@@ -55,8 +67,8 @@ impl FromStr for FontSize {
     /// or a keyword (case-insensitive).
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let t = s.trim().to_ascii_lowercase();
-        if let Some((_, px)) = FONT_SIZE_KEYWORDS.iter().find(|(k, _)| *k == t) {
-            return Ok(FontSize::Keyword(*px));
+        if let Some(&(name, px)) = FONT_SIZE_KEYWORDS.iter().find(|(k, _)| *k == t) {
+            return Ok(FontSize::Keyword(name, px));
         }
         match t.as_str() {
             "smaller" => return Ok(FontSize::Smaller),
@@ -79,11 +91,11 @@ mod tests {
     fn keywords_and_lengths() {
         assert_eq!(
             "small".parse::<FontSize>().unwrap(),
-            FontSize::Keyword(13.0)
+            FontSize::Keyword("small", 13.0)
         );
         assert_eq!(
             " X-Large ".parse::<FontSize>().unwrap(),
-            FontSize::Keyword(24.0)
+            FontSize::Keyword("x-large", 24.0)
         );
         assert_eq!("smaller".parse::<FontSize>().unwrap(), FontSize::Smaller);
         assert_eq!("LARGER".parse::<FontSize>().unwrap(), FontSize::Larger);
