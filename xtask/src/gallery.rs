@@ -521,9 +521,14 @@ mod tests {
         FORMATS.iter().filter(|f| f.gated).map(|f| f.id).collect()
     }
 
+    /// Gate a format only once `cargo xtask determinism` shows its images come
+    /// out the same (harness/README.md). LaTeX awaits the `varwidth` previews.
     #[test]
-    fn gated_formats_are_html_svg_typst() {
-        assert_eq!(gated_ids(), vec!["html", "svg", "typst"]);
+    fn gated_formats_are_the_deterministic_ones() {
+        assert_eq!(
+            gated_ids(),
+            vec!["html", "svg", "typst", "rtf", "docx", "xlsx", "pptx"]
+        );
     }
 
     #[test]
@@ -586,12 +591,21 @@ mod tests {
     }
 
     #[test]
+    fn office_conversion_failure_fails_check() {
+        // RTF/DOCX/XLSX/PPTX are gated: a LibreOffice failure is a failure.
+        let r = row("a", vec![("docx", CellStatus::Error("soffice".into()))]);
+        let (failed, summary) = summarize(&[r], &[], true, false);
+        assert!(failed);
+        assert!(summary.contains("`docx/a`: not rendered"), "{summary}");
+    }
+
+    #[test]
     fn ungated_format_problems_never_fail_check() {
         let r = row(
             "a",
             vec![
                 ("latex", CellStatus::Unavailable("xelatex")),
-                ("docx", CellStatus::Error("libreoffice".into())),
+                ("latex", CellStatus::Error("xelatex".into())),
             ],
         );
         let (failed, _) = summarize(&[r], &[], true, false);
