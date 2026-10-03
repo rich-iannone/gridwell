@@ -1,0 +1,101 @@
+---
+title: "Writer Options"
+---
+
+Each output format has a small set of options. Every binding takes them the same way,
+as a JSON object (a dict in Python, a named list in R); anything you leave out keeps its
+default. Unknown option names, wrong types and out-of-range values are errors, not
+silently ignored. `gridwell formats --json` (CLI), `gridwell.formats()` (Python) and
+`gw_formats()` (R) list every format with its options and defaults.
+
+::: {.panel-tabset}
+
+### CLI
+
+```bash
+gridwell convert table.json --to latex --options '{"booktabs": false}'
+gridwell convert table.json --to html --options-file html-options.json
+```
+
+### Python
+
+```python
+table.render("latex", {"booktabs": False})
+table.render_latex(booktabs=False)          # same, as keyword arguments
+```
+
+### R
+
+```r
+gw_render(tbl, "latex", list(booktabs = FALSE))
+gw_render_latex(tbl, booktabs = FALSE)      # same, as named arguments
+gw_render(tbl, "latex", '{"booktabs": false}')
+```
+
+### C
+
+```c
+gridwell_render_text_with_options(table, "latex", "{\"booktabs\": false}", &err);
+```
+
+### Rust
+
+```rust
+let options = serde_json::json!({ "booktabs": false });
+gridwell_render::render(&table, "latex", Some(&options))?;
+```
+
+:::
+
+## Options by format
+
+RTF, Pandoc, DOCX, XLSX and PPTX have no options; they accept only `{}` (or no
+options at all).
+
+### `html`
+
+| Option | Type | Default | Meaning |
+|---|---|---|---|
+| `inline_styles` | boolean | `false` | Put styles in `style="…"` attributes instead of a `<style>` block with classes |
+| `pretty_print` | boolean | `true` | Indent the markup, one element per line |
+| `class_prefix` | string | `"gw"` | Prefix for generated class names; letters, digits, `_` and `-`, not starting with a digit or `-` |
+
+### `latex`
+
+| Option | Type | Default | Meaning |
+|---|---|---|---|
+| `booktabs` | boolean | `true` | Use booktabs rules (`\toprule`, `\midrule`, `\bottomrule`) instead of `\hline` |
+| `longtable` | boolean | `false` | Always use `longtable` (page-breaking) instead of `tabular` |
+| `longtable_threshold` | integer or `null` | `30` | Switch to `longtable` when there are more body rows than this; `null` never switches |
+
+### `typst`
+
+| Option | Type | Default | Meaning |
+|---|---|---|---|
+| `repeat_header` | boolean | `true` | Wrap the column labels in `table.header(…)` so they repeat on every page |
+
+### `svg`
+
+| Option | Type | Default | Meaning |
+|---|---|---|---|
+| `font_family` | string | `"Arial, sans-serif"` | CSS font list for all text; letters, digits, spaces, quotes and `, - _ .` only |
+| `font_size` | number | `14` | Base font size in px (greater than 0, at most 10000) |
+| `row_height` | number | `28` | Minimum row height in px (greater than 0, at most 10000) |
+| `cell_padding_x` | number | `8` | Horizontal cell padding in px (0–10000) |
+| `cell_padding_y` | number | `4` | Vertical cell padding in px (0–10000) |
+| `default_col_width` | number | `120` | Width in px used to size title and note text around narrow tables |
+
+### `ansi`
+
+| Option | Type | Default | Meaning |
+|---|---|---|---|
+| `box_drawing` | boolean | `true` | Draw borders with Unicode box-drawing characters (`false`: ASCII `+`, `-`, `|`) |
+| `true_color` | boolean | `true` | Colour text with 24-bit escape codes |
+| `max_width` | integer | `0` | Shrink the widest columns until the grid fits this many terminal columns (cells are cut with `…`); `0` means no limit |
+
+### `quarto`
+
+| Option | Type | Default | Meaning |
+|---|---|---|---|
+| `table_id` | string or `null` | `null` | Cross-reference id; the wrapper `Div` gets id `tbl-<table_id>` |
+| `extra_attrs` | list of `[key, value]` pairs | `[]` | Extra attributes on the wrapper `Div` |

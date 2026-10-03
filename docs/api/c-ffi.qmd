@@ -32,9 +32,10 @@ typedef struct GridwellBinaryResult {
 |---|---|---|
 | 1 | `GRIDWELL_ERR_PARSE` | Invalid UTF-8 or JSON, or JSON that isn't a table IR |
 | 2 | `GRIDWELL_ERR_VALIDATE` | The IR failed validation; the message lists the errors |
-| 3 | `GRIDWELL_ERR_RENDER` | A writer failed, or the format name is unknown |
+| 3 | `GRIDWELL_ERR_RENDER` | A writer failed, the format name is unknown, or a binary format was passed to `gridwell_render_text` (or a text one to `gridwell_render_binary`) |
 | 4 | `GRIDWELL_ERR_INVALID_ARG` | A required pointer was null, or a string wasn't UTF-8 |
 | 5 | `GRIDWELL_ERR_PANIC` | An internal panic was caught at the boundary (always a gridwell bug; please report it) |
+| 6 | `GRIDWELL_ERR_OPTIONS` | The writer options are invalid: malformed JSON, not an object, an unknown option, a wrong type, or a value out of range |
 
 No Rust panic ever unwinds into C: each function catches panics and reports them as
 `GRIDWELL_ERR_PANIC`.
@@ -58,6 +59,19 @@ GridwellTextResult gridwell_render_text(
 GridwellBinaryResult gridwell_render_binary(
     const GridwellTable *table, const char *format, GridwellError **err);
 
+// The same with writer options: a JSON object, or null for the defaults.
+GridwellTextResult gridwell_render_text_with_options(
+    const GridwellTable *table, const char *format, const char *options,
+    GridwellError **err);
+GridwellBinaryResult gridwell_render_binary_with_options(
+    const GridwellTable *table, const char *format, const char *options,
+    GridwellError **err);
+
+// Formats: a static comma-separated list of names (do not free), and a name's kind
+// (GRIDWELL_FORMAT_TEXT, GRIDWELL_FORMAT_BINARY or GRIDWELL_FORMAT_UNKNOWN).
+const char *gridwell_format_names(void);
+int32_t gridwell_format_kind(const char *format);
+
 // Error inspection
 const char *gridwell_error_message(const GridwellError *err);  // valid until freed
 int32_t gridwell_error_code(const GridwellError *err);         // 0 if err is null
@@ -69,7 +83,9 @@ void gridwell_free_text_result(GridwellTextResult result);
 void gridwell_free_binary_result(GridwellBinaryResult result);
 ```
 
-Every `err` out-parameter may be null if you don't need the error.
+Every `err` out-parameter may be null if you don't need the error. Format names are
+case-insensitive. See [Writer Options](../guide/writer-options.qmd) for each format's
+options.
 
 ## Example
 

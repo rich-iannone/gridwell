@@ -41,7 +41,18 @@ quarto <- gw_render_quarto(tbl)
 
 # Generic by name
 html <- gw_render(tbl, "html")
+
+# Writer options: a named list, a JSON string, or named arguments
+html <- gw_render(tbl, "html", list(inline_styles = TRUE))
+html <- gw_render(tbl, "html", '{"inline_styles": true}')
+html <- gw_render_html(tbl, inline_styles = TRUE)
+
+# Every format, with its options and defaults (a data frame)
+gw_formats()
 ```
+
+Passing options as a list needs the jsonlite package. See
+[Writer Options](../guide/writer-options.qmd) for each format's options.
 
 ## Binary Rendering
 
@@ -49,6 +60,9 @@ html <- gw_render(tbl, "html")
 docx_raw <- gw_render_docx(tbl)    # raw vector
 xlsx_raw <- gw_render_xlsx(tbl)
 pptx_raw <- gw_render_pptx(tbl)
+
+# Generic by name
+docx_raw <- gw_render_binary(tbl, "docx")
 
 # Write to file
 writeBin(gw_render_docx(tbl), "output.docx")
@@ -76,7 +90,9 @@ html <- gw_render_html(table_ptr)
 
 Every `gw_render*()` function validates the table first and signals an R error
 listing the validation errors if the IR is invalid. Use `gw_validate()` to get them
-as a character vector instead.
+as a character vector instead. Unknown format names, a binary format passed to
+`gw_render()` (or a text one to `gw_render_binary()`), and invalid options are errors
+too.
 
 ```r
 tryCatch(

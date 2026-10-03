@@ -32,6 +32,7 @@ website:
         - guide/getting-started.qmd
         - guide/cli.qmd
         - guide/output-formats.qmd
+        - guide/writer-options.qmd
         - guide/integration-great-tables.qmd
         - guide/integration-gt.qmd
     - title: "IR Schema"

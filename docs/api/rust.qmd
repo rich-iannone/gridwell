@@ -7,7 +7,9 @@ title: "Rust API"
 | Crate | Purpose |
 |-------|---------|
 | `gridwell-ir` | IR types, parsing, validation |
-| `gridwell-core` | Shared utilities (colors, units) |
+| `gridwell-core` | Shared utilities (colors, lengths, font sizes, XML escaping) |
+| `gridwell-layout` | The resolved table every writer renders: visible grid, spans, style cascade |
+| `gridwell-render` | The format registry: `Writer` trait, every format by name, options as JSON |
 | `gridwell-writer-html` | HTML renderer |
 | `gridwell-writer-latex` | LaTeX renderer |
 | `gridwell-writer-typst` | Typst renderer |
@@ -42,7 +44,33 @@ if errors.is_empty() {
 }
 ```
 
-## Text Rendering
+## Rendering by format name
+
+The registry validates the table, looks up the format, and checks the options. This is
+what the CLI and the C, Python and R bindings use.
+
+```rust
+use gridwell_render::{render, Output, REGISTRY};
+
+let options = serde_json::json!({ "inline_styles": true });
+match render(&table, "html", Some(&options))? {
+    Output::Text(html) => println!("{html}"),
+    Output::Binary(bytes) => std::fs::write("out.bin", bytes)?,
+}
+
+// Every format, with its metadata and default options
+for w in REGISTRY {
+    println!("{} (.{}): {}", w.name(), w.extension(), w.default_options());
+}
+```
+
+Errors are one `gridwell_render::RenderError`: `UnknownFormat`, `WrongKind`,
+`InvalidTable`, `InvalidOptions` or `Writer`.
+
+## Using a writer directly
+
+Each writer crate can also be used on its own. Its functions take a `&Table` and
+assume it is valid: call `table.validated()` (or `validate()`) first.
 
 ```rust
 use gridwell_writer_html::{render_html, HtmlWriter, HtmlWriterConfig};

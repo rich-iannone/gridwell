@@ -28,8 +28,10 @@ gridwell convert [OPTIONS] --to <FORMAT> [INPUT]
 
 **Options:**
 
-- `-t, --to <FORMAT>` — Output format (required)
+- `-t, --to <FORMAT>` — Output format (required; see `gridwell formats`)
 - `-o, --output <FILE>` — Output file (defaults to stdout for text; required for binary)
+- `-O, --options <JSON>` — [Writer options](writer-options.qmd) as a JSON object
+- `--options-file <FILE>` — Read writer options from a JSON file
 
 **Examples:**
 
@@ -42,6 +44,10 @@ gridwell convert table.json --to latex -o table.tex
 
 # Binary format requires -o
 gridwell convert table.json --to docx -o report.docx
+
+# Writer options
+gridwell convert table.json --to html --options '{"inline_styles": true}'
+
 
 # From stdin
 cat table.json | gridwell convert --to html
@@ -77,33 +83,27 @@ $ gridwell formats
 Supported output formats:
 
   Text formats:
-    html     HTML5 table
-    latex    LaTeX longtable
-    typst    Typst table markup
-    rtf      Rich Text Format
-    svg      SVG image
-    ansi     ANSI terminal output
-    pandoc   Pandoc AST JSON
-    quarto   Quarto Markdown
+    html     HTML5 table (.html)
+    latex    LaTeX tabular / longtable (booktabs) (.tex)
+    typst    Typst table markup (.typ)
+    rtf      Rich Text Format (.rtf)
+    svg      SVG image (standalone, measured layout) (.svg)
+    ansi     Terminal output with box drawing and ANSI colours (.txt)
+    pandoc   Pandoc JSON AST (Table block) (.json)
+    quarto   Quarto-flavoured Pandoc JSON AST (cross-referenceable Div) (.json)
 
   Binary formats:
-    docx     Microsoft Word
-    xlsx     Microsoft Excel
-    pptx     Microsoft PowerPoint
+    docx     Microsoft Word document (.docx)
+    xlsx     Microsoft Excel workbook (.xlsx)
+    pptx     Microsoft PowerPoint slide (.pptx)
+
+Pass writer options with --options '<JSON>'; see `gridwell formats --json`.
 ```
+
+`gridwell formats --json` prints the same list as JSON, including each format's
+extension, media type, and [options](writer-options.qmd) with their defaults.
 
 ## Format Values
 
-| Value    | Format             |
-|----------|--------------------|
-| `html`   | HTML5              |
-| `latex`  | LaTeX              |
-| `typst`  | Typst              |
-| `rtf`    | Rich Text Format   |
-| `svg`    | SVG                |
-| `ansi`   | Terminal output     |
-| `pandoc` | Pandoc AST JSON    |
-| `quarto` | Quarto Markdown    |
-| `docx`   | Microsoft Word     |
-| `xlsx`   | Microsoft Excel    |
-| `pptx`   | Microsoft PowerPoint|
+Format names are case-insensitive. An unknown name is an error that lists the
+supported ones.

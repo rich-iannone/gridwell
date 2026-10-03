@@ -50,7 +50,16 @@ quarto = table.render_quarto()
 
 # Generic by name
 output = table.render("html")
+
+# Writer options: a dict, or keyword arguments to the per-format methods
+output = table.render("html", {"inline_styles": True})
+output = table.render_html(inline_styles=True)
+
+# Every format, with its options and defaults
+gridwell.formats()
 ```
+
+See [Writer Options](../guide/writer-options.qmd) for each format's options.
 
 ## Binary Rendering
 
@@ -59,7 +68,7 @@ docx_bytes = table.render_docx()    # returns bytes
 xlsx_bytes = table.render_xlsx()
 pptx_bytes = table.render_pptx()
 
-# Generic by name
+# Generic by name (binary formats take no options yet)
 data = table.render_binary("docx")
 
 # Write to file
@@ -87,7 +96,10 @@ html = table.render_html()
 
 ## Error Handling
 
-`ValueError` is raised for parse errors and render failures.
+`ValueError` is raised for parse errors, unknown format names, and render failures.
+`render()` takes text formats and `render_binary()` binary ones; the other kind is a
+`ValueError`. Invalid writer options raise `gridwell.InvalidOptionsError` (a subclass
+of `ValueError`) naming the problem, e.g. an unknown option.
 
 Every `render_*` method validates the table first. If the IR is invalid it raises
 `gridwell.InvalidTableError` (a subclass of `ValueError`) whose message lists the
