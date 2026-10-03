@@ -1,5 +1,6 @@
 {
   "_comment": "INVALID: Row has colspan sum of 4, but config.table_cols is 3. Expects COL_COUNT.",
+  "_expect": ["COL_COUNT"],
   "ir_version": "1.0",
 
   "config": {
