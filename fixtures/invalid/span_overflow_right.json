@@ -1,5 +1,6 @@
 {
   "_comment": "INVALID: Cell at row 0, col 2 has colspan=3 but table only has 3 columns. Expects SPAN_OVERFLOW_RIGHT.",
+  "_expect": ["SPAN_OVERFLOW_RIGHT"],
   "ir_version": "1.0",
 
   "config": {

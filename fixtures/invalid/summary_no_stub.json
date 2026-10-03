@@ -1,5 +1,6 @@
 {
   "_comment": "INVALID: Summary row exists but stub_cols=0. Expects SUMMARY_REQUIRES_STUB.",
+  "_expect": ["SUMMARY_REQUIRES_STUB"],
   "ir_version": "1.0",
 
   "config": {

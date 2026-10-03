@@ -1,0 +1,81 @@
+{
+  "_comment": "INVALID: stub_cols is 1 but the cell in column 1 is flagged is_stub.",
+  "_expect": [
+    "STUB_CONTIGUOUS"
+  ],
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 2,
+    "header_rows": 1,
+    "body_rows": 1,
+    "stub_cols": 1
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "column_spec": [
+    {
+      "id": "a",
+      "label": "A"
+    },
+    {
+      "id": "b",
+      "label": "B"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "A"
+                }
+              ]
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "B"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1"
+                  }
+                ]
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2"
+                  }
+                ],
+                "is_stub": true
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

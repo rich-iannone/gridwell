@@ -1,5 +1,6 @@
 {
   "_comment": "INVALID: Cell at row 0, col 0 has rowspan=3 but the row group only has 2 rows. Expects SPAN_OVERFLOW_BOTTOM.",
+  "_expect": ["SPAN_OVERFLOW_BOTTOM"],
   "ir_version": "1.0",
 
   "config": {

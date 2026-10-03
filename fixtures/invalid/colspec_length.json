@@ -1,0 +1,75 @@
+{
+  "_comment": "INVALID: column_spec has 1 entry for a 2-column table.",
+  "_expect": [
+    "COLSPEC_LENGTH"
+  ],
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 2,
+    "header_rows": 1,
+    "body_rows": 1,
+    "stub_cols": 0
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "column_spec": [
+    {
+      "id": "a"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "A"
+                }
+              ]
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "B"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1"
+                  }
+                ]
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "_comment": "INVALID: config.table_cols is 20000 (the limit is 16384). Only LIMIT_EXCEEDED is reported: the other checks are skipped.",
+  "_expect": [
+    "LIMIT_EXCEEDED"
+  ],
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 20000,
+    "header_rows": 1,
+    "body_rows": 1,
+    "stub_cols": 0
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "column_spec": [
+    {
+      "id": "a",
+      "label": "A"
+    },
+    {
+      "id": "b",
+      "label": "B"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "A"
+                }
+              ]
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "B"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1"
+                  }
+                ]
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

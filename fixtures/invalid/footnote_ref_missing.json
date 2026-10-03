@@ -1,5 +1,6 @@
 {
   "_comment": "INVALID: Footnote mark references 'fn99' which does not exist in footer.footnotes. Expects FOOTNOTE_REFS_VALID.",
+  "_expect": ["FOOTNOTE_REFS_VALID"],
   "ir_version": "1.0",
 
   "config": {

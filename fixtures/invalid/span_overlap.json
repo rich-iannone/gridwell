@@ -1,5 +1,6 @@
 {
   "_comment": "INVALID: Two cells both claim position (row 0, col 1). Expects SPAN_OVERLAP.",
+  "_expect": ["SPAN_OVERLAP"],
   "ir_version": "1.0",
 
   "config": {

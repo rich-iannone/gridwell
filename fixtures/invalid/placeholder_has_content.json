@@ -1,5 +1,6 @@
 {
   "_comment": "INVALID: Placeholder cell at (row 1, col 0) contains content. Expects SPAN_PLACEHOLDER_HAS_CONTENT.",
+  "_expect": ["SPAN_PLACEHOLDER_HAS_CONTENT"],
   "ir_version": "1.0",
 
   "config": {

@@ -1,5 +1,6 @@
 {
   "_comment": "INVALID: style_id 'nonexistent_style' is referenced but never defined. Expects STYLE_REFS_VALID.",
+  "_expect": ["STYLE_REFS_VALID"],
   "ir_version": "1.0",
 
   "config": {
