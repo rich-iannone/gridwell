@@ -437,7 +437,8 @@ fn validate_style_refs(table: &Table, errors: &mut Vec<ValidationError>) {
     }
 }
 
-/// FOOTNOTE_REFS_VALID: all footnote_mark refs have a matching footer.footnotes[].id
+/// FOOTNOTE_REFS_VALID: every footnote_mark ref (in any cell, header line, group
+/// label or note) has a matching footer.footnotes[].id
 fn validate_footnote_refs(table: &Table, errors: &mut Vec<ValidationError>) {
     let footnote_ids: std::collections::HashSet<&str> = table
         .footer
@@ -483,19 +484,50 @@ fn validate_footnote_refs(table: &Table, errors: &mut Vec<ValidationError>) {
         }
     }
 
-    // Check tbody cells
+    // Header lines
+    if let Some(header) = &table.header {
+        let lines = header
+            .title
+            .iter()
+            .chain(&header.subtitle)
+            .chain(&header.extra_lines);
+        for line in lines {
+            check_content(&line.content, "header", None, None, None, errors);
+        }
+    }
+
+    // Body: group labels, data rows, summary rows
     for (g, group) in table.table.tbody.iter().enumerate() {
-        for (r, row) in group.rows.iter().enumerate() {
-            for (c, cell) in row.cells.iter().enumerate() {
-                check_content(
-                    &cell.content,
-                    "tbody",
-                    Some(g as u32),
-                    Some(r as u32),
-                    Some(c as u32),
-                    errors,
-                );
+        let g = Some(g as u32);
+        if let Some(label) = &group.label {
+            check_content(&label.content, "tbody_label", g, None, None, errors);
+        }
+        for (section, rows) in [
+            ("tbody", &group.rows),
+            ("tbody_summary", &group.summary_rows),
+        ] {
+            for (r, row) in rows.iter().enumerate() {
+                for (c, cell) in row.cells.iter().enumerate() {
+                    check_content(
+                        &cell.content,
+                        section,
+                        g,
+                        Some(r as u32),
+                        Some(c as u32),
+                        errors,
+                    );
+                }
             }
+        }
+    }
+
+    // Footnote and source-note text (a note may refer to another note)
+    if let Some(footer) = &table.footer {
+        for n in &footer.footnotes {
+            check_content(&n.content, "footer", None, None, None, errors);
+        }
+        for n in &footer.source_notes {
+            check_content(&n.content, "footer", None, None, None, errors);
         }
     }
 }
