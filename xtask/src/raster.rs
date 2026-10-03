@@ -240,6 +240,7 @@ const LATEX_PACKAGES: &str = "\
 \\usepackage{multirow}
 \\usepackage[table]{xcolor}
 \\usepackage{colortbl}
+\\usepackage{longtable}
 ";
 
 /// `standalone` crops tightly to the table; `article` is the portable fallback
@@ -268,6 +269,9 @@ fn latex(
         Ok(s) => s,
         Err(e) => return RasterOutcome::Failed(format!("read tex: {e}")),
     };
+    // `longtable` breaks across pages, so it can't live in `standalone`'s single
+    // box: use the page-sized `article` preview for it.
+    let standalone = standalone && !body.contains("\\begin{longtable}");
     let doc = format!("{}{body}\n\\end{{document}}\n", latex_preamble(standalone));
     let doc_path = work_dir.join("doc.tex");
     if let Err(e) = std::fs::write(&doc_path, doc) {
