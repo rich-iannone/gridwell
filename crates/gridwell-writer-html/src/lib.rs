@@ -5,7 +5,8 @@ use gridwell_ir::Table;
 pub use render::RenderError;
 
 /// Configuration for HTML output.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct HtmlWriterConfig {
     /// Use inline styles instead of a `<style>` block.
     pub inline_styles: bool,
