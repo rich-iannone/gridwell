@@ -5,7 +5,8 @@ use gridwell_ir::Table;
 pub use render::RenderError;
 
 /// Configuration for LaTeX output.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct LatexWriterConfig {
     /// Use longtable environment for multi-page tables.
     pub longtable: bool,
