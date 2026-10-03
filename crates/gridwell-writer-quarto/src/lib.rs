@@ -5,7 +5,8 @@ use gridwell_ir::Table;
 pub use render::RenderError;
 
 /// Configuration for Quarto AST output.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct QuartoConfig {
     /// Table identifier for cross-referencing (used as `tbl-<id>`).
     /// If None, no cross-reference wrapper is emitted.
