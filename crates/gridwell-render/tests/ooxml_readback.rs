@@ -403,6 +403,28 @@ fn xlsx_styles_part_is_well_formed_and_indexed() {
         }
         let (count, actual) = xfs.expect("cellXfs");
         assert_eq!(count, actual, "{}", ex.name);
+        // Every xf's font/fill/border index exists.
+        for (table, attr_name) in [
+            ("fonts", "fontId"),
+            ("fills", "fillId"),
+            ("borders", "borderId"),
+        ] {
+            let n: usize = styles
+                .split(&format!("<{table} count=\""))
+                .nth(1)
+                .and_then(|r| r.split('"').next())
+                .and_then(|c| c.parse().ok())
+                .unwrap_or_else(|| panic!("{}: no {table} count", ex.name));
+            for (i, _) in styles.match_indices(&format!("{attr_name}=\"")) {
+                let v: usize = styles[i + attr_name.len() + 2..]
+                    .split('"')
+                    .next()
+                    .unwrap()
+                    .parse()
+                    .unwrap();
+                assert!(v < n, "{}: {attr_name}={v} of {n}", ex.name);
+            }
+        }
         for raw in parse_rows(&sheet, "row", "c", "t") {
             for c in raw {
                 let s = c.attrs.get("s").map_or(0, |s| s.parse().unwrap());
