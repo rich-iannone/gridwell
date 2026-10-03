@@ -3,59 +3,62 @@ source: crates/gridwell-writer-html/tests/snapshots.rs
 expression: out
 ---
 <div class="gw_container">
+  <style>
+    .gw__al_left { text-align: left }
+  </style>
   <table class="gw_table">
     <thead>
       <tr>
-        <th>c0</th>
-        <th>c1</th>
-        <th>c2</th>
-        <th>c3</th>
-        <th>c4</th>
-        <th>c5</th>
-        <th>c6</th>
-        <th>c7</th>
-        <th>c8</th>
-        <th>c9</th>
-        <th>c10</th>
-        <th>c11</th>
-        <th>c12</th>
-        <th>c13</th>
-        <th>c14</th>
-        <th>c15</th>
-        <th>c16</th>
-        <th>c17</th>
-        <th>c18</th>
-        <th>c19</th>
-        <th>c20</th>
-        <th>c21</th>
-        <th>c22</th>
-        <th>c23</th>
-        <th>c24</th>
-        <th>c25</th>
-        <th>c26</th>
-        <th>c27</th>
-        <th>c28</th>
-        <th>c29</th>
-        <th>c30</th>
-        <th>c31</th>
-        <th>c32</th>
-        <th>c33</th>
-        <th>c34</th>
-        <th>c35</th>
-        <th>c36</th>
-        <th>c37</th>
-        <th>c38</th>
-        <th>c39</th>
-        <th>c40</th>
-        <th>c41</th>
-        <th>c42</th>
-        <th>c43</th>
-        <th>c44</th>
-        <th>c45</th>
-        <th>c46</th>
-        <th>c47</th>
-        <th>c48</th>
-        <th>c49</th>
+        <th class="gw__al_left">c0</th>
+        <th class="gw__al_left">c1</th>
+        <th class="gw__al_left">c2</th>
+        <th class="gw__al_left">c3</th>
+        <th class="gw__al_left">c4</th>
+        <th class="gw__al_left">c5</th>
+        <th class="gw__al_left">c6</th>
+        <th class="gw__al_left">c7</th>
+        <th class="gw__al_left">c8</th>
+        <th class="gw__al_left">c9</th>
+        <th class="gw__al_left">c10</th>
+        <th class="gw__al_left">c11</th>
+        <th class="gw__al_left">c12</th>
+        <th class="gw__al_left">c13</th>
+        <th class="gw__al_left">c14</th>
+        <th class="gw__al_left">c15</th>
+        <th class="gw__al_left">c16</th>
+        <th class="gw__al_left">c17</th>
+        <th class="gw__al_left">c18</th>
+        <th class="gw__al_left">c19</th>
+        <th class="gw__al_left">c20</th>
+        <th class="gw__al_left">c21</th>
+        <th class="gw__al_left">c22</th>
+        <th class="gw__al_left">c23</th>
+        <th class="gw__al_left">c24</th>
+        <th class="gw__al_left">c25</th>
+        <th class="gw__al_left">c26</th>
+        <th class="gw__al_left">c27</th>
+        <th class="gw__al_left">c28</th>
+        <th class="gw__al_left">c29</th>
+        <th class="gw__al_left">c30</th>
+        <th class="gw__al_left">c31</th>
+        <th class="gw__al_left">c32</th>
+        <th class="gw__al_left">c33</th>
+        <th class="gw__al_left">c34</th>
+        <th class="gw__al_left">c35</th>
+        <th class="gw__al_left">c36</th>
+        <th class="gw__al_left">c37</th>
+        <th class="gw__al_left">c38</th>
+        <th class="gw__al_left">c39</th>
+        <th class="gw__al_left">c40</th>
+        <th class="gw__al_left">c41</th>
+        <th class="gw__al_left">c42</th>
+        <th class="gw__al_left">c43</th>
+        <th class="gw__al_left">c44</th>
+        <th class="gw__al_left">c45</th>
+        <th class="gw__al_left">c46</th>
+        <th class="gw__al_left">c47</th>
+        <th class="gw__al_left">c48</th>
+        <th class="gw__al_left">c49</th>
       </tr>
     </thead>
     <tbody>

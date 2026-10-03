@@ -3,12 +3,15 @@ source: crates/gridwell-writer-html/tests/snapshots.rs
 expression: out
 ---
 <div class="gw_container">
+  <style>
+    .gw__al_left { text-align: left }
+  </style>
   <table class="gw_table">
     <thead>
       <tr>
-        <th>A</th>
-        <th>B</th>
-        <th>C</th>
+        <th class="gw__al_left">A</th>
+        <th class="gw__al_left">B</th>
+        <th class="gw__al_left">C</th>
       </tr>
     </thead>
     <tbody>

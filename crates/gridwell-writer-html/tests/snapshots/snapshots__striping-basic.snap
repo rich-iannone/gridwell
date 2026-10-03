@@ -4,14 +4,15 @@ expression: out
 ---
 <div class="gw_container">
   <style>
+    .gw__al_left { text-align: left }
     .gw__c0 { background-color: rgba(128, 128, 128, 0.051) }
   </style>
   <table class="gw_table">
     <thead>
       <tr>
-        <th>A</th>
-        <th>B</th>
-        <th>C</th>
+        <th class="gw__al_left">A</th>
+        <th class="gw__al_left">B</th>
+        <th class="gw__al_left">C</th>
       </tr>
     </thead>
     <tbody>

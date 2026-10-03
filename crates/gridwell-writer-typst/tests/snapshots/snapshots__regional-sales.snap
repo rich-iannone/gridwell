@@ -12,7 +12,7 @@ expression: out
   table.header(
     [],
     [],
-    table.cell(colspan: 2)[#text(weight: "bold")[Financials]],
+    table.cell(colspan: 2, align: center)[#text(weight: "bold")[Financials]],
     [#text(weight: "bold")[Country]],
     [#text(weight: "bold")[Year]],
     [#text(weight: "bold")[Revenue]],

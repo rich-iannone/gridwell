@@ -4,7 +4,7 @@ expression: out
 ---
 \begin{tabular}{lll}
 \toprule
-\multicolumn{3}{l}{Full-width spanner} \\
+\multicolumn{3}{c}{Full-width spanner} \\
 A & B & C \\
 \midrule
 1 & 2 & 3 \\

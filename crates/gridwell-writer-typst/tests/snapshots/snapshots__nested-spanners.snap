@@ -7,8 +7,8 @@ expression: out
   align: (left, left, left, left,),
   stroke: none,
   table.header(
-    table.cell(colspan: 2)[#text(weight: "bold")[Group A]],
-    table.cell(colspan: 2)[#text(weight: "bold")[Group B]],
+    table.cell(colspan: 2, align: center)[#text(weight: "bold")[Group A]],
+    table.cell(colspan: 2, align: center)[#text(weight: "bold")[Group B]],
     [#text(weight: "bold")[A1]],
     [#text(weight: "bold")[A2]],
     [#text(weight: "bold")[B1]],

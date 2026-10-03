@@ -4,12 +4,13 @@ expression: out
 ---
 <div class="gw_container">
   <style>
+    .gw__al_left { text-align: left }
     .gw_warn { font-weight: bold; color: #E67E22 }
   </style>
   <table class="gw_table">
     <thead>
       <tr>
-        <th>Message</th>
+        <th class="gw__al_left">Message</th>
       </tr>
     </thead>
     <tbody>

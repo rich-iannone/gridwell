@@ -7,7 +7,7 @@ expression: xml
 <cols><col min="1" max="1" width="12.00" customWidth="1"/><col min="2" max="2" width="12.00" customWidth="1"/><col min="3" max="3" width="12.00" customWidth="1"/><col min="4" max="4" width="12.00" customWidth="1"/></cols>
 <sheetData>
 <row r="1"><c r="A1" t="inlineStr" s="1"><is><t xml:space="preserve">Group A</t></is></c><c r="C1" t="inlineStr" s="1"><is><t xml:space="preserve">Group B</t></is></c></row>
-<row r="2"><c r="A2" t="inlineStr" s="1"><is><t xml:space="preserve">A1</t></is></c><c r="B2" t="inlineStr" s="1"><is><t xml:space="preserve">A2</t></is></c><c r="C2" t="inlineStr" s="1"><is><t xml:space="preserve">B1</t></is></c><c r="D2" t="inlineStr" s="1"><is><t xml:space="preserve">B2</t></is></c></row>
+<row r="2"><c r="A2" t="inlineStr" s="2"><is><t xml:space="preserve">A1</t></is></c><c r="B2" t="inlineStr" s="2"><is><t xml:space="preserve">A2</t></is></c><c r="C2" t="inlineStr" s="2"><is><t xml:space="preserve">B1</t></is></c><c r="D2" t="inlineStr" s="2"><is><t xml:space="preserve">B2</t></is></c></row>
 <row r="3"><c r="A3" t="inlineStr"><is><t xml:space="preserve">1</t></is></c><c r="B3" t="inlineStr"><is><t xml:space="preserve">2</t></is></c><c r="C3" t="inlineStr"><is><t xml:space="preserve">3</t></is></c><c r="D3" t="inlineStr"><is><t xml:space="preserve">4</t></is></c></row>
 <row r="4"><c r="A4" t="inlineStr"><is><t xml:space="preserve">5</t></is></c><c r="B4" t="inlineStr"><is><t xml:space="preserve">6</t></is></c><c r="C4" t="inlineStr"><is><t xml:space="preserve">7</t></is></c><c r="D4" t="inlineStr"><is><t xml:space="preserve">8</t></is></c></row>
 </sheetData>

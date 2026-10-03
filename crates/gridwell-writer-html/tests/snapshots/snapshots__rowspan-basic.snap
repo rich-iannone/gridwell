@@ -3,24 +3,28 @@ source: crates/gridwell-writer-html/tests/snapshots.rs
 expression: out
 ---
 <div class="gw_container">
+  <style>
+    .gw__al_left { text-align: left }
+    .gw__al_right { text-align: right }
+  </style>
   <table class="gw_table">
     <thead>
       <tr>
-        <th>Country</th>
-        <th>Value</th>
+        <th class="gw__al_left">Country</th>
+        <th class="gw__al_right">Value</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td rowspan="2">Japan</td>
-        <td>100</td>
+        <td class="gw__al_right">100</td>
       </tr>
       <tr>
-        <td>110</td>
+        <td class="gw__al_right">110</td>
       </tr>
       <tr>
         <td>Korea</td>
-        <td>80</td>
+        <td class="gw__al_right">80</td>
       </tr>
     </tbody>
   </table>

@@ -3,21 +3,27 @@ source: crates/gridwell-writer-html/tests/snapshots.rs
 expression: out
 ---
 <div class="gw_container">
+  <style>
+    .gw__al_center { text-align: center }
+    .gw__al_justify { text-align: justify }
+    .gw__al_left { text-align: left }
+    .gw__al_right { text-align: right }
+  </style>
   <table class="gw_table">
     <thead>
       <tr>
-        <th>L</th>
-        <th>C</th>
-        <th>R</th>
-        <th>J</th>
+        <th class="gw__al_left">L</th>
+        <th class="gw__al_center">C</th>
+        <th class="gw__al_right">R</th>
+        <th class="gw__al_justify">J</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>left</td>
-        <td>center</td>
-        <td>right</td>
-        <td>justified text here</td>
+        <td class="gw__al_center">center</td>
+        <td class="gw__al_right">right</td>
+        <td class="gw__al_justify">justified text here</td>
       </tr>
     </tbody>
   </table>

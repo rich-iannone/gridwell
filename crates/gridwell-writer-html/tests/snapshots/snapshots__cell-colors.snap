@@ -4,14 +4,15 @@ expression: out
 ---
 <div class="gw_container">
   <style>
+    .gw__al_left { text-align: left }
     .gw_cool { color: #FFFFFF; background-color: #2980B9 }
     .gw_hot { color: #FFFFFF; background-color: #C0392B }
   </style>
   <table class="gw_table">
     <thead>
       <tr>
-        <th>Label</th>
-        <th>Temp</th>
+        <th class="gw__al_left">Label</th>
+        <th class="gw__al_left">Temp</th>
       </tr>
     </thead>
     <tbody>

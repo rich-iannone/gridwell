@@ -4,6 +4,9 @@ expression: out
 ---
 <div class="gw_container">
   <style>
+    .gw__al_center { text-align: center }
+    .gw__al_left { text-align: left }
+    .gw__al_right { text-align: right }
     .gw_num { text-align: right }
   </style>
   <div role="heading" aria-level="1">
@@ -15,15 +18,15 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr>
-        <th></th>
-        <th></th>
-        <th scope="colgroup" colspan="2">Financials</th>
+        <th class="gw__al_left"></th>
+        <th class="gw__al_right"></th>
+        <th class="gw__al_center" scope="colgroup" colspan="2">Financials</th>
       </tr>
       <tr>
-        <th>Country</th>
-        <th>Year</th>
-        <th>Revenue</th>
-        <th>Profit</th>
+        <th class="gw__al_left">Country</th>
+        <th class="gw__al_right">Year</th>
+        <th class="gw__al_right">Revenue</th>
+        <th class="gw__al_right">Profit</th>
       </tr>
     </thead>
     <tbody>
@@ -34,22 +37,22 @@ expression: out
       </tr>
       <tr>
         <td rowspan="2">United States</td>
-        <td>2023</td>
-        <td>1,250.3</td>
-        <td>
+        <td class="gw__al_right">2023</td>
+        <td class="gw__al_right">1,250.3</td>
+        <td class="gw__al_right">
           270.1<sup><a href="#fn1">1</a></sup>
         </td>
       </tr>
       <tr>
-        <td>2024</td>
-        <td>1,380.7</td>
-        <td>330.3</td>
+        <td class="gw__al_right">2024</td>
+        <td class="gw__al_right">1,380.7</td>
+        <td class="gw__al_right">330.3</td>
       </tr>
       <tr>
         <td>Canada</td>
-        <td>2024</td>
-        <td>420.1</td>
-        <td>109.5</td>
+        <td class="gw__al_right">2024</td>
+        <td class="gw__al_right">420.1</td>
+        <td class="gw__al_right">109.5</td>
       </tr>
     </tbody>
     <tbody>
@@ -60,15 +63,15 @@ expression: out
       </tr>
       <tr>
         <td>Germany</td>
-        <td>2024</td>
-        <td>945.2</td>
-        <td>164.9</td>
+        <td class="gw__al_right">2024</td>
+        <td class="gw__al_right">945.2</td>
+        <td class="gw__al_right">164.9</td>
       </tr>
       <tr>
         <td>France</td>
-        <td>2024</td>
-        <td>610.8</td>
-        <td>120.6</td>
+        <td class="gw__al_right">2024</td>
+        <td class="gw__al_right">610.8</td>
+        <td class="gw__al_right">120.6</td>
       </tr>
     </tbody>
   </table>

@@ -8,7 +8,7 @@ expression: out
   stroke: none,
   table.header(
     [],
-    table.cell(colspan: 2)[#text(weight: "bold")[Scores]],
+    table.cell(colspan: 2, align: center)[#text(weight: "bold")[Scores]],
     [#text(weight: "bold")[Name]],
     [#text(weight: "bold")[Q1]],
     [#text(weight: "bold")[Q2]],

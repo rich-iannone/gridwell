@@ -3,17 +3,21 @@ source: crates/gridwell-writer-html/tests/snapshots.rs
 expression: out
 ---
 <div class="gw_container">
+  <style>
+    .gw__al_center { text-align: center }
+    .gw__al_left { text-align: left }
+  </style>
   <table class="gw_table">
     <thead>
       <tr>
-        <th scope="colgroup" colspan="2">Group A</th>
-        <th scope="colgroup" colspan="2">Group B</th>
+        <th class="gw__al_center" scope="colgroup" colspan="2">Group A</th>
+        <th class="gw__al_center" scope="colgroup" colspan="2">Group B</th>
       </tr>
       <tr>
-        <th>A1</th>
-        <th>A2</th>
-        <th>B1</th>
-        <th>B2</th>
+        <th class="gw__al_left">A1</th>
+        <th class="gw__al_left">A2</th>
+        <th class="gw__al_left">B1</th>
+        <th class="gw__al_left">B2</th>
       </tr>
     </thead>
     <tbody>

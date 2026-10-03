@@ -4,6 +4,8 @@ expression: out
 ---
 <div class="gw_container">
   <style>
+    .gw__al_left { text-align: left }
+    .gw__al_right { text-align: right }
     .gw_total { font-weight: bold; background-color: #F5F5F5 }
     .gw__c0 { background-color: rgba(128, 128, 128, 0.051) }
   </style>
@@ -13,31 +15,31 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr>
-        <th>Line item</th>
-        <th>Q1</th>
-        <th>Q2</th>
+        <th class="gw__al_left">Line item</th>
+        <th class="gw__al_right">Q1</th>
+        <th class="gw__al_right">Q2</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>Revenue</td>
-        <td>$1,200</td>
-        <td>$1,350</td>
+        <td class="gw__al_right">$1,200</td>
+        <td class="gw__al_right">$1,350</td>
       </tr>
       <tr>
         <td>COGS</td>
-        <td class="gw__c0">$700</td>
-        <td class="gw__c0">$760</td>
+        <td class="gw__al_right gw__c0">$700</td>
+        <td class="gw__al_right gw__c0">$760</td>
       </tr>
       <tr>
         <td>Opex</td>
-        <td>$300</td>
-        <td>$320</td>
+        <td class="gw__al_right">$300</td>
+        <td class="gw__al_right">$320</td>
       </tr>
       <tr>
         <td class="gw_total">Net income</td>
-        <td class="gw_total">$200</td>
-        <td class="gw_total">$270</td>
+        <td class="gw__al_right gw_total">$200</td>
+        <td class="gw__al_right gw_total">$270</td>
       </tr>
     </tbody>
   </table>

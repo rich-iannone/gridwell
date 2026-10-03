@@ -4,7 +4,7 @@ expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="145" height="124" viewBox="0 0 145 124">
 <style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
-<text x="136.83" y="22.9" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Scores</tspan></text>
+<text x="105.25" y="22.9" font-size="14px" text-anchor="middle" xml:space="preserve"><tspan font-weight="bold">Scores</tspan></text>
 <text x="8" y="50.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Name</tspan></text>
 <text x="97.25" y="50.9" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Q1</tspan></text>
 <text x="136.83" y="50.9" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Q2</tspan></text>

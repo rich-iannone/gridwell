@@ -7,7 +7,7 @@ expression: out
   align: (left, left, left,),
   stroke: none,
   table.header(
-    table.cell(colspan: 3)[#text(weight: "bold")[Full\-width spanner]],
+    table.cell(colspan: 3, align: center)[#text(weight: "bold")[Full\-width spanner]],
     [#text(weight: "bold")[A]],
     [#text(weight: "bold")[B]],
     [#text(weight: "bold")[C]],

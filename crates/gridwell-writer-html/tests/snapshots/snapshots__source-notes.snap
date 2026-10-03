@@ -3,11 +3,14 @@ source: crates/gridwell-writer-html/tests/snapshots.rs
 expression: out
 ---
 <div class="gw_container">
+  <style>
+    .gw__al_left { text-align: left }
+  </style>
   <table class="gw_table">
     <thead>
       <tr>
-        <th>Metric</th>
-        <th>Value</th>
+        <th class="gw__al_left">Metric</th>
+        <th class="gw__al_left">Value</th>
       </tr>
     </thead>
     <tbody>

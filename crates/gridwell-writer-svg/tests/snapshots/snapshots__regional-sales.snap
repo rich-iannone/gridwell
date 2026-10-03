@@ -9,7 +9,7 @@ expression: out
 <text x="8" y="73.17" font-size="15.4px" xml:space="preserve">USD)</text>
 <rect x="0" y="138.56" width="333.63" height="28" fill="#f0f0f0"/>
 <rect x="0" y="250.56" width="333.63" height="28" fill="#f0f0f0"/>
-<text x="325.63" y="101.46" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Financials</tspan></text>
+<text x="255.48" y="101.46" font-size="14px" text-anchor="middle" xml:space="preserve"><tspan font-weight="bold">Financials</tspan></text>
 <text x="8" y="129.46" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Country</tspan></text>
 <text x="169.32" y="129.46" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Year</tspan></text>
 <text x="260.32" y="129.46" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Revenue</tspan></text>

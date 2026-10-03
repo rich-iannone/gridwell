@@ -3,15 +3,18 @@ source: crates/gridwell-writer-html/tests/snapshots.rs
 expression: out
 ---
 <div class="gw_container">
+  <style>
+    .gw__al_left { text-align: left }
+  </style>
   <div role="heading" aria-level="1">
     Sequence
   </div>
   <table class="gw_table">
     <thead>
       <tr>
-        <th>n</th>
-        <th>2n</th>
-        <th>n^2</th>
+        <th class="gw__al_left">n</th>
+        <th class="gw__al_left">2n</th>
+        <th class="gw__al_left">n^2</th>
       </tr>
     </thead>
     <tbody>

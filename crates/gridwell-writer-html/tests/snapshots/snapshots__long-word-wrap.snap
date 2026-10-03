@@ -3,6 +3,9 @@ source: crates/gridwell-writer-html/tests/snapshots.rs
 expression: out
 ---
 <div class="gw_container">
+  <style>
+    .gw__al_left { text-align: left }
+  </style>
   <table class="gw_table">
     <colgroup>
       <col style="width: 100px">
@@ -10,8 +13,8 @@ expression: out
     </colgroup>
     <thead>
       <tr>
-        <th>Label</th>
-        <th>Token</th>
+        <th class="gw__al_left">Label</th>
+        <th class="gw__al_left">Token</th>
       </tr>
     </thead>
     <tbody>

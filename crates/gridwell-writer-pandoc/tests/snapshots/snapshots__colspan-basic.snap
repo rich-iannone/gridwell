@@ -73,7 +73,7 @@ expression: out
                 []
               ],
               {
-                "t": "AlignDefault"
+                "t": "AlignCenter"
               },
               1,
               2,

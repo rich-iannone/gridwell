@@ -4,7 +4,7 @@ expression: out
 ---
 \begin{tabular}{llll}
 \toprule
-\multicolumn{2}{l}{Group A} & \multicolumn{2}{l}{Group B} \\
+\multicolumn{2}{c}{Group A} & \multicolumn{2}{c}{Group B} \\
 A1 & A2 & B1 & B2 \\
 \midrule
 1 & 2 & 3 & 4 \\
