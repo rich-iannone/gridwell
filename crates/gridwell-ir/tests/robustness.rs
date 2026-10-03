@@ -358,3 +358,72 @@ fn ensure_valid_lists_errors_and_truncates() {
     assert_eq!(msg.matches("[COL_COUNT]").count(), 10, "{msg}");
     assert!(msg.ends_with("… and 2 more"), "{msg}");
 }
+
+#[test]
+fn footnote_refs_are_checked_everywhere_content_appears() {
+    let mark = || json!({ "type": "footnote_mark", "ref": "nope", "mark_text": "*" });
+    let base = || {
+        json!({
+            "ir_version": "1.0",
+            "config": { "table_cols": 1, "header_rows": 1, "body_rows": 1, "stub_cols": 1 },
+            "styles": { "defs": {}, "compositions": {}, "conditionals": [] },
+            "header": { "title": { "content": [] }, "subtitle": { "content": [] },
+                        "extra_lines": [{ "content": [] }] },
+            "column_spec": [{ "id": "a" }],
+            "table": {
+                "thead": { "rows": [{ "cells": [{ "content": [] }] }] },
+                "tbody": [{ "label": { "content": [] },
+                            "rows": [{ "cells": [{ "content": [] }] }],
+                            "summary_rows": [{ "cells": [{ "content": [] }] }] }]
+            },
+            "footer": { "footnotes": [{ "id": "f", "mark": "1", "content": [] }],
+                        "source_notes": [{ "content": [] }] }
+        })
+    };
+    assert!(parse(base()).validate().is_empty());
+    let places: Vec<(&str, Vec<&str>)> = vec![
+        ("title", vec!["header", "title", "content"]),
+        ("subtitle", vec!["header", "subtitle", "content"]),
+        ("extra line", vec!["header", "extra_lines", "0", "content"]),
+        (
+            "head cell",
+            vec!["table", "thead", "rows", "0", "cells", "0", "content"],
+        ),
+        ("label", vec!["table", "tbody", "0", "label", "content"]),
+        (
+            "body cell",
+            vec!["table", "tbody", "0", "rows", "0", "cells", "0", "content"],
+        ),
+        (
+            "summary cell",
+            vec![
+                "table",
+                "tbody",
+                "0",
+                "summary_rows",
+                "0",
+                "cells",
+                "0",
+                "content",
+            ],
+        ),
+        ("footnote", vec!["footer", "footnotes", "0", "content"]),
+        (
+            "source note",
+            vec!["footer", "source_notes", "0", "content"],
+        ),
+    ];
+    for (what, path) in places {
+        let mut v = base();
+        let mut node = &mut v;
+        for key in &path {
+            node = match key.parse::<usize>() {
+                Ok(i) => &mut node[i],
+                Err(_) => &mut node[*key],
+            };
+        }
+        node.as_array_mut().unwrap().push(mark());
+        let rules: Vec<_> = parse(v).validate().into_iter().map(|e| e.rule).collect();
+        assert_eq!(rules, vec![ValidationRule::FootnoteRefsValid], "{what}");
+    }
+}
