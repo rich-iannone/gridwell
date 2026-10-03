@@ -39,3 +39,7 @@ The `column_spec` array defines one entry per column.
 | `25%`   | Percentage of container                        |
 | `1fr`   | Fractional unit (like CSS grid)                |
 | `3cm`   | Absolute length (cm, mm, in, pt)               |
+
+`min_width` and `max_width` take the same forms except `fr` and `auto`. Widths may not
+be negative; an invalid width fails validation with `INVALID_LENGTH` (see
+[Validation](validation.qmd#lengths)).
