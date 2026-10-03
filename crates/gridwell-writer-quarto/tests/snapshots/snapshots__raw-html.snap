@@ -162,7 +162,7 @@ expression: out
                           "c": [
                             {
                               "c": [
-                                "",
+                                "html",
                                 "<b><i>rich</i></b>"
                               ],
                               "t": "RawInline"
