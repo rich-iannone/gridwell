@@ -25,6 +25,9 @@ pub enum ValidationRule {
     /// The table exceeds a configured size limit (see [`Limits`]). When this fires,
     /// the remaining checks are skipped: they could be arbitrarily expensive.
     LimitExceeded,
+    /// A keyword field (alignment, role, border style, …) holds a value that is not
+    /// one of its allowed values. The value is kept verbatim; see [`crate::keywords`].
+    UnknownValue,
 }
 
 impl ValidationRule {
@@ -47,6 +50,7 @@ impl ValidationRule {
             ValidationRule::SpanZeroValue => "SPAN_ZERO_VALUE",
             ValidationRule::SummaryRequiresStub => "SUMMARY_REQUIRES_STUB",
             ValidationRule::LimitExceeded => "LIMIT_EXCEEDED",
+            ValidationRule::UnknownValue => "UNKNOWN_VALUE",
         }
     }
 }
@@ -159,6 +163,7 @@ pub fn validate_with_limits(table: &Table, limits: &Limits) -> Vec<ValidationErr
     validate_summary_requires_stub(table, &mut errors);
     validate_spans(table, &mut errors);
     validate_placeholder_content(table, &mut errors);
+    validate_keywords(table, &mut errors);
 
     errors
 }
@@ -589,5 +594,278 @@ fn validate_placeholder_content(table: &Table, errors: &mut Vec<ValidationError>
                 }
             }
         }
+    }
+}
+
+/// UNKNOWN_VALUE: every keyword field holds a known value.
+fn validate_keywords(table: &Table, errors: &mut Vec<ValidationError>) {
+    use crate::cell::Row;
+    use crate::keywords::Keyword;
+    use crate::style::StyleDef;
+
+    fn check<K: Keyword>(
+        value: Option<&K>,
+        field: &str,
+        section: &str,
+        row_group: Option<u32>,
+        row: Option<u32>,
+        col: Option<u32>,
+        errors: &mut Vec<ValidationError>,
+    ) {
+        if let Some(v) = value.filter(|v| !v.is_known()) {
+            errors.push(ValidationError {
+                rule: ValidationRule::UnknownValue,
+                section: section.to_string(),
+                row_group,
+                row,
+                col,
+                message: format!(
+                    "{field} is \"{}\", which is not one of: {}",
+                    v.as_str(),
+                    K::ALLOWED.join(", ")
+                ),
+            });
+        }
+    }
+
+    fn check_style(def: &StyleDef, at: &str, errors: &mut Vec<ValidationError>) {
+        let f = |name: &str| format!("{at}.{name}");
+        check(
+            def.font_weight.as_ref(),
+            &f("font_weight"),
+            "styles",
+            None,
+            None,
+            None,
+            errors,
+        );
+        check(
+            def.font_style.as_ref(),
+            &f("font_style"),
+            "styles",
+            None,
+            None,
+            None,
+            errors,
+        );
+        check(
+            def.text_align.as_ref(),
+            &f("text_align"),
+            "styles",
+            None,
+            None,
+            None,
+            errors,
+        );
+        check(
+            def.vertical_align.as_ref(),
+            &f("vertical_align"),
+            "styles",
+            None,
+            None,
+            None,
+            errors,
+        );
+        check(
+            def.text_transform.as_ref(),
+            &f("text_transform"),
+            "styles",
+            None,
+            None,
+            None,
+            errors,
+        );
+        check(
+            def.text_decoration.as_ref(),
+            &f("text_decoration"),
+            "styles",
+            None,
+            None,
+            None,
+            errors,
+        );
+        check(
+            def.white_space.as_ref(),
+            &f("white_space"),
+            "styles",
+            None,
+            None,
+            None,
+            errors,
+        );
+        check(
+            def.word_break.as_ref(),
+            &f("word_break"),
+            "styles",
+            None,
+            None,
+            None,
+            errors,
+        );
+        check(
+            def.overflow.as_ref(),
+            &f("overflow"),
+            "styles",
+            None,
+            None,
+            None,
+            errors,
+        );
+        check(
+            def.text_overflow.as_ref(),
+            &f("text_overflow"),
+            "styles",
+            None,
+            None,
+            None,
+            errors,
+        );
+        if let Some(border) = &def.border {
+            for (side, b) in [
+                ("top", &border.top),
+                ("right", &border.right),
+                ("bottom", &border.bottom),
+                ("left", &border.left),
+            ] {
+                if let Some(b) = b {
+                    check(
+                        b.style.as_ref(),
+                        &f(&format!("border.{side}.style")),
+                        "styles",
+                        None,
+                        None,
+                        None,
+                        errors,
+                    );
+                }
+            }
+        }
+    }
+
+    fn check_rows(
+        rows: &[Row],
+        section: &str,
+        row_group: Option<u32>,
+        errors: &mut Vec<ValidationError>,
+    ) {
+        for (r, row) in rows.iter().enumerate() {
+            let r = Some(r as u32);
+            check(
+                row.role.as_ref(),
+                "row role",
+                section,
+                row_group,
+                r,
+                None,
+                errors,
+            );
+            for (c, cell) in row.cells.iter().enumerate() {
+                let c = Some(c as u32);
+                check(
+                    cell.scope.as_ref(),
+                    "cell scope",
+                    section,
+                    row_group,
+                    r,
+                    c,
+                    errors,
+                );
+                check(
+                    cell.data_type.as_ref(),
+                    "cell data_type",
+                    section,
+                    row_group,
+                    r,
+                    c,
+                    errors,
+                );
+                if let Some(tv) = &cell.typed_value {
+                    check(
+                        Some(&tv.value_type),
+                        "typed_value.type",
+                        section,
+                        row_group,
+                        r,
+                        c,
+                        errors,
+                    );
+                }
+            }
+        }
+    }
+
+    check(
+        Some(&table.config.page_break_mode),
+        "config.page_break_mode",
+        "config",
+        None,
+        None,
+        None,
+        errors,
+    );
+    check(
+        table.config.container_overflow.as_ref(),
+        "config.container_overflow",
+        "config",
+        None,
+        None,
+        None,
+        errors,
+    );
+
+    for (i, col) in table.column_spec.iter().enumerate() {
+        check(
+            Some(&col.align),
+            &format!("column_spec[{i}].align"),
+            "column_spec",
+            None,
+            None,
+            Some(i as u32),
+            errors,
+        );
+    }
+
+    // Sorted ids so error order is deterministic (the palette is a HashMap).
+    let mut ids: Vec<&String> = table.styles.defs.keys().collect();
+    ids.sort();
+    for id in ids {
+        check_style(&table.styles.defs[id], &format!("styles.defs.{id}"), errors);
+    }
+    let mut ids: Vec<&String> = table.styles.compositions.keys().collect();
+    ids.sort();
+    for id in ids {
+        check_style(
+            &table.styles.compositions[id].overrides,
+            &format!("styles.compositions.{id}.overrides"),
+            errors,
+        );
+    }
+    for (i, cond) in table.styles.conditionals.iter().enumerate() {
+        let at = format!("styles.conditionals[{i}]");
+        check(
+            cond.selector.row_parity.as_ref(),
+            &format!("{at}.selector.row_parity"),
+            "styles",
+            None,
+            None,
+            None,
+            errors,
+        );
+        check(
+            cond.selector.scope.as_ref(),
+            &format!("{at}.selector.scope"),
+            "styles",
+            None,
+            None,
+            None,
+            errors,
+        );
+        check_style(&cond.style, &format!("{at}.style"), errors);
+    }
+
+    check_rows(&table.table.thead.rows, "thead", None, errors);
+    for (g, group) in table.table.tbody.iter().enumerate() {
+        check_rows(&group.rows, "tbody", Some(g as u32), errors);
+        check_rows(&group.summary_rows, "tbody_summary", Some(g as u32), errors);
     }
 }
