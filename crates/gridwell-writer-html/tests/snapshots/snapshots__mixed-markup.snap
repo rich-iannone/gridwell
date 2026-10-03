@@ -4,7 +4,7 @@ expression: out
 ---
 <div class="gw_container">
   <style>
-    .gw_warn { font-weight: bold; color: #e67e22 }
+    .gw_warn { font-weight: bold; color: #E67E22 }
   </style>
   <table class="gw_table">
     <thead>
