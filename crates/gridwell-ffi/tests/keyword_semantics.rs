@@ -123,5 +123,8 @@ fn xlsx_writes_integers_and_numbers_as_numeric_cells() {
         .unwrap();
     assert!(xml.contains("<v>42</v>"), "integer not numeric: {xml}");
     assert!(xml.contains("<v>1.5</v>"), "number not numeric: {xml}");
-    assert!(xml.contains("<t>x</t>"), "string not text: {xml}");
+    assert!(
+        xml.contains("t=\"inlineStr\"><is><t xml:space=\"preserve\">x</t>"),
+        "string not text: {xml}"
+    );
 }
