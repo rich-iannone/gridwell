@@ -221,7 +221,7 @@ jobs:
       - name: Seed corpus
         run: |
           cargo xtask corpus
-          for t in fuzz_parse_ir fuzz_validate fuzz_render_html; do
+          for t in fuzz_parse_ir fuzz_validate fuzz_render_html fuzz_layout; do
             mkdir -p "fuzz/corpus/$t"
             cp fixtures/*/*.json harness/corpus/*.json "fuzz/corpus/$t/"
           done
@@ -235,7 +235,7 @@ jobs:
           done
       - name: Fuzz
         run: |
-          for t in fuzz_parse_ir fuzz_validate fuzz_render_html fuzz_parse_values; do
+          for t in fuzz_parse_ir fuzz_validate fuzz_render_html fuzz_parse_values fuzz_layout; do
             echo "::group::$t"
             # Explicit target: the prebuilt cargo-fuzz binary is a musl build and
             # otherwise defaults to x86_64-unknown-linux-musl, which has no std
