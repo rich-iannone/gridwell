@@ -53,41 +53,65 @@ impl Length {
 impl FromStr for Length {
     type Err = LengthParseError;
 
+    /// Parse a CSS length: a finite number followed by a unit (case-insensitive),
+    /// `auto`, or a unitless `0`. Units: `px pt em rem in cm mm % fr`.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let s = s.trim();
-        if s.eq_ignore_ascii_case("auto") {
+        let lower = s.to_ascii_lowercase();
+        if lower == "auto" {
             return Ok(Length::Auto);
         }
-
-        if let Some(num) = s.strip_suffix("px") {
-            return parse_num(num).map(Length::Px).ok_or_else(|| err(s));
-        }
-        if let Some(num) = s.strip_suffix("pt") {
-            return parse_num(num).map(Length::Pt).ok_or_else(|| err(s));
-        }
-        if let Some(num) = s.strip_suffix("rem") {
-            return parse_num(num).map(Length::Rem).ok_or_else(|| err(s));
-        }
-        if let Some(num) = s.strip_suffix("em") {
-            return parse_num(num).map(Length::Em).ok_or_else(|| err(s));
-        }
-        if let Some(num) = s.strip_suffix("in") {
-            return parse_num(num).map(Length::In).ok_or_else(|| err(s));
-        }
-        if let Some(num) = s.strip_suffix("cm") {
-            return parse_num(num).map(Length::Cm).ok_or_else(|| err(s));
-        }
-        if let Some(num) = s.strip_suffix("mm") {
-            return parse_num(num).map(Length::Mm).ok_or_else(|| err(s));
-        }
-        if let Some(num) = s.strip_suffix('%') {
-            return parse_num(num).map(Length::Percent).ok_or_else(|| err(s));
-        }
-        if let Some(num) = s.strip_suffix("fr") {
-            return parse_num(num).map(Length::Fr).ok_or_else(|| err(s));
+        // CSS allows a bare zero (and only zero) without a unit.
+        if let Some(v) = parse_num(&lower) {
+            return if v == 0.0 {
+                Ok(Length::Px(0.0))
+            } else {
+                Err(err(s))
+            };
         }
 
-        Err(LengthParseError(s.to_string()))
+        // `rem` before `em`: the longer suffix must win.
+        type Make = fn(f64) -> Length;
+        const UNITS: [(&str, Make); 9] = [
+            ("px", Length::Px),
+            ("pt", Length::Pt),
+            ("rem", Length::Rem),
+            ("em", Length::Em),
+            ("in", Length::In),
+            ("cm", Length::Cm),
+            ("mm", Length::Mm),
+            ("%", Length::Percent),
+            ("fr", Length::Fr),
+        ];
+        for (unit, make) in UNITS {
+            if let Some(num) = lower.strip_suffix(unit) {
+                return parse_num(num).map(make).ok_or_else(|| err(s));
+            }
+        }
+        Err(err(s))
+    }
+}
+
+impl Length {
+    /// The numeric part (`None` for `auto`).
+    pub fn value(&self) -> Option<f64> {
+        match *self {
+            Length::Px(v)
+            | Length::Pt(v)
+            | Length::Em(v)
+            | Length::Rem(v)
+            | Length::In(v)
+            | Length::Cm(v)
+            | Length::Mm(v)
+            | Length::Percent(v)
+            | Length::Fr(v) => Some(v),
+            Length::Auto => None,
+        }
+    }
+
+    /// True for a value below zero (never for `auto`).
+    pub fn is_negative(&self) -> bool {
+        self.value().is_some_and(|v| v < 0.0)
     }
 }
 
@@ -121,8 +145,13 @@ impl<'de> Deserialize<'de> for Length {
     }
 }
 
+/// A finite number. `f64::from_str` alone would also take `inf`, `infinity` and
+/// `NaN`. Whitespace inside the value (`1 px`) is rejected, as in CSS.
 fn parse_num(s: &str) -> Option<f64> {
-    s.trim().parse::<f64>().ok()
+    if s.contains(char::is_whitespace) {
+        return None;
+    }
+    s.parse::<f64>().ok().filter(|v| v.is_finite())
 }
 
 fn err(s: &str) -> LengthParseError {
@@ -160,9 +189,109 @@ mod tests {
 
     #[test]
     fn parse_invalid() {
-        assert!("bogus".parse::<Length>().is_err());
-        assert!("".parse::<Length>().is_err());
-        assert!("px".parse::<Length>().is_err());
+        for s in [
+            "bogus",
+            "",
+            "  ",
+            "px",
+            "%",
+            "12",
+            "1.5",
+            "-3",
+            "12 px",
+            "12p x",
+            "12pxx",
+            "px12",
+            "12px;",
+            "12px 3px",
+            "1,5px",
+            "12vw",
+            "calc(1px + 2px)",
+            "0x10px",
+            "auto px",
+        ] {
+            assert!(s.parse::<Length>().is_err(), "{s:?} should be rejected");
+        }
+    }
+
+    #[test]
+    fn non_finite_numbers_are_rejected() {
+        for s in [
+            "NaNpx",
+            "nanpx",
+            "infpx",
+            "-infpt",
+            "infinityem",
+            "inf%",
+            "NaN%",
+            "inffr",
+            "1e400px",
+            "-1e400px",
+            "infin",
+            "nan",
+            "inf",
+        ] {
+            assert!(s.parse::<Length>().is_err(), "{s:?} should be rejected");
+        }
+    }
+
+    #[test]
+    fn unitless_zero_is_zero_px() {
+        for s in ["0", "0.0", "-0", "+0", " 0 ", "00", "0e5"] {
+            assert_eq!(s.parse::<Length>().unwrap(), Length::Px(0.0), "{s:?}");
+        }
+    }
+
+    #[test]
+    fn units_are_case_insensitive() {
+        assert_eq!("12PX".parse::<Length>().unwrap(), Length::Px(12.0));
+        assert_eq!("1.5Em".parse::<Length>().unwrap(), Length::Em(1.5));
+        assert_eq!("2REM".parse::<Length>().unwrap(), Length::Rem(2.0));
+        assert_eq!("1IN".parse::<Length>().unwrap(), Length::In(1.0));
+        assert_eq!("3Fr".parse::<Length>().unwrap(), Length::Fr(3.0));
+    }
+
+    #[test]
+    fn every_unit_parses() {
+        let cases = [
+            ("1px", Length::Px(1.0)),
+            ("1pt", Length::Pt(1.0)),
+            ("1em", Length::Em(1.0)),
+            ("1rem", Length::Rem(1.0)),
+            ("1in", Length::In(1.0)),
+            ("1cm", Length::Cm(1.0)),
+            ("1mm", Length::Mm(1.0)),
+            ("1%", Length::Percent(1.0)),
+            ("1fr", Length::Fr(1.0)),
+            (".5em", Length::Em(0.5)),
+            ("+2pt", Length::Pt(2.0)),
+            ("-4px", Length::Px(-4.0)),
+            ("1e2px", Length::Px(100.0)),
+            ("  7mm\t", Length::Mm(7.0)),
+        ];
+        for (s, want) in cases {
+            assert_eq!(s.parse::<Length>().unwrap(), want, "{s:?}");
+        }
+    }
+
+    #[test]
+    fn display_round_trips() {
+        for s in [
+            "12px", "1.5em", "2rem", "100%", "1fr", "auto", "0.25in", "-3pt", "7cm", "4mm",
+        ] {
+            let l: Length = s.parse().unwrap();
+            assert_eq!(l.to_string(), s);
+            assert_eq!(l.to_string().parse::<Length>().unwrap(), l);
+        }
+    }
+
+    #[test]
+    fn value_and_sign() {
+        assert_eq!(Length::Pt(3.0).value(), Some(3.0));
+        assert_eq!(Length::Auto.value(), None);
+        assert!(Length::Px(-1.0).is_negative());
+        assert!(!Length::Px(0.0).is_negative());
+        assert!(!Length::Auto.is_negative());
     }
 
     #[test]
