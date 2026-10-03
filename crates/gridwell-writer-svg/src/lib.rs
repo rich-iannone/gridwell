@@ -6,7 +6,8 @@ use gridwell_ir::Table;
 pub use render::RenderError;
 
 /// Configuration for SVG rendering.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct SvgConfig {
     /// Default font family.
     pub font_family: String,
