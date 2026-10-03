@@ -24,6 +24,7 @@ use std::ptr;
 use std::slice;
 
 use gridwell_ir::Table;
+use gridwell_render::{OutputKind, RenderError};
 
 // ─── Opaque types ───
 
@@ -66,12 +67,23 @@ pub struct GridwellBinaryResult {
 pub const GRIDWELL_ERR_PARSE: i32 = 1;
 /// The IR parsed but failed validation; the message lists the errors.
 pub const GRIDWELL_ERR_VALIDATE: i32 = 2;
-/// A writer failed, or the format name is unknown.
+/// A writer failed, the format name is unknown, or a text format was passed to a
+/// binary render function (or vice versa).
 pub const GRIDWELL_ERR_RENDER: i32 = 3;
 /// A required pointer argument was null, or a string argument was not UTF-8.
 pub const GRIDWELL_ERR_INVALID_ARG: i32 = 4;
 /// An internal panic was caught at the boundary. This is always a gridwell bug.
 pub const GRIDWELL_ERR_PANIC: i32 = 5;
+/// The writer options are not valid: malformed JSON, not an object, an unknown
+/// field, a wrong type, or a value out of range. The message says which.
+pub const GRIDWELL_ERR_OPTIONS: i32 = 6;
+
+/// `gridwell_format_kind`: no format has this name.
+pub const GRIDWELL_FORMAT_UNKNOWN: i32 = 0;
+/// `gridwell_format_kind`: a text format (render with `gridwell_render_text`).
+pub const GRIDWELL_FORMAT_TEXT: i32 = 1;
+/// `gridwell_format_kind`: a binary format (render with `gridwell_render_binary`).
+pub const GRIDWELL_FORMAT_BINARY: i32 = 2;
 
 // ─── Parsing ───
 
@@ -149,35 +161,56 @@ pub unsafe extern "C" fn gridwell_validate(table: *const GridwellTable) -> *mut 
 
 // ─── Text rendering ───
 
-/// Render a table to a text format.
-///
-/// The table is validated first; invalid IR fails with `GRIDWELL_ERR_VALIDATE` and a
-/// message listing the errors.
-///
-/// Supported formats: "html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto".
+/// Render a table to a text format with default options. Same as
+/// `gridwell_render_text_with_options` with null options.
 ///
 /// # Safety
-/// - `table` must be a valid pointer returned by `gridwell_parse_ir`.
-/// - `format` must be a valid null-terminated C string.
-/// - `err` may be null; if non-null, `*err` is written on failure.
+/// See `gridwell_render_text_with_options`.
 #[no_mangle]
 pub unsafe extern "C" fn gridwell_render_text(
     table: *const GridwellTable,
     format: *const c_char,
     err: *mut *mut GridwellError,
 ) -> GridwellTextResult {
-    let empty = GridwellTextResult {
+    unsafe { gridwell_render_text_with_options(table, format, ptr::null(), err) }
+}
+
+/// Render a table to a text format.
+///
+/// `format` is a name from `gridwell_format_names()` (case-insensitive) whose kind
+/// is `GRIDWELL_FORMAT_TEXT`. `options` is a JSON object of writer options, or null
+/// (or empty) for the defaults; see the docs for each format's options.
+///
+/// The table is validated first; invalid IR fails with `GRIDWELL_ERR_VALIDATE` and a
+/// message listing the errors. Bad options fail with `GRIDWELL_ERR_OPTIONS`; an
+/// unknown or binary format with `GRIDWELL_ERR_RENDER`.
+///
+/// # Safety
+/// - `table` must be a valid pointer returned by `gridwell_parse_ir`.
+/// - `format` must be a valid null-terminated C string.
+/// - `options` must be null or a valid null-terminated C string.
+/// - `err` may be null; if non-null, `*err` is written on failure.
+#[no_mangle]
+pub unsafe extern "C" fn gridwell_render_text_with_options(
+    table: *const GridwellTable,
+    format: *const c_char,
+    options: *const c_char,
+    err: *mut *mut GridwellError,
+) -> GridwellTextResult {
+    let failed = || GridwellTextResult {
         text: ptr::null_mut(),
         len: 0,
     };
-    guard(err, empty, || {
-        let Some((table, format)) = (unsafe { render_args(table, format, err) }) else {
-            return GridwellTextResult {
-                text: ptr::null_mut(),
-                len: 0,
-            };
+    guard(err, failed(), || {
+        let Some((table, format, options)) = (unsafe { render_args(table, format, options, err) })
+        else {
+            return failed();
         };
-        match render_text_format(table, format) {
+        #[cfg(test)]
+        if format == "__panic" {
+            panic!("deliberate test panic");
+        }
+        match gridwell_render::render_text(table, format, options) {
             Ok(text) => {
                 let len = text.len();
                 let mut bytes = text.into_bytes();
@@ -186,12 +219,9 @@ pub unsafe extern "C" fn gridwell_render_text(
                 let text = Box::into_raw(bytes.into_boxed_slice()) as *mut c_char;
                 GridwellTextResult { text, len }
             }
-            Err(msg) => {
-                set_error(err, GRIDWELL_ERR_RENDER, &msg);
-                GridwellTextResult {
-                    text: ptr::null_mut(),
-                    len: 0,
-                }
+            Err(e) => {
+                set_render_error(err, &e);
+                failed()
             }
         }
     })
@@ -199,49 +229,98 @@ pub unsafe extern "C" fn gridwell_render_text(
 
 // ─── Binary rendering ───
 
-/// Render a table to a binary format.
-///
-/// The table is validated first; invalid IR fails with `GRIDWELL_ERR_VALIDATE` and a
-/// message listing the errors.
-///
-/// Supported formats: "docx", "xlsx", "pptx".
+/// Render a table to a binary format with default options. Same as
+/// `gridwell_render_binary_with_options` with null options.
 ///
 /// # Safety
-/// - `table` must be a valid pointer returned by `gridwell_parse_ir`.
-/// - `format` must be a valid null-terminated C string.
-/// - `err` may be null; if non-null, `*err` is written on failure.
+/// See `gridwell_render_binary_with_options`.
 #[no_mangle]
 pub unsafe extern "C" fn gridwell_render_binary(
     table: *const GridwellTable,
     format: *const c_char,
     err: *mut *mut GridwellError,
 ) -> GridwellBinaryResult {
-    let empty = GridwellBinaryResult {
+    unsafe { gridwell_render_binary_with_options(table, format, ptr::null(), err) }
+}
+
+/// Render a table to a binary format (`GRIDWELL_FORMAT_BINARY`: "docx", "xlsx",
+/// "pptx").
+///
+/// Validation, options and errors are as for `gridwell_render_text_with_options`.
+///
+/// # Safety
+/// - `table` must be a valid pointer returned by `gridwell_parse_ir`.
+/// - `format` must be a valid null-terminated C string.
+/// - `options` must be null or a valid null-terminated C string.
+/// - `err` may be null; if non-null, `*err` is written on failure.
+#[no_mangle]
+pub unsafe extern "C" fn gridwell_render_binary_with_options(
+    table: *const GridwellTable,
+    format: *const c_char,
+    options: *const c_char,
+    err: *mut *mut GridwellError,
+) -> GridwellBinaryResult {
+    let failed = || GridwellBinaryResult {
         data: ptr::null_mut(),
         len: 0,
     };
-    guard(err, empty, || {
-        let failed = GridwellBinaryResult {
-            data: ptr::null_mut(),
-            len: 0,
+    guard(err, failed(), || {
+        let Some((table, format, options)) = (unsafe { render_args(table, format, options, err) })
+        else {
+            return failed();
         };
-        let Some((table, format)) = (unsafe { render_args(table, format, err) }) else {
-            return failed;
-        };
-        match render_binary_format(table, format) {
-            Ok(bytes) if bytes.is_empty() => failed,
+        #[cfg(test)]
+        if format == "__panic" {
+            std::panic::panic_any(String::from("deliberate test panic (String)"));
+        }
+        match gridwell_render::render_binary(table, format, options) {
             Ok(bytes) => {
                 let len = bytes.len();
                 // Exactly len bytes; gridwell_free_binary_result rebuilds this box.
                 let data = Box::into_raw(bytes.into_boxed_slice()) as *mut u8;
                 GridwellBinaryResult { data, len }
             }
-            Err(msg) => {
-                set_error(err, GRIDWELL_ERR_RENDER, &msg);
-                failed
+            Err(e) => {
+                set_render_error(err, &e);
+                failed()
             }
         }
     })
+}
+
+// ─── Formats ───
+
+/// The supported format names, comma-separated (e.g. "html,latex,…,pptx"). The
+/// string is static: do not free it.
+#[no_mangle]
+pub extern "C" fn gridwell_format_names() -> *const c_char {
+    static NAMES: std::sync::OnceLock<std::ffi::CString> = std::sync::OnceLock::new();
+    NAMES
+        .get_or_init(|| {
+            std::ffi::CString::new(gridwell_render::names().join(","))
+                .expect("format names contain no NUL")
+        })
+        .as_ptr()
+}
+
+/// The kind of a format: `GRIDWELL_FORMAT_TEXT`, `GRIDWELL_FORMAT_BINARY`, or
+/// `GRIDWELL_FORMAT_UNKNOWN` (also for a null or non-UTF-8 name).
+///
+/// # Safety
+/// - `format` must be null or a valid null-terminated C string.
+#[no_mangle]
+pub unsafe extern "C" fn gridwell_format_kind(format: *const c_char) -> i32 {
+    if format.is_null() {
+        return GRIDWELL_FORMAT_UNKNOWN;
+    }
+    let Ok(name) = unsafe { CStr::from_ptr(format) }.to_str() else {
+        return GRIDWELL_FORMAT_UNKNOWN;
+    };
+    match gridwell_render::find(name).map(|w| w.kind()) {
+        Ok(OutputKind::Text) => GRIDWELL_FORMAT_TEXT,
+        Ok(OutputKind::Binary) => GRIDWELL_FORMAT_BINARY,
+        Err(_) => GRIDWELL_FORMAT_UNKNOWN,
+    }
 }
 
 // ─── Memory management ───
@@ -348,16 +427,19 @@ fn guard<T>(err: *mut *mut GridwellError, fallback: T, f: impl FnOnce() -> T) ->
     }
 }
 
-/// Shared argument handling for the render functions: null checks, UTF-8 format name,
-/// and validation. On failure `*err` is set and `None` returned.
+/// Shared argument handling for the render functions: null checks and UTF-8 for
+/// the format name and options. Validation happens in the registry. On failure
+/// `*err` is set and `None` returned.
 ///
 /// # Safety
-/// `table` and `format` must satisfy the render functions' safety contracts.
+/// `table`, `format` and `options` must satisfy the render functions' safety
+/// contracts.
 unsafe fn render_args<'a>(
     table: *const GridwellTable,
     format: *const c_char,
+    options: *const c_char,
     err: *mut *mut GridwellError,
-) -> Option<(&'a Table, &'a str)> {
+) -> Option<(&'a Table, &'a str, Option<&'a str>)> {
     if table.is_null() {
         set_error(err, GRIDWELL_ERR_INVALID_ARG, "table pointer is null");
         return None;
@@ -379,64 +461,34 @@ unsafe fn render_args<'a>(
             return None;
         }
     };
-
-    // Writers assume valid IR; refuse anything else.
-    if let Err(invalid) = table.ensure_valid() {
-        set_error(err, GRIDWELL_ERR_VALIDATE, &invalid.to_string());
-        return None;
-    }
-
-    Some((table, format))
+    let options = if options.is_null() {
+        None
+    } else {
+        match unsafe { CStr::from_ptr(options) }.to_str() {
+            Ok(s) => Some(s),
+            Err(e) => {
+                set_error(
+                    err,
+                    GRIDWELL_ERR_OPTIONS,
+                    &format!("options are not UTF-8: {e}"),
+                );
+                return None;
+            }
+        }
+    };
+    Some((table, format, options))
 }
 
-fn render_text_format(table: &Table, format: &str) -> Result<String, String> {
-    match format {
-        "html" => gridwell_writer_html::HtmlWriter::new()
-            .render(table)
-            .map_err(|e| e.to_string()),
-        "latex" => gridwell_writer_latex::LatexWriter::new()
-            .render(table)
-            .map_err(|e| e.to_string()),
-        "typst" => gridwell_writer_typst::TypstWriter::new()
-            .render(table)
-            .map_err(|e| e.to_string()),
-        "rtf" => gridwell_writer_rtf::RtfWriter::new()
-            .render(table)
-            .map_err(|e| e.to_string()),
-        "svg" => gridwell_writer_svg::SvgWriter::new()
-            .render(table)
-            .map_err(|e| e.to_string()),
-        "ansi" => gridwell_writer_ansi::AnsiWriter::new()
-            .render(table)
-            .map_err(|e| e.to_string()),
-        "pandoc" => gridwell_writer_pandoc::PandocWriter::new()
-            .render(table)
-            .map_err(|e| e.to_string()),
-        "quarto" => gridwell_writer_quarto::QuartoWriter::new()
-            .render(table)
-            .map_err(|e| e.to_string()),
-        // Unit tests only: exercise the panic guard end to end.
-        #[cfg(test)]
-        "__panic" => panic!("deliberate test panic"),
-        _ => Err(format!("unknown text format: \"{format}\"")),
-    }
-}
-
-fn render_binary_format(table: &Table, format: &str) -> Result<Vec<u8>, String> {
-    match format {
-        "docx" => gridwell_writer_docx::DocxWriter::new()
-            .render(table)
-            .map_err(|e| e.to_string()),
-        "xlsx" => gridwell_writer_xlsx::XlsxWriter::new()
-            .render(table)
-            .map_err(|e| e.to_string()),
-        "pptx" => gridwell_writer_pptx::PptxWriter::new()
-            .render(table)
-            .map_err(|e| e.to_string()),
-        #[cfg(test)]
-        "__panic" => std::panic::panic_any(String::from("deliberate test panic (String)")),
-        _ => Err(format!("unknown binary format: \"{format}\"")),
-    }
+/// Report a registry error with the matching code.
+fn set_render_error(err: *mut *mut GridwellError, e: &RenderError) {
+    let code = match e {
+        RenderError::InvalidTable(_) => GRIDWELL_ERR_VALIDATE,
+        RenderError::InvalidOptions { .. } => GRIDWELL_ERR_OPTIONS,
+        RenderError::UnknownFormat { .. }
+        | RenderError::WrongKind { .. }
+        | RenderError::Writer { .. } => GRIDWELL_ERR_RENDER,
+    };
+    set_error(err, code, &e.to_string());
 }
 
 fn set_error(err: *mut *mut GridwellError, code: i32, message: &str) {
