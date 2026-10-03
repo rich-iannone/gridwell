@@ -4,7 +4,7 @@ expression: out
 ---
 <div class="gw_container">
   <style>
-    .gw_total { font-weight: bold; background-color: #f5f5f5 }
+    .gw_total { font-weight: bold; background-color: #F5F5F5 }
   </style>
   <div role="heading" aria-level="1">
     Quarterly P&amp;L
