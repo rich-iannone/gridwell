@@ -9,7 +9,7 @@ The `column_spec` array defines one entry per column.
 | Field       | Type    | Required | Description                          |
 |-------------|---------|----------|--------------------------------------|
 | `id`        | string  | Yes      | Unique column identifier             |
-| `align`     | string  | Yes      | `"left"`, `"center"`, `"right"`, or `"char"` |
+| `align`     | string  | No (default `"left"`) | `"left"`, `"center"`, `"right"`, `"justify"`, or `"char"` |
 | `align_char`| string? | No       | Character for char alignment (e.g. `"."`) |
 | `width`     | string  | Yes      | `"auto"` or CSS length               |
 | `min_width` | string? | No       | Minimum width                        |

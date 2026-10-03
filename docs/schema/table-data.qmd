@@ -54,6 +54,14 @@ The body is an array of row groups. Each group has a label, data rows, and optio
 }
 ```
 
+## Row Fields
+
+| Field      | Type    | Required | Description |
+|------------|---------|----------|-------------|
+| `cells`    | array   | Yes      | Exactly `config.table_cols` cells |
+| `role`     | string? | No       | `"column_label"` or `"spanner_label"` in `thead`; `"summary_row"` or `"grand_summary_row"` in a group's `summary_rows` |
+| `style_id` | string? | No       | Style applied to the whole row |
+
 ## Cell Fields
 
 | Field           | Type    | Required | Description                       |
@@ -67,7 +75,7 @@ The body is an array of row groups. Each group has a label, data rows, and optio
 | `is_placeholder`| boolean | Yes      | Whether cell is a span placeholder|
 | `scope`         | string? | No       | `"col"`, `"row"`, `"colgroup"`, `"rowgroup"` |
 | `sort_key`      | any?    | No       | Sort value                        |
-| `data_type`     | string? | No       | Data type hint                    |
+| `data_type`     | string? | No       | Value type: `"string"`, `"number"`, `"integer"`, `"boolean"`, `"date"`, `"datetime"`, `"time"`, `"duration"` |
 
 ## Spans and Placeholders
 

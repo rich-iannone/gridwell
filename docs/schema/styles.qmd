@@ -18,18 +18,20 @@ Styles are defined once in a palette and referenced by ID.
 
 ## Style Definition Fields
 
-All fields are optional — only specify what you need:
+All fields are optional; specify only what you need. Keyword fields accept the values
+listed in [Keyword values](validation.qmd#keyword-values); anything else is reported as
+`UNKNOWN_VALUE`.
 
 | Field              | Type    | Description                    |
 |--------------------|---------|--------------------------------|
-| `font_weight`      | string  | `"normal"`, `"bold"`           |
-| `font_style`       | string  | `"normal"`, `"italic"`         |
+| `font_weight`      | string or number | `"normal"`, `"bold"`, `"bolder"`, `"lighter"`, or 1–1000 |
+| `font_style`       | string  | `"normal"`, `"italic"`, `"oblique"` |
 | `font_size`        | string  | CSS font-size value            |
 | `font_family`      | string  | Font family name               |
 | `color`            | string  | Text color                     |
 | `background_color` | string  | Background color               |
-| `text_align`       | string  | `"left"`, `"center"`, `"right"`|
-| `vertical_align`   | string  | `"top"`, `"middle"`, `"bottom"`|
+| `text_align`       | string  | `"left"`, `"center"`, `"right"`, `"justify"` |
+| `vertical_align`   | string  | `"top"`, `"middle"`, `"bottom"`, `"baseline"`, `"super"`, `"sub"` |
 | `text_decoration`  | string  | `"none"`, `"underline"`, etc.  |
 | `text_transform`   | string  | `"none"`, `"uppercase"`, etc.  |
 | `white_space`      | string  | CSS white-space value          |

@@ -4,24 +4,68 @@ title: "Validation Rules"
 
 The IR validator enforces structural correctness before any writer runs.
 
+Every error carries a rule id, a location (section, row group, row, column), and a
+message. Rule ids are the strings below, both in `Display` output (`[COL_COUNT] …`)
+and when errors are serialized.
+
+## Limits
+
+| Rule | Description |
+|------|-------------|
+| `LIMIT_EXCEEDED` | `config.table_cols` > 16,384, a section has more than 1,048,576 rows, or the table has more than 50 million cells. Checked first; the other checks are skipped when a limit is exceeded. Limits are configurable from Rust (`validate_with_limits`). |
+
 ## Structural Rules
 
 | Rule | Description |
 |------|-------------|
-| `ColCount` | Sum of colspans in every row == `config.table_cols` |
-| `StubContiguous` | Stub columns start at index 0 and are contiguous |
-| `StyleRefsValid` | All `style_id` values reference a defined style |
-| `FootnoteRefsValid` | All footnote mark refs have a matching definition |
-| `SummaryRequiresStub` | Summary rows require `config.stub_cols >= 1` |
+| `COL_COUNT` | Every row (header, data and summary) has exactly `config.table_cols` cell objects; spanned positions hold placeholders |
+| `ROW_COUNT` | `thead` has `config.header_rows` rows; data rows (not summary rows) total `config.body_rows` |
+| `COLSPEC_LENGTH` | `column_spec` has `config.table_cols` entries |
+| `STYLE_REFS_VALID` | Every `style_id` refers to a style definition or composition |
+| `FOOTNOTE_REFS_VALID` | Every `footnote_mark` refers to a defined footnote |
+| `SUMMARY_REQUIRES_STUB` | A group with summary rows requires `config.stub_cols >= 1` |
+| `UNKNOWN_VALUE` | A keyword field holds a value outside its allowed set (see [Keyword values](#keyword-values)) |
 
 ## Span Rules
 
+Spans are checked per section: the header, each group's data rows, and each group's
+summary rows. A span never crosses a section.
+
 | Rule | Description |
 |------|-------------|
-| `SpanOverflowRight` | `col + colspan > table_cols` — span exceeds right edge |
-| `SpanOverflowBottom` | `row + rowspan > section_rows` — span exceeds bottom |
-| `SpanOverlap` | Two spans claim the same `(row, col)` position |
-| `PlaceholderHasContent` | Placeholder cell has non-empty content |
+| `SPAN_ZERO_VALUE` | `colspan` or `rowspan` is 0 |
+| `SPAN_OVERFLOW_RIGHT` | `col + colspan > table_cols`: span exceeds the right edge |
+| `SPAN_OVERFLOW_BOTTOM` | `row + rowspan > section rows`: span exceeds the section |
+| `SPAN_OVERLAP` | Two spans claim the same `(row, col)` position |
+| `SPAN_GAP` | A position is covered by no cell (a placeholder with nothing spanning over it) |
+| `SPAN_PLACEHOLDER_HAS_CONTENT` | A placeholder cell has non-empty content |
+
+## Keyword values
+
+Keyword fields are matched ignoring case and surrounding whitespace, and the aliases
+below are accepted. An unrecognized value still parses: it is kept verbatim (and
+round-trips unchanged) and reported as `UNKNOWN_VALUE`, so every bad value is listed
+at once. Known values are written back in their canonical spelling.
+
+| Field | Allowed values (aliases) |
+|-------|--------------------------|
+| `column_spec[].align`, `text_align` | `left` (`start`), `center` (`centre`), `right` (`end`), `justify`, `char` |
+| `vertical_align` | `top`, `middle`, `bottom`, `baseline`, `super`, `sub` |
+| `row.role` | `column_label`, `spanner_label`, `summary_row` (`summary`), `grand_summary_row` (`grand_summary`) |
+| `cell.scope` | `col`, `colgroup`, `row`, `rowgroup` |
+| `config.page_break_mode` | `avoid`, `allow`, `force-between-groups` (`force_between_groups`) |
+| `border.*.style` | `none`, `hidden`, `solid`, `dashed`, `dotted`, `double` |
+| `font_weight` | `normal`, `bold`, `bolder`, `lighter`, or a number 1–1000 (JSON string or number) |
+| `font_style` | `normal`, `italic`, `oblique` |
+| `text_transform` | `none`, `uppercase`, `lowercase`, `capitalize` |
+| `text_decoration` | `none`, `underline`, `overline`, `line-through` |
+| `white_space` | `normal`, `nowrap`, `pre`, `pre-wrap`, `pre-line`, `break-spaces` |
+| `word_break` | `normal`, `break-all`, `keep-all`, `break-word` |
+| `overflow`, `config.container_overflow` | `visible`, `hidden`, `clip`, `scroll`, `auto` |
+| `text_overflow` | `clip`, `ellipsis` |
+| conditional `selector.row_parity` | `even`, `odd` |
+| conditional `selector.scope` | `tbody` (`body`), `thead` (`head`), `table` (`all`) |
+| `typed_value.type`, `cell.data_type` | `string`, `number`, `integer`, `boolean`, `date`, `datetime`, `time`, `duration` (plus common aliases such as `int`, `bool`, `float`) |
 
 ## How Validation Works
 
@@ -31,9 +75,9 @@ The validator materializes a **2D occupancy grid** for each section:
 2. Walk every cell in document order
 3. For each cell with `rowspan=R, colspan=C` at position `(r, c)`:
    - Claim all positions `(r..r+R, c..c+C)`
-   - If already occupied → `SpanOverlap` error
-   - If out of bounds → `SpanOverflow` error
-4. Verify placeholder cells align with spanned positions
+   - If already occupied → `SPAN_OVERLAP` error
+   - If out of bounds → `SPAN_OVERFLOW_RIGHT` / `SPAN_OVERFLOW_BOTTOM` error
+4. Report any position no cell covers as `SPAN_GAP`
 
 ## Error Output
 
