@@ -74,6 +74,20 @@ jobs:
             gridwell-harness:ci \
             cargo xtask gallery --check
 
+      # Report only: rasterize the ungated formats (LaTeX, RTF/DOCX/XLSX/PPTX) a
+      # second time and compare with the gallery's images — a format can be gated
+      # only once its images come out the same. Their images are added to
+      # proposed-goldens, so a format found deterministic can be blessed from this
+      # run. Runs even when the gated check fails.
+      - name: Probe rasterization determinism (ungated formats)
+        if: success() || failure()
+        run: |
+          docker run --rm \
+            -v "$PWD:/w" -w /w \
+            -e CARGO_HOME=/w/.ci-cargo \
+            gridwell-harness:ci \
+            cargo xtask determinism
+
       # The container runs as root, so it leaves root-owned files (some mode 700,
       # e.g. the LibreOffice profile) in the workspace. Hand the whole tree back
       # to the runner so later steps — cache save, artifact upload, and the
