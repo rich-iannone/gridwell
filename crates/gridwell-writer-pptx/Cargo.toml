@@ -11,10 +11,10 @@ gridwell-ir = { path = "../gridwell-ir" }
 gridwell-core = { path = "../gridwell-core" }
 gridwell-layout = { path = "../gridwell-layout" }
 thiserror = { workspace = true }
-zip = { workspace = true }
-quick-xml = { workspace = true }
+gridwell-ooxml = { path = "../gridwell-ooxml" }
 
 [dev-dependencies]
+gridwell-layout = { path = "../gridwell-layout" }
 gridwell-testkit = { path = "../gridwell-testkit" }
 insta = { workspace = true }
 serde_json = { workspace = true }
