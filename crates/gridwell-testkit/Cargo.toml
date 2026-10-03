@@ -10,3 +10,4 @@ description = "Shared test corpus and IR builder DSL for gridwell writers and th
 [dependencies]
 gridwell-ir = { path = "../gridwell-ir" }
 serde_json.workspace = true
+proptest = "1.11"
