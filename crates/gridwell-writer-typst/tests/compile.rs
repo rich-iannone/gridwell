@@ -288,3 +288,37 @@ fn no_header_rule_without_header_rows() {
     let src = render_typst(&table).unwrap();
     assert!(!src.contains("table.hline"), "{src}");
 }
+
+#[test]
+fn every_colour_form_compiles() {
+    if !require("typst") {
+        return;
+    }
+    let forms = [
+        "darkorchid",
+        "#abc",
+        "#abcd",
+        "#12345678",
+        "rgb(1 2 3 / 40%)",
+        "hsl(200deg 50% 50%)",
+        "transparent",
+    ];
+    let mut builder = TableBuilder::new(forms.len() as u32);
+    let mut cells = Vec::new();
+    for (i, c) in forms.iter().enumerate() {
+        let id = format!("c{i}");
+        builder = builder.style_def(
+            &id,
+            gridwell_ir::StyleDef {
+                color: Some(c.to_string()),
+                background_color: Some(c.to_string()),
+                ..Default::default()
+            },
+        );
+        cells.push(cell("x").style(&id));
+    }
+    let table = builder.body(vec![row(cells)]).build();
+    let src = render_typst(&table).unwrap();
+    assert!(src.contains("rgb(\"#12345678\")"), "{src}");
+    compile(&work_dir("colours"), "colours", &src).unwrap_or_else(|e| panic!("{e}\n{src}"));
+}
