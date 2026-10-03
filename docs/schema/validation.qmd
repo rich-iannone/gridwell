@@ -21,6 +21,7 @@ and when errors are serialized.
 | `COL_COUNT` | Every row (header, data and summary) has exactly `config.table_cols` cell objects; spanned positions hold placeholders |
 | `ROW_COUNT` | `thead` has `config.header_rows` rows; data rows (not summary rows) total `config.body_rows` |
 | `COLSPEC_LENGTH` | `column_spec` has `config.table_cols` entries |
+| `STUB_CONTIGUOUS` | The stub is a block at the left: `config.stub_cols` is at most `config.table_cols`, and no cell flagged `is_stub` starts to the right of the stub columns |
 | `STYLE_REFS_VALID` | Every `style_id` refers to a style definition or composition |
 | `FOOTNOTE_REFS_VALID` | Every `footnote_mark` refers to a defined footnote, wherever it appears: cells (including summary rows), header lines, group labels, and the notes themselves |
 | `SUMMARY_REQUIRES_STUB` | A group with summary rows requires `config.stub_cols >= 1` |
@@ -39,7 +40,8 @@ summary rows. A span never crosses a section.
 | `SPAN_OVERFLOW_RIGHT` | `col + colspan > table_cols`: span exceeds the right edge |
 | `SPAN_OVERFLOW_BOTTOM` | `row + rowspan > section rows`: span exceeds the section |
 | `SPAN_OVERLAP` | Two spans claim the same `(row, col)` position |
-| `SPAN_GAP` | A position is covered by no cell (a placeholder with nothing spanning over it) |
+| `SPAN_PLACEHOLDER_MISMATCH` | A placeholder that no cell's `colspan` or `rowspan` covers |
+| `SPAN_GAP` | A grid position with no cell object at all. A row with too few cells is already reported as `COL_COUNT` (and its section's spans are then not checked), so `validate()` reports this only through `OccupancyGrid::materialize` used directly |
 | `SPAN_PLACEHOLDER_HAS_CONTENT` | A placeholder cell has non-empty content |
 
 ## Keyword values
