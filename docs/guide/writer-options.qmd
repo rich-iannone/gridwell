@@ -92,6 +92,7 @@ options at all).
 | `box_drawing` | boolean | `true` | Draw borders with Unicode box-drawing characters (`false`: ASCII `+`, `-`, `|`) |
 | `true_color` | boolean | `true` | Colour text with 24-bit escape codes |
 | `max_width` | integer | `0` | Shrink the widest columns until the grid fits this many terminal columns (cells are cut with `…`); `0` means no limit |
+| `background_colors` | boolean | `false` | Paint cell backgrounds (fills and striping) with 24-bit escapes; needs `true_color`. Off by default because fills meant for light pages show as bright bars on dark terminals |
 
 ### `quarto`
 
