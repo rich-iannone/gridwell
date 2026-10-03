@@ -338,6 +338,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "gridwell-ooxml"
+version = "0.1.0"
+dependencies = [
+ "thiserror",
+ "zip",
+]
+
+[[package]]
 name = "gridwell-python"
 version = "0.1.0"
 dependencies = [
@@ -399,12 +407,11 @@ dependencies = [
  "gridwell-core",
  "gridwell-ir",
  "gridwell-layout",
+ "gridwell-ooxml",
  "gridwell-testkit",
  "insta",
- "quick-xml",
  "serde_json",
  "thiserror",
- "zip",
 ]
 
 [[package]]
@@ -456,12 +463,11 @@ dependencies = [
  "gridwell-core",
  "gridwell-ir",
  "gridwell-layout",
+ "gridwell-ooxml",
  "gridwell-testkit",
  "insta",
- "quick-xml",
  "serde_json",
  "thiserror",
- "zip",
 ]
 
 [[package]]
@@ -528,12 +534,11 @@ dependencies = [
  "gridwell-core",
  "gridwell-ir",
  "gridwell-layout",
+ "gridwell-ooxml",
  "gridwell-testkit",
  "insta",
- "quick-xml",
  "serde_json",
  "thiserror",
- "zip",
 ]
 
 [[package]]
