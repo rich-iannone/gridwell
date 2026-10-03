@@ -185,6 +185,55 @@ static void test_errors(const char *dir) {
     gridwell_free_table(table);
 }
 
+static void test_options_and_formats(const char *dir) {
+    GridwellTable *table = parse_fixture(dir, "comprehensive/reference_table.json");
+    GridwellError *err = NULL;
+    GridwellTextResult t;
+    GridwellBinaryResult b;
+    const char *names = gridwell_format_names();
+
+    /* Format discovery. */
+    CHECK(strstr(names, "html") != NULL && strstr(names, "pptx") != NULL);
+    CHECK(gridwell_format_kind("html") == GRIDWELL_FORMAT_TEXT);
+    CHECK(gridwell_format_kind("XLSX") == GRIDWELL_FORMAT_BINARY);
+    CHECK(gridwell_format_kind("pdf") == GRIDWELL_FORMAT_UNKNOWN);
+    CHECK(gridwell_format_kind(NULL) == GRIDWELL_FORMAT_UNKNOWN);
+
+    /* Options take effect. */
+    t = gridwell_render_text_with_options(table, "latex", "{\"booktabs\": false}", &err);
+    CHECK(err == NULL && t.text != NULL);
+    CHECK(strstr(t.text, "\\toprule") == NULL && strstr(t.text, "\\hline") != NULL);
+    gridwell_free_text_result(t);
+
+    /* Null options mean the defaults. */
+    t = gridwell_render_text_with_options(table, "latex", NULL, &err);
+    CHECK(err == NULL && strstr(t.text, "\\toprule") != NULL);
+    gridwell_free_text_result(t);
+
+    /* Bad options. */
+    t = gridwell_render_text_with_options(table, "html", "{\"no_such\": 1}", &err);
+    CHECK(t.text == NULL);
+    CHECK(gridwell_error_code(err) == GRIDWELL_ERR_OPTIONS);
+    CHECK(strstr(gridwell_error_message(err), "no_such") != NULL);
+    gridwell_free_error(err);
+
+    err = NULL;
+    b = gridwell_render_binary_with_options(table, "docx", "{oops", &err);
+    CHECK(b.data == NULL);
+    CHECK(gridwell_error_code(err) == GRIDWELL_ERR_OPTIONS);
+    gridwell_free_error(err);
+
+    /* A text format through the binary API. */
+    err = NULL;
+    b = gridwell_render_binary(table, "html", &err);
+    CHECK(b.data == NULL);
+    CHECK(gridwell_error_code(err) == GRIDWELL_ERR_RENDER);
+    CHECK(strstr(gridwell_error_message(err), "text format") != NULL);
+    gridwell_free_error(err);
+
+    gridwell_free_table(table);
+}
+
 int main(int argc, char **argv) {
     if (argc != 2) {
         fprintf(stderr, "usage: %s <fixtures-dir>\n", argv[0]);
@@ -194,6 +243,7 @@ int main(int argc, char **argv) {
     test_binary_formats(argv[1]);
     test_invalid_ir_is_refused(argv[1]);
     test_errors(argv[1]);
+    test_options_and_formats(argv[1]);
 
     if (failures) {
         fprintf(stderr, "%d check(s) failed\n", failures);
