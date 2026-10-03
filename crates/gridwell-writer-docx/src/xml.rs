@@ -26,12 +26,9 @@ pub fn px_to_dxa(px: f64) -> u32 {
 /// Default column width in dxa (1.5 inches).
 pub const DEFAULT_COL_WIDTH_DXA: u32 = 2160;
 
-/// Convert a hex color like "#FF0000" to OOXML color format "FF0000".
-pub fn hex_to_ooxml_color(hex: &str) -> Option<String> {
-    let h = hex.strip_prefix('#')?;
-    if h.len() == 6 && h.chars().all(|c| c.is_ascii_hexdigit()) {
-        Some(h.to_uppercase())
-    } else {
-        None
-    }
+/// Convert any CSS colour to OOXML's `RRGGBB`. Alpha is dropped (OOXML run and
+/// shading colours have none); fully transparent means "no colour".
+pub fn hex_to_ooxml_color(color: &str) -> Option<String> {
+    let c = color.parse::<gridwell_core::Color>().ok()?;
+    (!c.is_transparent()).then(|| c.to_rrggbb())
 }
