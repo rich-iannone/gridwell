@@ -62,16 +62,22 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
 
     fn render_title(&mut self) {
         let header = &self.rt.header;
+        // Lines outside the tabular take inline styling only (`\cellcolor` is
+        // table-only).
         if let Some(title) = &header.title {
             let text = self.content(title.content, &HAlign::Left);
             if !text.is_empty() {
+                let text = apply_inline_style(&text, &title.style);
                 writeln!(self.buf, "{{\\large\\bfseries {text}}}\\\\").unwrap();
             }
         }
-        if let Some(subtitle) = &header.subtitle {
-            let text = self.content(subtitle.content, &HAlign::Left);
+        let lines: Vec<_> = header.subtitle.iter().chain(&header.extra_lines).collect();
+        for (i, line) in lines.iter().enumerate() {
+            let text = self.content(line.content, &HAlign::Left);
             if !text.is_empty() {
-                writeln!(self.buf, "{{\\small {text}}}\\\\[6pt]").unwrap();
+                let text = apply_inline_style(&text, &line.style);
+                let gap = if i + 1 == lines.len() { "[6pt]" } else { "" };
+                writeln!(self.buf, "{{\\small {text}}}\\\\{gap}").unwrap();
             }
         }
     }
@@ -153,7 +159,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         let cols = self.width();
         for (g, group) in rt.groups.iter().enumerate() {
             if let Some(label) = &group.label {
-                let text = self.content(label.content, &HAlign::Left);
+                let text = apply_style(&self.content(label.content, &HAlign::Left), &label.style);
                 if self.config.booktabs {
                     writeln!(self.buf, "\\midrule").unwrap();
                 }
@@ -290,7 +296,8 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         if !footer.footnotes.is_empty() {
             writeln!(self.buf).unwrap();
             for note in &footer.footnotes {
-                let text = self.content(note.content, &HAlign::Left);
+                let text =
+                    apply_inline_style(&self.content(note.content, &HAlign::Left), &note.style);
                 writeln!(
                     self.buf,
                     "\\textsuperscript{{{mark}}} {text}\\\\",
@@ -302,7 +309,8 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         if !footer.source_notes.is_empty() {
             writeln!(self.buf).unwrap();
             for note in &footer.source_notes {
-                let text = self.content(note.content, &HAlign::Left);
+                let text =
+                    apply_inline_style(&self.content(note.content, &HAlign::Left), &note.style);
                 writeln!(self.buf, "{{\\footnotesize {text}}}\\\\").unwrap();
             }
         }
