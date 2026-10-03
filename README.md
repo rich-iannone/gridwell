@@ -192,7 +192,7 @@ snapshot; the committed `.snap` files are the accepted baseline, reviewed with
 `cargo insta review`.
 - **Visual harness**: `cargo xtask gallery` renders each example to each format,
 rasterizes to PNGs, and builds a browsable gallery; a perceptual image diff gates a
-deterministic subset (HTML/SVG/Typst) against committed goldens produced in a pinned
+deterministic subset (HTML, SVG, Typst, RTF, DOCX, XLSX, PPTX) against committed goldens produced in a pinned
 Docker toolchain.
 
 See [`harness/README.md`](harness/README.md) for the full workflow.
