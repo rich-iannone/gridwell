@@ -132,6 +132,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "gridwell-layout"
+version = "0.1.0"
+dependencies = [
+ "gridwell-core",
+ "gridwell-ir",
+]
+
+[[package]]
 name = "gridwell-r"
 version = "0.1.0"
 dependencies = [
@@ -155,8 +163,8 @@ dependencies = [
 name = "gridwell-writer-ansi"
 version = "0.1.0"
 dependencies = [
- "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "thiserror",
  "unicode-width",
 ]
@@ -167,6 +175,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "quick-xml",
  "thiserror",
  "zip",
@@ -178,6 +187,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "thiserror",
 ]
 
@@ -187,6 +197,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "thiserror",
 ]
 
@@ -196,6 +207,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "serde",
  "serde_json",
  "thiserror",
@@ -207,6 +219,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "quick-xml",
  "thiserror",
  "zip",
@@ -216,8 +229,9 @@ dependencies = [
 name = "gridwell-writer-quarto"
 version = "0.1.0"
 dependencies = [
- "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
+ "gridwell-writer-pandoc",
  "serde",
  "serde_json",
  "thiserror",
@@ -229,6 +243,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "thiserror",
 ]
 
@@ -238,6 +253,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "thiserror",
  "unicode-width",
 ]
@@ -248,6 +264,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "thiserror",
 ]
 
@@ -257,6 +274,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "quick-xml",
  "thiserror",
  "zip",
