@@ -59,13 +59,7 @@ fn writers() -> Vec<(&'static str, RenderFn)> {
 
 /// Writers known to drop origin cells for some span layouts, by placement. Remove
 /// entries as writers are fixed (the test fails if an entry no longer drops cells).
-///
-/// Pandoc/Quarto: summary rows are not emitted at all yet (a missing feature, not a span
-/// bug; roadmap M3, Tier 2).
-const KNOWN_DROPPING_CELLS: &[(&str, Placement)] = &[
-    ("pandoc", Placement::Summary),
-    ("quarto", Placement::Summary),
-];
+const KNOWN_DROPPING_CELLS: &[(&str, Placement)] = &[];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 enum Placement {
@@ -422,11 +416,10 @@ fn rtf_violation(out: &str) -> Option<String> {
 
 // ─── Hidden columns ───
 
-/// Writers that still render hidden-column content (roadmap M1: the shared layout
-/// layer). The test fails if one of these stops leaking, so the list stays accurate.
-const KNOWN_HIDDEN_LEAKS: &[&str] = &[
-    "latex", "rtf", "ansi", "pandoc", "quarto", "docx", "xlsx", "pptx",
-];
+/// Writers that still render hidden-column content. Empty since every writer reads
+/// the grid from `gridwell-layout`; kept so a regression can be listed while it is
+/// being fixed (the test fails if an entry stops leaking).
+const KNOWN_HIDDEN_LEAKS: &[&str] = &[];
 
 #[test]
 fn hidden_columns_are_dropped_by_fixed_writers() {
