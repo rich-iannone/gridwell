@@ -5,7 +5,8 @@ use gridwell_ir::Table;
 pub use render::RenderError;
 
 /// Configuration for ANSI terminal rendering.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct AnsiConfig {
     /// Use box-drawing characters for borders.
     pub box_drawing: bool,
