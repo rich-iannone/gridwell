@@ -114,7 +114,7 @@ test_that("gw_render dispatches by format name", {
 test_that("gw_render errors on unknown format", {
     json <- load_fixture("minimal/minimal_1x1.json")
     tbl <- gw_parse_ir(json)
-    expect_error(gw_render(tbl, "nope"), "Unknown format")
+    expect_error(gw_render(tbl, "nope"), 'unknown format "nope"', fixed = TRUE)
 })
 
 # ─── Binary render tests ───
@@ -154,7 +154,7 @@ test_that("gw_render_binary dispatches by format", {
 test_that("gw_render_binary errors on unknown format", {
     json <- load_fixture("minimal/minimal_1x1.json")
     tbl <- gw_parse_ir(json)
-    expect_error(gw_render_binary(tbl, "pdf"), "Unknown binary format")
+    expect_error(gw_render_binary(tbl, "pdf"), 'unknown format "pdf"', fixed = TRUE)
 })
 
 # ─── Rendering refuses invalid IR ───
@@ -215,4 +215,51 @@ test_that("adjacent colspans render in every format (regression)", {
     for (render in binary_renderers) {
         expect_gt(length(render(tbl)), 0)
     }
+})
+
+# ─── Format registry and writer options ───
+
+test_that("gw_formats lists every format with its options", {
+    f <- gw_formats()
+    expect_s3_class(f, "data.frame")
+    expect_equal(
+        f$name,
+        c("html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto",
+          "docx", "xlsx", "pptx")
+    )
+    expect_equal(f$kind[f$name == "docx"], "binary")
+    expect_equal(f$extension[f$name == "quarto"], "json")
+    html_opts <- jsonlite::fromJSON(f$options[f$name == "html"])
+    expect_equal(html_opts$class_prefix, "gw")
+})
+
+test_that("options work as a list, as named arguments, and as JSON", {
+    tbl <- gw_parse_ir(load_fixture("comprehensive/reference_table.json"))
+    default <- gw_render(tbl, "latex")
+    as_list <- gw_render(tbl, "latex", list(booktabs = FALSE))
+    as_args <- gw_render_latex(tbl, booktabs = FALSE)
+    as_json <- gw_render(tbl, "latex", '{"booktabs": false}')
+    expect_identical(as_list, as_args)
+    expect_identical(as_list, as_json)
+    expect_false(identical(as_list, default))
+    expect_false(grepl("\\toprule", as_list))
+    expect_identical(gw_render(tbl, "latex", NULL), default)
+    expect_identical(gw_render(tbl, "latex", list()), default)
+})
+
+test_that("bad options are errors that say what is wrong", {
+    tbl <- gw_parse_ir(load_fixture("minimal/minimal_1x1.json"))
+    expect_error(gw_render_html(tbl, inline_style = TRUE), "unknown field")
+    expect_error(gw_render(tbl, "html", list(TRUE)), "named list")
+    expect_error(gw_render(tbl, "html", 42), "NULL, a named list, or a JSON string")
+    expect_error(gw_render(tbl, "html", "{oops"), "not valid JSON")
+    expect_error(gw_render_svg(tbl, font_size = -1), "font_size")
+    expect_error(gw_render_html(tbl, class_prefix = "x\"><script>"), "class_prefix")
+})
+
+test_that("text and binary entry points reject the other kind", {
+    tbl <- gw_parse_ir(load_fixture("minimal/minimal_1x1.json"))
+    expect_error(gw_render(tbl, "docx"), "binary format")
+    expect_error(gw_render_binary(tbl, "html"), "text format")
+    expect_match(gw_render(tbl, "HTML"), "^<div")
 })
