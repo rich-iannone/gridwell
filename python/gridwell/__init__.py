@@ -1,8 +1,16 @@
 """gridwell: Fast multi-format table rendering from a declarative IR."""
 
-from gridwell._native import InvalidTableError, Table, parse_ir
+from gridwell._native import InvalidOptionsError, InvalidTableError, Table, formats, parse_ir
 
-__all__ = ["InvalidTableError", "Table", "parse_ir", "gt_to_ir", "gt_to_dict"]
+__all__ = [
+    "InvalidOptionsError",
+    "InvalidTableError",
+    "Table",
+    "formats",
+    "parse_ir",
+    "gt_to_ir",
+    "gt_to_dict",
+]
 __version__ = "0.1.0"
 
 # The Great Tables emitter needs pandas and great_tables, which are optional (the `gt`
