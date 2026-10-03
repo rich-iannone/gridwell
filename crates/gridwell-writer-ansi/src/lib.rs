@@ -14,6 +14,10 @@ pub struct AnsiConfig {
     pub true_color: bool,
     /// Maximum total table width in columns (0 = no limit).
     pub max_width: usize,
+    /// Paint cell backgrounds (fills, striping) with 24-bit escapes. Off by
+    /// default: fills are designed for light pages and show as bright bars on dark
+    /// terminals. Needs `true_color`.
+    pub background_colors: bool,
 }
 
 impl Default for AnsiConfig {
@@ -22,6 +26,7 @@ impl Default for AnsiConfig {
             box_drawing: true,
             true_color: true,
             max_width: 0,
+            background_colors: false,
         }
     }
 }
