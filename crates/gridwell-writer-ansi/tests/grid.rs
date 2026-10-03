@@ -141,3 +141,49 @@ fn control_characters_never_reach_the_terminal() {
     assert!(stripped.contains("a]0;pwnedb[2Jc31md e f"), "{stripped}");
     check("evil", &table);
 }
+
+#[test]
+fn background_colours_are_opt_in() {
+    use gridwell_writer_ansi::{AnsiConfig, AnsiWriter};
+    let table = TableBuilder::new(1)
+        .style_def(
+            "f",
+            gridwell_ir::StyleDef {
+                background_color: Some("#336699".into()),
+                ..Default::default()
+            },
+        )
+        .striping(true, true)
+        .body(vec![row(vec![cell("a").style("f")]), row(vec![cell("b")])])
+        .build();
+    let render = |background_colors| {
+        AnsiWriter::with_config(AnsiConfig {
+            background_colors,
+            ..Default::default()
+        })
+        .render(&table)
+        .unwrap()
+    };
+    let off = render(false);
+    assert!(!off.contains("\u{1b}[48;"), "{off:?}");
+    let on = render(true);
+    assert!(
+        on.contains("\u{1b}[48;2;51;102;153m"),
+        "fill missing: {on:?}"
+    );
+    // The stripe (row 2) as it looks on white.
+    assert!(
+        on.contains("\u{1b}[48;2;249;249;249m"),
+        "stripe missing: {on:?}"
+    );
+    check("backgrounds", &table);
+    // Needs true colour.
+    let no_tc = AnsiWriter::with_config(AnsiConfig {
+        background_colors: true,
+        true_color: false,
+        ..Default::default()
+    })
+    .render(&table)
+    .unwrap();
+    assert!(!no_tc.contains("\u{1b}[48;"));
+}
