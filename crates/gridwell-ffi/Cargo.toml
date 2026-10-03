@@ -24,6 +24,8 @@ gridwell-writer-xlsx = { path = "../gridwell-writer-xlsx" }
 gridwell-writer-pptx = { path = "../gridwell-writer-pptx" }
 
 [dev-dependencies]
+gridwell-core = { path = "../gridwell-core" }
 serde_json = { workspace = true }
 gridwell-testkit = { path = "../gridwell-testkit" }
 cbindgen = "0.29.4"
+quick-xml = { workspace = true }
