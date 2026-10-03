@@ -226,8 +226,9 @@ fn summary_row_span_overflow_is_reported() {
 }
 
 #[test]
-fn summary_row_gap_is_reported() {
-    // A placeholder with nothing spanning over it leaves an unowned grid position.
+fn summary_row_uncovered_placeholder_is_reported() {
+    // A placeholder with nothing spanning over it: SPAN_PLACEHOLDER_MISMATCH (a
+    // position with no cell at all would be SPAN_GAP).
     let t = parse(table_json_with_summary(
         2,
         1,
@@ -236,7 +237,7 @@ fn summary_row_gap_is_reported() {
         vec![vec![text_cell("Total"), placeholder()]],
     ));
     let r = rules(&t);
-    assert!(r.contains(&ValidationRule::SpanGap), "{r:?}");
+    assert_eq!(r, vec![ValidationRule::SpanPlaceholderMismatch], "{r:?}");
 }
 
 #[test]
