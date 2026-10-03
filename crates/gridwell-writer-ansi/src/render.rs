@@ -1,3 +1,4 @@
+use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{FontStyle, FontWeight, Row, Table};
 use std::fmt::Write;
@@ -402,15 +403,12 @@ fn content_to_text(nodes: &[ContentNode]) -> String {
     out
 }
 
-fn fg_24bit(hex: &str) -> Option<String> {
-    let hex = hex.strip_prefix('#')?;
-    if hex.len() != 6 {
-        return None;
-    }
-    let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
-    let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
-    let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
-    Some(format!("\x1b[38;2;{r};{g};{b}m"))
+fn fg_24bit(color: &str) -> Option<String> {
+    let c = color
+        .parse::<Color>()
+        .ok()
+        .filter(|c| !c.is_transparent())?;
+    Some(format!("\x1b[38;2;{};{};{}m", c.r, c.g, c.b))
 }
 
 fn truncate_to_width(s: &str, max_width: usize) -> String {
