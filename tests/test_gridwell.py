@@ -237,7 +237,7 @@ def test_render_binary_by_name_refuses_invalid_ir(fmt):
 
 def test_unknown_format_still_reported_for_valid_table():
     table = gridwell.Table.from_json(load_fixture("minimal/minimal_1x1.json"))
-    with pytest.raises(ValueError, match="Unknown text format"):
+    with pytest.raises(ValueError, match='unknown format "nope"'):
         table.render("nope")
 
 
@@ -274,3 +274,58 @@ def test_regression_adjacent_colspans_render(method):
     if isinstance(out, str):
         for label in "ABCD":
             assert label in out, (method, label)
+
+
+# ─── Format registry and writer options ───
+
+
+def test_formats_lists_every_format_with_options():
+    fmts = gridwell.formats()
+    names = [f["name"] for f in fmts]
+    assert names == [
+        "html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto",
+        "docx", "xlsx", "pptx",
+    ]
+    by_name = {f["name"]: f for f in fmts}
+    assert by_name["html"]["kind"] == "text"
+    assert by_name["docx"]["kind"] == "binary"
+    assert by_name["html"]["options"]["class_prefix"] == "gw"
+    assert by_name["latex"]["options"]["booktabs"] is True
+    assert by_name["docx"]["options"] == {}
+    assert by_name["quarto"]["extension"] == "json"
+
+
+def test_options_as_dict_and_as_keywords_agree():
+    table = gridwell.Table.from_json(load_fixture("comprehensive/reference_table.json"))
+    default = table.render("latex")
+    as_dict = table.render("latex", {"booktabs": False})
+    as_kwargs = table.render_latex(booktabs=False)
+    assert as_dict == as_kwargs != default
+    assert "\\toprule" in default and "\\toprule" not in as_dict
+    assert table.render("latex", None) == default
+    assert table.render_html(inline_styles=True, pretty_print=False).count("\n") == 0
+
+
+def test_bad_options_raise_invalid_options_error():
+    table = gridwell.Table.from_json(load_fixture("minimal/minimal_1x1.json"))
+    with pytest.raises(gridwell.InvalidOptionsError, match="unknown field"):
+        table.render("html", {"inline_style": True})
+    with pytest.raises(gridwell.InvalidOptionsError, match="class_prefix"):
+        table.render_html(class_prefix='x"><script>')
+    with pytest.raises(gridwell.InvalidOptionsError, match="font_size"):
+        table.render_svg(font_size=-1)
+    with pytest.raises(gridwell.InvalidOptionsError, match="must be a dict"):
+        table.render("html", "inline_styles")
+    with pytest.raises(gridwell.InvalidOptionsError, match="unknown field"):
+        table.render_binary("docx", {"x": 1})
+    # It is still a ValueError.
+    assert issubclass(gridwell.InvalidOptionsError, ValueError)
+
+
+def test_text_and_binary_apis_reject_the_other_kind():
+    table = gridwell.Table.from_json(load_fixture("minimal/minimal_1x1.json"))
+    with pytest.raises(ValueError, match="binary format"):
+        table.render("docx")
+    with pytest.raises(ValueError, match="text format"):
+        table.render_binary("html")
+    assert table.render("HTML").startswith("<div")
