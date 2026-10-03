@@ -534,11 +534,11 @@ fn px(s: &str) -> Option<f64> {
     .filter(|v| v.is_finite() && *v > 0.0)
 }
 
-/// `#rgb` / `#rrggbb` only: the forms safe to drop into an attribute verbatim.
+/// Any CSS colour, re-emitted in normalized form (never the source text, so it is
+/// always safe inside an attribute). Fully transparent means "don't paint".
 fn valid_color(c: &str) -> Option<String> {
-    let hex = c.strip_prefix('#')?;
-    (matches!(hex.len(), 3 | 6) && hex.chars().all(|ch| ch.is_ascii_hexdigit()))
-        .then(|| c.to_string())
+    let c = c.parse::<gridwell_core::Color>().ok()?;
+    (!c.is_transparent()).then(|| c.to_css())
 }
 
 /// Style lookup with single-level compositions.
