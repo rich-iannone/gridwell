@@ -279,7 +279,8 @@ pub struct ResolvedCell<'a> {
     pub rowspan: usize,
     /// The cascaded style.
     pub style: ResolvedStyle,
-    /// Horizontal alignment: the style's, else the column's.
+    /// Horizontal alignment: the style's; else centred for a header cell spanning
+    /// several columns (a spanner label); else the column's.
     pub align: HAlign,
     /// In the head section.
     pub is_header: bool,
@@ -593,7 +594,15 @@ impl<'a> Ctx<'_, 'a> {
             let (number, striped) = resolved_rows[r];
             let style = self.cascade(&rows[r], cell, grid_col, kind, number, striped);
             let column = &self.columns[vc];
-            let align = style.text_align.clone().unwrap_or(column.align.clone());
+            // A header cell spanning several columns (a spanner label) is centred
+            // over them, as in gt; any other cell takes its column's alignment.
+            // An explicit style alignment wins over both.
+            let default_align = if kind == SectionKind::Head && colspan > 1 {
+                HAlign::Center
+            } else {
+                column.align.clone()
+            };
+            let align = style.text_align.clone().unwrap_or(default_align);
             slots[r][vc] = Slot::Origin(Box::new(ResolvedCell {
                 cell,
                 content: &cell.content,
