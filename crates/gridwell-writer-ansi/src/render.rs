@@ -1,6 +1,6 @@
-use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{FontStyle, FontWeight, Row, Table};
+use gridwell_ir::{HAlign, Table};
+use gridwell_layout::{resolve, ResolvedStyle, ResolvedTable, Section, Slot};
 use std::fmt::Write;
 use thiserror::Error;
 use unicode_width::UnicodeWidthStr;
@@ -92,130 +92,104 @@ const RESET: &str = "\x1b[0m";
 const BOLD: &str = "\x1b[1m";
 const ITALIC: &str = "\x1b[3m";
 
-struct AnsiRenderer<'a> {
-    table: &'a Table,
-    config: &'a AnsiConfig,
+struct AnsiRenderer<'r, 'a> {
+    rt: &'r ResolvedTable<'a>,
+    config: &'r AnsiConfig,
     buf: String,
     col_widths: Vec<usize>,
     bc: BoxChars,
 }
 
-impl<'a> AnsiRenderer<'a> {
-    fn new(table: &'a Table, config: &'a AnsiConfig) -> Self {
+impl<'r, 'a> AnsiRenderer<'r, 'a> {
+    fn new(rt: &'r ResolvedTable<'a>, config: &'r AnsiConfig) -> Self {
         let bc = if config.box_drawing {
             BoxChars::unicode()
         } else {
             BoxChars::ascii()
         };
-
-        let col_widths = Self::compute_col_widths(table);
-
         Self {
-            table,
+            rt,
             config,
             buf: String::with_capacity(4096),
-            col_widths,
+            col_widths: Self::compute_col_widths(rt),
             bc,
         }
     }
 
-    fn compute_col_widths(table: &Table) -> Vec<usize> {
-        let num_cols = table.config.table_cols as usize;
-        let mut widths = vec![DEFAULT_COL_WIDTH; num_cols];
-
-        // Measure content widths from all rows
-        let all_rows: Vec<&Row> = {
-            let mut rows: Vec<&Row> = table.table.thead.rows.iter().collect();
-            for group in &table.table.tbody {
-                rows.extend(group.rows.iter());
-                rows.extend(group.summary_rows.iter());
-            }
-            rows
-        };
-
-        for row in &all_rows {
-            let mut col_idx = 0;
-            for cell in &row.cells {
-                if col_idx >= num_cols {
-                    break;
+    /// Each visible column is as wide as its widest single-column cell plus one
+    /// space of padding on each side (at least `DEFAULT_COL_WIDTH`).
+    fn compute_col_widths(rt: &ResolvedTable) -> Vec<usize> {
+        let mut widths = vec![DEFAULT_COL_WIDTH; rt.columns.len()];
+        for section in rt.sections() {
+            for row in &section.rows {
+                for cell in row.cells().filter(|c| c.colspan == 1) {
+                    let w = UnicodeWidthStr::width(content_to_text(cell.content).as_str());
+                    widths[cell.col] = widths[cell.col].max(w + 2);
                 }
-                if cell.is_placeholder {
-                    col_idx += 1;
-                    continue;
-                }
-                if cell.colspan == 1 {
-                    let text = content_to_text(&cell.content);
-                    let w = UnicodeWidthStr::width(text.as_str());
-                    widths[col_idx] = widths[col_idx].max(w + 2); // +2 for padding
-                }
-                col_idx += cell.colspan as usize;
             }
         }
-
         widths
     }
 
+    /// Width of `span` columns starting at `col`, including the separators between
+    /// them.
+    fn span_width(&self, col: usize, span: usize) -> usize {
+        self.col_widths[col..col + span].iter().sum::<usize>() + span - 1
+    }
+
     fn render(mut self) -> Result<String, RenderError> {
-        // Title
         self.render_title()?;
 
-        // Top border
+        // With every column hidden there is no grid to draw.
+        if !self.rt.is_empty() {
+            self.render_grid()?;
+        }
+
+        self.render_footnotes()?;
+        Ok(self.buf)
+    }
+
+    fn render_grid(&mut self) -> Result<(), RenderError> {
+        let rt = self.rt;
         self.write_border_line(self.bc.tl, self.bc.tj, self.bc.tr)?;
 
-        // Header rows
-        if !self.table.config.column_labels_hidden {
-            for row in &self.table.table.thead.rows {
-                self.write_data_row(row, true)?;
-            }
-            // Header/body separator
+        if !rt.head.is_empty() {
+            self.write_section(&rt.head, true)?;
             self.write_border_line(self.bc.lj, self.bc.cj, self.bc.rj)?;
         }
 
-        // Body rows
-        let group_count = self.table.table.tbody.len();
-        for (gi, group) in self.table.table.tbody.iter().enumerate() {
-            if let Some(ref label) = group.label {
-                let text = content_to_text(&label.content);
+        let group_count = rt.groups.len();
+        for (gi, group) in rt.groups.iter().enumerate() {
+            if let Some(label) = &group.label {
+                let text = content_to_text(label.content);
                 self.write_group_label(&text)?;
                 self.write_border_line(self.bc.lj, self.bc.cj, self.bc.rj)?;
             }
 
-            for row in &group.rows {
-                self.write_data_row(row, false)?;
-            }
+            self.write_section(&group.rows, false)?;
 
             if !group.summary_rows.is_empty() {
                 self.write_border_line(self.bc.lj, self.bc.cj, self.bc.rj)?;
-                for row in &group.summary_rows {
-                    self.write_data_row(row, true)?;
-                }
+                self.write_section(&group.summary_rows, true)?;
             }
 
-            // Group separator (not after last)
-            if gi < group_count - 1 {
+            if gi + 1 < group_count {
                 self.write_border_line(self.bc.lj, self.bc.cj, self.bc.rj)?;
             }
         }
 
-        // Bottom border
-        self.write_border_line(self.bc.bl, self.bc.bj, self.bc.br)?;
-
-        // Footnotes
-        self.render_footnotes()?;
-
-        Ok(self.buf)
+        self.write_border_line(self.bc.bl, self.bc.bj, self.bc.br)
     }
 
     fn render_title(&mut self) -> Result<(), RenderError> {
-        if let Some(ref header) = self.table.header {
-            if let Some(ref title) = header.title {
-                let text = content_to_text(&title.content);
-                writeln!(self.buf, "{BOLD}{text}{RESET}")?;
-            }
-            if let Some(ref subtitle) = header.subtitle {
-                let text = content_to_text(&subtitle.content);
-                writeln!(self.buf, "{text}")?;
-            }
+        let header = &self.rt.header;
+        if let Some(title) = &header.title {
+            let text = content_to_text(title.content);
+            writeln!(self.buf, "{BOLD}{text}{RESET}")?;
+        }
+        if let Some(subtitle) = &header.subtitle {
+            let text = content_to_text(subtitle.content);
+            writeln!(self.buf, "{text}")?;
         }
         Ok(())
     }
@@ -223,11 +197,11 @@ impl<'a> AnsiRenderer<'a> {
     fn write_border_line(&mut self, left: &str, mid: &str, right: &str) -> Result<(), RenderError> {
         self.buf.push_str(left);
         for (i, w) in self.col_widths.iter().enumerate() {
+            if i > 0 {
+                self.buf.push_str(mid);
+            }
             for _ in 0..*w {
                 self.buf.push_str(self.bc.h);
-            }
-            if i < self.col_widths.len() - 1 {
-                self.buf.push_str(mid);
             }
         }
         self.buf.push_str(right);
@@ -235,124 +209,91 @@ impl<'a> AnsiRenderer<'a> {
         Ok(())
     }
 
-    fn write_data_row(&mut self, row: &Row, is_bold: bool) -> Result<(), RenderError> {
+    fn write_section(&mut self, section: &Section, strong: bool) -> Result<(), RenderError> {
+        for r in 0..section.rows.len() {
+            self.write_data_row(section, r, strong)?;
+        }
+        Ok(())
+    }
+
+    /// One text line of the grid. Covered positions are blank: a cell spanning
+    /// rows is drawn in its first row, and the rows below show an empty box of the
+    /// same width.
+    fn write_data_row(
+        &mut self,
+        section: &Section,
+        r: usize,
+        strong: bool,
+    ) -> Result<(), RenderError> {
+        let row = &section.rows[r];
         self.buf.push_str(self.bc.v);
-        let mut col_idx = 0;
-
-        // A cell's index in the row equals its starting grid column (IR invariant),
-        // so `pos < col_idx` means this position was already consumed by a preceding
-        // colspan in *this* row (a horizontal placeholder) and produces no output;
-        // `pos == col_idx` is a vertical (rowspan) placeholder that still occupies a
-        // visible, blank column.
-        for (pos, cell) in row.cells.iter().enumerate() {
-            if col_idx >= self.col_widths.len() {
-                break;
+        let mut first = true;
+        let mut sep = |buf: &mut String, v: &str| {
+            if !std::mem::take(&mut first) {
+                buf.push_str(v);
             }
-            if cell.is_placeholder {
-                if pos < col_idx {
-                    continue; // horizontal fill — already covered by a colspan
+        };
+        let v = self.bc.v;
+        for (col, slot) in row.slots.iter().enumerate() {
+            match slot {
+                Slot::Origin(cell) => {
+                    sep(&mut self.buf, v);
+                    let width = self.span_width(col, cell.colspan);
+                    let text = content_to_text(cell.content);
+                    let (open, close) = self.escapes(&cell.style, strong);
+                    self.buf.push_str(&open);
+                    self.buf.push_str(&fit(&text, width, &cell.align));
+                    self.buf.push_str(close);
                 }
-                let w = self.col_widths[col_idx];
-                for _ in 0..w {
-                    self.buf.push(' ');
+                Slot::CoveredV {
+                    origin_row,
+                    origin_col,
+                    ..
+                } if *origin_col == col => {
+                    sep(&mut self.buf, v);
+                    let span = section.rows[*origin_row].slots[col]
+                        .origin()
+                        .map_or(1, |c| c.colspan);
+                    let width = self.span_width(col, span);
+                    self.buf.push_str(&" ".repeat(width));
                 }
-                col_idx += 1;
-                if col_idx < self.col_widths.len() {
-                    self.buf.push_str(self.bc.v);
+                Slot::CoveredH { .. } | Slot::CoveredV { .. } => {}
+                Slot::Empty => {
+                    sep(&mut self.buf, v);
+                    self.buf.push_str(&" ".repeat(self.col_widths[col]));
                 }
-                continue;
-            }
-
-            // Clamp the span to the remaining columns so malformed input can't panic.
-            let span = (cell.colspan as usize).min(self.col_widths.len() - col_idx);
-            let total_w: usize = self.col_widths[col_idx..col_idx + span]
-                .iter()
-                .sum::<usize>()
-                + (span - 1); // account for removed separators
-
-            let text = content_to_text(&cell.content);
-            let display_width = UnicodeWidthStr::width(text.as_str());
-
-            let mut cell_text = String::new();
-
-            // Apply styling
-            let mut has_style = false;
-            if is_bold {
-                cell_text.push_str(BOLD);
-                has_style = true;
-            } else if let Some(ref style_id) = cell.style_id {
-                if let Some(def) = self.table.styles.defs.get(style_id.as_str()) {
-                    if def.font_weight.as_ref().is_some_and(FontWeight::is_bold) {
-                        cell_text.push_str(BOLD);
-                        has_style = true;
-                    }
-                    if def.font_style.as_ref().is_some_and(FontStyle::is_italic) {
-                        cell_text.push_str(ITALIC);
-                        has_style = true;
-                    }
-                    if let Some(ref color) = def.color {
-                        if self.config.true_color {
-                            if let Some(esc) = fg_24bit(color) {
-                                cell_text.push_str(&esc);
-                                has_style = true;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Pad and truncate text
-            let padded = if display_width >= total_w {
-                truncate_to_width(&text, total_w.saturating_sub(1))
-            } else {
-                let pad = total_w - display_width;
-                let lpad = pad / 2;
-                let rpad = pad - lpad;
-                format!("{}{text}{}", " ".repeat(lpad), " ".repeat(rpad))
-            };
-
-            cell_text.push_str(&padded);
-            if has_style {
-                cell_text.push_str(RESET);
-            }
-
-            self.buf.push_str(&cell_text);
-
-            col_idx += span;
-            if col_idx < self.col_widths.len() {
-                self.buf.push_str(self.bc.v);
             }
         }
-
-        // Fill remaining columns (if cells ended early due to spans)
-        while col_idx < self.col_widths.len() {
-            let w = self.col_widths[col_idx];
-            for _ in 0..w {
-                self.buf.push(' ');
-            }
-            col_idx += 1;
-            if col_idx < self.col_widths.len() {
-                self.buf.push_str(self.bc.v);
-            }
-        }
-
         self.buf.push_str(self.bc.v);
         self.buf.push('\n');
         Ok(())
     }
 
-    fn write_group_label(&mut self, text: &str) -> Result<(), RenderError> {
-        let total_inner: usize = self.col_widths.iter().sum::<usize>() + self.col_widths.len() - 1;
-        let display_width = UnicodeWidthStr::width(text);
+    /// Opening escapes for a cell and the matching reset (empty if unstyled).
+    fn escapes(&self, style: &ResolvedStyle, strong: bool) -> (String, &'static str) {
+        let mut open = String::new();
+        if strong || style.is_bold() {
+            open.push_str(BOLD);
+        }
+        if style.is_italic() {
+            open.push_str(ITALIC);
+        }
+        if self.config.true_color {
+            if let Some(c) = style.paint() {
+                // Terminals have no alpha: show the colour as it would look on white.
+                let c = c.flatten();
+                let _ = write!(open, "\x1b[38;2;{};{};{}m", c.r, c.g, c.b);
+            }
+        }
+        let close = if open.is_empty() { "" } else { RESET };
+        (open, close)
+    }
 
+    fn write_group_label(&mut self, text: &str) -> Result<(), RenderError> {
+        let inner = self.span_width(0, self.col_widths.len());
         self.buf.push_str(self.bc.v);
         write!(self.buf, "{BOLD}")?;
-        self.buf.push(' ');
-        self.buf.push_str(text);
-        let remaining = total_inner.saturating_sub(display_width + 1);
-        for _ in 0..remaining {
-            self.buf.push(' ');
-        }
+        self.buf.push_str(&fit(text, inner, &HAlign::Left));
         write!(self.buf, "{RESET}")?;
         self.buf.push_str(self.bc.v);
         self.buf.push('\n');
@@ -360,41 +301,49 @@ impl<'a> AnsiRenderer<'a> {
     }
 
     fn render_footnotes(&mut self) -> Result<(), RenderError> {
-        if let Some(ref footer) = self.table.footer {
-            if !footer.footnotes.is_empty() {
-                for note in &footer.footnotes {
-                    let text = content_to_text(&note.content);
-                    writeln!(self.buf, "  {} {text}", note.mark)?;
-                }
-            }
-            if !footer.source_notes.is_empty() {
-                for note in &footer.source_notes {
-                    let text = content_to_text(&note.content);
-                    writeln!(self.buf, "  {text}")?;
-                }
-            }
+        for note in &self.rt.footer.footnotes {
+            let text = content_to_text(note.content);
+            let mark = sanitize(note.mark);
+            writeln!(self.buf, "  {mark} {text}")?;
+        }
+        for note in &self.rt.footer.source_notes {
+            let text = content_to_text(note.content);
+            writeln!(self.buf, "  {text}")?;
         }
         Ok(())
     }
 }
 
 pub fn render(table: &Table, config: &AnsiConfig) -> Result<String, RenderError> {
-    AnsiRenderer::new(table, config).render()
+    let rt = resolve(table);
+    AnsiRenderer::new(&rt, config).render()
+}
+
+/// Remove control characters (C0, DEL, C1 — including ESC) so table text can't
+/// emit terminal escape sequences or break the grid; tabs and newlines become
+/// spaces.
+fn sanitize(s: &str) -> String {
+    s.chars()
+        .filter_map(|c| match c {
+            '\t' | '\n' | '\r' => Some(' '),
+            c if c.is_control() => None,
+            c => Some(c),
+        })
+        .collect()
 }
 
 fn content_to_text(nodes: &[ContentNode]) -> String {
     let mut out = String::new();
     for node in nodes {
         match node {
-            ContentNode::Text { value } => out.push_str(value),
-            ContentNode::StyledText { value, .. } => out.push_str(value),
-            ContentNode::LineBreak {} => out.push(' '),
-            ContentNode::FootnoteMark { mark_text, .. } => {
-                out.push_str(mark_text);
+            ContentNode::Text { value } | ContentNode::StyledText { value, .. } => {
+                out.push_str(&sanitize(value))
             }
+            ContentNode::LineBreak {} => out.push(' '),
+            ContentNode::FootnoteMark { mark_text, .. } => out.push_str(&sanitize(mark_text)),
             ContentNode::Image { alt, .. } => {
                 if let Some(alt_text) = alt {
-                    out.push_str(alt_text);
+                    out.push_str(&sanitize(alt_text));
                 }
             }
             ContentNode::Raw { .. } | ContentNode::Unknown => {}
@@ -403,30 +352,32 @@ fn content_to_text(nodes: &[ContentNode]) -> String {
     out
 }
 
-fn fg_24bit(color: &str) -> Option<String> {
-    let c = color
-        .parse::<Color>()
-        .ok()
-        .filter(|c| !c.is_transparent())?;
-    Some(format!("\x1b[38;2;{};{};{}m", c.r, c.g, c.b))
-}
-
-fn truncate_to_width(s: &str, max_width: usize) -> String {
-    let mut result = String::new();
-    let mut current_width = 0;
-    for c in s.chars() {
-        let cw = unicode_width::UnicodeWidthChar::width(c).unwrap_or(0);
-        if current_width + cw > max_width {
-            result.push('…');
-            break;
+/// `text` laid out in exactly `width` terminal columns: one space of padding on
+/// each side, aligned, and truncated with `…` if it doesn't fit.
+fn fit(text: &str, width: usize, align: &HAlign) -> String {
+    let inner = width.saturating_sub(2);
+    let mut shown = String::new();
+    let mut used = 0;
+    if UnicodeWidthStr::width(text) <= inner {
+        shown.push_str(text);
+        used = UnicodeWidthStr::width(text);
+    } else if inner > 0 {
+        for c in text.chars() {
+            let cw = unicode_width::UnicodeWidthChar::width(c).unwrap_or(0);
+            if used + cw > inner - 1 {
+                break;
+            }
+            shown.push(c);
+            used += cw;
         }
-        result.push(c);
-        current_width += cw;
+        shown.push('…');
+        used += 1;
     }
-    // Pad to max_width
-    while current_width < max_width {
-        result.push(' ');
-        current_width += 1;
-    }
-    result
+    let pad = width.saturating_sub(used);
+    let left = match align {
+        HAlign::Right => pad.saturating_sub(1),
+        HAlign::Center => pad / 2,
+        _ => pad.min(1),
+    };
+    format!("{}{shown}{}", " ".repeat(left), " ".repeat(pad - left))
 }
