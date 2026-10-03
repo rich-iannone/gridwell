@@ -51,8 +51,8 @@ fn writers() -> Vec<WriterCase> {
         (
             "latex",
             |t| gridwell_writer_latex::render_latex(t).unwrap(),
-            Some("\\textcolor{[HTML]{9932CC}}"),
-            Some("\\cellcolor{[HTML]{123456}}"),
+            Some("\\textcolor[HTML]{9932CC}{"),
+            Some("\\cellcolor[HTML]{123456}"),
         ),
         (
             "rtf",
@@ -177,13 +177,22 @@ fn invalid_and_transparent_colours_paint_nothing_and_never_panic() {
 }
 
 #[test]
-fn translucent_colours_keep_alpha_where_the_format_has_it() {
+fn translucent_colours_keep_alpha_or_composite_onto_white() {
     let t = table_with(Some("rgb(153 50 204 / 50%)"), None);
     let html = gridwell_writer_html::render_html(&t).unwrap();
     assert!(html.contains("color: rgba(153, 50, 204, 0.502)"), "{html}");
     let typst = gridwell_writer_typst::render_typst(&t).unwrap();
     assert!(typst.contains("rgb(\"#9932CC80\")"), "{typst}");
-    // Formats without alpha keep the colour.
+    // Formats without alpha show it as it would look on white: 50% #9932CC
+    // over white is #CC98E5.
+    let flat = gridwell_core::Color::new(153, 50, 204, 128).flatten();
+    assert_eq!(flat.to_rrggbb(), "CC98E5");
     let latex = gridwell_writer_latex::render_latex(&t).unwrap();
-    assert!(latex.contains("[HTML]{9932CC}"), "{latex}");
+    assert!(latex.contains("\\textcolor[HTML]{CC98E5}{"), "{latex}");
+    let rtf = gridwell_writer_rtf::render_rtf(&t).unwrap();
+    assert!(rtf.contains("\\red204\\green152\\blue229;"), "{rtf}");
+    let docx = gridwell_writer_docx::DocxWriter::new()
+        .render_document_xml(&t)
+        .unwrap();
+    assert!(docx.contains("w:val=\"CC98E5\""), "{docx}");
 }
