@@ -1,7 +1,7 @@
 use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{HAlign, Table, VMerge};
-use gridwell_layout::{resolve, MergeCell, ResolvedTable, Section};
+use gridwell_layout::{resolve, MergeCell, ResolvedStyle, ResolvedTable, Section};
 use std::fmt::Write;
 use thiserror::Error;
 
@@ -43,21 +43,114 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
             colors: vec![Color::rgb(0, 0, 0), Color::rgb(255, 255, 255)],
             col_widths,
         };
-        // Register every colour the cells use, in document order, so the colour
-        // table is complete before it is written.
+        // Register every colour the document uses, in document order, so the
+        // colour table is complete before it is written: cell text and fills, line
+        // styles, and inline styled runs.
+        let mut styles: Vec<ResolvedStyle> = Vec::new();
+        let h = &rt.header;
+        styles.extend(
+            h.title
+                .iter()
+                .chain(&h.subtitle)
+                .chain(&h.extra_lines)
+                .map(|l| l.style.clone()),
+        );
         for section in rt.sections() {
             for row in &section.rows {
-                for cell in row.cells() {
-                    for c in [cell.style.paint(), cell.style.fill()]
-                        .into_iter()
-                        .flatten()
-                    {
-                        r.color_index(c);
-                    }
+                styles.extend(row.cells().map(|c| c.style.clone()));
+            }
+        }
+        styles.extend(
+            rt.groups
+                .iter()
+                .filter_map(|g| g.label.as_ref())
+                .map(|l| l.style.clone()),
+        );
+        styles.extend(rt.footer.footnotes.iter().map(|n| n.style.clone()));
+        styles.extend(rt.footer.source_notes.iter().map(|n| n.style.clone()));
+        for nodes in rt.contents() {
+            for node in nodes {
+                if let ContentNode::StyledText {
+                    style_id: Some(id), ..
+                } = node
+                {
+                    styles.push(rt.style(id));
                 }
             }
         }
+        for style in &styles {
+            for c in [style.paint(), style.fill()].into_iter().flatten() {
+                r.color_index(c);
+            }
+        }
         r
+    }
+
+    /// Character formatting for a style: bold, italic, colour (registered colours
+    /// only; every colour was registered up front).
+    fn char_format(&self, style: &ResolvedStyle) -> String {
+        let mut f = String::new();
+        if style.is_bold() {
+            f.push_str("\\b");
+        }
+        if style.is_italic() {
+            f.push_str("\\i");
+        }
+        if let Some(i) = style.paint().and_then(|c| self.color_ref(c)) {
+            write!(f, "\\cf{i}").unwrap();
+        }
+        f
+    }
+
+    /// The index of an already registered colour.
+    fn color_ref(&self, c: Color) -> Option<usize> {
+        let c = c.flatten();
+        self.colors.iter().position(|&k| k == c).map(|i| i + 1)
+    }
+
+    /// Content as RTF; styled runs are groups with their own formatting.
+    fn content(&self, nodes: &[ContentNode]) -> String {
+        let mut out = String::new();
+        for node in nodes {
+            match node {
+                ContentNode::Text { value } => out.push_str(&escape_rtf(value)),
+                ContentNode::StyledText { value, style_id } => {
+                    let style = style_id
+                        .as_deref()
+                        .map(|id| self.rt.style(id))
+                        .unwrap_or_default();
+                    let fmt = self.char_format(&style);
+                    if fmt.is_empty() {
+                        out.push_str(&escape_rtf(value));
+                    } else {
+                        write!(out, "{{{fmt} {}}}", escape_rtf(value)).unwrap();
+                    }
+                }
+                ContentNode::LineBreak {} => out.push_str("\\line "),
+                ContentNode::FootnoteMark { mark_text, .. } => {
+                    write!(out, "{{\\super {}}}", escape_rtf(mark_text)).unwrap();
+                }
+                ContentNode::Image { alt, .. } => {
+                    if let Some(alt_text) = alt {
+                        out.push_str(&escape_rtf(alt_text));
+                    }
+                }
+                ContentNode::Raw { format, value } => {
+                    if format == "rtf" {
+                        out.push_str(value);
+                    }
+                }
+                ContentNode::Unknown => {}
+            }
+        }
+        out
+    }
+
+    /// A paragraph outside the table: `base` control words plus the line's style.
+    fn line(&self, base: &str, line: &gridwell_layout::Line) -> String {
+        let text = self.content(line.content);
+        let fmt = self.char_format(&line.style);
+        format!("\\pard{{{base}{fmt} {text}}}\\par")
     }
 
     /// The `\cf` / `\clcbpat` index of a colour, registering it if new. RTF has no
@@ -100,17 +193,15 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         if header.title.is_none() && header.subtitle.is_none() && header.extra_lines.is_empty() {
             return;
         }
+        let mut lines = Vec::new();
         if let Some(title) = &header.title {
-            let text = content_to_rtf(title.content);
-            writeln!(self.buf, "\\pard\\b\\fs36 {text}\\b0\\par").unwrap();
+            lines.push(self.line("\\b\\fs36", title));
         }
-        if let Some(subtitle) = &header.subtitle {
-            let text = content_to_rtf(subtitle.content);
-            writeln!(self.buf, "\\pard\\fs24 {text}\\par").unwrap();
+        for l in header.subtitle.iter().chain(&header.extra_lines) {
+            lines.push(self.line("\\fs24", l));
         }
-        for line in &header.extra_lines {
-            let text = content_to_rtf(line.content);
-            writeln!(self.buf, "\\pard\\fs24 {text}\\par").unwrap();
+        for l in lines {
+            writeln!(self.buf, "{l}").unwrap();
         }
         self.buf.push_str("\\par\n");
     }
@@ -120,11 +211,18 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         self.write_section(&rt.head, true);
         for group in &rt.groups {
             if let Some(label) = &group.label {
-                let text = content_to_rtf(label.content);
+                let text = self.content(label.content);
+                let fmt = self.char_format(&label.style);
+                let fill = label
+                    .style
+                    .fill()
+                    .and_then(|c| self.color_ref(c))
+                    .map(|i| format!("\\clcbpat{i}"))
+                    .unwrap_or_default();
                 let total_width: u32 = self.col_widths.iter().sum();
                 writeln!(
                     self.buf,
-                    "\\trowd\\trqc\\cellx{total_width}\n\\pard\\intbl\\b {text}\\b0\\cell\n\\row"
+                    "\\trowd\\trqc{fill}\\cellx{total_width}\n\\pard\\intbl{{\\b{fmt} {text}}}\\cell\n\\row"
                 )
                 .unwrap();
             }
@@ -170,7 +268,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 self.buf.push_str("\\pard\\intbl\\cell\n");
                 continue;
             };
-            let text = content_to_rtf(cell.content);
+            let text = self.content(cell.content);
             let mut fmt = String::new();
             match cell.align {
                 HAlign::Right => fmt.push_str("\\qr"),
@@ -198,11 +296,12 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         if !footer.footnotes.is_empty() {
             self.buf.push_str("\\par\n");
             for note in &footer.footnotes {
-                let text = content_to_rtf(note.content);
+                let text = self.content(note.content);
                 let mark = escape_rtf(note.mark);
+                let fmt = self.char_format(&note.style);
                 writeln!(
                     self.buf,
-                    "\\pard\\fs18 \\super {mark}\\nosupersub  {text}\\par"
+                    "\\pard{{\\fs18{fmt} {{\\super {mark}}} {text}}}\\par"
                 )
                 .unwrap();
             }
@@ -210,8 +309,8 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         if !footer.source_notes.is_empty() {
             self.buf.push_str("\\par\n");
             for note in &footer.source_notes {
-                let text = content_to_rtf(note.content);
-                writeln!(self.buf, "\\pard\\fs18 {text}\\par").unwrap();
+                let line = self.line("\\fs18", note);
+                writeln!(self.buf, "{line}").unwrap();
             }
         }
     }
@@ -220,32 +319,6 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
 pub fn render(table: &Table) -> Result<String, RenderError> {
     let rt = resolve(table);
     RtfRenderer::new(&rt).render()
-}
-
-fn content_to_rtf(nodes: &[ContentNode]) -> String {
-    let mut out = String::new();
-    for node in nodes {
-        match node {
-            ContentNode::Text { value } => out.push_str(&escape_rtf(value)),
-            ContentNode::StyledText { value, .. } => out.push_str(&escape_rtf(value)),
-            ContentNode::LineBreak {} => out.push_str("\\line "),
-            ContentNode::FootnoteMark { mark_text, .. } => {
-                write!(out, "\\super {}\\nosupersub ", escape_rtf(mark_text)).unwrap();
-            }
-            ContentNode::Image { alt, .. } => {
-                if let Some(alt_text) = alt {
-                    out.push_str(&escape_rtf(alt_text));
-                }
-            }
-            ContentNode::Raw { format, value } => {
-                if format == "rtf" {
-                    out.push_str(value);
-                }
-            }
-            ContentNode::Unknown => {}
-        }
-    }
-    out
 }
 
 /// Escape text for RTF: control words for `\`, `{`, `}`; non-ASCII as `\uN?` with
