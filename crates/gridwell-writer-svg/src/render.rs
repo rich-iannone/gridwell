@@ -8,6 +8,7 @@
 
 use std::fmt::Write;
 
+use gridwell_core::xml::escape as escape_xml;
 use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{HAlign, Table};
@@ -625,23 +626,6 @@ fn num(v: f64) -> String {
     let r = (v * 100.0).round() / 100.0;
     let r = if r == 0.0 { 0.0 } else { r };
     format!("{r}")
-}
-
-fn escape_xml(s: &str) -> String {
-    let mut out = String::with_capacity(s.len());
-    for c in s.chars() {
-        match c {
-            '&' => out.push_str("&amp;"),
-            '<' => out.push_str("&lt;"),
-            '>' => out.push_str("&gt;"),
-            '"' => out.push_str("&quot;"),
-            '\'' => out.push_str("&#39;"),
-            // XML 1.0 forbids most C0 controls even when escaped.
-            c if (c as u32) < 0x20 && !matches!(c, '\t' | '\n' | '\r') => {}
-            c => out.push(c),
-        }
-    }
-    out
 }
 
 #[cfg(test)]
