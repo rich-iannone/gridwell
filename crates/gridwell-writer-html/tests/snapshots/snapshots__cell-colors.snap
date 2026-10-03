@@ -4,8 +4,8 @@ expression: out
 ---
 <div class="gw_container">
   <style>
-    .gw_cool { color: #ffffff; background-color: #2980b9 }
-    .gw_hot { color: #ffffff; background-color: #c0392b }
+    .gw_cool { color: #FFFFFF; background-color: #2980B9 }
+    .gw_hot { color: #FFFFFF; background-color: #C0392B }
   </style>
   <table class="gw_table">
     <thead>
