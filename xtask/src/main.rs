@@ -6,7 +6,10 @@
 //! - `cargo xtask gallery --check`  — additionally diff the gated (deterministic)
 //!   formats against `harness/goldens` and exit non-zero on a regression
 //! - `cargo xtask gallery --accept` — update the goldens from the current render
+//! - `cargo xtask determinism` — after `gallery`: rasterize the ungated formats
+//!   again and report whether the images come out the same (see `determinism`)
 
+mod determinism;
 mod diff;
 mod formats;
 mod gallery;
@@ -37,6 +40,9 @@ enum Command {
         #[arg(long)]
         accept: bool,
     },
+    /// After `gallery`: rasterize every ungated format again and report whether
+    /// the images match the gallery's (and propose them as goldens)
+    Determinism,
 }
 
 fn workspace_root() -> PathBuf {
@@ -68,6 +74,17 @@ fn main() {
                 } else {
                     0
                 }
+            }
+            Err(e) => {
+                eprintln!("error: {e}");
+                1
+            }
+        },
+        Command::Determinism => match determinism::run(&root) {
+            Ok(report) => {
+                eprint!("{report}");
+                gallery::write_gh_summary(&report);
+                0
             }
             Err(e) => {
                 eprintln!("error: {e}");
