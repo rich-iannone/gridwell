@@ -23,7 +23,7 @@ use thiserror::Error;
 pub struct ColorParseError(pub String);
 
 /// An RGBA color (0–255 per channel).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
@@ -70,6 +70,23 @@ impl Color {
     /// model want it.
     pub fn to_rrggbb(&self) -> String {
         format!("{:02X}{:02X}{:02X}", self.r, self.g, self.b)
+    }
+
+    /// This colour composited over an opaque `background` ("source over"): what a
+    /// translucent colour looks like in formats that have no alpha channel.
+    pub fn over(&self, background: Color) -> Color {
+        let a = self.a as f64 / 255.0;
+        let mix = |fg: u8, bg: u8| (fg as f64 * a + bg as f64 * (1.0 - a)).round() as u8;
+        Color::rgb(
+            mix(self.r, background.r),
+            mix(self.g, background.g),
+            mix(self.b, background.b),
+        )
+    }
+
+    /// Composited over white: the flat colour for formats without alpha.
+    pub fn flatten(&self) -> Color {
+        self.over(Color::rgb(255, 255, 255))
     }
 
     /// To rgb()/rgba() CSS functional notation.
@@ -660,6 +677,21 @@ mod tests {
         assert_eq!(Color::rgb(255, 0, 0).to_hex(), "#FF0000");
         assert_eq!(Color::new(255, 0, 0, 128).to_hex(), "#FF000080");
         assert_eq!(Color::new(1, 2, 3, 4).to_rrggbb(), "010203");
+    }
+
+    #[test]
+    fn compositing() {
+        assert_eq!(Color::rgb(1, 2, 3).flatten(), Color::rgb(1, 2, 3));
+        assert_eq!(Color::TRANSPARENT.flatten(), Color::rgb(255, 255, 255));
+        // gt's default stripe colour.
+        assert_eq!(
+            c("rgba(128, 128, 128, 0.05)").flatten(),
+            Color::rgb(249, 249, 249)
+        );
+        assert_eq!(
+            Color::new(255, 0, 0, 128).over(Color::rgb(0, 0, 255)),
+            Color::rgb(128, 0, 127)
+        );
     }
 
     #[test]
