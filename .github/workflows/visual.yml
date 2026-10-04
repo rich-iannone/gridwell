@@ -62,8 +62,8 @@ jobs:
             cargo test --release -p gridwell-writer-svg --test calibration --test rsvg
 
       # Renders every example to every format, rasterizes, writes the gallery,
-      # and diffs the gated formats (HTML/SVG/Typst/RTF/DOCX/XLSX/PPTX) against
-      # harness/goldens.
+      # and diffs the gated formats (every rasterized one: HTML/SVG/Typst/LaTeX/
+      # RTF/DOCX/XLSX/PPTX) against harness/goldens.
       # Fails on any gated change, missing golden, unrendered gated cell, or stale
       # golden. To bless: download this run's `proposed-goldens` artifact and copy
       # it over harness/goldens/ (see harness/README.md).
@@ -75,11 +75,10 @@ jobs:
             gridwell-harness:ci \
             cargo xtask gallery --check
 
-      # Report only: rasterize the ungated formats (LaTeX, RTF/DOCX/XLSX/PPTX) a
-      # second time and compare with the gallery's images — a format can be gated
-      # only once its images come out the same. Their images are added to
-      # proposed-goldens, so a format found deterministic can be blessed from this
-      # run. Runs even when the gated check fails.
+      # Report only: rasterize any ungated format a second time and compare with
+      # the gallery's images — a format can be gated only once its images come out
+      # the same. (Every rasterized format is gated now, so this reports nothing
+      # until a new one is added.) Runs even when the gated check fails.
       - name: Probe rasterization determinism (ungated formats)
         if: success() || failure()
         run: |
