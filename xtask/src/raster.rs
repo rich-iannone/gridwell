@@ -245,9 +245,17 @@ const LATEX_PACKAGES: &str = "\
 
 /// `standalone` crops tightly to the table; `article` is the portable fallback
 /// when `standalone.cls` isn't installed (produces a page-sized preview).
+///
+/// `varwidth` lets `standalone` hold paragraphs: without it the whole body is
+/// one line, so titles and notes (ended by `\\`) sat beside the table instead
+/// of above and below it, as in a real document. The box shrinks to the widest
+/// line; 100cm only caps it.
 fn latex_preamble(standalone: bool) -> String {
     if standalone {
-        format!("\\documentclass[border=10pt]{{standalone}}\n{LATEX_PACKAGES}\\begin{{document}}\n")
+        format!(
+            "\\documentclass[border=10pt,varwidth=100cm]{{standalone}}\n{LATEX_PACKAGES}\
+             \\begin{{document}}\n\\setlength{{\\parindent}}{{0pt}}\n"
+        )
     } else {
         format!(
             "\\documentclass[12pt]{{article}}\n\

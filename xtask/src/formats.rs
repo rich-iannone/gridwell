@@ -58,27 +58,27 @@ pub const FORMATS: &[Format] = &[
     Format {
         id: "latex",
         raster: Raster::Latex,
-        gated: false,
+        gated: true,
     },
     Format {
         id: "rtf",
         raster: Raster::Office,
-        gated: false,
+        gated: true,
     },
     Format {
         id: "docx",
         raster: Raster::Office,
-        gated: false,
+        gated: true,
     },
     Format {
         id: "xlsx",
         raster: Raster::Office,
-        gated: false,
+        gated: true,
     },
     Format {
         id: "pptx",
         raster: Raster::Office,
-        gated: false,
+        gated: true,
     },
     Format {
         id: "ansi",
