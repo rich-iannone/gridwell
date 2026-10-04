@@ -522,12 +522,12 @@ mod tests {
     }
 
     /// Gate a format only once `cargo xtask determinism` shows its images come
-    /// out the same (harness/README.md). LaTeX awaits the `varwidth` previews.
+    /// out the same (harness/README.md): every rasterized format is.
     #[test]
     fn gated_formats_are_the_deterministic_ones() {
         assert_eq!(
             gated_ids(),
-            vec!["html", "svg", "typst", "rtf", "docx", "xlsx", "pptx"]
+            vec!["html", "svg", "typst", "latex", "rtf", "docx", "xlsx", "pptx"]
         );
     }
 
@@ -604,8 +604,8 @@ mod tests {
         let r = row(
             "a",
             vec![
-                ("latex", CellStatus::Unavailable("xelatex")),
-                ("latex", CellStatus::Error("xelatex".into())),
+                ("ansi", CellStatus::Unavailable("terminal")),
+                ("pandoc", CellStatus::Error("pandoc".into())),
             ],
         );
         let (failed, _) = summarize(&[r], &[], true, false);
