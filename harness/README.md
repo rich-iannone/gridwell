@@ -85,11 +85,11 @@ Rendering details that keep previews faithful:
 
 Pixel-diffing rasterized output is only reliable for **deterministic** renderers,
 so the *blocking* image gate covers only formats shown to render the same every
-time in the pinned image: **HTML, SVG, Typst, RTF, DOCX, XLSX and PPTX** (the
-last four via LibreOffice; all 54 images pixel-identical on a second pass, CI run
-37148204369). LaTeX appears in the gallery and the report but doesn't fail CI on
-pixels yet: its `standalone` preview changed (`varwidth`, so titles and notes sit
-above and below the table) and is gated once the probe has seen the new images.
+time in the pinned image — now every rasterized format: **HTML, SVG, Typst,
+LaTeX, RTF, DOCX, XLSX and PPTX** (the last four via LibreOffice). Each was
+pixel-identical on a second pass in the determinism probe, and RTF/DOCX/XLSX/PPTX
+goldens came out byte-identical in a later run (CI runs 37148204369, 37161922872).
+The text formats (ANSI, Pandoc, Quarto) are covered by snapshots.
 
 ```bash
 cargo xtask gallery --check    # diff gated formats vs harness/goldens; exit 2 on regression
@@ -120,13 +120,15 @@ cargo xtask gallery        # first render
 cargo xtask determinism    # rasterize every ungated format again and compare
 ```
 
-`determinism` re-rasterizes the gallery's LaTeX, RTF, DOCX, XLSX and PPTX output
-in a separate scratch directory (fresh LibreOffice profile, fresh TeX files) and
+`determinism` re-rasterizes the gallery's output for every ungated rasterized
+format in a separate scratch directory (fresh LibreOffice profile, fresh TeX files) and
 reports, per format, how many images are pixel-identical, within the gate's
 tolerance, or different. It also adds those formats' gallery images to
 `harness/proposed-goldens/`, so a format found deterministic can be gated and
 blessed from the same CI run. The probe shows determinism within one run; the
-first gated run after blessing shows it across runs.
+first gated run after blessing shows it across runs. (It's how LaTeX, RTF, DOCX,
+XLSX and PPTX were gated; with every rasterized format gated it reports nothing,
+until a format is added or ungated.)
 
 ### Blessing goldens from CI (no Docker needed)
 
@@ -140,14 +142,13 @@ every run, rendered in the pinned image. To seed or update goldens:
 3. Replace the goldens and commit (they're ordinary binary files):
 
 ```bash
-rm -rf harness/goldens/{html,svg,typst,rtf,docx,xlsx,pptx}
-unzip proposed-goldens.zip 'html/*' 'svg/*' 'typst/*' 'rtf/*' 'docx/*' 'xlsx/*' 'pptx/*' \
-    -d harness/goldens
+rm -rf harness/goldens/{html,svg,typst,latex,rtf,docx,xlsx,pptx}
+unzip proposed-goldens.zip -d harness/goldens
 git add harness/goldens && git commit -m "Bless visual goldens"
 ```
 
-The artifact also holds the *ungated* formats' images (from the determinism
-probe); copy those only when gating a format.
+(If a format is ever ungated again, the determinism probe puts its images in the
+artifact too: copy only the gated formats.)
 
 Copy only the formats or images you meant to change when updating a subset.
 
