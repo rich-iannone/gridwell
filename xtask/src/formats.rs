@@ -58,7 +58,7 @@ pub const FORMATS: &[Format] = &[
     Format {
         id: "latex",
         raster: Raster::Latex,
-        gated: false,
+        gated: true,
     },
     Format {
         id: "rtf",
