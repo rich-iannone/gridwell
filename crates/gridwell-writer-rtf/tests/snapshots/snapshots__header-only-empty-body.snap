@@ -8,8 +8,8 @@ expression: out
 \pard{\b\fs36 Empty}\par
 \par
 \trowd\trhdr\cellx2160\cellx4320\cellx6480
-\pard\intbl\b A\cell
-\pard\intbl\b B\cell
-\pard\intbl\b C\cell
+\pard\intbl\plain\b A\cell
+\pard\intbl\plain\b B\cell
+\pard\intbl\plain\b C\cell
 \row
 }

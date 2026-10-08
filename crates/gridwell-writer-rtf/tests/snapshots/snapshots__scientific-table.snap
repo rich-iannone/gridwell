@@ -8,28 +8,28 @@ expression: out
 \pard{\b\fs36 Reaction rate constants}\par
 \par
 \trowd\trhdr\cellx2160\cellx4320\cellx6480\cellx8640
-\pard\intbl\b Compound\cell
-\pard\intbl\qr\b k (s\u8315?\u185?){\super a}\cell
-\pard\intbl\qr\b T (K)\cell
-\pard\intbl\qr\b Ea (kJ/mol)\cell
+\pard\intbl\plain\b Compound\cell
+\pard\intbl\plain\qr\b k (s\u8315?\u185?){\super a}\cell
+\pard\intbl\plain\qr\b T (K)\cell
+\pard\intbl\plain\qr\b Ea (kJ/mol)\cell
 \row
 \trowd\cellx2160\cellx4320\cellx6480\cellx8640
-\pard\intbl A\cell
-\pard\intbl\qr 1.2\u215?10\u179?\cell
-\pard\intbl\qr 298\cell
-\pard\intbl\qr 52.3\cell
+\pard\intbl\plain A\cell
+\pard\intbl\plain\qr 1.2\u215?10\u179?\cell
+\pard\intbl\plain\qr 298\cell
+\pard\intbl\plain\qr 52.3\cell
 \row
 \trowd\cellx2160\cellx4320\cellx6480\cellx8640
-\pard\intbl B\cell
-\pard\intbl\qr 3.4\u215?10\u178?\cell
-\pard\intbl\qr 298\cell
-\pard\intbl\qr 61.0\cell
+\pard\intbl\plain B\cell
+\pard\intbl\plain\qr 3.4\u215?10\u178?\cell
+\pard\intbl\plain\qr 298\cell
+\pard\intbl\plain\qr 61.0\cell
 \row
 \trowd\cellx2160\cellx4320\cellx6480\cellx8640
-\pard\intbl C\cell
-\pard\intbl\qr 8.9\u215?10\u185?\cell
-\pard\intbl\qr 310\cell
-\pard\intbl\qr 70.8\cell
+\pard\intbl\plain C\cell
+\pard\intbl\plain\qr 8.9\u215?10\u185?\cell
+\pard\intbl\plain\qr 310\cell
+\pard\intbl\plain\qr 70.8\cell
 \row
 \par
 \pard{\fs18 {\super a} Measured under pseudo-first-order conditions.}\par

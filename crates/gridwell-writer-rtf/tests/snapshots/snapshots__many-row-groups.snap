@@ -6,62 +6,62 @@ expression: out
 {\fonttbl{\f0 Arial;}}
 {\colortbl ;\red0\green0\blue0;\red255\green255\blue255;}
 \trowd\trhdr\cellx2160\cellx4320
-\pard\intbl\b Key\cell
-\pard\intbl\b Value\cell
+\pard\intbl\plain\b Key\cell
+\pard\intbl\plain\b Value\cell
 \row
 \trowd\trqc\cellx4320
 \pard\intbl{\b Group 1}\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl k1a\cell
-\pard\intbl 10\cell
+\pard\intbl\plain k1a\cell
+\pard\intbl\plain 10\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl k1b\cell
-\pard\intbl 20\cell
+\pard\intbl\plain k1b\cell
+\pard\intbl\plain 20\cell
 \row
 \trowd\trqc\cellx4320
 \pard\intbl{\b Group 2}\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl k2a\cell
-\pard\intbl 20\cell
+\pard\intbl\plain k2a\cell
+\pard\intbl\plain 20\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl k2b\cell
-\pard\intbl 40\cell
+\pard\intbl\plain k2b\cell
+\pard\intbl\plain 40\cell
 \row
 \trowd\trqc\cellx4320
 \pard\intbl{\b Group 3}\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl k3a\cell
-\pard\intbl 30\cell
+\pard\intbl\plain k3a\cell
+\pard\intbl\plain 30\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl k3b\cell
-\pard\intbl 60\cell
+\pard\intbl\plain k3b\cell
+\pard\intbl\plain 60\cell
 \row
 \trowd\trqc\cellx4320
 \pard\intbl{\b Group 4}\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl k4a\cell
-\pard\intbl 40\cell
+\pard\intbl\plain k4a\cell
+\pard\intbl\plain 40\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl k4b\cell
-\pard\intbl 80\cell
+\pard\intbl\plain k4b\cell
+\pard\intbl\plain 80\cell
 \row
 \trowd\trqc\cellx4320
 \pard\intbl{\b Group 5}\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl k5a\cell
-\pard\intbl 50\cell
+\pard\intbl\plain k5a\cell
+\pard\intbl\plain 50\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl k5b\cell
-\pard\intbl 100\cell
+\pard\intbl\plain k5b\cell
+\pard\intbl\plain 100\cell
 \row
 }

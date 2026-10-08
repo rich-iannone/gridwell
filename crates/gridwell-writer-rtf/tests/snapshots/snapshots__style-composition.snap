@@ -6,15 +6,15 @@ expression: out
 {\fonttbl{\f0 Arial;}}
 {\colortbl ;\red0\green0\blue0;\red255\green255\blue255;\red44\green62\blue80;\red241\green196\blue15;}
 \trowd\trhdr\cellx2160\cellx4320
-\pard\intbl\b Key\cell
-\pard\intbl\b Value\cell
+\pard\intbl\plain\b Key\cell
+\pard\intbl\plain\b Value\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl normal\cell
-\pard\intbl 42\cell
+\pard\intbl\plain normal\cell
+\pard\intbl\plain 42\cell
 \row
 \trowd\clcbpat4\cellx2160\cellx4320
-\pard\intbl\b\cf3 special\cell
-\pard\intbl 99\cell
+\pard\intbl\plain\b\cf3 special\cell
+\pard\intbl\plain 99\cell
 \row
 }

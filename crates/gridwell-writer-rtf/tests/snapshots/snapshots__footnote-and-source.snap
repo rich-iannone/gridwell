@@ -6,16 +6,16 @@ expression: out
 {\fonttbl{\f0 Arial;}}
 {\colortbl ;\red0\green0\blue0;\red255\green255\blue255;}
 \trowd\trhdr\cellx2160\cellx4320
-\pard\intbl\b Test\cell
-\pard\intbl\b Result\cell
+\pard\intbl\plain\b Test\cell
+\pard\intbl\plain\b Result\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl A\cell
-\pard\intbl pass{\super 1}\cell
+\pard\intbl\plain A\cell
+\pard\intbl\plain pass{\super 1}\cell
 \row
 \trowd\cellx2160\cellx4320
-\pard\intbl B\cell
-\pard\intbl fail\cell
+\pard\intbl\plain B\cell
+\pard\intbl\plain fail\cell
 \row
 \par
 \pard{\fs18 {\super 1} Re-run confirmed.}\par

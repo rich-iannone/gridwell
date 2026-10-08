@@ -8,29 +8,29 @@ expression: out
 \pard{\b\fs36 Quarterly P&L}\par
 \par
 \trowd\trhdr\cellx2160\cellx4320\cellx6480
-\pard\intbl\b Line item\cell
-\pard\intbl\qr\b Q1\cell
-\pard\intbl\qr\b Q2\cell
+\pard\intbl\plain\b Line item\cell
+\pard\intbl\plain\qr\b Q1\cell
+\pard\intbl\plain\qr\b Q2\cell
 \row
 \trowd\cellx2160\cellx4320\cellx6480
-\pard\intbl Revenue\cell
-\pard\intbl\qr $1,200\cell
-\pard\intbl\qr $1,350\cell
+\pard\intbl\plain Revenue\cell
+\pard\intbl\plain\qr $1,200\cell
+\pard\intbl\plain\qr $1,350\cell
 \row
 \trowd\cellx2160\clcbpat3\cellx4320\clcbpat3\cellx6480
-\pard\intbl COGS\cell
-\pard\intbl\qr $700\cell
-\pard\intbl\qr $760\cell
+\pard\intbl\plain COGS\cell
+\pard\intbl\plain\qr $700\cell
+\pard\intbl\plain\qr $760\cell
 \row
 \trowd\cellx2160\cellx4320\cellx6480
-\pard\intbl Opex\cell
-\pard\intbl\qr $300\cell
-\pard\intbl\qr $320\cell
+\pard\intbl\plain Opex\cell
+\pard\intbl\plain\qr $300\cell
+\pard\intbl\plain\qr $320\cell
 \row
 \trowd\clcbpat4\cellx2160\clcbpat4\cellx4320\clcbpat4\cellx6480
-\pard\intbl\b Net income\cell
-\pard\intbl\qr\b $200\cell
-\pard\intbl\qr\b $270\cell
+\pard\intbl\plain\b Net income\cell
+\pard\intbl\plain\qr\b $200\cell
+\pard\intbl\plain\qr\b $270\cell
 \row
 \par
 \pard{\fs18 Unaudited management figures.}\par
