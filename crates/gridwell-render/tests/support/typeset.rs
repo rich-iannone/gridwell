@@ -46,7 +46,7 @@ use std::process::Command;
 
 use serde_json::Value;
 
-use super::{norm, Expected, Grid, Want};
+use super::{look, norm, Expected, Grid, Want};
 
 /// `true` if `tool` can be launched. Skips (with a note) when it can't, unless
 /// the environment variable `require` is set, in which case this panics.
@@ -640,4 +640,178 @@ pub fn latex_compare(got: &TexTable, want: &Expected) -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+// ─── Typst styles ───
+
+/// Records every cell (Typst's resolved `fill`, `align`, `stroke`) and every
+/// text run with its resolved style (`context text.*`). Underline, strike,
+/// strong, emph and super aren't text properties, so nesting counters track them.
+const TYPST_LOOK_PRELUDE: &str = r#"#set page(width: 100cm, height: auto, margin: 1cm)
+#let gw-u = state("gw-u", 0)
+#let gw-s = state("gw-s", 0)
+#let gw-b = state("gw-b", 0)
+#let gw-e = state("gw-e", 0)
+#let gw-p = state("gw-p", 0)
+#let gw-wrap(st, it) = { st.update(x => x + 1); it; st.update(x => x - 1) }
+#show underline: it => gw-wrap(gw-u, it)
+#show strike: it => gw-wrap(gw-s, it)
+#show strong: it => gw-wrap(gw-b, it)
+#show emph: it => gw-wrap(gw-e, it)
+#show super: it => gw-wrap(gw-p, it)
+#let gw-hex(c) = if type(c) == color { c.to-hex() } else { none }
+#let gw-side(s) = if type(s) == stroke {
+  (t: if type(s.thickness) == length { s.thickness.to-absolute().pt() } else { none },
+   paint: gw-hex(s.paint), dash: repr(s.dash))
+} else { none }
+#let gw-strokes(s) = if type(s) == dictionary {
+  (top: gw-side(s.at("top", default: none)), right: gw-side(s.at("right", default: none)),
+   bottom: gw-side(s.at("bottom", default: none)), left: gw-side(s.at("left", default: none)))
+} else if type(s) == stroke {
+  let one = gw-side(s); (top: one, right: one, bottom: one, left: one)
+} else { none }
+#show table.cell: it => {
+  [#metadata((k: "cell", fill: gw-hex(it.fill), align: repr(it.align), stroke: gw-strokes(it.stroke))) <gw>]
+  it
+  [#metadata((k: "end")) <gw>]
+}
+#show text: it => context [#metadata((k: "run", t: it.text, w: repr(text.weight), st: repr(text.style),
+  fill: gw-hex(text.fill), size: text.size.to-absolute().pt(),
+  font: if type(text.font) == array { text.font.at(0) } else { text.font },
+  u: gw-u.get(), s: gw-s.get(), b: gw-b.get(), e: gw-e.get(), p: gw-p.get())) <gw>] + it
+"#;
+
+fn typst_align(repr: &str) -> (Option<look::Align>, Option<look::VAlign>) {
+    let mut h = None;
+    let mut v = None;
+    for part in repr.split('+').map(str::trim) {
+        match part {
+            "left" | "start" => h = Some(look::Align::Left),
+            "center" => h = Some(look::Align::Center),
+            "right" | "end" => h = Some(look::Align::Right),
+            "top" => v = Some(look::VAlign::Top),
+            "horizon" => v = Some(look::VAlign::Middle),
+            "bottom" => v = Some(look::VAlign::Bottom),
+            _ => {}
+        }
+    }
+    (h, v)
+}
+
+fn typst_edge(v: &Value) -> Option<look::Edge> {
+    if v.is_null() {
+        return None;
+    }
+    let dash = v["dash"].as_str().unwrap_or("none");
+    Some(look::Edge {
+        line: if dash.contains("dot") {
+            look::Line::Dotted
+        } else if dash == "none" {
+            look::Line::Solid
+        } else {
+            look::Line::Dashed
+        },
+        width_pt: v["t"].as_f64(),
+        color: v["paint"].as_str().and_then(look::hex),
+    })
+}
+
+/// How each Typst source's table cells look, as Typst resolves them. `Err` if
+/// the source doesn't compile.
+pub fn typst_looks(sources: &[String]) -> Vec<Result<look::Doc, String>> {
+    batched("typst-look", sources, 50, |dir, sources| {
+        let mut doc = String::from(TYPST_LOOK_PRELUDE);
+        for src in sources {
+            doc.push_str("#pagebreak(weak: true)\n#metadata((k: \"table\")) <gw>\n");
+            doc.push_str(src);
+            doc.push('\n');
+        }
+        let file = dir.join("tables.typ");
+        std::fs::write(&file, &doc).unwrap();
+        let out = Command::new("typst")
+            .arg("query")
+            .arg(&file)
+            .args(["<gw>", "--field", "value"])
+            .output()
+            .unwrap();
+        if !out.status.success() {
+            return Err(format!(
+                "typst query failed:\n{}",
+                String::from_utf8_lossy(&out.stderr)
+            ));
+        }
+        let values: Vec<Value> = serde_json::from_slice(&out.stdout).unwrap();
+        let mut docs: Vec<look::Doc> = Vec::new();
+        let mut cell: Option<look::Look> = None;
+        for v in &values {
+            match v["k"].as_str() {
+                Some("table") => docs.push(look::Doc::default()),
+                Some("cell") => {
+                    let (align, valign) = typst_align(v["align"].as_str().unwrap_or(""));
+                    let s = &v["stroke"];
+                    cell = Some(look::Look {
+                        fill: v["fill"].as_str().and_then(look::hex),
+                        align,
+                        valign,
+                        borders: ["top", "right", "bottom", "left"].map(|k| typst_edge(&s[k])),
+                        ..look::Look::default()
+                    });
+                }
+                Some("end") => {
+                    if let Some(c) = cell.take() {
+                        docs.last_mut().unwrap().cells.push(look::finish(c));
+                    }
+                }
+                Some("run") => {
+                    let weight = v["w"].as_str().unwrap_or("").trim_matches('"').to_string();
+                    let n = |k: &str| v[k].as_i64().unwrap_or(0);
+                    let bold =
+                        matches!(weight.as_str(), "bold" | "semibold" | "extrabold" | "black")
+                            || weight.parse::<u32>().is_ok_and(|w| w >= 600)
+                            || n("b") > 0;
+                    let italic = (v["st"].as_str().unwrap_or("").contains("italic")
+                        || v["st"].as_str().unwrap_or("").contains("oblique"))
+                        ^ (n("e") % 2 == 1);
+                    let color = v["fill"]
+                        .as_str()
+                        .and_then(look::hex)
+                        .filter(|c| *c != (0, 0, 0));
+                    let run = look::Run {
+                        text: v["t"].as_str().unwrap_or("").to_string(),
+                        bold,
+                        italic,
+                        underline: n("u") > 0,
+                        strike: n("s") > 0,
+                        superscript: n("p") > 0,
+                        color,
+                        size_pt: v["size"].as_f64(),
+                        family: v["font"].as_str().map(str::to_string),
+                    };
+                    match cell.as_mut() {
+                        Some(c) => {
+                            if !c.runs.is_empty() {
+                                // Typst splits words into separate text elements.
+                                look::push_run(
+                                    &mut c.runs,
+                                    look::Run {
+                                        text: " ".into(),
+                                        ..run.clone()
+                                    },
+                                );
+                            }
+                            look::push_run(&mut c.runs, run)
+                        }
+                        None => {
+                            let d = docs.last_mut().unwrap();
+                            d.outside.push_str(&run.text);
+                            d.outside.push(' ');
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+        assert_eq!(docs.len(), sources.len());
+        Ok(docs.into_iter().map(Ok).collect())
+    })
 }
