@@ -3,7 +3,9 @@ title: "Output Formats"
 ---
 
 Gridwell renders the table IR to 11 output formats, split into text (returns a string) and
-binary (returns bytes).
+binary (returns bytes). Which styling features each Tier-1 writer (HTML, LaTeX, Typst,
+RTF, DOCX, XLSX) actually expresses is measured, not claimed: see the
+[Feature Matrix](feature-matrix.qmd).
 
 ## Text Formats
 
@@ -20,7 +22,7 @@ binary (returns bytes).
 - Uses `booktabs` (`\toprule`, `\midrule`, `\bottomrule`)
 - `\multicolumn` and `\multirow` for spans
 - Column alignment via `l`, `r`, `c`, `p{width}`
-- Color via `\cellcolor`, `\rowcolor` (requires `xcolor`)
+- Cell fills via `\cellcolor`, text colour via `\textcolor` (requires `xcolor` with the `table` option)
 - Special characters escaped: `& % $ # _ { } ~ ^ \`
 
 ### Typst
@@ -33,9 +35,9 @@ binary (returns bytes).
 ### RTF
 
 - Full RTF document with color and font tables
-- Cell merging via `\clmgf`/`\clmrg` and `\clvmgf`/`\clvmrg`
+- Column spans via `\cellx` boundaries, row spans via `\clvmgf`/`\clvmrg`
 - Column widths in twips (1/1440 inch)
-- Borders on all four sides of each cell
+- Cell fills via `\clcbpat`; no per-cell borders yet
 
 ### SVG
 
@@ -59,9 +61,8 @@ binary (returns bytes).
 
 ### Quarto
 
-- Pipe table Markdown with Quarto div wrappers
-- Cross-reference support via `tbl-` prefix IDs
-- Caption as Quarto figure caption syntax
+- The Pandoc JSON AST, as for the Pandoc format, for Quarto's Pandoc-based pipeline
+- Optionally wrapped in a `tbl-<id>` div for cross-references (`table_id` option)
 
 ## Binary Formats
 
@@ -70,7 +71,8 @@ binary (returns bytes).
 - Valid Office Open XML archive (ZIP)
 - Table in `word/document.xml`
 - Horizontal merge via `<w:gridSpan>`, vertical via `<w:vMerge>`
-- Full style support (fonts, borders, shading)
+- Bold, italic, colour, shading and alignment; table-wide single borders (per-cell borders,
+  font size and family are not written yet)
 
 ### XLSX (Microsoft Excel)
 
@@ -83,4 +85,4 @@ binary (returns bytes).
 
 - DrawingML table (`<a:tbl>`) in a slide shape
 - Grid-based spans with `gridSpan`/`rowSpan` attributes
-- Full text and cell styling support
+- Text colour, weight, slant and size, cell fills and alignment
