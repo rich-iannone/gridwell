@@ -9,6 +9,7 @@
 
 #![allow(dead_code)]
 
+pub mod look;
 pub mod ooxml;
 pub mod readers;
 pub mod typeset;
