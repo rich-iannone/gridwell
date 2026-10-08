@@ -44,7 +44,7 @@ const CASES: &[(&str, &str, &str)] = &[
     ("html", "<td class=\"gw__al_right\">12345</td>", "<th class=\"gw__al_center\" colspan=\"2\">SPANNER</th>"),
     ("latex", "\\begin{tabular}{lr}", "\\multicolumn{2}{c}{SPANNER}"),
     ("typst", "align: (left, right,),", "table.cell(colspan: 2, align: center)"),
-    ("rtf", "\\pard\\intbl\\qr 12345\\cell", "\\pard\\intbl\\qc\\b SPANNER\\cell"),
+    ("rtf", "\\pard\\intbl\\plain\\qr 12345\\cell", "\\pard\\intbl\\plain\\qc\\b SPANNER\\cell"),
     ("docx", "<w:jc w:val=\"right\"/></w:pPr><w:r><w:t xml:space=\"preserve\">12345", "<w:jc w:val=\"center\"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t xml:space=\"preserve\">SPANNER"),
     ("pptx", "<a:pPr algn=\"r\"/><a:r><a:rPr lang=\"en-US\"/><a:t>12345", "<a:pPr algn=\"ctr\"/><a:r><a:rPr lang=\"en-US\" b=\"1\"/><a:t>SPANNER"),
     ("xlsx", "<alignment horizontal=\"right\"/>", "<alignment horizontal=\"center\"/>"),
