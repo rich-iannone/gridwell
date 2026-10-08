@@ -265,7 +265,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         // Cell contents (one `\cell` per definition above, in the same order).
         for mc in cells {
             let Some(cell) = mc.cell else {
-                self.buf.push_str("\\pard\\intbl\\cell\n");
+                self.buf.push_str("\\pard\\intbl\\plain\\cell\n");
                 continue;
             };
             let text = self.content(cell.content);
@@ -286,7 +286,9 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 let i = self.color_index(c);
                 write!(fmt, "\\cf{i}").unwrap();
             }
-            writeln!(self.buf, "\\pard\\intbl{fmt} {text}\\cell").unwrap();
+            // `\pard` resets paragraph formatting only: without `\plain`, the
+            // previous cell's bold, italic or colour would carry over.
+            writeln!(self.buf, "\\pard\\intbl\\plain{fmt} {text}\\cell").unwrap();
         }
         self.buf.push_str("\\row\n");
     }
