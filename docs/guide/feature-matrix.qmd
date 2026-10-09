@@ -12,10 +12,10 @@ Which IR features each Tier-1 writer expresses. Every cell is *measured*: the te
 |---|---|---|---|---|---|---|---|
 | bold | `font_weight: bold` (or ≥ 600) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | italic | `font_style: italic` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| underline | `text_decoration: underline` | ✓ | ✗<sup>1</sup> | ✗<sup>1</sup> | ✗<sup>1</sup> | ✗<sup>1</sup> | ✗<sup>1</sup> |
-| strikethrough | `text_decoration: line-through` | ✓ | ✗<sup>1</sup> | ✗<sup>1</sup> | ✗<sup>1</sup> | ✗<sup>1</sup> | ✗<sup>1</sup> |
+| underline | `text_decoration: underline` | ✓ | ✗<sup>1</sup> | ✗<sup>1</sup> | ✓ | ✓ | ✓ |
+| strikethrough | `text_decoration: line-through` | ✓ | ✗<sup>1</sup> | ✗<sup>1</sup> | ✓ | ✓ | ✓ |
 | text-color | `color` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| font-size | `font_size` (20px = 15pt) | ✓ | ✗<sup>1</sup> | ✓ | ✗<sup>1</sup> | ✗<sup>1</sup> | ✗<sup>1</sup> |
+| font-size | `font_size` (20px = 15pt) | ✓ | ✗<sup>1</sup> | ✓ | ✓ | ✓ | ✓ |
 | font-family | `font_family` (a named family, not just monospace) | ✓ | ⊘<sup>2</sup> | ✗<sup>3</sup> | ✗<sup>1</sup> | ✗<sup>1</sup> | ✗<sup>1</sup> |
 | text-transform | `text_transform: uppercase` | ✓ | ✗<sup>1</sup> | ✗<sup>1</sup> | ✗<sup>1</sup> | ✗<sup>1</sup> | ✗<sup>1</sup> |
 | fill | `background_color` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
