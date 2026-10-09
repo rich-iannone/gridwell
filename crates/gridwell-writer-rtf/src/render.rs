@@ -99,6 +99,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         if let Some(i) = style.paint().and_then(|c| self.color_ref(c)) {
             write!(f, "\\cf{i}").unwrap();
         }
+        f.push_str(&text_format(style));
         f
     }
 
@@ -286,6 +287,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 let i = self.color_index(c);
                 write!(fmt, "\\cf{i}").unwrap();
             }
+            fmt.push_str(&text_format(&cell.style));
             // `\pard` resets paragraph formatting only: without `\plain`, the
             // previous cell's bold, italic or colour would carry over.
             writeln!(self.buf, "\\pard\\intbl\\plain{fmt} {text}\\cell").unwrap();
@@ -316,6 +318,22 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
             }
         }
     }
+}
+
+/// Underline, strike-through and size (`\\fs` in half-points; relative sizes
+/// resolve against RTF's default 12pt).
+fn text_format(style: &ResolvedStyle) -> String {
+    let mut f = String::new();
+    if style.is_underline() {
+        f.push_str("\\ul");
+    }
+    if style.is_strike() {
+        f.push_str("\\strike");
+    }
+    if let Some(pt) = style.size_pt(12.0) {
+        write!(f, "\\fs{}", (pt * 2.0).round().clamp(1.0, 32767.0) as u32).unwrap();
+    }
+    f
 }
 
 pub fn render(table: &Table) -> Result<String, RenderError> {
