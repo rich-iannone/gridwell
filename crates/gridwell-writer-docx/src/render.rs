@@ -67,19 +67,44 @@ fn write_document_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), Render
 struct Fmt {
     bold: bool,
     italic: bool,
+    underline: bool,
+    strike: bool,
     color: Option<Color>,
+    /// Font size in half-points (`w:sz`).
+    half_points: Option<u32>,
     superscript: bool,
 }
 
+/// The size relative font sizes resolve against: Word's default 11pt.
+const BASE_PT: f64 = 11.0;
+
 impl Fmt {
-    /// This format with a style's bold, italic and colour laid over it.
+    /// This format with a style's weight, slant, decoration, colour and size
+    /// laid over it (a relative size resolves against the size so far).
     fn with(self, style: &ResolvedStyle) -> Self {
+        let parent = self.half_points.map_or(BASE_PT, |h| f64::from(h) / 2.0);
         Self {
             bold: self.bold || style.is_bold(),
             italic: self.italic || style.is_italic(),
+            underline: self.underline || style.is_underline(),
+            strike: self.strike || style.is_strike(),
             color: style.paint().or(self.color),
+            half_points: style
+                .size_pt(parent)
+                .map(|pt| (pt * 2.0).round().clamp(2.0, 3276.0) as u32)
+                .or(self.half_points),
             superscript: self.superscript,
         }
+    }
+
+    fn is_plain(&self) -> bool {
+        !(self.bold
+            || self.italic
+            || self.underline
+            || self.strike
+            || self.color.is_some()
+            || self.half_points.is_some()
+            || self.superscript)
     }
 }
 
@@ -301,7 +326,8 @@ fn write_run(buf: &mut String, text: &str, fmt: Fmt) -> Result<(), RenderError> 
         return Ok(());
     }
     buf.push_str("<w:r>");
-    if fmt.bold || fmt.italic || fmt.color.is_some() || fmt.superscript {
+    if !fmt.is_plain() {
+        // CT_RPr is a sequence: b, i, strike, color, sz, szCs, u, vertAlign.
         buf.push_str("<w:rPr>");
         if fmt.bold {
             buf.push_str("<w:b/>");
@@ -309,8 +335,17 @@ fn write_run(buf: &mut String, text: &str, fmt: Fmt) -> Result<(), RenderError> 
         if fmt.italic {
             buf.push_str("<w:i/>");
         }
+        if fmt.strike {
+            buf.push_str("<w:strike/>");
+        }
         if let Some(c) = fmt.color {
             write!(buf, "<w:color w:val=\"{}\"/>", c.flatten().to_rrggbb())?;
+        }
+        if let Some(h) = fmt.half_points {
+            write!(buf, "<w:sz w:val=\"{h}\"/><w:szCs w:val=\"{h}\"/>")?;
+        }
+        if fmt.underline {
+            buf.push_str("<w:u w:val=\"single\"/>");
         }
         if fmt.superscript {
             buf.push_str("<w:vertAlign w:val=\"superscript\"/>");
