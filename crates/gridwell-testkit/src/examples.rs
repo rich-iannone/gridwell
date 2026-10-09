@@ -285,6 +285,13 @@ pub fn all() -> Vec<Example> {
             styled_text_ex,
         ),
         ex(
+            "text-format",
+            Content,
+            "Underline, strike-through and font sizes, in cells and inline runs",
+            &[F::Header, F::TextFormat, F::StyledText],
+            text_format,
+        ),
+        ex(
             "line-breaks",
             Content,
             "Hard line breaks within cells",
@@ -1055,6 +1062,41 @@ fn styled_text_ex() -> Table {
                 text(" language."),
             ]),
         ])])
+        .build()
+}
+
+fn text_format() -> Table {
+    let def = |f: fn(&mut StyleDef)| {
+        let mut d = StyleDef::default();
+        f(&mut d);
+        d
+    };
+    TableBuilder::new(2)
+        .style_def("u", def(|d| d.text_decoration = Some("underline".into())))
+        .style_def(
+            "s",
+            def(|d| d.text_decoration = Some("line-through".into())),
+        )
+        .style_def("big", def(|d| d.font_size = Some("18px".into())))
+        .style_def("small", def(|d| d.font_size = Some("smaller".into())))
+        .head(row(vec![cell("Format"), cell("Sample")]).role("column_label"))
+        .body(vec![
+            row(vec![cell("underline"), cell("Underlined").style("u")]),
+            row(vec![cell("line-through"), cell("Struck out").style("s")]),
+            row(vec![cell("18px"), cell("Larger text").style("big")]),
+            row(vec![cell("smaller"), cell("Smaller text").style("small")]),
+            row(vec![
+                cell("inline"),
+                cell_content(vec![
+                    text("Plain, "),
+                    styled("underlined", "u"),
+                    text(", "),
+                    styled("struck", "s"),
+                    text(" and "),
+                    styled("large", "big"),
+                ]),
+            ]),
+        ])
         .build()
 }
 
