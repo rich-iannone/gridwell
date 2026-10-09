@@ -2,3 +2,4 @@
 # (Windows' core.autocrlf would otherwise rewrite them on checkout).
 crates/gridwell-ffi/cbindgen.toml text eol=lf
 crates/gridwell-ffi/include/gridwell.h text eol=lf
+docs/guide/feature-matrix.qmd text eol=lf
