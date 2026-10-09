@@ -53,6 +53,10 @@ pub fn render_styles_xml(table: &Table) -> Result<String, RenderError> {
 struct Format {
     bold: bool,
     italic: bool,
+    underline: bool,
+    strike: bool,
+    /// Font size in hundredths of a point (`None`: the default 11pt).
+    size: Option<u32>,
     /// Font colour, already flattened (no alpha in SpreadsheetML fonts here).
     color: Option<Color>,
     /// Solid fill, already flattened.
@@ -110,6 +114,12 @@ impl Format {
         Self {
             bold: bold || style.is_bold(),
             italic: style.is_italic(),
+            underline: style.is_underline(),
+            strike: style.is_strike(),
+            // Relative sizes resolve against Excel's default 11pt.
+            size: style
+                .size_pt(11.0)
+                .map(|pt| (pt * 100.0).round().clamp(100.0, 40_900.0) as u32),
             color: style.paint().map(|c| c.flatten()),
             fill: style.fill().map(|c| c.flatten()),
             align: match align {
@@ -131,6 +141,17 @@ impl Format {
             ..Self::new(style, bold, align)
         }
     }
+}
+
+/// A font entry: what `<fonts>` deduplicates on.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+struct FontKey {
+    bold: bool,
+    italic: bool,
+    underline: bool,
+    strike: bool,
+    size: Option<u32>,
+    color: Option<Color>,
 }
 
 /// The workbook's cell formats, registered as cells use them. Format 0 is the
@@ -155,13 +176,20 @@ impl StyleSheet {
 
     fn to_xml(&self) -> Result<String, RenderError> {
         // Fonts and fills are deduplicated separately from formats.
-        let mut fonts: Vec<(bool, bool, Option<Color>)> = vec![(false, false, None)];
+        let mut fonts: Vec<FontKey> = vec![FontKey::default()];
         let mut fills: Vec<Color> = Vec::new();
         // Border 0 is "no border".
         let mut borders: Vec<[Option<Edge>; 4]> = vec![[None; 4]];
         let mut xfs = Vec::new();
         for f in &self.formats {
-            let font_key = (f.bold, f.italic, f.color);
+            let font_key = FontKey {
+                bold: f.bold,
+                italic: f.italic,
+                underline: f.underline,
+                strike: f.strike,
+                size: f.size,
+                color: f.color,
+            };
             let font = fonts
                 .iter()
                 .position(|k| *k == font_key)
@@ -192,16 +220,25 @@ impl StyleSheet {
             "<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">\n",
         );
         writeln!(buf, "  <fonts count=\"{}\">", fonts.len())?;
-        for (bold, italic, color) in &fonts {
+        for font in &fonts {
             buf.push_str("    <font>");
-            if *bold {
+            if font.bold {
                 buf.push_str("<b/>");
             }
-            if *italic {
+            if font.italic {
                 buf.push_str("<i/>");
             }
-            buf.push_str("<sz val=\"11\"/>");
-            if let Some(c) = color {
+            if font.strike {
+                buf.push_str("<strike/>");
+            }
+            if font.underline {
+                buf.push_str("<u/>");
+            }
+            match font.size {
+                Some(h) => write!(buf, "<sz val=\"{}\"/>", f64::from(h) / 100.0)?,
+                None => buf.push_str("<sz val=\"11\"/>"),
+            }
+            if let Some(c) = font.color {
                 write!(buf, "<color rgb=\"FF{}\"/>", c.to_rrggbb())?;
             }
             buf.push_str("<name val=\"Calibri\"/></font>\n");
