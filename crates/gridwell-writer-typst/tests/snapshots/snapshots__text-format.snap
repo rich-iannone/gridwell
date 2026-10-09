@@ -1,0 +1,24 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#table(
+  columns: (auto, auto,),
+  align: (left, left,),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Format]],
+    [#text(weight: "bold")[Sample]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [underline],
+  [Underlined],
+  [line\-through],
+  [Struck out],
+  [18px],
+  [#text(size: 13.5pt)[Larger text]],
+  [smaller],
+  [#text(size: 0.8333em)[Smaller text]],
+  [inline],
+  [Plain\, underlined\, struck and #text(size: 13.5pt)[large]],
+)

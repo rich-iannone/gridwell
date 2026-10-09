@@ -1,0 +1,13 @@
+---
+source: crates/gridwell-writer-ansi/tests/snapshots.rs
+expression: out
+---
+┌──────────────┬─────────────────────────────────────┐
+│[1m Format       [0m│[1m Sample                              [0m│
+├──────────────┼─────────────────────────────────────┤
+│ underline    │ Underlined                          │
+│ line-through │ Struck out                          │
+│ 18px         │ Larger text                         │
+│ smaller      │ Smaller text                        │
+│ inline       │ Plain, underlined, struck and large │
+└──────────────┴─────────────────────────────────────┘

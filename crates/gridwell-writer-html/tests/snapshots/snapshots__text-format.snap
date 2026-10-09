@@ -1,0 +1,45 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <style>
+    .gw_table .gw__al_left { text-align: left }
+    .gw_big { font-size: 18px }
+    .gw_s { text-decoration: line-through }
+    .gw_small { font-size: smaller }
+    .gw_u { text-decoration: underline }
+  </style>
+  <table class="gw_table">
+    <thead>
+      <tr>
+        <th class="gw__al_left">Format</th>
+        <th class="gw__al_left">Sample</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>underline</td>
+        <td class="gw_u">Underlined</td>
+      </tr>
+      <tr>
+        <td>line-through</td>
+        <td class="gw_s">Struck out</td>
+      </tr>
+      <tr>
+        <td>18px</td>
+        <td class="gw_big">Larger text</td>
+      </tr>
+      <tr>
+        <td>smaller</td>
+        <td class="gw_small">Smaller text</td>
+      </tr>
+      <tr>
+        <td>inline</td>
+        <td>
+          Plain, <span class="gw_u">underlined</span>, <span class="gw_s">struck</span> and <span class="gw_big">large</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

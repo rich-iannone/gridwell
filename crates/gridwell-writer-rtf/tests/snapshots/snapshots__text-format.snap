@@ -1,0 +1,32 @@
+---
+source: crates/gridwell-writer-rtf/tests/snapshots.rs
+expression: out
+---
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}}
+{\colortbl ;\red0\green0\blue0;\red255\green255\blue255;}
+\trowd\trhdr\cellx2160\cellx4320
+\pard\intbl\plain\b Format\cell
+\pard\intbl\plain\b Sample\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl\plain underline\cell
+\pard\intbl\plain\ul Underlined\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl\plain line-through\cell
+\pard\intbl\plain\strike Struck out\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl\plain 18px\cell
+\pard\intbl\plain\fs27 Larger text\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl\plain smaller\cell
+\pard\intbl\plain\fs20 Smaller text\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl\plain inline\cell
+\pard\intbl\plain Plain, {\ul underlined}, {\strike struck} and {\fs27 large}\cell
+\row
+}

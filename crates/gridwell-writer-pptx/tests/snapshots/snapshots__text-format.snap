@@ -1,0 +1,27 @@
+---
+source: crates/gridwell-writer-pptx/tests/snapshots.rs
+expression: xml
+---
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<p:cSld><p:spTree>
+<p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/>
+<p:graphicFrame>
+<p:nvGraphicFramePr><p:cNvPr id="2" name="Table"/><p:cNvGraphicFramePr><a:graphicFrameLocks noGrp="1"/></p:cNvGraphicFramePr><p:nvPr/></p:nvGraphicFramePr>
+<p:xfrm><a:off x="3657600" y="2468880"/><a:ext cx="1828800" cy="1920240"/></p:xfrm>
+<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/table">
+<a:tbl>
+<a:tblPr firstRow="1" bandRow="1"/>
+<a:tblGrid><a:gridCol w="914400"/><a:gridCol w="914400"/></a:tblGrid>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Format</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Sample</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>underline</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Underlined</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>line-through</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Struck out</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>18px</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Larger text</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>smaller</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Smaller text</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>inline</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Plain, </a:t></a:r><a:r><a:rPr lang="en-US"/><a:t>underlined</a:t></a:r><a:r><a:rPr lang="en-US"/><a:t>, </a:t></a:r><a:r><a:rPr lang="en-US"/><a:t>struck</a:t></a:r><a:r><a:rPr lang="en-US"/><a:t> and </a:t></a:r><a:r><a:rPr lang="en-US"/><a:t>large</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+</a:tbl>
+</a:graphicData></a:graphic>
+</p:graphicFrame>
+</p:spTree></p:cSld>
+<p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr>
+</p:sld>

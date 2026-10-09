@@ -1,0 +1,15 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+\begin{tabular}{ll}
+\toprule
+Format & Sample \\
+\midrule
+underline & Underlined \\
+line-through & Struck out \\
+18px & Larger text \\
+smaller & Smaller text \\
+inline & Plain, underlined, struck and large \\
+\bottomrule
+\end{tabular}
