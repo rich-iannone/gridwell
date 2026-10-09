@@ -74,6 +74,8 @@ pub enum Feature {
     ColumnWidth,
     HiddenColumn,
     StyledText,
+    /// Underline, strike-through, font sizes.
+    TextFormat,
     LineBreak,
     Image,
     RawHtml,
@@ -107,6 +109,7 @@ impl Feature {
             Feature::ColumnWidth => "column-width",
             Feature::HiddenColumn => "hidden-column",
             Feature::StyledText => "styled-text",
+            Feature::TextFormat => "text-format",
             Feature::LineBreak => "line-break",
             Feature::Image => "image",
             Feature::RawHtml => "raw-html",
