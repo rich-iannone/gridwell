@@ -561,8 +561,9 @@ fn gap(feature: &str, format: &str) -> Option<Gap> {
     use Gap::{Limit, Todo};
     const NOT_YET: Gap = Todo("not implemented");
     Some(match (feature, format) {
-        ("underline" | "strikethrough" | "text-transform", "latex" | "typst" | "rtf" | "docx" | "xlsx") => NOT_YET,
-        ("font-size", "latex" | "rtf" | "docx" | "xlsx") => NOT_YET,
+        ("underline" | "strikethrough", "latex" | "typst") => NOT_YET,
+        ("text-transform", "latex" | "typst" | "rtf" | "docx" | "xlsx") => NOT_YET,
+        ("font-size", "latex") => NOT_YET,
         ("font-family", "latex") => Limit(
             "a named system font needs XeLaTeX/LuaLaTeX with fontspec; the output also targets pdfLaTeX (monospace families map to `\\texttt`)",
         ),
