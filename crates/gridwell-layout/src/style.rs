@@ -142,6 +142,26 @@ impl ResolvedStyle {
     pub fn fill(&self) -> Option<Color> {
         self.background_color.filter(|c| !c.is_transparent())
     }
+
+    /// Underlined (`text_decoration: underline`).
+    pub fn is_underline(&self) -> bool {
+        self.text_decoration == Some(TextDecoration::Underline)
+    }
+
+    /// Struck through (`text_decoration: line-through`).
+    pub fn is_strike(&self) -> bool {
+        self.text_decoration == Some(TextDecoration::LineThrough)
+    }
+
+    /// The font size in points. Relative sizes (`em`, `%`, `smaller`, …) resolve
+    /// against `base_pt`, the size the target format uses when none is set.
+    /// `None` when unset, or when the size is not a usable positive number.
+    pub fn size_pt(&self, base_pt: f64) -> Option<f64> {
+        self.font_size
+            .as_ref()?
+            .to_pt(base_pt, base_pt)
+            .filter(|pt| pt.is_finite() && *pt > 0.0)
+    }
 }
 
 fn known<K: Keyword + Clone>(v: &Option<K>) -> Option<K> {
@@ -284,4 +304,44 @@ pub(crate) fn resolve_id(table: &Table, id: Option<&str>) -> ResolvedStyle {
     id.and_then(|id| lookup(table, id))
         .map(|d| ResolvedStyle::from_def(&d))
         .unwrap_or_default()
+}
+
+#[cfg(test)]
+mod text_tests {
+    use super::*;
+
+    fn style(f: impl FnOnce(&mut StyleDef)) -> ResolvedStyle {
+        let mut d = StyleDef::default();
+        f(&mut d);
+        ResolvedStyle::from_def(&d)
+    }
+
+    #[test]
+    fn decorations() {
+        let u = style(|d| d.text_decoration = Some("underline".into()));
+        let s = style(|d| d.text_decoration = Some("line-through".into()));
+        let o = style(|d| d.text_decoration = Some("overline".into()));
+        assert!(u.is_underline() && !u.is_strike());
+        assert!(s.is_strike() && !s.is_underline());
+        assert!(!o.is_underline() && !o.is_strike());
+        assert!(!ResolvedStyle::default().is_underline());
+    }
+
+    #[test]
+    fn sizes_resolve_against_the_base() {
+        let pt = |v: &str| style(|d| d.font_size = Some(v.into())).size_pt(12.0);
+        for (v, want) in [
+            ("20px", 15.0),
+            ("9pt", 9.0),
+            ("1.5em", 18.0),
+            ("50%", 6.0),
+            ("larger", 14.4),
+            ("small", 9.75),
+        ] {
+            let got = pt(v).unwrap_or(f64::NAN);
+            assert!((got - want).abs() < 1e-9, "{v}: {got}");
+        }
+        assert_eq!(pt("0"), None);
+        assert_eq!(ResolvedStyle::default().size_pt(12.0), None);
+    }
 }
