@@ -721,9 +721,36 @@ fn docs_page_matches_the_declared_matrix() {
     if std::env::var_os("GRIDWELL_BLESS_MATRIX").is_some() {
         std::fs::write(path, &page).unwrap();
     }
-    let on_disk = std::fs::read_to_string(path).unwrap_or_default();
+    // Line endings aside: Git may check the page out with CRLF on Windows.
+    let on_disk = std::fs::read_to_string(path)
+        .unwrap_or_default()
+        .replace("\r\n", "\n");
     assert!(
         on_disk == page,
         "docs/guide/feature-matrix.qmd is out of date; rerun with GRIDWELL_BLESS_MATRIX=1"
+    );
+}
+
+/// Typst ≤ 0.12 (pinned in CI) renders `#super[7]` as the character "⁷"; newer
+/// versions keep "7" and use superscript glyphs. The reader must see a
+/// superscript "7" either way.
+#[test]
+fn typst_reader_reads_unicode_superscripts() {
+    if !typeset::require("typst", "GRIDWELL_REQUIRE_TYPST") {
+        return;
+    }
+    let src = "#table(columns: 2, [TARGET⁷], [CONTROLA], [CONTROLB], [CONTROLC])".to_string();
+    let doc = typeset::typst_looks(&[src]).pop().unwrap().unwrap();
+    let cell = doc
+        .cells
+        .iter()
+        .find(|c| c.text.starts_with("TARGET"))
+        .expect("TARGET cell");
+    let mark = cell.run_with("7").expect("a run with 7");
+    assert!(mark.superscript, "{:?}", cell.runs);
+    assert!(
+        !cell.run_with("TARGET").unwrap().superscript,
+        "{:?}",
+        cell.runs
     );
 }
