@@ -49,7 +49,7 @@ fn arb_text() -> impl Strategy<Value = String> {
 }
 
 /// The style ids the generator defines (see [`palette`]).
-const STYLE_IDS: &[&str] = &["bold", "fill", "italic_red", "bordered", "comp"];
+const STYLE_IDS: &[&str] = &["bold", "fill", "italic_red", "bordered", "comp", "deco"];
 
 fn palette(builder: TableBuilder) -> TableBuilder {
     let def = |f: fn(&mut StyleDef)| {
@@ -76,6 +76,13 @@ fn palette(builder: TableBuilder) -> TableBuilder {
             }),
         )
         .composition("comp", "fill", def(|d| d.font_weight = Some("700".into())))
+        .style_def(
+            "deco",
+            def(|d| {
+                d.text_decoration = Some("underline".into());
+                d.font_size = Some("1.25em".into());
+            }),
+        )
 }
 
 /// Content for one cell: some text, sometimes styled, sometimes with a footnote
