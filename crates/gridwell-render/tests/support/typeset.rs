@@ -681,6 +681,30 @@ const TYPST_LOOK_PRELUDE: &str = r#"#set page(width: 100cm, height: auto, margin
   u: gw-u.get(), s: gw-s.get(), b: gw-b.get(), e: gw-e.get(), p: gw-p.get())) <gw>] + it
 "#;
 
+/// A Unicode superscript character's plain form.
+fn unsuper(c: char) -> char {
+    match c {
+        '⁰' => '0',
+        '¹' => '1',
+        '²' => '2',
+        '³' => '3',
+        '⁴' => '4',
+        '⁵' => '5',
+        '⁶' => '6',
+        '⁷' => '7',
+        '⁸' => '8',
+        '⁹' => '9',
+        '⁺' => '+',
+        '⁻' => '-',
+        '⁼' => '=',
+        '⁽' => '(',
+        '⁾' => ')',
+        'ⁱ' => 'i',
+        'ⁿ' => 'n',
+        c => c,
+    }
+}
+
 fn typst_align(repr: &str) -> (Option<look::Align>, Option<look::VAlign>) {
     let mut h = None;
     let mut v = None;
@@ -776,8 +800,8 @@ pub fn typst_looks(sources: &[String]) -> Vec<Result<look::Doc, String>> {
                         .as_str()
                         .and_then(look::hex)
                         .filter(|c| *c != (0, 0, 0));
-                    let run = look::Run {
-                        text: v["t"].as_str().unwrap_or("").to_string(),
+                    let base = look::Run {
+                        text: String::new(),
                         bold,
                         italic,
                         underline: n("u") > 0,
@@ -787,6 +811,25 @@ pub fn typst_looks(sources: &[String]) -> Vec<Result<look::Doc, String>> {
                         size_pt: v["size"].as_f64(),
                         family: v["font"].as_str().map(str::to_string),
                     };
+                    // Typst ≤ 0.12 renders `super` with Unicode superscript
+                    // characters where it can (`#super[7]` → "⁷"), in the same text
+                    // element as what precedes it; newer versions use the font's
+                    // superscript glyphs and keep the text. Split such characters
+                    // into superscript runs of their plain form.
+                    let raw = v["t"].as_str().unwrap_or("");
+                    let mut parts: Vec<look::Run> = Vec::new();
+                    for ch in raw.chars() {
+                        let plain = unsuper(ch);
+                        let sup = base.superscript || plain != ch;
+                        match parts.last_mut() {
+                            Some(r) if r.superscript == sup => r.text.push(plain),
+                            _ => parts.push(look::Run {
+                                text: plain.to_string(),
+                                superscript: sup,
+                                ..base.clone()
+                            }),
+                        }
+                    }
                     match cell.as_mut() {
                         Some(c) => {
                             if !c.runs.is_empty() {
@@ -795,15 +838,17 @@ pub fn typst_looks(sources: &[String]) -> Vec<Result<look::Doc, String>> {
                                     &mut c.runs,
                                     look::Run {
                                         text: " ".into(),
-                                        ..run.clone()
+                                        ..base.clone()
                                     },
                                 );
                             }
-                            look::push_run(&mut c.runs, run)
+                            for r in parts {
+                                look::push_run(&mut c.runs, r);
+                            }
                         }
                         None => {
                             let d = docs.last_mut().unwrap();
-                            d.outside.push_str(&run.text);
+                            d.outside.extend(parts.iter().map(|r| r.text.as_str()));
                             d.outside.push(' ');
                         }
                     }
