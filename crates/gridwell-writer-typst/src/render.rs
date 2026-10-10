@@ -264,8 +264,22 @@ pub fn render(table: &Table, config: &TypstWriterConfig) -> Result<String, Rende
 }
 
 /// `content` wrapped in `#text(…)` for the style's weight, slant, size, colour and
-/// monospace family. Header cells are bold unless their style sets a weight.
+/// monospace family, and in `#underline[…]` / `#strike[…]` for its decoration.
+/// Header cells are bold unless their style sets a weight.
 fn text_style(content: &str, style: &ResolvedStyle, is_header: bool) -> String {
+    let inner = text_attrs(content, style, is_header);
+    if content.is_empty() {
+        inner
+    } else if style.is_underline() {
+        format!("#underline[{inner}]")
+    } else if style.is_strike() {
+        format!("#strike[{inner}]")
+    } else {
+        inner
+    }
+}
+
+fn text_attrs(content: &str, style: &ResolvedStyle, is_header: bool) -> String {
     let mut attrs = Vec::new();
     let bold = match &style.font_weight {
         Some(w) => w.is_bold(),
