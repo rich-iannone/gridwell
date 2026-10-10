@@ -7,8 +7,8 @@ expression: xml
 <cols><col min="1" max="1" width="12.00" customWidth="1"/></cols>
 <sheetData>
 <row r="1"><c r="A1" t="inlineStr" s="1"><is><t xml:space="preserve">Message</t></is></c></row>
-<row r="2"><c r="A2" t="inlineStr"><is><t xml:space="preserve">Status: degraded
-Retry advised†</t></is></c></row>
-<row r="4"><c r="A4" t="inlineStr"><is><t xml:space="preserve">† See runbook section 4.</t></is></c></row>
+<row r="2"><c r="A2" t="inlineStr"><is><r><rPr><sz val="11"/><rFont val="Calibri"/></rPr><t xml:space="preserve">Status: </t></r><r><rPr><b/><sz val="11"/><color rgb="FFE67E22"/><rFont val="Calibri"/></rPr><t xml:space="preserve">degraded</t></r><r><rPr><sz val="11"/><rFont val="Calibri"/></rPr><t xml:space="preserve">
+</t></r><r><rPr><sz val="11"/><rFont val="Calibri"/></rPr><t xml:space="preserve">Retry advised</t></r><r><rPr><sz val="11"/><rFont val="Calibri"/><vertAlign val="superscript"/></rPr><t xml:space="preserve">†</t></r></is></c></row>
+<row r="4"><c r="A4" t="inlineStr"><is><r><rPr><sz val="11"/><rFont val="Calibri"/><vertAlign val="superscript"/></rPr><t xml:space="preserve">†</t></r><r><rPr><sz val="11"/><rFont val="Calibri"/></rPr><t xml:space="preserve"> </t></r><r><rPr><sz val="11"/><rFont val="Calibri"/></rPr><t xml:space="preserve">See runbook section 4.</t></r></is></c></row>
 </sheetData>
 </worksheet>

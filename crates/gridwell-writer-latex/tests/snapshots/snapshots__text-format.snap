@@ -6,10 +6,10 @@ expression: out
 \toprule
 Format & Sample \\
 \midrule
-underline & Underlined \\
-line-through & Struck out \\
-18px & Larger text \\
-smaller & Smaller text \\
-inline & Plain, underlined, struck and large \\
+underline & \uline{Underlined} \\
+line-through & \sout{Struck out} \\
+18px & {\fontsize{13.5}{16.2}\selectfont Larger text} \\
+smaller & {\fontsize{8.33}{10}\selectfont Smaller text} \\
+inline & Plain, \uline{underlined}, \sout{struck} and {\fontsize{13.5}{16.2}\selectfont large} \\
 \bottomrule
 \end{tabular}

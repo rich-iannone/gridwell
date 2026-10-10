@@ -7,6 +7,6 @@ expression: xml
 <cols><col min="1" max="1" width="12.00" customWidth="1"/><col min="2" max="2" width="12.00" customWidth="1"/></cols>
 <sheetData>
 <row r="1"><c r="A1" t="inlineStr" s="1"><is><t xml:space="preserve">Term</t></is></c><c r="B1" t="inlineStr" s="1"><is><t xml:space="preserve">Note</t></is></c></row>
-<row r="2"><c r="A2" t="inlineStr"><is><t xml:space="preserve">Rust</t></is></c><c r="B2" t="inlineStr"><is><t xml:space="preserve">A systems language.</t></is></c></row>
+<row r="2"><c r="A2" t="inlineStr"><is><t xml:space="preserve">Rust</t></is></c><c r="B2" t="inlineStr"><is><r><rPr><sz val="11"/><rFont val="Calibri"/></rPr><t xml:space="preserve">A </t></r><r><rPr><i/><sz val="11"/><color rgb="FF8E44AD"/><rFont val="Calibri"/></rPr><t xml:space="preserve">systems</t></r><r><rPr><sz val="11"/><rFont val="Calibri"/></rPr><t xml:space="preserve"> language.</t></r></is></c></row>
 </sheetData>
 </worksheet>
