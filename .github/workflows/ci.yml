@@ -120,7 +120,7 @@ jobs:
             pandoc \
             libreoffice-writer libreoffice-calc libreoffice-impress \
             texlive-latex-base texlive-latex-recommended texlive-latex-extra \
-            texlive-luatex texlive-fonts-recommended lmodern \
+            texlive-luatex texlive-fonts-recommended texlive-plain-generic lmodern \
             poppler-utils
           pandoc --version | head -1
           soffice --version || true
