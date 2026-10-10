@@ -362,16 +362,21 @@ fn sheet_xml(rt: &ResolvedTable, styles: &mut StyleSheet) -> Result<String, Rend
 
     // Column widths, in characters of the default font (≈ 7px each). `<cols>`
     // may not be empty.
-    if !rt.columns.is_empty() {
-        buf.push_str("<cols>");
-        for (i, col) in rt.columns.iter().enumerate() {
-            let width = col
-                .width
+    let col_chars: Vec<f64> = rt
+        .columns
+        .iter()
+        .map(|col| {
+            col.width
                 .as_ref()
                 .and_then(|w| w.to_pt(12.0, 12.0))
                 .map(|pt| pt / 0.75 / 7.0)
                 .filter(|w| w.is_finite() && *w > 0.0 && *w <= 255.0)
-                .unwrap_or(12.0);
+                .unwrap_or(12.0)
+        })
+        .collect();
+    if !rt.columns.is_empty() {
+        buf.push_str("<cols>");
+        for (i, width) in col_chars.iter().enumerate() {
             let n = i + 1;
             write!(
                 buf,
@@ -387,17 +392,18 @@ fn sheet_xml(rt: &ResolvedTable, styles: &mut StyleSheet) -> Result<String, Rend
         styles,
         row_num: 1,
         merges: Vec::new(),
+        col_chars: col_chars.clone(),
     };
 
     // Title and subtitle lines.
     let header = &rt.header;
     if let Some(title) = &header.title {
         let f = Format::new(&title.style, true, &HAlign::Left);
-        sheet.text_row(&rich(rt, title.content, FontKey::of(&f)), f)?;
+        sheet.text_row(&rich(rt, title.content, FontKey::of(&f)), f, false)?;
     }
     for line in header.subtitle.iter().chain(&header.extra_lines) {
         let f = Format::new(&line.style, false, &HAlign::Left);
-        sheet.text_row(&rich(rt, line.content, FontKey::of(&f)), f)?;
+        sheet.text_row(&rich(rt, line.content, FontKey::of(&f)), f, false)?;
     }
 
     if !rt.is_empty() {
@@ -410,7 +416,7 @@ fn sheet_xml(rt: &ResolvedTable, styles: &mut StyleSheet) -> Result<String, Rend
                     sheet.merges.push((0, r, rt.columns.len() - 1, r));
                 }
                 let f = Format::new(&label.style, true, &HAlign::Left);
-                sheet.text_row(&rich(rt, label.content, FontKey::of(&f)), f)?;
+                sheet.text_row(&rich(rt, label.content, FontKey::of(&f)), f, true)?;
             }
             sheet.section(rt, &group.rows, false)?;
             sheet.section(rt, &group.summary_rows, true)?;
@@ -437,14 +443,14 @@ fn sheet_xml(rt: &ResolvedTable, styles: &mut StyleSheet) -> Result<String, Rend
                 },
             ];
             runs.extend(rich(rt, note.content, font));
-            sheet.text_row(&runs, f)?;
+            sheet.text_row(&runs, f, false)?;
         }
     }
     if !footer.source_notes.is_empty() {
         sheet.row_num += 1;
         for note in &footer.source_notes {
             let f = Format::new(&note.style, false, &HAlign::Left);
-            sheet.text_row(&rich(rt, note.content, FontKey::of(&f)), f)?;
+            sheet.text_row(&rich(rt, note.content, FontKey::of(&f)), f, false)?;
         }
     }
 
@@ -475,14 +481,27 @@ struct Sheet<'b> {
     row_num: usize,
     /// (first col, first row, last col, last row), 0-based columns, 1-based rows.
     merges: Vec<(usize, usize, usize, usize)>,
+    /// Column widths in characters, for estimating where wrapped text breaks.
+    col_chars: Vec<f64>,
 }
 
 impl Sheet<'_> {
-    /// A row with one text cell in column A.
-    fn text_row(&mut self, runs: &[RichRun], mut f: Format) -> Result<(), RenderError> {
+    /// A row with one text cell in column A (`merged`: across every column).
+    fn text_row(
+        &mut self,
+        runs: &[RichRun],
+        mut f: Format,
+        merged: bool,
+    ) -> Result<(), RenderError> {
         let r = self.row_num;
         f.wrap = has_breaks(runs);
-        write!(self.buf, "<row r=\"{r}\"{}>", row_height(text_height(runs)))?;
+        let width = if merged {
+            self.col_chars.iter().sum()
+        } else {
+            self.col_chars.first().copied().unwrap_or(12.0)
+        };
+        let height = text_height(runs, f.wrap.then_some(width));
+        write!(self.buf, "<row r=\"{r}\"{}>", row_height(height))?;
         let s = self.styles.id(f);
         write_text_cell(self.buf, &xml::cell_ref(0, r), s, runs, FontKey::of(&f))?;
         self.buf.push_str("</row>\n");
@@ -510,7 +529,10 @@ impl Sheet<'_> {
                 format.wrap = has_breaks(&runs);
                 // A spanned cell's text spreads over its rows: leave them be.
                 if cell.rowspan == 1 {
-                    height = height.max(text_height(&runs));
+                    let width = self.col_chars[cell.col..cell.col + cell.colspan]
+                        .iter()
+                        .sum();
+                    height = height.max(text_height(&runs, format.wrap.then_some(width)));
                 }
                 let s = self.styles.id(format);
                 if cell.colspan > 1 || cell.rowspan > 1 {
@@ -550,12 +572,31 @@ fn has_breaks(runs: &[RichRun]) -> bool {
     runs.iter().any(|r| r.text.contains('\n'))
 }
 
-/// The height text needs: its lines at the size of its largest run.
-fn text_height(runs: &[RichRun]) -> f64 {
-    let lines = 1 + runs
-        .iter()
-        .map(|r| r.text.matches('\n').count())
-        .sum::<usize>();
+/// The height text needs: its lines at the size of its largest run. Wrapped text
+/// (`width`: the cell's width in characters) also breaks where a line is wider
+/// than the cell; each character counts as one digit-width at its size — a
+/// generous estimate, as a row a little too tall is better than a clipped line.
+fn text_height(runs: &[RichRun], width: Option<f64>) -> f64 {
+    let mut lines = 0usize;
+    let mut chars = 0.0f64;
+    let mut end_line = |chars: &mut f64| {
+        lines += match width {
+            Some(w) => ((*chars / (w - 1.0).max(1.0)).ceil() as usize).max(1),
+            None => 1,
+        };
+        *chars = 0.0;
+    };
+    for r in runs {
+        let scale = r.font.size.map_or(1.0, |h| f64::from(h) / 1100.0);
+        for c in r.text.chars() {
+            if c == '\n' {
+                end_line(&mut chars);
+            } else {
+                chars += scale;
+            }
+        }
+    }
+    end_line(&mut chars);
     let size = runs
         .iter()
         .filter(|r| !r.text.is_empty())
