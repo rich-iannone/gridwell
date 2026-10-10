@@ -49,6 +49,7 @@ fn document(engine: &str, body: &str) -> String {
         "\\documentclass{{article}}\n{fontenc}\
          \\usepackage[a2paper,landscape,margin=1cm]{{geometry}}\n\
          \\usepackage{{booktabs,multirow,longtable}}\n\
+         \\usepackage[normalem]{{ulem}}\n\
          \\usepackage[table]{{xcolor}}\n\
          \\setlength{{\\parindent}}{{0pt}}\n\
          \\begin{{document}}\n{body}\n\\end{{document}}\n"
