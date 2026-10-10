@@ -133,8 +133,8 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
                         bold: is_header,
                         ..Default::default()
                     };
-                    apply_style(&mut base, &cell.style);
-                    let runs = content_runs(cell.content, &base, rt);
+                    apply_style(&mut base, &cell.style, fs);
+                    let runs = content_runs(cell.content, &base, rt, fs);
                     let natural = paragraphs_width(&runs, fs);
                     cells.push(PendingCell {
                         row: *nrows + r,
@@ -161,10 +161,10 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
                 bold: true,
                 ..Default::default()
             };
-            apply_style(&mut base, &label.style);
+            apply_style(&mut base, &label.style, fs);
             bands.push(PendingBand {
                 row: nrows,
-                runs: content_runs(label.content, &base, rt),
+                runs: content_runs(label.content, &base, rt, fs),
             });
             nrows += 1;
         }
@@ -214,8 +214,7 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     let table_width = col_x[ncols];
 
     // 3. Wrap cell text to the final widths, then size rows to fit.
-    let line_h = fs * LINE_HEIGHT;
-    let block_height = |lines: &[Line]| lines.len() as f64 * line_h;
+    let cell_height = |lines: &[Line]| block_height(lines, fs);
     let wrapped: Vec<Vec<Line>> = cells
         .iter()
         .map(|c| {
@@ -231,17 +230,17 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     let mut heights = vec![config.row_height; nrows];
     for (cell, lines) in cells.iter().zip(&wrapped) {
         if cell.rowspan == 1 {
-            heights[cell.row] = heights[cell.row].max(block_height(lines) + 2.0 * pad_y);
+            heights[cell.row] = heights[cell.row].max(cell_height(lines) + 2.0 * pad_y);
         }
     }
     for (band, lines) in bands.iter().zip(&band_lines) {
-        heights[band.row] = heights[band.row].max(block_height(lines) + 2.0 * pad_y);
+        heights[band.row] = heights[band.row].max(cell_height(lines) + 2.0 * pad_y);
     }
     for (cell, lines) in cells.iter().zip(&wrapped) {
         if cell.rowspan > 1 {
             let last = cell.row + cell.rowspan - 1;
             let have: f64 = heights[cell.row..=last].iter().sum();
-            let need = block_height(lines) + 2.0 * pad_y;
+            let need = cell_height(lines) + 2.0 * pad_y;
             if need > have {
                 heights[last] += need - have;
             }
@@ -265,9 +264,13 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
             bold,
             ..Default::default()
         };
-        apply_style(&mut base, &line.style);
-        let lines = wrap_paragraphs(&content_runs(line.content, &base, rt), size, text_area);
-        let h = lines.len() as f64 * size * LINE_HEIGHT;
+        apply_style(&mut base, &line.style, size);
+        let lines = wrap_paragraphs(
+            &content_runs(line.content, &base, rt, size),
+            size,
+            text_area,
+        );
+        let h = block_height(&lines, size);
         out.header.push(TextBlock {
             width: max_width(&lines).max(text_area),
             lines,
@@ -341,7 +344,7 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
         let footer = &rt.footer;
         let size = fs * NOTE_SCALE;
         let footnotes = footer.footnotes.iter().map(|n| {
-            let mut paragraphs = content_runs(n.content, &RunStyle::default(), rt);
+            let mut paragraphs = content_runs(n.content, &RunStyle::default(), rt, size);
             let mut first = vec![
                 Run {
                     text: n.mark.to_string(),
@@ -362,10 +365,10 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
         let sources = footer
             .source_notes
             .iter()
-            .map(|n| content_runs(n.content, &RunStyle::default(), rt));
+            .map(|n| content_runs(n.content, &RunStyle::default(), rt, size));
         for paragraphs in footnotes.chain(sources) {
             let lines = wrap_paragraphs(&paragraphs, size, text_area);
-            let h = lines.len() as f64 * size * LINE_HEIGHT;
+            let h = block_height(&lines, size);
             out.footer.push(TextBlock {
                 width: max_width(&lines).max(text_area),
                 lines,
@@ -417,7 +420,12 @@ fn paragraphs_width(paragraphs: &[Vec<Run>], font_size: f64) -> f64 {
 
 /// Convert content nodes to paragraphs of styled runs (`line_break` starts a new
 /// paragraph).
-fn content_runs(nodes: &[ContentNode], base: &RunStyle, rt: &ResolvedTable) -> Vec<Vec<Run>> {
+fn content_runs(
+    nodes: &[ContentNode],
+    base: &RunStyle,
+    rt: &ResolvedTable,
+    block_px: f64,
+) -> Vec<Vec<Run>> {
     let mut paragraphs: Vec<Vec<Run>> = vec![Vec::new()];
     for node in nodes {
         let current = paragraphs.last_mut().unwrap();
@@ -429,7 +437,7 @@ fn content_runs(nodes: &[ContentNode], base: &RunStyle, rt: &ResolvedTable) -> V
             ContentNode::StyledText { value, style_id } => {
                 let mut style = base.clone();
                 if let Some(id) = style_id.as_deref() {
-                    apply_style(&mut style, &rt.style(id));
+                    apply_style(&mut style, &rt.style(id), block_px);
                 }
                 current.push(Run {
                     text: value.clone(),
@@ -464,8 +472,10 @@ fn content_runs(nodes: &[ContentNode], base: &RunStyle, rt: &ResolvedTable) -> V
     paragraphs
 }
 
-/// Weight, slant and colour from a style; unset properties keep `style`'s value.
-fn apply_style(style: &mut RunStyle, s: &ResolvedStyle) {
+/// Weight, slant, colour, decoration and size from a style; unset properties keep
+/// `style`'s value. A relative size resolves against the run's size so far, or
+/// `block_px`, the size of the text block it is in.
+fn apply_style(style: &mut RunStyle, s: &ResolvedStyle, block_px: f64) {
     if let Some(w) = &s.font_weight {
         style.bold = w.is_bold();
     }
@@ -474,6 +484,12 @@ fn apply_style(style: &mut RunStyle, s: &ResolvedStyle) {
     }
     if let Some(c) = s.paint() {
         style.color = Some(c.to_css());
+    }
+    style.underline |= s.is_underline();
+    style.strike |= s.is_strike();
+    let parent_pt = style.size.unwrap_or(block_px) * 0.75;
+    if let Some(pt) = s.size_pt(parent_pt) {
+        style.size = Some(pt / 0.75);
     }
 }
 
@@ -563,27 +579,34 @@ fn emit(l: &Layout, config: &SvgConfig) -> Result<String, RenderError> {
     Ok(buf)
 }
 
-/// y of the first baseline of a block (lines are vertically centred in the box).
+/// The height of laid-out lines: each is as tall as its largest text.
+fn block_height(lines: &[Line], font_size: f64) -> f64 {
+    lines.iter().map(|l| l.size(font_size) * LINE_HEIGHT).sum()
+}
+
+/// y of the top of a block's first line (lines are vertically centred in the box).
 fn first_line_top(b: &TextBlock) -> f64 {
-    let line_h = b.font_size * LINE_HEIGHT;
-    b.y + ((b.height - b.lines.len() as f64 * line_h) / 2.0).max(0.0)
+    b.y + ((b.height - block_height(&b.lines, b.font_size)) / 2.0).max(0.0)
 }
 
 /// Write a block's lines, vertically centred in its box.
 fn text_block(buf: &mut String, b: &TextBlock) -> Result<(), RenderError> {
-    let line_h = b.font_size * LINE_HEIGHT;
-    let top = first_line_top(b);
+    let mut top = first_line_top(b);
     let (x, anchor) = match b.align {
         Align::Left => (b.x, ""),
         Align::Center => (b.x + b.width / 2.0, " text-anchor=\"middle\""),
         Align::Right => (b.x + b.width, " text-anchor=\"end\""),
     };
-    for (i, line) in b.lines.iter().enumerate() {
+    for line in &b.lines {
+        let size = line.size(b.font_size);
+        let line_h = size * LINE_HEIGHT;
+        let line_top = top;
+        top += line_h;
         if line.runs.is_empty() {
             continue;
         }
         // Baseline: centre of the line box plus about a third of the font size.
-        let baseline = top + line_h * (i as f64 + 0.5) + b.font_size * 0.35;
+        let baseline = line_top + line_h / 2.0 + size * 0.35;
         write!(
             buf,
             "<text x=\"{}\" y=\"{}\" font-size=\"{}px\"{anchor} xml:space=\"preserve\">",
@@ -603,12 +626,20 @@ fn text_block(buf: &mut String, b: &TextBlock) -> Result<(), RenderError> {
             if let Some(c) = &s.color {
                 write!(attrs, " fill=\"{c}\"")?;
             }
+            match (s.underline, s.strike) {
+                (true, true) => attrs.push_str(" text-decoration=\"underline line-through\""),
+                (true, false) => attrs.push_str(" text-decoration=\"underline\""),
+                (false, true) => attrs.push_str(" text-decoration=\"line-through\""),
+                (false, false) => {}
+            }
             if s.sup {
                 write!(
                     attrs,
                     " font-size=\"{}px\" baseline-shift=\"super\"",
-                    num(b.font_size * SUP_SCALE)
+                    num(run.size(b.font_size) * SUP_SCALE)
                 )?;
+            } else if let Some(size) = s.size {
+                write!(attrs, " font-size=\"{}px\"", num(size))?;
             }
             if attrs.is_empty() {
                 buf.push_str(&escape_xml(&run.text));
