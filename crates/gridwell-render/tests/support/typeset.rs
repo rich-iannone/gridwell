@@ -236,6 +236,7 @@ const SAME_EDGE: f64 = 0.1;
 const LATEX_PREAMBLE: &str = r"\documentclass{article}
 \usepackage[paperwidth=100in,paperheight=100in,margin=1in]{geometry}
 \usepackage{booktabs,multirow,longtable}
+\usepackage[normalem]{ulem}
 \usepackage[table]{xcolor}
 \setlength{\parindent}{0pt}
 \pagestyle{empty}
