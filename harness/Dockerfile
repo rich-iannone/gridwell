@@ -1,7 +1,7 @@
 # Pinned toolchain for the Gridwell visual test harness.
 #
 # This image fixes the versions of every external renderer so that the gated
-# visual-diff (HTML/SVG/Typst) is reproducible across machines and CI runs. The
+# visual-diff (every rasterized format) is reproducible across machines and CI runs. The
 # image tag encodes the toolchain set (e.g. gridwell-harness:pinned-2026-07); to
 # test a *new* renderer version, build a new tag and add it to the CI matrix in
 # .github/workflows/visual.yml — do not mutate an existing tag.
@@ -55,5 +55,12 @@ ENV CHROME_BIN=/usr/bin/chromium
 
 # Warm the font cache so text metrics are stable on first run.
 RUN fc-cache -f
+
+# `ulem` (\uline, \sout) for the LaTeX writer's underline and strike-through.
+# It is in texlive-plain-generic, which texlive-latex-extra only recommends.
+# Added as its own final layer so the cached layers above (and so every other
+# renderer) stay exactly as they were.
+RUN apt-get update && apt-get install -y --no-install-recommends texlive-plain-generic \
+    && rm -rf /var/lib/apt/lists/*
 
 CMD ["bash"]
