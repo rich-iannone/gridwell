@@ -65,17 +65,17 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         // Lines outside the tabular take inline styling only (`\cellcolor` is
         // table-only).
         if let Some(title) = &header.title {
-            let text = self.content(title.content, &HAlign::Left);
+            let text = self.content(title.content, &HAlign::Left, &title.style);
             if !text.is_empty() {
-                let text = apply_inline_style(&text, &title.style);
+                let text = apply_block_style(&text, &title.style);
                 writeln!(self.buf, "{{\\large\\bfseries {text}}}\\\\").unwrap();
             }
         }
         let lines: Vec<_> = header.subtitle.iter().chain(&header.extra_lines).collect();
         for (i, line) in lines.iter().enumerate() {
-            let text = self.content(line.content, &HAlign::Left);
+            let text = self.content(line.content, &HAlign::Left, &line.style);
             if !text.is_empty() {
-                let text = apply_inline_style(&text, &line.style);
+                let text = apply_block_style(&text, &line.style);
                 let gap = if i + 1 == lines.len() { "[6pt]" } else { "" };
                 writeln!(self.buf, "{{\\small {text}}}\\\\{gap}").unwrap();
             }
@@ -159,7 +159,10 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         let cols = self.width();
         for (g, group) in rt.groups.iter().enumerate() {
             if let Some(label) = &group.label {
-                let text = apply_style(&self.content(label.content, &HAlign::Left), &label.style);
+                let text = apply_style(
+                    &self.content(label.content, &HAlign::Left, &label.style),
+                    &label.style,
+                );
                 if self.config.booktabs {
                     writeln!(self.buf, "\\midrule").unwrap();
                 }
@@ -226,7 +229,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
     fn render_cell(&self, cell: &ResolvedCell) -> String {
         let column = &self.rt.columns[cell.col];
         let fixed_width = column.width.as_ref().and_then(latex_width).is_some();
-        let mut out = self.content(cell.content, &cell.align);
+        let mut out = self.content(cell.content, &cell.align, &cell.style);
         out = apply_style(&out, &cell.style);
 
         if cell.rowspan > 1 {
@@ -249,8 +252,9 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
     }
 
     /// Content as LaTeX. Line breaks become a nested one-column tabular (the only
-    /// form that works in `l`/`c`/`r` columns as well as `p{}`).
-    fn content(&self, nodes: &[ContentNode], align: &HAlign) -> String {
+    /// form that works in `l`/`c`/`r` columns as well as `p{}`). `block`'s
+    /// underline and strike-through are applied to each line.
+    fn content(&self, nodes: &[ContentNode], align: &HAlign, block: &ResolvedStyle) -> String {
         let mut lines = vec![String::new()];
         for node in nodes {
             let out = lines.last_mut().unwrap();
@@ -279,8 +283,18 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
                 ContentNode::Unknown => {}
             }
         }
+        let lines: Vec<String> = lines
+            .iter()
+            .map(|l| {
+                if l.is_empty() {
+                    String::new()
+                } else {
+                    decorate(l, block)
+                }
+            })
+            .collect();
         if lines.len() == 1 {
-            return lines.pop().unwrap();
+            return lines.into_iter().next().unwrap();
         }
         format!(
             "\\begin{{tabular}}[t]{{@{{}}{}@{{}}}}{}\\end{{tabular}}",
@@ -296,8 +310,10 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         if !footer.footnotes.is_empty() {
             writeln!(self.buf).unwrap();
             for note in &footer.footnotes {
-                let text =
-                    apply_inline_style(&self.content(note.content, &HAlign::Left), &note.style);
+                let text = apply_block_style(
+                    &self.content(note.content, &HAlign::Left, &note.style),
+                    &note.style,
+                );
                 writeln!(
                     self.buf,
                     "\\textsuperscript{{{mark}}} {text}\\\\",
@@ -309,8 +325,10 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         if !footer.source_notes.is_empty() {
             writeln!(self.buf).unwrap();
             for note in &footer.source_notes {
-                let text =
-                    apply_inline_style(&self.content(note.content, &HAlign::Left), &note.style);
+                let text = apply_block_style(
+                    &self.content(note.content, &HAlign::Left, &note.style),
+                    &note.style,
+                );
                 writeln!(self.buf, "{{\\footnotesize {text}}}\\\\").unwrap();
             }
         }
@@ -350,8 +368,33 @@ fn latex_width(w: &Length) -> Option<String> {
     })
 }
 
-/// Bold, italic, colour, underline, strike-through and size for an inline run.
+/// Bold, italic, colour, underline, strike-through and size for an inline run
+/// (single-line text).
 fn apply_inline_style(content: &str, style: &ResolvedStyle) -> String {
+    styled(content, style, true)
+}
+
+/// A whole cell's, title's or note's inline formatting, without underline and
+/// strike-through: those are applied per line by `content`, since `ulem` can't
+/// wrap the nested tabular that holds several lines.
+fn apply_block_style(content: &str, style: &ResolvedStyle) -> String {
+    styled(content, style, false)
+}
+
+/// Underline and strike-through (`ulem`, `\usepackage[normalem]{ulem}`: unlike
+/// `\underline`, its lines break inside `p{}` columns).
+fn decorate(content: &str, style: &ResolvedStyle) -> String {
+    let mut result = content.to_string();
+    if style.is_underline() {
+        result = format!("\\uline{{{result}}}");
+    }
+    if style.is_strike() {
+        result = format!("\\sout{{{result}}}");
+    }
+    result
+}
+
+fn styled(content: &str, style: &ResolvedStyle, decorated: bool) -> String {
     let mut result = content.to_string();
     if style.is_bold() {
         result = format!("\\textbf{{{result}}}");
@@ -362,13 +405,8 @@ fn apply_inline_style(content: &str, style: &ResolvedStyle) -> String {
     if let Some(c) = style.paint() {
         result = format!("\\textcolor{}{{{result}}}", latex_color(c));
     }
-    // `ulem` (`\\usepackage[normalem]{ulem}`): unlike `\\underline`, its lines
-    // break inside `p{}` columns.
-    if style.is_underline() {
-        result = format!("\\uline{{{result}}}");
-    }
-    if style.is_strike() {
-        result = format!("\\sout{{{result}}}");
+    if decorated {
+        result = decorate(&result, style);
     }
     // Relative sizes resolve against the document's 10pt; leading is 1.2×.
     if let Some(pt) = style.size_pt(10.0) {
@@ -385,7 +423,7 @@ fn apply_inline_style(content: &str, style: &ResolvedStyle) -> String {
 /// A cell's style: inline formatting, monospace families, and the cell
 /// background (`\cellcolor` must come first in the cell).
 fn apply_style(content: &str, style: &ResolvedStyle) -> String {
-    let mut result = apply_inline_style(content, style);
+    let mut result = apply_block_style(content, style);
     if style
         .font_family
         .as_deref()
