@@ -358,3 +358,54 @@ fn latex_columns_only_spans_cover() {
     };
     assert!(x(0, 0, true) < x(1, 0, true), "{:?}", got[1]);
 }
+
+/// A `\multirow`'s text is centred over its rows, so one line can straddle the
+/// boundary between them — words of different sizes sit at slightly different
+/// heights. A merged area's text must be read in reading order across its rows,
+/// not row by row. From the property test.
+#[test]
+fn latex_multirow_with_mixed_sizes_reads_in_order() {
+    if !typeset::require("lualatex", "GRIDWELL_REQUIRE_LATEX")
+        || !typeset::require("pdftotext", "GRIDWELL_REQUIRE_LATEX")
+    {
+        return;
+    }
+    let big = gridwell_ir::StyleDef {
+        text_decoration: Some("underline".into()),
+        ..Default::default()
+    };
+    let tables: Vec<Table> = ["0.9em", "1.25em", "1.6em", "2em"]
+        .iter()
+        .map(|size| {
+            let mut def = big.clone();
+            def.font_size = Some(size.to_string());
+            TableBuilder::new(2)
+                .style_def("big", def)
+                .head(row(vec![cell("H1"), cell("H2")]))
+                .body(vec![
+                    row(vec![
+                        gridwell_testkit::cell_content(vec![
+                            gridwell_testkit::text("FIRST second "),
+                            gridwell_testkit::styled("THIRD fourth", "big"),
+                        ])
+                        .rowspan(2),
+                        cell("a"),
+                    ]),
+                    row(vec![placeholder(), cell("b")]),
+                ])
+                .build()
+        })
+        .collect();
+    let tabulars: Vec<String> = tables
+        .iter()
+        .map(|t| {
+            latex_tabular(&gridwell_writer_latex::render_latex(t).unwrap())
+                .unwrap()
+                .to_string()
+        })
+        .collect();
+    for (t, got) in tables.iter().zip(latex_tables(&tabulars)) {
+        assert!(t.validate().is_empty(), "{:?}", t.validate());
+        latex_compare(&got.unwrap(), &expected(t)).unwrap();
+    }
+}
