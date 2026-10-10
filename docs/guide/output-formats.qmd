@@ -22,7 +22,11 @@ RTF, DOCX, XLSX) actually expresses is measured, not claimed: see the
 - Uses `booktabs` (`\toprule`, `\midrule`, `\bottomrule`)
 - `\multicolumn` and `\multirow` for spans
 - Column alignment via `l`, `r`, `c`, `p{width}`
-- Cell fills via `\cellcolor`, text colour via `\textcolor` (requires `xcolor` with the `table` option)
+- Cell fills via `\cellcolor`, text colour via `\textcolor`; underline and strike-through via
+  `\uline` / `\sout`; sizes via `\fontsize`
+- Required packages: `booktabs`, `multirow`, `longtable` (long tables), `xcolor` with the
+  `table` option, and `ulem` with `normalem` (`\usepackage[normalem]{ulem}`, so `\emph`
+  keeps its meaning)
 - Special characters escaped: `& % $ # _ { } ~ ^ \`
 
 ### Typst
