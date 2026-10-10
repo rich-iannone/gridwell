@@ -241,6 +241,7 @@ const LATEX_PACKAGES: &str = "\
 \\usepackage[table]{xcolor}
 \\usepackage{colortbl}
 \\usepackage{longtable}
+\\usepackage[normalem]{ulem}
 ";
 
 /// `standalone` crops tightly to the table; `article` is the portable fallback
