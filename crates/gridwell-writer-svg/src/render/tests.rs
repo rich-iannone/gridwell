@@ -17,7 +17,20 @@ fn check(name: &str, table: &Table) -> Vec<String> {
     let mut fail = |msg: String| problems.push(format!("{name}: {msg}"));
 
     let check_block = |b: &TextBlock, what: &str, fail: &mut dyn FnMut(String)| {
-        let line_h = b.font_size * LINE_HEIGHT;
+        // Each line is as tall as its largest text (computed here, independently
+        // of the layout's own height function).
+        let need: f64 = b
+            .lines
+            .iter()
+            .map(|line| {
+                let size = line
+                    .runs
+                    .iter()
+                    .map(|r| r.style.size.unwrap_or(b.font_size))
+                    .fold(f64::NAN, f64::max);
+                (if size.is_nan() { b.font_size } else { size }) * LINE_HEIGHT
+            })
+            .sum();
         for line in &b.lines {
             // A single character can't be broken further; allow it to exceed a
             // pathologically narrow box.
@@ -31,11 +44,11 @@ fn check(name: &str, table: &Table) -> Vec<String> {
                 ));
             }
         }
-        if b.lines.len() as f64 * line_h > b.height + EPS {
+        if need > b.height + EPS {
             fail(format!(
                 "{what}: {} lines need {:.1}px, box is {:.1}px",
                 b.lines.len(),
-                b.lines.len() as f64 * line_h,
+                need,
                 b.height
             ));
         }
@@ -267,4 +280,76 @@ fn every_column_hidden_is_an_empty_table() {
     assert!(l.cells.is_empty());
     assert_eq!(l.table_width, 0.0);
     assert_ok(check("all hidden", &table));
+}
+
+#[test]
+fn decorations_and_sizes_reach_the_runs_and_the_layout() {
+    use gridwell_ir::style::StyleDef;
+    use gridwell_testkit::{cell_content, styled, text, CellExt};
+    let def = |f: fn(&mut StyleDef)| {
+        let mut d = StyleDef::default();
+        f(&mut d);
+        d
+    };
+    let table = TableBuilder::new(1)
+        .style_def("u", def(|d| d.text_decoration = Some("underline".into())))
+        .style_def(
+            "s",
+            def(|d| d.text_decoration = Some("line-through".into())),
+        )
+        .style_def("big", def(|d| d.font_size = Some("28px".into())))
+        .body(vec![
+            row(vec![cell("normal")]),
+            row(vec![cell("BIG").style("big")]),
+            row(vec![cell_content(vec![
+                styled("under", "u"),
+                text(" "),
+                styled("struck", "s"),
+                text(" tail"),
+            ])]),
+        ])
+        .build();
+    let svg = render(&table, &SvgConfig::default()).unwrap();
+    assert!(
+        svg.contains("<tspan font-size=\"28px\">BIG</tspan>"),
+        "{svg}"
+    );
+    assert!(
+        svg.contains("<tspan text-decoration=\"underline\">under</tspan>"),
+        "{svg}"
+    );
+    // The gap after a decorated word is not decorated.
+    assert!(
+        svg.contains("<tspan text-decoration=\"line-through\">struck</tspan> tail"),
+        "{svg}"
+    );
+
+    let l = layout(&table, &SvgConfig::default());
+    let height = |text: &str| {
+        l.cells
+            .iter()
+            .find(|c| c.text.lines.iter().any(|line| line.text() == text))
+            .map(|c| c.height)
+            .unwrap()
+    };
+    // 28px text needs a taller row than 14px text, and is measured at its size.
+    assert!(
+        height("BIG") > height("normal") + 10.0,
+        "{} vs {}",
+        height("BIG"),
+        height("normal")
+    );
+    let big = &l
+        .cells
+        .iter()
+        .find(|c| c.text.lines[0].text() == "BIG")
+        .unwrap()
+        .text
+        .lines[0];
+    assert!(
+        big.width > crate::measure::text_width("BIG", 27.0, false),
+        "{}",
+        big.width
+    );
+    assert_ok(check("decorations", &table));
 }
