@@ -529,25 +529,68 @@ pub fn xlsx(sheet: &str, styles: &str) -> Doc {
     let mut doc = Doc::default();
     let mut reader = Reader::from_str(sheet);
     let mut cell: Option<(usize, String)> = None;
+    // Rich text: the runs so far, and the one being read.
+    let mut rich: Vec<Run> = Vec::new();
+    let mut run: Option<Run> = None;
+    let mut in_rpr = false;
     let mut in_text = false;
     let style = |e: &BytesStart| attr(e, "s").and_then(|v| v.parse().ok()).unwrap_or(0);
+    // A rich run's font: its `<rPr>` alone (runs don't inherit the cell's font).
+    let run_prop = |r: &mut Run, e: &BytesStart| match local(e).as_str() {
+        "b" => r.bold = on(e),
+        "i" => r.italic = on(e),
+        "u" => r.underline = on(e),
+        "strike" => r.strike = on(e),
+        "vertAlign" => r.superscript = attr(e, "val").as_deref() == Some("superscript"),
+        "sz" => r.size_pt = attr(e, "val").and_then(|v| v.parse().ok()),
+        "color" => r.color = attr(e, "rgb").as_deref().and_then(hex),
+        "rFont" => r.family = attr(e, "val"),
+        _ => {}
+    };
     loop {
         match reader.read_event().expect("well-formed sheet.xml") {
-            Event::Start(e) if local(&e) == "c" => cell = Some((style(&e), String::new())),
+            Event::Start(e) if local(&e) == "c" => {
+                cell = Some((style(&e), String::new()));
+                rich.clear();
+            }
             Event::Empty(e) if local(&e) == "c" => {
                 doc.cells.push(st.look(style(&e), String::new()))
             }
+            Event::Start(e) if local(&e) == "r" => run = Some(Run::default()),
+            Event::Start(e) if local(&e) == "rPr" => in_rpr = true,
+            Event::Empty(e) | Event::Start(e) if in_rpr => {
+                if let Some(r) = run.as_mut() {
+                    run_prop(r, &e);
+                }
+            }
             Event::Start(e) if matches!(local(&e).as_str(), "t" | "v") => in_text = true,
             Event::Text(t) if in_text => {
-                if let Some(c) = cell.as_mut() {
-                    c.1.push_str(&t.unescape().unwrap());
+                let text = t.unescape().unwrap();
+                match run.as_mut() {
+                    Some(r) => r.text.push_str(&text),
+                    None => {
+                        if let Some(c) = cell.as_mut() {
+                            c.1.push_str(&text);
+                        }
+                    }
                 }
             }
             Event::End(e) => match local_end(&e).as_str() {
                 "t" | "v" => in_text = false,
+                "rPr" => in_rpr = false,
+                "r" => {
+                    if let Some(r) = run.take() {
+                        push_run(&mut rich, r);
+                    }
+                }
                 "c" => {
                     let (s, text) = cell.take().unwrap();
-                    doc.cells.push(st.look(s, text));
+                    let mut look = st.look(s, text);
+                    if !rich.is_empty() {
+                        look.runs = std::mem::take(&mut rich);
+                        look = finish(look);
+                    }
+                    doc.cells.push(look);
                 }
                 _ => {}
             },
@@ -1689,6 +1732,209 @@ pub fn latex(src: &str) -> Doc {
                 align,
                 ..Look::default()
             }));
+        }
+    }
+    doc
+}
+
+// ─── PPTX ───
+
+/// Read a slide (`ppt/slides/slide1.xml`): table cells from `a:tc` (fill and
+/// anchoring from `a:tcPr`, edges from `a:lnL/R/T/B`, alignment from `a:pPr`,
+/// runs from `a:rPr` attributes and fills), and text boxes as text outside the
+/// table. Merged-away cells (`hMerge` / `vMerge`) are skipped.
+pub fn pptx(xml: &str) -> Doc {
+    let mut reader = Reader::from_str(xml);
+    let mut doc = Doc::default();
+    let mut path: Vec<String> = Vec::new();
+    let mut look: Option<Look> = None;
+    let mut skip_cell = false;
+    let mut run: Option<Run> = None;
+    let mut para_align: Option<Align> = None;
+    let mut edge: Option<(usize, Edge)> = None;
+    let mut in_text = false;
+    let emu_pt = |v: Option<String>| v.and_then(|v| v.parse::<f64>().ok()).map(|v| v / 12_700.0);
+    loop {
+        let ev = reader.read_event().expect("well-formed slide XML");
+        let (e, empty) = match &ev {
+            Event::Start(e) => (Some(e.clone()), false),
+            Event::Empty(e) => (Some(e.clone()), true),
+            _ => (None, false),
+        };
+        if let Some(e) = e {
+            let name = local(&e);
+            let parent = path.last().map(String::as_str).unwrap_or("");
+            match name.as_str() {
+                "tc" => {
+                    skip_cell = attr(&e, "hMerge").is_some() || attr(&e, "vMerge").is_some();
+                    look = Some(Look::default());
+                }
+                "tcPr" => {
+                    if let Some(l) = look.as_mut() {
+                        l.valign = match attr(&e, "anchor").as_deref() {
+                            Some("ctr") => Some(VAlign::Middle),
+                            Some("b") => Some(VAlign::Bottom),
+                            Some("t") => Some(VAlign::Top),
+                            _ => None,
+                        };
+                    }
+                }
+                "pPr" => {
+                    para_align = match attr(&e, "algn").as_deref() {
+                        Some("ctr") => Some(Align::Center),
+                        Some("r") => Some(Align::Right),
+                        Some("just" | "dist") => Some(Align::Justify),
+                        Some(_) => Some(Align::Left),
+                        None => None,
+                    }
+                }
+                "p" => para_align = None,
+                "rPr" | "endParaRPr" if name == "rPr" => {
+                    let flag = |k: &str| attr(&e, k).is_some_and(|v| v == "1" || v == "true");
+                    run = Some(Run {
+                        bold: flag("b"),
+                        italic: flag("i"),
+                        underline: attr(&e, "u").is_some_and(|v| v != "none"),
+                        strike: attr(&e, "strike").is_some_and(|v| v != "noStrike"),
+                        superscript: attr(&e, "baseline")
+                            .and_then(|v| v.parse::<i32>().ok())
+                            .is_some_and(|b| b > 0),
+                        size_pt: attr(&e, "sz")
+                            .and_then(|v| v.parse::<f64>().ok())
+                            .map(|v| v / 100.0),
+                        ..Run::default()
+                    });
+                }
+                "lnL" | "lnR" | "lnT" | "lnB" => {
+                    let i = match name.as_str() {
+                        "lnT" => 0,
+                        "lnR" => 1,
+                        "lnB" => 2,
+                        _ => 3,
+                    };
+                    edge = Some((
+                        i,
+                        Edge {
+                            line: Line::Solid,
+                            width_pt: emu_pt(attr(&e, "w")),
+                            color: None,
+                        },
+                    ));
+                    if attr(&e, "cmpd").as_deref() == Some("dbl") {
+                        edge.as_mut().unwrap().1.line = Line::Double;
+                    }
+                }
+                "noFill" if parent.starts_with("ln") => edge = None,
+                "prstDash" => {
+                    if let Some((_, ed)) = edge.as_mut() {
+                        ed.line = match attr(&e, "val").as_deref() {
+                            Some("dot" | "sysDot") => Line::Dotted,
+                            Some("solid") | None => ed.line,
+                            Some(_) => Line::Dashed,
+                        };
+                    }
+                }
+                "srgbClr" => {
+                    let c = attr(&e, "val").as_deref().and_then(hex);
+                    let grand = path
+                        .get(path.len().wrapping_sub(2))
+                        .map(String::as_str)
+                        .unwrap_or("");
+                    match (parent, grand) {
+                        ("solidFill", "rPr") => {
+                            if let Some(r) = run.as_mut() {
+                                r.color = c;
+                            }
+                        }
+                        ("solidFill", "tcPr") => {
+                            if let Some(l) = look.as_mut() {
+                                l.fill = c;
+                            }
+                        }
+                        ("solidFill", g) if g.starts_with("ln") => {
+                            if let Some((_, ed)) = edge.as_mut() {
+                                ed.color = c;
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+                "latin" if parent == "rPr" => {
+                    if let Some(r) = run.as_mut() {
+                        r.family = attr(&e, "typeface");
+                    }
+                }
+                "br" => {
+                    if let Some(l) = look.as_mut() {
+                        push_run(
+                            &mut l.runs,
+                            Run {
+                                text: " ".into(),
+                                ..Run::default()
+                            },
+                        );
+                    }
+                }
+                "t" => in_text = !empty,
+                _ => {}
+            }
+            if !empty {
+                path.push(name);
+            }
+            continue;
+        }
+        match ev {
+            Event::Text(t) if in_text => {
+                let text = t.unescape().unwrap().into_owned();
+                match (look.as_mut(), run.as_ref()) {
+                    (Some(l), Some(r)) => push_run(&mut l.runs, Run { text, ..r.clone() }),
+                    (Some(l), None) => push_run(
+                        &mut l.runs,
+                        Run {
+                            text,
+                            ..Run::default()
+                        },
+                    ),
+                    (None, _) => doc.outside.push_str(&text),
+                }
+            }
+            Event::End(e) => {
+                let name = local_end(&e);
+                path.pop();
+                match name.as_str() {
+                    "t" => in_text = false,
+                    "r" => run = None,
+                    "p" => match look.as_mut() {
+                        Some(l) => {
+                            if l.align.is_none() {
+                                l.align = para_align;
+                            }
+                            push_run(
+                                &mut l.runs,
+                                Run {
+                                    text: " ".into(),
+                                    ..Run::default()
+                                },
+                            );
+                        }
+                        None => doc.outside.push('\n'),
+                    },
+                    "lnL" | "lnR" | "lnT" | "lnB" => {
+                        if let (Some(l), Some((i, ed))) = (look.as_mut(), edge.take()) {
+                            l.borders[i] = Some(ed);
+                        }
+                    }
+                    "tc" => {
+                        let l = look.take().unwrap();
+                        if !skip_cell {
+                            doc.cells.push(finish(l));
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            Event::Eof => break,
+            _ => {}
         }
     }
     doc
