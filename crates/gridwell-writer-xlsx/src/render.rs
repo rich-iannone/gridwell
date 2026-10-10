@@ -66,6 +66,9 @@ struct Format {
     align: Option<&'static str>,
     /// Border edges in SpreadsheetML order: left, right, top, bottom.
     border: [Option<Edge>; 4],
+    /// Wrap text: set for text with line breaks, which Excel shows only when
+    /// wrapping is on.
+    wrap: bool,
 }
 
 /// One drawn border edge: a SpreadsheetML line style and an optional colour
@@ -129,6 +132,7 @@ impl Format {
                 _ => None,
             },
             border: [None; 4],
+            wrap: false,
         }
     }
 
@@ -260,7 +264,7 @@ impl StyleSheet {
                     borders.push(f.border);
                     borders.len() - 1
                 });
-            xfs.push((font, fill, border, f.align));
+            xfs.push((font, fill, border, f.align, f.wrap));
         }
 
         let mut buf = String::new();
@@ -313,7 +317,7 @@ impl StyleSheet {
         buf.push_str(
             "    <xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>\n",
         );
-        for (font, fill, border, align) in xfs {
+        for (font, fill, border, align, wrap) in xfs {
             write!(
                 buf,
                 "    <xf numFmtId=\"0\" fontId=\"{font}\" fillId=\"{fill}\" borderId=\"{border}\" xfId=\"0\""
@@ -327,13 +331,18 @@ impl StyleSheet {
             if border != 0 {
                 buf.push_str(" applyBorder=\"1\"");
             }
-            match align {
-                Some(h) => writeln!(
-                    buf,
-                    " applyAlignment=\"1\"><alignment horizontal=\"{h}\"/></xf>"
-                )?,
-                None => buf.push_str("/>\n"),
+            if align.is_none() && !wrap {
+                buf.push_str("/>\n");
+                continue;
             }
+            buf.push_str(" applyAlignment=\"1\"><alignment");
+            if let Some(h) = align {
+                write!(buf, " horizontal=\"{h}\"")?;
+            }
+            if wrap {
+                buf.push_str(" wrapText=\"1\"");
+            }
+            buf.push_str("/></xf>\n");
         }
         buf.push_str("  </cellXfs>\n");
         buf.push_str("</styleSheet>\n");
@@ -470,9 +479,10 @@ struct Sheet<'b> {
 
 impl Sheet<'_> {
     /// A row with one text cell in column A.
-    fn text_row(&mut self, runs: &[RichRun], f: Format) -> Result<(), RenderError> {
+    fn text_row(&mut self, runs: &[RichRun], mut f: Format) -> Result<(), RenderError> {
         let r = self.row_num;
-        write!(self.buf, "<row r=\"{r}\">")?;
+        f.wrap = has_breaks(runs);
+        write!(self.buf, "<row r=\"{r}\"{}>", row_height(text_height(runs)))?;
         let s = self.styles.id(f);
         write_text_cell(self.buf, &xml::cell_ref(0, r), s, runs, FontKey::of(&f))?;
         self.buf.push_str("</row>\n");
@@ -490,10 +500,18 @@ impl Sheet<'_> {
     ) -> Result<(), RenderError> {
         for row in &section.rows {
             let r = self.row_num;
-            write!(self.buf, "<row r=\"{r}\">")?;
+            // Cells first: the row's height depends on them.
+            let mut cells = String::new();
+            let mut height = 0.0f64;
             for cell in row.cells() {
                 let cell_ref = xml::cell_ref(cell.col, r);
-                let format = Format::cell(&cell.style, strong, &cell.align);
+                let mut format = Format::cell(&cell.style, strong, &cell.align);
+                let runs = rich(rt, cell.content, FontKey::of(&format));
+                format.wrap = has_breaks(&runs);
+                // A spanned cell's text spreads over its rows: leave them be.
+                if cell.rowspan == 1 {
+                    height = height.max(text_height(&runs));
+                }
                 let s = self.styles.id(format);
                 if cell.colspan > 1 || cell.rowspan > 1 {
                     self.merges.push((
@@ -510,21 +528,53 @@ impl Sheet<'_> {
                     .and_then(|t| t.value.as_f64())
                     .filter(|v| v.is_finite());
                 if let Some(num) = number {
-                    write!(
-                        self.buf,
-                        "<c r=\"{cell_ref}\"{}><v>{num}</v></c>",
-                        s_attr(s)
-                    )?;
+                    write!(cells, "<c r=\"{cell_ref}\"{}><v>{num}</v></c>", s_attr(s))?;
                     continue;
                 }
-                let font = FontKey::of(&format);
-                let runs = rich(rt, cell.content, font);
-                write_text_cell(self.buf, &cell_ref, s, &runs, font)?;
+                write_text_cell(&mut cells, &cell_ref, s, &runs, FontKey::of(&format))?;
             }
+            write!(self.buf, "<row r=\"{r}\"{}>", row_height(height))?;
+            self.buf.push_str(&cells);
             self.buf.push_str("</row>\n");
             self.row_num += 1;
         }
         Ok(())
+    }
+}
+
+/// Excel's row height for 11pt Calibri, and the ratio of row height to font size.
+const DEFAULT_ROW_PT: f64 = 15.0;
+const ROW_PER_FONT_PT: f64 = DEFAULT_ROW_PT / 11.0;
+
+fn has_breaks(runs: &[RichRun]) -> bool {
+    runs.iter().any(|r| r.text.contains('\n'))
+}
+
+/// The height text needs: its lines at the size of its largest run.
+fn text_height(runs: &[RichRun]) -> f64 {
+    let lines = 1 + runs
+        .iter()
+        .map(|r| r.text.matches('\n').count())
+        .sum::<usize>();
+    let size = runs
+        .iter()
+        .filter(|r| !r.text.is_empty())
+        .map(|r| r.font.size.map_or(11.0, |h| f64::from(h) / 100.0))
+        .fold(11.0, f64::max);
+    lines as f64 * size * ROW_PER_FONT_PT
+}
+
+/// A row's height attributes, when its text needs more than the default.
+fn row_height(pt: f64) -> String {
+    if pt > DEFAULT_ROW_PT + 0.01 {
+        // Excel's maximum row height is 409pt.
+        let pt = pt.min(409.0);
+        format!(
+            " ht=\"{}\" customHeight=\"1\"",
+            (pt * 100.0).round() / 100.0
+        )
+    } else {
+        String::new()
     }
 }
 
