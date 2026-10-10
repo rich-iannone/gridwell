@@ -83,3 +83,25 @@ fn line_breaks_wrap_and_rows_fit_their_lines_and_sizes() {
         "{styles}"
     );
 }
+
+/// A wrapped line wider than its column wraps again; the row must allow for it
+/// (Excel anchors text at the bottom, so a short row loses the top lines — the
+/// gallery's `mixed-markup` showed "degraded" without its "Status:").
+#[test]
+fn rows_allow_for_lines_that_wrap_at_the_column_width() {
+    let t = TableBuilder::new(2)
+        .head(row(vec![cell("H1"), cell("H2")]))
+        .body(vec![row(vec![
+            cell("x"),
+            // Default column: 12 characters. The first line needs two.
+            cell_content(vec![
+                text("Status: definitely degraded"),
+                line_break(),
+                text("ok"),
+            ]),
+        ])])
+        .build();
+    let sheet = XlsxWriter::new().render_sheet_xml(&t).unwrap();
+    let h = row_height(&sheet, 2).expect("explicit height");
+    assert!(h >= 3.0 * 15.0, "{h}: {}", row_tag(&sheet, 2));
+}
