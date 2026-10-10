@@ -83,7 +83,8 @@ RTF, DOCX, XLSX) actually expresses is measured, not claimed: see the
 - SpreadsheetML format
 - Cells preserve typed values (numbers stay numeric)
 - Merge regions via `<mergeCells>`
-- Styles in `xl/styles.xml` (fonts, fills, borders)
+- Styles in `xl/styles.xml` (fonts, fills, borders); rich text where a cell mixes formatting
+- Cells with line breaks wrap, and rows are tall enough for their lines and font sizes
 
 ### PPTX (Microsoft PowerPoint)
 
