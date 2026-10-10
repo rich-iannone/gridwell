@@ -348,6 +348,8 @@ fn write_slot(
 struct Fmt {
     bold: bool,
     italic: bool,
+    underline: bool,
+    strike: bool,
     color: Option<Color>,
     superscript: bool,
     /// Font size in hundredths of a point (`None`: inherited).
@@ -355,11 +357,20 @@ struct Fmt {
 }
 
 impl Fmt {
+    /// This format with a style laid over it. A relative size resolves against
+    /// the size so far, or PowerPoint's 18pt table text.
     fn with(self, style: &ResolvedStyle) -> Self {
+        let parent = self.size.map_or(18.0, |s| f64::from(s) / 100.0);
         Self {
             bold: self.bold || style.is_bold(),
             italic: self.italic || style.is_italic(),
+            underline: self.underline || style.is_underline(),
+            strike: self.strike || style.is_strike(),
             color: style.paint().or(self.color),
+            size: style
+                .size_pt(parent)
+                .map(|pt| (pt * 100.0).round().clamp(100.0, 400_000.0) as u32)
+                .or(self.size),
             ..self
         }
     }
@@ -415,6 +426,12 @@ fn write_run(buf: &mut String, text: &str, fmt: Fmt) -> Result<bool, RenderError
     }
     if fmt.italic {
         buf.push_str(" i=\"1\"");
+    }
+    if fmt.underline {
+        buf.push_str(" u=\"sng\"");
+    }
+    if fmt.strike {
+        buf.push_str(" strike=\"sngStrike\"");
     }
     if let Some(sz) = fmt.size {
         write!(buf, " sz=\"{sz}\"")?;
