@@ -297,3 +297,73 @@ fn styled_titles_labels_and_notes_compile() {
         assert!(text.contains(line), "{line} missing from PDF:\n{text}");
     }
 }
+
+/// Underline and strike-through (`ulem`) must survive line breaks: `\uline`
+/// can't wrap the nested tabular a multi-line cell becomes, so each line is
+/// decorated instead. Found by the property test (LaTeX failed with "Extra }").
+#[test]
+fn decorated_multiline_cells_compile() {
+    if !require("pdflatex") || !require("pdftotext") {
+        return;
+    }
+    use gridwell_testkit::{cell_content, line_break, styled, text, CellExt};
+    let def = |f: fn(&mut gridwell_ir::StyleDef)| {
+        let mut d = gridwell_ir::StyleDef::default();
+        f(&mut d);
+        d
+    };
+    let lines = |a: &str, b: &str| cell_content(vec![text(a), line_break(), text(b)]);
+    let table = TableBuilder::new(2)
+        .style_def("u", def(|d| d.text_decoration = Some("underline".into())))
+        .style_def(
+            "s",
+            def(|d| d.text_decoration = Some("line-through".into())),
+        )
+        .style_def(
+            "big",
+            def(|d| {
+                d.text_decoration = Some("underline".into());
+                d.font_size = Some("1.25em".into());
+            }),
+        )
+        .head(row(vec![cell("H1"), cell("H2")]))
+        .body(vec![
+            row(vec![
+                lines("UNDERONE", "UNDERTWO").style("u"),
+                lines("STRUCKONE", "STRUCKTWO").style("s"),
+            ]),
+            row(vec![
+                lines("BIGONE", "BIGTWO").style("big"),
+                cell_content(vec![
+                    text("plain "),
+                    styled("RUN", "u"),
+                    line_break(),
+                    styled("NEXT", "s"),
+                ]),
+            ]),
+        ])
+        .title("Underlined title")
+        .build();
+    let src = render_latex(&table).unwrap();
+    assert!(!src.contains("\\uline{\\begin{tabular}"), "{src}");
+    assert!(
+        src.contains("\\uline{UNDERONE}\\\\\\uline{UNDERTWO}"),
+        "{src}"
+    );
+    let dir = work_dir("decorated");
+    let pdf = compile(&dir, "decorated", &src)
+        .unwrap_or_else(|e| panic!("compile failed:\n{e}\n\nsource:\n{src}"));
+    let text = pdf_text(&pdf);
+    for word in [
+        "UNDERONE",
+        "UNDERTWO",
+        "STRUCKONE",
+        "STRUCKTWO",
+        "BIGONE",
+        "BIGTWO",
+        "RUN",
+        "NEXT",
+    ] {
+        assert!(text.contains(word), "{word} missing:\n{text}");
+    }
+}
