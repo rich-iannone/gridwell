@@ -258,6 +258,40 @@ pub struct TexCell {
     pub from: usize,
     pub to: usize,
     pub text: String,
+    /// Its words with their positions, so a merged area's text can be put in
+    /// reading order across the cells it spans.
+    pub words: Vec<Placed>,
+}
+
+/// A word and where it sits: its vertical centre and left edge.
+#[derive(Debug, Clone)]
+pub struct Placed {
+    pub cy: f64,
+    pub x0: f64,
+    pub text: String,
+}
+
+/// Words in reading order: lines (words whose centres are within 5pt, so raised
+/// marks and larger runs share their line), top to bottom, then left to right.
+pub fn reading_order(words: &[Placed]) -> String {
+    let mut words: Vec<&Placed> = words.iter().collect();
+    words.sort_by(|a, b| a.cy.total_cmp(&b.cy));
+    let mut lines: Vec<Vec<&Placed>> = Vec::new();
+    for w in words {
+        match lines.last_mut() {
+            Some(line) if w.cy - line[0].cy < 5.0 => line.push(w),
+            _ => lines.push(vec![w]),
+        }
+    }
+    let mut out = String::new();
+    for mut line in lines {
+        line.sort_by(|a, b| a.x0.total_cmp(&b.x0));
+        for w in line {
+            out.push_str(&w.text);
+            out.push(' ');
+        }
+    }
+    out
 }
 
 /// A table as TeX laid it out: its column boundaries (distinct cell-edge
@@ -462,6 +496,7 @@ fn tex_table(words: &[Word]) -> Result<TexTable, String> {
                         from: id(l - half),
                         to: id(r + half),
                         text: String::new(),
+                        words: Vec::new(),
                     };
                     Filling {
                         cell,
@@ -492,26 +527,17 @@ fn tex_table(words: &[Word]) -> Result<TexTable, String> {
             row.into_iter()
                 .map(
                     |Filling {
-                         mut cell,
-                         mut words,
-                         ..
+                         mut cell, words, ..
                      }| {
-                        // Reading order: lines (raised marks share their line), then x.
-                        words.sort_by(|a, b| a.cy().total_cmp(&b.cy()));
-                        let mut lines: Vec<Vec<&Word>> = Vec::new();
-                        for w in words {
-                            match lines.last_mut() {
-                                Some(line) if w.cy() - line[0].cy() < 5.0 => line.push(w),
-                                _ => lines.push(vec![w]),
-                            }
-                        }
-                        for mut line in lines {
-                            line.sort_by(|a, b| a.x0.total_cmp(&b.x0));
-                            for w in line {
-                                cell.text.push_str(&w.text);
-                                cell.text.push(' ');
-                            }
-                        }
+                        cell.words = words
+                            .iter()
+                            .map(|w| Placed {
+                                cy: w.cy(),
+                                x0: w.x0,
+                                text: w.text.clone(),
+                            })
+                            .collect();
+                        cell.text = reading_order(&cell.words);
                         cell
                     },
                 )
@@ -571,7 +597,7 @@ pub fn latex_compare(got: &TexTable, want: &Expected) -> Result<(), String> {
     }
     // Column boundary → the TeX boundary it is at.
     let mut boundary = vec![None; want.width() + 1];
-    let mut cells: Vec<Vec<(Range<usize>, &str)>> = Vec::new();
+    let mut cells: Vec<Vec<(Range<usize>, &TexCell)>> = Vec::new();
     for (r, row) in got.rows.iter().enumerate() {
         let mut edges: Vec<usize> = want
             .regions
@@ -609,14 +635,16 @@ pub fn latex_compare(got: &TexTable, want: &Expected) -> Result<(), String> {
         cells.push(
             row.iter()
                 .zip(edges.windows(2))
-                .map(|(c, e)| (e[0]..e[1], c.text.as_str()))
+                .map(|(c, e)| (e[0]..e[1], c))
                 .collect(),
         );
     }
     for region in &want.regions {
-        let mut text = String::new();
+        // The area's words in reading order across its cells: a `\multirow`'s
+        // text is centred over its rows, so one line can straddle two of them.
+        let mut words: Vec<Placed> = Vec::new();
         for r in region.rows.clone() {
-            let Some((_, t)) = cells[r].iter().find(|(cols, _)| *cols == region.cols) else {
+            let Some((_, cell)) = cells[r].iter().find(|(cols, _)| *cols == region.cols) else {
                 return Err(format!(
                     "row {r}: no cell over columns {:?} (cells: {:?}){}",
                     region.cols,
@@ -624,8 +652,9 @@ pub fn latex_compare(got: &TexTable, want: &Expected) -> Result<(), String> {
                     context()
                 ));
             };
-            text.push_str(t);
+            words.extend(cell.words.iter().cloned());
         }
+        let text = reading_order(&words);
         let ok = match &want.rows[region.rows.start][region.cols.start] {
             Want::Any => true,
             Want::Text(t) => latex_norm(&norm(&text)) == latex_norm(t),
