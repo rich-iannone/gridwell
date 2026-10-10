@@ -154,6 +154,62 @@ struct FontKey {
     color: Option<Color>,
 }
 
+impl FontKey {
+    /// A cell format's font.
+    fn of(f: &Format) -> Self {
+        Self {
+            bold: f.bold,
+            italic: f.italic,
+            underline: f.underline,
+            strike: f.strike,
+            size: f.size,
+            color: f.color,
+        }
+    }
+
+    /// This font with a run's style laid over it (a relative size resolves
+    /// against the font's size).
+    fn with(self, style: &ResolvedStyle) -> Self {
+        let parent = self.size.map_or(11.0, |h| f64::from(h) / 100.0);
+        Self {
+            bold: self.bold || style.is_bold(),
+            italic: self.italic || style.is_italic(),
+            underline: self.underline || style.is_underline(),
+            strike: self.strike || style.is_strike(),
+            size: style
+                .size_pt(parent)
+                .map(|pt| (pt * 100.0).round().clamp(100.0, 40_900.0) as u32)
+                .or(self.size),
+            color: style.paint().map(|c| c.flatten()).or(self.color),
+        }
+    }
+}
+
+/// A font's elements, in `<font>` (`name`) or a rich run's `<rPr>` (`rFont`).
+fn write_font(buf: &mut String, font: &FontKey, name: &str) -> Result<(), RenderError> {
+    if font.bold {
+        buf.push_str("<b/>");
+    }
+    if font.italic {
+        buf.push_str("<i/>");
+    }
+    if font.strike {
+        buf.push_str("<strike/>");
+    }
+    if font.underline {
+        buf.push_str("<u/>");
+    }
+    match font.size {
+        Some(h) => write!(buf, "<sz val=\"{}\"/>", f64::from(h) / 100.0)?,
+        None => buf.push_str("<sz val=\"11\"/>"),
+    }
+    if let Some(c) = font.color {
+        write!(buf, "<color rgb=\"FF{}\"/>", c.to_rrggbb())?;
+    }
+    write!(buf, "<{name} val=\"Calibri\"/>")?;
+    Ok(())
+}
+
 /// The workbook's cell formats, registered as cells use them. Format 0 is the
 /// default; fonts, fills and `cellXfs` are emitted in registration order.
 #[derive(Debug, Default)]
@@ -182,14 +238,7 @@ impl StyleSheet {
         let mut borders: Vec<[Option<Edge>; 4]> = vec![[None; 4]];
         let mut xfs = Vec::new();
         for f in &self.formats {
-            let font_key = FontKey {
-                bold: f.bold,
-                italic: f.italic,
-                underline: f.underline,
-                strike: f.strike,
-                size: f.size,
-                color: f.color,
-            };
+            let font_key = FontKey::of(f);
             let font = fonts
                 .iter()
                 .position(|k| *k == font_key)
@@ -222,26 +271,8 @@ impl StyleSheet {
         writeln!(buf, "  <fonts count=\"{}\">", fonts.len())?;
         for font in &fonts {
             buf.push_str("    <font>");
-            if font.bold {
-                buf.push_str("<b/>");
-            }
-            if font.italic {
-                buf.push_str("<i/>");
-            }
-            if font.strike {
-                buf.push_str("<strike/>");
-            }
-            if font.underline {
-                buf.push_str("<u/>");
-            }
-            match font.size {
-                Some(h) => write!(buf, "<sz val=\"{}\"/>", f64::from(h) / 100.0)?,
-                None => buf.push_str("<sz val=\"11\"/>"),
-            }
-            if let Some(c) = font.color {
-                write!(buf, "<color rgb=\"FF{}\"/>", c.to_rrggbb())?;
-            }
-            buf.push_str("<name val=\"Calibri\"/></font>\n");
+            write_font(&mut buf, font, "name")?;
+            buf.push_str("</font>\n");
         }
         buf.push_str("  </fonts>\n");
         writeln!(buf, "  <fills count=\"{}\">", fills.len() + 2)?;
@@ -353,15 +384,15 @@ fn sheet_xml(rt: &ResolvedTable, styles: &mut StyleSheet) -> Result<String, Rend
     let header = &rt.header;
     if let Some(title) = &header.title {
         let f = Format::new(&title.style, true, &HAlign::Left);
-        sheet.text_row(&content_to_text(title.content), f)?;
+        sheet.text_row(&rich(rt, title.content, FontKey::of(&f)), f)?;
     }
     for line in header.subtitle.iter().chain(&header.extra_lines) {
         let f = Format::new(&line.style, false, &HAlign::Left);
-        sheet.text_row(&content_to_text(line.content), f)?;
+        sheet.text_row(&rich(rt, line.content, FontKey::of(&f)), f)?;
     }
 
     if !rt.is_empty() {
-        sheet.section(&rt.head, true)?;
+        sheet.section(rt, &rt.head, true)?;
         for group in &rt.groups {
             if let Some(label) = &group.label {
                 // One cell merged across every column.
@@ -370,10 +401,10 @@ fn sheet_xml(rt: &ResolvedTable, styles: &mut StyleSheet) -> Result<String, Rend
                     sheet.merges.push((0, r, rt.columns.len() - 1, r));
                 }
                 let f = Format::new(&label.style, true, &HAlign::Left);
-                sheet.text_row(&content_to_text(label.content), f)?;
+                sheet.text_row(&rich(rt, label.content, FontKey::of(&f)), f)?;
             }
-            sheet.section(&group.rows, false)?;
-            sheet.section(&group.summary_rows, true)?;
+            sheet.section(rt, &group.rows, false)?;
+            sheet.section(rt, &group.summary_rows, true)?;
         }
     }
 
@@ -382,16 +413,29 @@ fn sheet_xml(rt: &ResolvedTable, styles: &mut StyleSheet) -> Result<String, Rend
     if !footer.footnotes.is_empty() {
         sheet.row_num += 1;
         for note in &footer.footnotes {
-            let text = format!("{} {}", note.mark, content_to_text(note.content));
             let f = Format::new(&note.style, false, &HAlign::Left);
-            sheet.text_row(&text, f)?;
+            let font = FontKey::of(&f);
+            let mut runs = vec![
+                RichRun {
+                    text: note.mark.to_string(),
+                    font,
+                    superscript: true,
+                },
+                RichRun {
+                    text: " ".into(),
+                    font,
+                    superscript: false,
+                },
+            ];
+            runs.extend(rich(rt, note.content, font));
+            sheet.text_row(&runs, f)?;
         }
     }
     if !footer.source_notes.is_empty() {
         sheet.row_num += 1;
         for note in &footer.source_notes {
             let f = Format::new(&note.style, false, &HAlign::Left);
-            sheet.text_row(&content_to_text(note.content), f)?;
+            sheet.text_row(&rich(rt, note.content, FontKey::of(&f)), f)?;
         }
     }
 
@@ -426,11 +470,11 @@ struct Sheet<'b> {
 
 impl Sheet<'_> {
     /// A row with one text cell in column A.
-    fn text_row(&mut self, text: &str, f: Format) -> Result<(), RenderError> {
+    fn text_row(&mut self, runs: &[RichRun], f: Format) -> Result<(), RenderError> {
         let r = self.row_num;
         write!(self.buf, "<row r=\"{r}\">")?;
         let s = self.styles.id(f);
-        write_text_cell(self.buf, &xml::cell_ref(0, r), s, text)?;
+        write_text_cell(self.buf, &xml::cell_ref(0, r), s, runs, FontKey::of(&f))?;
         self.buf.push_str("</row>\n");
         self.row_num += 1;
         Ok(())
@@ -438,15 +482,19 @@ impl Sheet<'_> {
 
     /// A section's rows. Each cell sits at its visible column; covered positions
     /// write nothing and are covered by a `<mergeCell>`.
-    fn section(&mut self, section: &Section, strong: bool) -> Result<(), RenderError> {
+    fn section(
+        &mut self,
+        rt: &ResolvedTable,
+        section: &Section,
+        strong: bool,
+    ) -> Result<(), RenderError> {
         for row in &section.rows {
             let r = self.row_num;
             write!(self.buf, "<row r=\"{r}\">")?;
             for cell in row.cells() {
                 let cell_ref = xml::cell_ref(cell.col, r);
-                let s = self
-                    .styles
-                    .id(Format::cell(&cell.style, strong, &cell.align));
+                let format = Format::cell(&cell.style, strong, &cell.align);
+                let s = self.styles.id(format);
                 if cell.colspan > 1 || cell.rowspan > 1 {
                     self.merges.push((
                         cell.col,
@@ -469,7 +517,9 @@ impl Sheet<'_> {
                     )?;
                     continue;
                 }
-                write_text_cell(self.buf, &cell_ref, s, &content_to_text(cell.content))?;
+                let font = FontKey::of(&format);
+                let runs = rich(rt, cell.content, font);
+                write_text_cell(self.buf, &cell_ref, s, &runs, font)?;
             }
             self.buf.push_str("</row>\n");
             self.row_num += 1;
@@ -487,26 +537,84 @@ fn s_attr(s: usize) -> String {
 }
 
 /// An inline-string cell; an empty string with a format still writes the cell so
-/// its fill shows.
+/// its fill shows. Text whose runs all have the cell's font is one plain `<t>`;
+/// otherwise it is rich text, each run with its full font (Excel doesn't inherit
+/// run formatting from the cell's font).
 fn write_text_cell(
     buf: &mut String,
     cell_ref: &str,
     s: usize,
-    text: &str,
+    runs: &[RichRun],
+    font: FontKey,
 ) -> Result<(), RenderError> {
+    let text: String = runs.iter().map(|r| r.text.as_str()).collect();
     if text.is_empty() {
         if s != 0 {
             write!(buf, "<c r=\"{cell_ref}\"{}/>", s_attr(s))?;
         }
         return Ok(());
     }
-    write!(
-        buf,
-        "<c r=\"{cell_ref}\" t=\"inlineStr\"{}><is><t xml:space=\"preserve\">{}</t></is></c>",
-        s_attr(s),
-        escape_xml(text)
-    )?;
+    write!(buf, "<c r=\"{cell_ref}\" t=\"inlineStr\"{}><is>", s_attr(s))?;
+    if runs.iter().all(|r| r.font == font && !r.superscript) {
+        write!(buf, "<t xml:space=\"preserve\">{}</t>", escape_xml(&text))?;
+    } else {
+        for r in runs.iter().filter(|r| !r.text.is_empty()) {
+            buf.push_str("<r><rPr>");
+            write_font(buf, &r.font, "rFont")?;
+            if r.superscript {
+                buf.push_str("<vertAlign val=\"superscript\"/>");
+            }
+            write!(
+                buf,
+                "</rPr><t xml:space=\"preserve\">{}</t></r>",
+                escape_xml(&r.text)
+            )?;
+        }
+    }
+    buf.push_str("</is></c>");
     Ok(())
+}
+
+/// A run of cell text and its font.
+#[derive(Debug, Clone, PartialEq)]
+struct RichRun {
+    text: String,
+    font: FontKey,
+    superscript: bool,
+}
+
+/// Content as runs: styled text gets the cell's font with its style laid over,
+/// footnote marks are superscript, line breaks are newlines (shown when wrapping
+/// is on), images show their alt text.
+fn rich(rt: &ResolvedTable, nodes: &[ContentNode], font: FontKey) -> Vec<RichRun> {
+    let plain = |text: String| RichRun {
+        text,
+        font,
+        superscript: false,
+    };
+    let mut runs = Vec::new();
+    for node in nodes {
+        match node {
+            ContentNode::StyledText { value, style_id } => {
+                let style = style_id
+                    .as_deref()
+                    .map(|id| rt.style(id))
+                    .unwrap_or_default();
+                runs.push(RichRun {
+                    text: value.clone(),
+                    font: font.with(&style),
+                    superscript: false,
+                });
+            }
+            ContentNode::FootnoteMark { mark_text, .. } => runs.push(RichRun {
+                text: mark_text.clone(),
+                font,
+                superscript: true,
+            }),
+            other => runs.push(plain(content_to_text(std::slice::from_ref(other)))),
+        }
+    }
+    runs
 }
 
 /// A line break is a newline inside the cell (shown when wrapping is on).
