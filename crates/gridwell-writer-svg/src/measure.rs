@@ -100,17 +100,26 @@ pub struct RunStyle {
     pub color: Option<String>,
     /// Superscript (footnote marks): smaller and raised.
     pub sup: bool,
+    pub underline: bool,
+    pub strike: bool,
+    /// The run's own font size in px (`None`: the block's size).
+    pub size: Option<f64>,
 }
 
 /// Superscripts are drawn at this fraction of the base size.
 pub const SUP_SCALE: f64 = 0.7;
 
 impl Run {
+    /// The run's font size in px, before any superscript scaling.
+    pub fn size(&self, font_size: f64) -> f64 {
+        self.style.size.unwrap_or(font_size)
+    }
+
     pub fn width(&self, font_size: f64) -> f64 {
         let size = if self.style.sup {
-            font_size * SUP_SCALE
+            self.size(font_size) * SUP_SCALE
         } else {
-            font_size
+            self.size(font_size)
         };
         text_width(&self.text, size, self.style.bold)
     }
@@ -124,6 +133,12 @@ pub struct Line {
 }
 
 impl Line {
+    /// The largest font size on the line, in px: what its height follows.
+    pub fn size(&self, font_size: f64) -> f64 {
+        let sizes = self.runs.iter().map(|r| r.size(font_size));
+        sizes.reduce(f64::max).unwrap_or(font_size)
+    }
+
     /// Concatenated text of all runs.
     pub fn text(&self) -> String {
         self.runs.iter().map(|r| r.text.as_str()).collect()
@@ -172,13 +187,16 @@ pub fn wrap(runs: &[Run], font_size: f64, max_width: f64) -> Vec<Line> {
             _ => line.runs.push(piece),
         }
     };
-    // The space before a word takes the previous run's style (minus superscript):
-    // measure it that way, since a bold space is wider than a regular one.
+    // The space before a word takes the previous run's style (minus superscript
+    // and decoration, which shouldn't run on into the gap): measure it that way,
+    // since a bold space is wider than a regular one.
     let space_after = |line: &Line| {
         line.runs.last().map(|last| Run {
             text: " ".into(),
             style: RunStyle {
                 sup: false,
+                underline: false,
+                strike: false,
                 ..last.style.clone()
             },
         })
