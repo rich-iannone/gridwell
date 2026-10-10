@@ -350,7 +350,7 @@ fn latex_width(w: &Length) -> Option<String> {
     })
 }
 
-/// Bold, italic and text colour for an inline run.
+/// Bold, italic, colour, underline, strike-through and size for an inline run.
 fn apply_inline_style(content: &str, style: &ResolvedStyle) -> String {
     let mut result = content.to_string();
     if style.is_bold() {
@@ -361,6 +361,23 @@ fn apply_inline_style(content: &str, style: &ResolvedStyle) -> String {
     }
     if let Some(c) = style.paint() {
         result = format!("\\textcolor{}{{{result}}}", latex_color(c));
+    }
+    // `ulem` (`\\usepackage[normalem]{ulem}`): unlike `\\underline`, its lines
+    // break inside `p{}` columns.
+    if style.is_underline() {
+        result = format!("\\uline{{{result}}}");
+    }
+    if style.is_strike() {
+        result = format!("\\sout{{{result}}}");
+    }
+    // Relative sizes resolve against the document's 10pt; leading is 1.2×.
+    if let Some(pt) = style.size_pt(10.0) {
+        let num = |v: f64| format!("{}", (v * 100.0).round() / 100.0);
+        result = format!(
+            "{{\\fontsize{{{}}}{{{}}}\\selectfont {result}}}",
+            num(pt),
+            num(pt * 1.2)
+        );
     }
     result
 }
