@@ -5,7 +5,7 @@ expression: out
 ┌────────────┬────────────┐
 │[1m Name       [0m│[1m Score      [0m│
 ├────────────┼────────────┤
-│ Alice      │ 901        │
+│ Alice      │ 90¹        │
 │ Bob        │ 85         │
 └────────────┴────────────┘
   1 Includes bonus points.

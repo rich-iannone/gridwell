@@ -5,7 +5,7 @@ expression: out
 ┌────────────┬────────────┐
 │[1m Test       [0m│[1m Result     [0m│
 ├────────────┼────────────┤
-│ A          │ pass1      │
+│ A          │ pass¹      │
 │ B          │ fail       │
 └────────────┴────────────┘
   1 Re-run confirmed.
