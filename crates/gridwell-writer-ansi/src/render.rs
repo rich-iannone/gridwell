@@ -290,7 +290,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
         }
         if self.config.true_color {
             if let Some(c) = style.paint() {
-                // Terminals have no alpha: show the colour as it would look on white.
+                // Terminals have no alpha: show the color as it would look on white.
                 let c = c.flatten();
                 let _ = write!(open, "\x1b[38;2;{};{};{}m", c.r, c.g, c.b);
             }
