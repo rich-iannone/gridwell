@@ -3,7 +3,7 @@
 use gridwell_core::{Color, Length};
 use libfuzzer_sys::fuzz_target;
 
-// Fuzz the colour and length parsers: never panic, and whatever parses must
+// Fuzz the color and length parsers: never panic, and whatever parses must
 // survive a round trip through the normalized form writers emit.
 fuzz_target!(|data: &[u8]| {
     let Ok(s) = std::str::from_utf8(data) else {

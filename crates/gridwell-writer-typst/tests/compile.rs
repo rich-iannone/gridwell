@@ -320,7 +320,7 @@ fn every_colour_form_compiles() {
     let table = builder.body(vec![row(cells)]).build();
     let src = render_typst(&table).unwrap();
     assert!(src.contains("rgb(\"#12345678\")"), "{src}");
-    compile(&work_dir("colours"), "colours", &src).unwrap_or_else(|e| panic!("{e}\n{src}"));
+    compile(&work_dir("colors"), "colors", &src).unwrap_or_else(|e| panic!("{e}\n{src}"));
 }
 
 #[test]

@@ -1,5 +1,5 @@
 {
-  "_comment": "INVALID: A style colour that is not a CSS colour.",
+  "_comment": "INVALID: A style color that is not a CSS color.",
   "_expect": [
     "INVALID_COLOR"
   ],
@@ -13,7 +13,7 @@
   "styles": {
     "defs": {
       "s": {
-        "color": "not-a-colour"
+        "color": "not-a-color"
       }
     },
     "compositions": {},

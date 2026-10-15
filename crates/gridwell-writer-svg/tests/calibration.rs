@@ -4,7 +4,7 @@
 //! at the sizes the writer actually uses (superscript, note, body, subtitle, title)
 //! plus a large size, at 1× and 2× zoom (the harness renders at 2×). Each string's
 //! ink width is measured from the PNG. The estimate must never be narrower than the
-//! ink, or laid-out text would overprint neighbouring cells or run off the canvas.
+//! ink, or laid-out text would overprint neighboring cells or run off the canvas.
 //! Small sizes matter most: hinting rounds glyph advances to whole pixels.
 //!
 //! Fonts differ by machine, which is the point: run locally (e.g. macOS Arial) and in

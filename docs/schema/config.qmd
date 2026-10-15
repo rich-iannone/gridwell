@@ -29,7 +29,7 @@ The `config` block contains table-level metadata used for validation and renderi
 ## Row striping
 
 With `row_striping`, even data rows (the 2nd, 4th, … counting across all row groups,
-as gt does) get a 5% grey background, `rgba(128, 128, 128, 0.05)`. Stub cells are
+as gt does) get a 5% gray background, `rgba(128, 128, 128, 0.05)`. Stub cells are
 striped when `row_striping_include_stub` is set and other cells when
 `row_striping_include_body` is set, so with both flags off nothing is striped. Head and
 summary rows are never striped. Striping sits below conditional, row and cell styles

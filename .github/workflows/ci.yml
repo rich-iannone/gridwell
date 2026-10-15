@@ -262,7 +262,7 @@ jobs:
             mkdir -p "fuzz/corpus/$t"
             cp fixtures/*/*.json harness/corpus/*.json "fuzz/corpus/$t/"
           done
-          # Colour/length seeds: one value per file.
+          # Color/length seeds: one value per file.
           mkdir -p fuzz/corpus/fuzz_parse_values
           i=0
           for v in '#1a2b3c' '#abcd' 'rgb(1, 2, 3)' 'rgba(1 2 3 / 50%)' \

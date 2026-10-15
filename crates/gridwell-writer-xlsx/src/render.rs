@@ -57,7 +57,7 @@ struct Format {
     strike: bool,
     /// Font size in hundredths of a point (`None`: the default 11pt).
     size: Option<u32>,
-    /// Font colour, already flattened (no alpha in SpreadsheetML fonts here).
+    /// Font color, already flattened (no alpha in SpreadsheetML fonts here).
     color: Option<Color>,
     /// Solid fill, already flattened.
     fill: Option<Color>,
@@ -71,7 +71,7 @@ struct Format {
     wrap: bool,
 }
 
-/// One drawn border edge: a SpreadsheetML line style and an optional colour
+/// One drawn border edge: a SpreadsheetML line style and an optional color
 /// (`None`: automatic, i.e. black).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Edge {

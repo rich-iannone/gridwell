@@ -88,9 +88,9 @@ Supported output formats:
     typst    Typst table markup (.typ)
     rtf      Rich Text Format (.rtf)
     svg      SVG image (standalone, measured layout) (.svg)
-    ansi     Terminal output with box drawing and ANSI colours (.txt)
+    ansi     Terminal output with box drawing and ANSI colors (.txt)
     pandoc   Pandoc JSON AST (Table block) (.json)
-    quarto   Quarto-flavoured Pandoc JSON AST (cross-referenceable Div) (.json)
+    quarto   Quarto-flavored Pandoc JSON AST (cross-referenceable Div) (.json)
 
   Binary formats:
     docx     Microsoft Word document (.docx)

@@ -122,5 +122,5 @@ Unknown values match nothing (and are reported as `UNKNOWN_VALUE`).
 - Keyword: `transparent`
 
 Anything else fails validation with `INVALID_COLOR`; see
-[Validation](validation.qmd#colours) for details and for the length forms each field
+[Validation](validation.qmd#colors) for details and for the length forms each field
 accepts.

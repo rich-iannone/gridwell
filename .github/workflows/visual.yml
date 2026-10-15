@@ -143,7 +143,7 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    # Serialize Pages deploys without cancelling an in-flight one.
+    # Serialize Pages deploys without canceling an in-flight one.
     concurrency:
       group: pages
       cancel-in-progress: false

@@ -26,7 +26,7 @@ and when errors are serialized.
 | `FOOTNOTE_REFS_VALID` | Every `footnote_mark` refers to a defined footnote, wherever it appears: cells (including summary rows), header lines, group labels, and the notes themselves |
 | `SUMMARY_REQUIRES_STUB` | A group with summary rows requires `config.stub_cols >= 1` |
 | `UNKNOWN_VALUE` | A keyword field holds a value outside its allowed set (see [Keyword values](#keyword-values)) |
-| `INVALID_COLOR` | A colour field is not a CSS colour (see [Colours](#colours)) |
+| `INVALID_COLOR` | A color field is not a CSS color (see [Colors](#colors)) |
 | `INVALID_LENGTH` | A length field does not parse, or uses a form its field does not allow (see [Lengths](#lengths)) |
 
 ## Span Rules
@@ -71,24 +71,24 @@ at once. Known values are written back in their canonical spelling.
 | conditional `selector.scope` | `tbody` (`body`), `thead` (`head`), `table` (`all`) |
 | `typed_value.type`, `cell.data_type` | `string`, `number`, `integer`, `boolean`, `date`, `datetime`, `time`, `duration` (plus common aliases such as `int`, `bool`, `float`) |
 
-## Colours
+## Colors
 
 `color`, `background_color` and `border.*.color` (in style definitions, composition
 overrides and conditional styles) accept, ignoring case and surrounding whitespace:
 
 | Form | Examples |
 |------|----------|
-| CSS named colour (all 148) | `red`, `steelblue`, `RebeccaPurple`, `grey` |
+| CSS named color (all 148) | `red`, `steelblue`, `RebeccaPurple`, `grey` |
 | `transparent` | paints nothing |
 | Hex | `#abc`, `#abcd`, `#aabbcc`, `#aabbccdd` |
 | `rgb()` / `rgba()`, comma syntax | `rgb(255, 0, 0)`, `rgba(255, 0, 0, 0.5)`, `rgb(100%, 50%, 0%)` |
 | `rgb()` / `rgba()`, space syntax | `rgb(255 0 0)`, `rgb(255 0 0 / 50%)` |
 | `hsl()` / `hsla()` | `hsl(120, 100%, 25%)`, `hsl(120deg 100% 25% / 0.5)`; hue units `deg`, `grad`, `rad`, `turn` |
 
-Out-of-range channels clamp, as in CSS. Writers receive the parsed colour, never the
+Out-of-range channels clamp, as in CSS. Writers receive the parsed color, never the
 source text: HTML and SVG emit `#RRGGBB` (or `rgba()` when translucent), Typst keeps
 alpha as `#RRGGBBAA`, and formats without alpha (LaTeX, RTF, DOCX, PPTX, ANSI) drop
-it. A fully transparent colour paints nothing in every format.
+it. A fully transparent color paints nothing in every format.
 
 ## Lengths
 

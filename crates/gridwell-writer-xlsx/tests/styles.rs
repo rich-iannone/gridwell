@@ -1,5 +1,5 @@
 //! Cell formats in `styles.xml`: borders map to SpreadsheetML line styles by width
-//! and kind, carry their colour, and are shared between cells that use the same
+//! and kind, carry their color, and are shared between cells that use the same
 //! edges.
 
 use gridwell_ir::style::BorderSet;

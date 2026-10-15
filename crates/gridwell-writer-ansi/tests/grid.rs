@@ -177,7 +177,7 @@ fn background_colours_are_opt_in() {
         "stripe missing: {on:?}"
     );
     check("backgrounds", &table);
-    // Needs true colour.
+    // Needs true color.
     let no_tc = AnsiWriter::with_config(AnsiConfig {
         background_colors: true,
         true_color: false,

@@ -22,7 +22,7 @@ RTF, DOCX, XLSX) actually expresses is measured, not claimed: see the
 - Uses `booktabs` (`\toprule`, `\midrule`, `\bottomrule`)
 - `\multicolumn` and `\multirow` for spans
 - Column alignment via `l`, `r`, `c`, `p{width}`
-- Cell fills via `\cellcolor`, text colour via `\textcolor`; underline and strike-through via
+- Cell fills via `\cellcolor`, text color via `\textcolor`; underline and strike-through via
   `\uline` / `\sout`; sizes via `\fontsize`
 - Required packages: `booktabs`, `multirow`, `longtable` (long tables), `xcolor` with the
   `table` option, and `ulem` with `normalem` (`\usepackage[normalem]{ulem}`, so `\emph`
@@ -75,7 +75,7 @@ RTF, DOCX, XLSX) actually expresses is measured, not claimed: see the
 - Valid Office Open XML archive (ZIP)
 - Table in `word/document.xml`
 - Horizontal merge via `<w:gridSpan>`, vertical via `<w:vMerge>`
-- Bold, italic, colour, shading and alignment; table-wide single borders (per-cell borders,
+- Bold, italic, color, shading and alignment; table-wide single borders (per-cell borders,
   font size and family are not written yet)
 
 ### XLSX (Microsoft Excel)
@@ -90,4 +90,4 @@ RTF, DOCX, XLSX) actually expresses is measured, not claimed: see the
 
 - DrawingML table (`<a:tbl>`) in a slide shape
 - Grid-based spans with `gridSpan`/`rowSpan` attributes
-- Text colour, weight, slant and size, cell fills and alignment
+- Text color, weight, slant and size, cell fills and alignment

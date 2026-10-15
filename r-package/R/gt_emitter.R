@@ -250,7 +250,7 @@ gt_to_ir_list <- function(gt_obj) {
 # Inline markdown, the subset table labels use: `***bold italic***`, `**bold**`,
 # `__bold__`, `*italic*`, `_italic_`, `` `code` ``, `[text](url)` and hard line
 # breaks (two trailing spaces, a backslash, or `<br>`). A single newline is a
-# space, as in markdown; backslash escapes are honoured.
+# space, as in markdown; backslash escapes are honored.
 .gw_md_nodes <- function(md, styles) {
     md <- gsub("\r\n?", "\n", md)
     md <- gsub("( {2,}|\\\\)\n|<br\\s*/?>", "\001", md, ignore.case = TRUE, perl = TRUE)

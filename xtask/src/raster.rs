@@ -220,7 +220,7 @@ fn typst(bin: &str, typ: &Path, png: &Path, work_dir: &Path) -> RasterOutcome {
 
 /// Page width for the Typst preview. An auto-width page sizes to the content, but
 /// in it relative columns (`fr`, `%`) have nothing to divide and collapse to zero
-/// width, overprinting their neighbours. Those tables get a fixed text width, like
+/// width, overprinting their neighbors. Those tables get a fixed text width, like
 /// a real document; everything else keeps its natural width (and is cropped).
 fn typst_page_width(src: &str) -> &'static str {
     let relative = src.lines().any(|l| {

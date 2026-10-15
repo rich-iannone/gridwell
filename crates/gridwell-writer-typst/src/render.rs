@@ -180,7 +180,7 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
             attrs.push(format!("fill: {}", typst_color(fill)));
         }
         // The column's alignment applies unless the cell's differs (its style, or a
-        // centred spanner label).
+        // centered spanner label).
         let own = typst_align(&cell.align);
         if own != typst_align(&self.rt.columns[cell.col].align) {
             attrs.push(format!("align: {own}"));
@@ -263,7 +263,7 @@ pub fn render(table: &Table, config: &TypstWriterConfig) -> Result<String, Rende
     TypstRenderer::new(&rt, config).render()
 }
 
-/// `content` wrapped in `#text(…)` for the style's weight, slant, size, colour and
+/// `content` wrapped in `#text(…)` for the style's weight, slant, size, color and
 /// monospace family, and in `#underline[…]` / `#strike[…]` for its decoration.
 /// Header cells are bold unless their style sets a weight.
 fn text_style(content: &str, style: &ResolvedStyle, is_header: bool) -> String {
@@ -333,7 +333,7 @@ fn typst_font_size(f: &FontSize) -> Option<String> {
     }
 }
 
-/// A Typst `rgb("#RRGGBB[AA]")`; Typst colours keep alpha.
+/// A Typst `rgb("#RRGGBB[AA]")`; Typst colors keep alpha.
 fn typst_color(c: Color) -> String {
     format!("rgb(\"{}\")", c.to_hex())
 }
