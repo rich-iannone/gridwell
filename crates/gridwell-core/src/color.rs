@@ -1,9 +1,9 @@
-//! CSS colours: parsing every form a table author is likely to write, normalizing
+//! CSS colors: parsing every form a table author is likely to write, normalizing
 //! to RGBA so writers never see the source text.
 //!
 //! Accepted (case-insensitive, surrounding whitespace ignored):
 //!
-//! - the 148 CSS named colours, plus `transparent`;
+//! - the 148 CSS named colors, plus `transparent`;
 //! - hex: `#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA`;
 //! - `rgb()` / `rgba()`, legacy comma-separated (`rgb(255, 0, 0)`,
 //!   `rgba(255, 0, 0, 0.5)`) or modern space-separated with an optional `/ alpha`
@@ -72,8 +72,8 @@ impl Color {
         format!("{:02X}{:02X}{:02X}", self.r, self.g, self.b)
     }
 
-    /// This colour composited over an opaque `background` ("source over"): what a
-    /// translucent colour looks like in formats that have no alpha channel.
+    /// This color composited over an opaque `background` ("source over"): what a
+    /// translucent color looks like in formats that have no alpha channel.
     pub fn over(&self, background: Color) -> Color {
         let a = self.a as f64 / 255.0;
         let mix = |fg: u8, bg: u8| (fg as f64 * a + bg as f64 * (1.0 - a)).round() as u8;
@@ -84,7 +84,7 @@ impl Color {
         )
     }
 
-    /// Composited over white: the flat colour for formats without alpha.
+    /// Composited over white: the flat color for formats without alpha.
     pub fn flatten(&self) -> Color {
         self.over(Color::rgb(255, 255, 255))
     }
@@ -302,7 +302,7 @@ fn named_color(name: &str) -> Option<Color> {
     Some(Color::rgb((v >> 16) as u8, (v >> 8) as u8, v as u8))
 }
 
-/// The CSS Color 4 named colours, sorted by name (for binary search).
+/// The CSS Color 4 named colors, sorted by name (for binary search).
 pub const NAMED_COLORS: &[(&str, u32)] = &[
     ("aliceblue", 0xF0F8FF),
     ("antiquewhite", 0xFAEBD7),
@@ -683,7 +683,7 @@ mod tests {
     fn compositing() {
         assert_eq!(Color::rgb(1, 2, 3).flatten(), Color::rgb(1, 2, 3));
         assert_eq!(Color::TRANSPARENT.flatten(), Color::rgb(255, 255, 255));
-        // gt's default stripe colour.
+        // gt's default stripe color.
         assert_eq!(
             c("rgba(128, 128, 128, 0.05)").flatten(),
             Color::rgb(249, 249, 249)

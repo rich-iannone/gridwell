@@ -199,7 +199,7 @@ impl PyTable {
         self.text(py, "pandoc", options.map(|d| d.as_any()))
     }
 
-    /// Render the table to Quarto-flavoured Pandoc AST JSON. Options: table_id,
+    /// Render the table to Quarto-flavored Pandoc AST JSON. Options: table_id,
     /// extra_attrs.
     #[pyo3(signature = (**options))]
     fn render_quarto(

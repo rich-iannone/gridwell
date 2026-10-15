@@ -1,5 +1,5 @@
 //! Style read-back: how each cell of a rendered table *looks* — weight, slant,
-//! decoration, colour, size, font, fill, alignment, borders — recovered from the
+//! decoration, color, size, font, fill, alignment, borders — recovered from the
 //! format's own structure, as the grid readers recover text.
 //!
 //! Each reader returns every table cell (span origins only, in document order)
@@ -21,7 +21,7 @@ use quick_xml::Reader;
 
 use super::ooxml::attr;
 
-/// An sRGB colour.
+/// An sRGB color.
 pub type Rgb = (u8, u8, u8);
 
 /// Parse `RRGGBB`, `#RRGGBB` or `AARRGGBB` (alpha ignored).
@@ -676,7 +676,7 @@ struct CellDef {
     merged: bool,
 }
 
-/// The colour and font tables.
+/// The color and font tables.
 fn rtf_tables(toks: &[Tok]) -> (Vec<Option<Rgb>>, HashMap<i32, String>) {
     let mut colors = Vec::new();
     let mut fonts = HashMap::new();
@@ -1192,7 +1192,7 @@ fn transformed(text: &str, transform: Option<&str>) -> String {
 
 /// Read an HTML fragment: the (first) table's cells with their computed look,
 /// from the writer's `<style>` blocks, inline styles, tag defaults (`th` is bold
-/// and centred, `strong`/`em`/`u`/`s`/`sup` as named) and inheritance. A cell's
+/// and centered, `strong`/`em`/`u`/`s`/`sup` as named) and inheritance. A cell's
 /// fill is its own background, else its row's, else its section's.
 pub fn html(html: &str) -> Doc {
     let doc_html = scraper::Html::parse_fragment(html);

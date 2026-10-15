@@ -38,7 +38,7 @@ use gridwell_ir::cell::{Row, TypedValue};
 use gridwell_ir::style::{ConditionalSelector, StyleDef};
 
 /// Background of striped rows when `config.row_striping` is on: gt's default,
-/// a 5% grey. Formats without alpha show it composited over white.
+/// a 5% gray. Formats without alpha show it composited over white.
 pub const STRIPE_COLOR: Color = Color::new(128, 128, 128, 13);
 
 /// A table ready for a writer.
@@ -85,7 +85,7 @@ impl<'a> ResolvedTable<'a> {
 
     /// Every piece of content the writer will emit, in document order: header lines,
     /// cells (visible ones only), group labels, footnotes, source notes. For writers
-    /// that must collect things (colours, fonts) before writing.
+    /// that must collect things (colors, fonts) before writing.
     pub fn contents(&self) -> Vec<&'a [ContentNode]> {
         let h = &self.header;
         let mut out: Vec<&'a [ContentNode]> = h
@@ -225,7 +225,7 @@ pub struct ResolvedRow<'a> {
     /// head rows count within the head, data rows across all groups, summary rows
     /// within their group.
     pub number: usize,
-    /// Whether row striping colours this row (`config.row_striping`, even rows).
+    /// Whether row striping colors this row (`config.row_striping`, even rows).
     pub striped: bool,
     /// Exactly one slot per visible column.
     pub slots: Vec<Slot<'a>>,
@@ -279,7 +279,7 @@ pub struct ResolvedCell<'a> {
     pub rowspan: usize,
     /// The cascaded style.
     pub style: ResolvedStyle,
-    /// Horizontal alignment: the style's; else centred for a header cell spanning
+    /// Horizontal alignment: the style's; else centered for a header cell spanning
     /// several columns (a spanner label); else the column's.
     pub align: HAlign,
     /// In the head section.
@@ -594,7 +594,7 @@ impl<'a> Ctx<'_, 'a> {
             let (number, striped) = resolved_rows[r];
             let style = self.cascade(&rows[r], cell, grid_col, kind, number, striped);
             let column = &self.columns[vc];
-            // A header cell spanning several columns (a spanner label) is centred
+            // A header cell spanning several columns (a spanner label) is centered
             // over them, as in gt; any other cell takes its column's alignment.
             // An explicit style alignment wins over both.
             let default_align = if kind == SectionKind::Head && colspan > 1 {

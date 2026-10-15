@@ -9,7 +9,7 @@
 //! 5. the cell's style.
 //!
 //! A style id names a definition or a composition (a definition plus overrides).
-//! Values are parsed once here: colours, lengths and font sizes that don't parse and
+//! Values are parsed once here: colors, lengths and font sizes that don't parse and
 //! keywords outside their allowed set resolve to `None`, so writers never see them.
 
 use gridwell_core::{Color, FontSize, Length};
@@ -48,7 +48,7 @@ pub struct ResolvedBorder {
     pub style: BorderStyle,
     /// `None`: the format's default width (CSS's is `medium`; writers use 1px).
     pub width: Option<Length>,
-    /// `None`: the text colour (CSS `currentColor`).
+    /// `None`: the text color (CSS `currentColor`).
     pub color: Option<Color>,
 }
 
@@ -133,7 +133,7 @@ impl ResolvedStyle {
         self.font_style.as_ref().is_some_and(FontStyle::is_italic)
     }
 
-    /// The text colour, if any and not fully transparent.
+    /// The text color, if any and not fully transparent.
     pub fn paint(&self) -> Option<Color> {
         self.color.filter(|c| !c.is_transparent())
     }

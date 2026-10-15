@@ -1,6 +1,6 @@
 //! Alignment means the same thing in every writer: a right-aligned column's
 //! cells are right-aligned, and a header cell spanning columns (a spanner label)
-//! is centred. The grid invariant compares text only, so this is checked here;
+//! is centered. The grid invariant compares text only, so this is checked here;
 //! HTML ignored column alignment entirely until this test existed.
 
 use gridwell_ir::Table;
@@ -39,7 +39,7 @@ fn text(format: &str) -> String {
     }
 }
 
-/// (format, marker for the right-aligned number, marker for the centred spanner)
+/// (format, marker for the right-aligned number, marker for the centered spanner)
 const CASES: &[(&str, &str, &str)] = &[
     ("html", "<td class=\"gw__al_right\">12345</td>", "<th class=\"gw__al_center\" colspan=\"2\">SPANNER</th>"),
     ("latex", "\\begin{tabular}{lr}", "\\multicolumn{2}{c}{SPANNER}"),
@@ -53,15 +53,15 @@ const CASES: &[(&str, &str, &str)] = &[
 
 #[test]
 fn right_aligned_columns_and_centred_spanners_in_every_writer() {
-    for (format, right, centred) in CASES {
+    for (format, right, centered) in CASES {
         let out = text(format);
         assert!(
             out.contains(right),
             "{format}: right alignment missing ({right:?}):\n{out}"
         );
         assert!(
-            out.contains(centred),
-            "{format}: centred spanner missing ({centred:?}):\n{out}"
+            out.contains(centered),
+            "{format}: centered spanner missing ({centered:?}):\n{out}"
         );
     }
 }
@@ -101,7 +101,7 @@ fn ansi_places_text_by_alignment() {
     );
     assert!(
         lead.abs_diff(trail) <= 1,
-        "spanner not centred: {spanner:?}"
+        "spanner not centered: {spanner:?}"
     );
     let value = plain.lines().find(|l| l.contains("12345")).unwrap();
     assert!(

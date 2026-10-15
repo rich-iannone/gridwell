@@ -7,7 +7,7 @@
 //! text that is hard to escape. Every generated table passes validation.
 //!
 //! Span layouts are packed from a list of small choices rather than a random
-//! seed, so proptest can shrink a failing layout towards a simple one.
+//! seed, so proptest can shrink a failing layout toward a simple one.
 
 use proptest::prelude::*;
 

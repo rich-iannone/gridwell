@@ -12,7 +12,7 @@ pub static REGISTRY: &[&dyn Writer] = &[
     &Html, &Latex, &Typst, &Rtf, &Svg, &Ansi, &Pandoc, &Quarto, &Docx, &Xlsx, &Pptx,
 ];
 
-/// A writer error, labelled with the format.
+/// A writer error, labeled with the format.
 fn failed(format: &'static str, e: impl std::fmt::Display) -> RenderError {
     RenderError::Writer {
         format,
@@ -131,7 +131,7 @@ define_format!(
     render: |t, o| gridwell_writer_svg::SvgWriter::with_config(o).render(t),
 );
 define_format!(
-    Ansi, "ansi", "Terminal output with box drawing and ANSI colours", Text, "txt", "text/plain",
+    Ansi, "ansi", "Terminal output with box drawing and ANSI colors", Text, "txt", "text/plain",
     options: gridwell_writer_ansi::AnsiConfig,
     check: ok,
     render: |t, o| gridwell_writer_ansi::AnsiWriter::with_config(o).render(t),
@@ -143,7 +143,7 @@ define_format!(
     render: |t, _| gridwell_writer_pandoc::render_pandoc(t),
 );
 define_format!(
-    Quarto, "quarto", "Quarto-flavoured Pandoc JSON AST (cross-referenceable Div)", Text, "json",
+    Quarto, "quarto", "Quarto-flavored Pandoc JSON AST (cross-referenceable Div)", Text, "json",
     "application/json",
     options: gridwell_writer_quarto::QuartoConfig,
     check: ok,

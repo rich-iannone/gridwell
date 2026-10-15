@@ -101,7 +101,7 @@ fn hide(mut t: Table, mask: &[bool]) -> Table {
 
 /// Every corpus example as is, with its column labels hidden, and with each column
 /// hidden; every span layout in
-/// the head, a labelled body group and (one-row layouts) a summary row, under
+/// the head, a labeled body group and (one-row layouts) a summary row, under
 /// every hidden-column mask that leaves a column visible.
 fn scenarios() -> Vec<(String, Table)> {
     let mut out = Vec::new();
@@ -359,7 +359,7 @@ fn latex_columns_only_spans_cover() {
     assert!(x(0, 0, true) < x(1, 0, true), "{:?}", got[1]);
 }
 
-/// A `\multirow`'s text is centred over its rows, so one line can straddle the
+/// A `\multirow`'s text is centered over its rows, so one line can straddle the
 /// boundary between them — words of different sizes sit at slightly different
 /// heights. A merged area's text must be read in reading order across its rows,
 /// not row by row. From the property test.

@@ -1,4 +1,4 @@
-//! INVALID_COLOR and INVALID_LENGTH: every colour and length in the IR parses, and
+//! INVALID_COLOR and INVALID_LENGTH: every color and length in the IR parses, and
 //! each length uses a form that makes sense for its field (no `fr` padding, no
 //! negative widths, …).
 

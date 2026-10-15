@@ -164,7 +164,7 @@ fn features() -> Vec<Feature> {
             id: "text-color",
             what: "`color`",
             table: || probe(def(|d| d.color = Some("#9932CC".into()))),
-            check: |d| target_only(d, "colour #9932CC", |l| l.all(|r| r.color == Some(PURPLE))),
+            check: |d| target_only(d, "color #9932CC", |l| l.all(|r| r.color == Some(PURPLE))),
         },
         Feature {
             id: "font-size",
@@ -589,9 +589,9 @@ fn matrix_page(features: &[Feature]) -> String {
          Which IR features each Tier-1 writer (plus PPTX) expresses. Every cell is \
          *measured*: \
          the test renders a probe table, reads the output back with a format-specific \
-         reader (cell by cell: weight, slant, decoration, colour, size, font, fill, \
+         reader (cell by cell: weight, slant, decoration, color, size, font, fill, \
          alignment, borders) and checks the feature is there — and doesn't leak into \
-         neighbouring cells. The test fails whenever a measurement disagrees with this \
+         neighboring cells. The test fails whenever a measurement disagrees with this \
          page.\n\n\
          ✓ supported · ✗ not yet (the format can express it) · ⊘ the format can't \
          (portably) express it. Numbers refer to the notes below.\n\n",

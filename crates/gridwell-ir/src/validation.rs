@@ -28,7 +28,7 @@ pub enum ValidationRule {
     /// A keyword field (alignment, role, border style, …) holds a value that is not
     /// one of its allowed values. The value is kept verbatim; see [`crate::keywords`].
     UnknownValue,
-    /// A colour field holds something that is not a CSS colour (see
+    /// A color field holds something that is not a CSS color (see
     /// [`gridwell_core::color`] for the accepted forms).
     InvalidColor,
     /// A length field does not parse, or uses a form its field does not allow

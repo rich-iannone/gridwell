@@ -1,10 +1,10 @@
-//! INVALID_COLOR and INVALID_LENGTH: every colour and length field is checked, with a
+//! INVALID_COLOR and INVALID_LENGTH: every color and length field is checked, with a
 //! message naming the field and the value, and valid forms of every kind pass.
 
 use gridwell_ir::{Table, ValidationRule};
 use serde_json::{json, Value};
 
-/// A valid table with a value in every colour and length field.
+/// A valid table with a value in every color and length field.
 fn base() -> Value {
     let cell = |s: &str| json!({ "content": [{ "type": "text", "value": s }] });
     let image = |w: &str| json!({ "type": "image", "src": "x.png", "width": w, "height": "auto" });

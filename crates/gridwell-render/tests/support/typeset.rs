@@ -17,16 +17,16 @@
 //! - `pdftotext -bbox` gives every word's box. Marker rows are the table's rows
 //!   (even rows whose cells are all empty); marker pairs are its cells, and the
 //!   distinct edge positions its column boundaries. A cell's columns follow from
-//!   its edges, so a `\multicolumn` is recognised by its extent, even when its
+//!   its edges, so a `\multicolumn` is recognized by its extent, even when its
 //!   text is short and left-aligned. (Edges are matched to columns by the rows
 //!   they occur in, not by x order: TeX gives a column that only spans cover zero
 //!   or even negative width.)
-//! - Each word goes to the row whose band contains its vertical centre (from 10pt
+//! - Each word goes to the row whose band contains its vertical center (from 10pt
 //!   above the row's baseline to 10pt above the next one: lines below the baseline
 //!   in a cell, and raised footnote marks, stay in their row) and to the cell of
 //!   that row whose edges contain its start.
 //! - **Rowspans** (`\multirow`) are not part of TeX's alignment: the text is
-//!   placed once, vertically centred over the rows, and each covered row has an
+//!   placed once, vertically centered over the rows, and each covered row has an
 //!   empty cell of the span's width. So a merged area is verified as a whole: every
 //!   row it covers must have a cell spanning exactly its columns, and the text of
 //!   those cells together must be the expected text (see [`latex_compare`]).
@@ -263,7 +263,7 @@ pub struct TexCell {
     pub words: Vec<Placed>,
 }
 
-/// A word and where it sits: its vertical centre and left edge.
+/// A word and where it sits: its vertical center and left edge.
 #[derive(Debug, Clone)]
 pub struct Placed {
     pub cy: f64,
@@ -271,7 +271,7 @@ pub struct Placed {
     pub text: String,
 }
 
-/// Words in reading order: lines (words whose centres are within 5pt, so raised
+/// Words in reading order: lines (words whose centers are within 5pt, so raised
 /// marks and larger runs share their line), top to bottom, then left to right.
 pub fn reading_order(words: &[Placed]) -> String {
     let mut words: Vec<&Placed> = words.iter().collect();
@@ -508,7 +508,7 @@ fn tex_table(words: &[Word]) -> Result<TexTable, String> {
                 .collect()
         })
         .collect();
-    // Marker centres sit about 0.85pt above the baseline.
+    // Marker centers sit about 0.85pt above the baseline.
     let baselines: Vec<f64> = ys.iter().map(|y| y + 0.85).collect();
     for w in words {
         let r = baselines
@@ -641,7 +641,7 @@ pub fn latex_compare(got: &TexTable, want: &Expected) -> Result<(), String> {
     }
     for region in &want.regions {
         // The area's words in reading order across its cells: a `\multirow`'s
-        // text is centred over its rows, so one line can straddle two of them.
+        // text is centered over its rows, so one line can straddle two of them.
         let mut words: Vec<Placed> = Vec::new();
         for r in region.rows.clone() {
             let Some((_, cell)) = cells[r].iter().find(|(cols, _)| *cols == region.cols) else {

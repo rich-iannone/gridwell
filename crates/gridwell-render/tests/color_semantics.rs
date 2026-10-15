@@ -1,4 +1,4 @@
-//! Every CSS colour form means the same colour in every writer. Before
+//! Every CSS color form means the same color in every writer. Before
 //! `gridwell-core` was used everywhere, most writers understood only `#RRGGBB`
 //! (silently dropping `red`, `#abc` or `hsl()`), and the ANSI and RTF writers
 //! byte-sliced the hex digits, panicking on non-ASCII input such as `#ééé`.
@@ -158,7 +158,7 @@ fn invalid_and_transparent_colours_paint_nothing_and_never_panic() {
         let t = table_with(Some(bad), Some(bad));
         for (name, render, ..) in writers() {
             let out = std::panic::catch_unwind(|| render(&t))
-                .unwrap_or_else(|_| panic!("{name} panicked on colour {bad:?}"));
+                .unwrap_or_else(|_| panic!("{name} panicked on color {bad:?}"));
             // No writer may paint the cell black (RTF's old fallback for an
             // unparseable background).
             for black in [
