@@ -111,24 +111,34 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
             rt,
             config,
             buf: String::with_capacity(4096),
-            col_widths: fit_widths(Self::compute_col_widths(rt), config.max_width),
+            col_widths: fit_widths(
+                Self::compute_col_widths(rt, config.box_drawing),
+                config.max_width,
+            ),
             bc,
         }
     }
 
     /// Each visible column is as wide as its widest single-column cell plus one
     /// space of padding on each side (at least `DEFAULT_COL_WIDTH`).
-    fn compute_col_widths(rt: &ResolvedTable) -> Vec<usize> {
+    fn compute_col_widths(rt: &ResolvedTable, superscript_marks: bool) -> Vec<usize> {
         let mut widths = vec![DEFAULT_COL_WIDTH; rt.columns.len()];
         for section in rt.sections() {
             for row in &section.rows {
                 for cell in row.cells().filter(|c| c.colspan == 1) {
-                    let w = UnicodeWidthStr::width(content_to_text(cell.content).as_str());
+                    let text = content_to_text(cell.content, superscript_marks);
+                    let w = UnicodeWidthStr::width(text.as_str());
                     widths[cell.col] = widths[cell.col].max(w + 2);
                 }
             }
         }
         widths
+    }
+
+    /// A cell's or label's text. With box drawing (Unicode output), footnote marks
+    /// are superscript.
+    fn text(&self, nodes: &[ContentNode]) -> String {
+        content_to_text(nodes, self.config.box_drawing)
     }
 
     /// Width of `span` columns starting at `col`, including the separators between
@@ -161,7 +171,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
         let group_count = rt.groups.len();
         for (gi, group) in rt.groups.iter().enumerate() {
             if let Some(label) = &group.label {
-                let text = content_to_text(label.content);
+                let text = self.text(label.content);
                 self.write_group_label(&text)?;
                 self.write_border_line(self.bc.lj, self.bc.cj, self.bc.rj)?;
             }
@@ -184,11 +194,11 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
     fn render_title(&mut self) -> Result<(), RenderError> {
         let header = &self.rt.header;
         if let Some(title) = &header.title {
-            let text = content_to_text(title.content);
+            let text = self.text(title.content);
             writeln!(self.buf, "{BOLD}{text}{RESET}")?;
         }
         if let Some(subtitle) = &header.subtitle {
-            let text = content_to_text(subtitle.content);
+            let text = self.text(subtitle.content);
             writeln!(self.buf, "{text}")?;
         }
         Ok(())
@@ -239,7 +249,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
                 Slot::Origin(cell) => {
                     sep(&mut self.buf, v);
                     let width = self.span_width(col, cell.colspan);
-                    let text = content_to_text(cell.content);
+                    let text = self.text(cell.content);
                     let (open, close) = self.escapes(&cell.style, strong);
                     self.buf.push_str(&open);
                     self.buf.push_str(&fit(&text, width, &cell.align));
@@ -308,12 +318,12 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
 
     fn render_footnotes(&mut self) -> Result<(), RenderError> {
         for note in &self.rt.footer.footnotes {
-            let text = content_to_text(note.content);
+            let text = self.text(note.content);
             let mark = sanitize(note.mark);
             writeln!(self.buf, "  {mark} {text}")?;
         }
         for note in &self.rt.footer.source_notes {
-            let text = content_to_text(note.content);
+            let text = self.text(note.content);
             writeln!(self.buf, "  {text}")?;
         }
         Ok(())
@@ -365,8 +375,71 @@ fn sanitize(s: &str) -> String {
         .collect()
 }
 
-fn content_to_text(nodes: &[ContentNode]) -> String {
-    sanitize(&gridwell_layout::plain_text(nodes, " "))
+fn content_to_text(nodes: &[ContentNode], superscript_marks: bool) -> String {
+    if !superscript_marks {
+        return sanitize(&gridwell_layout::plain_text(nodes, " "));
+    }
+    let mut out = String::new();
+    for node in nodes {
+        match node {
+            ContentNode::FootnoteMark { mark_text, .. } => out.push_str(&superscript(mark_text)),
+            other => out.push_str(&gridwell_layout::plain_text(
+                std::slice::from_ref(other),
+                " ",
+            )),
+        }
+    }
+    sanitize(&out)
+}
+
+/// A footnote mark in Unicode superscript characters (`1` → `¹`), so it can't be
+/// read as part of the text before it (`N = 98¹`, not `N = 981`). Marks with a
+/// character that has no superscript form, and symbols (`*`, `†`), stay as they are.
+fn superscript(mark: &str) -> String {
+    const DIGITS: [char; 10] = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+    let sup = |c: char| -> Option<char> {
+        match c {
+            '0'..='9' => Some(DIGITS[c as usize - '0' as usize]),
+            'a' => Some('ᵃ'),
+            'b' => Some('ᵇ'),
+            'c' => Some('ᶜ'),
+            'd' => Some('ᵈ'),
+            'e' => Some('ᵉ'),
+            'f' => Some('ᶠ'),
+            'g' => Some('ᵍ'),
+            'h' => Some('ʰ'),
+            'i' => Some('ⁱ'),
+            'j' => Some('ʲ'),
+            'k' => Some('ᵏ'),
+            'l' => Some('ˡ'),
+            'm' => Some('ᵐ'),
+            'n' => Some('ⁿ'),
+            'o' => Some('ᵒ'),
+            'p' => Some('ᵖ'),
+            'r' => Some('ʳ'),
+            's' => Some('ˢ'),
+            't' => Some('ᵗ'),
+            'u' => Some('ᵘ'),
+            'v' => Some('ᵛ'),
+            'w' => Some('ʷ'),
+            'x' => Some('ˣ'),
+            'y' => Some('ʸ'),
+            'z' => Some('ᶻ'),
+            '+' => Some('⁺'),
+            '-' => Some('⁻'),
+            '(' => Some('⁽'),
+            ')' => Some('⁾'),
+            ',' => Some(','),
+            _ => None,
+        }
+    };
+    if !mark.chars().any(|c| c.is_ascii_alphanumeric()) {
+        return mark.to_string();
+    }
+    mark.chars()
+        .map(sup)
+        .collect::<Option<String>>()
+        .unwrap_or_else(|| mark.to_string())
 }
 
 /// `text` laid out in exactly `width` terminal columns: one space of padding on
