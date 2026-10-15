@@ -79,7 +79,7 @@ struct Fmt {
 const BASE_PT: f64 = 11.0;
 
 impl Fmt {
-    /// This format with a style's weight, slant, decoration, colour and size
+    /// This format with a style's weight, slant, decoration, color and size
     /// laid over it (a relative size resolves against the size so far).
     fn with(self, style: &ResolvedStyle) -> Self {
         let parent = self.half_points.map_or(BASE_PT, |h| f64::from(h) / 2.0);

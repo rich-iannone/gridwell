@@ -1,4 +1,4 @@
-//! Quarto-flavoured Pandoc AST: the Pandoc writer's table inside a `Div` with
+//! Quarto-flavored Pandoc AST: the Pandoc writer's table inside a `Div` with
 //! cross-reference attributes, and the notes as paragraphs after the table.
 
 use gridwell_ir::Table;

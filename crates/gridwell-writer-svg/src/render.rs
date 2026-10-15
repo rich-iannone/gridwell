@@ -472,7 +472,7 @@ fn content_runs(
     paragraphs
 }
 
-/// Weight, slant, colour, decoration and size from a style; unset properties keep
+/// Weight, slant, color, decoration and size from a style; unset properties keep
 /// `style`'s value. A relative size resolves against the run's size so far, or
 /// `block_px`, the size of the text block it is in.
 fn apply_style(style: &mut RunStyle, s: &ResolvedStyle, block_px: f64) {
@@ -584,12 +584,12 @@ fn block_height(lines: &[Line], font_size: f64) -> f64 {
     lines.iter().map(|l| l.size(font_size) * LINE_HEIGHT).sum()
 }
 
-/// y of the top of a block's first line (lines are vertically centred in the box).
+/// y of the top of a block's first line (lines are vertically centered in the box).
 fn first_line_top(b: &TextBlock) -> f64 {
     b.y + ((b.height - block_height(&b.lines, b.font_size)) / 2.0).max(0.0)
 }
 
-/// Write a block's lines, vertically centred in its box.
+/// Write a block's lines, vertically centered in its box.
 fn text_block(buf: &mut String, b: &TextBlock) -> Result<(), RenderError> {
     let mut top = first_line_top(b);
     let (x, anchor) = match b.align {
@@ -605,7 +605,7 @@ fn text_block(buf: &mut String, b: &TextBlock) -> Result<(), RenderError> {
         if line.runs.is_empty() {
             continue;
         }
-        // Baseline: centre of the line box plus about a third of the font size.
+        // Baseline: center of the line box plus about a third of the font size.
         let baseline = line_top + line_h / 2.0 + size * 0.35;
         write!(
             buf,

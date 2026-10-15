@@ -17,7 +17,7 @@ const DEFAULT_COL_WIDTH: u32 = 2160; // 1.5 inches
 struct RtfRenderer<'r, 'a> {
     rt: &'r ResolvedTable<'a>,
     buf: String,
-    /// The colour table: index `i` here is `\cf{i + 1}` (RTF's index 0 is "auto").
+    /// The color table: index `i` here is `\cf{i + 1}` (RTF's index 0 is "auto").
     colors: Vec<Color>,
     col_widths: Vec<u32>,
 }
@@ -43,8 +43,8 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
             colors: vec![Color::rgb(0, 0, 0), Color::rgb(255, 255, 255)],
             col_widths,
         };
-        // Register every colour the document uses, in document order, so the
-        // colour table is complete before it is written: cell text and fills, line
+        // Register every color the document uses, in document order, so the
+        // color table is complete before it is written: cell text and fills, line
         // styles, and inline styled runs.
         let mut styles: Vec<ResolvedStyle> = Vec::new();
         let h = &rt.header;
@@ -86,8 +86,8 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         r
     }
 
-    /// Character formatting for a style: bold, italic, colour (registered colours
-    /// only; every colour was registered up front).
+    /// Character formatting for a style: bold, italic, color (registered colors
+    /// only; every color was registered up front).
     fn char_format(&self, style: &ResolvedStyle) -> String {
         let mut f = String::new();
         if style.is_bold() {
@@ -103,7 +103,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         f
     }
 
-    /// The index of an already registered colour.
+    /// The index of an already registered color.
     fn color_ref(&self, c: Color) -> Option<usize> {
         let c = c.flatten();
         self.colors.iter().position(|&k| k == c).map(|i| i + 1)
@@ -154,8 +154,8 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         format!("\\pard{{{base}{fmt} {text}}}\\par")
     }
 
-    /// The `\cf` / `\clcbpat` index of a colour, registering it if new. RTF has no
-    /// alpha: translucent colours are flattened onto white.
+    /// The `\cf` / `\clcbpat` index of a color, registering it if new. RTF has no
+    /// alpha: translucent colors are flattened onto white.
     fn color_index(&mut self, c: Color) -> usize {
         let c = c.flatten();
         let i = match self.colors.iter().position(|&k| k == c) {
@@ -289,7 +289,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
             }
             fmt.push_str(&text_format(&cell.style));
             // `\pard` resets paragraph formatting only: without `\plain`, the
-            // previous cell's bold, italic or colour would carry over.
+            // previous cell's bold, italic or color would carry over.
             writeln!(self.buf, "\\pard\\intbl\\plain{fmt} {text}\\cell").unwrap();
         }
         self.buf.push_str("\\row\n");

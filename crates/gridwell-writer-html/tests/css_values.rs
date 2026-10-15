@@ -1,4 +1,4 @@
-//! Colours, lengths and font values reach CSS only in normalized form: hostile IR
+//! Colors, lengths and font values reach CSS only in normalized form: hostile IR
 //! strings can't break out of a `style` attribute or the `<style>` block, and valid
 //! values in any accepted form come out as well-formed CSS.
 
@@ -8,7 +8,7 @@ use serde_json::{json, Value};
 
 const PAYLOAD: &str = "1px; evil: 1\"><script>alert(1)</script></style><b>{}";
 
-/// A table with `v` in every colour, length and font field.
+/// A table with `v` in every color, length and font field.
 fn table_with(v: &str) -> Table {
     let style = json!({
         "font_family": v, "font_size": v, "color": v, "background_color": v, "indent": v,

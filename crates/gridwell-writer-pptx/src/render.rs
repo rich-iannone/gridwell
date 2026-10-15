@@ -66,7 +66,7 @@ fn write_slide_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
     buf.push_str("<p:grpSpPr/>\n");
 
     // Title lines above the table and notes below it, stacked as one block
-    // centred vertically on the 4:3 slide (9144000 × 6858000 EMU).
+    // centered vertically on the 4:3 slide (9144000 × 6858000 EMU).
     let header: Vec<(&gridwell_layout::Line, Fmt, u32)> = {
         let h = &rt.header;
         let title = h.title.iter().map(|l| {

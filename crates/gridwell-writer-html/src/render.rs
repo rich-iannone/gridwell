@@ -642,7 +642,7 @@ pub fn render(table: &Table, config: &HtmlWriterConfig) -> Result<String, Render
     HtmlRenderer::new(&rt, config).render()
 }
 
-/// The `text-align` a cell needs, if any: header cells always (browsers centre
+/// The `text-align` a cell needs, if any: header cells always (browsers center
 /// `<th>` by default), body cells unless left-aligned (the default for `<td>`).
 /// Decimal (`char`) alignment is approximated by right alignment.
 fn cell_alignment(cell: &ResolvedCell, is_header: bool) -> Option<&'static str> {
@@ -657,7 +657,7 @@ fn cell_alignment(cell: &ResolvedCell, is_header: bool) -> Option<&'static str> 
 
 // ─── CSS Generation ───
 
-/// CSS declarations for a resolved style. Every value is typed (parsed colours and
+/// CSS declarations for a resolved style. Every value is typed (parsed colors and
 /// lengths, known keywords, a sanitized family list), so the result is safe inside a
 /// `<style>` block; callers still attribute-escape it for `style="…"` (family names
 /// may contain quotes).

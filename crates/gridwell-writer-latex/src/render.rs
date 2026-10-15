@@ -368,7 +368,7 @@ fn latex_width(w: &Length) -> Option<String> {
     })
 }
 
-/// Bold, italic, colour, underline, strike-through and size for an inline run
+/// Bold, italic, color, underline, strike-through and size for an inline run
 /// (single-line text).
 fn apply_inline_style(content: &str, style: &ResolvedStyle) -> String {
     styled(content, style, true)
@@ -437,8 +437,8 @@ fn apply_style(content: &str, style: &ResolvedStyle) -> String {
     result
 }
 
-/// An xcolor `[HTML]{RRGGBB}` spec; LaTeX colours have no alpha, so translucent
-/// colours are flattened onto white.
+/// An xcolor `[HTML]{RRGGBB}` spec; LaTeX colors have no alpha, so translucent
+/// colors are flattened onto white.
 fn latex_color(c: Color) -> String {
     format!("[HTML]{{{}}}", c.flatten().to_rrggbb())
 }

@@ -1,6 +1,6 @@
-//! Structural oracle for RTF: groups balance, and every colour index used (`\cfN`,
-//! `\clcbpatN`) exists in the colour table written in the header. The colour table
-//! is written before anything that uses it, so a colour first seen late (a styled
+//! Structural oracle for RTF: groups balance, and every color index used (`\cfN`,
+//! `\clcbpatN`) exists in the color table written in the header. The color table
+//! is written before anything that uses it, so a color first seen late (a styled
 //! run, a title, a label, a note) must still have been registered up front.
 
 use gridwell_ir::{StyleDef, Table};
@@ -57,7 +57,7 @@ fn check(name: &str, t: &Table) {
         for i in indices(&rtf, word) {
             assert!(
                 i >= 1 && i <= colors,
-                "{name}: {word}{i} but {colors} colours\n{rtf}"
+                "{name}: {word}{i} but {colors} colors\n{rtf}"
             );
         }
     }
@@ -117,7 +117,7 @@ fn colours_first_used_outside_cells_are_registered() {
     ] {
         assert!(
             rtf.contains(&format!("\\red{r}\\green0\\blue0;")),
-            "{word} colour missing\n{rtf}"
+            "{word} color missing\n{rtf}"
         );
     }
     assert!(rtf.contains("{\\b\\cf"), "{rtf}");

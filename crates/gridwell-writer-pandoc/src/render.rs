@@ -185,7 +185,7 @@ fn row(rt: &ResolvedTable, row: &ResolvedRow) -> Value {
 
 fn cell(rt: &ResolvedTable, c: &ResolvedCell) -> Value {
     // AlignDefault (the column's alignment) unless the cell's differs: its style,
-    // or a centred spanner label.
+    // or a centered spanner label.
     let align = if c.align == rt.columns[c.col].align {
         json!({"t": "AlignDefault"})
     } else {
