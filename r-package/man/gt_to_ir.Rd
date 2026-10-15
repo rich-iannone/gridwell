@@ -13,5 +13,8 @@ gt_to_ir(gt_obj)
 A JSON string in gridwell IR format.
 }
 \description{
-Convert a gt table object to gridwell IR JSON
+Cell values come from gt's own formatting step (as they appear in gt's
+rendered output, not the raw data). \code{md()} text becomes bold and italic
+runs, spanners become spanner rows, footnote marks are placed in the cells
+they annotate, and \code{tab_style()} styles become IR styles.
 }
