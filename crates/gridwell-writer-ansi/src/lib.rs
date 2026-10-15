@@ -8,7 +8,8 @@ pub use render::RenderError;
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct AnsiConfig {
-    /// Use box-drawing characters for borders.
+    /// Use box-drawing characters for borders, and Unicode superscripts for
+    /// footnote marks. Off gives plain ASCII output.
     pub box_drawing: bool,
     /// Use 24-bit (true color) ANSI escapes.
     pub true_color: bool,
