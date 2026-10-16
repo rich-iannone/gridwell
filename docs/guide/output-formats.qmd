@@ -19,6 +19,29 @@ RTF, DOCX, XLSX) actually expresses is measured, not claimed: see the
 - Optional inline-style mode for email/embedded contexts
 - Footnote marks as `<sup>` linked to footer
 - Accessibility: `scope`, `aria-label`, `<caption>`
+- Class names for each structural part (below)
+
+Every structural part has a class, so a stylesheet (the host page's) can target it.
+The prefix is `gw` unless the `class_prefix` option changes it, and the classes are
+emitted with inline styles too.
+
+| Class | Element | Part |
+|---|---|---|
+| `gw_container` | `<div>` | Wraps the whole table |
+| `gw_title`, `gw_subtitle`, `gw_header_line` | `<div>` | Heading lines above the table |
+| `gw_table` | `<table>` | The table |
+| `gw_col_labels`, `gw_spanners` | `<tr>` in `<thead>` | Column-label and spanner rows (a head row without a `role` counts as column labels) |
+| `gw_col_label`, `gw_spanner` | `<th>` | Column labels; spanner labels (filler cells in a spanner row get no class) |
+| `gw_stubhead`, `gw_stub` | `<th>`, `<td>` | Stub column cells in the head and in the body |
+| `gw_group_label` | `<td>` | A row group's label |
+| `gw_summary`, `gw_grand_summary` | `<tr>` | Summary and grand summary rows |
+| `gw_footer`, `gw_footnotes`, `gw_source_notes` | `<div>` | The footer and its two blocks |
+| `gw_footnote`, `gw_source_note` | `<p>` | One footnote or source note |
+| `gw_footnote_mark` | `<sup>` | A footnote mark, in a cell or before its footnote |
+
+Style classes (`gw_<style id>`) are added alongside these, so a style id that matches a
+part name (e.g. `title`) shares its class. Generated classes use a double underscore
+(`gw__al_left`, `gw__c0`).
 
 ### LaTeX
 
