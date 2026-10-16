@@ -103,7 +103,7 @@ fn ok<T>(_: &T) -> Result<(), String> {
 define_format!(
     Html, "html", "HTML5 table", Text, "html", "text/html",
     options: gridwell_writer_html::HtmlWriterConfig,
-    check: |o| css_identifier("class_prefix", &o.class_prefix),
+    check: |o| gridwell_writer_html::check_class_prefix(&o.class_prefix),
     render: |t, o| gridwell_writer_html::HtmlWriter::with_config(o).render(t),
 );
 define_format!(
@@ -170,23 +170,6 @@ define_format!(
     check: ok,
     render: |t, _| gridwell_writer_pptx::render_pptx(t),
 );
-
-/// A CSS class-name prefix: it is written into `class` attributes and selectors,
-/// so it must be a plain identifier (`[A-Za-z_][A-Za-z0-9_-]*`).
-fn css_identifier(field: &str, v: &str) -> Result<(), String> {
-    let mut chars = v.chars();
-    let ok = chars
-        .next()
-        .is_some_and(|c| c.is_ascii_alphabetic() || c == '_')
-        && chars.all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-');
-    if ok {
-        Ok(())
-    } else {
-        Err(format!(
-            "{field} must start with a letter or `_` and contain only letters, digits, `_` and `-`; got {v:?}"
-        ))
-    }
-}
 
 /// SVG sizes must be finite and positive (padding may be zero), and the font
 /// family is written into a `<style>` block, so it is limited to the characters a
