@@ -1,5 +1,7 @@
 use pyo3::create_exception;
-use pyo3::exceptions::PyValueError;
+use std::path::PathBuf;
+
+use pyo3::exceptions::{PyOSError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PyDict};
 
@@ -26,6 +28,12 @@ fn to_py_err(e: RenderError) -> PyErr {
     match e {
         RenderError::InvalidTable(_) => InvalidTableError::new_err(e.to_string()),
         RenderError::InvalidOptions { .. } => InvalidOptionsError::new_err(e.to_string()),
+        RenderError::Io { .. } => PyOSError::new_err(e.to_string()),
+        RenderError::NoExtension { .. }
+        | RenderError::UnknownExtension { .. }
+        | RenderError::AmbiguousExtension { .. } => {
+            PyValueError::new_err(format!("{e} with format="))
+        }
         _ => PyValueError::new_err(e.to_string()),
     }
 }
@@ -141,6 +149,32 @@ impl PyTable {
         self.binary(py, format, options)
     }
 
+    /// Render the table and write it to `path` (a str or `os.PathLike`), returning
+    /// `path`. The format is inferred from the extension (`.html`, `.tex`, `.typ`,
+    /// `.rtf`, `.svg`, `.txt` for ansi, `.docx`, `.xlsx`, `.pptx`) unless `format`
+    /// is given; `.json` is ambiguous (pandoc or quarto), so it needs `format`.
+    /// Writer options are keyword arguments. The bytes are written unchanged (text
+    /// as UTF-8, no added newline), and `.txt` files are plain text unless
+    /// `color=True`.
+    ///
+    /// Raises `InvalidTableError`, `InvalidOptionsError`, `ValueError` for an
+    /// unknown format or an extension it can't infer one from, and `OSError` if the
+    /// file can't be written. Nothing is written if rendering fails.
+    #[pyo3(signature = (path, format=None, **options))]
+    fn save<'py>(
+        &self,
+        py: Python<'py>,
+        path: Bound<'py, PyAny>,
+        format: Option<&str>,
+        options: Option<&Bound<'_, PyDict>>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        let target: PathBuf = path.extract()?;
+        let options = options_json(py, options.map(|d| d.as_any()))?;
+        gridwell_render::save(&self.inner, &target, format, options.as_deref())
+            .map_err(to_py_err)?;
+        Ok(path)
+    }
+
     // ─── Per-format shorthands: options as keyword arguments ───
 
     /// Render the table to HTML. Options: inline_styles, pretty_print, class_prefix.
@@ -183,7 +217,7 @@ impl PyTable {
     }
 
     /// Render the table for a terminal. Options: box_drawing, true_color, max_width,
-    /// background_colors.
+    /// background_colors, color.
     #[pyo3(signature = (**options))]
     fn render_ansi(&self, py: Python<'_>, options: Option<&Bound<'_, PyDict>>) -> PyResult<String> {
         self.text(py, "ansi", options.map(|d| d.as_any()))
