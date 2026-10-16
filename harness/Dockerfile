@@ -66,10 +66,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends texlive-plain-g
 # Roboto: the font the SVG writer lays text out with (crates/gridwell-writer-svg,
 # measure.rs), so rsvg (which ignores `textLength`) renders SVG goldens in the font
 # their widths describe; the calibration test requires it here
-# (GRIDWELL_REQUIRE_ROBOTO). Liberation Sans is the Arial-compatible fallback the
-# SVG font list names. Its own final layer, like ulem above, so every earlier layer
-# (and so every other renderer) stays exactly as it was.
-RUN apt-get update && apt-get install -y --no-install-recommends fonts-roboto fonts-liberation \
+# (GRIDWELL_REQUIRE_ROBOTO). Its own final layer, like ulem above, so every earlier
+# layer stays exactly as it was. Not Liberation Sans: LibreOffice would substitute it
+# for Arial and Calibri and change every RTF/DOCX/XLSX/PPTX golden.
+RUN apt-get update && apt-get install -y --no-install-recommends fonts-roboto \
     && rm -rf /var/lib/apt/lists/* && fc-cache -f
 
 CMD ["bash"]
