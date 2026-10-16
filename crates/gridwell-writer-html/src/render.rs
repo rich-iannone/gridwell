@@ -185,7 +185,8 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         }
 
         let styles = &self.table.styles;
-        if styles.defs.is_empty()
+        if !self.config.base_styles
+            && styles.defs.is_empty()
             && styles.compositions.is_empty()
             && self.cell_styles.is_empty()
             && self.alignments.is_empty()
@@ -195,6 +196,13 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 
         self.write_line("<style>");
         self.push_indent();
+
+        // The base look first: zero specificity, so everything below wins.
+        if self.config.base_styles {
+            for line in crate::base::rules(&self.config.class_prefix) {
+                self.write_line(&line);
+            }
+        }
 
         // Generated rules (alignment, cascaded cell styles) are scoped under the
         // table class: two classes outrank the `.something td { text-align: … }`
