@@ -80,6 +80,7 @@ gw_save(tbl, "table.tex", booktabs = FALSE)              # writer options as arg
 gw_save(tbl, "table.json", format = "quarto")            # .json is pandoc or quarto
 gw_save(tbl, "table.txt")                                # plain text, no ANSI escapes
 gw_save(tbl, "table.txt", color = TRUE)                  # keep the escapes
+gw_save(tbl, "table.html", standalone = TRUE)            # a full document, not a fragment
 
 # Many tables at once
 purrr::walk2(tables, paths, gw_save)
