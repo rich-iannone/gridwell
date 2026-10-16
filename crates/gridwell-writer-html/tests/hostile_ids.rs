@@ -79,9 +79,22 @@ fn is_plain(token: &str) -> bool {
             .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-')
 }
 
+/// The base stylesheet's rules (the same for every table with the default prefix),
+/// from a harmless table.
+fn base_rules() -> Vec<String> {
+    render(&table_using("ok"), false)
+        .lines()
+        .map(str::trim)
+        .filter(|l| l.starts_with(":where("))
+        .map(str::to_string)
+        .collect()
+}
+
 /// The structure an attacker would need to change: elements, attributes, class
-/// tokens, and the `<style>` block's rules.
+/// tokens, and the `<style>` block's rules (exactly the base rules, then plain
+/// class selectors).
 fn assert_clean(html: &str, what: &str) {
+    let base = base_rules();
     let doc = Html::parse_fragment(html);
     let all = Selector::parse("*").unwrap();
     let allowed_tags = [
@@ -121,7 +134,7 @@ fn assert_clean(html: &str, what: &str) {
         if v.name() == "style" {
             styles += 1;
             for line in el.text().collect::<String>().lines().map(str::trim) {
-                if line.is_empty() {
+                if line.is_empty() || base.iter().any(|b| b == line) {
                     continue;
                 }
                 // `.a { … }` or `.a .b { … }`, plain class names only.
