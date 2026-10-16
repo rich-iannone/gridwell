@@ -70,10 +70,23 @@ pptx_bytes = table.render_pptx()
 
 # Generic by name (binary formats take no options yet)
 data = table.render_binary("docx")
+```
 
-# Write to file
-with open("output.docx", "wb") as f:
-    f.write(table.render_docx())
+## Saving to a File
+
+`Table.save(path, format=None, **options)` renders and writes in one call, for every
+format. The format comes from the file extension (case-insensitive): `.html`, `.tex`
+(latex), `.typ` (typst), `.rtf`, `.svg`, `.txt` (ansi), `.docx`, `.xlsx`, `.pptx`.
+`.json` is both pandoc and quarto, so it needs `format`. The bytes are written
+unchanged (UTF-8 text, no added newline). `path` may be a `str` or any
+`os.PathLike`, and is returned.
+
+```python
+table.save("output.docx")
+table.save(Path("out") / "table.tex", booktabs=False)  # writer options as kwargs
+table.save("table.json", format="quarto")
+table.save("table.txt")                 # plain text, no ANSI escapes
+table.save("table.txt", color=True)     # keep the escapes
 ```
 
 ## Serialization
@@ -99,7 +112,9 @@ html = table.render_html()
 `ValueError` is raised for parse errors, unknown format names, and render failures.
 `render()` takes text formats and `render_binary()` binary ones; the other kind is a
 `ValueError`. Invalid writer options raise `gridwell.InvalidOptionsError` (a subclass
-of `ValueError`) naming the problem, e.g. an unknown option.
+of `ValueError`) naming the problem, e.g. an unknown option. `save()` raises
+`ValueError` for an extension it can't infer a format from and `OSError` if the file
+can't be written; nothing is written if rendering fails.
 
 Every `render_*` method validates the table first. If the IR is invalid it raises
 `gridwell.InvalidTableError` (a subclass of `ValueError`) whose message lists the
