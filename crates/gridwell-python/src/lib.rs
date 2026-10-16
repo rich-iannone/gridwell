@@ -177,7 +177,8 @@ impl PyTable {
 
     // ─── Per-format shorthands: options as keyword arguments ───
 
-    /// Render the table to HTML. Options: inline_styles, pretty_print, class_prefix.
+    /// Render the table to HTML. Options: inline_styles, pretty_print, class_prefix,
+    /// base_styles.
     #[pyo3(signature = (**options))]
     fn render_html(&self, py: Python<'_>, options: Option<&Bound<'_, PyDict>>) -> PyResult<String> {
         self.text(py, "html", options.map(|d| d.as_any()))
