@@ -329,3 +329,93 @@ def test_text_and_binary_apis_reject_the_other_kind():
     with pytest.raises(ValueError, match="text format"):
         table.render_binary("html")
     assert table.render("HTML").startswith("<div")
+
+
+# ─── Table.save ───
+
+SAVE_EXTENSIONS = {
+    "html": "html",
+    "tex": "latex",
+    "typ": "typst",
+    "rtf": "rtf",
+    "svg": "svg",
+    "docx": "docx",
+    "xlsx": "xlsx",
+    "pptx": "pptx",
+}
+
+
+def reference_table():
+    return gridwell.Table.from_json(load_fixture("comprehensive/reference_table.json"))
+
+
+def test_save_infers_the_format_and_writes_the_rendered_bytes(tmp_path):
+    table = reference_table()
+    kinds = {f["name"]: f["kind"] for f in gridwell.formats()}
+    for ext, fmt in SAVE_EXTENSIONS.items():
+        path = tmp_path / f"t.{ext}"
+        assert table.save(path) is path
+        if kinds[fmt] == "text":
+            expected = table.render(fmt).encode("utf-8")
+        else:
+            expected = table.render_binary(fmt)
+        assert path.read_bytes() == expected, fmt
+
+
+def test_save_accepts_str_paths_and_returns_them(tmp_path):
+    table = reference_table()
+    path = str(tmp_path / "t.RTF")
+    assert table.save(path) == path
+    assert Path(path).read_bytes() == table.render("rtf").encode("utf-8")
+
+
+def test_save_explicit_format_overrides_the_extension(tmp_path):
+    table = reference_table()
+    for fmt in ["pandoc", "quarto"]:
+        path = tmp_path / f"{fmt}.json"
+        table.save(path, format=fmt)
+        assert path.read_text(encoding="utf-8") == table.render(fmt)
+    path = tmp_path / "no-extension"
+    table.save(path, format="latex")
+    assert path.read_text(encoding="utf-8") == table.render("latex")
+
+
+def test_save_txt_is_plain_unless_color(tmp_path):
+    table = reference_table()
+    path = tmp_path / "t.txt"
+    table.save(path)
+    plain = path.read_text(encoding="utf-8")
+    assert "\x1b" not in plain
+    assert plain == table.render_ansi(color=False)
+    table.save(path, color=True)
+    assert path.read_text(encoding="utf-8") == table.render_ansi()
+    assert "\x1b" in table.render_ansi()
+
+
+def test_save_passes_options_through(tmp_path):
+    table = reference_table()
+    path = tmp_path / "t.tex"
+    table.save(path, booktabs=False)
+    assert path.read_text(encoding="utf-8") == table.render_latex(booktabs=False)
+
+
+def test_save_errors(tmp_path):
+    table = reference_table()
+    with pytest.raises(ValueError, match="pandoc or quarto.*format="):
+        table.save(tmp_path / "t.json")
+    with pytest.raises(ValueError, match=r'no format writes "\.pdf" files'):
+        table.save(tmp_path / "t.pdf")
+    with pytest.raises(ValueError, match="no file extension"):
+        table.save(tmp_path / "t")
+    with pytest.raises(ValueError, match="unknown format"):
+        table.save(tmp_path / "t.html", format="nope")
+    with pytest.raises(gridwell.InvalidOptionsError, match="unknown field"):
+        table.save(tmp_path / "t.html", nope=1)
+    with pytest.raises(OSError, match="missing-dir"):
+        table.save(tmp_path / "missing-dir" / "t.html")
+    invalid = gridwell.Table.from_json(load_fixture("invalid/col_count_mismatch.json"))
+    with pytest.raises(gridwell.InvalidTableError):
+        invalid.save(tmp_path / "invalid.docx")
+    with pytest.raises(TypeError):
+        table.save(42)
+    assert list(tmp_path.iterdir()) == []
