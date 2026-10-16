@@ -29,10 +29,6 @@ pub const WORKBOOK: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="y
   </sheets>
 </workbook>"#;
 
-pub const SHARED_STRINGS: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="0" uniqueCount="0"></sst>
-"#;
-
 /// Convert column index (0-based) to Excel column letter(s).
 /// 0 -> A, 1 -> B, ..., 25 -> Z, 26 -> AA, etc.
 pub fn col_letter(col: usize) -> String {
