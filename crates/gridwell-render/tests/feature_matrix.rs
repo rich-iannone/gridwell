@@ -48,6 +48,7 @@ fn read_one(format: &str, t: &Table) -> Option<Doc> {
             look::xlsx(
                 &w.render_sheet_xml(t).unwrap(),
                 &w.render_styles_xml(t).unwrap(),
+                &w.render_shared_strings_xml(t).unwrap(),
             )
         }
         _ => return None,
