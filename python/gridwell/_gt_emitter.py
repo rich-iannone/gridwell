@@ -250,7 +250,10 @@ def _build_row(
     for i, col in enumerate(all_cols):
         is_stub = has_stub and i == 0
         value = tbl_data[col.var].iloc[row_idx]
-        text = str(value) if not pd.isna(value) else ""
+        # The text Great Tables renders (`str()` of the built body), missing values
+        # included: GT shows those as text too ("None", "nan").
+        missing = bool(pd.isna(value))
+        text = str(value)
 
         # Determine data type from the original data
         orig_val = built._tbl_data[col.var].iloc[row_idx]
@@ -264,11 +267,12 @@ def _build_row(
             "is_stub": is_stub,
             "is_placeholder": False,
             "data_type": data_type,
-            "sort_key": text.lower() if text else None,
+            # A missing value sorts as missing, not as its text.
+            "sort_key": text.lower() if text and not missing else None,
         }
 
         # Add typed_value for non-stub cells
-        if not is_stub and text:
+        if not is_stub and text and not missing:
             cell["typed_value"] = {
                 "type": data_type or "string",
                 "value": str(orig_val) if not pd.isna(orig_val) else text,
