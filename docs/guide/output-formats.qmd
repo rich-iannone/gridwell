@@ -19,6 +19,9 @@ RTF, DOCX, XLSX) actually expresses is measured, not claimed: see the
   `:where()`, which has zero specificity, so the table's styles and the host page's
   CSS always override them. `base_styles: false` leaves only the table's own styles.
   With `inline_styles` there is no `<style>` block, so no base look either.
+- `standalone: true` wraps the fragment in a complete UTF-8 document (doctype, charset,
+  viewport, a `<title>` from the table's title), for a file opened directly in a
+  browser. Saved `.html` files are fragments unless you pass it.
 - Scoped `<style>` block with generated class names
 - Optional inline-style mode for email/embedded contexts
 - Footnote marks as `<sup>` linked to footer
