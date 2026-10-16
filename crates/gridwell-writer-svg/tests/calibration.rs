@@ -21,7 +21,8 @@
 use std::process::Command;
 
 use gridwell_writer_svg::measure::{
-    draw_width, roboto_em, text_width, wrap, Run, RunStyle, SUP_SCALE,
+    draw_width, roboto_em, text_width, wrap, Run, RunStyle, INK_BEARING_EM, ITALIC_OVERHANG_EM,
+    SUP_SCALE,
 };
 use gridwell_writer_svg::SvgConfig;
 
@@ -224,8 +225,10 @@ fn rendered_text_fits_the_room_the_layout_leaves() {
         if room / ink < tightest.0 {
             tightest = (room / ink, ctx.clone());
         }
-        // Ink is measured in whole device pixels (antialiased edges included).
-        if room + 1.0 / (zoom as f64) < ink {
+        // Ink is measured in whole device pixels (antialiased edges included), and
+        // may reach a little past the advances at the ends (negative side bearings),
+        // into the cell padding.
+        if room + 1.0 / (zoom as f64) + INK_BEARING_EM * size < ink {
             failures.push(format!("{ctx}: room {room:.1}px < ink {ink:.1}px"));
         }
     }
@@ -263,15 +266,24 @@ fn roboto_renders_at_the_width_text_is_drawn_at() {
         checked += 1;
         let draw = draw_width(probe, size, bold, italic);
         let ctx = format!("{probe:?} size={size:.2} zoom={zoom} bold={bold} italic={italic}");
-        // Ink runs from the first glyph's ink to the last's: the advance sum less
-        // two side bearings (up to ~0.15em each; italics can overhang), less a
-        // little kerning. Never wider than the advances, give or take a device
-        // pixel of hinting and antialiasing per side.
+        // Ink runs from the first glyph's ink to the last's: the advance sum, less
+        // two side bearings (up to ~0.15em each), less kerning. It can reach past
+        // the advances by negative side bearings, and by the slant for italics.
+        // Allow a device pixel of hinting and antialiasing per side.
         let slack = 2.0 / zoom as f64;
-        if ink > draw + slack {
+        let overhang = if italic {
+            ITALIC_OVERHANG_EM * size
+        } else {
+            0.0
+        };
+        if ink > draw + INK_BEARING_EM * size + overhang + slack {
             failures.push(format!("{ctx}: ink {ink:.1}px > Roboto width {draw:.1}px"));
         }
-        if ink < draw * 0.97 - 0.3 * size - slack {
+        // Kerning only narrows text (safe), and repeated punctuation kerns hard
+        // (`//`, `''` pairs): the lower bound, which catches a wrong table, only
+        // applies to text with letters or digits.
+        let wordlike = probe.chars().any(char::is_alphanumeric);
+        if wordlike && ink < draw * 0.97 - 0.3 * size - slack {
             failures.push(format!(
                 "{ctx}: ink {ink:.1}px far below Roboto width {draw:.1}px"
             ));
