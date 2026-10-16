@@ -22,8 +22,10 @@ pub enum RenderError {
 pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
     let rt = resolve(table);
     let mut styles = StyleSheet::default();
-    let sheet_xml = sheet_xml(&rt, &mut styles)?;
+    let mut strings = SharedStrings::default();
+    let sheet_xml = sheet_xml(&rt, &mut styles, &mut strings)?;
     let styles_xml = styles.to_xml()?;
+    let strings_xml = strings.to_xml()?;
 
     Ok(package(&[
         Part::new("[Content_Types].xml", xml::CONTENT_TYPES),
@@ -31,21 +33,32 @@ pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
         Part::new("xl/_rels/workbook.xml.rels", xml::WORKBOOK_RELS),
         Part::new("xl/workbook.xml", xml::WORKBOOK),
         Part::new("xl/styles.xml", styles_xml.as_str()),
-        Part::new("xl/sharedStrings.xml", xml::SHARED_STRINGS),
+        Part::new("xl/sharedStrings.xml", strings_xml.as_str()),
         Part::new("xl/worksheets/sheet1.xml", sheet_xml.as_str()),
     ])?)
 }
 
 /// Render only the sheet XML content (for snapshot testing).
 pub fn render_sheet_xml(table: &Table) -> Result<String, RenderError> {
-    sheet_xml(&resolve(table), &mut StyleSheet::default())
+    sheet_xml(
+        &resolve(table),
+        &mut StyleSheet::default(),
+        &mut SharedStrings::default(),
+    )
 }
 
 /// Render only the styles part (for testing): the cell formats the sheet uses.
 pub fn render_styles_xml(table: &Table) -> Result<String, RenderError> {
     let mut styles = StyleSheet::default();
-    sheet_xml(&resolve(table), &mut styles)?;
+    sheet_xml(&resolve(table), &mut styles, &mut SharedStrings::default())?;
     styles.to_xml()
+}
+
+/// Render only the shared-string table (for testing): the sheet's rich text.
+pub fn render_shared_strings_xml(table: &Table) -> Result<String, RenderError> {
+    let mut strings = SharedStrings::default();
+    sheet_xml(&resolve(table), &mut StyleSheet::default(), &mut strings)?;
+    strings.to_xml()
 }
 
 /// A cell format: what a `<c s="…">` index points at.
@@ -69,6 +82,100 @@ struct Format {
     /// Wrap text: set for text with line breaks, which Excel shows only when
     /// wrapping is on.
     wrap: bool,
+    /// How a numeric cell shows its value (`None`: General).
+    num_fmt: Option<NumFmt>,
+}
+
+/// A number format that shows a value as the table displays it: `0.0` for
+/// `76.0`, `#,##0` for `1,250`. The IR carries the display text and the value,
+/// not a format pattern, so the format is read off the display.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+struct NumFmt {
+    decimals: u8,
+    /// Thousands separators.
+    grouping: bool,
+    /// Negatives show U+2212 MINUS SIGN (as gt writes them), not `-`.
+    unicode_minus: bool,
+}
+
+impl NumFmt {
+    /// The format that shows `value` as `shown`, if `shown` is a plain number
+    /// (optional `-` or `−`, digits with optional `,` grouping, optional
+    /// decimals) that rounds from `value`. Anything else has none: such a cell
+    /// keeps its text.
+    fn infer(shown: &str, value: f64) -> Option<Self> {
+        let (negative, unicode_minus, body) = if let Some(b) = shown.strip_prefix('-') {
+            (true, false, b)
+        } else if let Some(b) = shown.strip_prefix('\u{2212}') {
+            (true, true, b)
+        } else {
+            (false, false, shown)
+        };
+        if negative != (value < 0.0) {
+            return None;
+        }
+        let (int, frac) = match body.split_once('.') {
+            Some((i, f)) => (i, Some(f)),
+            None => (body, None),
+        };
+        let digits = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
+        let mut groups = int.split(',');
+        let first = groups.next().unwrap_or_default();
+        let grouping = int.contains(',');
+        let int_ok = if grouping {
+            digits(first) && first.len() <= 3 && groups.all(|g| g.len() == 3 && digits(g))
+        } else {
+            digits(int)
+        };
+        // A format shows no leading zeros (`007`), nor a leading 0 group (`0,123`).
+        if !int_ok || (first.len() > 1 && first.starts_with('0')) || (grouping && first == "0") {
+            return None;
+        }
+        let decimals = match frac {
+            Some(f) if digits(f) && f.len() <= 30 => f.len(),
+            Some(_) => return None,
+            None => 0,
+        };
+        let shown_value: f64 = format!("{}.{}", int.replace(',', ""), frac.unwrap_or("0"))
+            .parse()
+            .ok()?;
+        // The display is the value rounded to its decimals (with slack for
+        // binary floating point).
+        let half = 0.5 * 10f64.powi(-(decimals as i32));
+        if (value.abs() - shown_value).abs() > half * (1.0 + 1e-9) + value.abs() * 1e-15 {
+            return None;
+        }
+        Some(Self {
+            decimals: decimals as u8,
+            grouping,
+            unicode_minus,
+        })
+    }
+
+    /// The built-in `numFmtId` with this pattern, if there is one.
+    fn builtin(&self) -> Option<u32> {
+        match (self.decimals, self.grouping, self.unicode_minus) {
+            (0, false, false) => Some(1),
+            (2, false, false) => Some(2),
+            (0, true, false) => Some(3),
+            (2, true, false) => Some(4),
+            _ => None,
+        }
+    }
+
+    /// The format code: a second section writes negatives with `−`.
+    fn code(&self) -> String {
+        let mut pattern = String::from(if self.grouping { "#,##0" } else { "0" });
+        if self.decimals > 0 {
+            pattern.push('.');
+            pattern.push_str(&"0".repeat(self.decimals.into()));
+        }
+        if self.unicode_minus {
+            format!("{pattern};\"\u{2212}\"{pattern}")
+        } else {
+            pattern
+        }
+    }
 }
 
 /// One drawn border edge: a SpreadsheetML line style and an optional color
@@ -133,6 +240,7 @@ impl Format {
             },
             border: [None; 4],
             wrap: false,
+            num_fmt: None,
         }
     }
 
@@ -240,8 +348,18 @@ impl StyleSheet {
         let mut fills: Vec<Color> = Vec::new();
         // Border 0 is "no border".
         let mut borders: Vec<[Option<Edge>; 4]> = vec![[None; 4]];
+        // Number formats without a built-in id get custom ids from 164.
+        let mut custom: Vec<NumFmt> = Vec::new();
         let mut xfs = Vec::new();
         for f in &self.formats {
+            let num_fmt = f.num_fmt.map_or(0, |n| {
+                n.builtin().unwrap_or_else(|| {
+                    164 + custom.iter().position(|k| *k == n).unwrap_or_else(|| {
+                        custom.push(n);
+                        custom.len() - 1
+                    }) as u32
+                })
+            });
             let font_key = FontKey::of(f);
             let font = fonts
                 .iter()
@@ -264,7 +382,7 @@ impl StyleSheet {
                     borders.push(f.border);
                     borders.len() - 1
                 });
-            xfs.push((font, fill, border, f.align, f.wrap));
+            xfs.push((num_fmt, font, fill, border, f.align, f.wrap));
         }
 
         let mut buf = String::new();
@@ -272,6 +390,19 @@ impl StyleSheet {
         buf.push_str(
             "<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">\n",
         );
+        // <numFmts> comes first in CT_Stylesheet.
+        if !custom.is_empty() {
+            writeln!(buf, "  <numFmts count=\"{}\">", custom.len())?;
+            for (i, n) in custom.iter().enumerate() {
+                writeln!(
+                    buf,
+                    "    <numFmt numFmtId=\"{}\" formatCode=\"{}\"/>",
+                    164 + i,
+                    escape_xml(&n.code())
+                )?;
+            }
+            buf.push_str("  </numFmts>\n");
+        }
         writeln!(buf, "  <fonts count=\"{}\">", fonts.len())?;
         for font in &fonts {
             buf.push_str("    <font>");
@@ -317,11 +448,14 @@ impl StyleSheet {
         buf.push_str(
             "    <xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>\n",
         );
-        for (font, fill, border, align, wrap) in xfs {
+        for (num_fmt, font, fill, border, align, wrap) in xfs {
             write!(
                 buf,
-                "    <xf numFmtId=\"0\" fontId=\"{font}\" fillId=\"{fill}\" borderId=\"{border}\" xfId=\"0\""
+                "    <xf numFmtId=\"{num_fmt}\" fontId=\"{font}\" fillId=\"{fill}\" borderId=\"{border}\" xfId=\"0\""
             )?;
+            if num_fmt != 0 {
+                buf.push_str(" applyNumberFormat=\"1\"");
+            }
             if font != 0 {
                 buf.push_str(" applyFont=\"1\"");
             }
@@ -351,7 +485,11 @@ impl StyleSheet {
 }
 
 /// The sheet, registering the formats it uses in `styles`.
-fn sheet_xml(rt: &ResolvedTable, styles: &mut StyleSheet) -> Result<String, RenderError> {
+fn sheet_xml(
+    rt: &ResolvedTable,
+    styles: &mut StyleSheet,
+    strings: &mut SharedStrings,
+) -> Result<String, RenderError> {
     let mut buf = String::with_capacity(8192);
     buf.push_str(r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>"#);
     buf.push('\n');
@@ -390,6 +528,7 @@ fn sheet_xml(rt: &ResolvedTable, styles: &mut StyleSheet) -> Result<String, Rend
     let mut sheet = Sheet {
         buf: &mut buf,
         styles,
+        strings,
         row_num: 1,
         merges: Vec::new(),
         col_chars: col_chars.clone(),
@@ -477,6 +616,7 @@ fn sheet_xml(rt: &ResolvedTable, styles: &mut StyleSheet) -> Result<String, Rend
 struct Sheet<'b> {
     buf: &'b mut String,
     styles: &'b mut StyleSheet,
+    strings: &'b mut SharedStrings,
     /// The next row's 1-based number.
     row_num: usize,
     /// (first col, first row, last col, last row), 0-based columns, 1-based rows.
@@ -503,7 +643,14 @@ impl Sheet<'_> {
         let height = text_height(runs, f.wrap.then_some(width));
         write!(self.buf, "<row r=\"{r}\"{}>", row_height(height))?;
         let s = self.styles.id(f);
-        write_text_cell(self.buf, &xml::cell_ref(0, r), s, runs, FontKey::of(&f))?;
+        write_text_cell(
+            self.buf,
+            self.strings,
+            &xml::cell_ref(0, r),
+            s,
+            runs,
+            FontKey::of(&f),
+        )?;
         self.buf.push_str("</row>\n");
         self.row_num += 1;
         Ok(())
@@ -534,7 +681,6 @@ impl Sheet<'_> {
                         .sum();
                     height = height.max(text_height(&runs, format.wrap.then_some(width)));
                 }
-                let s = self.styles.id(format);
                 if cell.colspan > 1 || cell.rowspan > 1 {
                     self.merges.push((
                         cell.col,
@@ -544,16 +690,34 @@ impl Sheet<'_> {
                     ));
                 }
 
+                // A number shows as the table displays it, through a number
+                // format; a display no format reproduces stays text.
                 let number = cell
                     .typed_value
                     .filter(|t| matches!(t.value_type, ValueType::Number | ValueType::Integer))
                     .and_then(|t| t.value.as_f64())
-                    .filter(|v| v.is_finite());
-                if let Some(num) = number {
+                    .filter(|v| v.is_finite())
+                    .and_then(|v| {
+                        let shown = plain_display(cell.content)?;
+                        Some((v, NumFmt::infer(&shown, v)?))
+                    });
+                if let Some((num, num_fmt)) = number {
+                    let s = self.styles.id(Format {
+                        num_fmt: Some(num_fmt),
+                        ..format
+                    });
                     write!(cells, "<c r=\"{cell_ref}\"{}><v>{num}</v></c>", s_attr(s))?;
                     continue;
                 }
-                write_text_cell(&mut cells, &cell_ref, s, &runs, FontKey::of(&format))?;
+                let s = self.styles.id(format);
+                write_text_cell(
+                    &mut cells,
+                    self.strings,
+                    &cell_ref,
+                    s,
+                    &runs,
+                    FontKey::of(&format),
+                )?;
             }
             write!(self.buf, "<row r=\"{r}\"{}>", row_height(height))?;
             self.buf.push_str(&cells);
@@ -627,12 +791,14 @@ fn s_attr(s: usize) -> String {
     }
 }
 
-/// An inline-string cell; an empty string with a format still writes the cell so
-/// its fill shows. Text whose runs all have the cell's font is one plain `<t>`;
-/// otherwise it is rich text, each run with its full font (Excel doesn't inherit
-/// run formatting from the cell's font).
+/// A text cell; an empty string with a format still writes the cell so its fill
+/// shows. Text whose runs all have the cell's font is an inline string; otherwise
+/// it is rich text, each run with its full font (Excel doesn't inherit run
+/// formatting from the cell's font), in the shared-string table: apps such as
+/// Numbers ignore run formatting in inline strings.
 fn write_text_cell(
     buf: &mut String,
+    strings: &mut SharedStrings,
     cell_ref: &str,
     s: usize,
     runs: &[RichRun],
@@ -645,25 +811,84 @@ fn write_text_cell(
         }
         return Ok(());
     }
-    write!(buf, "<c r=\"{cell_ref}\" t=\"inlineStr\"{}><is>", s_attr(s))?;
     if runs.iter().all(|r| r.font == font && !r.superscript) {
-        write!(buf, "<t xml:space=\"preserve\">{}</t>", escape_xml(&text))?;
-    } else {
-        for r in runs.iter().filter(|r| !r.text.is_empty()) {
-            buf.push_str("<r><rPr>");
-            write_font(buf, &r.font, "rFont")?;
-            if r.superscript {
-                buf.push_str("<vertAlign val=\"superscript\"/>");
-            }
-            write!(
-                buf,
-                "</rPr><t xml:space=\"preserve\">{}</t></r>",
-                escape_xml(&r.text)
-            )?;
-        }
+        write!(
+            buf,
+            "<c r=\"{cell_ref}\" t=\"inlineStr\"{}><is><t xml:space=\"preserve\">{}</t></is></c>",
+            s_attr(s),
+            escape_xml(&text)
+        )?;
+        return Ok(());
     }
-    buf.push_str("</is></c>");
+    let mut item = String::new();
+    for r in runs.iter().filter(|r| !r.text.is_empty()) {
+        item.push_str("<r><rPr>");
+        write_font(&mut item, &r.font, "rFont")?;
+        if r.superscript {
+            item.push_str("<vertAlign val=\"superscript\"/>");
+        }
+        write!(
+            item,
+            "</rPr><t xml:space=\"preserve\">{}</t></r>",
+            escape_xml(&r.text)
+        )?;
+    }
+    let i = strings.id(item);
+    write!(
+        buf,
+        "<c r=\"{cell_ref}\" t=\"s\"{}><v>{i}</v></c>",
+        s_attr(s)
+    )?;
     Ok(())
+}
+
+/// The workbook's shared strings (`<si>` contents), each stored once.
+#[derive(Debug, Default)]
+struct SharedStrings {
+    items: Vec<String>,
+    index: HashMap<String, usize>,
+    /// References from cells, counting repeats.
+    count: usize,
+}
+
+impl SharedStrings {
+    /// The index of a string item, adding it if new.
+    fn id(&mut self, item: String) -> usize {
+        self.count += 1;
+        let next = self.items.len();
+        *self.index.entry(item).or_insert_with_key(|item| {
+            self.items.push(item.clone());
+            next
+        })
+    }
+
+    fn to_xml(&self) -> Result<String, RenderError> {
+        let mut buf = String::new();
+        buf.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+        write!(
+            buf,
+            "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"{}\" uniqueCount=\"{}\">",
+            self.count,
+            self.items.len()
+        )?;
+        for item in &self.items {
+            write!(buf, "\n<si>{item}</si>")?;
+        }
+        buf.push_str("</sst>\n");
+        Ok(buf)
+    }
+}
+
+/// The text of content that is only plain text (what a number's display can
+/// be); `None` if it has marks, styled runs, breaks or other nodes.
+fn plain_display(nodes: &[ContentNode]) -> Option<String> {
+    nodes
+        .iter()
+        .map(|n| match n {
+            ContentNode::Text { value } => Some(value.as_str()),
+            _ => None,
+        })
+        .collect()
 }
 
 /// A run of cell text and its font.
