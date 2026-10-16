@@ -1,7 +1,8 @@
 //! Snapshot + validity tests over the shared example corpus.
 //!
-//! Snapshots capture the unzipped XML (human-reviewable); a separate test
-//! confirms the packaged bytes are a valid zip. Review changes with
+//! Snapshots capture the unzipped XML (human-reviewable): the sheet, then the
+//! shared strings if any. A separate test confirms the packaged bytes are a
+//! valid zip. Review changes with
 //! `cargo insta review`; regenerate with `INSTA_UPDATE=always cargo test`.
 
 use gridwell_testkit::examples;
@@ -11,9 +12,16 @@ use gridwell_writer_xlsx::{render_xlsx, XlsxWriter};
 fn snapshots() {
     let writer = XlsxWriter::new();
     for ex in examples() {
-        let xml = writer
-            .render_sheet_xml(&ex.table())
+        let table = ex.table();
+        let mut xml = writer
+            .render_sheet_xml(&table)
             .unwrap_or_else(|e| panic!("render '{}' failed: {e}", ex.name));
+        // Rich text lives in the shared-string table.
+        let strings = writer.render_shared_strings_xml(&table).unwrap();
+        if strings.contains("<si>") {
+            xml.push('\n');
+            xml.push_str(&strings);
+        }
         insta::assert_snapshot!(ex.name, xml);
     }
 }
