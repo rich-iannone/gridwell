@@ -12,9 +12,13 @@ RTF, DOCX, XLSX) actually expresses is measured, not claimed: see the
 ### HTML
 
 - Semantic HTML5 with `<table>`, `<thead>`, `<tbody>`, `<tfoot>`
-- A fragment for a host page, not a styled document: the `<style>` block holds only what
-  the table's styles define (and cell alignment), so fonts, rules and padding come from
-  the page. Opened on its own, an unstyled table looks plain.
+- A fragment for a host page, styled like gt by default: the `<style>` block starts
+  with a base stylesheet (system font, the rules above and below the table and around
+  the column labels, spanner and row-group rules, the stub's border, footnote and
+  source-note sizes, padding), then the table's own styles. The base rules use
+  `:where()`, which has zero specificity, so the table's styles and the host page's
+  CSS always override them. `base_styles: false` leaves only the table's own styles.
+  With `inline_styles` there is no `<style>` block, so no base look either.
 - Scoped `<style>` block with generated class names
 - Optional inline-style mode for email/embedded contexts
 - Footnote marks as `<sup>` linked to footer
