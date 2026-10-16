@@ -128,3 +128,28 @@ test_that("a gtsummary table converts with its formatting", {
     for (fmt in c("rtf", "ansi", "latex", "html")) expect_gt(nchar(gw_render(out$tbl, fmt)), 0)
     for (fmt in c("docx", "xlsx", "pptx")) expect_gt(length(gw_render_binary(out$tbl, fmt)), 0)
 })
+
+test_that("the gt reference IR in harness/gt-reference is up to date", {
+    # The "gt vs gridwell" gallery page renders checked-in IR; if the emitter's
+    # output changes, regenerate it with harness/gt-reference/make.R. Only in a
+    # source checkout, and only with the gt version the references were made with
+    # (another gt can format values differently). Installed packages and CRAN have
+    # no harness/ directory, so this never runs there.
+    ref_dir <- file.path(testthat::test_path(), "..", "..", "..", "harness", "gt-reference")
+    skip_if_not(dir.exists(ref_dir), "not in a source checkout")
+    manifest <- jsonlite::fromJSON(file.path(ref_dir, "manifest.json"), simplifyVector = FALSE)
+    skip_if_not(
+        identical(as.character(utils::packageVersion("gt")), manifest$gt_version),
+        paste("references made with gt", manifest$gt_version)
+    )
+    env <- new.env()
+    suppressPackageStartupMessages(library(gt))
+    sys.source(file.path(ref_dir, "cases.R"), envir = env)
+    expect_setequal(names(env$cases), vapply(manifest$cases, `[[`, "", "name"))
+    for (name in names(env$cases)) {
+        ir <- as.character(gt_to_ir(env$cases[[name]]$build()))
+        stored <- paste(readLines(file.path(ref_dir, paste0(name, ".ir.json")), encoding = "UTF-8"),
+                        collapse = "\n")
+        expect_identical(ir, stored, label = paste(name, "IR (regenerate with make.R)"))
+    }
+})
