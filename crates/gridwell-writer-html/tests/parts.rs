@@ -228,11 +228,9 @@ fn part_classes_combine_with_style_classes() {
     let mut t = spanner_table();
     t.header.as_mut().unwrap().title.as_mut().unwrap().style_id = Some("hl".into());
     let html = HtmlWriter::new().render(&t).unwrap();
-    assert!(html.contains("class=\"gw_title gw_hl\""), "{html}");
-    assert!(
-        html.contains("<td class=\"gw__al_left gw_hl\">2</td>") || html.contains("gw_hl\">2<"),
-        "{html}"
-    );
+    assert!(html.contains("class=\"gw_title gw_style-hl\""), "{html}");
+    // A data cell has no part, so it only has its style class.
+    assert!(html.contains("<td class=\"gw_style-hl\">2</td>"), "{html}");
 
     // Inline styles: the part class stays, the style moves into `style`.
     let inline = HtmlWriter::with_config(HtmlWriterConfig {
@@ -245,5 +243,5 @@ fn part_classes_combine_with_style_classes() {
         inline.contains("class=\"gw_title\" style=\"font-weight: bold\""),
         "{inline}"
     );
-    assert!(!inline.contains("gw_hl"), "{inline}");
+    assert!(!inline.contains("gw_style-hl"), "{inline}");
 }
