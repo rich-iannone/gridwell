@@ -1,6 +1,6 @@
 use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{HAlign, Keyword, RowRole, Table};
+use gridwell_ir::{is_valid_style_id, HAlign, Keyword, RowRole, Table};
 use gridwell_layout::{
     resolve, ResolvedBorder, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, SectionKind,
     Sides,
@@ -14,6 +14,10 @@ use crate::HtmlWriterConfig;
 pub enum RenderError {
     #[error("formatting error: {0}")]
     Fmt(#[from] std::fmt::Error),
+    /// The configuration can't be written safely (e.g. a `class_prefix` that is not
+    /// a CSS identifier).
+    #[error("invalid HTML writer config: {0}")]
+    Config(String),
 }
 
 /// Internal writer state.
@@ -29,6 +33,10 @@ struct HtmlRenderer<'r, 'a> {
     cell_styles: Vec<ResolvedStyle>,
     /// Alignment classes `{prefix}__al_<value>` the cells use, in a fixed order.
     alignments: Vec<&'static str>,
+    /// Defined style ids that aren't valid ([`is_valid_style_id`]), sorted: they get
+    /// generated classes `{prefix}__s{n}` instead of their names. Only reachable
+    /// when the writer is handed unvalidated IR.
+    unsafe_style_ids: Vec<&'a str>,
 }
 
 impl<'r, 'a> HtmlRenderer<'r, 'a> {
@@ -41,6 +49,19 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             indent_level: 0,
             cell_styles: Vec::new(),
             alignments: Vec::new(),
+            unsafe_style_ids: {
+                let styles = &rt.table.styles;
+                let mut ids: Vec<&str> = styles
+                    .defs
+                    .keys()
+                    .chain(styles.compositions.keys())
+                    .map(String::as_str)
+                    .filter(|id| !is_valid_style_id(id))
+                    .collect();
+                ids.sort_unstable();
+                ids.dedup();
+                ids
+            },
         };
         if !config.inline_styles {
             for section in rt.sections() {
@@ -192,10 +213,9 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         let mut style_ids: Vec<&String> = styles.defs.keys().collect();
         style_ids.sort();
         for id in style_ids {
-            let class_name = format!(".{}_{}", self.config.class_prefix, id);
             let css = style_css(&self.rt.style(id));
-            if !css.is_empty() {
-                self.write_line(&format!("{class_name} {{ {css} }}"));
+            if let (Some(class), false) = (self.style_class(id), css.is_empty()) {
+                self.write_line(&format!(".{class} {{ {css} }}"));
             }
         }
 
@@ -205,10 +225,9 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         for id in comp_ids {
             // A composition resolves to its base plus overrides (nothing if the
             // base is missing).
-            let class_name = format!(".{}_{}", self.config.class_prefix, id);
             let css = style_css(&self.rt.style(id));
-            if !css.is_empty() {
-                self.write_line(&format!("{class_name} {{ {css} }}"));
+            if let (Some(class), false) = (self.style_class(id), css.is_empty()) {
+                self.write_line(&format!(".{class} {{ {css} }}"));
             }
         }
 
@@ -424,7 +443,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                 classes.push(format!("{}__al_{a}", self.config.class_prefix));
             }
             if let Some(id) = &cell.cell.style_id {
-                classes.push(format!("{}_{}", self.config.class_prefix, id));
+                classes.extend(self.style_class(id));
             }
             classes.extend(self.generated_class(row, cell));
             if !classes.is_empty() {
@@ -570,13 +589,11 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                                 let _ = write!(self.buf, "<span>{}</span>", escape_html(value));
                             }
                         } else {
-                            let _ = write!(
-                                self.buf,
-                                "<span class=\"{}_{}\">{}</span>",
-                                self.config.class_prefix,
-                                id,
-                                escape_html(value)
-                            );
+                            let class = self
+                                .style_class(id)
+                                .map(|c| format!(" class=\"{c}\""))
+                                .unwrap_or_default();
+                            let _ = write!(self.buf, "<span{class}>{}</span>", escape_html(value));
                         }
                     } else {
                         let _ = write!(self.buf, "<span>{}</span>", escape_html(value));
@@ -642,19 +659,33 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
     /// class and the style's `style` attribute).
     fn part_attrs(&self, part: &str, style_id: &Option<String>) -> String {
         let part = self.part_class(part);
-        match style_id {
-            Some(id) if !self.config.inline_styles => {
-                format!(" class=\"{part} {}_{id}\"", self.config.class_prefix)
-            }
+        match style_id.as_deref().and_then(|id| self.style_class(id)) {
+            Some(class) if !self.config.inline_styles => format!(" class=\"{part} {class}\""),
             _ => format!(" class=\"{part}\"{}", self.style_class_attr(style_id)),
+        }
+    }
+
+    /// The class for a style: `{prefix}_style-{id}`, a namespace that can't meet
+    /// the part classes (`{prefix}_{part}` names have no `-`) or the generated ones
+    /// (`{prefix}__…`). An id that isn't a valid style id is never written into
+    /// markup: a defined one gets a generated `{prefix}__s{n}`, an undefined one
+    /// no class (it has no style to apply).
+    fn style_class(&self, id: &str) -> Option<String> {
+        let p = &self.config.class_prefix;
+        if is_valid_style_id(id) {
+            Some(format!("{p}_style-{id}"))
+        } else {
+            let n = self.unsafe_style_ids.binary_search(&id).ok()?;
+            Some(format!("{p}__s{n}"))
         }
     }
 
     fn style_class_attr(&self, style_id: &Option<String>) -> String {
         match style_id {
-            Some(id) if !self.config.inline_styles => {
-                format!(" class=\"{}_{}\"", self.config.class_prefix, id)
-            }
+            Some(id) if !self.config.inline_styles => self
+                .style_class(id)
+                .map(|c| format!(" class=\"{c}\""))
+                .unwrap_or_default(),
             Some(id) if self.config.inline_styles => {
                 let css = style_css(&self.rt.style(id));
                 if css.is_empty() {
@@ -670,6 +701,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 
 /// Main entry point for rendering.
 pub fn render(table: &Table, config: &HtmlWriterConfig) -> Result<String, RenderError> {
+    crate::check_class_prefix(&config.class_prefix).map_err(RenderError::Config)?;
     let rt = resolve(table);
     HtmlRenderer::new(&rt, config).render()
 }
