@@ -87,6 +87,7 @@ table.save(Path("out") / "table.tex", booktabs=False)  # writer options as kwarg
 table.save("table.json", format="quarto")
 table.save("table.txt")                 # plain text, no ANSI escapes
 table.save("table.txt", color=True)     # keep the escapes
+table.save("table.html", standalone=True)  # a full document, not a fragment
 ```
 
 ## Serialization
