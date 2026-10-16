@@ -17,6 +17,10 @@ struct LatexRenderer<'r, 'a> {
     rt: &'r ResolvedTable<'a>,
     config: &'r LatexWriterConfig,
     buf: String,
+    /// A `\midrule` is due before the next row.
+    midrule_due: bool,
+    /// The last line drawn was a full-width rule (nothing since but `\endhead`).
+    ruled: bool,
 }
 
 impl<'r, 'a> LatexRenderer<'r, 'a> {
@@ -25,6 +29,8 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
             rt,
             config,
             buf: String::with_capacity(4096),
+            midrule_due: false,
+            ruled: false,
         }
     }
 
@@ -124,18 +130,62 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
             "\\hline"
         };
         writeln!(self.buf, "{rule}").unwrap();
+        self.ruled = true;
     }
 
     fn render_toprule(&mut self) {
         self.rule("\\toprule");
     }
 
+    /// Ask for a `\midrule` before the next row. Requests in a row, or right
+    /// after another full rule, draw one rule; none is drawn above the bottom rule.
     fn render_midrule(&mut self) {
-        self.rule("\\midrule");
+        self.midrule_due = true;
+    }
+
+    /// Draw a requested `\midrule` now, unless a rule was just drawn.
+    fn flush_midrule(&mut self) {
+        if std::mem::take(&mut self.midrule_due) && !self.ruled {
+            self.rule("\\midrule");
+        }
+    }
+
+    /// Start a line of the tabular that isn't a rule.
+    fn begin_row(&mut self) {
+        self.flush_midrule();
+        self.ruled = false;
     }
 
     fn render_bottomrule(&mut self) {
+        self.midrule_due = false;
         self.rule("\\bottomrule");
+    }
+
+    /// Rules under the head cells that end in head row `r` (spanners): each
+    /// non-empty cell gets a `\cmidrule` (`\cline` without booktabs) over exactly
+    /// its columns, so it reads as grouping the labels below it. Nothing is drawn
+    /// under the last head row, which the head's `\midrule` closes.
+    fn render_spanner_rules(&mut self, r: usize) {
+        let rows = &self.rt.head.rows;
+        if r + 1 >= rows.len() {
+            return;
+        }
+        for (origin, row) in rows[..=r].iter().enumerate() {
+            for cell in row.cells() {
+                let blank = gridwell_layout::plain_text(cell.content, " ")
+                    .trim()
+                    .is_empty();
+                if origin + cell.rowspan != r + 1 || blank {
+                    continue;
+                }
+                let (first, last) = (cell.col + 1, cell.col + cell.colspan);
+                if self.config.booktabs {
+                    writeln!(self.buf, "\\cmidrule(lr){{{first}-{last}}}").unwrap();
+                } else {
+                    writeln!(self.buf, "\\cline{{{first}-{last}}}").unwrap();
+                }
+            }
+        }
     }
 
     // ─── Rows ───
@@ -147,9 +197,12 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         }
         for (r, _) in rt.head.rows.iter().enumerate() {
             self.render_row(&rt.head.rows, r);
+            self.render_spanner_rules(r);
         }
         self.render_midrule();
         if self.use_longtable() {
+            // The head's rule repeats with it on every page.
+            self.flush_midrule();
             writeln!(self.buf, "\\endhead").unwrap();
         }
     }
@@ -164,15 +217,16 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
                     &label.style,
                 );
                 if self.config.booktabs {
-                    writeln!(self.buf, "\\midrule").unwrap();
+                    self.render_midrule();
                 }
+                self.begin_row();
                 writeln!(
                     self.buf,
                     "\\multicolumn{{{cols}}}{{l}}{{\\bfseries {text}}} \\\\"
                 )
                 .unwrap();
                 if self.config.booktabs {
-                    writeln!(self.buf, "\\midrule").unwrap();
+                    self.render_midrule();
                 }
             }
 
@@ -182,6 +236,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
 
             if !group.summary_rows.is_empty() {
                 if self.config.booktabs {
+                    self.begin_row();
                     writeln!(self.buf, "\\cmidrule(lr){{1-{cols}}}").unwrap();
                 }
                 for r in 0..group.summary_rows.rows.len() {
@@ -190,6 +245,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
             }
 
             if g + 1 < rt.groups.len() && group.label.is_none() {
+                self.begin_row();
                 writeln!(self.buf, "\\addlinespace").unwrap();
             }
         }
@@ -200,6 +256,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
     /// `\multicolumn`, for a 2D span); positions covered from the left are absorbed
     /// by the origin's `\multicolumn`.
     fn render_row(&mut self, rows: &[ResolvedRow], r: usize) {
+        self.begin_row();
         let row = &rows[r];
         let mut cells: Vec<String> = Vec::new();
         for (col, slot) in row.slots.iter().enumerate() {
