@@ -68,9 +68,12 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y -q poppler-utils librsvg2-bin
+          # Roboto: the font the SVG writer's widths describe (its calibration test
+          # checks rendering in it); Liberation Sans: the Arial-compatible fallback.
+          sudo apt-get install -y -q poppler-utils librsvg2-bin fonts-roboto fonts-liberation
           echo "GRIDWELL_REQUIRE_TYPST=1" >> "$GITHUB_ENV"
           echo "GRIDWELL_REQUIRE_RSVG=1" >> "$GITHUB_ENV"
+          echo "GRIDWELL_REQUIRE_ROBOTO=1" >> "$GITHUB_ENV"
 
       # Unit/validation tests, 594 writer snapshots, span stress, CLI end-to-end,
       # FFI (Rust-side, generated-header drift, C/C++/ASan smoke), Typst oracles.
