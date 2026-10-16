@@ -1,8 +1,9 @@
 use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{HAlign, Keyword, Table};
+use gridwell_ir::{HAlign, Keyword, RowRole, Table};
 use gridwell_layout::{
-    resolve, ResolvedBorder, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, Sides,
+    resolve, ResolvedBorder, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, SectionKind,
+    Sides,
 };
 use std::fmt::Write;
 use thiserror::Error;
@@ -243,7 +244,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         }
 
         if let Some(ref title) = header.title {
-            let class = self.style_class_attr(&title.style_id);
+            let class = self.part_attrs("title", &title.style_id);
             self.write_line(&format!("<div{class} role=\"heading\" aria-level=\"1\">"));
             self.push_indent();
             self.render_content_nodes(&title.content);
@@ -252,7 +253,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         }
 
         if let Some(ref subtitle) = header.subtitle {
-            let class = self.style_class_attr(&subtitle.style_id);
+            let class = self.part_attrs("subtitle", &subtitle.style_id);
             self.write_line(&format!("<div{class} role=\"heading\" aria-level=\"2\">"));
             self.push_indent();
             self.render_content_nodes(&subtitle.content);
@@ -261,7 +262,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         }
 
         for line in &header.extra_lines {
-            let class = self.style_class_attr(&line.style_id);
+            let class = self.part_attrs("header_line", &line.style_id);
             self.write_line(&format!("<div{class}>"));
             self.push_indent();
             self.render_content_nodes(&line.content);
@@ -341,7 +342,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         self.write_line("<thead>");
         self.push_indent();
         for row in &rt.head.rows {
-            self.render_row(row, true);
+            self.render_row(row, SectionKind::Head);
         }
         self.pop_indent();
         self.write_line("</thead>");
@@ -356,7 +357,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             // Group label row, spanning the full (visible) width.
             if let Some(label) = &group.label {
                 let colspan = rt.columns.len();
-                let class = self.style_class_attr(&label.style_id.map(str::to_string));
+                let class = self.part_attrs("group_label", &label.style_id.map(str::to_string));
                 self.write_line("<tr>");
                 self.push_indent();
                 self.write_line(&format!("<td colspan=\"{colspan}\"{class}>",));
@@ -368,8 +369,11 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                 self.write_line("</tr>");
             }
 
-            for row in group.rows.rows.iter().chain(&group.summary_rows.rows) {
-                self.render_row(row, false);
+            for row in &group.rows.rows {
+                self.render_row(row, SectionKind::Body);
+            }
+            for row in &group.summary_rows.rows {
+                self.render_row(row, SectionKind::Summary);
             }
 
             self.pop_indent();
@@ -377,21 +381,26 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         }
     }
 
-    fn render_row(&mut self, row: &ResolvedRow, is_header: bool) {
-        let row_class = self.style_class_attr(&row.row.style_id);
+    fn render_row(&mut self, row: &ResolvedRow, kind: SectionKind) {
+        let row_class = match row_part(row, kind) {
+            Some(part) => self.part_attrs(part, &row.row.style_id),
+            None => self.style_class_attr(&row.row.style_id),
+        };
         self.write_line(&format!("<tr{row_class}>"));
         self.push_indent();
         // Covered positions are implied by the origins' spans.
         for cell in row.cells() {
-            self.render_cell(row, cell, is_header);
+            self.render_cell(row, cell, kind);
         }
         self.pop_indent();
         self.write_line("</tr>");
     }
 
-    fn render_cell(&mut self, row: &ResolvedRow, cell: &ResolvedCell, is_header: bool) {
+    fn render_cell(&mut self, row: &ResolvedRow, cell: &ResolvedCell, kind: SectionKind) {
+        let is_header = kind == SectionKind::Head;
         let tag = if is_header { "th" } else { "td" };
         let mut attrs = Vec::new();
+        let part = cell_part(row, cell, kind).map(|part| self.part_class(part));
 
         let align = cell_alignment(cell, is_header);
         if self.config.inline_styles {
@@ -403,11 +412,14 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                 }
                 css.push_str(&format!("text-align: {a}"));
             }
+            if let Some(part) = part {
+                attrs.push(format!("class=\"{part}\""));
+            }
             if !css.is_empty() {
                 attrs.push(format!("style=\"{}\"", escape_attr(&css)));
             }
         } else {
-            let mut classes = Vec::new();
+            let mut classes: Vec<String> = part.into_iter().collect();
             if let Some(a) = align {
                 classes.push(format!("{}__al_{a}", self.config.class_prefix));
             }
@@ -483,15 +495,16 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             ));
             self.push_indent();
             for note in &footer.footnotes {
-                let class = self.style_class_attr(&note.style_id);
-                self.write_line(&format!(
-                    "<p id=\"{}\" {}>",
-                    escape_attr(&note.id),
-                    class.trim()
-                ));
+                let class = self.part_attrs("footnote", &note.style_id);
+                self.write_line(&format!("<p id=\"{}\"{class}>", escape_attr(&note.id)));
                 self.push_indent();
                 let indent = self.indent();
-                let _ = write!(self.buf, "{indent}<sup>{}</sup> ", escape_html(&note.mark));
+                let mark_class = self.part_class("footnote_mark");
+                let _ = write!(
+                    self.buf,
+                    "{indent}<sup class=\"{mark_class}\">{}</sup> ",
+                    escape_html(&note.mark)
+                );
                 self.render_content_nodes_inline(&note.content);
                 let nl = self.nl();
                 let _ = write!(self.buf, "{nl}");
@@ -510,7 +523,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             ));
             self.push_indent();
             for note in &footer.source_notes {
-                let class = self.style_class_attr(&note.style_id);
+                let class = self.part_attrs("source_note", &note.style_id);
                 self.write_line(&format!("<p{class}>"));
                 self.push_indent();
                 self.render_content_nodes(&note.content);
@@ -576,9 +589,10 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                     reference,
                     mark_text,
                 } => {
+                    let mark_class = self.part_class("footnote_mark");
                     let _ = write!(
                         self.buf,
-                        "<sup><a href=\"#{}\">{}</a></sup>",
+                        "<sup class=\"{mark_class}\"><a href=\"#{}\">{}</a></sup>",
                         escape_attr(reference),
                         escape_html(mark_text)
                     );
@@ -617,6 +631,24 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
     }
 
     // ─── Helpers ───
+
+    /// The class naming a structural part of the table, e.g. `gw_col_label`.
+    fn part_class(&self, part: &str) -> String {
+        format!("{}_{part}", self.config.class_prefix)
+    }
+
+    /// Attributes for an element that is a structural `part` and may have a style:
+    /// the part's class plus the style's class (or, with inline styles, the part's
+    /// class and the style's `style` attribute).
+    fn part_attrs(&self, part: &str, style_id: &Option<String>) -> String {
+        let part = self.part_class(part);
+        match style_id {
+            Some(id) if !self.config.inline_styles => {
+                format!(" class=\"{part} {}_{id}\"", self.config.class_prefix)
+            }
+            _ => format!(" class=\"{part}\"{}", self.style_class_attr(style_id)),
+        }
+    }
 
     fn style_class_attr(&self, style_id: &Option<String>) -> String {
         match style_id {
@@ -659,6 +691,37 @@ fn cell_alignment(cell: &ResolvedCell, is_header: bool) -> Option<&'static str> 
 
 /// CSS declarations for a resolved style. Every value is typed (parsed colors and
 /// lengths, known keywords, a sanitized family list), so the result is safe inside a
+/// The structural part a row is, for its class: column labels or spanners in the
+/// head (a head row without a role counts as column labels), summary rows. Data
+/// rows have none.
+fn row_part(row: &ResolvedRow, kind: SectionKind) -> Option<&'static str> {
+    match kind {
+        SectionKind::Head => Some(match row.role {
+            Some(RowRole::SpannerLabel) => "spanners",
+            _ => "col_labels",
+        }),
+        SectionKind::Body => None,
+        SectionKind::Summary => Some(match row.role {
+            Some(RowRole::GrandSummary) => "grand_summary",
+            _ => "summary",
+        }),
+    }
+}
+
+/// The structural part a cell is, for its class: the stubhead and stub, column
+/// labels, and spanners (only those with content, so an empty filler cell in a
+/// spanner row isn't drawn like a spanner).
+fn cell_part(row: &ResolvedRow, cell: &ResolvedCell, kind: SectionKind) -> Option<&'static str> {
+    match kind {
+        SectionKind::Head if cell.is_stub => Some("stubhead"),
+        SectionKind::Head => match row.role {
+            Some(RowRole::SpannerLabel) => (!cell.content.is_empty()).then_some("spanner"),
+            _ => Some("col_label"),
+        },
+        SectionKind::Body | SectionKind::Summary => cell.is_stub.then_some("stub"),
+    }
+}
+
 /// `<style>` block; callers still attribute-escape it for `style="…"` (family names
 /// may contain quotes).
 fn style_css(s: &ResolvedStyle) -> String {
