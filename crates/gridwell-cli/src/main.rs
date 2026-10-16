@@ -5,7 +5,7 @@ use std::process;
 
 use clap::{Parser, Subcommand};
 use gridwell_ir::Table;
-use gridwell_render::{find, OutputKind, Writer, REGISTRY};
+use gridwell_render::{find, format_for_path, OutputKind, RenderError, Writer, REGISTRY};
 
 #[derive(Parser)]
 #[command(
@@ -26,11 +26,19 @@ enum Command {
         #[arg(value_name = "INPUT")]
         input: Option<PathBuf>,
 
-        /// Output format (see `gridwell formats`)
-        #[arg(short = 't', long = "to", value_name = "FORMAT", value_parser = parse_format)]
-        format: &'static dyn Writer,
+        /// Output format (see `gridwell formats`); inferred from the --output
+        /// extension when omitted
+        #[arg(
+            short = 't',
+            long = "to",
+            value_name = "FORMAT",
+            value_parser = parse_format,
+            required_unless_present = "output"
+        )]
+        format: Option<&'static dyn Writer>,
 
-        /// Output file (defaults to stdout for text, required for binary)
+        /// Output file (defaults to stdout for text, required for binary). Files
+        /// get file defaults: `ansi` writes plain text unless `color` is set
         #[arg(short, long, value_name = "FILE")]
         output: Option<PathBuf>,
 
@@ -90,12 +98,17 @@ fn fail(msg: impl std::fmt::Display) -> ! {
 
 fn cmd_convert(
     input: Option<PathBuf>,
-    writer: &'static dyn Writer,
+    format: Option<&'static dyn Writer>,
     output: Option<PathBuf>,
     options: Option<String>,
     options_file: Option<PathBuf>,
 ) {
-    // Check arguments before doing any work.
+    // Check arguments before doing any work. Clap ensures --to or --output.
+    let writer = match (format, &output) {
+        (Some(w), _) => w,
+        (None, Some(path)) => format_for_path(path).unwrap_or_else(|e| fail(with_to_hint(e))),
+        (None, None) => unreachable!("clap requires --to without --output"),
+    };
     if writer.kind() == OutputKind::Binary && output.is_none() {
         fail(format_args!(
             "binary format '{}' requires --output file",
@@ -114,25 +127,31 @@ fn cmd_convert(
     let table = parse_table(&json);
 
     // The registry validates the IR (writers never see invalid tables) and the
-    // options.
-    let rendered =
-        gridwell_render::render_with_json_options(&table, writer.name(), options.as_deref())
-            .unwrap_or_else(|e| fail(e));
-
+    // options, and writes nothing if either fails.
     match output {
         Some(path) => {
-            let bytes = rendered.into_bytes();
-            if let Err(e) = fs::write(&path, &bytes) {
-                fail(format_args!("writing {}: {e}", path.display()));
-            }
-            eprintln!("Wrote {} ({} bytes)", path.display(), bytes.len());
+            gridwell_render::save(&table, &path, Some(writer.name()), options.as_deref())
+                .unwrap_or_else(|e| fail(e));
+            let len = fs::metadata(&path).map(|m| m.len()).unwrap_or(0);
+            eprintln!("Wrote {} ({len} bytes, {})", path.display(), writer.name());
         }
         None => {
+            let rendered = gridwell_render::render_with_json_options(
+                &table,
+                writer.name(),
+                options.as_deref(),
+            )
+            .unwrap_or_else(|e| fail(e));
             let stdout = io::stdout();
             let mut out = stdout.lock();
             out.write_all(&rendered.into_bytes()).unwrap();
         }
     }
+}
+
+/// Extension errors say "pass a format"; on the command line that's --to.
+fn with_to_hint(e: RenderError) -> String {
+    format!("{e} with --to")
 }
 
 fn cmd_validate(input: Option<PathBuf>) {
