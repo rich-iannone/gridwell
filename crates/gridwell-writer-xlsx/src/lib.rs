@@ -27,6 +27,11 @@ impl XlsxWriter {
     pub fn render_styles_xml(&self, table: &Table) -> Result<String, RenderError> {
         render::render_styles_xml(table)
     }
+
+    /// The `sharedStrings.xml` part: the sheet's rich-text strings.
+    pub fn render_shared_strings_xml(&self, table: &Table) -> Result<String, RenderError> {
+        render::render_shared_strings_xml(table)
+    }
 }
 
 impl Default for XlsxWriter {
