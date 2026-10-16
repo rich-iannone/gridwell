@@ -38,6 +38,7 @@ pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
             "ppt/slideMasters/_rels/slideMaster1.xml.rels",
             xml::SLIDE_MASTER_RELS,
         ),
+        Part::new("ppt/theme/theme1.xml", xml::THEME),
     ])?)
 }
 
