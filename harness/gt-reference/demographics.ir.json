@@ -1,0 +1,959 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 4,
+    "header_rows": 2,
+    "body_rows": 8,
+    "stub_cols": 1,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "header": {
+    "title": {
+      "content": [
+        {
+          "type": "text",
+          "value": "Table 14.1.1 Summary of Demographic Characteristics"
+        }
+      ],
+      "style_id": null
+    },
+    "subtitle": {
+      "content": [
+        {
+          "type": "text",
+          "value": "Safety Population"
+        }
+      ],
+      "style_id": null
+    },
+    "extra_lines": [],
+    "preheader_content": null
+  },
+  "column_spec": [
+    {
+      "id": "label",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": ""
+    },
+    {
+      "id": "placebo",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "Placebo"
+    },
+    {
+      "id": "low",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "Low Dose"
+    },
+    {
+      "id": "high",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "High Dose"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "spanner_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Xanomeline"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "colgroup",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        },
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Placebo"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Low Dose"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "High Dose"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "group_id": "Age (years)",
+        "label": {
+          "content": [
+            {
+              "type": "text",
+              "value": "Age (years)"
+            }
+          ],
+          "style_id": null,
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "n"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "n",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "86"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "86",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "86"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "84"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "84",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "84"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "84"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "84",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "84"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Mean (SD)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "mean (sd)",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "75.2 (8.59)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "75.2 (8.59)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "75.2 (8.59)"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "75.7 (8.29)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "75.7 (8.29)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "75.7 (8.29)"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "74.4 (7.89)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "74.4 (7.89)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "74.4 (7.89)"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Median (Min, Max)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "median (min, max)",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "76.0 (52, 89)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "76.0 (52, 89)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "76.0 (52, 89)"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "77.5 (51, 88)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "77.5 (51, 88)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "77.5 (51, 88)"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "76.0 (56, 88)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "76.0 (56, 88)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "76.0 (56, 88)"
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "Sex, n (%)",
+        "label": {
+          "content": [
+            {
+              "type": "text",
+              "value": "Sex, n (%)"
+            },
+            {
+              "type": "footnote_mark",
+              "ref": "fn1",
+              "mark_text": "1"
+            }
+          ],
+          "style_id": null,
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Female"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "female",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "53 (61.6)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "53 (61.6)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "53 (61.6)"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "50 (59.5)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "50 (59.5)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "50 (59.5)"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "40 (47.6)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "40 (47.6)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "40 (47.6)"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Male"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "male",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "33 (38.4)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "33 (38.4)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "33 (38.4)"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "34 (40.5)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "34 (40.5)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "34 (40.5)"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "44 (52.4)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "44 (52.4)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "44 (52.4)"
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "Race, n (%)",
+        "label": {
+          "content": [
+            {
+              "type": "text",
+              "value": "Race, n (%)"
+            }
+          ],
+          "style_id": null,
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "White"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "white",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "78 (90.7)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "78 (90.7)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "78 (90.7)"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "78 (92.9)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "78 (92.9)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "78 (92.9)"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "74 (88.1)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "74 (88.1)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "74 (88.1)"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Black or African American"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "black or african american",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "8 (9.3)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "8 (9.3)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "8 (9.3)"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "6 (7.1)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "6 (7.1)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "6 (7.1)"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "9 (10.7)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "9 (10.7)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "9 (10.7)"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Other"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "other",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "0"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "0",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "0"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "0"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "0",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "0"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1 (1.2)"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "1 (1.2)",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "1 (1.2)"
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ]
+  },
+  "footer": {
+    "footnotes": [
+      {
+        "id": "fn1",
+        "mark": "1",
+        "content": [
+          {
+            "type": "text",
+            "value": "Percentages are based on the number of subjects in each arm."
+          }
+        ],
+        "style_id": null
+      }
+    ],
+    "source_notes": [
+      {
+        "content": [
+          {
+            "type": "text",
+            "value": "Source: ADSL (CDISC pilot study)"
+          }
+        ],
+        "style_id": null
+      }
+    ]
+  },
+  "extensions": {}
+}

@@ -1,0 +1,800 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 4,
+    "header_rows": 1,
+    "body_rows": 8,
+    "stub_cols": 1,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "header": {
+    "title": null,
+    "subtitle": null,
+    "extra_lines": [],
+    "preheader_content": null
+  },
+  "column_spec": [
+    {
+      "id": "row",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": ""
+    },
+    {
+      "id": "char",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "char"
+    },
+    {
+      "id": "num",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "num"
+    },
+    {
+      "id": "currency",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "currency"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "char"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "num"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "currency"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "group_id": "grp_a",
+        "label": {
+          "content": [
+            {
+              "type": "text",
+              "value": "grp_a"
+            }
+          ],
+          "style_id": null,
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_1"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "row_1",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "apricot"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "apricot",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "apricot"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "0.11"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "0.11",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0.11
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "$49.95"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "$49.95",
+                "data_type": "number"
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_2"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "row_2",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "banana"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "banana",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "banana"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2.22"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2.22",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 2.22
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "$17.95"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "$17.95",
+                "data_type": "number"
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_3"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "row_3",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "coconut"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "coconut",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "coconut"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "33.33"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "33.33",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 33.33
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "$1.39"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "$1.39",
+                "data_type": "number"
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_4"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "row_4",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "durian"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "durian",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "durian"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "444.40"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "444.40",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 444.4
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "$65,100.00"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "$65,100.00",
+                "data_type": "number"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "grp_b",
+        "label": {
+          "content": [
+            {
+              "type": "text",
+              "value": "grp_b"
+            }
+          ],
+          "style_id": null,
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_5"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "row_5",
+                "data_type": "string"
+              },
+              {
+                "content": [],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": null,
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "5,550.00"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "5,550.00",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 5550
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "$1,325.81"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "$1,325.81",
+                "data_type": "number"
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_6"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "row_6",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "fig"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "fig",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "fig"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "NA"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "na",
+                "data_type": "number"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "$13.26"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "$13.26",
+                "data_type": "number"
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_7"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "row_7",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "grapefruit"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "grapefruit",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grapefruit"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "777,000.00"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "777,000.00",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 777000
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "NA"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "na",
+                "data_type": "number"
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_8"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "row_8",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "honeydew"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "honeydew",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "honeydew"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "8,880,000.00"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "8,880,000.00",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 8880000
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "$0.44"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "$0.44",
+                "data_type": "number"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ]
+  },
+  "footer": {
+    "footnotes": [],
+    "source_notes": []
+  },
+  "extensions": {}
+}

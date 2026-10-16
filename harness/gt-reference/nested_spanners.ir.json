@@ -1,0 +1,1452 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 8,
+    "header_rows": 3,
+    "body_rows": 6,
+    "stub_cols": 1,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "header": {
+    "title": null,
+    "subtitle": null,
+    "extra_lines": [],
+    "preheader_content": null
+  },
+  "column_spec": [
+    {
+      "id": "__GT_ROWNAME_PRIVATE__",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": ""
+    },
+    {
+      "id": "mpg",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "mpg"
+    },
+    {
+      "id": "cyl",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "cyl"
+    },
+    {
+      "id": "disp",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "disp"
+    },
+    {
+      "id": "hp",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "hp"
+    },
+    {
+      "id": "qsec",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "qsec"
+    },
+    {
+      "id": "am",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "am"
+    },
+    {
+      "id": "gear",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "gear"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "spanner_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Specifications"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "colgroup",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Specifications"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "colgroup",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        },
+        {
+          "role": "spanner_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Engine"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "colgroup",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Drivetrain"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "colgroup",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        },
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "mpg"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "cyl"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "disp"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "hp"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "qsec"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "am"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "gear"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Mazda RX4"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "mazda rx4",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "21.0"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "21.0",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 21
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "6"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "6",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 6
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "160"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "160",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 160
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "110"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "110",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 110
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "16.5"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "16.5",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 16.5
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "1",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "4"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "4",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 4
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Mazda RX4 Wag"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "mazda rx4 wag",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "21.0"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "21.0",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 21
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "6"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "6",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 6
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "160"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "160",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 160
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "110"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "110",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 110
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "17.0"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "17.0",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 17
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "1",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "4"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "4",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 4
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Datsun 710"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "datsun 710",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "22.8"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "22.8",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 22.8
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "4"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "4",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 4
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "108"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "108",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 108
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "93"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "93",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 93
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "18.6"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "18.6",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 18.6
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "1",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "4"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "4",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 4
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Hornet 4 Drive"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "hornet 4 drive",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "21.4"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "21.4",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 21.4
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "6"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "6",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 6
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "258"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "258",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 258
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "110"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "110",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 110
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "19.4"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "19.4",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 19.4
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "0"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "0",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "3"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "3",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 3
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Hornet Sportabout"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "hornet sportabout",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "18.7"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "18.7",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 18.7
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "8"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "8",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 8
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "360"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "360",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 360
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "175"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "175",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 175
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "17.0"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "17.0",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 17
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "0"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "0",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "3"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "3",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 3
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Valiant"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "valiant",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "18.1"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "18.1",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 18.1
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "6"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "6",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 6
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "225"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "225",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 225
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "105"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "105",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 105
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "20.2"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "20.2",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 20.2
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "0"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "0",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "3"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "3",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 3
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ]
+  },
+  "footer": {
+    "footnotes": [],
+    "source_notes": []
+  },
+  "extensions": {}
+}

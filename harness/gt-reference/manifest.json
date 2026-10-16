@@ -1,0 +1,40 @@
+{
+  "generated_by": "harness/gt-reference/make.R",
+  "r_version": "4.2.3",
+  "gt_version": "1.4.0",
+  "gridwell_version": "0.1.0",
+  "cases": [
+    {
+      "name": "demographics",
+      "description": "Clinical demographics (t14_1_1): row groups, stub, a spanner, a footnote and a source note"
+    },
+    {
+      "name": "exibble_basic",
+      "description": "gt(exibble) with no options: gt's default look for every column type"
+    },
+    {
+      "name": "groups_and_stub",
+      "description": "Row groups and a stub (exibble with rowname_col and groupname_col)"
+    },
+    {
+      "name": "nested_spanners",
+      "description": "Two levels of spanners over formatted numbers"
+    },
+    {
+      "name": "summary_rows",
+      "description": "Group summary rows and a grand summary"
+    },
+    {
+      "name": "tab_style",
+      "description": "tab_style(): fills, bold, colored text, and a styled column label"
+    },
+    {
+      "name": "striped_theme",
+      "description": "opt_stylize() theme with row striping"
+    },
+    {
+      "name": "notes_and_marks",
+      "description": "Title, subtitle, footnotes on several locations, and source notes"
+    }
+  ]
+}

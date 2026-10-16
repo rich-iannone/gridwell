@@ -1,0 +1,680 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 4,
+    "header_rows": 1,
+    "body_rows": 6,
+    "stub_cols": 0,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "header": {
+    "title": {
+      "content": [
+        {
+          "type": "text",
+          "value": "A stylized table"
+        }
+      ],
+      "style_id": null
+    },
+    "subtitle": null,
+    "extra_lines": [],
+    "preheader_content": null
+  },
+  "column_spec": [
+    {
+      "id": "char",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "char"
+    },
+    {
+      "id": "fctr",
+      "align": "center",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "fctr"
+    },
+    {
+      "id": "num",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "num"
+    },
+    {
+      "id": "date",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "date"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "char"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "fctr"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "num"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "date"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "apricot"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "apricot",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "apricot"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "one"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "one",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "one"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "0.1111"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "0.1111",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0.1111
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2015-01-15"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2015-01-15",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-01-15"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "banana"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "banana",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "banana"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "two"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "two",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "two"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2.2220"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2.2220",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 2.222
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2015-02-15"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2015-02-15",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-02-15"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "coconut"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "coconut",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "coconut"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "three"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "three",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "three"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "33.3300"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "33.3300",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 33.33
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2015-03-15"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2015-03-15",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-03-15"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "durian"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "durian",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "durian"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "four"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "four",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "four"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "444.4000"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "444.4000",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 444.4
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2015-04-15"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2015-04-15",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-04-15"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": null,
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "five"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "five",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "five"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "5550.0000"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "5550.0000",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 5550
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2015-05-15"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2015-05-15",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-05-15"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "fig"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "fig",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "fig"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "six"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "six",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "six"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "NA"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "na",
+                "data_type": "number"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2015-06-15"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2015-06-15",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-06-15"
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ]
+  },
+  "footer": {
+    "footnotes": [],
+    "source_notes": []
+  },
+  "extensions": {}
+}

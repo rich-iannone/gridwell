@@ -1,0 +1,475 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 3,
+    "header_rows": 1,
+    "body_rows": 5,
+    "stub_cols": 0,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null
+  },
+  "styles": {
+    "defs": {
+      "gw_1": {
+        "background_color": "#F2F4F7"
+      },
+      "gw_2": {
+        "color": "#B42318",
+        "font_style": "italic"
+      },
+      "gw_3": {
+        "background_color": "#E8F0FE",
+        "font_weight": "bold"
+      }
+    },
+    "compositions": {},
+    "conditionals": []
+  },
+  "header": {
+    "title": null,
+    "subtitle": null,
+    "extra_lines": [],
+    "preheader_content": null
+  },
+  "column_spec": [
+    {
+      "id": "char",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "char"
+    },
+    {
+      "id": "num",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "num"
+    },
+    {
+      "id": "currency",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "currency"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "char"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": "gw_1",
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "num"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": "gw_1",
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "currency"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": "gw_1",
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "apricot"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "gw_2",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "apricot",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "apricot"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "0.1111"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "0.1111",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0.1111
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "49.95"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "49.95",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 49.95
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "banana"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "gw_2",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "banana",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "banana"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2.2220"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "gw_3",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2.2220",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 2.222
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "17.95"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "17.95",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 17.95
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "coconut"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "gw_2",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "coconut",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "coconut"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "33.3300"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "gw_3",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "33.3300",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 33.33
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1.39"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "1.39",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1.39
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "durian"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "gw_2",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "durian",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "durian"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "444.4000"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "gw_3",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "444.4000",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 444.4
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "65100.00"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "65100.00",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 65100
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "gw_2",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": null,
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "5550.0000"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "gw_3",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "5550.0000",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 5550
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1325.81"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "1325.81",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1325.81
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ]
+  },
+  "footer": {
+    "footnotes": [],
+    "source_notes": []
+  },
+  "extensions": {}
+}

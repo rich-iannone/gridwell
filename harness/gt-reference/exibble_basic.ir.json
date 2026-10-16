@@ -1,0 +1,1748 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 9,
+    "header_rows": 1,
+    "body_rows": 8,
+    "stub_cols": 0,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "header": {
+    "title": null,
+    "subtitle": null,
+    "extra_lines": [],
+    "preheader_content": null
+  },
+  "column_spec": [
+    {
+      "id": "num",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "num"
+    },
+    {
+      "id": "char",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "char"
+    },
+    {
+      "id": "fctr",
+      "align": "center",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "fctr"
+    },
+    {
+      "id": "date",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "date"
+    },
+    {
+      "id": "time",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "time"
+    },
+    {
+      "id": "datetime",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "datetime"
+    },
+    {
+      "id": "currency",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "currency"
+    },
+    {
+      "id": "row",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "row"
+    },
+    {
+      "id": "group",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "group"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "num"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "char"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "fctr"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "date"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "time"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "datetime"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "currency"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "row"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "group"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1.111e-01"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "1.111e-01",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0.1111
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "apricot"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "apricot",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "apricot"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "one"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "one",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "one"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2015-01-15"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2015-01-15",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-01-15"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "13:35"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "13:35",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "13:35"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2018-01-01 02:22"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2018-01-01 02:22",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-01-01 02:22"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "49.950"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "49.950",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 49.95
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_1"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "row_1",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_1"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "grp_a"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "grp_a",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_a"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2.222e+00"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2.222e+00",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 2.222
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "banana"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "banana",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "banana"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "two"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "two",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "two"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2015-02-15"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2015-02-15",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-02-15"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "14:40"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "14:40",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "14:40"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2018-02-02 14:33"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2018-02-02 14:33",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-02-02 14:33"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "17.950"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "17.950",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 17.95
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_2"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "row_2",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_2"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "grp_a"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "grp_a",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_a"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "3.333e+01"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "3.333e+01",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 33.33
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "coconut"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "coconut",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "coconut"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "three"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "three",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "three"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2015-03-15"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2015-03-15",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-03-15"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "15:45"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "15:45",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "15:45"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2018-03-03 03:44"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2018-03-03 03:44",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-03-03 03:44"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1.390"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "1.390",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1.39
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_3"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "row_3",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_3"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "grp_a"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "grp_a",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_a"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "4.444e+02"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "4.444e+02",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 444.4
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "durian"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "durian",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "durian"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "four"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "four",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "four"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2015-04-15"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2015-04-15",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-04-15"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "16:50"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "16:50",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "16:50"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2018-04-04 15:55"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2018-04-04 15:55",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-04-04 15:55"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "65100.000"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "65100.000",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 65100
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_4"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "row_4",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_4"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "grp_a"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "grp_a",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_a"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "5.550e+03"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "5.550e+03",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 5550
+                }
+              },
+              {
+                "content": [],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": null,
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "five"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "five",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "five"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2015-05-15"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2015-05-15",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-05-15"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "17:55"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "17:55",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "17:55"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2018-05-05 04:00"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2018-05-05 04:00",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-05-05 04:00"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1325.810"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "1325.810",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1325.81
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_5"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "row_5",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_5"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "grp_b"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "grp_b",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_b"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "NA"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "na",
+                "data_type": "number"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "fig"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "fig",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "fig"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "six"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "six",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "six"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2015-06-15"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2015-06-15",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-06-15"
+                }
+              },
+              {
+                "content": [],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": null,
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2018-06-06 16:11"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2018-06-06 16:11",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-06-06 16:11"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "13.255"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "13.255",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 13.255
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_6"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "row_6",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_6"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "grp_b"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "grp_b",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_b"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "7.770e+05"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "7.770e+05",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 777000
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "grapefruit"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "grapefruit",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grapefruit"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "seven"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "seven",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "seven"
+                }
+              },
+              {
+                "content": [],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": null,
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "19:10"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "19:10",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "19:10"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2018-07-07 05:22"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2018-07-07 05:22",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-07-07 05:22"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "NA"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "na",
+                "data_type": "number"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_7"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "row_7",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_7"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "grp_b"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "grp_b",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_b"
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "8.880e+06"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "8.880e+06",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 8880000
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "honeydew"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "honeydew",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "honeydew"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "eight"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "eight",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "eight"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2015-08-15"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2015-08-15",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-08-15"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "20:20"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "20:20",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "20:20"
+                }
+              },
+              {
+                "content": [],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": null,
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "0.440"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "0.440",
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0.44
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "row_8"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "row_8",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_8"
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "grp_b"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "grp_b",
+                "data_type": "string",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_b"
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ]
+  },
+  "footer": {
+    "footnotes": [],
+    "source_notes": []
+  },
+  "extensions": {}
+}
