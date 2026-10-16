@@ -9,15 +9,19 @@ expression: render_html(&ex.table()).unwrap()
     :where(.gw_title) { font-size: 125%; text-align: center; padding: 4px 5px }
     :where(.gw_subtitle) { font-size: 85%; text-align: center; padding: 3px 5px 5px }
     :where(.gw_header_line) { font-size: 85%; text-align: center; padding: 0 5px 5px }
-    :where(.gw_table) { border-collapse: collapse; margin: 0; border-top: 2px solid #D3D3D3; border-bottom: 2px solid #D3D3D3 }
+    :where(.gw_table) { border-collapse: collapse; margin: 0; width: 100%; border-top: 2px solid #D3D3D3; border-bottom: 2px solid #D3D3D3 }
     :where(.gw_table td, .gw_table th) { padding: 8px 5px; border-top: 1px solid #D3D3D3 }
     :where(.gw_table th) { font-weight: inherit }
     :where(.gw_table thead th) { border-top: none; padding: 5px 5px 6px }
     :where(.gw_table thead tr) { vertical-align: bottom }
     :where(.gw_table thead) { border-bottom: 2px solid #D3D3D3 }
     :where(.gw_spanner) { padding: 5px 4px 7px; background-image: linear-gradient(#D3D3D3, #D3D3D3); background-size: calc(100% - 8px) 2px; background-position: bottom center; background-repeat: no-repeat }
+    :where(.gw_spanner:first-child) { padding-left: 0; background-size: calc(100% - 4px) 2px; background-position: bottom left }
+    :where(.gw_spanner:last-child) { padding-right: 0; background-size: calc(100% - 4px) 2px; background-position: bottom right }
+    :where(.gw_spanner:first-child:last-child) { background-size: 100% 2px }
     :where(.gw_group_label) { border-top: 2px solid #D3D3D3; border-bottom: 2px solid #D3D3D3 }
     :where(.gw_stub) { border-right: 2px solid #D3D3D3 }
+    :where(tbody > tr.gw_summary:first-child td, tr:not(.gw_summary) + tr.gw_summary td) { border-top: 2px solid #D3D3D3 }
     :where(tbody > tr.gw_grand_summary:first-child td, tr:not(.gw_grand_summary) + tr.gw_grand_summary td) { border-top: 6px double #D3D3D3 }
     :where(.gw_table td.gw__al_right) { font-variant-numeric: tabular-nums }
     :where(.gw_footer) { border-bottom: 2px solid #A8A8A8 }
