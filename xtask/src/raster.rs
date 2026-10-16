@@ -115,16 +115,6 @@ pub fn rasterize(
     }
 }
 
-/// A minimal base stylesheet so gridwell's (mostly unstyled) HTML fragment is
-/// legible; gridwell's own emitted `<style>` block augments/overrides it. This
-/// wrapper is a fixed constant so the golden image stays deterministic.
-const HTML_BASE_CSS: &str = "\
-body { margin: 0; padding: 16px; background: #fff; font-family: Arial, Helvetica, sans-serif; }
-.gw_table { border-collapse: collapse; font-size: 14px; }
-.gw_table th, .gw_table td { border: 1px solid #ccc; padding: 4px 8px; text-align: left; }
-.gw_table thead th { font-weight: bold; border-bottom: 2px solid #333; }
-";
-
 /// Browser window sizes (CSS px) to try, smallest first. A screenshot only captures
 /// the window, so a table larger than the window is silently cut off; when content
 /// reaches the right or bottom edge we retry with the next size. The sizes are fixed
@@ -133,11 +123,12 @@ const BROWSER_WINDOWS: &[(u32, u32)] = &[(1200, 1600), (3000, 4800)];
 
 /// Page chrome only (margin and a white background), no table styling: what a
 /// browser shows when it opens an HTML fragment as a file, give or take the
-/// encoding. Used for the gt comparison, where both sides must stand on their own.
+/// encoding. Every HTML preview uses it, so goldens show the writer's own look
+/// (its base stylesheet), not a harness stylesheet.
 const BARE_PAGE_CSS: &str = "body { margin: 0; padding: 16px; background: #fff; }";
 
 /// Rasterize an HTML fragment in a page with no table styling ([`BARE_PAGE_CSS`]),
-/// unlike [`rasterize`], which adds [`HTML_BASE_CSS`] for the gallery.
+/// for inputs that aren't gallery format files (the gt comparison).
 pub fn rasterize_bare_html(
     tools: &Tools,
     html: &Path,
@@ -151,7 +142,7 @@ pub fn rasterize_bare_html(
 }
 
 fn browser(bin: &str, html: &Path, png: &Path, work_dir: &Path) -> RasterOutcome {
-    browser_page(bin, html, png, work_dir, HTML_BASE_CSS)
+    browser_page(bin, html, png, work_dir, BARE_PAGE_CSS)
 }
 
 /// Screenshot `html` (a fragment) wrapped in a UTF-8 page whose only stylesheet is
