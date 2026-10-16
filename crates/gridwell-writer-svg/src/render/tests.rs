@@ -260,11 +260,13 @@ fn column_alignment_sets_text_anchor() {
         .build();
     let svg = render(&table, &SvgConfig::default()).unwrap();
     assert!(
-        svg.contains("text-anchor=\"middle\" xml:space=\"preserve\">mid<"),
+        svg.lines()
+            .any(|l| l.contains("text-anchor=\"middle\"") && l.ends_with(">mid</text>")),
         "{svg}"
     );
     assert!(
-        svg.contains("text-anchor=\"end\" xml:space=\"preserve\">right<"),
+        svg.lines()
+            .any(|l| l.contains("text-anchor=\"end\"") && l.ends_with(">right</text>")),
         "{svg}"
     );
 }
@@ -347,7 +349,7 @@ fn decorations_and_sizes_reach_the_runs_and_the_layout() {
         .text
         .lines[0];
     assert!(
-        big.width > crate::measure::text_width("BIG", 27.0, false),
+        big.width > crate::measure::text_width("BIG", 27.0, false, false),
         "{}",
         big.width
     );
