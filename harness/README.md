@@ -214,8 +214,9 @@ its GHCR settings.
 
   **One-time setup:** in the repo, set *Settings → Pages → Build and deployment →
   Source = GitHub Actions*. The published URL is
-  `https://<owner>.github.io/gridwell/` (gallery at `…/gridwell/gallery/`); the
-  docs navbar "Gallery" link assumes that `/gridwell/` base path.
+  `https://<owner>.github.io/gridwell/` (gallery at `…/gridwell/gallery/`). The
+  docs navbar "Gallery" link is `/gallery/`: Quarto resolves a leading `/`
+  against the project, not the domain, so it works under any base path.
 
 ## Testing multiple renderer versions (deferred)
 
