@@ -86,10 +86,18 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
     }
 
     /// Whether a cell's cascaded style differs from what its row and cell classes
-    /// give it (the row's class is on the `<tr>`, the cell's on the `<td>`).
+    /// give it (the row's class is on the `<tr>`, the cell's on the `<td>`), or its
+    /// row's style sets borders: in the collapsed-border model a border on a `<tr>`
+    /// doesn't reliably beat one on its cells (a `none` always loses to the base
+    /// stylesheet's hairline), so the cell carries it.
     fn needs_generated_class(&self, row: &ResolvedRow, cell: &ResolvedCell) -> bool {
         let ids = [row.row.style_id.as_deref(), cell.cell.style_id.as_deref()];
-        cell.style != self.rt.styles(ids.into_iter().flatten())
+        if cell.style != self.rt.styles(ids.into_iter().flatten()) {
+            return true;
+        }
+        let row_style = self.rt.styles(row.row.style_id.as_deref());
+        row_style.border.iter().any(|(_, b)| b.is_some())
+            || row_style.border_cleared.iter().any(|(_, c)| *c)
     }
 
     /// The generated class for a cell, if it needs one.
@@ -141,7 +149,71 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         self.render_table();
         self.render_footer_section();
         self.render_container_close();
+        if self.config.standalone {
+            return Ok(self.document(&self.buf));
+        }
         Ok(self.buf)
+    }
+
+    // ─── Standalone document ───
+
+    /// `fragment` as a complete UTF-8 document, titled after the table.
+    fn document(&self, fragment: &str) -> String {
+        let nl = self.nl();
+        let lang = html_lang(&self.table.config.locale)
+            .map(|l| format!(" lang=\"{l}\""))
+            .unwrap_or_default();
+        let title = escape_html(&self.document_title());
+        let mut out = String::with_capacity(fragment.len() + 256);
+        for line in [
+            "<!doctype html>".to_string(),
+            format!("<html{lang}>"),
+            "<head>".to_string(),
+            "<meta charset=\"utf-8\">".to_string(),
+            "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">".to_string(),
+            format!("<title>{title}</title>"),
+            "</head>".to_string(),
+            "<body>".to_string(),
+        ] {
+            out.push_str(&line);
+            out.push_str(nl);
+        }
+        out.push_str(fragment);
+        if !fragment.ends_with('\n') {
+            out.push_str(nl);
+        }
+        out.push_str("</body>");
+        out.push_str(nl);
+        out.push_str("</html>");
+        out.push_str(nl);
+        out
+    }
+
+    /// The document's `<title>`: the table's title as plain text (footnote marks
+    /// left out, whitespace collapsed), else its `aria_label`, else "Table".
+    fn document_title(&self) -> String {
+        let title = self
+            .table
+            .header
+            .as_ref()
+            .and_then(|h| h.title.as_ref())
+            .map(|t| {
+                let nodes: Vec<ContentNode> = t
+                    .content
+                    .iter()
+                    .filter(|n| !matches!(n, ContentNode::FootnoteMark { .. }))
+                    .cloned()
+                    .collect();
+                gridwell_layout::plain_text(&nodes, " ")
+            })
+            .or_else(|| self.table.config.aria_label.clone())
+            .unwrap_or_default();
+        let title = title.split_whitespace().collect::<Vec<_>>().join(" ");
+        if title.is_empty() {
+            "Table".to_string()
+        } else {
+            title
+        }
     }
 
     // ─── Container ───
@@ -714,6 +786,15 @@ pub fn render(table: &Table, config: &HtmlWriterConfig) -> Result<String, Render
     HtmlRenderer::new(&rt, config).render()
 }
 
+/// The table's locale as an HTML `lang` value (`en_US` → `en-US`), if it looks
+/// like a language tag at all: ASCII letters, digits and `-`, starting with a letter.
+fn html_lang(locale: &str) -> Option<String> {
+    let tag = locale.trim().replace('_', "-");
+    let ok = tag.chars().next().is_some_and(|c| c.is_ascii_alphabetic())
+        && tag.chars().all(|c| c.is_ascii_alphanumeric() || c == '-');
+    ok.then_some(tag)
+}
+
 /// The `text-align` a cell needs, if any: header cells always (browsers center
 /// `<th>` by default), body cells unless left-aligned (the default for `<td>`).
 /// Decimal (`char`) alignment is approximated by right alignment.
@@ -806,6 +887,12 @@ fn style_css(s: &ResolvedStyle) -> String {
     for (side, b) in s.border.iter() {
         if let Some(b) = b {
             parts.push(format!("border-{side}: {}", border_css(b)));
+        }
+    }
+    // An explicitly removed border also removes the base stylesheet's.
+    for (side, cleared) in s.border_cleared.iter() {
+        if *cleared {
+            parts.push(format!("border-{side}: none"));
         }
     }
     parts.join("; ")
