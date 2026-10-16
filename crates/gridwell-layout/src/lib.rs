@@ -21,6 +21,7 @@
 //! visible columns exactly; on invalid IR, positions no cell can claim are
 //! [`Slot::Empty`].
 
+pub mod look;
 pub mod style;
 pub mod text;
 
