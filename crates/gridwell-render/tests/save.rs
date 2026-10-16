@@ -257,3 +257,22 @@ fn text_files_have_no_trailing_newline_added() {
         assert_eq!(on_disk.len(), rendered.as_text().unwrap().len(), "{format}");
     }
 }
+
+#[test]
+fn html_files_are_fragments_unless_standalone_is_set() {
+    let d = dir("standalone");
+    let path = d.join("t.html");
+    save(&table(), &path, None, None).unwrap();
+    let html = std::fs::read_to_string(&path).unwrap();
+    assert!(html.starts_with("<div class=\"gw_container\""), "{html}");
+    assert_eq!(
+        html,
+        render(&table(), "html", None).unwrap().as_text().unwrap()
+    );
+
+    save(&table(), &path, None, Some(r#"{"standalone": true}"#)).unwrap();
+    let doc = std::fs::read_to_string(&path).unwrap();
+    assert!(doc.starts_with("<!doctype html>"), "{doc}");
+    assert!(doc.contains("<meta charset=\"utf-8\">") && doc.contains("<title>Title</title>"));
+    assert!(doc.contains(&html), "the document holds the fragment");
+}
