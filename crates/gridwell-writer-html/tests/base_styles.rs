@@ -138,3 +138,72 @@ fn the_option_is_on_by_default_and_parses_from_json() {
     let c: HtmlWriterConfig = serde_json::from_str("{}").unwrap();
     assert!(c.base_styles);
 }
+
+fn row_border_table(border: serde_json::Value) -> Table {
+    let style: gridwell_ir::style::StyleDef =
+        serde_json::from_value(serde_json::json!({ "border": border })).unwrap();
+    gridwell_testkit::TableBuilder::new(2)
+        .style_def("rb", style)
+        .head(gridwell_testkit::row(vec![
+            gridwell_testkit::cell("A"),
+            gridwell_testkit::cell("B"),
+        ]))
+        .body(vec![
+            gridwell_testkit::row(vec![
+                gridwell_testkit::cell("1"),
+                gridwell_testkit::cell("2"),
+            ]),
+            gridwell_testkit::RowExt::style(
+                gridwell_testkit::row(vec![
+                    gridwell_testkit::cell("3"),
+                    gridwell_testkit::cell("4"),
+                ]),
+                "rb",
+            ),
+        ])
+        .build()
+}
+
+#[test]
+fn a_removed_border_removes_the_base_hairline_too() {
+    // `none` on a row: the cells carry `border-top: none` (a `<tr>` border would
+    // lose to the base stylesheet's hairline on the cells).
+    let t = row_border_table(serde_json::json!({ "top": { "style": "none" } }));
+    let html = render(&t, true, false, "gw");
+    assert!(
+        html.contains(".gw_table .gw__c0 { border-top: none }"),
+        "{html}"
+    );
+    assert!(html.contains("<td class=\"gw__c0\">3</td>"), "{html}");
+    assert!(html.contains("<td class=\"gw__c0\">4</td>"), "{html}");
+    assert!(html.contains("<td>1</td>"), "{html}");
+    // Inline: on the cells' own `style`.
+    let inline = render(&t, true, true, "gw");
+    assert!(
+        inline.contains("<td style=\"border-top: none\">3</td>"),
+        "{inline}"
+    );
+    // `hidden` counts as removed; an unset side doesn't.
+    let t = row_border_table(serde_json::json!({ "bottom": { "style": "hidden" } }));
+    let html = render(&t, true, false, "gw");
+    assert!(
+        html.contains(".gw_table .gw__c0 { border-bottom: none }"),
+        "{html}"
+    );
+}
+
+#[test]
+fn a_drawn_row_border_is_carried_by_its_cells() {
+    // A thin dashed rule on a row would lose the collapsed-border conflict to the
+    // base 1px solid hairline if it were only on the `<tr>`.
+    let t = row_border_table(
+        serde_json::json!({ "top": { "style": "dashed", "width": "1px", "color": "#FF0000" } }),
+    );
+    let html = render(&t, true, false, "gw");
+    let rule = html
+        .lines()
+        .find(|l| l.contains(".gw__c0 {"))
+        .unwrap_or_else(|| panic!("no generated class:\n{html}"));
+    assert!(rule.contains("border-top: 1px dashed #FF0000"), "{rule}");
+    assert!(html.contains("<td class=\"gw__c0\">3</td>"), "{html}");
+}
