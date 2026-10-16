@@ -60,6 +60,7 @@ options at all).
 | `pretty_print` | boolean | `true` | Indent the markup, one element per line |
 | `class_prefix` | string | `"gw"` | Prefix for generated class names; letters, digits, `_` and `-`, not starting with a digit or `-` |
 | `base_styles` | boolean | `true` | Include gridwell's default look, modeled on gt's (fonts, rules, padding). Its rules have zero specificity, so the table's own styles and the host page's CSS override them. `false` gives a bare fragment styled only by the table's styles. Not applied with `inline_styles` |
+| `standalone` | boolean | `false` | Write a complete document (`<!doctype html>`, `<meta charset="utf-8">`, a `<title>` from the table's title, `lang` from the locale) around the fragment, for a file opened on its own. Saving to `.html` doesn't turn it on; pass it |
 
 ### `latex`
 
