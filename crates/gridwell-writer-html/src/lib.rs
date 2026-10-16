@@ -54,6 +54,23 @@ impl Default for HtmlWriter {
     }
 }
 
+/// Check a `class_prefix`: it is written into every class name and selector, so it
+/// must be a plain CSS identifier (`[A-Za-z_][A-Za-z0-9_-]*`). The error says why.
+pub fn check_class_prefix(v: &str) -> Result<(), String> {
+    let mut chars = v.chars();
+    let ok = chars
+        .next()
+        .is_some_and(|c| c.is_ascii_alphabetic() || c == '_')
+        && chars.all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-');
+    if ok {
+        Ok(())
+    } else {
+        Err(format!(
+            "class_prefix must start with a letter or `_` and contain only letters, digits, `_` and `-`; got {v:?}"
+        ))
+    }
+}
+
 /// Convenience function to render a table to HTML with default settings.
 pub fn render_html(table: &Table) -> Result<String, RenderError> {
     HtmlWriter::new().render(table)
