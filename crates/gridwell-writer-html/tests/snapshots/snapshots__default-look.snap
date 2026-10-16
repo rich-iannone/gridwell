@@ -1,0 +1,73 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: render_html(&ex.table()).unwrap()
+---
+<div class="gw_container">
+  <style>
+    :where(.gw_container) { font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #333333; font-size: 16px; line-height: normal; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; width: fit-content; max-width: 100%; margin-left: auto; margin-right: auto }
+    :where(.gw_title:first-of-type, .gw_subtitle:first-of-type, .gw_header_line:first-of-type) { border-top: 2px solid #A8A8A8 }
+    :where(.gw_title) { font-size: 125%; text-align: center; padding: 4px 5px }
+    :where(.gw_subtitle) { font-size: 85%; text-align: center; padding: 3px 5px 5px }
+    :where(.gw_header_line) { font-size: 85%; text-align: center; padding: 0 5px 5px }
+    :where(.gw_table) { border-collapse: collapse; margin: 0; border-top: 2px solid #D3D3D3; border-bottom: 2px solid #D3D3D3 }
+    :where(.gw_table td, .gw_table th) { padding: 8px 5px; border-top: 1px solid #D3D3D3 }
+    :where(.gw_table th) { font-weight: inherit }
+    :where(.gw_table thead th) { border-top: none; padding: 5px 5px 6px }
+    :where(.gw_table thead tr) { vertical-align: bottom }
+    :where(.gw_table thead) { border-bottom: 2px solid #D3D3D3 }
+    :where(.gw_spanner) { padding: 5px 4px 7px; background-image: linear-gradient(#D3D3D3, #D3D3D3); background-size: calc(100% - 8px) 2px; background-position: bottom center; background-repeat: no-repeat }
+    :where(.gw_group_label) { border-top: 2px solid #D3D3D3; border-bottom: 2px solid #D3D3D3 }
+    :where(.gw_stub) { border-right: 2px solid #D3D3D3 }
+    :where(tbody > tr.gw_grand_summary:first-child td, tr:not(.gw_grand_summary) + tr.gw_grand_summary td) { border-top: 6px double #D3D3D3 }
+    :where(.gw_table td.gw__al_right) { font-variant-numeric: tabular-nums }
+    :where(.gw_footer) { border-bottom: 2px solid #A8A8A8 }
+    :where(.gw_footnote, .gw_source_note) { margin: 0; font-size: 90%; padding: 4px 5px }
+    :where(.gw_footnote_mark) { font-size: 75%; vertical-align: 0.4em; line-height: 0; font-style: italic }
+    :where(.gw_footnote_mark a) { color: inherit; text-decoration: none }
+    .gw_table .gw__al_left { text-align: left }
+    .gw_table .gw__al_right { text-align: right }
+    .gw_style-total { font-weight: bold; background-color: #F5F5F5 }
+    .gw_table .gw__c0 { background-color: rgba(128, 128, 128, 0.051) }
+  </style>
+  <div class="gw_title" role="heading" aria-level="1">
+    Quarterly P&amp;L
+  </div>
+  <table class="gw_table">
+    <thead>
+      <tr class="gw_col_labels">
+        <th class="gw_stubhead gw__al_left">Line item</th>
+        <th class="gw_col_label gw__al_right">Q1</th>
+        <th class="gw_col_label gw__al_right">Q2</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="gw_stub">Revenue</td>
+        <td class="gw__al_right">$1,200</td>
+        <td class="gw__al_right">$1,350</td>
+      </tr>
+      <tr>
+        <td class="gw_stub">COGS</td>
+        <td class="gw__al_right gw__c0">$700</td>
+        <td class="gw__al_right gw__c0">$760</td>
+      </tr>
+      <tr>
+        <td class="gw_stub">Opex</td>
+        <td class="gw__al_right">$300</td>
+        <td class="gw__al_right">$320</td>
+      </tr>
+      <tr class="gw_summary">
+        <td class="gw_stub gw_style-total">Net income</td>
+        <td class="gw__al_right gw_style-total">$200</td>
+        <td class="gw__al_right gw_style-total">$270</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="gw_footer">
+    <div class="gw_source_notes">
+      <p class="gw_source_note">
+        Unaudited management figures.
+      </p>
+    </div>
+  </div>
+</div>
