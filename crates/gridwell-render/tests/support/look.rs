@@ -1034,19 +1034,38 @@ fn parse_css(css: &str, rules: &mut Vec<Rule>) {
                 )
             })
             .collect();
-        for one in sel.split(',') {
+        // `:where(a, b)` is `a, b` with zero specificity (the HTML writer's base
+        // stylesheet); other pseudo-classes and combinators are skipped.
+        let mut selectors: Vec<(&str, bool)> = Vec::new();
+        for one in split_top_level(sel) {
+            let one = one.trim();
+            match one
+                .strip_prefix(":where(")
+                .and_then(|r| r.strip_suffix(')'))
+            {
+                Some(inner) if !inner.contains('(') => {
+                    selectors.extend(split_top_level(inner).into_iter().map(|s| (s, true)))
+                }
+                _ => selectors.push((one, false)),
+            }
+        }
+        for (one, zero) in selectors {
             let compounds: Option<Vec<Compound>> =
                 one.split_whitespace().map(parse_compound).collect();
             let Some(compounds) = compounds.filter(|c| !c.is_empty()) else {
                 continue;
             };
-            let specificity = compounds.iter().fold((0, 0, 0), |(a, b, c), x| {
-                (
-                    a + usize::from(x.id.is_some()),
-                    b + x.classes.len(),
-                    c + usize::from(x.tag.is_some()),
-                )
-            });
+            let specificity = if zero {
+                (0, 0, 0)
+            } else {
+                compounds.iter().fold((0, 0, 0), |(a, b, c), x| {
+                    (
+                        a + usize::from(x.id.is_some()),
+                        b + x.classes.len(),
+                        c + usize::from(x.tag.is_some()),
+                    )
+                })
+            };
             rules.push(Rule {
                 compounds,
                 specificity,
@@ -1055,6 +1074,25 @@ fn parse_css(css: &str, rules: &mut Vec<Rule>) {
             });
         }
     }
+}
+
+/// Split a selector list on the commas outside parentheses.
+fn split_top_level(s: &str) -> Vec<&str> {
+    let mut out = Vec::new();
+    let (mut depth, mut start) = (0usize, 0);
+    for (i, ch) in s.char_indices() {
+        match ch {
+            '(' => depth += 1,
+            ')' => depth = depth.saturating_sub(1),
+            ',' if depth == 0 => {
+                out.push(&s[start..i]);
+                start = i + 1;
+            }
+            _ => {}
+        }
+    }
+    out.push(&s[start..]);
+    out
 }
 
 fn matches(c: &Compound, e: &scraper::node::Element) -> bool {
@@ -1169,6 +1207,7 @@ struct Inherited {
 
 fn apply_text(props: &HashMap<String, String>, tag: &str, inh: &mut Inherited) {
     let run = &mut inh.run;
+    let parent_bold = run.bold;
     match tag {
         "b" | "strong" | "th" => run.bold = true,
         "i" | "em" => run.italic = true,
@@ -1181,8 +1220,11 @@ fn apply_text(props: &HashMap<String, String>, tag: &str, inh: &mut Inherited) {
         inh.align = Some(Align::Center);
     }
     if let Some(w) = props.get("font-weight") {
-        run.bold =
-            matches!(w.as_str(), "bold" | "bolder") || w.parse::<u32>().is_ok_and(|n| n >= 600);
+        run.bold = if w == "inherit" {
+            parent_bold
+        } else {
+            matches!(w.as_str(), "bold" | "bolder") || w.parse::<u32>().is_ok_and(|n| n >= 600)
+        };
     }
     if let Some(s) = props.get("font-style") {
         run.italic = s == "italic" || s == "oblique";
