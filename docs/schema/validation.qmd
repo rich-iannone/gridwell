@@ -28,6 +28,7 @@ and when errors are serialized.
 | `UNKNOWN_VALUE` | A keyword field holds a value outside its allowed set (see [Keyword values](#keyword-values)) |
 | `INVALID_COLOR` | A color field is not a CSS color (see [Colors](#colors)) |
 | `INVALID_LENGTH` | A length field does not parse, or uses a form its field does not allow (see [Lengths](#lengths)) |
+| `INVALID_STYLE_ID` | A style id (a key of `styles.defs` or `styles.compositions`) is empty or uses a character other than ASCII letters, digits, `_` and `-` |
 
 ## Span Rules
 
