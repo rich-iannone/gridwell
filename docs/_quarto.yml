@@ -17,11 +17,13 @@ website:
         href: api/index.qmd
       - text: "Demos"
         href: demos/index.qmd
-      # Served next to the docs on GitHub Pages (see .github/workflows/visual.yml).
-      # Site-absolute link: resolves on the deployed Pages site, but 404s during
-      # local `quarto preview` where the gallery isn't present.
+      # Served next to the docs on GitHub Pages (see .github/workflows/visual.yml),
+      # at <site>/gallery/. Quarto treats a leading `/` as the project root and
+      # rewrites the link relative to each page (`./gallery/`, `../gallery/`), so
+      # it must not repeat the `/gridwell/` base path. 404s during local `quarto
+      # preview`, where the gallery isn't present.
       - text: "Gallery"
-        href: /gridwell/gallery/
+        href: /gallery/
     right:
       - icon: github
         href: https://github.com/rich-iannone/gridwell
