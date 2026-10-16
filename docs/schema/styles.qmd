@@ -98,7 +98,9 @@ layers below. `padding` and `border` merge side by side, so a cell style that se
 or `hidden` removes that edge. Values that don't parse (and keywords outside their
 allowed set) are ignored, so they never reach any output.
 
-A style id can name a definition or a composition. A composition is its `extends`
+A style id is a non-empty name of ASCII letters, digits, `_` and `-` (anything else
+fails validation with `INVALID_STYLE_ID`): writers put ids into markup, such as HTML
+class names. A style id can name a definition or a composition. A composition is its `extends`
 definition with `overrides` laid over it; compositions don't chain.
 
 ### Conditional selectors
