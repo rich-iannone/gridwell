@@ -69,8 +69,8 @@ jobs:
         run: |
           sudo apt-get update -q
           # Roboto: the font the SVG writer's widths describe (its calibration test
-          # checks rendering in it); Liberation Sans: the Arial-compatible fallback.
-          sudo apt-get install -y -q poppler-utils librsvg2-bin fonts-roboto fonts-liberation
+          # checks rendering in it). Same font setup as the harness image.
+          sudo apt-get install -y -q poppler-utils librsvg2-bin fonts-roboto
           echo "GRIDWELL_REQUIRE_TYPST=1" >> "$GITHUB_ENV"
           echo "GRIDWELL_REQUIRE_RSVG=1" >> "$GITHUB_ENV"
           echo "GRIDWELL_REQUIRE_ROBOTO=1" >> "$GITHUB_ENV"
