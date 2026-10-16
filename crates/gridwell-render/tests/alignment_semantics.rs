@@ -31,12 +31,36 @@ fn text(format: &str) -> String {
             let w = gridwell_writer_xlsx::XlsxWriter::new();
             w.render_sheet_xml(&t).unwrap() + &w.render_styles_xml(&t).unwrap()
         }
+        // `textLength` values follow the font metrics; alignment is about anchors.
+        "svg" => without_text_length(
+            gridwell_render::render(&t, "svg", None)
+                .unwrap()
+                .as_text()
+                .unwrap(),
+        ),
         f => gridwell_render::render(&t, f, None)
             .unwrap()
             .as_text()
             .unwrap()
             .to_string(),
     }
+}
+
+/// SVG with every ` textLength="…" lengthAdjust="spacingAndGlyphs"` removed.
+fn without_text_length(svg: &str) -> String {
+    const ADJUST: &str = " lengthAdjust=\"spacingAndGlyphs\"";
+    let mut out = String::with_capacity(svg.len());
+    let mut rest = svg;
+    while let Some(i) = rest.find(" textLength=\"") {
+        out.push_str(&rest[..i]);
+        let after = &rest[i + " textLength=\"".len()..];
+        let close = after.find('"').unwrap();
+        rest = after[close + 1..]
+            .strip_prefix(ADJUST)
+            .unwrap_or(&after[close + 1..]);
+    }
+    out.push_str(rest);
+    out
 }
 
 /// (format, marker for the right-aligned number, marker for the centered spanner)
