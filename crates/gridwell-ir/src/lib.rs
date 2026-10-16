@@ -21,7 +21,9 @@ pub use keywords::{
 };
 pub use span::{resolve_slots, vmerge_layout, MergeCell, Slot, VMerge};
 pub use style::{StyleDef, StylePalette};
-pub use validation::{validate, InvalidTable, Limits, ValidationError, ValidationRule};
+pub use validation::{
+    is_valid_style_id, validate, InvalidTable, Limits, ValidationError, ValidationRule,
+};
 pub use visibility::ColumnVisibility;
 
 /// Parse error for IR JSON.
