@@ -15,6 +15,7 @@ xtask/                     # harness tooling: corpus, gallery, image diff
 harness/
   Dockerfile               # pinned renderer toolchain (chromium/xelatex/typst/libreoffice/…)
   goldens/<fmt>/<name>.png # committed golden images for the gated subset
+  gt-reference/            # real gt tables: gt's HTML + gridwell IR (committed)
   corpus/                  # generated IR JSON            (gitignored)
   gallery/                 # generated gallery + previews (gitignored)
 ```
@@ -80,6 +81,45 @@ Rendering details that keep previews faithful:
   page, as in a real document.
 - **SVG** is rasterized on white, like the other formats.
 - Images in the corpus are embedded `data:` URIs, since renderers run offline.
+
+## gt vs gridwell HTML (report only)
+
+`harness/gallery/gt.html` puts gt's own HTML for real gt tables next to
+gridwell's HTML for the same tables, with a pixel diff. gt's look is the target
+for gridwell's default HTML; this page measures how close it is.
+
+- **Inputs** (committed): `harness/gt-reference/<name>.gt.html` (gt's
+  `as_raw_html(inline_css = FALSE)`) and `<name>.ir.json` (`gt_to_ir()` of the same
+  table), plus `manifest.json` (case descriptions and the R, gt and gridwell
+  versions used). The cases are defined in `cases.R`; `make.R` writes the files.
+  Checking them in means the harness image needs no R.
+- **Rendering**: both sides are screenshotted in the same Chromium as **bare
+  pages**: a UTF-8 doctype wrapper and a page margin, but none of the gallery's
+  `HTML_BASE_CSS`. So the gridwell side is what a saved `.html` file really looks
+  like.
+- **Score**: the share of differing pixels when both images sit top-left on a
+  white canvas the size of the larger one (lower is closer), with both sizes. A
+  diff image shows the differing pixels in red. It is a coarse trend measure, not a
+  perceptual metric: a table that is laid out a few pixels taller shifts every row
+  below. Read the images, not just the number.
+- **Report only**: the scores go into the run summary, and nothing here fails CI.
+
+```bash
+cargo xtask gt        # just this page (seconds); `cargo xtask gallery` builds it too
+open harness/gallery/gt.html
+```
+
+Regenerate the references after changing the gt emitter or upgrading gt, from
+the repository root (the R tests fail if the checked-in IR no longer matches
+`gt_to_ir()`, when run with the gt version in the manifest):
+
+```bash
+R CMD INSTALL r-package
+Rscript harness/gt-reference/make.R
+```
+
+Add a case by adding an entry to `cases.R` and regenerating. The xtask tests
+check that the manifest and files agree and that gt's HTML is self-contained.
 
 ## Visual regression gate (gated subset)
 
