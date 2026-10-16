@@ -607,12 +607,16 @@ fn text_block(buf: &mut String, b: &TextBlock) -> Result<(), RenderError> {
         }
         // Baseline: center of the line box plus about a third of the font size.
         let baseline = line_top + line_h / 2.0 + size * 0.35;
+        // `textLength`: draw the line exactly as wide as the layout measured it,
+        // whatever font the viewer substitutes.
         write!(
             buf,
-            "<text x=\"{}\" y=\"{}\" font-size=\"{}px\"{anchor} xml:space=\"preserve\">",
+            "<text x=\"{}\" y=\"{}\" font-size=\"{}px\"{anchor} textLength=\"{}\" \
+             lengthAdjust=\"spacingAndGlyphs\" xml:space=\"preserve\">",
             num(x),
             num(baseline),
-            num(b.font_size)
+            num(b.font_size),
+            num(line.draw_width)
         )?;
         for run in &line.runs {
             let s = &run.style;
