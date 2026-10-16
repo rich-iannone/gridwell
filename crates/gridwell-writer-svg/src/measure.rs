@@ -217,6 +217,12 @@ impl Run {
 /// about 0.15em in Helvetica/Arial Oblique. Calibrated by `tests/calibration.rs`.
 pub const ITALIC_OVERHANG_EM: f64 = 0.2;
 
+/// How far a glyph's ink may reach past the advances at a line's ends, in em
+/// (negative side bearings: the arms of `Y`, the crossbar of a bold `T`, `\`, `_`).
+/// Measured at up to ~0.05em in Roboto by `tests/calibration.rs`. Not added to a
+/// line's room: it falls in the cell padding (at least 4px), as it does in HTML.
+pub const INK_BEARING_EM: f64 = 0.06;
+
 /// One laid-out line: runs to draw left to right, the room it needs (including any
 /// italic overhang), and the width it is drawn at.
 #[derive(Debug, Clone, Default, PartialEq)]
