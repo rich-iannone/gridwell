@@ -58,6 +58,66 @@ pub fn compare(render: &Path, golden: &Path) -> Result<Comparison, String> {
     })
 }
 
+/// How far apart two images of possibly different sizes are (the gt comparison).
+pub struct Distance {
+    /// Fraction of differing pixels (beyond [`CHANNEL_TOLERANCE`]) when both are
+    /// placed top-left on a white canvas as large as the larger of the two.
+    pub fraction: f64,
+    /// `(width, height)` of the first and second image.
+    pub size_a: (u32, u32),
+    pub size_b: (u32, u32),
+}
+
+/// Compare two images of any size, and write a diff image to `diff_png`: shared
+/// pixels faded, differing ones red.
+pub fn distance(a: &Path, b: &Path, diff_png: &Path) -> Result<Distance, String> {
+    let a = load(a)?;
+    let b = load(b)?;
+    let (w, h) = (a.width().max(b.width()), a.height().max(b.height()));
+    let white = image::Rgba([255, 255, 255, 255]);
+    let at = |img: &image::RgbaImage, x: u32, y: u32| {
+        if x < img.width() && y < img.height() {
+            *img.get_pixel(x, y)
+        } else {
+            white
+        }
+    };
+    let mut out = image::RgbaImage::from_pixel(w, h, white);
+    let mut differing: u64 = 0;
+    for y in 0..h {
+        for x in 0..w {
+            let (pa, pb) = (at(&a, x, y), at(&b, x, y));
+            let differs =
+                pa.0.iter()
+                    .zip(pb.0.iter())
+                    .any(|(p, q)| p.abs_diff(*q) > CHANNEL_TOLERANCE);
+            let px = if differs {
+                differing += 1;
+                image::Rgba([220, 38, 38, 255])
+            } else {
+                // Fade toward white so the red stands out.
+                let f = |c: u8| 255 - (255 - c) / 4;
+                image::Rgba([f(pa[0]), f(pa[1]), f(pa[2]), 255])
+            };
+            out.put_pixel(x, y, px);
+        }
+    }
+    let total = (w as u64) * (h as u64);
+    if total > 0 {
+        out.save(diff_png)
+            .map_err(|e| format!("write {}: {e}", diff_png.display()))?;
+    }
+    Ok(Distance {
+        fraction: if total == 0 {
+            0.0
+        } else {
+            differing as f64 / total as f64
+        },
+        size_a: a.dimensions(),
+        size_b: b.dimensions(),
+    })
+}
+
 fn load(path: &Path) -> Result<image::RgbaImage, String> {
     let img = image::open(path).map_err(|e| format!("open {}: {e}", path.display()))?;
     Ok(img.to_rgba8())
@@ -167,5 +227,35 @@ mod tests {
         std::fs::write(&bad, b"not a png").unwrap();
         let ok = png(&d, "ok.png", 2, 2, 0, [0; 4]);
         assert!(compare(&bad, &ok).is_err());
+    }
+
+    #[test]
+    fn distance_pads_the_smaller_image_with_white() {
+        let d = dir();
+        // 4×4 white vs 2×2 white: the padding is white too, so nothing differs.
+        let a = png(&d, "dist_a.png", 4, 4, 0, [0; 4]);
+        let b = png(&d, "dist_b.png", 2, 2, 0, [0; 4]);
+        let r = distance(&a, &b, &d.join("dist_ab.png")).unwrap();
+        assert_eq!(r.fraction, 0.0);
+        assert_eq!((r.size_a, r.size_b), ((4, 4), (2, 2)));
+        // A 4×4 image with its first 4 pixels black vs a 2×2 white one: 4 of 16
+        // differ.
+        let c = png(&d, "dist_c.png", 4, 4, 4, [0, 0, 0, 255]);
+        let r = distance(&c, &b, &d.join("dist_cb.png")).unwrap();
+        assert!((r.fraction - 0.25).abs() < 1e-9, "{}", r.fraction);
+        let diff = image::open(d.join("dist_cb.png")).unwrap().to_rgba8();
+        assert_eq!(diff.dimensions(), (4, 4));
+        assert_eq!(diff.get_pixel(0, 0).0, [220, 38, 38, 255]);
+        assert_eq!(diff.get_pixel(3, 3).0, [255, 255, 255, 255]);
+    }
+
+    #[test]
+    fn distance_is_symmetric() {
+        let d = dir();
+        let a = png(&d, "sym_a.png", 5, 3, 7, [10, 20, 30, 255]);
+        let b = png(&d, "sym_b.png", 3, 6, 2, [200, 0, 0, 255]);
+        let ab = distance(&a, &b, &d.join("sym_ab.png")).unwrap().fraction;
+        let ba = distance(&b, &a, &d.join("sym_ba.png")).unwrap().fraction;
+        assert_eq!(ab, ba);
     }
 }
