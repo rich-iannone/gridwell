@@ -6,7 +6,6 @@ expression: out
 \toprule
 Country & Value \\
 \midrule
-\midrule
 \multicolumn{2}{l}{\bfseries North America} \\
 \midrule
 USA & 1250 \\

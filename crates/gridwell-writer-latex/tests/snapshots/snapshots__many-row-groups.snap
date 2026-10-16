@@ -6,7 +6,6 @@ expression: out
 \toprule
 Key & Value \\
 \midrule
-\midrule
 \multicolumn{2}{l}{\bfseries Group 1} \\
 \midrule
 k1a & 10 \\

@@ -5,6 +5,7 @@ expression: out
 \begin{tabular}{lrr}
 \toprule
  & \multicolumn{2}{c}{Scores} \\
+\cmidrule(lr){2-3}
 Name & Q1 & Q2 \\
 \midrule
 Alice & 90 & 95 \\

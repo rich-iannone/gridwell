@@ -6,6 +6,5 @@ expression: out
 \begin{tabular}{lll}
 \toprule
 A & B & C \\
-\midrule
 \bottomrule
 \end{tabular}

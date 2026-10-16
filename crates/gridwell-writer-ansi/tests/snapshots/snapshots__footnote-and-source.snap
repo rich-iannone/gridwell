@@ -8,5 +8,5 @@ expression: out
 │ A          │ pass¹      │
 │ B          │ fail       │
 └────────────┴────────────┘
-  1 Re-run confirmed.
+  ¹ Re-run confirmed.
   Source: CI pipeline.

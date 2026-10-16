@@ -5,6 +5,7 @@ expression: out
 \begin{tabular}{lll}
 \toprule
 \multicolumn{3}{c}{Full-width spanner} \\
+\cmidrule(lr){1-3}
 A & B & C \\
 \midrule
 1 & 2 & 3 \\

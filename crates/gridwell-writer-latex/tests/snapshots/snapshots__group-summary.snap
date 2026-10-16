@@ -6,7 +6,6 @@ expression: out
 \toprule
 Item & Amount \\
 \midrule
-\midrule
 \multicolumn{2}{l}{\bfseries Q1} \\
 \midrule
 Jan & 10 \\
