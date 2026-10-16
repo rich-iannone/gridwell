@@ -21,6 +21,10 @@ pub struct HtmlWriterConfig {
     /// styled only by the table's styles. Not applied with `inline_styles`, which
     /// writes no `<style>` block.
     pub base_styles: bool,
+    /// Wrap the table in a complete HTML document (`<!doctype html>`, `<meta
+    /// charset="utf-8">`, a `<title>` from the table's title) for a file opened on
+    /// its own. Off gives a fragment for a host page.
+    pub standalone: bool,
 }
 
 impl Default for HtmlWriterConfig {
@@ -30,6 +34,7 @@ impl Default for HtmlWriterConfig {
             pretty_print: true,
             class_prefix: "gw".to_string(),
             base_styles: true,
+            standalone: false,
         }
     }
 }
