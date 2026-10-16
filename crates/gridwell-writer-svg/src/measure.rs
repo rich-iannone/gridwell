@@ -1,21 +1,89 @@
-//! Text width estimation and line wrapping for SVG layout.
+//! Text widths and line wrapping for SVG layout.
 //!
-//! SVG has no layout engine: every glyph position is decided here, without access to
-//! the fonts the viewer will use. So the estimate is deliberately **conservative**:
-//! per-character advances follow DejaVu Sans, the widest of the common sans-serif
-//! fonts a viewer is likely to substitute for `Arial, sans-serif` (Arial, Helvetica,
-//! Liberation Sans and Noto Sans are all narrower). Overestimating costs a little
-//! whitespace; underestimating makes text overprint the next column.
+//! SVG has no layout engine: every glyph position is decided here, from real advance
+//! widths ([`crate::metrics`]). Two widths per piece of text:
 //!
-//! `tests/calibration.rs` checks the estimate against real rendering with
-//! `rsvg-convert`.
+//! - the **draw width**, Roboto's: Roboto is first in the SVG font list, and every
+//!   line is drawn with `textLength` set to it, so a viewer that substitutes another
+//!   font still draws the line at exactly that width;
+//! - the **room width**, the wider of Roboto and Arimo for each character: what
+//!   cells, columns and wrapping are sized for. Arimo is metric-compatible with
+//!   Arial, Helvetica and Liberation Sans, the fallbacks in the font list, so a
+//!   viewer that ignores `textLength` (librsvg) and substitutes one of them still
+//!   fits. (Their bold is several percent wider than Roboto's.)
+//!
+//! Characters Roboto doesn't cover (CJK, emoji, Arabic, Hebrew, …) use conservative
+//! estimates ([`char_em`]): those come from other fonts, whose widths are unknown.
+//!
+//! `tests/calibration.rs` checks the widths against real rendering with
+//! `rsvg-convert` in Roboto.
 
 use unicode_width::UnicodeWidthChar;
 
-/// Bold text is wider; DejaVu Sans Bold runs about 8–11% wider than regular.
+/// Bold text is wider; DejaVu Sans Bold runs about 8–11% wider than regular. Used
+/// for characters Roboto doesn't cover.
 pub const BOLD_FACTOR: f64 = 1.12;
 
-/// Advance width of one character, in em.
+/// One style's table: `(code point, advance)`, sorted.
+type Table = &'static [(u32, u16)];
+
+fn lookup(tables: [Table; 4], upem: f64, c: char, bold: bool, italic: bool) -> Option<f64> {
+    let table = tables[usize::from(bold) + 2 * usize::from(italic)];
+    let cp = c as u32;
+    let i = table.binary_search_by_key(&cp, |&(k, _)| k).ok()?;
+    Some(table[i].1 as f64 / upem)
+}
+
+/// Roboto's advance for `c` in em, if Roboto has the character.
+pub fn roboto_em(c: char, bold: bool, italic: bool) -> Option<f64> {
+    use crate::metrics::roboto::*;
+    lookup(
+        [REGULAR, BOLD, ITALIC, BOLD_ITALIC],
+        UNITS_PER_EM,
+        c,
+        bold,
+        italic,
+    )
+}
+
+/// Arimo's (Arial's) advance for `c` in em, if Arimo has the character.
+pub fn arimo_em(c: char, bold: bool, italic: bool) -> Option<f64> {
+    use crate::metrics::arimo::*;
+    lookup(
+        [REGULAR, BOLD, ITALIC, BOLD_ITALIC],
+        UNITS_PER_EM,
+        c,
+        bold,
+        italic,
+    )
+}
+
+/// The estimate for a character neither font covers.
+fn estimate_em(c: char, bold: bool) -> f64 {
+    if bold {
+        char_em(c) * BOLD_FACTOR
+    } else {
+        char_em(c)
+    }
+}
+
+/// The advance `c` is drawn at, in em: Roboto's, else the estimate.
+pub fn advance_em(c: char, bold: bool, italic: bool) -> f64 {
+    roboto_em(c, bold, italic).unwrap_or_else(|| estimate_em(c, bold))
+}
+
+/// The room `c` needs, in em: the wider of Roboto and Arimo (either may be what a
+/// viewer draws), else the estimate.
+pub fn room_em(c: char, bold: bool, italic: bool) -> f64 {
+    match (roboto_em(c, bold, italic), arimo_em(c, bold, italic)) {
+        (Some(a), Some(b)) => a.max(b),
+        (Some(a), None) | (None, Some(a)) => a,
+        (None, None) => estimate_em(c, bold),
+    }
+}
+
+/// Estimated advance of one character Roboto doesn't cover, in em (DejaVu-like
+/// widths, rounded up).
 pub fn char_em(c: char) -> f64 {
     if c.is_ascii() {
         return ascii_em(c);
@@ -69,19 +137,17 @@ fn ascii_em(c: char) -> f64 {
     }
 }
 
-/// Extra width per visible glyph, in px. At small sizes renderers hint glyph
-/// advances to whole device pixels, which adds up to ~0.5px per glyph at 1× zoom on
-/// top of the proportional width (a 24-character footnote at 11.9px ran ~8px wider
-/// than its scaled advances). Calibrated by `tests/calibration.rs` at real sizes.
-pub const HINTING_SLACK_PX: f64 = 0.5;
+/// The room `s` needs in px at `font_size` px: what layout sizes cells for.
+pub fn text_width(s: &str, font_size: f64, bold: bool, italic: bool) -> f64 {
+    let em: f64 = s.chars().map(|c| room_em(c, bold, italic)).sum();
+    em * font_size
+}
 
-/// Estimated rendered width of `s` in px at `font_size` px.
-pub fn text_width(s: &str, font_size: f64, bold: bool) -> f64 {
-    let (em, glyphs) = s.chars().fold((0.0, 0usize), |(em, n), c| {
-        let w = char_em(c);
-        (em + w, n + usize::from(w > 0.0))
-    });
-    em * font_size * if bold { BOLD_FACTOR } else { 1.0 } + glyphs as f64 * HINTING_SLACK_PX
+/// The width `s` is drawn at in px (its `textLength`): the sum of Roboto's advances
+/// (no kerning).
+pub fn draw_width(s: &str, font_size: f64, bold: bool, italic: bool) -> f64 {
+    let em: f64 = s.chars().map(|c| advance_em(c, bold, italic)).sum();
+    em * font_size
 }
 
 /// A run of text with uniform formatting, as measured and emitted by the layout.
@@ -115,21 +181,51 @@ impl Run {
         self.style.size.unwrap_or(font_size)
     }
 
-    pub fn width(&self, font_size: f64) -> f64 {
-        let size = if self.style.sup {
+    /// The size the run is drawn at (superscripts are smaller).
+    fn drawn_size(&self, font_size: f64) -> f64 {
+        if self.style.sup {
             self.size(font_size) * SUP_SCALE
         } else {
             self.size(font_size)
-        };
-        text_width(&self.text, size, self.style.bold)
+        }
+    }
+
+    /// The room the run needs ([`text_width`]).
+    pub fn width(&self, font_size: f64) -> f64 {
+        let size = self.drawn_size(font_size);
+        text_width(&self.text, size, self.style.bold, self.style.italic)
+    }
+
+    /// The width the run is drawn at ([`draw_width`]).
+    /// The overhang room an italic run needs at the end of a line, in px.
+    pub fn overhang(&self, font_size: f64) -> f64 {
+        if self.style.italic && !self.text.is_empty() {
+            self.drawn_size(font_size) * ITALIC_OVERHANG_EM
+        } else {
+            0.0
+        }
+    }
+
+    pub fn draw_width(&self, font_size: f64) -> f64 {
+        let size = self.drawn_size(font_size);
+        draw_width(&self.text, size, self.style.bold, self.style.italic)
     }
 }
 
-/// One laid-out line: runs to draw left to right, and its estimated width.
+/// Room for italic glyphs to overhang their advances, in em, once per line: slanted
+/// glyphs reach past the line's end (and descenders like `j` before its start) by
+/// about 0.15em in Helvetica/Arial Oblique. Calibrated by `tests/calibration.rs`.
+pub const ITALIC_OVERHANG_EM: f64 = 0.2;
+
+/// One laid-out line: runs to draw left to right, the room it needs (including any
+/// italic overhang), and the width it is drawn at.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Line {
     pub runs: Vec<Run>,
     pub width: f64,
+    pub draw_width: f64,
+    /// The italic overhang included in `width`, in px.
+    pub overhang: f64,
 }
 
 impl Line {
@@ -180,8 +276,20 @@ pub fn wrap(runs: &[Run], font_size: f64, max_width: f64) -> Vec<Line> {
     let mut lines: Vec<Line> = Vec::new();
     let mut current = Line::default();
 
+    // How much a piece adds to a line's room: its own, plus any overhang beyond
+    // what the line already allows for.
+    let extra_overhang = |line: &Line, pieces: &[Run]| -> f64 {
+        let oh = pieces
+            .iter()
+            .map(|r| r.overhang(font_size))
+            .fold(0.0, f64::max);
+        (oh - line.overhang).max(0.0)
+    };
     let push_piece = |line: &mut Line, piece: Run| {
-        line.width += piece.width(font_size);
+        let oh = extra_overhang(line, std::slice::from_ref(&piece));
+        line.width += piece.width(font_size) + oh;
+        line.overhang += oh;
+        line.draw_width += piece.draw_width(font_size);
         match line.runs.last_mut() {
             Some(last) if last.style == piece.style => last.text.push_str(&piece.text),
             _ => line.runs.push(piece),
@@ -203,7 +311,8 @@ pub fn wrap(runs: &[Run], font_size: f64, max_width: f64) -> Vec<Line> {
     };
 
     for word in words {
-        let word_w: f64 = word.iter().map(|r| r.width(font_size)).sum();
+        let word_w: f64 =
+            word.iter().map(|r| r.width(font_size)).sum::<f64>() + extra_overhang(&current, &word);
         let lead = space_after(&current).map_or(0.0, |s| s.width(font_size));
 
         if !current.runs.is_empty() && current.width + lead + word_w > max_width {
@@ -228,7 +337,8 @@ pub fn wrap(runs: &[Run], font_size: f64, max_width: f64) -> Vec<Line> {
                     text: ch.to_string(),
                     style: piece.style.clone(),
                 };
-                let w = ch_run.width(font_size);
+                let w = ch_run.width(font_size)
+                    + extra_overhang(&current, std::slice::from_ref(&ch_run));
                 if !current.runs.is_empty() && current.width + w > max_width {
                     lines.push(std::mem::take(&mut current));
                 }
@@ -256,15 +366,69 @@ mod tests {
 
     #[test]
     fn widths_are_positive_and_scale_with_size() {
-        let w14 = text_width("Hello", 14.0, false);
+        let w14 = text_width("Hello", 14.0, false, false);
         assert!(w14 > 0.0);
-        // Proportional part doubles with the size; the per-glyph slack does not.
-        let slack = 5.0 * HINTING_SLACK_PX;
-        assert!((text_width("Hello", 28.0, false) - slack - 2.0 * (w14 - slack)).abs() < 1e-9);
-        assert_eq!(text_width("", 14.0, false), 0.0);
-        // Zero-width characters get no slack.
-        assert_eq!(text_width("\u{0301}\u{200D}", 14.0, false), 0.0);
-        assert!(text_width("Hello", 14.0, true) > w14);
+        assert!((text_width("Hello", 28.0, false, false) - 2.0 * w14).abs() < 1e-9);
+        assert_eq!(text_width("", 14.0, false, false), 0.0);
+        assert_eq!(text_width("\u{0301}\u{200D}", 14.0, false, false), 0.0);
+        assert!(text_width("Hello", 14.0, true, false) > w14);
+    }
+
+    #[test]
+    fn latin_widths_are_robotos() {
+        // Roboto Regular: "n" 1131 units, "H" 1461, space 508, at 2048 per em.
+        assert_eq!(roboto_em('n', false, false), Some(1131.0 / 2048.0));
+        assert_eq!(roboto_em('H', false, false), Some(1461.0 / 2048.0));
+        assert_eq!(roboto_em(' ', false, false), Some(508.0 / 2048.0));
+        assert!((draw_width("nn", 16.0, false, false) - 2.0 * 1131.0 / 2048.0 * 16.0).abs() < 1e-9);
+        // Bold and italic have their own tables.
+        assert_eq!(roboto_em('n', true, false), Some(1148.0 / 2048.0));
+        assert!(roboto_em('n', false, true).is_some());
+        assert!(roboto_em('n', true, true).is_some());
+        // Uncovered characters fall back to the estimate, for drawing and room.
+        assert_eq!(roboto_em('東', false, false), None);
+        assert_eq!(advance_em('東', false, false), char_em('東'));
+        assert_eq!(advance_em('東', true, false), char_em('東') * BOLD_FACTOR);
+        assert_eq!(room_em('東', false, false), char_em('東'));
+    }
+
+    #[test]
+    fn room_is_the_wider_of_roboto_and_arimo() {
+        for c in (0x20u8..0x7f).map(char::from) {
+            for (bold, italic) in [(false, false), (true, false), (false, true), (true, true)] {
+                let r = roboto_em(c, bold, italic).unwrap();
+                let a = arimo_em(c, bold, italic).unwrap();
+                assert_eq!(room_em(c, bold, italic), r.max(a), "{c:?}");
+                assert_eq!(advance_em(c, bold, italic), r, "{c:?}");
+            }
+        }
+        // Bold Arial is wider than bold Roboto: the reason cells leave room.
+        let s = "Net income";
+        assert!(text_width(s, 16.0, true, false) > draw_width(s, 16.0, true, false) * 1.03);
+        // A line records both, and is never drawn wider than its room.
+        let lines = wrap(&plain("Quarterly P&L"), 16.0, f64::INFINITY);
+        assert!(lines[0].draw_width > 0.0 && lines[0].draw_width <= lines[0].width);
+    }
+
+    #[test]
+    fn the_tables_are_sorted_and_cover_latin() {
+        use crate::metrics::{arimo, roboto};
+        for t in [
+            roboto::REGULAR,
+            roboto::BOLD,
+            roboto::ITALIC,
+            roboto::BOLD_ITALIC,
+            arimo::REGULAR,
+            arimo::BOLD,
+            arimo::ITALIC,
+            arimo::BOLD_ITALIC,
+        ] {
+            assert!(t.windows(2).all(|w| w[0].0 < w[1].0), "unsorted");
+            for c in (0x20u32..0x7f).chain(0xA0..0x100) {
+                assert!(t.iter().any(|&(k, _)| k == c), "missing U+{c:04X}");
+            }
+            assert!(t.iter().all(|&(_, w)| w < 4096));
+        }
     }
 
     #[test]
@@ -289,13 +453,13 @@ mod tests {
         let lines = wrap(&plain("a b c"), 14.0, f64::INFINITY);
         assert_eq!(lines.len(), 1);
         assert_eq!(lines[0].text(), "a b c");
-        assert!((lines[0].width - text_width("a b c", 14.0, false)).abs() < 1e-9);
+        assert!((lines[0].width - text_width("a b c", 14.0, false, false)).abs() < 1e-9);
     }
 
     #[test]
     fn wraps_at_spaces_within_the_limit() {
         let text = "clamped between 80 and 200px";
-        let limit = text_width("clamped between", 14.0, false) + 0.1;
+        let limit = text_width("clamped between", 14.0, false, false) + 0.1;
         let lines = wrap(&plain(text), 14.0, limit);
         assert_eq!(
             lines.iter().map(Line::text).collect::<Vec<_>>(),
@@ -342,8 +506,9 @@ mod tests {
         assert_eq!(lines[0].runs.len(), 3);
         assert!(lines[0].runs[2].style.sup);
         // Narrow limit: "pass¹" moves to line 2 as a unit.
-        let narrow =
-            text_width("pass", 14.0, true) + 1.0 + text_width("1", 14.0 * SUP_SCALE, false);
+        let narrow = text_width("pass", 14.0, true, false)
+            + 1.0
+            + text_width("1", 14.0 * SUP_SCALE, false, false);
         let lines = wrap(&runs, 14.0, narrow);
         assert_eq!(
             lines.iter().map(Line::text).collect::<Vec<_>>(),
@@ -370,7 +535,7 @@ mod tests {
         // Regression: a column sized to a cell's natural width must not wrap it, even
         // when the limit is recovered through float arithmetic (x + w - x != w).
         for word in ["mid", "Revenue", "1,250.3", "販売実績"] {
-            let w = text_width(word, 14.0, false);
+            let w = text_width(word, 14.0, false, false);
             let noisy = (100.1 + w) - 100.1;
             assert_eq!(wrap(&plain(word), 14.0, noisy).len(), 1, "{word}");
         }
