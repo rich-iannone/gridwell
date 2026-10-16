@@ -3,7 +3,7 @@
 
 use extendr_api::prelude::*;
 use gridwell_ir::Table;
-use gridwell_render::REGISTRY;
+use gridwell_render::{RenderError, REGISTRY};
 
 fn table_from(ptr: &Robj) -> ExternalPtr<Table> {
     ptr.try_into().unwrap_or_else(|_| {
@@ -79,6 +79,37 @@ fn rs_render_binary(table_ptr: Robj, format: &str, options: Robj) -> Raw {
     }
 }
 
+/// Render and write to `path` (format inferred from the extension when `format` is
+/// `NULL`); returns the format used.
+/// @noRd
+#[extendr]
+fn rs_save(table_ptr: Robj, path: &str, format: Robj, options: Robj) -> String {
+    let table = table_from(&table_ptr);
+    let format = if format.is_null() {
+        None
+    } else {
+        match format.as_str() {
+            Some(s) => Some(s.to_string()),
+            None => throw_r_error("`format` must be NULL or a single string"),
+        }
+    };
+    let options = options_from(&options);
+    match gridwell_render::save(
+        &table,
+        std::path::Path::new(path),
+        format.as_deref(),
+        options.as_deref(),
+    ) {
+        Ok(writer) => writer.name().to_string(),
+        Err(
+            e @ (RenderError::NoExtension { .. }
+            | RenderError::UnknownExtension { .. }
+            | RenderError::AmbiguousExtension { .. }),
+        ) => throw_r_error(&format!("{e} with `format =`")),
+        Err(e) => throw_r_error(&e.to_string()),
+    }
+}
+
 /// The registry as columns: name, description, kind, extension, media_type, and
 /// options (each format's default options as a JSON string).
 /// @noRd
@@ -104,5 +135,6 @@ extendr_module! {
     fn rs_to_json;
     fn rs_render_text;
     fn rs_render_binary;
+    fn rs_save;
     fn rs_formats;
 }
