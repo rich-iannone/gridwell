@@ -63,4 +63,13 @@ RUN fc-cache -f
 RUN apt-get update && apt-get install -y --no-install-recommends texlive-plain-generic \
     && rm -rf /var/lib/apt/lists/*
 
+# Roboto: the font the SVG writer lays text out with (crates/gridwell-writer-svg,
+# measure.rs), so rsvg (which ignores `textLength`) renders SVG goldens in the font
+# their widths describe; the calibration test requires it here
+# (GRIDWELL_REQUIRE_ROBOTO). Liberation Sans is the Arial-compatible fallback the
+# SVG font list names. Its own final layer, like ulem above, so every earlier layer
+# (and so every other renderer) stays exactly as it was.
+RUN apt-get update && apt-get install -y --no-install-recommends fonts-roboto fonts-liberation \
+    && rm -rf /var/lib/apt/lists/* && fc-cache -f
+
 CMD ["bash"]
