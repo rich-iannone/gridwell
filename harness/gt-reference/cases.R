@@ -88,6 +88,15 @@ cases <- list(
                 fmt_number(columns = c(mpg, qsec), decimals = 1)
         }
     ),
+    adjacent_spanners = list(
+        description = "Two spanners side by side: their rules have a gap between them and run to the table's edges",
+        build = function() {
+            data.frame(a1 = 1:2, a2 = 3:4, b1 = 5:6, b2 = 7:8) |>
+                gt(id = "adjacent_spanners") |>
+                tab_spanner(label = "Group A", columns = c(a1, a2)) |>
+                tab_spanner(label = "Group B", columns = c(b1, b2))
+        }
+    ),
     summary_rows = list(
         description = "Group summary rows and a grand summary",
         build = function() {
