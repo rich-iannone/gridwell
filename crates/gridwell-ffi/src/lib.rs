@@ -486,7 +486,11 @@ fn set_render_error(err: *mut *mut GridwellError, e: &RenderError) {
         RenderError::InvalidOptions { .. } => GRIDWELL_ERR_OPTIONS,
         RenderError::UnknownFormat { .. }
         | RenderError::WrongKind { .. }
-        | RenderError::Writer { .. } => GRIDWELL_ERR_RENDER,
+        | RenderError::Writer { .. }
+        | RenderError::NoExtension { .. }
+        | RenderError::UnknownExtension { .. }
+        | RenderError::AmbiguousExtension { .. }
+        | RenderError::Io { .. } => GRIDWELL_ERR_RENDER,
     };
     set_error(err, code, &e.to_string());
 }
