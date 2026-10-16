@@ -107,6 +107,8 @@ test_that("row groups keep gt's display order", {
 
 test_that("a gtsummary table converts with its formatting", {
     skip_if_not_installed("gtsummary")
+    # add_p() tidies its test results with broom (only suggested by gtsummary).
+    skip_if_not_installed("broom", "1.0.8")
     tbl <- gtsummary::trial |>
         gtsummary::tbl_summary(by = trt, include = c(age, grade)) |>
         gtsummary::add_p() |>
