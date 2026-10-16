@@ -40,19 +40,27 @@ gt_to_ir_list <- function(gt_obj) {
     # Visible columns: the stub (if any) first, then the default columns.
     stub_var <- boxhead$var[boxhead$type == "stub"]
     stub_var <- if (length(stub_var) > 0) stub_var[1] else NULL
+    # Summary rows need a stub for their labels: gt adds one when the table has
+    # none (empty in the data rows), and so does the IR.
+    summaries <- .gw_summaries(built)
+    if (is.null(stub_var) && length(summaries) > 0) stub_var <- .gw_summary_stub
     has_stub <- !is.null(stub_var)
     all_vars <- c(stub_var, boxhead$var[boxhead$type == "default"])
+    opts <- .gw_option_styles(built, styles)
 
     marks <- .gw_footnote_marks(built, styles)
     cell_styles <- .gw_cell_styles(built, styles)
 
     column_spec <- lapply(all_vars, function(var) {
         idx <- which(boxhead$var == var)
-        width <- boxhead$column_width[[idx]]
+        width <- if (length(idx) > 0) boxhead$column_width[[idx]] else NULL
         width <- if (is.null(width) || !nzchar(width[1])) "auto" else as.character(width[1])
         list(
             id = var,
-            align = .gw_align(boxhead$column_align[idx], is_stub = identical(var, stub_var)),
+            align = .gw_align(
+                if (length(idx) > 0) boxhead$column_align[idx] else "left",
+                is_stub = identical(var, stub_var)
+            ),
             align_char = NULL,
             width = width,
             min_width = NULL,
@@ -95,6 +103,14 @@ gt_to_ir_list <- function(gt_obj) {
         .gw_spanner_rows(built, all_vars, has_stub, styles, marks, cell_styles),
         list(label_row)
     )
+    # Table options for the column labels (fill, weight) apply to every head row,
+    # under any tab_style() on the cells.
+    if (!is.null(opts$head_row)) {
+        thead_rows <- lapply(thead_rows, function(r) {
+            r$style_id <- opts$head_row
+            r
+        })
+    }
 
     # Body rows, in gt's display order.
     rows <- lapply(seq_len(nrow(body)), function(i) {
@@ -104,22 +120,32 @@ gt_to_ir_list <- function(gt_obj) {
             key <- if (is_stub_cell) paste0("stub:", i) else paste0("data:", i, ":", var)
             right <- !is_stub_cell &&
                 identical(boxhead$column_align[boxhead$var == var], "right")
-            text <- .gw_body_text(body[[var]][i])
+            shown <- body[[var]][i]
+            missing <- length(shown) == 1 && is.na(shown)
+            text <- .gw_body_text(shown)
             raw <- if (var %in% names(data)) data[[var]][orig] else NULL
+            cell_style <- cell_styles$lookup(key)
+            if (is_stub_cell) cell_style <- .gw_merge_style(styles, opts$stub, cell_style)
             cell <- .gw_cell(
                 .gw_with_marks(.gw_text_nodes(text), marks$lookup(key), right_aligned = right),
-                style_id = cell_styles$lookup(key),
+                style_id = cell_style,
                 is_stub = is_stub_cell,
                 scope = if (is_stub_cell) "row" else NULL,
                 data_type = .gw_dtype(raw),
-                sort_key = if (nzchar(text)) tolower(text) else NULL
+                # A missing value sorts as missing, not as the text "NA".
+                sort_key = if (nzchar(text) && !missing) tolower(text) else NULL
             )
             typed <- if (is_stub_cell) NULL else .gw_typed_value(raw, text)
             if (!is.null(typed)) cell$typed_value <- typed
             cell
         })
-        list(role = NULL, style_id = NULL, cells = cells)
+        list(role = NULL, style_id = opts$body_row, cells = cells)
     })
+
+    # Before the styles are listed below: the body registers styles too.
+    tbody <- .gw_tbody(
+        built, rows, styles, marks, cell_styles, summaries, all_vars, stub_var, opts
+    )
 
     # Footer: footnotes (in mark order) and source notes.
     footer <- list(footnotes = marks$footnotes, source_notes = list())
@@ -137,9 +163,9 @@ gt_to_ir_list <- function(gt_obj) {
             header_rows = length(thead_rows),
             body_rows = length(rows),
             stub_cols = if (has_stub) 1L else 0L,
-            row_striping = FALSE,
-            row_striping_include_stub = FALSE,
-            row_striping_include_body = FALSE,
+            row_striping = opts$striping$row_striping,
+            row_striping_include_stub = opts$striping$include_stub,
+            row_striping_include_body = opts$striping$include_body,
             column_labels_hidden = FALSE,
             table_width = NULL,
             container_width = NULL,
@@ -154,13 +180,13 @@ gt_to_ir_list <- function(gt_obj) {
         styles = list(
             defs = styles$defs(),
             compositions = setNames(list(), character(0)),
-            conditionals = list()
+            conditionals = opts$striping$conditionals
         ),
         header = header,
         column_spec = column_spec,
         table = list(
             thead = list(rows = thead_rows),
-            tbody = .gw_tbody(built, rows, styles, marks, cell_styles)
+            tbody = tbody
         ),
         footer = footer,
         extensions = setNames(list(), character(0))
@@ -319,7 +345,9 @@ gt_to_ir_list <- function(gt_obj) {
 
 # A body value from gt's grid-context output.
 .gw_body_text <- function(x) {
-    if (is.null(x) || length(x) == 0 || is.na(x)) return("")
+    if (is.null(x) || length(x) == 0) return("")
+    # An unformatted missing value: gt shows it as "NA".
+    if (is.na(x)) return("NA")
     as.character(x)
 }
 
@@ -379,13 +407,37 @@ gt_to_ir_list <- function(gt_obj) {
     })
 }
 
-.gw_tbody <- function(built, rows, styles, marks, cell_styles) {
+.gw_tbody <- function(built, rows, styles, marks, cell_styles, summaries, all_vars, stub_var,
+                      opts) {
     stub_df <- built[["_stub_df"]]
     row_groups <- built[["_row_groups"]]
-    if (length(row_groups) == 0 || all(is.na(stub_df$group_id))) {
-        return(list(list(group_id = NULL, label = NULL, rows = rows, summary_rows = list())))
+    summary_rows <- function(id, role, row_style) {
+        df <- summaries[[id]]
+        if (is.null(df)) return(list())
+        lapply(seq_len(nrow(df)), function(i) {
+            cells <- lapply(all_vars, function(var) {
+                is_stub_cell <- identical(var, stub_var)
+                text <- if (is_stub_cell) df[["::rowname::"]][i] else df[[var]][i]
+                .gw_cell(
+                    .gw_text_nodes(.gw_summary_text(text)),
+                    is_stub = is_stub_cell,
+                    scope = if (is_stub_cell) "row" else NULL
+                )
+            })
+            list(role = role, style_id = row_style, cells = cells)
+        })
     }
-    lapply(row_groups, function(grp_id) {
+    grand <- summary_rows(.gw_grand_summary_id, "grand_summary_row", opts$grand_summary_row)
+    grand_group <- if (length(grand) > 0) {
+        list(list(group_id = NULL, label = NULL, rows = list(), summary_rows = grand))
+    }
+    if (length(row_groups) == 0 || all(is.na(stub_df$group_id))) {
+        return(c(
+            list(list(group_id = NULL, label = NULL, rows = rows, summary_rows = list())),
+            grand_group
+        ))
+    }
+    groups <- lapply(row_groups, function(grp_id) {
         idx <- which(stub_df$group_id == grp_id)
         label <- stub_df$group_label[[idx[1]]]
         if (is.null(label)) label <- grp_id
@@ -394,13 +446,127 @@ gt_to_ir_list <- function(gt_obj) {
             group_id = grp_id,
             label = list(
                 content = .gw_with_marks(.gw_nodes(label, styles), marks$lookup(key)),
-                style_id = cell_styles$lookup(key),
+                style_id = .gw_merge_style(styles, opts$group_label, cell_styles$lookup(key)),
                 colspan = NULL
             ),
             rows = rows[idx],
-            summary_rows = list()
+            summary_rows = summary_rows(grp_id, "summary_row", opts$summary_row)
         )
     })
+    c(groups, grand_group)
+}
+
+# ---- Summary rows -------------------------------------------------------------------
+
+# gt's id for the grand summary in its built summary data, and the stub column the
+# IR gets when a table with summaries has no stub of its own.
+.gw_grand_summary_id <- "::GRAND_SUMMARY"
+.gw_summary_stub <- "::rowname::"
+
+# gt's formatted summary rows, by group id (`.gw_grand_summary_id` for the grand
+# summary): data frames with `::rowname::` (the label) and one column per variable,
+# holding the text gt displays. Summaries placed at the top of a group (`side =
+# "top"`) are listed with the others: the IR has summary rows only after a group's
+# data rows.
+.gw_summaries <- function(built) {
+    if (length(built[["_summary"]]) == 0) return(list())
+    get <- utils::getFromNamespace("dt_summary_df_get", "gt")
+    display <- get(data = built)$summary_df_display_list
+    if (is.null(display)) return(list())
+    lapply(display, as.data.frame, stringsAsFactors = FALSE)
+}
+
+.gw_summary_text <- function(x) {
+    if (is.null(x) || length(x) == 0 || is.na(x)) return("")
+    as.character(x)
+}
+
+# ---- Table options ------------------------------------------------------------------
+
+# The table options a user changed (`tab_options()`, `opt_stylize()`,
+# `opt_row_striping()`) that the IR can express, as style ids for each part plus
+# the striping config. Options at gt's defaults are left out: gridwell's writers
+# supply their own default look. Outer border colors and hairline colors have no
+# IR equivalent yet.
+.gw_option_styles <- function(built, styles) {
+    options <- built[["_options"]]
+    defaults <- gt::gt(data.frame(x = 1))[["_options"]]
+    value <- function(name) {
+        v <- options$value[[match(name, options$parameter)]]
+        d <- defaults$value[[match(name, defaults$parameter)]]
+        if (identical(v, d) || is.null(v) || length(v) == 0 || is.na(v[1])) NULL else v[1]
+    }
+    raw <- function(name) options$value[[match(name, options$parameter)]][1]
+    ideal <- utils::getFromNamespace("ideal_fgnd_color", "gt")
+    fill <- function(name) {
+        bg <- value(name)
+        if (is.null(bg)) return(list())
+        # Text color for the fill, chosen as gt does.
+        fg <- unname(ideal(
+            bg, light = raw("table_font_color_light"), dark = raw("table_font_color")
+        ))
+        list(background_color = bg, color = fg)
+    }
+    weight <- function(name) {
+        w <- value(name)
+        if (is.null(w)) list() else list(font_weight = as.character(w))
+    }
+    id_of <- function(def) if (length(def) == 0) NULL else styles$id(def)
+
+    head_row <- c(fill("column_labels_background_color"), weight("column_labels_font_weight"))
+    group_label <- c(fill("row_group_background_color"), weight("row_group_font_weight"))
+    stub <- c(fill("stub_background_color"), weight("stub_font_weight"))
+    body_row <- if (identical(value("table_body_hlines_style"), "none")) {
+        list(border = list(top = list(style = "none")))
+    } else {
+        list()
+    }
+
+    striping <- list(
+        row_striping = FALSE, include_stub = FALSE, include_body = FALSE,
+        conditionals = list()
+    )
+    include_body <- isTRUE(raw("row_striping_include_table_body"))
+    include_stub <- isTRUE(raw("row_striping_include_stub"))
+    if (include_body || include_stub) {
+        color <- value("row_striping_background_color")
+        if (is.null(color)) {
+            # gt's default stripe is the IR's.
+            striping$row_striping <- TRUE
+            striping$include_body <- include_body
+            striping$include_stub <- include_stub
+        } else {
+            # A custom stripe: a conditional style on even data rows (gt stripes
+            # the 2nd, 4th, … rows). It also covers the stub, so a stub left
+            # unstriped is given the table's background.
+            striping$conditionals <- list(list(
+                id = "row_striping",
+                selector = list(row_parity = "even", scope = "tbody"),
+                style = list(background_color = as.character(color))
+            ))
+            if (!include_stub && is.null(stub$background_color)) {
+                stub$background_color <- as.character(raw("table_background_color"))
+            }
+        }
+    }
+
+    list(
+        head_row = id_of(head_row),
+        group_label = group_label,
+        stub = stub,
+        body_row = id_of(body_row),
+        summary_row = id_of(fill("summary_row_background_color")),
+        grand_summary_row = id_of(fill("grand_summary_row_background_color")),
+        striping = striping
+    )
+}
+
+# A style id for `option_def` (a definition list) overlaid by the style `id`
+# already has (tab_style() wins); NULL if both are empty.
+.gw_merge_style <- function(styles, option_def, id) {
+    if (length(option_def) == 0) return(id)
+    def <- if (is.null(id)) option_def else utils::modifyList(option_def, styles$get(id))
+    styles$id(def)
 }
 
 .gw_cell <- function(content, colspan = 1L, style_id = NULL, is_stub = FALSE,
