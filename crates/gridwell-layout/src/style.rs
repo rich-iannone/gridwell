@@ -70,6 +70,11 @@ pub struct ResolvedStyle {
     pub white_space: Option<WhiteSpace>,
     pub padding: Sides<Option<Length>>,
     pub border: Sides<Option<ResolvedBorder>>,
+    /// Sides whose border the style explicitly removes (`none` or `hidden`), as
+    /// opposed to leaving unset. [`border`](Self::border) is `None` for both; a
+    /// format with default rules of its own (HTML's base stylesheet) needs to know
+    /// which is which, to remove its default too.
+    pub border_cleared: Sides<bool>,
     pub indent: Option<Length>,
     pub word_break: Option<WordBreak>,
     pub overflow: Option<Overflow>,
@@ -85,6 +90,12 @@ impl ResolvedStyle {
         let side = |f: fn(&Padding) -> &Option<String>| padding.and_then(|p| length(f(p)));
         let borders = def.border.as_ref();
         let edge = |f: fn(&BorderSet) -> &Option<Border>| borders.and_then(|b| border(f(b)));
+        let cleared = |f: fn(&BorderSet) -> &Option<Border>| {
+            borders
+                .and_then(|b| f(b).as_ref())
+                .and_then(|b| known(&b.style))
+                .is_some_and(|s| matches!(s, BorderStyle::None | BorderStyle::Hidden))
+        };
         Self {
             font_family: def.font_family.as_deref().and_then(font_family),
             font_size: def.font_size.as_deref().and_then(|s| s.parse().ok()),
@@ -108,6 +119,12 @@ impl ResolvedStyle {
                 right: edge(|b| &b.right),
                 bottom: edge(|b| &b.bottom),
                 left: edge(|b| &b.left),
+            },
+            border_cleared: Sides {
+                top: cleared(|b| &b.top),
+                right: cleared(|b| &b.right),
+                bottom: cleared(|b| &b.bottom),
+                left: cleared(|b| &b.left),
             },
             indent: length(&def.indent),
             word_break: known(&def.word_break),
@@ -309,6 +326,35 @@ pub(crate) fn resolve_id(table: &Table, id: Option<&str>) -> ResolvedStyle {
 #[cfg(test)]
 mod text_tests {
     use super::*;
+
+    #[test]
+    fn removed_borders_are_told_apart_from_unset_ones() {
+        let def: StyleDef = serde_json::from_value(serde_json::json!({ "border": {
+            "top": { "style": "none" },
+            "right": { "style": "hidden" },
+            "bottom": { "style": "solid", "width": "1px" }
+        }}))
+        .unwrap();
+        let s = ResolvedStyle::from_def(&def);
+        assert!(s.border.top.is_none() && s.border.right.is_none());
+        assert!(s.border.bottom.is_some() && s.border.left.is_none());
+        let c = &s.border_cleared;
+        assert_eq!(
+            (c.top, c.right, c.bottom, c.left),
+            (true, true, false, false)
+        );
+        assert!(
+            !ResolvedStyle::from_def(&StyleDef::default())
+                .border_cleared
+                .top
+        );
+        // An unknown style is neither drawn nor removed.
+        let def: StyleDef =
+            serde_json::from_value(serde_json::json!({ "border": { "top": { "style": "wavy" } } }))
+                .unwrap();
+        let s = ResolvedStyle::from_def(&def);
+        assert!(s.border.top.is_none() && !s.border_cleared.top);
+    }
 
     fn style(f: impl FnOnce(&mut StyleDef)) -> ResolvedStyle {
         let mut d = StyleDef::default();
