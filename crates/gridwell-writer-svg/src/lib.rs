@@ -1,9 +1,15 @@
 pub mod measure;
+pub mod metrics;
 mod render;
 
 use gridwell_ir::Table;
 
 pub use render::RenderError;
+
+/// The default font list: Roboto, whose widths text is drawn at, then the
+/// Arial-compatible fonts cells also leave room for (see [`measure`]), for viewers
+/// that ignore `textLength`.
+pub const FONT_FAMILY: &str = "Roboto, Helvetica, Arial, 'Liberation Sans', Arimo, sans-serif";
 
 /// Configuration for SVG rendering.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -26,7 +32,7 @@ pub struct SvgConfig {
 impl Default for SvgConfig {
     fn default() -> Self {
         Self {
-            font_family: "Arial, sans-serif".to_string(),
+            font_family: FONT_FAMILY.to_string(),
             font_size: 14.0,
             row_height: 28.0,
             cell_padding_x: 8.0,
