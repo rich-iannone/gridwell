@@ -131,13 +131,44 @@ body { margin: 0; padding: 16px; background: #fff; font-family: Arial, Helvetica
 /// so the choice is deterministic (goldens must not depend on timing).
 const BROWSER_WINDOWS: &[(u32, u32)] = &[(1200, 1600), (3000, 4800)];
 
+/// Page chrome only (margin and a white background), no table styling: what a
+/// browser shows when it opens an HTML fragment as a file, give or take the
+/// encoding. Used for the gt comparison, where both sides must stand on their own.
+const BARE_PAGE_CSS: &str = "body { margin: 0; padding: 16px; background: #fff; }";
+
+/// Rasterize an HTML fragment in a page with no table styling ([`BARE_PAGE_CSS`]),
+/// unlike [`rasterize`], which adds [`HTML_BASE_CSS`] for the gallery.
+pub fn rasterize_bare_html(
+    tools: &Tools,
+    html: &Path,
+    png: &Path,
+    work_dir: &Path,
+) -> RasterOutcome {
+    match &tools.chromium {
+        Some(bin) => browser_page(bin, html, png, work_dir, BARE_PAGE_CSS),
+        None => RasterOutcome::Unavailable("chromium"),
+    }
+}
+
 fn browser(bin: &str, html: &Path, png: &Path, work_dir: &Path) -> RasterOutcome {
+    browser_page(bin, html, png, work_dir, HTML_BASE_CSS)
+}
+
+/// Screenshot `html` (a fragment) wrapped in a UTF-8 page whose only stylesheet is
+/// `page_css`.
+fn browser_page(
+    bin: &str,
+    html: &Path,
+    png: &Path,
+    work_dir: &Path,
+    page_css: &str,
+) -> RasterOutcome {
     let fragment = match std::fs::read_to_string(html) {
         Ok(s) => s,
         Err(e) => return RasterOutcome::Failed(format!("read html: {e}")),
     };
     let wrapped = format!(
-        "<!doctype html><html><head><meta charset=\"utf-8\"><style>{HTML_BASE_CSS}</style></head><body>{fragment}</body></html>"
+        "<!doctype html><html><head><meta charset=\"utf-8\"><style>{page_css}</style></head><body>{fragment}</body></html>"
     );
     let wrapped_path = work_dir.join("page.html");
     if let Err(e) = std::fs::write(&wrapped_path, wrapped) {
