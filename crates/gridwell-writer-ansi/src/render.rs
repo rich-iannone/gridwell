@@ -1,6 +1,6 @@
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{HAlign, Table};
-use gridwell_layout::{resolve, ResolvedStyle, ResolvedTable, Section, Slot};
+use gridwell_layout::{resolve, ResolvedRow, ResolvedStyle, ResolvedTable, Section, Slot};
 use std::fmt::Write;
 use thiserror::Error;
 use unicode_width::UnicodeWidthStr;
@@ -161,34 +161,60 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
 
     fn render_grid(&mut self) -> Result<(), RenderError> {
         let rt = self.rt;
-        self.write_border_line(self.bc.tl, self.bc.tj, self.bc.tr)?;
-
+        // The grid is a stack of bands with a rule between each pair: the head,
+        // then per group its label, its rows and its summary rows.
+        let mut bands = Vec::new();
         if !rt.head.is_empty() {
-            self.write_section(&rt.head, true)?;
-            self.write_border_line(self.bc.lj, self.bc.cj, self.bc.rj)?;
+            bands.push(Band::Rows(&rt.head, true));
         }
-
-        let group_count = rt.groups.len();
-        for (gi, group) in rt.groups.iter().enumerate() {
+        for group in &rt.groups {
             if let Some(label) = &group.label {
-                let text = self.text(label.content);
-                self.write_group_label(&text)?;
-                self.write_border_line(self.bc.lj, self.bc.cj, self.bc.rj)?;
+                bands.push(Band::Label(label.content));
             }
-
-            self.write_section(&group.rows, false)?;
-
+            if !group.rows.is_empty() {
+                bands.push(Band::Rows(&group.rows, false));
+            }
             if !group.summary_rows.is_empty() {
-                self.write_border_line(self.bc.lj, self.bc.cj, self.bc.rj)?;
-                self.write_section(&group.summary_rows, true)?;
-            }
-
-            if gi + 1 < group_count {
-                self.write_border_line(self.bc.lj, self.bc.cj, self.bc.rj)?;
+                bands.push(Band::Rows(&group.summary_rows, true));
             }
         }
 
-        self.write_border_line(self.bc.bl, self.bc.bj, self.bc.br)
+        let none = vec![false; self.col_widths.len()];
+        let mut above = &none;
+        let (mut left, mut right) = (self.bc.tl, self.bc.tr);
+        let edges: Vec<_> = bands.iter().map(|b| self.band_edges(b)).collect();
+        for (band, (first, last)) in bands.iter().zip(&edges) {
+            self.write_rule(left, right, above, first)?;
+            match band {
+                Band::Rows(section, strong) => self.write_section(section, *strong)?,
+                Band::Label(content) => {
+                    let text = self.text(content);
+                    self.write_group_label(&text)?;
+                }
+            }
+            above = last;
+            (left, right) = (self.bc.lj, self.bc.rj);
+        }
+        if bands.is_empty() {
+            // Columns but no rows at all: an empty box.
+            self.write_rule(self.bc.tl, self.bc.tr, &none, &none)?;
+        }
+        self.write_rule(self.bc.bl, self.bc.br, above, &none)
+    }
+
+    /// Which inner column boundaries a band's first and last rows draw a bar at
+    /// (index `i` is the boundary left of column `i`; index 0 is unused).
+    fn band_edges(&self, band: &Band) -> (Vec<bool>, Vec<bool>) {
+        match band {
+            Band::Rows(section, _) => (
+                row_boundaries(&section.rows[0]),
+                row_boundaries(section.rows.last().expect("non-empty band")),
+            ),
+            Band::Label(_) => {
+                let none = vec![false; self.col_widths.len()];
+                (none.clone(), none)
+            }
+        }
     }
 
     fn render_title(&mut self) -> Result<(), RenderError> {
@@ -205,11 +231,25 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
         Ok(())
     }
 
-    fn write_border_line(&mut self, left: &str, mid: &str, right: &str) -> Result<(), RenderError> {
+    /// A horizontal rule between rows whose column boundaries are `above` and
+    /// `below`: a junction points up or down only where a bar meets it, so the
+    /// rule runs straight under and over spanning cells.
+    fn write_rule(
+        &mut self,
+        left: &str,
+        right: &str,
+        above: &[bool],
+        below: &[bool],
+    ) -> Result<(), RenderError> {
         self.buf.push_str(left);
         for (i, w) in self.col_widths.iter().enumerate() {
             if i > 0 {
-                self.buf.push_str(mid);
+                self.buf.push_str(match (above[i], below[i]) {
+                    (true, true) => self.bc.cj,
+                    (true, false) => self.bc.bj,
+                    (false, true) => self.bc.tj,
+                    (false, false) => self.bc.h,
+                });
             }
             for _ in 0..*w {
                 self.buf.push_str(self.bc.h);
@@ -334,7 +374,12 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
     fn render_footnotes(&mut self) -> Result<(), RenderError> {
         for note in &self.rt.footer.footnotes {
             let text = self.text(note.content);
-            let mark = sanitize(note.mark);
+            let mark = if self.config.box_drawing {
+                superscript(note.mark)
+            } else {
+                note.mark.to_string()
+            };
+            let mark = sanitize(&mark);
             writeln!(self.buf, "  {mark} {text}")?;
         }
         for note in &self.rt.footer.source_notes {
@@ -343,6 +388,28 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
         }
         Ok(())
     }
+}
+
+/// A horizontal band of the grid, drawn between two rules.
+enum Band<'r, 'a> {
+    /// Rows of a section (bold if `true`).
+    Rows(&'r Section<'a>, bool),
+    /// A row group's label, spanning the whole grid.
+    Label(&'a [ContentNode]),
+}
+
+/// Whether `row` draws a bar at each inner column boundary: a boundary inside a
+/// cell spanning columns has none.
+fn row_boundaries(row: &ResolvedRow) -> Vec<bool> {
+    row.slots
+        .iter()
+        .enumerate()
+        .map(|(col, slot)| match slot {
+            Slot::Origin(_) | Slot::Empty => true,
+            Slot::CoveredH { .. } => false,
+            Slot::CoveredV { origin_col, .. } => *origin_col == col,
+        })
+        .collect()
 }
 
 pub fn render(table: &Table, config: &AnsiConfig) -> Result<String, RenderError> {
