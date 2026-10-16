@@ -371,3 +371,23 @@ test_that("gw_save accepts a gt table", {
     expect_identical(read_file_bytes(path), charToRaw(enc2utf8(expected)))
     expect_match(expected, "Cars", fixed = TRUE)
 })
+
+test_that("gw_save writes .html as a fragment unless standalone = TRUE", {
+    skip_if_not_installed("jsonlite")
+    tbl <- gw_parse_ir(load_fixture("comprehensive/reference_table.json"))
+    path <- file.path(local_dir(), "t.html")
+    gw_save(tbl, path)
+    fragment <- rawToChar(read_file_bytes(path))
+    Encoding(fragment) <- "UTF-8"
+    expect_identical(read_file_bytes(path), charToRaw(enc2utf8(gw_render_html(tbl))))
+    expect_false(startsWith(fragment, "<!doctype"))
+    gw_save(tbl, path, standalone = TRUE)
+    doc <- rawToChar(read_file_bytes(path))
+    Encoding(doc) <- "UTF-8"
+    expect_true(startsWith(doc, "<!doctype html>"))
+    expect_identical(
+        read_file_bytes(path),
+        charToRaw(enc2utf8(gw_render_html(tbl, standalone = TRUE)))
+    )
+    expect_true(grepl(fragment, doc, fixed = TRUE))
+})
