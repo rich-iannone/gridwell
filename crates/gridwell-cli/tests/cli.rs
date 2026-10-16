@@ -346,3 +346,145 @@ fn format_names_are_case_insensitive_and_unknown_ones_list_the_rest() {
         assert!(err.contains(fmt), "{err}");
     }
 }
+
+#[test]
+fn convert_infers_the_format_from_the_output_extension() {
+    let input = fixture("comprehensive/reference_table.json");
+    let dir = scratch_dir("infer");
+    for (file, fmt) in [
+        ("out.html", "html"),
+        ("out.TEX", "latex"),
+        ("out.typ", "typst"),
+        ("out.rtf", "rtf"),
+        ("out.svg", "svg"),
+        ("out.docx", "docx"),
+        ("out.xlsx", "xlsx"),
+        ("out.pptx", "pptx"),
+    ] {
+        let out = dir.join(file);
+        let o = bin()
+            .arg("convert")
+            .arg(&input)
+            .arg("-o")
+            .arg(&out)
+            .output()
+            .unwrap();
+        assert!(o.status.success(), "{file}: {}", stderr(&o));
+        assert!(
+            stderr(&o).contains(&format!("{fmt})")),
+            "{file}: {}",
+            stderr(&o)
+        );
+        // Same bytes as an explicit --to to stdout (text) or file (binary).
+        let explicit = dir.join(format!("explicit-{file}"));
+        let e = bin()
+            .args(["convert", "-t", fmt])
+            .arg(&input)
+            .arg("-o")
+            .arg(&explicit)
+            .output()
+            .unwrap();
+        assert!(e.status.success(), "{fmt}: {}", stderr(&e));
+        assert_eq!(
+            std::fs::read(&out).unwrap(),
+            std::fs::read(&explicit).unwrap()
+        );
+        if !BINARY_FORMATS.contains(&fmt) {
+            let s = bin()
+                .args(["convert", "-t", fmt])
+                .arg(&input)
+                .output()
+                .unwrap();
+            assert_eq!(std::fs::read(&out).unwrap(), s.stdout, "{fmt}");
+        }
+    }
+}
+
+#[test]
+fn convert_to_a_txt_file_is_plain_text_unless_color_is_set() {
+    let input = fixture("comprehensive/reference_table.json");
+    let dir = scratch_dir("txt");
+    let out = dir.join("out.txt");
+    let o = bin()
+        .arg("convert")
+        .arg(&input)
+        .arg("-o")
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    let plain = std::fs::read_to_string(&out).unwrap();
+    assert!(!plain.is_empty() && !plain.contains('\x1b'));
+
+    // stdout keeps the terminal default (colored).
+    let s = bin()
+        .args(["convert", "-t", "ansi"])
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert!(stdout(&s).contains('\x1b'));
+
+    let o = bin()
+        .arg("convert")
+        .arg(&input)
+        .args(["-O", r#"{"color": true}"#, "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    assert_eq!(std::fs::read(&out).unwrap(), s.stdout);
+}
+
+#[test]
+fn convert_explicit_to_overrides_the_output_extension() {
+    let input = fixture("comprehensive/reference_table.json");
+    let dir = scratch_dir("override");
+    for fmt in ["pandoc", "quarto"] {
+        let out = dir.join(format!("{fmt}.json"));
+        let o = bin()
+            .args(["convert", "-t", fmt])
+            .arg(&input)
+            .arg("-o")
+            .arg(&out)
+            .output()
+            .unwrap();
+        assert!(o.status.success(), "{fmt}: {}", stderr(&o));
+        let s = bin()
+            .args(["convert", "-t", fmt])
+            .arg(&input)
+            .output()
+            .unwrap();
+        assert_eq!(std::fs::read(&out).unwrap(), s.stdout, "{fmt}");
+    }
+}
+
+#[test]
+fn convert_extension_errors_fail_before_reading_input_and_write_nothing() {
+    let dir = scratch_dir("ext-errors");
+    for (file, needle) in [
+        ("out.json", "pandoc or quarto"),
+        ("out.pdf", "no format writes \".pdf\" files"),
+        ("out", "no file extension"),
+    ] {
+        let out = dir.join(file);
+        let o = bin()
+            .args(["convert", "/nonexistent/gridwell.json", "-o"])
+            .arg(&out)
+            .output()
+            .unwrap();
+        assert_clean_failure(&o);
+        let err = stderr(&o);
+        assert!(err.contains(needle), "{file}: {err}");
+        assert!(err.contains("with --to"), "{file}: {err}");
+        assert!(!out.exists(), "{file} written");
+    }
+}
+
+#[test]
+fn convert_needs_to_or_output() {
+    let input = fixture("comprehensive/reference_table.json");
+    let o = bin().arg("convert").arg(&input).output().unwrap();
+    assert!(!o.status.success());
+    assert!(o.stdout.is_empty());
+    assert!(stderr(&o).contains("--to"), "{}", stderr(&o));
+}
