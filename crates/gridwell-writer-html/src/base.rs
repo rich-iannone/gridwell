@@ -62,8 +62,8 @@ pub fn rules(p: &str) -> Vec<String> {
         w(
             &format!(".{p}_table"),
             &format!(
-                "border-collapse: collapse; margin: 0; border-top: {SECTION_RULE}; \
-                 border-bottom: {SECTION_RULE}"
+                "border-collapse: collapse; margin: 0; width: 100%; \
+                 border-top: {SECTION_RULE}; border-bottom: {SECTION_RULE}"
             ),
         ),
         w(
@@ -85,12 +85,28 @@ pub fn rules(p: &str) -> Vec<String> {
             &format!("border-bottom: {SECTION_RULE}"),
         ),
         // A spanner's rule is inset 4px at each end, so neighboring spanners' rules
-        // don't run together (a background line: a border can't be inset).
+        // don't run together; in the first and last column the spanner has no
+        // outer padding and its rule runs to the table's edge, as in gt (a
+        // background line: a border can't be inset).
         w(
             &format!(".{p}_spanner"),
             "padding: 5px 4px 7px; background-image: linear-gradient(#D3D3D3, #D3D3D3); \
              background-size: calc(100% - 8px) 2px; background-position: bottom center; \
              background-repeat: no-repeat",
+        ),
+        w(
+            &format!(".{p}_spanner:first-child"),
+            "padding-left: 0; background-size: calc(100% - 4px) 2px; \
+             background-position: bottom left",
+        ),
+        w(
+            &format!(".{p}_spanner:last-child"),
+            "padding-right: 0; background-size: calc(100% - 4px) 2px; \
+             background-position: bottom right",
+        ),
+        w(
+            &format!(".{p}_spanner:first-child:last-child"),
+            "background-size: 100% 2px",
         ),
         w(
             &format!(".{p}_group_label"),
@@ -99,6 +115,14 @@ pub fn rules(p: &str) -> Vec<String> {
         w(
             &format!(".{p}_stub"),
             &format!("border-right: {SECTION_RULE}"),
+        ),
+        // A group's summary rows start under a section rule.
+        w(
+            &format!(
+                "tbody > tr.{p}_summary:first-child td, \
+                 tr:not(.{p}_summary) + tr.{p}_summary td"
+            ),
+            &format!("border-top: {SECTION_RULE}"),
         ),
         // The first grand summary row gets gt's double rule.
         w(
