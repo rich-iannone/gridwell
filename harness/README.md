@@ -121,6 +121,20 @@ Rscript harness/gt-reference/make.R
 Add a case by adding an entry to `cases.R` and regenerating. The xtask tests
 check that the manifest and files agree and that gt's HTML is self-contained.
 
+## gridwell HTML vs SVG (report only)
+
+`harness/gallery/svg.html` puts gridwell's HTML next to its SVG for the same table,
+for every corpus example and every gt reference (named `gt-<case>`), both with
+default writer options, with a pixel diff. The HTML look is within ~1% of gt, so it
+is the SVG writer's target. Both are screenshotted as bare pages in the same
+Chromium (the SVG inline, without its XML declaration), and scored like the gt page.
+Report only.
+
+```bash
+cargo xtask svg       # just this page; `cargo xtask gallery` builds it too
+open harness/gallery/svg.html
+```
+
 ## Visual regression gate (gated subset)
 
 Pixel-diffing rasterized output is only reliable for **deterministic** renderers,
