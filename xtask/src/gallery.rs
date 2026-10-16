@@ -152,7 +152,11 @@ pub fn run(root: &Path, check: bool, accept: bool) -> Result<bool, String> {
     } else {
         Vec::new()
     };
-    let (regressions, summary) = summarize(&rows, &stale, check, accept);
+    let (regressions, mut summary) = summarize(&rows, &stale, check, accept);
+    // Report only: never affects `regressions`.
+    if let Some(gt) = crate::gt_compare::run(root, &tools, &gallery, &work_dir)? {
+        summary.push_str(&gt);
+    }
     eprint!("{summary}");
     write_gh_summary(&summary);
 
@@ -344,7 +348,7 @@ pub fn write_gh_summary(summary: &str) {
 
 // ─────────────────────────────── html ────────────────────────────────────
 
-fn esc(s: &str) -> String {
+pub(crate) fn esc(s: &str) -> String {
     s.replace('&', "&amp;")
         .replace('<', "&lt;")
         .replace('>', "&gt;")
@@ -359,6 +363,7 @@ fn render_html(rows: &[GalleryRow], tools: &Tools) -> String {
     h.push_str(STYLE);
     h.push_str("</head><body>");
     h.push_str("<h1>Gridwell render gallery</h1>");
+    h.push_str("<p class=\"meta\"><a class=\"raw\" href=\"gt.html\">gt vs gridwell HTML →</a></p>");
     let _ = write!(
         h,
         "<p class=\"meta\">{} examples × {} formats · renderers: {}</p>",
@@ -447,7 +452,7 @@ fn cell_html(cell: &Cell) -> String {
     }
 }
 
-const STYLE: &str = "<style>
+pub(crate) const STYLE: &str = "<style>
 * { box-sizing: border-box; }
 body { margin: 0; padding: 24px; background: #f6f7f9; color: #1c2024;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
