@@ -19,6 +19,9 @@ pub struct AnsiConfig {
     /// default: fills are designed for light pages and show as bright bars on dark
     /// terminals. Needs `true_color`.
     pub background_colors: bool,
+    /// Emit ANSI escape codes (bold, italic, colors). Off gives plain text, for
+    /// files, logs and diffs; saving to a file turns it off unless set.
+    pub color: bool,
 }
 
 impl Default for AnsiConfig {
@@ -28,6 +31,7 @@ impl Default for AnsiConfig {
             true_color: true,
             max_width: 0,
             background_colors: false,
+            color: true,
         }
     }
 }
