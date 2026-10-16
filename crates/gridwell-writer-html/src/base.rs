@@ -1,7 +1,8 @@
-//! The base stylesheet: gridwell's default HTML look, modeled on gt's (fonts, the
-//! rules above and below the table and around the column labels, row-group labels,
-//! the stub, footnotes and source notes, padding). It is the HTML counterpart of
-//! LaTeX's default booktabs rules: chosen by table structure, never by data.
+//! The base stylesheet: gridwell's default HTML look ([`gridwell_layout::look`],
+//! shared with SVG), modeled on gt's (fonts, the rules above and below the table and
+//! around the column labels, row-group labels, the stub, footnotes and source notes,
+//! padding). It is the HTML counterpart of LaTeX's default booktabs rules: chosen by
+//! table structure, never by data.
 //!
 //! Every selector is wrapped in `:where()`, which has zero specificity, so the
 //! table's own styles (class rules) and any host-page CSS always win over it.
@@ -12,30 +13,67 @@
 //! `<tr>`, whatever the specificity. Such properties go on the container or the
 //! row instead, and `th` inherits its weight rather than being bold.
 
-/// Text color for everything (gt's default).
-const TEXT: &str = "#333333";
-/// The darker rules above a heading and below a footer.
-const OUTER_RULE: &str = "2px solid #A8A8A8";
-/// The rules at the table's own top and bottom (where there's no heading or
-/// footer, these are the outermost rules, as in gt), around the column labels and
-/// group labels.
-const SECTION_RULE: &str = "2px solid #D3D3D3";
-/// The hairline between body rows.
-const ROW_RULE: &str = "1px solid #D3D3D3";
+use gridwell_layout::look::{Pad, Rule, LOOK};
+
+/// A length in CSS: `0` without a unit, otherwise px.
+fn px(v: f64) -> String {
+    if v == 0.0 {
+        "0".to_string()
+    } else {
+        format!("{v}px")
+    }
+}
+
+/// A scale as a CSS percentage.
+fn pct(scale: f64) -> String {
+    format!("{}%", (scale * 100.0).round())
+}
+
+/// CSS `padding`, in its shortest form.
+fn pad(p: &Pad) -> String {
+    let (t, r, b, l) = (px(p.top), px(p.right), px(p.bottom), px(p.left));
+    if r == l {
+        if t == b {
+            if t == r {
+                t
+            } else {
+                format!("{t} {r}")
+            }
+        } else {
+            format!("{t} {r} {b}")
+        }
+    } else {
+        format!("{t} {r} {b} {l}")
+    }
+}
+
+/// A CSS border value.
+fn rule(r: &Rule) -> String {
+    let style = if r.double { "double" } else { "solid" };
+    format!("{} {style} {}", px(r.width_px), r.color.to_css())
+}
 
 /// The base rules for class prefix `p`, one per line, in order.
 pub fn rules(p: &str) -> Vec<String> {
+    let l = &LOOK;
     let w = |selector: &str, decls: &str| format!(":where({selector}) {{ {decls} }}");
+    let outer = rule(&l.outer_rule);
+    let section = rule(&l.section_rule);
+    let spanner_color = l.spanner_rule.color.to_css();
+    let spanner_width = px(l.spanner_rule.width_px);
+    let inset = l.spanner_rule_inset;
     vec![
         // The container shrinks to the table and is centered, so the heading and
         // footer are as wide as the table (gt puts both inside its table).
         w(
             &format!(".{p}_container"),
             &format!(
-                "font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; \
-                 color: {TEXT}; font-size: 16px; line-height: normal; \
+                "font-family: {}; color: {}; font-size: {}; line-height: normal; \
                  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; \
-                 width: fit-content; max-width: 100%; margin-left: auto; margin-right: auto"
+                 width: fit-content; max-width: 100%; margin-left: auto; margin-right: auto",
+                l.font_family,
+                l.text_color.to_css(),
+                px(l.font_size_px)
             ),
         ),
         // The first heading line (the heading is the container's first divs)
@@ -45,30 +83,46 @@ pub fn rules(p: &str) -> Vec<String> {
                 ".{p}_title:first-of-type, .{p}_subtitle:first-of-type, \
                  .{p}_header_line:first-of-type"
             ),
-            &format!("border-top: {OUTER_RULE}"),
+            &format!("border-top: {outer}"),
         ),
         w(
             &format!(".{p}_title"),
-            "font-size: 125%; text-align: center; padding: 4px 5px",
+            &format!(
+                "font-size: {}; text-align: center; padding: {}",
+                pct(l.title_scale),
+                pad(&l.title_pad)
+            ),
         ),
         w(
             &format!(".{p}_subtitle"),
-            "font-size: 85%; text-align: center; padding: 3px 5px 5px",
+            &format!(
+                "font-size: {}; text-align: center; padding: {}",
+                pct(l.subtitle_scale),
+                pad(&l.subtitle_pad)
+            ),
         ),
         w(
             &format!(".{p}_header_line"),
-            "font-size: 85%; text-align: center; padding: 0 5px 5px",
+            &format!(
+                "font-size: {}; text-align: center; padding: {}",
+                pct(l.header_line_scale),
+                pad(&l.header_line_pad)
+            ),
         ),
         w(
             &format!(".{p}_table"),
             &format!(
                 "border-collapse: collapse; margin: 0; width: 100%; \
-                 border-top: {SECTION_RULE}; border-bottom: {SECTION_RULE}"
+                 border-top: {section}; border-bottom: {section}"
             ),
         ),
         w(
             &format!(".{p}_table td, .{p}_table th"),
-            &format!("padding: 8px 5px; border-top: {ROW_RULE}"),
+            &format!(
+                "padding: {}; border-top: {}",
+                pad(&l.cell_pad),
+                rule(&l.row_rule)
+            ),
         ),
         // Column labels are normal weight (not the browser's bold), unless a row
         // style says otherwise.
@@ -77,52 +131,59 @@ pub fn rules(p: &str) -> Vec<String> {
         // aligned (on the row, so a row style can change it), a rule under the head.
         w(
             &format!(".{p}_table thead th"),
-            "border-top: none; padding: 5px 5px 6px",
+            &format!("border-top: none; padding: {}", pad(&l.head_cell_pad)),
         ),
         w(&format!(".{p}_table thead tr"), "vertical-align: bottom"),
         w(
             &format!(".{p}_table thead"),
-            &format!("border-bottom: {SECTION_RULE}"),
+            &format!("border-bottom: {section}"),
         ),
-        // A spanner's rule is inset 4px at each end, so neighboring spanners' rules
+        // A spanner's rule is inset at each end, so neighboring spanners' rules
         // don't run together; in the first and last column the spanner has no
         // outer padding and its rule runs to the table's edge, as in gt (a
         // background line: a border can't be inset).
         w(
             &format!(".{p}_spanner"),
-            "padding: 5px 4px 7px; background-image: linear-gradient(#D3D3D3, #D3D3D3); \
-             background-size: calc(100% - 8px) 2px; background-position: bottom center; \
-             background-repeat: no-repeat",
+            &format!(
+                "padding: {}; background-image: linear-gradient({spanner_color}, \
+                 {spanner_color}); background-size: calc(100% - {}) {spanner_width}; \
+                 background-position: bottom center; background-repeat: no-repeat",
+                pad(&l.spanner_pad),
+                px(2.0 * inset)
+            ),
         ),
         w(
             &format!(".{p}_spanner:first-child"),
-            "padding-left: 0; background-size: calc(100% - 4px) 2px; \
-             background-position: bottom left",
+            &format!(
+                "padding-left: 0; background-size: calc(100% - {}) {spanner_width}; \
+                 background-position: bottom left",
+                px(inset)
+            ),
         ),
         w(
             &format!(".{p}_spanner:last-child"),
-            "padding-right: 0; background-size: calc(100% - 4px) 2px; \
-             background-position: bottom right",
+            &format!(
+                "padding-right: 0; background-size: calc(100% - {}) {spanner_width}; \
+                 background-position: bottom right",
+                px(inset)
+            ),
         ),
         w(
             &format!(".{p}_spanner:first-child:last-child"),
-            "background-size: 100% 2px",
+            &format!("background-size: 100% {spanner_width}"),
         ),
         w(
             &format!(".{p}_group_label"),
-            &format!("border-top: {SECTION_RULE}; border-bottom: {SECTION_RULE}"),
+            &format!("border-top: {section}; border-bottom: {section}"),
         ),
-        w(
-            &format!(".{p}_stub"),
-            &format!("border-right: {SECTION_RULE}"),
-        ),
+        w(&format!(".{p}_stub"), &format!("border-right: {section}")),
         // A group's summary rows start under a section rule.
         w(
             &format!(
                 "tbody > tr.{p}_summary:first-child td, \
                  tr:not(.{p}_summary) + tr.{p}_summary td"
             ),
-            &format!("border-top: {SECTION_RULE}"),
+            &format!("border-top: {section}"),
         ),
         // The first grand summary row gets gt's double rule.
         w(
@@ -130,30 +191,58 @@ pub fn rules(p: &str) -> Vec<String> {
                 "tbody > tr.{p}_grand_summary:first-child td, \
                  tr:not(.{p}_grand_summary) + tr.{p}_grand_summary td"
             ),
-            "border-top: 6px double #D3D3D3",
+            &format!("border-top: {}", rule(&l.grand_summary_rule)),
         ),
         // Numbers line up.
         w(
             &format!(".{p}_table td.{p}__al_right"),
             "font-variant-numeric: tabular-nums",
         ),
-        w(
-            &format!(".{p}_footer"),
-            &format!("border-bottom: {OUTER_RULE}"),
-        ),
+        w(&format!(".{p}_footer"), &format!("border-bottom: {outer}")),
         w(
             &format!(".{p}_footnote, .{p}_source_note"),
-            "margin: 0; font-size: 90%; padding: 4px 5px",
+            &format!(
+                "margin: 0; font-size: {}; padding: {}",
+                pct(l.note_scale),
+                pad(&l.note_pad)
+            ),
         ),
         // Marks: small and raised (not a full superscript), italic, and not drawn
         // as links.
         w(
             &format!(".{p}_footnote_mark"),
-            "font-size: 75%; vertical-align: 0.4em; line-height: 0; font-style: italic",
+            &format!(
+                "font-size: {}; vertical-align: {}em; line-height: 0; font-style: italic",
+                pct(l.mark_scale),
+                l.mark_raise_em
+            ),
         ),
         w(
             &format!(".{p}_footnote_mark a"),
             "color: inherit; text-decoration: none",
         ),
     ]
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn padding_uses_the_shortest_form() {
+        let p = |t, r, b, l| {
+            pad(&Pad {
+                top: t,
+                right: r,
+                bottom: b,
+                left: l,
+            })
+        };
+        assert_eq!(p(4.0, 4.0, 4.0, 4.0), "4px");
+        assert_eq!(p(4.0, 5.0, 4.0, 5.0), "4px 5px");
+        assert_eq!(p(0.0, 5.0, 5.0, 5.0), "0 5px 5px");
+        assert_eq!(p(1.0, 2.0, 3.0, 4.0), "1px 2px 3px 4px");
+        assert_eq!(pct(0.85), "85%");
+        assert_eq!(pct(1.25), "125%");
+    }
 }
