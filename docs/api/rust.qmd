@@ -65,8 +65,25 @@ for w in REGISTRY {
 }
 ```
 
+## Saving to a file
+
+`save()` renders and writes the bytes unchanged. With no format it is inferred from
+the extension (`format_for_path()`); options are a JSON string, with file defaults on
+top (`ansi` writes plain text unless `color` is set). It returns the writer used.
+
+```rust
+use std::path::Path;
+use gridwell_render::{format_for_path, save};
+
+save(&table, Path::new("table.rtf"), None, None)?;
+save(&table, Path::new("table.json"), Some("quarto"), Some(r#"{"table_id": "t1"}"#))?;
+assert_eq!(format_for_path(Path::new("T.DOCX"))?.name(), "docx");
+```
+
 Errors are one `gridwell_render::RenderError`: `UnknownFormat`, `WrongKind`,
-`InvalidTable`, `InvalidOptions` or `Writer`.
+`InvalidTable`, `InvalidOptions` or `Writer`, and from `save()`/`format_for_path()`
+`NoExtension`, `UnknownExtension`, `AmbiguousExtension` (`.json` is pandoc and quarto)
+or `Io` (with the path).
 
 ## Using a writer directly
 
