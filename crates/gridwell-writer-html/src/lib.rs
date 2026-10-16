@@ -1,3 +1,4 @@
+mod base;
 mod render;
 
 use gridwell_ir::Table;
@@ -14,6 +15,12 @@ pub struct HtmlWriterConfig {
     pub pretty_print: bool,
     /// CSS class prefix for generated names.
     pub class_prefix: String,
+    /// Include the base stylesheet: gridwell's default look (modeled on gt's
+    /// fonts, rules and padding). Its rules have zero specificity, so the table's
+    /// own styles and the host page's CSS win over it. Off gives a bare fragment
+    /// styled only by the table's styles. Not applied with `inline_styles`, which
+    /// writes no `<style>` block.
+    pub base_styles: bool,
 }
 
 impl Default for HtmlWriterConfig {
@@ -22,6 +29,7 @@ impl Default for HtmlWriterConfig {
             inline_styles: false,
             pretty_print: true,
             class_prefix: "gw".to_string(),
+            base_styles: true,
         }
     }
 }
