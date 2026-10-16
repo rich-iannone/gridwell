@@ -6,6 +6,9 @@
 //! - `cargo xtask gallery --check`  — additionally diff the gated (deterministic)
 //!   formats against `harness/goldens` and exit non-zero on a regression
 //! - `cargo xtask gallery --accept` — update the goldens from the current render
+//!   (and `harness/gallery/gt.html`, gt's HTML beside gridwell's for the tables in
+//!   `harness/gt-reference`; report only)
+//! - `cargo xtask gt` — build only that comparison page
 //! - `cargo xtask determinism` — after `gallery`: rasterize the ungated formats
 //!   again and report whether the images come out the same (see `determinism`)
 
@@ -13,6 +16,7 @@ mod determinism;
 mod diff;
 mod formats;
 mod gallery;
+mod gt_compare;
 mod raster;
 
 use std::path::PathBuf;
@@ -40,6 +44,8 @@ enum Command {
         #[arg(long)]
         accept: bool,
     },
+    /// Build only harness/gallery/gt.html (gt vs gridwell HTML; report only)
+    Gt,
     /// After `gallery`: rasterize every ungated format again and report whether
     /// the images match the gallery's (and propose them as goldens)
     Determinism,
@@ -74,6 +80,16 @@ fn main() {
                 } else {
                     0
                 }
+            }
+            Err(e) => {
+                eprintln!("error: {e}");
+                1
+            }
+        },
+        Command::Gt => match gt_compare::run_alone(&root) {
+            Ok(summary) => {
+                eprint!("{summary}");
+                0
             }
             Err(e) => {
                 eprintln!("error: {e}");
