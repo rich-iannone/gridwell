@@ -8,8 +8,8 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">Item</th>
+      <tr class="gw_col_labels">
+        <th class="gw_col_label gw__al_left">Item</th>
       </tr>
     </thead>
     <tbody>

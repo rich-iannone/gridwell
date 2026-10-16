@@ -9,21 +9,21 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">Country</th>
-        <th class="gw__al_right">Value</th>
+      <tr class="gw_col_labels">
+        <th class="gw_stubhead gw__al_left">Country</th>
+        <th class="gw_col_label gw__al_right">Value</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td rowspan="2">Japan</td>
+        <td class="gw_stub" rowspan="2">Japan</td>
         <td class="gw__al_right">100</td>
       </tr>
       <tr>
         <td class="gw__al_right">110</td>
       </tr>
       <tr>
-        <td>Korea</td>
+        <td class="gw_stub">Korea</td>
         <td class="gw__al_right">80</td>
       </tr>
     </tbody>

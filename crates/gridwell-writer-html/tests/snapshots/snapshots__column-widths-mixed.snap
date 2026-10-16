@@ -14,11 +14,11 @@ expression: out
       <col>
     </colgroup>
     <thead>
-      <tr>
-        <th class="gw__al_left">Fixed</th>
-        <th class="gw__al_left">Percent</th>
-        <th class="gw__al_left">Fraction</th>
-        <th class="gw__al_left">Auto</th>
+      <tr class="gw_col_labels">
+        <th class="gw_col_label gw__al_left">Fixed</th>
+        <th class="gw_col_label gw__al_left">Percent</th>
+        <th class="gw_col_label gw__al_left">Fraction</th>
+        <th class="gw_col_label gw__al_left">Auto</th>
       </tr>
     </thead>
     <tbody>

@@ -9,22 +9,22 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">Message</th>
+      <tr class="gw_col_labels">
+        <th class="gw_col_label gw__al_left">Message</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>
-          Status: <span class="gw_warn">degraded</span><br>Retry advised<sup><a href="#fn1">†</a></sup>
+          Status: <span class="gw_warn">degraded</span><br>Retry advised<sup class="gw_footnote_mark"><a href="#fn1">†</a></sup>
         </td>
       </tr>
     </tbody>
   </table>
   <div class="gw_footer">
     <div class="gw_footnotes">
-      <p id="fn1" >
-        <sup>†</sup> See runbook section 4.
+      <p id="fn1" class="gw_footnote">
+        <sup class="gw_footnote_mark">†</sup> See runbook section 4.
       </p>
     </div>
   </div>

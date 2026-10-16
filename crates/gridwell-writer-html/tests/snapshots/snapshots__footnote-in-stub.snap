@@ -8,28 +8,28 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">Country</th>
-        <th class="gw__al_left">GDP</th>
+      <tr class="gw_col_labels">
+        <th class="gw_stubhead gw__al_left">Country</th>
+        <th class="gw_col_label gw__al_left">GDP</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>
-          Atlantis<sup><a href="#fn1">*</a></sup>
+        <td class="gw_stub">
+          Atlantis<sup class="gw_footnote_mark"><a href="#fn1">*</a></sup>
         </td>
         <td>N/A</td>
       </tr>
       <tr>
-        <td>Utopia</td>
+        <td class="gw_stub">Utopia</td>
         <td>999</td>
       </tr>
     </tbody>
   </table>
   <div class="gw_footer">
     <div class="gw_footnotes">
-      <p id="fn1" >
-        <sup>*</sup> Fictional; illustrative only.
+      <p id="fn1" class="gw_footnote">
+        <sup class="gw_footnote_mark">*</sup> Fictional; illustrative only.
       </p>
     </div>
   </div>

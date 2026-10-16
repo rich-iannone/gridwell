@@ -8,11 +8,11 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">W</th>
-        <th class="gw__al_left">X</th>
-        <th class="gw__al_left">Y</th>
-        <th class="gw__al_left">Z</th>
+      <tr class="gw_col_labels">
+        <th class="gw_col_label gw__al_left">W</th>
+        <th class="gw_col_label gw__al_left">X</th>
+        <th class="gw_col_label gw__al_left">Y</th>
+        <th class="gw_col_label gw__al_left">Z</th>
       </tr>
     </thead>
     <tbody>

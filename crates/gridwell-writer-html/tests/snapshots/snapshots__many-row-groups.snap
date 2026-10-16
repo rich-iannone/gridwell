@@ -8,83 +8,83 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">Key</th>
-        <th class="gw__al_left">Value</th>
+      <tr class="gw_col_labels">
+        <th class="gw_stubhead gw__al_left">Key</th>
+        <th class="gw_col_label gw__al_left">Value</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td colspan="2">
+        <td colspan="2" class="gw_group_label">
           Group 1
         </td>
       </tr>
       <tr>
-        <td>k1a</td>
+        <td class="gw_stub">k1a</td>
         <td>10</td>
       </tr>
       <tr>
-        <td>k1b</td>
+        <td class="gw_stub">k1b</td>
         <td>20</td>
       </tr>
     </tbody>
     <tbody>
       <tr>
-        <td colspan="2">
+        <td colspan="2" class="gw_group_label">
           Group 2
         </td>
       </tr>
       <tr>
-        <td>k2a</td>
+        <td class="gw_stub">k2a</td>
         <td>20</td>
       </tr>
       <tr>
-        <td>k2b</td>
+        <td class="gw_stub">k2b</td>
         <td>40</td>
       </tr>
     </tbody>
     <tbody>
       <tr>
-        <td colspan="2">
+        <td colspan="2" class="gw_group_label">
           Group 3
         </td>
       </tr>
       <tr>
-        <td>k3a</td>
+        <td class="gw_stub">k3a</td>
         <td>30</td>
       </tr>
       <tr>
-        <td>k3b</td>
+        <td class="gw_stub">k3b</td>
         <td>60</td>
       </tr>
     </tbody>
     <tbody>
       <tr>
-        <td colspan="2">
+        <td colspan="2" class="gw_group_label">
           Group 4
         </td>
       </tr>
       <tr>
-        <td>k4a</td>
+        <td class="gw_stub">k4a</td>
         <td>40</td>
       </tr>
       <tr>
-        <td>k4b</td>
+        <td class="gw_stub">k4b</td>
         <td>80</td>
       </tr>
     </tbody>
     <tbody>
       <tr>
-        <td colspan="2">
+        <td colspan="2" class="gw_group_label">
           Group 5
         </td>
       </tr>
       <tr>
-        <td>k5a</td>
+        <td class="gw_stub">k5a</td>
         <td>50</td>
       </tr>
       <tr>
-        <td>k5b</td>
+        <td class="gw_stub">k5b</td>
         <td>100</td>
       </tr>
     </tbody>

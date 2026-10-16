@@ -10,9 +10,9 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">Key</th>
-        <th class="gw__al_left">Value</th>
+      <tr class="gw_col_labels">
+        <th class="gw_col_label gw__al_left">Key</th>
+        <th class="gw_col_label gw__al_left">Value</th>
       </tr>
     </thead>
     <tbody>

@@ -10,14 +10,14 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
+      <tr class="gw_spanners">
         <th class="gw__al_left"></th>
-        <th class="gw__al_center" scope="colgroup" colspan="2">Scores</th>
+        <th class="gw_spanner gw__al_center" scope="colgroup" colspan="2">Scores</th>
       </tr>
-      <tr>
-        <th class="gw__al_left">Name</th>
-        <th class="gw__al_right">Q1</th>
-        <th class="gw__al_right">Q2</th>
+      <tr class="gw_col_labels">
+        <th class="gw_col_label gw__al_left">Name</th>
+        <th class="gw_col_label gw__al_right">Q1</th>
+        <th class="gw_col_label gw__al_right">Q2</th>
       </tr>
     </thead>
     <tbody>

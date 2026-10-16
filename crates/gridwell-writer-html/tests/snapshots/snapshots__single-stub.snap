@@ -9,20 +9,20 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">Region</th>
-        <th class="gw__al_right">Sales</th>
-        <th class="gw__al_right">Growth</th>
+      <tr class="gw_col_labels">
+        <th class="gw_stubhead gw__al_left">Region</th>
+        <th class="gw_col_label gw__al_right">Sales</th>
+        <th class="gw_col_label gw__al_right">Growth</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>East</td>
+        <td class="gw_stub">East</td>
         <td class="gw__al_right">120</td>
         <td class="gw__al_right">4%</td>
       </tr>
       <tr>
-        <td>West</td>
+        <td class="gw_stub">West</td>
         <td class="gw__al_right">98</td>
         <td class="gw__al_right">2%</td>
       </tr>

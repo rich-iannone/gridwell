@@ -8,16 +8,16 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">Test</th>
-        <th class="gw__al_left">Result</th>
+      <tr class="gw_col_labels">
+        <th class="gw_col_label gw__al_left">Test</th>
+        <th class="gw_col_label gw__al_left">Result</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>A</td>
         <td>
-          pass<sup><a href="#fn1">1</a></sup>
+          pass<sup class="gw_footnote_mark"><a href="#fn1">1</a></sup>
         </td>
       </tr>
       <tr>
@@ -28,12 +28,12 @@ expression: out
   </table>
   <div class="gw_footer">
     <div class="gw_footnotes">
-      <p id="fn1" >
-        <sup>1</sup> Re-run confirmed.
+      <p id="fn1" class="gw_footnote">
+        <sup class="gw_footnote_mark">1</sup> Re-run confirmed.
       </p>
     </div>
     <div class="gw_source_notes">
-      <p>
+      <p class="gw_source_note">
         Source: CI pipeline.
       </p>
     </div>

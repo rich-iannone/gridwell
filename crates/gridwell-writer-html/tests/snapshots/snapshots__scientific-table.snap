@@ -7,35 +7,35 @@ expression: out
     .gw_table .gw__al_left { text-align: left }
     .gw_table .gw__al_right { text-align: right }
   </style>
-  <div role="heading" aria-level="1">
+  <div class="gw_title" role="heading" aria-level="1">
     Reaction rate constants
   </div>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">Compound</th>
-        <th class="gw__al_right">
-          k (s⁻¹)<sup><a href="#fn1">a</a></sup>
+      <tr class="gw_col_labels">
+        <th class="gw_stubhead gw__al_left">Compound</th>
+        <th class="gw_col_label gw__al_right">
+          k (s⁻¹)<sup class="gw_footnote_mark"><a href="#fn1">a</a></sup>
         </th>
-        <th class="gw__al_right">T (K)</th>
-        <th class="gw__al_right">Ea (kJ/mol)</th>
+        <th class="gw_col_label gw__al_right">T (K)</th>
+        <th class="gw_col_label gw__al_right">Ea (kJ/mol)</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>A</td>
+        <td class="gw_stub">A</td>
         <td class="gw__al_right">1.2×10³</td>
         <td class="gw__al_right">298</td>
         <td class="gw__al_right">52.3</td>
       </tr>
       <tr>
-        <td>B</td>
+        <td class="gw_stub">B</td>
         <td class="gw__al_right">3.4×10²</td>
         <td class="gw__al_right">298</td>
         <td class="gw__al_right">61.0</td>
       </tr>
       <tr>
-        <td>C</td>
+        <td class="gw_stub">C</td>
         <td class="gw__al_right">8.9×10¹</td>
         <td class="gw__al_right">310</td>
         <td class="gw__al_right">70.8</td>
@@ -44,12 +44,12 @@ expression: out
   </table>
   <div class="gw_footer">
     <div class="gw_footnotes">
-      <p id="fn1" >
-        <sup>a</sup> Measured under pseudo-first-order conditions.
+      <p id="fn1" class="gw_footnote">
+        <sup class="gw_footnote_mark">a</sup> Measured under pseudo-first-order conditions.
       </p>
     </div>
     <div class="gw_source_notes">
-      <p>
+      <p class="gw_source_note">
         Source: laboratory notebook, 2026.
       </p>
     </div>

@@ -6,14 +6,14 @@ expression: out
   <style>
     .gw_table .gw__al_left { text-align: left }
   </style>
-  <div role="heading" aria-level="1">
+  <div class="gw_title" role="heading" aria-level="1">
     販売実績
   </div>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">地域</th>
-        <th class="gw__al_left">売上</th>
+      <tr class="gw_col_labels">
+        <th class="gw_col_label gw__al_left">地域</th>
+        <th class="gw_col_label gw__al_left">売上</th>
       </tr>
     </thead>
     <tbody>

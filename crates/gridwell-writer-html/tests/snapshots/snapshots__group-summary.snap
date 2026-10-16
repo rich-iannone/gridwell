@@ -8,46 +8,46 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">Item</th>
-        <th class="gw__al_left">Amount</th>
+      <tr class="gw_col_labels">
+        <th class="gw_stubhead gw__al_left">Item</th>
+        <th class="gw_col_label gw__al_left">Amount</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td colspan="2">
+        <td colspan="2" class="gw_group_label">
           Q1
         </td>
       </tr>
       <tr>
-        <td>Jan</td>
+        <td class="gw_stub">Jan</td>
         <td>10</td>
       </tr>
       <tr>
-        <td>Feb</td>
+        <td class="gw_stub">Feb</td>
         <td>20</td>
       </tr>
-      <tr>
-        <td>Subtotal</td>
+      <tr class="gw_summary">
+        <td class="gw_stub">Subtotal</td>
         <td>30</td>
       </tr>
     </tbody>
     <tbody>
       <tr>
-        <td colspan="2">
+        <td colspan="2" class="gw_group_label">
           Q2
         </td>
       </tr>
       <tr>
-        <td>Apr</td>
+        <td class="gw_stub">Apr</td>
         <td>15</td>
       </tr>
       <tr>
-        <td>May</td>
+        <td class="gw_stub">May</td>
         <td>25</td>
       </tr>
-      <tr>
-        <td>Subtotal</td>
+      <tr class="gw_summary">
+        <td class="gw_stub">Subtotal</td>
         <td>40</td>
       </tr>
     </tbody>

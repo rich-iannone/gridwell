@@ -13,9 +13,9 @@ expression: out
       <col>
     </colgroup>
     <thead>
-      <tr>
-        <th class="gw__al_right">#</th>
-        <th class="gw__al_left">Description</th>
+      <tr class="gw_col_labels">
+        <th class="gw_col_label gw__al_right">#</th>
+        <th class="gw_col_label gw__al_left">Description</th>
       </tr>
     </thead>
     <tbody>

@@ -12,9 +12,9 @@ expression: out
       <col style="width: 120px">
     </colgroup>
     <thead>
-      <tr>
-        <th class="gw__al_left">Label</th>
-        <th class="gw__al_left">Token</th>
+      <tr class="gw_col_labels">
+        <th class="gw_col_label gw__al_left">Label</th>
+        <th class="gw_col_label gw__al_left">Token</th>
       </tr>
     </thead>
     <tbody>

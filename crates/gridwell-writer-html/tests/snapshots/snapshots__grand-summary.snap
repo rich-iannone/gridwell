@@ -8,28 +8,28 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">Item</th>
-        <th class="gw__al_left">Amount</th>
+      <tr class="gw_col_labels">
+        <th class="gw_stubhead gw__al_left">Item</th>
+        <th class="gw_col_label gw__al_left">Amount</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>Alpha</td>
+        <td class="gw_stub">Alpha</td>
         <td>10</td>
       </tr>
       <tr>
-        <td>Beta</td>
+        <td class="gw_stub">Beta</td>
         <td>20</td>
       </tr>
       <tr>
-        <td>Gamma</td>
+        <td class="gw_stub">Gamma</td>
         <td>30</td>
       </tr>
     </tbody>
     <tbody>
-      <tr>
-        <td>Total</td>
+      <tr class="gw_grand_summary">
+        <td class="gw_stub">Total</td>
         <td>60</td>
       </tr>
     </tbody>

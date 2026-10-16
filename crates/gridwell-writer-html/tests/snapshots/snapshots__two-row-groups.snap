@@ -8,38 +8,38 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">Country</th>
-        <th class="gw__al_left">Value</th>
+      <tr class="gw_col_labels">
+        <th class="gw_stubhead gw__al_left">Country</th>
+        <th class="gw_col_label gw__al_left">Value</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td colspan="2">
+        <td colspan="2" class="gw_group_label">
           North America
         </td>
       </tr>
       <tr>
-        <td>USA</td>
+        <td class="gw_stub">USA</td>
         <td>1250</td>
       </tr>
       <tr>
-        <td>Canada</td>
+        <td class="gw_stub">Canada</td>
         <td>420</td>
       </tr>
     </tbody>
     <tbody>
       <tr>
-        <td colspan="2">
+        <td colspan="2" class="gw_group_label">
           Europe
         </td>
       </tr>
       <tr>
-        <td>Germany</td>
+        <td class="gw_stub">Germany</td>
         <td>890</td>
       </tr>
       <tr>
-        <td>France</td>
+        <td class="gw_stub">France</td>
         <td>610</td>
       </tr>
     </tbody>

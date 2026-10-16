@@ -9,13 +9,13 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_center" scope="colgroup" colspan="3">Full-width spanner</th>
+      <tr class="gw_spanners">
+        <th class="gw_spanner gw__al_center" scope="colgroup" colspan="3">Full-width spanner</th>
       </tr>
-      <tr>
-        <th class="gw__al_left">A</th>
-        <th class="gw__al_left">B</th>
-        <th class="gw__al_left">C</th>
+      <tr class="gw_col_labels">
+        <th class="gw_col_label gw__al_left">A</th>
+        <th class="gw_col_label gw__al_left">B</th>
+        <th class="gw_col_label gw__al_left">C</th>
       </tr>
     </thead>
     <tbody>

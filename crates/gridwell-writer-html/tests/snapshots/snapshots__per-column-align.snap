@@ -11,11 +11,11 @@ expression: out
   </style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th class="gw__al_left">L</th>
-        <th class="gw__al_center">C</th>
-        <th class="gw__al_right">R</th>
-        <th class="gw__al_justify">J</th>
+      <tr class="gw_col_labels">
+        <th class="gw_col_label gw__al_left">L</th>
+        <th class="gw_col_label gw__al_center">C</th>
+        <th class="gw_col_label gw__al_right">R</th>
+        <th class="gw_col_label gw__al_justify">J</th>
       </tr>
     </thead>
     <tbody>
