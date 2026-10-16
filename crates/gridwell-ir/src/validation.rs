@@ -34,6 +34,10 @@ pub enum ValidationRule {
     /// A length field does not parse, or uses a form its field does not allow
     /// (e.g. a negative width or `fr` padding).
     InvalidLength,
+    /// A style id (a key of `styles.defs` or `styles.compositions`) is empty or has a
+    /// character other than an ASCII letter, digit, `_` or `-`. Writers put style ids
+    /// into markup (HTML class names and selectors), so they must be plain names.
+    InvalidStyleId,
 }
 
 impl ValidationRule {
@@ -59,6 +63,7 @@ impl ValidationRule {
             ValidationRule::UnknownValue => "UNKNOWN_VALUE",
             ValidationRule::InvalidColor => "INVALID_COLOR",
             ValidationRule::InvalidLength => "INVALID_LENGTH",
+            ValidationRule::InvalidStyleId => "INVALID_STYLE_ID",
         }
     }
 }
@@ -166,6 +171,7 @@ pub fn validate_with_limits(table: &Table, limits: &Limits) -> Vec<ValidationErr
     validate_header_row_count(table, &mut errors);
     validate_body_row_count(table, &mut errors);
     validate_col_counts(table, &mut errors);
+    validate_style_ids(table, &mut errors);
     validate_style_refs(table, &mut errors);
     validate_footnote_refs(table, &mut errors);
     validate_summary_requires_stub(table, &mut errors);
@@ -346,6 +352,44 @@ fn validate_col_counts(table: &Table, errors: &mut Vec<ValidationError>) {
 }
 
 /// STYLE_REFS_VALID: all style_id values reference a defined style or composition
+/// Whether `id` is a valid style id: non-empty ASCII letters, digits, `_` and `-`.
+pub fn is_valid_style_id(id: &str) -> bool {
+    !id.is_empty()
+        && id
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-')
+}
+
+fn validate_style_ids(table: &Table, errors: &mut Vec<ValidationError>) {
+    let styles = &table.styles;
+    let mut bad: Vec<(&str, &str)> = styles
+        .defs
+        .keys()
+        .map(|id| ("styles.defs", id.as_str()))
+        .chain(
+            styles
+                .compositions
+                .keys()
+                .map(|id| ("styles.compositions", id.as_str())),
+        )
+        .filter(|(_, id)| !is_valid_style_id(id))
+        .collect();
+    // Map order is random; report in a stable order.
+    bad.sort_unstable();
+    for (section, id) in bad {
+        errors.push(ValidationError {
+            rule: ValidationRule::InvalidStyleId,
+            section: section.to_string(),
+            row_group: None,
+            row: None,
+            col: None,
+            message: format!(
+                "style id {id:?} must be non-empty and use only ASCII letters, digits, `_` and `-`"
+            ),
+        });
+    }
+}
+
 fn validate_style_refs(table: &Table, errors: &mut Vec<ValidationError>) {
     let valid_ids: std::collections::HashSet<&str> = table
         .styles
