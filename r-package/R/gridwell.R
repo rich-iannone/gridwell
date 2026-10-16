@@ -89,6 +89,50 @@ gw_render_binary <- function(table_ptr, format, options = NULL) {
     rs_render_binary(table_ptr, format, gw_options_json(options))
 }
 
+#' Render a table and write it to a file.
+#'
+#' One call for every format: the format comes from the file extension, and the
+#' rendered bytes are written unchanged (text as UTF-8, with no re-encoding and no
+#' added newline), so there is no choosing between `writeLines()` and
+#' `writeBin()`.
+#'
+#' The extensions are `.html`, `.tex` (latex), `.typ` (typst), `.rtf`, `.svg`,
+#' `.txt` (ansi), `.docx`, `.xlsx` and `.pptx`, in any case. `.json` is both
+#' "pandoc" and "quarto", so it needs `format`. A `.txt` file is plain text (no
+#' ANSI escape codes) unless you pass `color = TRUE`. Nothing is written if the
+#' table, format or options are invalid.
+#'
+#' @param x A gt table (a `gt_tbl`, converted with [gt_to_ir()]) or a parsed
+#'   table from [gw_parse_ir()].
+#' @param path The file to write.
+#' @param format A format name (see [gw_formats()]) to use instead of the one the
+#'   extension implies, or `NULL` to infer it.
+#' @param ... Writer options as named arguments, as in [gw_render_html()] and
+#'   the other `gw_render_*()` functions.
+#' @return `path`, invisibly, so `gw_save()` works in pipes and with
+#'   `purrr::walk()`.
+#' @examples
+#' \dontrun{
+#' gt::gt(head(mtcars)) |> gw_save("mtcars.rtf")
+#' tbl <- gw_parse_ir(json)
+#' gw_save(tbl, "table.docx")
+#' gw_save(tbl, "table.json", format = "quarto", table_id = "cars")
+#' }
+#' @export
+gw_save <- function(x, path, format = NULL, ...) {
+    if (!is.character(path) || length(path) != 1 || is.na(path) || !nzchar(path)) {
+        stop("`path` must be a single file path.", call. = FALSE)
+    }
+    if (!is.null(format) && (!is.character(format) || length(format) != 1 || is.na(format))) {
+        stop("`format` must be NULL or a single format name.", call. = FALSE)
+    }
+    if (inherits(x, "gt_tbl")) {
+        x <- gw_parse_ir(gt_to_ir(x))
+    }
+    rs_save(x, enc2utf8(path.expand(path)), format, gw_options_json(list(...)))
+    invisible(path)
+}
+
 #' Render a table to a specific format.
 #'
 #' Shorthands for [gw_render()] and [gw_render_binary()]; writer options are
