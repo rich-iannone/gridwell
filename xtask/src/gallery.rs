@@ -157,6 +157,7 @@ pub fn run(root: &Path, check: bool, accept: bool) -> Result<bool, String> {
     if let Some(gt) = crate::gt_compare::run(root, &tools, &gallery, &work_dir)? {
         summary.push_str(&gt);
     }
+    summary.push_str(&crate::svg_compare::run(root, &tools, &gallery, &work_dir)?);
     eprint!("{summary}");
     write_gh_summary(&summary);
 
@@ -363,7 +364,10 @@ fn render_html(rows: &[GalleryRow], tools: &Tools) -> String {
     h.push_str(STYLE);
     h.push_str("</head><body>");
     h.push_str("<h1>Gridwell render gallery</h1>");
-    h.push_str("<p class=\"meta\"><a class=\"raw\" href=\"gt.html\">gt vs gridwell HTML →</a></p>");
+    h.push_str(
+        "<p class=\"meta\"><a class=\"raw\" href=\"gt.html\">gt vs gridwell HTML →</a> · \
+         <a class=\"raw\" href=\"svg.html\">gridwell HTML vs SVG →</a></p>",
+    );
     let _ = write!(
         h,
         "<p class=\"meta\">{} examples × {} formats · renderers: {}</p>",
