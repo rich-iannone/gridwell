@@ -2,20 +2,19 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="220" height="166" viewBox="0 0 220 166">
-<style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Label</tspan></text>
-<text x="108" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Token</tspan></text>
-<text x="8" y="99.7" font-size="14px" xml:space="preserve">URL</text>
-<text x="108" y="50.7" font-size="14px" xml:space="preserve">https://exam</text>
-<text x="108" y="70.3" font-size="14px" xml:space="preserve">ple.com/very</text>
-<text x="108" y="89.9" font-size="14px" xml:space="preserve">/long/path/th</text>
-<text x="108" y="109.5" font-size="14px" xml:space="preserve">at/should/not</text>
-<text x="108" y="129.1" font-size="14px" xml:space="preserve">/break/nicely</text>
-<text x="108" y="148.7" font-size="14px" xml:space="preserve">?query=1</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="146" viewBox="0 0 220 146">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
+<text x="8" y="22.9" font-size="14px" textLength="34.21" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Label</tspan></text>
+<text x="108" y="22.9" font-size="14px" textLength="39.46" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Token</tspan></text>
+<text x="8" y="89.9" font-size="14px" textLength="25.25" lengthAdjust="spacingAndGlyphs" xml:space="preserve">URL</text>
+<text x="108" y="50.7" font-size="14px" textLength="99.85" lengthAdjust="spacingAndGlyphs" xml:space="preserve">https://example</text>
+<text x="108" y="70.3" font-size="14px" textLength="101.17" lengthAdjust="spacingAndGlyphs" xml:space="preserve">.com/very/long/</text>
+<text x="108" y="89.9" font-size="14px" textLength="97.85" lengthAdjust="spacingAndGlyphs" xml:space="preserve">path/that/shoul</text>
+<text x="108" y="109.5" font-size="14px" textLength="98.72" lengthAdjust="spacingAndGlyphs" xml:space="preserve">d/not/break/nic</text>
+<text x="108" y="129.1" font-size="14px" textLength="74.09" lengthAdjust="spacingAndGlyphs" xml:space="preserve">ely?query=1</text>
 <line x1="0" y1="32" x2="100" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="100" y1="32" x2="220" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="157.6" x2="100" y2="157.6" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="100" y1="157.6" x2="220" y2="157.6" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="138" x2="100" y2="138" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="100" y1="138" x2="220" y2="138" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="0" y1="32" x2="220" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

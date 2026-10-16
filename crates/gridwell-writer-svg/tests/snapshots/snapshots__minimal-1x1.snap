@@ -2,11 +2,11 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="65" height="68" viewBox="0 0 65 68">
-<style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Value</tspan></text>
-<text x="8" y="50.9" font-size="14px" xml:space="preserve">Hello</text>
-<line x1="0" y1="32" x2="64.29" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="64.29" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="64.29" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="54" height="68" viewBox="0 0 54 68">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
+<text x="8" y="22.9" font-size="14px" textLength="35.75" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Value</tspan></text>
+<text x="8" y="50.9" font-size="14px" textLength="32.2" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Hello</text>
+<line x1="0" y1="32" x2="53.35" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="53.35" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="53.35" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

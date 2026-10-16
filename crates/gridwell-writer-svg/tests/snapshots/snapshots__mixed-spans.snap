@@ -2,25 +2,25 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="178" height="124" viewBox="0 0 178 124">
-<style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">A</tspan></text>
-<text x="52.83" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">B</tspan></text>
-<text x="97.66" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">C</tspan></text>
-<text x="8" y="64.9" font-size="14px" xml:space="preserve">2x2 block</text>
-<text x="97.66" y="50.9" font-size="14px" xml:space="preserve">top-right</text>
-<text x="97.66" y="78.9" font-size="14px" xml:space="preserve">mid-right</text>
-<text x="8" y="106.9" font-size="14px" xml:space="preserve">x</text>
-<text x="52.83" y="106.9" font-size="14px" xml:space="preserve">y</text>
-<text x="97.66" y="106.9" font-size="14px" xml:space="preserve">z</text>
-<line x1="0" y1="32" x2="44.83" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="44.83" y1="32" x2="89.66" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="89.66" y1="32" x2="177.08" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="89.66" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="89.66" y1="60" x2="177.08" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="89.66" y1="88" x2="177.08" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="116" x2="44.83" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="44.83" y1="116" x2="89.66" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="89.66" y1="116" x2="177.08" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="177.08" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="149" height="124" viewBox="0 0 149 124">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
+<text x="8" y="22.9" font-size="14px" textLength="9.41" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">A</tspan></text>
+<text x="46.15" y="22.9" font-size="14px" textLength="8.93" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">B</tspan></text>
+<text x="84.3" y="22.9" font-size="14px" textLength="9.16" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">C</tspan></text>
+<text x="8" y="64.9" font-size="14px" textLength="59.83" lengthAdjust="spacingAndGlyphs" xml:space="preserve">2x2 block</text>
+<text x="84.3" y="50.9" font-size="14px" textLength="52.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve">top-right</text>
+<text x="84.3" y="78.9" font-size="14px" textLength="55.75" lengthAdjust="spacingAndGlyphs" xml:space="preserve">mid-right</text>
+<text x="8" y="106.9" font-size="14px" textLength="6.95" lengthAdjust="spacingAndGlyphs" xml:space="preserve">x</text>
+<text x="46.15" y="106.9" font-size="14px" textLength="6.62" lengthAdjust="spacingAndGlyphs" xml:space="preserve">y</text>
+<text x="84.3" y="106.9" font-size="14px" textLength="6.95" lengthAdjust="spacingAndGlyphs" xml:space="preserve">z</text>
+<line x1="0" y1="32" x2="38.15" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="38.15" y1="32" x2="76.3" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="76.3" y1="32" x2="148.92" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="88" x2="76.3" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="76.3" y1="60" x2="148.92" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="76.3" y1="88" x2="148.92" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="116" x2="38.15" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="38.15" y1="116" x2="76.3" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="76.3" y1="116" x2="148.92" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="148.92" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

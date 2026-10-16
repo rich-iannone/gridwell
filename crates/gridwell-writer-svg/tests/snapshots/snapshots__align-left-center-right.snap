@@ -2,25 +2,25 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="186" height="96" viewBox="0 0 186 96">
-<style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Left</tspan></text>
-<text x="87.24" y="22.9" font-size="14px" text-anchor="middle" xml:space="preserve"><tspan font-weight="bold">Center</tspan></text>
-<text x="177.96" y="22.9" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Right</tspan></text>
-<text x="8" y="50.9" font-size="14px" xml:space="preserve">aaa</text>
-<text x="87.24" y="50.9" font-size="14px" text-anchor="middle" xml:space="preserve">bbb</text>
-<text x="177.96" y="50.9" font-size="14px" text-anchor="end" xml:space="preserve">ccc</text>
-<text x="8" y="78.9" font-size="14px" xml:space="preserve">d</text>
-<text x="87.24" y="78.9" font-size="14px" text-anchor="middle" xml:space="preserve">e</text>
-<text x="177.96" y="78.9" font-size="14px" text-anchor="end" xml:space="preserve">f</text>
-<line x1="0" y1="32" x2="49.99" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="49.99" y1="32" x2="124.49" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="124.49" y1="32" x2="185.96" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="49.99" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="49.99" y1="60" x2="124.49" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="124.49" y1="60" x2="185.96" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="49.99" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="49.99" y1="88" x2="124.49" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="124.49" y1="88" x2="185.96" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="185.96" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="155" height="96" viewBox="0 0 155 96">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
+<text x="8" y="22.9" font-size="14px" textLength="24.88" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Left</tspan></text>
+<text x="72.3" y="22.9" font-size="14px" text-anchor="middle" textLength="41.99" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Center</tspan></text>
+<text x="146.35" y="22.9" font-size="14px" text-anchor="end" textLength="33.25" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Right</tspan></text>
+<text x="8" y="50.9" font-size="14px" textLength="22.85" lengthAdjust="spacingAndGlyphs" xml:space="preserve">aaa</text>
+<text x="72.3" y="50.9" font-size="14px" text-anchor="middle" textLength="23.58" lengthAdjust="spacingAndGlyphs" xml:space="preserve">bbb</text>
+<text x="146.35" y="50.9" font-size="14px" text-anchor="end" textLength="21.98" lengthAdjust="spacingAndGlyphs" xml:space="preserve">ccc</text>
+<text x="8" y="78.9" font-size="14px" textLength="7.9" lengthAdjust="spacingAndGlyphs" xml:space="preserve">d</text>
+<text x="72.3" y="78.9" font-size="14px" text-anchor="middle" textLength="7.42" lengthAdjust="spacingAndGlyphs" xml:space="preserve">e</text>
+<text x="146.35" y="78.9" font-size="14px" text-anchor="end" textLength="4.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">f</text>
+<line x1="0" y1="32" x2="42.09" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="42.09" y1="32" x2="102.51" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="102.51" y1="32" x2="154.35" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="42.09" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="42.09" y1="60" x2="102.51" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="102.51" y1="60" x2="154.35" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="88" x2="42.09" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="42.09" y1="88" x2="102.51" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="102.51" y1="88" x2="154.35" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="154.35" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

@@ -3,19 +3,19 @@ source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="90" height="124" viewBox="0 0 90 124">
-<style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">A</tspan></text>
-<text x="38" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">B</tspan></text>
-<text x="68" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">C</tspan></text>
-<text x="8" y="50.9" font-size="14px" xml:space="preserve">1</text>
-<text x="38" y="50.9" font-size="14px" xml:space="preserve">2</text>
-<text x="68" y="50.9" font-size="14px" xml:space="preserve">3</text>
-<text x="8" y="78.9" font-size="14px" xml:space="preserve">4</text>
-<text x="38" y="78.9" font-size="14px" xml:space="preserve">5</text>
-<text x="68" y="78.9" font-size="14px" xml:space="preserve">6</text>
-<text x="8" y="106.9" font-size="14px" xml:space="preserve">7</text>
-<text x="38" y="106.9" font-size="14px" xml:space="preserve">8</text>
-<text x="68" y="106.9" font-size="14px" xml:space="preserve">9</text>
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
+<text x="8" y="22.9" font-size="14px" textLength="9.41" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">A</tspan></text>
+<text x="38" y="22.9" font-size="14px" textLength="8.93" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">B</tspan></text>
+<text x="68" y="22.9" font-size="14px" textLength="9.16" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">C</tspan></text>
+<text x="8" y="50.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">1</text>
+<text x="38" y="50.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">2</text>
+<text x="68" y="50.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">3</text>
+<text x="8" y="78.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">4</text>
+<text x="38" y="78.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">5</text>
+<text x="68" y="78.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">6</text>
+<text x="8" y="106.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">7</text>
+<text x="38" y="106.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">8</text>
+<text x="68" y="106.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">9</text>
 <line x1="0" y1="32" x2="30" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="30" y1="32" x2="60" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
 <line x1="60" y1="32" x2="90" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>

@@ -2,42 +2,42 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="365" height="193" viewBox="0 0 365 193">
-<style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
-<text x="8" y="24.58" font-size="19.6px" xml:space="preserve"><tspan font-weight="bold">Reaction rate constants</tspan></text>
-<text x="8" y="54.34" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Compound</tspan></text>
-<text x="184.54" y="54.34" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">k (s⁻¹)</tspan><tspan font-weight="bold" font-size="9.8px" baseline-shift="super">a</tspan></text>
-<text x="241.61" y="54.34" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">T (K)</tspan></text>
-<text x="356.56" y="54.34" font-size="14px" text-anchor="end" xml:space="preserve"><tspan font-weight="bold">Ea (kJ/mol)</tspan></text>
-<text x="8" y="82.34" font-size="14px" xml:space="preserve">A</text>
-<text x="184.54" y="82.34" font-size="14px" text-anchor="end" xml:space="preserve">1.2×10³</text>
-<text x="241.61" y="82.34" font-size="14px" text-anchor="end" xml:space="preserve">298</text>
-<text x="356.56" y="82.34" font-size="14px" text-anchor="end" xml:space="preserve">52.3</text>
-<text x="8" y="110.34" font-size="14px" xml:space="preserve">B</text>
-<text x="184.54" y="110.34" font-size="14px" text-anchor="end" xml:space="preserve">3.4×10²</text>
-<text x="241.61" y="110.34" font-size="14px" text-anchor="end" xml:space="preserve">298</text>
-<text x="356.56" y="110.34" font-size="14px" text-anchor="end" xml:space="preserve">61.0</text>
-<text x="8" y="138.34" font-size="14px" xml:space="preserve">C</text>
-<text x="184.54" y="138.34" font-size="14px" text-anchor="end" xml:space="preserve">8.9×10¹</text>
-<text x="241.61" y="138.34" font-size="14px" text-anchor="end" xml:space="preserve">310</text>
-<text x="356.56" y="138.34" font-size="14px" text-anchor="end" xml:space="preserve">70.8</text>
-<line x1="0" y1="63.44" x2="107.81" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="107.81" y1="63.44" x2="192.54" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="192.54" y1="63.44" x2="249.61" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="249.61" y1="63.44" x2="364.56" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="91.44" x2="107.81" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="107.81" y1="91.44" x2="192.54" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="192.54" y1="91.44" x2="249.61" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="249.61" y1="91.44" x2="364.56" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="119.44" x2="107.81" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="107.81" y1="119.44" x2="192.54" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="192.54" y1="119.44" x2="249.61" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="249.61" y1="119.44" x2="364.56" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="147.44" x2="107.81" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="107.81" y1="147.44" x2="192.54" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="192.54" y1="147.44" x2="249.61" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="249.61" y1="147.44" x2="364.56" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="63.44" x2="364.56" y2="63.44" stroke="#333333" stroke-width="1.5"/>
-<text x="8" y="163.94" font-size="11.9px" xml:space="preserve"><tspan font-size="8.33px" baseline-shift="super">a</tspan> Measured under pseudo-first-order conditions.</text>
-<text x="8" y="182.6" font-size="11.9px" xml:space="preserve">Source: laboratory notebook, 2026.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="296" height="193" viewBox="0 0 296 193">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
+<text x="8" y="24.58" font-size="19.6px" textLength="209.47" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Reaction rate constants</tspan></text>
+<text x="8" y="54.34" font-size="14px" textLength="68.54" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Compound</tspan></text>
+<text x="146.54" y="54.34" font-size="14px" text-anchor="end" textLength="43.55" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">k (s⁻¹)</tspan><tspan font-weight="bold" font-size="9.8px" baseline-shift="super">a</tspan></text>
+<text x="195.03" y="54.34" font-size="14px" text-anchor="end" textLength="30.86" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">T (K)</tspan></text>
+<text x="287.54" y="54.34" font-size="14px" text-anchor="end" textLength="72.88" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Ea (kJ/mol)</tspan></text>
+<text x="8" y="82.34" font-size="14px" textLength="9.13" lengthAdjust="spacingAndGlyphs" xml:space="preserve">A</text>
+<text x="146.54" y="82.34" font-size="14px" text-anchor="end" textLength="47.77" lengthAdjust="spacingAndGlyphs" xml:space="preserve">1.2×10³</text>
+<text x="195.03" y="82.34" font-size="14px" text-anchor="end" textLength="23.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve">298</text>
+<text x="287.54" y="82.34" font-size="14px" text-anchor="end" textLength="27.3" lengthAdjust="spacingAndGlyphs" xml:space="preserve">52.3</text>
+<text x="8" y="110.34" font-size="14px" textLength="8.72" lengthAdjust="spacingAndGlyphs" xml:space="preserve">B</text>
+<text x="146.54" y="110.34" font-size="14px" text-anchor="end" textLength="47.77" lengthAdjust="spacingAndGlyphs" xml:space="preserve">3.4×10²</text>
+<text x="195.03" y="110.34" font-size="14px" text-anchor="end" textLength="23.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve">298</text>
+<text x="287.54" y="110.34" font-size="14px" text-anchor="end" textLength="27.3" lengthAdjust="spacingAndGlyphs" xml:space="preserve">61.0</text>
+<text x="8" y="138.34" font-size="14px" textLength="9.11" lengthAdjust="spacingAndGlyphs" xml:space="preserve">C</text>
+<text x="146.54" y="138.34" font-size="14px" text-anchor="end" textLength="47.77" lengthAdjust="spacingAndGlyphs" xml:space="preserve">8.9×10¹</text>
+<text x="195.03" y="138.34" font-size="14px" text-anchor="end" textLength="23.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve">310</text>
+<text x="287.54" y="138.34" font-size="14px" text-anchor="end" textLength="27.3" lengthAdjust="spacingAndGlyphs" xml:space="preserve">70.8</text>
+<line x1="0" y1="63.44" x2="89.87" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="89.87" y1="63.44" x2="154.54" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="154.54" y1="63.44" x2="203.03" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="203.03" y1="63.44" x2="295.54" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="91.44" x2="89.87" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="89.87" y1="91.44" x2="154.54" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="154.54" y1="91.44" x2="203.03" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="203.03" y1="91.44" x2="295.54" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="119.44" x2="89.87" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="89.87" y1="119.44" x2="154.54" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="154.54" y1="119.44" x2="203.03" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="203.03" y1="119.44" x2="295.54" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="147.44" x2="89.87" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="89.87" y1="147.44" x2="154.54" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="154.54" y1="147.44" x2="203.03" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="203.03" y1="147.44" x2="295.54" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="63.44" x2="295.54" y2="63.44" stroke="#333333" stroke-width="1.5"/>
+<text x="8" y="163.94" font-size="11.9px" textLength="252.81" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-size="8.33px" baseline-shift="super">a</tspan> Measured under pseudo-first-order conditions.</text>
+<text x="8" y="182.6" font-size="11.9px" textLength="184.48" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Source: laboratory notebook, 2026.</text>
 </svg>

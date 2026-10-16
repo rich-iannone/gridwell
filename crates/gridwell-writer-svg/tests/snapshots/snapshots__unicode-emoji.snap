@@ -2,23 +2,23 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="153" height="124" viewBox="0 0 153 124">
-<style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Mood</tspan></text>
-<text x="72.36" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Icon</tspan></text>
-<text x="8" y="50.9" font-size="14px" xml:space="preserve">happy</text>
-<text x="72.36" y="50.9" font-size="14px" xml:space="preserve">😀</text>
-<text x="8" y="78.9" font-size="14px" xml:space="preserve">party</text>
-<text x="72.36" y="78.9" font-size="14px" xml:space="preserve">🎉🎊</text>
-<text x="8" y="106.9" font-size="14px" xml:space="preserve">family</text>
-<text x="72.36" y="106.9" font-size="14px" xml:space="preserve">👨‍👩‍👧‍👦</text>
-<line x1="0" y1="32" x2="64.36" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="64.36" y1="32" x2="152.36" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="64.36" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="64.36" y1="60" x2="152.36" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="64.36" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="64.36" y1="88" x2="152.36" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="116" x2="64.36" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="64.36" y1="116" x2="152.36" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="152.36" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="141" height="124" viewBox="0 0 141 124">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
+<text x="8" y="22.9" font-size="14px" textLength="35.94" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Mood</tspan></text>
+<text x="62.74" y="22.9" font-size="14px" textLength="27.14" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Icon</tspan></text>
+<text x="8" y="50.9" font-size="14px" textLength="37.67" lengthAdjust="spacingAndGlyphs" xml:space="preserve">happy</text>
+<text x="62.74" y="50.9" font-size="14px" textLength="17.5" lengthAdjust="spacingAndGlyphs" xml:space="preserve">😀</text>
+<text x="8" y="78.9" font-size="14px" textLength="31.42" lengthAdjust="spacingAndGlyphs" xml:space="preserve">party</text>
+<text x="62.74" y="78.9" font-size="14px" textLength="35" lengthAdjust="spacingAndGlyphs" xml:space="preserve">🎉🎊</text>
+<text x="8" y="106.9" font-size="14px" textLength="38.19" lengthAdjust="spacingAndGlyphs" xml:space="preserve">family</text>
+<text x="62.74" y="106.9" font-size="14px" textLength="70" lengthAdjust="spacingAndGlyphs" xml:space="preserve">👨‍👩‍👧‍👦</text>
+<line x1="0" y1="32" x2="54.74" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="54.74" y1="32" x2="140.74" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="54.74" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="54.74" y1="60" x2="140.74" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="88" x2="54.74" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="54.74" y1="88" x2="140.74" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="116" x2="54.74" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="54.74" y1="116" x2="140.74" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="140.74" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>

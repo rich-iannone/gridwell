@@ -2,31 +2,31 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="268" height="96" viewBox="0 0 268 96">
-<style>text { font-family: Arial, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Region</tspan></text>
-<text x="83.76" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">City</tspan></text>
-<text x="134.06" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Sales</tspan></text>
-<text x="197.09" y="22.9" font-size="14px" xml:space="preserve"><tspan font-weight="bold">Growth</tspan></text>
-<text x="8" y="50.9" font-size="14px" xml:space="preserve">East</text>
-<text x="83.76" y="50.9" font-size="14px" xml:space="preserve">NYC</text>
-<text x="134.06" y="50.9" font-size="14px" xml:space="preserve">60</text>
-<text x="197.09" y="50.9" font-size="14px" xml:space="preserve">3%</text>
-<text x="8" y="78.9" font-size="14px" xml:space="preserve">West</text>
-<text x="83.76" y="78.9" font-size="14px" xml:space="preserve">LA</text>
-<text x="134.06" y="78.9" font-size="14px" xml:space="preserve">50</text>
-<text x="197.09" y="78.9" font-size="14px" xml:space="preserve">2%</text>
-<line x1="0" y1="32" x2="75.76" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="75.76" y1="32" x2="126.06" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="126.06" y1="32" x2="189.09" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="189.09" y1="32" x2="267.36" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="75.76" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="75.76" y1="60" x2="126.06" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="126.06" y1="60" x2="189.09" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="189.09" y1="60" x2="267.36" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="75.76" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="75.76" y1="88" x2="126.06" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="126.06" y1="88" x2="189.09" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="189.09" y1="88" x2="267.36" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="267.36" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="227" height="96" viewBox="0 0 227 96">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
+<text x="8" y="22.9" font-size="14px" textLength="43.98" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Region</tspan></text>
+<text x="71.44" y="22.9" font-size="14px" textLength="24.65" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">City</tspan></text>
+<text x="117" y="22.9" font-size="14px" textLength="34.57" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Sales</tspan></text>
+<text x="169.59" y="22.9" font-size="14px" textLength="45.43" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Growth</tspan></text>
+<text x="8" y="50.9" font-size="14px" textLength="27.38" lengthAdjust="spacingAndGlyphs" xml:space="preserve">East</text>
+<text x="71.44" y="50.9" font-size="14px" textLength="27.51" lengthAdjust="spacingAndGlyphs" xml:space="preserve">NYC</text>
+<text x="117" y="50.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">60</text>
+<text x="169.59" y="50.9" font-size="14px" textLength="18.12" lengthAdjust="spacingAndGlyphs" xml:space="preserve">3%</text>
+<text x="8" y="78.9" font-size="14px" textLength="31.65" lengthAdjust="spacingAndGlyphs" xml:space="preserve">West</text>
+<text x="71.44" y="78.9" font-size="14px" textLength="16.67" lengthAdjust="spacingAndGlyphs" xml:space="preserve">LA</text>
+<text x="117" y="78.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">50</text>
+<text x="169.59" y="78.9" font-size="14px" textLength="18.12" lengthAdjust="spacingAndGlyphs" xml:space="preserve">2%</text>
+<line x1="0" y1="32" x2="63.44" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="63.44" y1="32" x2="109" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="109" y1="32" x2="161.59" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="161.59" y1="32" x2="226.65" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="63.44" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="63.44" y1="60" x2="109" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="109" y1="60" x2="161.59" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="161.59" y1="60" x2="226.65" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="88" x2="63.44" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="63.44" y1="88" x2="109" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="109" y1="88" x2="161.59" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="161.59" y1="88" x2="226.65" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
+<line x1="0" y1="32" x2="226.65" y2="32" stroke="#333333" stroke-width="1.5"/>
 </svg>
