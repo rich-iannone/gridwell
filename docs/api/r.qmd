@@ -63,10 +63,42 @@ pptx_raw <- gw_render_pptx(tbl)
 
 # Generic by name
 docx_raw <- gw_render_binary(tbl, "docx")
-
-# Write to file
-writeBin(gw_render_docx(tbl), "output.docx")
 ```
+
+## Saving to a File
+
+`gw_save()` renders and writes in one call, for every format: the format comes from
+the file extension and the bytes are written unchanged (UTF-8 text, no re-encoding,
+no added newline), so there is no `writeLines()` versus `writeBin()` to choose. It
+takes a gt table directly, or a parsed table, and returns `path` invisibly.
+
+```r
+gt(exibble) |> gw_save("table.rtf")
+
+gw_save(tbl, "output.docx")
+gw_save(tbl, "table.tex", booktabs = FALSE)              # writer options as arguments
+gw_save(tbl, "table.json", format = "quarto")            # .json is pandoc or quarto
+gw_save(tbl, "table.txt")                                # plain text, no ANSI escapes
+gw_save(tbl, "table.txt", color = TRUE)                  # keep the escapes
+
+# Many tables at once
+purrr::walk2(tables, paths, gw_save)
+```
+
+| Extension | Format |
+|---|---|
+| `.html` | html |
+| `.tex` | latex |
+| `.typ` | typst |
+| `.rtf` | rtf |
+| `.svg` | svg |
+| `.txt` | ansi (plain text unless `color = TRUE`) |
+| `.docx`, `.xlsx`, `.pptx` | docx, xlsx, pptx |
+| `.json` | pandoc or quarto: pass `format` |
+
+Extensions are case-insensitive, and `format` overrides the extension. A missing,
+unknown or ambiguous extension is an error, and nothing is written if the table,
+format or options are invalid.
 
 ## Serialization
 
@@ -92,7 +124,8 @@ Every `gw_render*()` function validates the table first and signals an R error
 listing the validation errors if the IR is invalid. Use `gw_validate()` to get them
 as a character vector instead. Unknown format names, a binary format passed to
 `gw_render()` (or a text one to `gw_render_binary()`), and invalid options are errors
-too.
+too. `gw_save()` adds errors for an extension it can't infer a format from and for a
+file it can't write (naming the path).
 
 ```r
 tryCatch(
