@@ -419,3 +419,18 @@ def test_save_errors(tmp_path):
     with pytest.raises(TypeError):
         table.save(42)
     assert list(tmp_path.iterdir()) == []
+
+
+def test_save_html_is_a_fragment_unless_standalone(tmp_path):
+    table = reference_table()
+    path = tmp_path / "t.html"
+    table.save(path)
+    fragment = path.read_text(encoding="utf-8")
+    assert fragment == table.render_html()
+    assert not fragment.startswith("<!doctype")
+    table.save(path, standalone=True)
+    doc = path.read_text(encoding="utf-8")
+    assert doc.startswith("<!doctype html>")
+    assert '<meta charset="utf-8">' in doc
+    assert fragment in doc
+    assert doc == table.render_html(standalone=True)
