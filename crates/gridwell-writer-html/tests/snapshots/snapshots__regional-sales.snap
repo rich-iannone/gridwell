@@ -7,7 +7,7 @@ expression: out
     .gw_table .gw__al_center { text-align: center }
     .gw_table .gw__al_left { text-align: left }
     .gw_table .gw__al_right { text-align: right }
-    .gw_num { text-align: right }
+    .gw_style-num { text-align: right }
   </style>
   <div class="gw_title" role="heading" aria-level="1">
     Regional Sales Performance

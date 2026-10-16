@@ -5,26 +5,26 @@ expression: out
 <div class="gw_container">
   <style>
     .gw_table .gw__al_left { text-align: left }
-    .gw_bordered { padding: 4px; border-top: 1px double #333333; border-right: 1px double #333333; border-bottom: 1px double #333333; border-left: 1px double #333333 }
+    .gw_style-bordered { padding: 4px; border-top: 1px double #333333; border-right: 1px double #333333; border-bottom: 1px double #333333; border-left: 1px double #333333 }
   </style>
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left gw_bordered">A</th>
-        <th class="gw_col_label gw__al_left gw_bordered">B</th>
-        <th class="gw_col_label gw__al_left gw_bordered">C</th>
+        <th class="gw_col_label gw__al_left gw_style-bordered">A</th>
+        <th class="gw_col_label gw__al_left gw_style-bordered">B</th>
+        <th class="gw_col_label gw__al_left gw_style-bordered">C</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td class="gw_bordered">1</td>
-        <td class="gw_bordered">2</td>
-        <td class="gw_bordered">3</td>
+        <td class="gw_style-bordered">1</td>
+        <td class="gw_style-bordered">2</td>
+        <td class="gw_style-bordered">3</td>
       </tr>
       <tr>
-        <td class="gw_bordered">4</td>
-        <td class="gw_bordered">5</td>
-        <td class="gw_bordered">6</td>
+        <td class="gw_style-bordered">4</td>
+        <td class="gw_style-bordered">5</td>
+        <td class="gw_style-bordered">6</td>
       </tr>
     </tbody>
   </table>

@@ -5,7 +5,7 @@ expression: out
 <div class="gw_container">
   <style>
     .gw_table .gw__al_left { text-align: left }
-    .gw_em { font-style: italic; color: #8E44AD }
+    .gw_style-em { font-style: italic; color: #8E44AD }
   </style>
   <table class="gw_table">
     <thead>
@@ -18,7 +18,7 @@ expression: out
       <tr>
         <td>Rust</td>
         <td>
-          A <span class="gw_em">systems</span> language.
+          A <span class="gw_style-em">systems</span> language.
         </td>
       </tr>
     </tbody>

@@ -6,7 +6,7 @@ expression: out
   <style>
     .gw_table .gw__al_left { text-align: left }
     .gw_table .gw__al_right { text-align: right }
-    .gw_total { font-weight: bold; background-color: #F5F5F5 }
+    .gw_style-total { font-weight: bold; background-color: #F5F5F5 }
     .gw_table .gw__c0 { background-color: rgba(128, 128, 128, 0.051) }
   </style>
   <div class="gw_title" role="heading" aria-level="1">
@@ -37,9 +37,9 @@ expression: out
         <td class="gw__al_right">$320</td>
       </tr>
       <tr class="gw_summary">
-        <td class="gw_stub gw_total">Net income</td>
-        <td class="gw__al_right gw_total">$200</td>
-        <td class="gw__al_right gw_total">$270</td>
+        <td class="gw_stub gw_style-total">Net income</td>
+        <td class="gw__al_right gw_style-total">$200</td>
+        <td class="gw__al_right gw_style-total">$270</td>
       </tr>
     </tbody>
   </table>

@@ -5,7 +5,7 @@ expression: out
 <div class="gw_container">
   <style>
     .gw_table .gw__al_left { text-align: left }
-    .gw_warn { font-weight: bold; color: #E67E22 }
+    .gw_style-warn { font-weight: bold; color: #E67E22 }
   </style>
   <table class="gw_table">
     <thead>
@@ -16,7 +16,7 @@ expression: out
     <tbody>
       <tr>
         <td>
-          Status: <span class="gw_warn">degraded</span><br>Retry advised<sup class="gw_footnote_mark"><a href="#fn1">†</a></sup>
+          Status: <span class="gw_style-warn">degraded</span><br>Retry advised<sup class="gw_footnote_mark"><a href="#fn1">†</a></sup>
         </td>
       </tr>
     </tbody>

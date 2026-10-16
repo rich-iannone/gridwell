@@ -5,8 +5,8 @@ expression: out
 <div class="gw_container">
   <style>
     .gw_table .gw__al_left { text-align: left }
-    .gw_cool { color: #FFFFFF; background-color: #2980B9 }
-    .gw_hot { color: #FFFFFF; background-color: #C0392B }
+    .gw_style-cool { color: #FFFFFF; background-color: #2980B9 }
+    .gw_style-hot { color: #FFFFFF; background-color: #C0392B }
   </style>
   <table class="gw_table">
     <thead>
@@ -18,11 +18,11 @@ expression: out
     <tbody>
       <tr>
         <td>Fire</td>
-        <td class="gw_hot">hot</td>
+        <td class="gw_style-hot">hot</td>
       </tr>
       <tr>
         <td>Ice</td>
-        <td class="gw_cool">cold</td>
+        <td class="gw_style-cool">cold</td>
       </tr>
     </tbody>
   </table>

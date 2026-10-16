@@ -5,10 +5,10 @@ expression: out
 <div class="gw_container">
   <style>
     .gw_table .gw__al_left { text-align: left }
-    .gw_big { font-size: 18px }
-    .gw_s { text-decoration: line-through }
-    .gw_small { font-size: smaller }
-    .gw_u { text-decoration: underline }
+    .gw_style-big { font-size: 18px }
+    .gw_style-s { text-decoration: line-through }
+    .gw_style-small { font-size: smaller }
+    .gw_style-u { text-decoration: underline }
   </style>
   <table class="gw_table">
     <thead>
@@ -20,24 +20,24 @@ expression: out
     <tbody>
       <tr>
         <td>underline</td>
-        <td class="gw_u">Underlined</td>
+        <td class="gw_style-u">Underlined</td>
       </tr>
       <tr>
         <td>line-through</td>
-        <td class="gw_s">Struck out</td>
+        <td class="gw_style-s">Struck out</td>
       </tr>
       <tr>
         <td>18px</td>
-        <td class="gw_big">Larger text</td>
+        <td class="gw_style-big">Larger text</td>
       </tr>
       <tr>
         <td>smaller</td>
-        <td class="gw_small">Smaller text</td>
+        <td class="gw_style-small">Smaller text</td>
       </tr>
       <tr>
         <td>inline</td>
         <td>
-          Plain, <span class="gw_u">underlined</span>, <span class="gw_s">struck</span> and <span class="gw_big">large</span>
+          Plain, <span class="gw_style-u">underlined</span>, <span class="gw_style-s">struck</span> and <span class="gw_style-big">large</span>
         </td>
       </tr>
     </tbody>
