@@ -94,9 +94,9 @@ for gridwell's default HTML; this page measures how close it is.
   versions used). The cases are defined in `cases.R`; `make.R` writes the files.
   Checking them in means the harness image needs no R.
 - **Rendering**: both sides are screenshotted in the same Chromium as **bare
-  pages**: a UTF-8 doctype wrapper and a page margin, but none of the gallery's
-  `HTML_BASE_CSS`. So the gridwell side is what a saved `.html` file really looks
-  like.
+  pages**: a UTF-8 doctype wrapper and a page margin, with no harness styling (the
+  gallery's HTML previews are rendered the same way). So the gridwell side is what
+  a saved `.html` file really looks like.
 - **Score**: the share of differing pixels when both images sit top-left on a
   white canvas the size of the larger one (lower is closer), with both sizes. A
   diff image shows the differing pixels in red. It is a coarse trend measure, not a
