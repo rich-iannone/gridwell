@@ -58,6 +58,7 @@ jobs:
             -v "$PWD:/w" -w /w \
             -e CARGO_HOME=/w/.ci-cargo \
             -e GRIDWELL_REQUIRE_RSVG=1 \
+            -e GRIDWELL_REQUIRE_ROBOTO=1 \
             gridwell-harness:ci \
             cargo test --release -p gridwell-writer-svg --test calibration --test rsvg
 
