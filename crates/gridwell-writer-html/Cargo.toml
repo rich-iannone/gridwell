@@ -16,4 +16,5 @@ thiserror = { workspace = true }
 [dev-dependencies]
 gridwell-testkit = { path = "../gridwell-testkit" }
 insta = "1"
+scraper = "0.27"
 serde_json = { workspace = true }
