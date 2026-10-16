@@ -410,7 +410,12 @@
             "style_id": null,
             "cells": [
               {
-                "content": [],
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "NA"
+                  }
+                ],
                 "colspan": 1,
                 "rowspan": 1,
                 "style_id": "gw_2",

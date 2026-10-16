@@ -382,7 +382,62 @@
             ]
           }
         ],
-        "summary_rows": []
+        "summary_rows": [
+          {
+            "role": "summary_row",
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Total"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": null,
+                "data_type": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "480.1"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": null,
+                "data_type": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "65,169.3"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": null,
+                "data_type": null
+              }
+            ]
+          }
+        ]
       },
       {
         "group_id": "grp_b",
@@ -638,7 +693,123 @@
             ]
           }
         ],
-        "summary_rows": []
+        "summary_rows": [
+          {
+            "role": "summary_row",
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Total"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": null,
+                "data_type": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "9,662,550.0"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": null,
+                "data_type": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1,339.5"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": null,
+                "data_type": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [],
+        "summary_rows": [
+          {
+            "role": "grand_summary_row",
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Grand total"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": null,
+                "data_type": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "9,663,030.1"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": null,
+                "data_type": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "66,508.8"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": null,
+                "data_type": null
+              }
+            ]
+          }
+        ]
       }
     ]
   },

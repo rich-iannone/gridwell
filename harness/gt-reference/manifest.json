@@ -21,6 +21,10 @@
       "description": "Two levels of spanners over formatted numbers"
     },
     {
+      "name": "adjacent_spanners",
+      "description": "Two spanners side by side: their rules have a gap between them and run to the table's edges"
+    },
+    {
       "name": "summary_rows",
       "description": "Group summary rows and a grand summary"
     },

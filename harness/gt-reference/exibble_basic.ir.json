@@ -1060,7 +1060,12 @@
                 }
               },
               {
-                "content": [],
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "NA"
+                  }
+                ],
                 "colspan": 1,
                 "rowspan": 1,
                 "style_id": null,
@@ -1293,7 +1298,12 @@
                 }
               },
               {
-                "content": [],
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "NA"
+                  }
+                ],
                 "colspan": 1,
                 "rowspan": 1,
                 "style_id": null,
@@ -1450,7 +1460,12 @@
                 }
               },
               {
-                "content": [],
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "NA"
+                  }
+                ],
                 "colspan": 1,
                 "rowspan": 1,
                 "style_id": null,
@@ -1663,7 +1678,12 @@
                 }
               },
               {
-                "content": [],
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "NA"
+                  }
+                ],
                 "colspan": 1,
                 "rowspan": 1,
                 "style_id": null,

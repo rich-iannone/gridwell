@@ -20,9 +20,40 @@
     "summary": null
   },
   "styles": {
-    "defs": {},
+    "defs": {
+      "gw_1": {
+        "background_color": "#0076BA",
+        "color": "#FFFFFF"
+      },
+      "gw_2": {
+        "border": {
+          "top": {
+            "style": "none"
+          }
+        }
+      },
+      "gw_3": {
+        "background_color": "#FFFFFF",
+        "color": "#333333"
+      },
+      "gw_4": {
+        "background_color": "#D5D5D5",
+        "color": "#333333"
+      }
+    },
     "compositions": {},
-    "conditionals": []
+    "conditionals": [
+      {
+        "id": "row_striping",
+        "selector": {
+          "row_parity": "even",
+          "scope": "tbody"
+        },
+        "style": {
+          "background_color": "#EDF7FC"
+        }
+      }
+    ]
   },
   "header": {
     "title": {
@@ -89,7 +120,7 @@
       "rows": [
         {
           "role": "column_label",
-          "style_id": null,
+          "style_id": "gw_1",
           "cells": [
             {
               "content": [
@@ -166,7 +197,7 @@
         "rows": [
           {
             "role": null,
-            "style_id": null,
+            "style_id": "gw_2",
             "cells": [
               {
                 "content": [
@@ -252,7 +283,7 @@
           },
           {
             "role": null,
-            "style_id": null,
+            "style_id": "gw_2",
             "cells": [
               {
                 "content": [
@@ -338,7 +369,7 @@
           },
           {
             "role": null,
-            "style_id": null,
+            "style_id": "gw_2",
             "cells": [
               {
                 "content": [
@@ -424,7 +455,7 @@
           },
           {
             "role": null,
-            "style_id": null,
+            "style_id": "gw_2",
             "cells": [
               {
                 "content": [
@@ -510,10 +541,15 @@
           },
           {
             "role": null,
-            "style_id": null,
+            "style_id": "gw_2",
             "cells": [
               {
-                "content": [],
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "NA"
+                  }
+                ],
                 "colspan": 1,
                 "rowspan": 1,
                 "style_id": null,
@@ -587,7 +623,7 @@
           },
           {
             "role": null,
-            "style_id": null,
+            "style_id": "gw_2",
             "cells": [
               {
                 "content": [

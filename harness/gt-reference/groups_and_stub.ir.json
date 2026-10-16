@@ -509,7 +509,12 @@
                 "data_type": "string"
               },
               {
-                "content": [],
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "NA"
+                  }
+                ],
                 "colspan": 1,
                 "rowspan": 1,
                 "style_id": null,

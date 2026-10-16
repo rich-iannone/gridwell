@@ -1,0 +1,401 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 4,
+    "header_rows": 2,
+    "body_rows": 2,
+    "stub_cols": 0,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "header": {
+    "title": null,
+    "subtitle": null,
+    "extra_lines": [],
+    "preheader_content": null
+  },
+  "column_spec": [
+    {
+      "id": "a1",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "a1"
+    },
+    {
+      "id": "a2",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "a2"
+    },
+    {
+      "id": "b1",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "b1"
+    },
+    {
+      "id": "b2",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "b2"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "spanner_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Group A"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "colgroup",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Group B"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "colgroup",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        },
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "a1"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "a2"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "b1"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "b2"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "1",
+                "data_type": "integer",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 1
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "3"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "3",
+                "data_type": "integer",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 3
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "5"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "5",
+                "data_type": "integer",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 5
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "7"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "7",
+                "data_type": "integer",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 7
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "2",
+                "data_type": "integer",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 2
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "4"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "4",
+                "data_type": "integer",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 4
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "6"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "6",
+                "data_type": "integer",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 6
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "8"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null,
+                "sort_key": "8",
+                "data_type": "integer",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 8
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ]
+  },
+  "footer": {
+    "footnotes": [],
+    "source_notes": []
+  },
+  "extensions": {}
+}
