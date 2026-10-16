@@ -39,9 +39,12 @@ emitted with inline styles too.
 | `gw_footnote`, `gw_source_note` | `<p>` | One footnote or source note |
 | `gw_footnote_mark` | `<sup>` | A footnote mark, in a cell or before its footnote |
 
-Style classes (`gw_<style id>`) are added alongside these, so a style id that matches a
-part name (e.g. `title`) shares its class. Generated classes use a double underscore
-(`gw__al_left`, `gw__c0`).
+Style classes are added alongside these as `gw_style-<style id>` (e.g.
+`class="gw_title gw_style-gw_1"`). That namespace can't meet the part classes, so a
+style named `title` styles only what references it, not the title. Generated classes
+use a double underscore (`gw__al_left`, `gw__c0`). Style ids are plain names (the
+`INVALID_STYLE_ID` rule), and the writer never puts any other id into markup: given
+unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 
 ### LaTeX
 
