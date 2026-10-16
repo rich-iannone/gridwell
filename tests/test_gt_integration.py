@@ -171,3 +171,23 @@ def test_latex_output_contains_begin():
     table = gridwell.Table.from_json(gridwell.gt_to_ir(gt_obj))
     latex = table.render_latex()
     assert "\\begin{" in latex
+
+
+def test_missing_values_show_what_great_tables_shows():
+    import re
+
+    from great_tables import GT, exibble
+
+    gt_tbl = GT(exibble.head(6)[["char", "num"]])
+    shown = re.findall(r"<td[^>]*>([^<]*)</td>", gt_tbl.as_raw_html())
+    ir = gridwell.gt_to_dict(gt_tbl)
+    cells = [c for r in ir["table"]["tbody"][0]["rows"] for c in r["cells"]]
+    texts = ["".join(n["value"] for n in c["content"]) for c in cells]
+    assert texts == shown
+    # The missing ones (char row 5, num row 6) sort as missing and have no typed
+    # value.
+    missing = [cells[8], cells[11]]
+    for c in missing:
+        assert c["sort_key"] is None
+        assert "typed_value" not in c
+    assert all(c["sort_key"] is not None for i, c in enumerate(cells) if i not in (8, 11))
