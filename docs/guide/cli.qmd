@@ -20,6 +20,7 @@ exit code is 1.
 
 ```bash
 gridwell convert [OPTIONS] --to <FORMAT> [INPUT]
+gridwell convert [OPTIONS] -o <FILE> [INPUT]
 ```
 
 **Arguments:**
@@ -28,8 +29,13 @@ gridwell convert [OPTIONS] --to <FORMAT> [INPUT]
 
 **Options:**
 
-- `-t, --to <FORMAT>` — Output format (required; see `gridwell formats`)
-- `-o, --output <FILE>` — Output file (defaults to stdout for text; required for binary)
+- `-t, --to <FORMAT>` — Output format (see `gridwell formats`); required unless `-o`
+  is given, when it is inferred from the file extension
+- `-o, --output <FILE>` — Output file (defaults to stdout for text; required for
+  binary). The extension picks the format: `.html`, `.tex`, `.typ`, `.rtf`, `.svg`,
+  `.txt` (ansi), `.docx`, `.xlsx`, `.pptx`. `.json` is both pandoc and quarto, so it
+  needs `--to`; `--to` always wins over the extension. A `.txt` (ansi) file is plain
+  text unless the options set `"color": true`
 - `-O, --options <JSON>` — [Writer options](writer-options.qmd) as a JSON object
 - `--options-file <FILE>` — Read writer options from a JSON file
 
@@ -39,11 +45,14 @@ gridwell convert [OPTIONS] --to <FORMAT> [INPUT]
 # Render to HTML (stdout)
 gridwell convert table.json --to html
 
-# Render to file
-gridwell convert table.json --to latex -o table.tex
+# Render to file (format from the extension)
+gridwell convert table.json -o table.tex
 
 # Binary format requires -o
-gridwell convert table.json --to docx -o report.docx
+gridwell convert table.json -o report.docx
+
+# .json needs --to
+gridwell convert table.json --to quarto -o table.json
 
 # Writer options
 gridwell convert table.json --to html --options '{"inline_styles": true}'
