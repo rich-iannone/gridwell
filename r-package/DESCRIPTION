@@ -14,7 +14,7 @@ SystemRequirements: Cargo (Rust's package manager), rustc (>= 1.85)
 Imports:
     utils
 Suggests:
-    gt,
+    gt (>= 1.4.0),
     gtsummary,
     testthat (>= 3.0.0),
     jsonlite
