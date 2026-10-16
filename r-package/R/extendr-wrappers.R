@@ -25,6 +25,11 @@ rs_render_text <- function(table_ptr, format, options) .Call(wrap__rs_render_tex
 #' @noRd
 rs_render_binary <- function(table_ptr, format, options) .Call(wrap__rs_render_binary, table_ptr, format, options)
 
+#' Render and write to `path` (format inferred from the extension when `format` is
+#' `NULL`); returns the format used.
+#' @noRd
+rs_save <- function(table_ptr, path, format, options) .Call(wrap__rs_save, table_ptr, path, format, options)
+
 #' The registry as columns: name, description, kind, extension, media_type, and
 #' options (each format's default options as a JSON string).
 #' @noRd
