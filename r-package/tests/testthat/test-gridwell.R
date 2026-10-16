@@ -263,3 +263,111 @@ test_that("text and binary entry points reject the other kind", {
     expect_error(gw_render_binary(tbl, "html"), "text format")
     expect_match(gw_render(tbl, "HTML"), "^<div")
 })
+
+# ─── gw_save ───
+
+save_extensions <- c(
+    html = "html", tex = "latex", typ = "typst", rtf = "rtf", svg = "svg",
+    docx = "docx", xlsx = "xlsx", pptx = "pptx"
+)
+
+read_file_bytes <- function(path) readBin(path, "raw", file.size(path))
+
+# A fresh, empty directory (inside the session's tempdir(), removed with it).
+local_dir <- function() {
+    dir <- tempfile("gw-save-")
+    dir.create(dir)
+    dir
+}
+
+test_that("gw_save infers every format and writes the rendered bytes", {
+    tbl <- gw_parse_ir(load_fixture("comprehensive/reference_table.json"))
+    kinds <- stats::setNames(gw_formats()$kind, gw_formats()$name)
+    dir <- local_dir()
+    for (ext in names(save_extensions)) {
+        fmt <- save_extensions[[ext]]
+        path <- file.path(dir, paste0("t.", ext))
+        gw_save(tbl, path)
+        expected <- if (kinds[[fmt]] == "text") {
+            charToRaw(enc2utf8(gw_render(tbl, fmt)))
+        } else {
+            gw_render_binary(tbl, fmt)
+        }
+        expect_identical(read_file_bytes(path), expected, label = fmt)
+    }
+})
+
+test_that("gw_save returns the path invisibly", {
+    tbl <- gw_parse_ir(load_fixture("minimal/minimal_1x1.json"))
+    path <- file.path(local_dir(), "t.RTF")
+    expect_invisible(gw_save(tbl, path))
+    expect_identical(gw_save(tbl, path), path)
+    expect_identical(read_file_bytes(path), charToRaw(enc2utf8(gw_render_rtf(tbl))))
+})
+
+test_that("gw_save takes an explicit format, which overrides the extension", {
+    tbl <- gw_parse_ir(load_fixture("comprehensive/reference_table.json"))
+    dir <- local_dir()
+    for (fmt in c("pandoc", "quarto")) {
+        path <- file.path(dir, paste0(fmt, ".json"))
+        gw_save(tbl, path, format = fmt)
+        expect_identical(read_file_bytes(path), charToRaw(enc2utf8(gw_render(tbl, fmt))))
+    }
+    path <- file.path(dir, "no-extension")
+    gw_save(tbl, path, format = "LaTeX")
+    expect_identical(read_file_bytes(path), charToRaw(enc2utf8(gw_render_latex(tbl))))
+})
+
+test_that("gw_save writes .txt as plain text unless color = TRUE", {
+    tbl <- gw_parse_ir(load_fixture("comprehensive/reference_table.json"))
+    path <- file.path(local_dir(), "t.txt")
+    gw_save(tbl, path)
+    bytes <- read_file_bytes(path)
+    expect_false(any(bytes == as.raw(0x1b)))
+    expect_identical(bytes, charToRaw(enc2utf8(gw_render_ansi(tbl, color = FALSE))))
+    gw_save(tbl, path, color = TRUE)
+    expect_identical(read_file_bytes(path), charToRaw(enc2utf8(gw_render_ansi(tbl))))
+    expect_true(grepl("\x1b", gw_render_ansi(tbl), fixed = TRUE))
+})
+
+test_that("gw_save passes writer options through", {
+    skip_if_not_installed("jsonlite")
+    tbl <- gw_parse_ir(load_fixture("comprehensive/reference_table.json"))
+    path <- file.path(local_dir(), "t.tex")
+    gw_save(tbl, path, booktabs = FALSE)
+    expect_identical(
+        read_file_bytes(path),
+        charToRaw(enc2utf8(gw_render_latex(tbl, booktabs = FALSE)))
+    )
+})
+
+test_that("gw_save errors say what is wrong and write nothing", {
+    skip_if_not_installed("jsonlite")
+    tbl <- gw_parse_ir(load_fixture("minimal/minimal_1x1.json"))
+    invalid <- gw_parse_ir(load_fixture("invalid/col_count_mismatch.json"))
+    dir <- local_dir()
+    p <- function(f) file.path(dir, f)
+    expect_error(gw_save(tbl, p("t.json")), "pandoc or quarto.*`format =`")
+    expect_error(gw_save(tbl, p("t.pdf")), "no format writes \"\\.pdf\" files")
+    expect_error(gw_save(tbl, p("t")), "no file extension")
+    expect_error(gw_save(tbl, p("t.html"), format = "nope"), "unknown format")
+    expect_error(gw_save(tbl, p("t.html"), nope = 1), "unknown field")
+    expect_error(gw_save(invalid, p("t.docx")), "COL_COUNT")
+    expect_error(gw_save(tbl, p(file.path("missing-dir", "t.html"))), "cannot write.*missing-dir")
+    expect_error(gw_save(tbl, c("a.html", "b.html")), "single file path")
+    expect_error(gw_save(tbl, NA_character_), "single file path")
+    expect_error(gw_save(tbl, p("t.html"), format = 1), "single format name")
+    expect_error(gw_save("not a table", p("t.html")), "gw_parse_ir")
+    expect_length(list.files(dir), 0)
+})
+
+test_that("gw_save accepts a gt table", {
+    skip_if_not_installed("gt")
+    skip_if_not_installed("jsonlite")
+    gt_tbl <- gt::gt(head(mtcars, 3)) |> gt::tab_header(title = "Cars")
+    path <- file.path(local_dir(), "t.rtf")
+    expect_identical(gt_tbl |> gw_save(path), path)
+    expected <- gw_render_rtf(gw_parse_ir(gt_to_ir(gt_tbl)))
+    expect_identical(read_file_bytes(path), charToRaw(enc2utf8(expected)))
+    expect_match(expected, "Cars", fixed = TRUE)
+})
