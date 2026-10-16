@@ -1,6 +1,7 @@
 //! Structural oracle for terminal output: every line of the grid has the same
-//! display width, and a row's vertical bars only appear where the top border has
-//! a column boundary (spans merge columns; they never invent new ones). Also:
+//! display width, a row's vertical bars only appear on a column boundary (spans
+//! merge columns; they never invent new ones), and each horizontal rule's
+//! junctions meet exactly the bars of the rows above and below it. Also:
 //! table text can't smuggle terminal escape sequences into the output.
 
 use gridwell_ir::Table;
@@ -46,21 +47,81 @@ fn check(name: &str, table: &Table) {
     };
     let bottom = lines.iter().rposition(|l| l.starts_with('└')).unwrap();
     let width = UnicodeWidthStr::width(lines[top]);
-    let boundaries = positions(lines[top], &['┌', '┬', '┐']);
-    for line in &lines[top..=bottom] {
+    let is_rule = |l: &str| l.starts_with(['┌', '├', '└']);
+    // Border characters with a stroke going up, and going down.
+    const UP: [char; 6] = ['├', '┼', '┤', '└', '┴', '┘'];
+    const DOWN: [char; 6] = ['┌', '┬', '┐', '├', '┼', '┤'];
+    for (i, line) in lines.iter().enumerate().take(bottom + 1).skip(top) {
         assert_eq!(
             UnicodeWidthStr::width(*line),
             width,
             "{name}: ragged line {line:?}\n{out}"
         );
-        let bars = positions(line, &['│', '├', '┼', '┤', '└', '┴', '┘']);
-        for b in bars {
+        if !is_rule(line) {
+            continue;
+        }
+        // A rule's junctions meet exactly the bars of the rows it separates: a
+        // span above or below has no boundary there, so the rule runs straight.
+        let bars = |l: Option<&&str>| match l {
+            Some(l) if !is_rule(l) => positions(l, &['│']),
+            _ => vec![],
+        };
+        let above = if i > top {
+            bars(lines.get(i - 1))
+        } else {
+            vec![]
+        };
+        let below = if i < bottom {
+            bars(lines.get(i + 1))
+        } else {
+            vec![]
+        };
+        assert_eq!(
+            positions(line, &UP),
+            above,
+            "{name}: rule {line:?} doesn't meet the bars above\n{out}"
+        );
+        assert_eq!(
+            positions(line, &DOWN),
+            below,
+            "{name}: rule {line:?} doesn't meet the bars below\n{out}"
+        );
+    }
+    // Spans merge columns; they never invent new ones: every bar sits on a
+    // boundary of the same grid drawn without spans.
+    let unspanned = strip_sgr(&render_ansi(&without_spans(table)).unwrap());
+    let top_rule = unspanned.lines().find(|l| l.starts_with('┌')).unwrap();
+    let boundaries = positions(top_rule, &['┌', '┬', '┐']);
+    for line in &lines[top..=bottom] {
+        for b in positions(line, &['│']) {
             assert!(
                 boundaries.contains(&b),
                 "{name}: bar at {b} in {line:?}\n{out}"
             );
         }
     }
+}
+
+/// `table` with every span split into single cells. Column widths come from
+/// single-column cells only, so this draws the same columns with every boundary.
+fn without_spans(table: &Table) -> Table {
+    let mut t = table.clone();
+    let block = &mut t.table;
+    let rows = block.thead.rows.iter_mut().chain(
+        block
+            .tbody
+            .iter_mut()
+            .flat_map(|g| g.rows.iter_mut().chain(g.summary_rows.iter_mut())),
+    );
+    for c in rows.flat_map(|r| r.cells.iter_mut()) {
+        if c.colspan > 1 || c.is_placeholder {
+            c.content.clear();
+        }
+        c.colspan = 1;
+        c.rowspan = 1;
+        c.is_placeholder = false;
+    }
+    t
 }
 
 #[test]
@@ -186,4 +247,31 @@ fn background_colours_are_opt_in() {
     .render(&table)
     .unwrap();
     assert!(!no_tc.contains("\u{1b}[48;"));
+}
+
+#[test]
+fn footer_marks_match_the_marks_in_cells() {
+    // With box drawing, a mark is superscript in the cell and must be the same in
+    // the footer line that explains it; plain ASCII output keeps both plain.
+    use gridwell_testkit::{cell_content, footnote_mark, text};
+    use gridwell_writer_ansi::{AnsiConfig, AnsiWriter};
+    let table = TableBuilder::new(1)
+        .body(vec![row(vec![cell_content(vec![
+            text("Mean"),
+            footnote_mark("fn1", "1"),
+        ])])])
+        .footnote("fn1", "1", "SD = standard deviation.")
+        .build();
+    let out = strip_sgr(&render_ansi(&table).unwrap());
+    assert!(out.contains("Mean¹"), "{out}");
+    assert!(out.contains("  ¹ SD = standard deviation."), "{out}");
+    let ascii = AnsiWriter::with_config(AnsiConfig {
+        box_drawing: false,
+        ..Default::default()
+    })
+    .render(&table)
+    .unwrap();
+    let ascii = strip_sgr(&ascii);
+    assert!(ascii.contains("Mean1"), "{ascii}");
+    assert!(ascii.contains("  1 SD = standard deviation."), "{ascii}");
 }

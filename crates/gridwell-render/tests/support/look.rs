@@ -506,9 +506,47 @@ impl XlsxStyles {
     }
 }
 
-/// Read the worksheet and styles parts (cells without `s` use style 0). Text
-/// outside the table (title rows, notes) is not separated: every cell is listed.
-pub fn xlsx(sheet: &str, styles: &str) -> Doc {
+/// `sheet` with each shared-string cell (`t="s"`) holding its string inline,
+/// from the `sharedStrings.xml` part `strings`.
+fn inline_shared_strings(sheet: &str, strings: &str) -> String {
+    let items: Vec<&str> = strings
+        .split("<si>")
+        .skip(1)
+        .map(|i| &i[..i.find("</si>").expect("closed <si>")])
+        .collect();
+    let mut out = String::with_capacity(sheet.len());
+    let mut rest = sheet;
+    while let Some(i) = rest.find("<c ") {
+        out.push_str(&rest[..i]);
+        rest = &rest[i..];
+        let open = &rest[..=rest.find('>').unwrap()];
+        if !open.contains(" t=\"s\"") || open.ends_with("/>") {
+            out.push_str(open);
+            rest = &rest[open.len()..];
+            continue;
+        }
+        let end = rest.find("</c>").unwrap() + 4;
+        let v = &rest[open.len()..end];
+        let n: usize = v
+            .trim_start_matches("<v>")
+            .split("</v>")
+            .next()
+            .unwrap()
+            .parse()
+            .expect("shared-string index");
+        out.push_str(&open.replace(" t=\"s\"", " t=\"inlineStr\""));
+        out.push_str(&format!("<is>{}</is></c>", items[n]));
+        rest = &rest[end..];
+    }
+    out.push_str(rest);
+    out
+}
+
+/// Read the worksheet, styles and shared-strings parts (cells without `s` use
+/// style 0). Text outside the table (title rows, notes) is not separated: every
+/// cell is listed.
+pub fn xlsx(sheet: &str, styles: &str, strings: &str) -> Doc {
+    let sheet = &inline_shared_strings(sheet, strings);
     let mut st = XlsxStyles::default();
     let mut reader = Reader::from_str(styles);
     let mut path: Vec<String> = Vec::new();
