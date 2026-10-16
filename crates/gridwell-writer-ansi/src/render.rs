@@ -195,7 +195,8 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
         let header = &self.rt.header;
         if let Some(title) = &header.title {
             let text = self.text(title.content);
-            writeln!(self.buf, "{BOLD}{text}{RESET}")?;
+            let (open, close) = self.bold();
+            writeln!(self.buf, "{open}{text}{close}")?;
         }
         if let Some(subtitle) = &header.subtitle {
             let text = self.text(subtitle.content);
@@ -279,9 +280,22 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
         Ok(())
     }
 
-    /// Opening escapes for a cell and the matching reset (empty if unstyled).
+    /// Bold on and off, or nothing without `color`.
+    fn bold(&self) -> (&'static str, &'static str) {
+        if self.config.color {
+            (BOLD, RESET)
+        } else {
+            ("", "")
+        }
+    }
+
+    /// Opening escapes for a cell and the matching reset (empty if unstyled, or
+    /// without `color`).
     fn escapes(&self, style: &ResolvedStyle, strong: bool) -> (String, &'static str) {
         let mut open = String::new();
+        if !self.config.color {
+            return (open, "");
+        }
         if strong || style.is_bold() {
             open.push_str(BOLD);
         }
@@ -308,9 +322,10 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
     fn write_group_label(&mut self, text: &str) -> Result<(), RenderError> {
         let inner = self.span_width(0, self.col_widths.len());
         self.buf.push_str(self.bc.v);
-        write!(self.buf, "{BOLD}")?;
+        let (open, close) = self.bold();
+        self.buf.push_str(open);
         self.buf.push_str(&fit(text, inner, &HAlign::Left));
-        write!(self.buf, "{RESET}")?;
+        self.buf.push_str(close);
         self.buf.push_str(self.bc.v);
         self.buf.push('\n');
         Ok(())
