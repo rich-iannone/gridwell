@@ -56,6 +56,8 @@ RTF, DOCX, XLSX) actually expresses is measured, not claimed: see the
 - 24-bit ANSI color sequences
 - Column widths computed from content
 - Text truncation with ellipsis for overflow
+- Saved to a file (`.txt`), it is plain text with no escape codes unless the `color`
+  option is set
 
 ### Pandoc
 
