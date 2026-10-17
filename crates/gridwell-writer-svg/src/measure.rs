@@ -172,8 +172,9 @@ pub struct RunStyle {
     pub size: Option<f64>,
 }
 
-/// Superscripts are drawn at this fraction of the base size.
-pub const SUP_SCALE: f64 = 0.7;
+/// Footnote marks (superscripts) are drawn at this fraction of the surrounding
+/// text's size (the default look's mark scale).
+pub const SUP_SCALE: f64 = gridwell_layout::look::LOOK.mark_scale;
 
 impl Run {
     /// The run's font size in px, before any superscript scaling.
