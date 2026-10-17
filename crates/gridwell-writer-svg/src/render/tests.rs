@@ -506,33 +506,38 @@ fn cell_borders_and_padding_from_styles_win() {
     .unwrap();
     let t = TableBuilder::new(1)
         .style_def("b", bordered)
-        .body(vec![row(vec![cell("x").style("b")]), row(vec![cell("y")])])
+        .body(vec![
+            row(vec![cell("w")]),
+            row(vec![cell("x").style("b")]),
+            row(vec![cell("y")]),
+        ])
         .build();
     let l = layout(&t, &SvgConfig::default());
-    let x = l
-        .cells
-        .iter()
-        .find(|c| c.text.lines[0].text() == "x")
-        .unwrap();
-    // Its own padding (1px) plus half... of nothing on the left: text starts at 1px.
+    let find = |text: &str| {
+        l.cells
+            .iter()
+            .find(|c| c.text.lines[0].text() == text)
+            .unwrap()
+    };
+    let x = find("x");
+    // Its own padding (1px) on the left: text starts at 1px.
     assert!((x.text.x - 1.0).abs() < EPS, "{}", x.text.x);
-    // Its dashed red bottom border, and no base rule on its removed top.
+    // Its dashed red bottom border.
     let red: Vec<_> = l.rules.iter().filter(|r| r.color == "#FF0000").collect();
     assert_eq!(red.len(), 1);
     assert_eq!(red[0].dash, Some(9.0));
     assert!((red[0].y1 - (x.y + x.height)).abs() < EPS);
-    assert!(!l.rules.iter().any(|r| r.y1 == r.y2
-        && r.color == LIGHT
-        && (r.y1 - (x.y + 1.0)).abs() < 1.5
-        && r.x1 == x.x
-        && (r.y1 - x.y).abs() < 2.1
-        && r.y1 < x.y + 2.1));
-    // The boundary is as thick as the widest border on it (3px, not the 1px hairline).
-    let y = l
-        .cells
-        .iter()
-        .find(|c| c.text.lines[0].text() == "y")
-        .unwrap();
+    // The hairline above it (its own top border) is gone: removed by its style.
+    assert!(
+        !l.rules
+            .iter()
+            .any(|r| r.y1 == r.y2 && r.color == LIGHT && (r.y1 - x.y).abs() < EPS),
+        "{:?}",
+        l.rules
+    );
+    // The boundary below is as thick as the widest border on it (3px, not the 1px
+    // hairline): half of it is in `y`'s box.
+    let y = find("y");
     assert!(
         (y.text.y - (y.y + 1.5 + 8.0)).abs() < EPS,
         "{} {}",
@@ -560,4 +565,40 @@ fn base_styles_off_draws_no_rules_and_no_color() {
     assert_ok(check("plain", &t));
     // The default draws them.
     assert!(!layout(&t, &SvgConfig::default()).rules.is_empty());
+}
+
+#[test]
+fn a_removed_top_border_drops_hairlines_but_not_section_rules() {
+    use gridwell_testkit::RowExt;
+    // gt's `table_body.hlines.style = "none"` arrives as a row style removing the
+    // top border.
+    let none: gridwell_ir::style::StyleDef =
+        serde_json::from_value(serde_json::json!({ "border": { "top": { "style": "none" } } }))
+            .unwrap();
+    let t = TableBuilder::new(1)
+        .style_def("nohl", none)
+        .head(row(vec![cell("H")]))
+        .body(vec![
+            row(vec![cell("a")]).style("nohl"),
+            row(vec![cell("b")]).style("nohl"),
+            row(vec![cell("c")]).style("nohl"),
+        ])
+        .build();
+    let l = layout(&t, &SvgConfig::default());
+    assert!(
+        hrules(&l, LIGHT, 1.0).is_empty(),
+        "hairlines drawn: {:?}",
+        l.rules
+    );
+    // Table top, under the head, table bottom: still there.
+    assert_eq!(hrules(&l, LIGHT, 2.0).len(), 3, "{:?}", l.rules);
+    // Without the style, the two hairlines are back.
+    let mut plain = t.clone();
+    for r in &mut plain.table.tbody[0].rows {
+        r.style_id = None;
+    }
+    assert_eq!(
+        hrules(&layout(&plain, &SvgConfig::default()), LIGHT, 1.0).len(),
+        2
+    );
 }
