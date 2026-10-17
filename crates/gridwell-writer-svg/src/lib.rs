@@ -3,6 +3,7 @@ pub mod metrics;
 mod render;
 
 use gridwell_ir::Table;
+use gridwell_layout::look::LOOK;
 
 pub use render::RenderError;
 
@@ -19,25 +20,32 @@ pub struct SvgConfig {
     pub font_family: String,
     /// Default font size in pixels.
     pub font_size: f64,
-    /// Row height in pixels.
+    /// Minimum row height in pixels (0: rows are as tall as their content).
     pub row_height: f64,
-    /// Cell horizontal padding in pixels.
+    /// Horizontal padding of body cells in pixels (column labels and spanners use the
+    /// default look's own).
     pub cell_padding_x: f64,
-    /// Cell vertical padding in pixels.
+    /// Vertical padding of body cells in pixels.
     pub cell_padding_y: f64,
-    /// Default column width in pixels.
+    /// Width in px: heading and note lines wrap at the larger of the table's width
+    /// and three times this.
     pub default_col_width: f64,
+    /// Draw gridwell's default look ([`gridwell_layout::look`], as in the HTML base
+    /// stylesheet): the rules, the text color. Off: no rules, black text, the same
+    /// layout.
+    pub base_styles: bool,
 }
 
 impl Default for SvgConfig {
     fn default() -> Self {
         Self {
             font_family: FONT_FAMILY.to_string(),
-            font_size: 14.0,
-            row_height: 28.0,
-            cell_padding_x: 8.0,
-            cell_padding_y: 4.0,
+            font_size: LOOK.font_size_px,
+            row_height: 0.0,
+            cell_padding_x: LOOK.cell_pad.left,
+            cell_padding_y: LOOK.cell_pad.top,
             default_col_width: 120.0,
+            base_styles: true,
         }
     }
 }
