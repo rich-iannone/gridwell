@@ -2,15 +2,15 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="65" height="124" viewBox="0 0 65 124">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" textLength="28.52" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Item</tspan></text>
-<text x="8" y="50.9" font-size="14px" textLength="27.69" lengthAdjust="spacingAndGlyphs" xml:space="preserve">First</text>
-<text x="8" y="78.9" font-size="14px" textLength="46.68" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Second</text>
-<text x="8" y="106.9" font-size="14px" textLength="32.11" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Third</text>
-<line x1="0" y1="32" x2="64.12" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="64.12" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="64.12" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="116" x2="64.12" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="64.12" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="65" height="142" viewBox="0 0 65 142">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="64.99" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="64.99" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="64.99" height="1" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="64.99" height="1" fill="#D3D3D3"/>
+<rect x="0" y="140" width="64.99" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="32.1" xml:space="preserve">Item</text>
+<text x="5" y="56.59" font-size="16px" textLength="31.65" xml:space="preserve">First</text>
+<text x="5" y="92.34" font-size="16px" textLength="53.34" xml:space="preserve">Second</text>
+<text x="5" y="128.09" font-size="16px" textLength="36.7" xml:space="preserve">Third</text>
 </svg>

@@ -2,15 +2,16 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="99" height="68" viewBox="0 0 99 68">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" textLength="27.14" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Icon</tspan></text>
-<text x="52.98" y="22.9" font-size="14px" textLength="34.21" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Label</tspan></text>
-<text x="8" y="50.9" font-size="14px" textLength="27.23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">logo</text>
-<text x="52.98" y="50.9" font-size="14px" textLength="36.71" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Brand</text>
-<line x1="0" y1="32" x2="44.98" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="44.98" y1="32" x2="98.53" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="44.98" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="44.98" y1="60" x2="98.53" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="98.53" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="95" height="71" viewBox="0 0 95 71">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="41.13" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="41.13" height="2" fill="#D3D3D3"/>
+<rect x="41.13" y="0" width="52.91" height="2" fill="#D3D3D3"/>
+<rect x="41.13" y="31.75" width="52.91" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="41.13" height="2" fill="#D3D3D3"/>
+<rect x="41.13" y="68.5" width="52.91" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="30.69" xml:space="preserve">Icon</text>
+<text x="46.13" y="21.84" font-size="16px" textLength="38.68" xml:space="preserve">Label</text>
+<text x="5" y="56.59" font-size="16px" textLength="31.13" xml:space="preserve">logo</text>
+<text x="46.13" y="56.59" font-size="16px" textLength="41.95" xml:space="preserve">Brand</text>
 </svg>

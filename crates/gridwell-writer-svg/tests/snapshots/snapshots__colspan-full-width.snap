@@ -2,21 +2,21 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="142" height="96" viewBox="0 0 142 96">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="70.69" y="22.9" font-size="14px" text-anchor="middle" textLength="117.32" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Full-width spanner</tspan></text>
-<text x="8" y="50.9" font-size="14px" textLength="9.41" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">A</tspan></text>
-<text x="55.12" y="50.9" font-size="14px" textLength="8.93" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">B</tspan></text>
-<text x="102.25" y="50.9" font-size="14px" textLength="9.16" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">C</tspan></text>
-<text x="8" y="78.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">1</text>
-<text x="55.12" y="78.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">2</text>
-<text x="102.25" y="78.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">3</text>
-<line x1="0" y1="32" x2="141.37" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="47.12" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="47.12" y1="60" x2="94.25" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="94.25" y1="60" x2="141.37" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="47.12" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="47.12" y1="88" x2="94.25" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="94.25" y1="88" x2="141.37" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="141.37" y2="60" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="134" height="102" viewBox="0 0 134 102">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="133.55" height="2" fill="#D3D3D3"/>
+<rect x="0" y="30.75" width="133.55" height="2" fill="#D3D3D3"/>
+<rect x="0" y="62.5" width="44.22" height="2" fill="#D3D3D3"/>
+<rect x="44.22" y="62.5" width="44.22" height="2" fill="#D3D3D3"/>
+<rect x="88.45" y="62.5" width="45.11" height="2" fill="#D3D3D3"/>
+<rect x="0" y="99.25" width="44.22" height="2" fill="#D3D3D3"/>
+<rect x="44.22" y="99.25" width="44.22" height="2" fill="#D3D3D3"/>
+<rect x="88.45" y="99.25" width="45.11" height="2" fill="#D3D3D3"/>
+<text x="66.78" y="21.84" font-size="16px" text-anchor="middle" textLength="130.34" xml:space="preserve">Full-width spanner</text>
+<text x="5" y="52.59" font-size="16px" textLength="10.44" xml:space="preserve">A</text>
+<text x="49.22" y="52.59" font-size="16px" textLength="9.97" xml:space="preserve">B</text>
+<text x="93.45" y="52.59" font-size="16px" textLength="10.41" xml:space="preserve">C</text>
+<text x="5" y="87.34" font-size="16px" textLength="8.99" xml:space="preserve">1</text>
+<text x="49.22" y="87.34" font-size="16px" textLength="8.99" xml:space="preserve">2</text>
+<text x="93.45" y="87.34" font-size="16px" textLength="8.99" xml:space="preserve">3</text>
 </svg>

@@ -2,21 +2,24 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="124" height="124" viewBox="0 0 124 124">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" textLength="49.66" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Country</tspan></text>
-<text x="115.09" y="22.9" font-size="14px" text-anchor="end" textLength="35.75" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Value</tspan></text>
-<text x="8" y="64.9" font-size="14px" textLength="38.55" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Japan</text>
-<text x="115.09" y="50.9" font-size="14px" text-anchor="end" textLength="23.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve">100</text>
-<text x="115.09" y="78.9" font-size="14px" text-anchor="end" textLength="23.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve">110</text>
-<text x="8" y="106.9" font-size="14px" textLength="36.55" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Korea</text>
-<text x="115.09" y="106.9" font-size="14px" text-anchor="end" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">80</text>
-<line x1="0" y1="32" x2="69.74" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="69.74" y1="32" x2="123.09" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="69.74" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="69.74" y1="60" x2="123.09" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="69.74" y1="88" x2="123.09" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="116" x2="69.74" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="69.74" y1="116" x2="123.09" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="123.09" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="121" height="142" viewBox="0 0 121 142">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="68.13" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="68.13" height="2" fill="#D3D3D3"/>
+<rect x="68.13" y="0" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="68.13" y="31.75" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="68.13" height="1" fill="#D3D3D3"/>
+<rect x="67.13" y="32.75" width="2" height="72" fill="#D3D3D3"/>
+<rect x="68.13" y="68.5" width="52.26" height="1" fill="#D3D3D3"/>
+<rect x="68.13" y="104.25" width="52.26" height="1" fill="#D3D3D3"/>
+<rect x="0" y="140" width="68.13" height="2" fill="#D3D3D3"/>
+<rect x="67.13" y="104.75" width="2" height="37.25" fill="#D3D3D3"/>
+<rect x="68.13" y="140" width="52.26" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="55.42" xml:space="preserve">Country</text>
+<text x="115.39" y="21.84" font-size="16px" text-anchor="end" textLength="40.09" xml:space="preserve">Value</text>
+<text x="5" y="74.47" font-size="16px" textLength="44.05" xml:space="preserve">Japan</text>
+<text x="115.39" y="56.59" font-size="16px" text-anchor="end" textLength="26.98" xml:space="preserve">100</text>
+<text x="115.39" y="92.34" font-size="16px" text-anchor="end" textLength="26.98" xml:space="preserve">110</text>
+<text x="5" y="128.09" font-size="16px" textLength="41.77" xml:space="preserve">Korea</text>
+<text x="115.39" y="128.09" font-size="16px" text-anchor="end" textLength="17.98" xml:space="preserve">80</text>
 </svg>

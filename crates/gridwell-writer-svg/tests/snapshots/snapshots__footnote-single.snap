@@ -2,20 +2,22 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="145" height="115" viewBox="0 0 145 115">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" textLength="37.06" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Name</tspan></text>
-<text x="62.13" y="22.9" font-size="14px" textLength="36.5" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Score</tspan></text>
-<text x="8" y="50.9" font-size="14px" textLength="30.69" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Alice</text>
-<text x="62.13" y="50.9" font-size="14px" textLength="21.24" lengthAdjust="spacingAndGlyphs" xml:space="preserve">90<tspan font-size="9.8px" baseline-shift="super">1</tspan></text>
-<text x="8" y="78.9" font-size="14px" textLength="24.57" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Bob</text>
-<text x="62.13" y="78.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">85</text>
-<line x1="0" y1="32" x2="54.13" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="54.13" y1="32" x2="109.04" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="54.13" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="54.13" y1="60" x2="109.04" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="54.13" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="54.13" y1="88" x2="109.04" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="109.04" y2="32" stroke="#333333" stroke-width="1.5"/>
-<text x="8" y="104.5" font-size="11.9px" textLength="127.04" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-size="8.33px" baseline-shift="super">1</tspan> Includes bonus points.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="170" height="134" viewBox="0 0 170 134">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="85.32" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="85.32" height="2" fill="#D3D3D3"/>
+<rect x="85.32" y="0" width="83.89" height="2" fill="#D3D3D3"/>
+<rect x="85.32" y="31.75" width="83.89" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="85.32" height="1" fill="#D3D3D3"/>
+<rect x="85.32" y="68.5" width="83.89" height="1" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="85.32" height="2" fill="#D3D3D3"/>
+<rect x="85.32" y="104.25" width="83.89" height="2" fill="#D3D3D3"/>
+<rect x="0" y="131.13" width="169.21" height="2" fill="#A8A8A8"/>
+<text x="5" y="21.84" font-size="16px" textLength="42.63" xml:space="preserve">Name</text>
+<text x="90.32" y="21.84" font-size="16px" textLength="40.91" xml:space="preserve">Score</text>
+<text x="5" y="56.59" font-size="16px" textLength="35.08" xml:space="preserve">Alice</text>
+<text x="90.32" y="56.59" font-size="16px" textLength="24.52" xml:space="preserve">90<tspan font-style="italic" font-size="12px" baseline-shift="4.8px">1</tspan></text>
+<text x="5" y="92.34" font-size="16px" textLength="28.08" xml:space="preserve">Bob</text>
+<text x="90.32" y="92.34" font-size="16px" textLength="17.98" xml:space="preserve">85</text>
+<text x="5" y="123.61" font-size="14.4px" textLength="153.91" xml:space="preserve"><tspan font-style="italic" font-size="10.8px" baseline-shift="4.32px">1</tspan><tspan font-style="italic"> </tspan>Includes bonus points.</text>
 </svg>

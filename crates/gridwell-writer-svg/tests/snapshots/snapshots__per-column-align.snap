@@ -2,23 +2,26 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="264" height="68" viewBox="0 0 264 68">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" textLength="7.57" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">L</tspan></text>
-<text x="64.64" y="22.9" font-size="14px" text-anchor="middle" textLength="9.16" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">C</tspan></text>
-<text x="129.02" y="22.9" font-size="14px" text-anchor="end" textLength="8.97" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">R</tspan></text>
-<text x="145.02" y="22.9" font-size="14px" textLength="7.82" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">J</tspan></text>
-<text x="8" y="50.9" font-size="14px" textLength="20.28" lengthAdjust="spacingAndGlyphs" xml:space="preserve">left</text>
-<text x="64.64" y="50.9" font-size="14px" text-anchor="middle" textLength="39.23" lengthAdjust="spacingAndGlyphs" xml:space="preserve">center</text>
-<text x="129.02" y="50.9" font-size="14px" text-anchor="end" textLength="28.3" lengthAdjust="spacingAndGlyphs" xml:space="preserve">right</text>
-<text x="145.02" y="50.9" font-size="14px" textLength="107.65" lengthAdjust="spacingAndGlyphs" xml:space="preserve">justified text here</text>
-<line x1="0" y1="32" x2="36.64" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="36.64" y1="32" x2="92.65" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="92.65" y1="32" x2="137.02" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="137.02" y1="32" x2="263.15" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="36.64" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="36.64" y1="60" x2="92.65" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="92.65" y1="60" x2="137.02" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="137.02" y1="60" x2="263.15" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="263.15" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="268" height="71" viewBox="0 0 268 71">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="33.59" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="33.59" height="2" fill="#D3D3D3"/>
+<rect x="33.59" y="0" width="55.73" height="2" fill="#D3D3D3"/>
+<rect x="33.59" y="31.75" width="55.73" height="2" fill="#D3D3D3"/>
+<rect x="89.31" y="0" width="42.43" height="2" fill="#D3D3D3"/>
+<rect x="89.31" y="31.75" width="42.43" height="2" fill="#D3D3D3"/>
+<rect x="131.74" y="0" width="135.86" height="2" fill="#D3D3D3"/>
+<rect x="131.74" y="31.75" width="135.86" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="33.59" height="2" fill="#D3D3D3"/>
+<rect x="33.59" y="68.5" width="55.73" height="2" fill="#D3D3D3"/>
+<rect x="89.31" y="68.5" width="42.43" height="2" fill="#D3D3D3"/>
+<rect x="131.74" y="68.5" width="135.86" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="8.62" xml:space="preserve">L</text>
+<text x="61.45" y="21.84" font-size="16px" text-anchor="middle" textLength="10.41" xml:space="preserve">C</text>
+<text x="126.74" y="21.84" font-size="16px" text-anchor="end" textLength="9.86" xml:space="preserve">R</text>
+<text x="136.74" y="21.84" font-size="16px" textLength="8.83" xml:space="preserve">J</text>
+<text x="5" y="56.59" font-size="16px" textLength="23.17" xml:space="preserve">left</text>
+<text x="61.45" y="56.59" font-size="16px" text-anchor="middle" textLength="44.84" xml:space="preserve">center</text>
+<text x="126.74" y="56.59" font-size="16px" text-anchor="end" textLength="32.34" xml:space="preserve">right</text>
+<text x="136.74" y="56.59" font-size="16px" textLength="123.02" xml:space="preserve">justified text here</text>
 </svg>

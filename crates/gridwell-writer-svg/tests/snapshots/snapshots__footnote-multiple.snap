@@ -2,21 +2,23 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="119" height="134" viewBox="0 0 119 134">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" textLength="42.3" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Name</tspan><tspan font-weight="bold" font-size="9.8px" baseline-shift="super">a</tspan></text>
-<text x="67.58" y="22.9" font-size="14px" textLength="36.5" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Score</tspan></text>
-<text x="8" y="50.9" font-size="14px" textLength="30.69" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Alice</text>
-<text x="67.58" y="50.9" font-size="14px" textLength="21.24" lengthAdjust="spacingAndGlyphs" xml:space="preserve">90<tspan font-size="9.8px" baseline-shift="super">b</tspan></text>
-<text x="8" y="78.9" font-size="14px" textLength="30.07" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Bob<tspan font-size="9.8px" baseline-shift="super">b</tspan></text>
-<text x="67.58" y="78.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">85</text>
-<line x1="0" y1="32" x2="59.58" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="59.58" y1="32" x2="114.49" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="59.58" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="59.58" y1="60" x2="114.49" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="59.58" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="59.58" y1="88" x2="114.49" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="114.49" y2="32" stroke="#333333" stroke-width="1.5"/>
-<text x="8" y="104.5" font-size="11.9px" textLength="97.84" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-size="8.33px" baseline-shift="super">a</tspan> Given name only.</text>
-<text x="8" y="123.16" font-size="11.9px" textLength="100.46" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-size="8.33px" baseline-shift="super">b</tspan> Provisional value.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="138" height="158" viewBox="0 0 138 158">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="74.81" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="74.81" height="2" fill="#D3D3D3"/>
+<rect x="74.81" y="0" width="62.87" height="2" fill="#D3D3D3"/>
+<rect x="74.81" y="31.75" width="62.87" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="74.81" height="1" fill="#D3D3D3"/>
+<rect x="74.81" y="68.5" width="62.87" height="1" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="74.81" height="2" fill="#D3D3D3"/>
+<rect x="74.81" y="104.25" width="62.87" height="2" fill="#D3D3D3"/>
+<rect x="0" y="156" width="137.68" height="2" fill="#A8A8A8"/>
+<text x="5" y="21.84" font-size="16px" textLength="48.97" xml:space="preserve">Name<tspan font-style="italic" font-size="12px" baseline-shift="4.8px">a</tspan></text>
+<text x="79.81" y="21.84" font-size="16px" textLength="40.91" xml:space="preserve">Score</text>
+<text x="5" y="56.59" font-size="16px" textLength="35.08" xml:space="preserve">Alice</text>
+<text x="79.81" y="56.59" font-size="16px" textLength="24.52" xml:space="preserve">90<tspan font-style="italic" font-size="12px" baseline-shift="4.8px">b</tspan></text>
+<text x="5" y="92.34" font-size="16px" textLength="34.62" xml:space="preserve">Bob<tspan font-style="italic" font-size="12px" baseline-shift="4.8px">b</tspan></text>
+<text x="79.81" y="92.34" font-size="16px" textLength="17.98" xml:space="preserve">85</text>
+<text x="5" y="123.61" font-size="14.4px" textLength="118.58" xml:space="preserve"><tspan font-style="italic" font-size="10.8px" baseline-shift="4.32px">a</tspan><tspan font-style="italic"> </tspan>Given name only.</text>
+<text x="5" y="148.48" font-size="14.4px" textLength="121.76" xml:space="preserve"><tspan font-style="italic" font-size="10.8px" baseline-shift="4.32px">b</tspan><tspan font-style="italic"> </tspan>Provisional value.</text>
 </svg>

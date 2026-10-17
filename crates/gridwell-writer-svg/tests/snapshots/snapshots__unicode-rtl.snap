@@ -2,19 +2,20 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="153" height="96" viewBox="0 0 153 96">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" textLength="54.88" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">الاسم</tspan></text>
-<text x="78.88" y="22.9" font-size="14px" textLength="65.86" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">القيمة</tspan></text>
-<text x="8" y="50.9" font-size="14px" textLength="49" lengthAdjust="spacingAndGlyphs" xml:space="preserve">مرحبا</text>
-<text x="78.88" y="50.9" font-size="14px" textLength="29.4" lengthAdjust="spacingAndGlyphs" xml:space="preserve">١٢٣</text>
-<text x="8" y="78.9" font-size="14px" textLength="39.2" lengthAdjust="spacingAndGlyphs" xml:space="preserve">שלום</text>
-<text x="78.88" y="78.9" font-size="14px" textLength="23.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve">456</text>
-<line x1="0" y1="32" x2="70.88" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="70.88" y1="32" x2="152.74" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="70.88" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="70.88" y1="60" x2="152.74" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="70.88" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="70.88" y1="88" x2="152.74" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="152.74" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="144" height="107" viewBox="0 0 144 107">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="66" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="66" height="2" fill="#D3D3D3"/>
+<rect x="66" y="0" width="77.2" height="2" fill="#D3D3D3"/>
+<rect x="66" y="31.75" width="77.2" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="66" height="1" fill="#D3D3D3"/>
+<rect x="66" y="68.5" width="77.2" height="1" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="66" height="2" fill="#D3D3D3"/>
+<rect x="66" y="104.25" width="77.2" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="56" xml:space="preserve">الاسم</text>
+<text x="71" y="21.84" font-size="16px" textLength="67.2" xml:space="preserve">القيمة</text>
+<text x="5" y="56.59" font-size="16px" textLength="56" xml:space="preserve">مرحبا</text>
+<text x="71" y="56.59" font-size="16px" textLength="33.6" xml:space="preserve">١٢٣</text>
+<text x="5" y="92.34" font-size="16px" textLength="44.8" xml:space="preserve">שלום</text>
+<text x="71" y="92.34" font-size="16px" textLength="26.98" xml:space="preserve">456</text>
 </svg>

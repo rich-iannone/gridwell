@@ -2,20 +2,21 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="117" height="96" viewBox="0 0 117 96">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<rect x="0" y="60" width="63.48" height="28" fill="#F1C40F"/>
-<text x="8" y="22.9" font-size="14px" textLength="23.51" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Key</tspan></text>
-<text x="71.48" y="22.9" font-size="14px" textLength="35.75" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Value</tspan></text>
-<text x="8" y="50.9" font-size="14px" textLength="43.76" lengthAdjust="spacingAndGlyphs" xml:space="preserve">normal</text>
-<text x="71.48" y="50.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">42</text>
-<text x="8" y="78.9" font-size="14px" textLength="44.82" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold" fill="#2C3E50">special</tspan></text>
-<text x="71.48" y="78.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">99</text>
-<line x1="0" y1="32" x2="63.48" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="63.48" y1="32" x2="116.83" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="63.48" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="63.48" y1="60" x2="116.83" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="63.48" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="63.48" y1="88" x2="116.83" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="116.83" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="116" height="107" viewBox="0 0 116 107">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="69" width="64.26" height="37.25" fill="#F1C40F"/>
+<rect x="0" y="0" width="64.26" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="64.26" height="2" fill="#D3D3D3"/>
+<rect x="64.26" y="0" width="51.26" height="2" fill="#D3D3D3"/>
+<rect x="64.26" y="31.75" width="51.26" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="64.26" height="1" fill="#D3D3D3"/>
+<rect x="64.26" y="68.5" width="51.26" height="1" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="64.26" height="2" fill="#D3D3D3"/>
+<rect x="64.26" y="104.25" width="51.26" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="26.09" xml:space="preserve">Key</text>
+<text x="69.26" y="21.84" font-size="16px" textLength="40.09" xml:space="preserve">Value</text>
+<text x="5" y="56.59" font-size="16px" textLength="50.01" xml:space="preserve">normal</text>
+<text x="69.26" y="56.59" font-size="16px" textLength="17.98" xml:space="preserve">42</text>
+<text x="5" y="92.34" font-size="16px" textLength="51.23" xml:space="preserve"><tspan font-weight="bold" fill="#2C3E50">special</tspan></text>
+<text x="69.26" y="92.34" font-size="16px" textLength="17.98" xml:space="preserve">99</text>
 </svg>

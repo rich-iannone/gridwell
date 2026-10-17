@@ -2,20 +2,24 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="160" height="115" viewBox="0 0 160 115">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" textLength="49.66" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Country</tspan></text>
-<text x="77.74" y="22.9" font-size="14px" textLength="27.67" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">GDP</tspan></text>
-<text x="8" y="50.9" font-size="14px" textLength="51.89" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Atlantis<tspan font-size="9.8px" baseline-shift="super">*</tspan></text>
-<text x="77.74" y="50.9" font-size="14px" textLength="24.9" lengthAdjust="spacingAndGlyphs" xml:space="preserve">N/A</text>
-<text x="8" y="78.9" font-size="14px" textLength="40.52" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Utopia</text>
-<text x="77.74" y="78.9" font-size="14px" textLength="23.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve">999</text>
-<line x1="0" y1="32" x2="69.74" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="69.74" y1="32" x2="116.08" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="69.74" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="69.74" y1="60" x2="116.08" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="69.74" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="69.74" y1="88" x2="116.08" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="116.08" y2="32" stroke="#333333" stroke-width="1.5"/>
-<text x="8" y="104.5" font-size="11.9px" textLength="139.83" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-size="8.33px" baseline-shift="super">*</tspan> Fictional; illustrative only.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="188" height="134" viewBox="0 0 188 134">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="115.31" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="115.31" height="2" fill="#D3D3D3"/>
+<rect x="115.31" y="0" width="71.76" height="2" fill="#D3D3D3"/>
+<rect x="115.31" y="31.75" width="71.76" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="115.31" height="1" fill="#D3D3D3"/>
+<rect x="114.31" y="32.75" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="115.31" y="68.5" width="71.76" height="1" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="115.31" height="2" fill="#D3D3D3"/>
+<rect x="114.31" y="69" width="2" height="37.25" fill="#D3D3D3"/>
+<rect x="115.31" y="104.25" width="71.76" height="2" fill="#D3D3D3"/>
+<rect x="0" y="131.13" width="187.07" height="2" fill="#A8A8A8"/>
+<text x="5" y="21.84" font-size="16px" textLength="55.42" xml:space="preserve">Country</text>
+<text x="121.31" y="21.84" font-size="16px" textLength="31.49" xml:space="preserve">GDP</text>
+<text x="5" y="56.59" font-size="16px" textLength="59.5" xml:space="preserve">Atlantis<tspan font-style="italic" font-size="12px" baseline-shift="4.8px">*</tspan></text>
+<text x="121.31" y="56.59" font-size="16px" textLength="28.45" xml:space="preserve">N/A</text>
+<text x="5" y="92.34" font-size="16px" textLength="46.31" xml:space="preserve">Utopia</text>
+<text x="121.31" y="92.34" font-size="16px" textLength="26.98" xml:space="preserve">999</text>
+<text x="5" y="123.61" font-size="14.4px" textLength="169.35" xml:space="preserve"><tspan font-style="italic" font-size="10.8px" baseline-shift="4.32px">*</tspan><tspan font-style="italic"> </tspan>Fictional; illustrative only.</text>
 </svg>

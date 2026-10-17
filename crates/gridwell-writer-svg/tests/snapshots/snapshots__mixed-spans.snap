@@ -2,25 +2,30 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="149" height="124" viewBox="0 0 149 124">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" textLength="9.41" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">A</tspan></text>
-<text x="46.15" y="22.9" font-size="14px" textLength="8.93" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">B</tspan></text>
-<text x="84.3" y="22.9" font-size="14px" textLength="9.16" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">C</tspan></text>
-<text x="8" y="64.9" font-size="14px" textLength="59.83" lengthAdjust="spacingAndGlyphs" xml:space="preserve">2x2 block</text>
-<text x="84.3" y="50.9" font-size="14px" textLength="52.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve">top-right</text>
-<text x="84.3" y="78.9" font-size="14px" textLength="55.75" lengthAdjust="spacingAndGlyphs" xml:space="preserve">mid-right</text>
-<text x="8" y="106.9" font-size="14px" textLength="6.95" lengthAdjust="spacingAndGlyphs" xml:space="preserve">x</text>
-<text x="46.15" y="106.9" font-size="14px" textLength="6.62" lengthAdjust="spacingAndGlyphs" xml:space="preserve">y</text>
-<text x="84.3" y="106.9" font-size="14px" textLength="6.95" lengthAdjust="spacingAndGlyphs" xml:space="preserve">z</text>
-<line x1="0" y1="32" x2="38.15" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="38.15" y1="32" x2="76.3" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="76.3" y1="32" x2="148.92" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="76.3" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="76.3" y1="60" x2="148.92" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="76.3" y1="88" x2="148.92" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="116" x2="38.15" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="38.15" y1="116" x2="76.3" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="76.3" y1="116" x2="148.92" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="148.92" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="154" height="142" viewBox="0 0 154 142">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="39.46" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="39.46" height="2" fill="#D3D3D3"/>
+<rect x="39.46" y="0" width="39.46" height="2" fill="#D3D3D3"/>
+<rect x="39.46" y="31.75" width="39.46" height="2" fill="#D3D3D3"/>
+<rect x="78.91" y="0" width="74.7" height="2" fill="#D3D3D3"/>
+<rect x="78.91" y="31.75" width="74.7" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="78.91" height="2" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="78.91" height="1" fill="#D3D3D3"/>
+<rect x="78.91" y="68.5" width="74.7" height="1" fill="#D3D3D3"/>
+<rect x="78.91" y="104.25" width="74.7" height="1" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="39.46" height="1" fill="#D3D3D3"/>
+<rect x="0" y="140" width="39.46" height="2" fill="#D3D3D3"/>
+<rect x="39.46" y="104.25" width="39.46" height="1" fill="#D3D3D3"/>
+<rect x="39.46" y="140" width="39.46" height="2" fill="#D3D3D3"/>
+<rect x="78.91" y="140" width="74.7" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="10.44" xml:space="preserve">A</text>
+<text x="44.46" y="21.84" font-size="16px" textLength="9.97" xml:space="preserve">B</text>
+<text x="83.91" y="21.84" font-size="16px" textLength="10.41" xml:space="preserve">C</text>
+<text x="5" y="74.47" font-size="16px" textLength="68.38" xml:space="preserve">2x2 block</text>
+<text x="83.91" y="56.59" font-size="16px" textLength="60.11" xml:space="preserve">top-right</text>
+<text x="83.91" y="92.34" font-size="16px" textLength="63.71" xml:space="preserve">mid-right</text>
+<text x="5" y="128.09" font-size="16px" textLength="7.94" xml:space="preserve">x</text>
+<text x="44.46" y="128.09" font-size="16px" textLength="7.57" xml:space="preserve">y</text>
+<text x="83.91" y="128.09" font-size="16px" textLength="7.94" xml:space="preserve">z</text>
 </svg>

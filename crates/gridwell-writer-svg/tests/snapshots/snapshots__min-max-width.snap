@@ -2,16 +2,17 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="294" height="88" viewBox="0 0 294 88">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" textLength="76.45" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Constrained</tspan></text>
-<text x="208" y="22.9" font-size="14px" textLength="27.93" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Free</tspan></text>
-<text x="8" y="50.7" font-size="14px" textLength="156.17" lengthAdjust="spacingAndGlyphs" xml:space="preserve">clamped between 80 and</text>
-<text x="8" y="70.3" font-size="14px" textLength="38.41" lengthAdjust="spacingAndGlyphs" xml:space="preserve">200px</text>
-<text x="208" y="60.5" font-size="14px" textLength="76.3" lengthAdjust="spacingAndGlyphs" xml:space="preserve">grows freely</text>
-<line x1="0" y1="32" x2="200" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="200" y1="32" x2="293.81" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="79.2" x2="200" y2="79.2" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="200" y1="79.2" x2="293.81" y2="79.2" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="293.81" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="299" height="90" viewBox="0 0 299 90">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="200" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="200" height="2" fill="#D3D3D3"/>
+<rect x="200" y="0" width="98.93" height="2" fill="#D3D3D3"/>
+<rect x="200" y="31.75" width="98.93" height="2" fill="#D3D3D3"/>
+<rect x="0" y="87.25" width="200" height="2" fill="#D3D3D3"/>
+<rect x="200" y="87.25" width="98.93" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="86.23" xml:space="preserve">Constrained</text>
+<text x="205" y="21.84" font-size="16px" textLength="31.23" xml:space="preserve">Free</text>
+<text x="5" y="56.59" font-size="16px" textLength="178.48" xml:space="preserve">clamped between 80 and</text>
+<text x="5" y="75.34" font-size="16px" textLength="43.9" xml:space="preserve">200px</text>
+<text x="205" y="65.97" font-size="16px" textLength="87.2" xml:space="preserve">grows freely</text>
 </svg>

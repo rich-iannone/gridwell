@@ -2,17 +2,18 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="147" height="107" viewBox="0 0 147 107">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" textLength="37.06" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Name</tspan></text>
-<text x="62.13" y="22.9" font-size="14px" textLength="52.24" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Address</tspan></text>
-<text x="8" y="70.3" font-size="14px" textLength="19.62" lengthAdjust="spacingAndGlyphs" xml:space="preserve">HQ</text>
-<text x="62.13" y="50.7" font-size="14px" textLength="74.42" lengthAdjust="spacingAndGlyphs" xml:space="preserve">123 Main St</text>
-<text x="62.13" y="70.3" font-size="14px" textLength="58.52" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Suite 100</text>
-<text x="62.13" y="89.9" font-size="14px" textLength="54.3" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Anytown</text>
-<line x1="0" y1="32" x2="54.13" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="54.13" y1="32" x2="146.63" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="98.8" x2="54.13" y2="98.8" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="54.13" y1="98.8" x2="146.63" y2="98.8" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="146.63" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="151" height="108" viewBox="0 0 151 108">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="53.38" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="53.38" height="2" fill="#D3D3D3"/>
+<rect x="53.38" y="0" width="97.43" height="2" fill="#D3D3D3"/>
+<rect x="53.38" y="31.75" width="97.43" height="2" fill="#D3D3D3"/>
+<rect x="0" y="106" width="53.38" height="2" fill="#D3D3D3"/>
+<rect x="53.38" y="106" width="97.43" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="42.63" xml:space="preserve">Name</text>
+<text x="58.38" y="21.84" font-size="16px" textLength="58.91" xml:space="preserve">Address</text>
+<text x="5" y="75.34" font-size="16px" textLength="22.42" xml:space="preserve">HQ</text>
+<text x="58.38" y="56.59" font-size="16px" textLength="85.05" xml:space="preserve">123 Main St</text>
+<text x="58.38" y="75.34" font-size="16px" textLength="66.88" xml:space="preserve">Suite 100</text>
+<text x="58.38" y="94.09" font-size="16px" textLength="62.06" xml:space="preserve">Anytown</text>
 </svg>

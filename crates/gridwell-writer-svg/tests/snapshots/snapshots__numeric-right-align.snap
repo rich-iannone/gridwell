@@ -2,25 +2,27 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="160" height="96" viewBox="0 0 160 96">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" textLength="49.81" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Product</tspan></text>
-<text x="100.38" y="22.9" font-size="14px" text-anchor="end" textLength="21.44" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Qty</tspan></text>
-<text x="151.74" y="22.9" font-size="14px" text-anchor="end" textLength="32.71" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Price</tspan></text>
-<text x="8" y="50.9" font-size="14px" textLength="43.59" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Widget</text>
-<text x="100.38" y="50.9" font-size="14px" text-anchor="end" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">12</text>
-<text x="151.74" y="50.9" font-size="14px" text-anchor="end" textLength="27.3" lengthAdjust="spacingAndGlyphs" xml:space="preserve">3.50</text>
-<text x="8" y="78.9" font-size="14px" textLength="44.91" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Gadget</text>
-<text x="100.38" y="78.9" font-size="14px" text-anchor="end" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">4</text>
-<text x="151.74" y="78.9" font-size="14px" text-anchor="end" textLength="35.16" lengthAdjust="spacingAndGlyphs" xml:space="preserve">19.99</text>
-<line x1="0" y1="32" x2="68.96" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="68.96" y1="32" x2="108.38" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="108.38" y1="32" x2="159.74" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="68.96" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="68.96" y1="60" x2="108.38" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="108.38" y1="60" x2="159.74" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="68.96" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="68.96" y1="88" x2="108.38" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="108.38" y1="88" x2="159.74" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="159.74" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="153" height="107" viewBox="0 0 153 107">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="66.75" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="66.75" height="2" fill="#D3D3D3"/>
+<rect x="66.75" y="0" width="35.68" height="2" fill="#D3D3D3"/>
+<rect x="66.75" y="31.75" width="35.68" height="2" fill="#D3D3D3"/>
+<rect x="102.43" y="0" width="50.41" height="2" fill="#D3D3D3"/>
+<rect x="102.43" y="31.75" width="50.41" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="66.75" height="1" fill="#D3D3D3"/>
+<rect x="66.75" y="68.5" width="35.68" height="1" fill="#D3D3D3"/>
+<rect x="102.43" y="68.5" width="50.41" height="1" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="66.75" height="2" fill="#D3D3D3"/>
+<rect x="66.75" y="104.25" width="35.68" height="2" fill="#D3D3D3"/>
+<rect x="102.43" y="104.25" width="50.41" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="56.09" xml:space="preserve">Product</text>
+<text x="97.43" y="21.84" font-size="16px" text-anchor="end" textLength="23.81" xml:space="preserve">Qty</text>
+<text x="147.84" y="21.84" font-size="16px" text-anchor="end" textLength="36.27" xml:space="preserve">Price</text>
+<text x="5" y="56.59" font-size="16px" textLength="49.81" xml:space="preserve">Widget</text>
+<text x="97.43" y="56.59" font-size="16px" text-anchor="end" textLength="17.98" xml:space="preserve">12</text>
+<text x="147.84" y="56.59" font-size="16px" text-anchor="end" textLength="31.2" xml:space="preserve">3.50</text>
+<text x="5" y="92.34" font-size="16px" textLength="51.33" xml:space="preserve">Gadget</text>
+<text x="97.43" y="92.34" font-size="16px" text-anchor="end" textLength="8.99" xml:space="preserve">4</text>
+<text x="147.84" y="92.34" font-size="16px" text-anchor="end" textLength="40.19" xml:space="preserve">19.99</text>
 </svg>

@@ -2,19 +2,20 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="278" height="96" viewBox="0 0 278 96">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="32" y="22.9" font-size="14px" text-anchor="end" textLength="8.29" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">#</tspan></text>
-<text x="48" y="22.9" font-size="14px" textLength="72.04" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Description</tspan></text>
-<text x="32" y="50.9" font-size="14px" text-anchor="end" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">1</text>
-<text x="48" y="50.9" font-size="14px" textLength="183.59" lengthAdjust="spacingAndGlyphs" xml:space="preserve">A long descriptive line of text.</text>
-<text x="32" y="78.9" font-size="14px" text-anchor="end" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">2</text>
-<text x="48" y="78.9" font-size="14px" textLength="217.46" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Another spanning description here.</text>
-<line x1="0" y1="32" x2="40" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="40" y1="32" x2="277.16" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="40" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="40" y1="60" x2="277.16" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="40" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="40" y1="88" x2="277.16" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="277.16" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="303" height="107" viewBox="0 0 303 107">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="40" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="40" height="2" fill="#D3D3D3"/>
+<rect x="40" y="0" width="262.76" height="2" fill="#D3D3D3"/>
+<rect x="40" y="31.75" width="262.76" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="40" height="1" fill="#D3D3D3"/>
+<rect x="40" y="68.5" width="262.76" height="1" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="40" height="2" fill="#D3D3D3"/>
+<rect x="40" y="104.25" width="262.76" height="2" fill="#D3D3D3"/>
+<text x="35" y="21.84" font-size="16px" text-anchor="end" textLength="9.85" xml:space="preserve">#</text>
+<text x="45" y="21.84" font-size="16px" textLength="81" xml:space="preserve">Description</text>
+<text x="35" y="56.59" font-size="16px" text-anchor="end" textLength="8.99" xml:space="preserve">1</text>
+<text x="45" y="56.59" font-size="16px" textLength="209.81" xml:space="preserve">A long descriptive line of text.</text>
+<text x="35" y="92.34" font-size="16px" text-anchor="end" textLength="8.99" xml:space="preserve">2</text>
+<text x="45" y="92.34" font-size="16px" textLength="248.53" xml:space="preserve">Another spanning description here.</text>
 </svg>

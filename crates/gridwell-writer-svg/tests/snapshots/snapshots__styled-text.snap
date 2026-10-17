@@ -2,15 +2,16 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="201" height="68" viewBox="0 0 201 68">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="22.9" font-size="14px" textLength="33.49" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Term</tspan></text>
-<text x="58.36" y="22.9" font-size="14px" textLength="30.08" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Note</tspan></text>
-<text x="8" y="50.9" font-size="14px" textLength="28.15" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Rust</text>
-<text x="58.36" y="50.9" font-size="14px" textLength="127.96" lengthAdjust="spacingAndGlyphs" xml:space="preserve">A <tspan font-style="italic" fill="#8E44AD">systems </tspan>language.</text>
-<line x1="0" y1="32" x2="50.36" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="50.36" y1="32" x2="200.38" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="50.36" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="50.36" y1="60" x2="200.38" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="200.38" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="212" height="71" viewBox="0 0 212 71">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="48.13" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="48.13" height="2" fill="#D3D3D3"/>
+<rect x="48.13" y="0" width="163.17" height="2" fill="#D3D3D3"/>
+<rect x="48.13" y="31.75" width="163.17" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="48.13" height="2" fill="#D3D3D3"/>
+<rect x="48.13" y="68.5" width="163.17" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="37.48" xml:space="preserve">Term</text>
+<text x="53.13" y="21.84" font-size="16px" textLength="34.26" xml:space="preserve">Note</text>
+<text x="5" y="56.59" font-size="16px" textLength="32.17" xml:space="preserve">Rust</text>
+<text x="53.13" y="56.59" font-size="16px" textLength="146.24" xml:space="preserve">A <tspan font-style="italic" fill="#8E44AD">systems </tspan>language.</text>
 </svg>

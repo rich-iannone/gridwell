@@ -2,44 +2,52 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="210" height="203" viewBox="0 0 210 203">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<text x="8" y="24.58" font-size="19.6px" textLength="122.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Quarterly P&amp;L</tspan></text>
-<rect x="91.54" y="91.44" width="59.23" height="28" fill="rgba(128, 128, 128, 0.051)"/>
-<rect x="150.77" y="91.44" width="59.23" height="28" fill="rgba(128, 128, 128, 0.051)"/>
-<rect x="0" y="147.44" width="91.54" height="28" fill="#F5F5F5"/>
-<rect x="91.54" y="147.44" width="59.23" height="28" fill="#F5F5F5"/>
-<rect x="150.77" y="147.44" width="59.23" height="28" fill="#F5F5F5"/>
-<text x="8" y="54.34" font-size="14px" textLength="58.3" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Line item</tspan></text>
-<text x="142.77" y="54.34" font-size="14px" text-anchor="end" textLength="17.68" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Q1</tspan></text>
-<text x="202" y="54.34" font-size="14px" text-anchor="end" textLength="17.68" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Q2</tspan></text>
-<text x="8" y="82.34" font-size="14px" textLength="53.13" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Revenue</text>
-<text x="142.77" y="82.34" font-size="14px" text-anchor="end" textLength="42.1" lengthAdjust="spacingAndGlyphs" xml:space="preserve">$1,200</text>
-<text x="202" y="82.34" font-size="14px" text-anchor="end" textLength="42.1" lengthAdjust="spacingAndGlyphs" xml:space="preserve">$1,350</text>
-<text x="8" y="110.34" font-size="14px" textLength="36.59" lengthAdjust="spacingAndGlyphs" xml:space="preserve">COGS</text>
-<text x="142.77" y="110.34" font-size="14px" text-anchor="end" textLength="31.47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">$700</text>
-<text x="202" y="110.34" font-size="14px" text-anchor="end" textLength="31.47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">$760</text>
-<text x="8" y="138.34" font-size="14px" textLength="31.86" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Opex</text>
-<text x="142.77" y="138.34" font-size="14px" text-anchor="end" textLength="31.47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">$300</text>
-<text x="202" y="138.34" font-size="14px" text-anchor="end" textLength="31.47" lengthAdjust="spacingAndGlyphs" xml:space="preserve">$320</text>
-<text x="8" y="166.34" font-size="14px" textLength="72.09" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Net income</tspan></text>
-<text x="142.77" y="166.34" font-size="14px" text-anchor="end" textLength="32.13" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">$200</tspan></text>
-<text x="202" y="166.34" font-size="14px" text-anchor="end" textLength="32.13" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">$270</tspan></text>
-<line x1="0" y1="63.44" x2="91.54" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="91.54" y1="63.44" x2="150.77" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="150.77" y1="63.44" x2="210" y2="63.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="91.44" x2="91.54" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="91.54" y1="91.44" x2="150.77" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="150.77" y1="91.44" x2="210" y2="91.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="119.44" x2="91.54" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="91.54" y1="119.44" x2="150.77" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="150.77" y1="119.44" x2="210" y2="119.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="147.44" x2="91.54" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="91.54" y1="147.44" x2="150.77" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="150.77" y1="147.44" x2="210" y2="147.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="175.44" x2="91.54" y2="175.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="91.54" y1="175.44" x2="150.77" y2="175.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="150.77" y1="175.44" x2="210" y2="175.44" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="63.44" x2="210" y2="63.44" stroke="#333333" stroke-width="1.5"/>
-<text x="8" y="191.94" font-size="11.9px" textLength="169.8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Unaudited management figures.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="240" viewBox="0 0 220 240">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="98.57" y="102.44" width="61.18" height="35.75" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="159.75" y="102.44" width="60.17" height="35.75" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="0" y="174.44" width="98.57" height="37.75" fill="#F5F5F5"/>
+<rect x="98.57" y="174.44" width="61.18" height="37.75" fill="#F5F5F5"/>
+<rect x="159.75" y="174.44" width="60.17" height="37.75" fill="#F5F5F5"/>
+<rect x="0" y="0" width="219.92" height="2" fill="#A8A8A8"/>
+<rect x="0" y="33.44" width="98.57" height="2" fill="#D3D3D3"/>
+<rect x="0" y="65.19" width="98.57" height="2" fill="#D3D3D3"/>
+<rect x="98.57" y="33.44" width="61.18" height="2" fill="#D3D3D3"/>
+<rect x="98.57" y="65.19" width="61.18" height="2" fill="#D3D3D3"/>
+<rect x="159.75" y="33.44" width="60.17" height="2" fill="#D3D3D3"/>
+<rect x="159.75" y="65.19" width="60.17" height="2" fill="#D3D3D3"/>
+<rect x="0" y="101.94" width="98.57" height="1" fill="#D3D3D3"/>
+<rect x="97.57" y="66.19" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="98.57" y="101.94" width="61.18" height="1" fill="#D3D3D3"/>
+<rect x="159.75" y="101.94" width="60.17" height="1" fill="#D3D3D3"/>
+<rect x="0" y="137.69" width="98.57" height="1" fill="#D3D3D3"/>
+<rect x="97.57" y="102.44" width="2" height="35.75" fill="#D3D3D3"/>
+<rect x="98.57" y="137.69" width="61.18" height="1" fill="#D3D3D3"/>
+<rect x="159.75" y="137.69" width="60.17" height="1" fill="#D3D3D3"/>
+<rect x="0" y="173.44" width="98.57" height="2" fill="#D3D3D3"/>
+<rect x="97.57" y="138.19" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="98.57" y="173.44" width="61.18" height="2" fill="#D3D3D3"/>
+<rect x="159.75" y="173.44" width="60.17" height="2" fill="#D3D3D3"/>
+<rect x="0" y="210.19" width="98.57" height="2" fill="#D3D3D3"/>
+<rect x="97.57" y="174.44" width="2" height="37.75" fill="#D3D3D3"/>
+<rect x="98.57" y="210.19" width="61.18" height="2" fill="#D3D3D3"/>
+<rect x="159.75" y="210.19" width="60.17" height="2" fill="#D3D3D3"/>
+<rect x="0" y="237.06" width="219.92" height="2" fill="#A8A8A8"/>
+<text x="109.96" y="24.55" font-size="20px" text-anchor="middle" textLength="121.48" xml:space="preserve">Quarterly P&amp;L</text>
+<text x="5" y="55.28" font-size="16px" textLength="65.44" xml:space="preserve">Line item</text>
+<text x="154.75" y="55.28" font-size="16px" text-anchor="end" textLength="20" xml:space="preserve">Q1</text>
+<text x="214.92" y="55.28" font-size="16px" text-anchor="end" textLength="20" xml:space="preserve">Q2</text>
+<text x="5" y="90.03" font-size="16px" textLength="60.72" xml:space="preserve">Revenue</text>
+<text x="154.75" y="90.03" font-size="16px" text-anchor="end" textLength="48.11" xml:space="preserve">$1,200</text>
+<text x="214.92" y="90.03" font-size="16px" text-anchor="end" textLength="48.11" xml:space="preserve">$1,350</text>
+<text x="5" y="125.78" font-size="16px" textLength="41.82" xml:space="preserve">COGS</text>
+<text x="154.75" y="125.78" font-size="16px" text-anchor="end" textLength="35.97" xml:space="preserve">$700</text>
+<text x="214.92" y="125.78" font-size="16px" text-anchor="end" textLength="35.97" xml:space="preserve">$760</text>
+<text x="5" y="161.53" font-size="16px" textLength="36.41" xml:space="preserve">Opex</text>
+<text x="154.75" y="161.53" font-size="16px" text-anchor="end" textLength="35.97" xml:space="preserve">$300</text>
+<text x="214.92" y="161.53" font-size="16px" text-anchor="end" textLength="35.97" xml:space="preserve">$320</text>
+<text x="5" y="198.28" font-size="16px" textLength="82.39" xml:space="preserve"><tspan font-weight="bold">Net income</tspan></text>
+<text x="154.75" y="198.28" font-size="16px" text-anchor="end" textLength="36.72" xml:space="preserve"><tspan font-weight="bold">$200</tspan></text>
+<text x="214.92" y="198.28" font-size="16px" text-anchor="end" textLength="36.72" xml:space="preserve"><tspan font-weight="bold">$270</tspan></text>
+<text x="5" y="229.55" font-size="14.4px" textLength="205.47" xml:space="preserve">Unaudited management figures.</text>
 </svg>

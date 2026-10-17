@@ -2,61 +2,87 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="96" height="460" viewBox="0 0 96 460">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<rect x="0" y="32" width="95.03" height="28" fill="#f0f0f0"/>
-<rect x="0" y="116" width="95.03" height="28" fill="#f0f0f0"/>
-<rect x="0" y="200" width="95.03" height="28" fill="#f0f0f0"/>
-<rect x="0" y="284" width="95.03" height="28" fill="#f0f0f0"/>
-<rect x="0" y="368" width="95.03" height="28" fill="#f0f0f0"/>
-<text x="8" y="22.9" font-size="14px" textLength="23.51" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Key</tspan></text>
-<text x="49.68" y="22.9" font-size="14px" textLength="35.75" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Value</tspan></text>
-<text x="8" y="78.9" font-size="14px" textLength="22.58" lengthAdjust="spacingAndGlyphs" xml:space="preserve">k1a</text>
-<text x="49.68" y="78.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">10</text>
-<text x="8" y="106.9" font-size="14px" textLength="22.83" lengthAdjust="spacingAndGlyphs" xml:space="preserve">k1b</text>
-<text x="49.68" y="106.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">20</text>
-<text x="8" y="162.9" font-size="14px" textLength="22.58" lengthAdjust="spacingAndGlyphs" xml:space="preserve">k2a</text>
-<text x="49.68" y="162.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">20</text>
-<text x="8" y="190.9" font-size="14px" textLength="22.83" lengthAdjust="spacingAndGlyphs" xml:space="preserve">k2b</text>
-<text x="49.68" y="190.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">40</text>
-<text x="8" y="246.9" font-size="14px" textLength="22.58" lengthAdjust="spacingAndGlyphs" xml:space="preserve">k3a</text>
-<text x="49.68" y="246.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">30</text>
-<text x="8" y="274.9" font-size="14px" textLength="22.83" lengthAdjust="spacingAndGlyphs" xml:space="preserve">k3b</text>
-<text x="49.68" y="274.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">60</text>
-<text x="8" y="330.9" font-size="14px" textLength="22.58" lengthAdjust="spacingAndGlyphs" xml:space="preserve">k4a</text>
-<text x="49.68" y="330.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">40</text>
-<text x="8" y="358.9" font-size="14px" textLength="22.83" lengthAdjust="spacingAndGlyphs" xml:space="preserve">k4b</text>
-<text x="49.68" y="358.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">80</text>
-<text x="8" y="414.9" font-size="14px" textLength="22.58" lengthAdjust="spacingAndGlyphs" xml:space="preserve">k5a</text>
-<text x="49.68" y="414.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">50</text>
-<text x="8" y="442.9" font-size="14px" textLength="22.83" lengthAdjust="spacingAndGlyphs" xml:space="preserve">k5b</text>
-<text x="49.68" y="442.9" font-size="14px" textLength="23.6" lengthAdjust="spacingAndGlyphs" xml:space="preserve">100</text>
-<text x="8" y="50.9" font-size="14px" textLength="49.8" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Group 1</tspan></text>
-<text x="8" y="134.9" font-size="14px" textLength="49.8" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Group 2</tspan></text>
-<text x="8" y="218.9" font-size="14px" textLength="49.8" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Group 3</tspan></text>
-<text x="8" y="302.9" font-size="14px" textLength="49.8" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Group 4</tspan></text>
-<text x="8" y="386.9" font-size="14px" textLength="49.8" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Group 5</tspan></text>
-<line x1="0" y1="32" x2="41.68" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="41.68" y1="32" x2="95.03" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="41.68" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="41.68" y1="88" x2="95.03" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="116" x2="41.68" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="41.68" y1="116" x2="95.03" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="172" x2="41.68" y2="172" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="41.68" y1="172" x2="95.03" y2="172" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="200" x2="41.68" y2="200" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="41.68" y1="200" x2="95.03" y2="200" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="256" x2="41.68" y2="256" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="41.68" y1="256" x2="95.03" y2="256" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="284" x2="41.68" y2="284" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="41.68" y1="284" x2="95.03" y2="284" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="340" x2="41.68" y2="340" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="41.68" y1="340" x2="95.03" y2="340" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="368" x2="41.68" y2="368" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="41.68" y1="368" x2="95.03" y2="368" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="424" x2="41.68" y2="424" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="41.68" y1="424" x2="95.03" y2="424" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="452" x2="41.68" y2="452" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="41.68" y1="452" x2="95.03" y2="452" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="95.03" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="91" height="580" viewBox="0 0 91 580">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="0" width="38.57" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="38.57" height="2" fill="#D3D3D3"/>
+<rect x="38.57" y="0" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="38.57" y="31.75" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="38.57" height="2" fill="#D3D3D3"/>
+<rect x="0" y="105.25" width="38.57" height="1" fill="#D3D3D3"/>
+<rect x="37.57" y="69.5" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="38.57" y="68.5" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="38.57" y="105.25" width="52.26" height="1" fill="#D3D3D3"/>
+<rect x="0" y="141" width="38.57" height="2" fill="#D3D3D3"/>
+<rect x="37.57" y="105.75" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="38.57" y="141" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="0" y="177.75" width="38.57" height="2" fill="#D3D3D3"/>
+<rect x="0" y="214.5" width="38.57" height="1" fill="#D3D3D3"/>
+<rect x="37.57" y="178.75" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="38.57" y="177.75" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="38.57" y="214.5" width="52.26" height="1" fill="#D3D3D3"/>
+<rect x="0" y="250.25" width="38.57" height="2" fill="#D3D3D3"/>
+<rect x="37.57" y="215" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="38.57" y="250.25" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="0" y="287" width="38.57" height="2" fill="#D3D3D3"/>
+<rect x="0" y="323.75" width="38.57" height="1" fill="#D3D3D3"/>
+<rect x="37.57" y="288" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="38.57" y="287" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="38.57" y="323.75" width="52.26" height="1" fill="#D3D3D3"/>
+<rect x="0" y="359.5" width="38.57" height="2" fill="#D3D3D3"/>
+<rect x="37.57" y="324.25" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="38.57" y="359.5" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="0" y="396.25" width="38.57" height="2" fill="#D3D3D3"/>
+<rect x="0" y="433" width="38.57" height="1" fill="#D3D3D3"/>
+<rect x="37.57" y="397.25" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="38.57" y="396.25" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="38.57" y="433" width="52.26" height="1" fill="#D3D3D3"/>
+<rect x="0" y="468.75" width="38.57" height="2" fill="#D3D3D3"/>
+<rect x="37.57" y="433.5" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="38.57" y="468.75" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="0" y="505.5" width="38.57" height="2" fill="#D3D3D3"/>
+<rect x="0" y="542.25" width="38.57" height="1" fill="#D3D3D3"/>
+<rect x="37.57" y="506.5" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="38.57" y="505.5" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="38.57" y="542.25" width="52.26" height="1" fill="#D3D3D3"/>
+<rect x="0" y="578" width="38.57" height="2" fill="#D3D3D3"/>
+<rect x="37.57" y="542.75" width="2" height="37.25" fill="#D3D3D3"/>
+<rect x="38.57" y="578" width="52.26" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="90.83" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="90.83" height="2" fill="#D3D3D3"/>
+<rect x="0" y="141" width="90.83" height="2" fill="#D3D3D3"/>
+<rect x="0" y="177.75" width="90.83" height="2" fill="#D3D3D3"/>
+<rect x="0" y="250.25" width="90.83" height="2" fill="#D3D3D3"/>
+<rect x="0" y="287" width="90.83" height="2" fill="#D3D3D3"/>
+<rect x="0" y="359.5" width="90.83" height="2" fill="#D3D3D3"/>
+<rect x="0" y="396.25" width="90.83" height="2" fill="#D3D3D3"/>
+<rect x="0" y="468.75" width="90.83" height="2" fill="#D3D3D3"/>
+<rect x="0" y="505.5" width="90.83" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="26.09" xml:space="preserve">Key</text>
+<text x="44.57" y="21.84" font-size="16px" textLength="40.09" xml:space="preserve">Value</text>
+<text x="5" y="93.34" font-size="16px" textLength="25.8" xml:space="preserve">k1a</text>
+<text x="44.57" y="93.34" font-size="16px" textLength="17.98" xml:space="preserve">10</text>
+<text x="5" y="129.09" font-size="16px" textLength="26.09" xml:space="preserve">k1b</text>
+<text x="44.57" y="129.09" font-size="16px" textLength="17.98" xml:space="preserve">20</text>
+<text x="5" y="202.59" font-size="16px" textLength="25.8" xml:space="preserve">k2a</text>
+<text x="44.57" y="202.59" font-size="16px" textLength="17.98" xml:space="preserve">20</text>
+<text x="5" y="238.34" font-size="16px" textLength="26.09" xml:space="preserve">k2b</text>
+<text x="44.57" y="238.34" font-size="16px" textLength="17.98" xml:space="preserve">40</text>
+<text x="5" y="311.84" font-size="16px" textLength="25.8" xml:space="preserve">k3a</text>
+<text x="44.57" y="311.84" font-size="16px" textLength="17.98" xml:space="preserve">30</text>
+<text x="5" y="347.59" font-size="16px" textLength="26.09" xml:space="preserve">k3b</text>
+<text x="44.57" y="347.59" font-size="16px" textLength="17.98" xml:space="preserve">60</text>
+<text x="5" y="421.09" font-size="16px" textLength="25.8" xml:space="preserve">k4a</text>
+<text x="44.57" y="421.09" font-size="16px" textLength="17.98" xml:space="preserve">40</text>
+<text x="5" y="456.84" font-size="16px" textLength="26.09" xml:space="preserve">k4b</text>
+<text x="44.57" y="456.84" font-size="16px" textLength="17.98" xml:space="preserve">80</text>
+<text x="5" y="530.34" font-size="16px" textLength="25.8" xml:space="preserve">k5a</text>
+<text x="44.57" y="530.34" font-size="16px" textLength="17.98" xml:space="preserve">50</text>
+<text x="5" y="566.09" font-size="16px" textLength="26.09" xml:space="preserve">k5b</text>
+<text x="44.57" y="566.09" font-size="16px" textLength="26.98" xml:space="preserve">100</text>
+<text x="5" y="56.59" font-size="16px" textLength="56.21" xml:space="preserve">Group 1</text>
+<text x="5" y="165.84" font-size="16px" textLength="56.21" xml:space="preserve">Group 2</text>
+<text x="5" y="275.09" font-size="16px" textLength="56.21" xml:space="preserve">Group 3</text>
+<text x="5" y="384.34" font-size="16px" textLength="56.21" xml:space="preserve">Group 4</text>
+<text x="5" y="493.59" font-size="16px" textLength="56.21" xml:space="preserve">Group 5</text>
 </svg>

@@ -2,43 +2,45 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="96" height="152" viewBox="0 0 96 152">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<rect x="0" y="60" width="31.74" height="28" fill="rgba(128, 128, 128, 0.051)"/>
-<rect x="31.74" y="60" width="31.74" height="28" fill="rgba(128, 128, 128, 0.051)"/>
-<rect x="63.47" y="60" width="31.74" height="28" fill="rgba(128, 128, 128, 0.051)"/>
-<rect x="0" y="116" width="31.74" height="28" fill="rgba(128, 128, 128, 0.051)"/>
-<rect x="31.74" y="116" width="31.74" height="28" fill="rgba(128, 128, 128, 0.051)"/>
-<rect x="63.47" y="116" width="31.74" height="28" fill="rgba(128, 128, 128, 0.051)"/>
-<text x="8" y="22.9" font-size="14px" textLength="9.41" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">A</tspan></text>
-<text x="39.74" y="22.9" font-size="14px" textLength="8.93" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">B</tspan></text>
-<text x="71.47" y="22.9" font-size="14px" textLength="9.16" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">C</tspan></text>
-<text x="8" y="50.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">1</text>
-<text x="39.74" y="50.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">2</text>
-<text x="71.47" y="50.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">3</text>
-<text x="8" y="78.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">4</text>
-<text x="39.74" y="78.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">5</text>
-<text x="71.47" y="78.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">6</text>
-<text x="8" y="106.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">7</text>
-<text x="39.74" y="106.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">8</text>
-<text x="71.47" y="106.9" font-size="14px" textLength="7.87" lengthAdjust="spacingAndGlyphs" xml:space="preserve">9</text>
-<text x="8" y="134.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">10</text>
-<text x="39.74" y="134.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">11</text>
-<text x="71.47" y="134.9" font-size="14px" textLength="15.74" lengthAdjust="spacingAndGlyphs" xml:space="preserve">12</text>
-<line x1="0" y1="32" x2="31.74" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="31.74" y1="32" x2="63.47" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="63.47" y1="32" x2="95.21" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="31.74" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="31.74" y1="60" x2="63.47" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="63.47" y1="60" x2="95.21" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="31.74" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="31.74" y1="88" x2="63.47" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="63.47" y1="88" x2="95.21" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="116" x2="31.74" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="31.74" y1="116" x2="63.47" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="63.47" y1="116" x2="95.21" y2="116" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="144" x2="31.74" y2="144" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="31.74" y1="144" x2="63.47" y2="144" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="63.47" y1="144" x2="95.21" y2="144" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="95.21" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="84" height="178" viewBox="0 0 84 178">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="0" y="69" width="27.98" height="35.75" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="27.98" y="69" width="27.98" height="35.75" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="55.97" y="69" width="27.98" height="35.75" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="0" y="140.5" width="27.98" height="37.25" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="27.98" y="140.5" width="27.98" height="37.25" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="55.97" y="140.5" width="27.98" height="37.25" fill="rgba(128, 128, 128, 0.051)"/>
+<rect x="0" y="0" width="27.98" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="27.98" height="2" fill="#D3D3D3"/>
+<rect x="27.98" y="0" width="27.98" height="2" fill="#D3D3D3"/>
+<rect x="27.98" y="31.75" width="27.98" height="2" fill="#D3D3D3"/>
+<rect x="55.97" y="0" width="27.98" height="2" fill="#D3D3D3"/>
+<rect x="55.97" y="31.75" width="27.98" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="27.98" height="1" fill="#D3D3D3"/>
+<rect x="27.98" y="68.5" width="27.98" height="1" fill="#D3D3D3"/>
+<rect x="55.97" y="68.5" width="27.98" height="1" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="27.98" height="1" fill="#D3D3D3"/>
+<rect x="27.98" y="104.25" width="27.98" height="1" fill="#D3D3D3"/>
+<rect x="55.97" y="104.25" width="27.98" height="1" fill="#D3D3D3"/>
+<rect x="0" y="140" width="27.98" height="1" fill="#D3D3D3"/>
+<rect x="27.98" y="140" width="27.98" height="1" fill="#D3D3D3"/>
+<rect x="55.97" y="140" width="27.98" height="1" fill="#D3D3D3"/>
+<rect x="0" y="175.75" width="27.98" height="2" fill="#D3D3D3"/>
+<rect x="27.98" y="175.75" width="27.98" height="2" fill="#D3D3D3"/>
+<rect x="55.97" y="175.75" width="27.98" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="10.44" xml:space="preserve">A</text>
+<text x="32.98" y="21.84" font-size="16px" textLength="9.97" xml:space="preserve">B</text>
+<text x="60.97" y="21.84" font-size="16px" textLength="10.41" xml:space="preserve">C</text>
+<text x="5" y="56.59" font-size="16px" textLength="8.99" xml:space="preserve">1</text>
+<text x="32.98" y="56.59" font-size="16px" textLength="8.99" xml:space="preserve">2</text>
+<text x="60.97" y="56.59" font-size="16px" textLength="8.99" xml:space="preserve">3</text>
+<text x="5" y="92.34" font-size="16px" textLength="8.99" xml:space="preserve">4</text>
+<text x="32.98" y="92.34" font-size="16px" textLength="8.99" xml:space="preserve">5</text>
+<text x="60.97" y="92.34" font-size="16px" textLength="8.99" xml:space="preserve">6</text>
+<text x="5" y="128.09" font-size="16px" textLength="8.99" xml:space="preserve">7</text>
+<text x="32.98" y="128.09" font-size="16px" textLength="8.99" xml:space="preserve">8</text>
+<text x="60.97" y="128.09" font-size="16px" textLength="8.99" xml:space="preserve">9</text>
+<text x="5" y="163.84" font-size="16px" textLength="17.98" xml:space="preserve">10</text>
+<text x="32.98" y="163.84" font-size="16px" textLength="17.98" xml:space="preserve">11</text>
+<text x="60.97" y="163.84" font-size="16px" textLength="17.98" xml:space="preserve">12</text>
 </svg>

@@ -2,21 +2,22 @@
 source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
-<svg xmlns="http://www.w3.org/2000/svg" width="107" height="96" viewBox="0 0 107 96">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 14px; }</style>
-<rect x="52.57" y="32" width="53.46" height="28" fill="#C0392B"/>
-<rect x="52.57" y="60" width="53.46" height="28" fill="#2980B9"/>
-<text x="8" y="22.9" font-size="14px" textLength="34.21" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Label</tspan></text>
-<text x="60.57" y="22.9" font-size="14px" textLength="36.24" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan font-weight="bold">Temp</tspan></text>
-<text x="8" y="50.9" font-size="14px" textLength="23.31" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Fire</text>
-<text x="60.57" y="50.9" font-size="14px" textLength="20.28" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#FFFFFF">hot</tspan></text>
-<text x="8" y="78.9" font-size="14px" textLength="18.56" lengthAdjust="spacingAndGlyphs" xml:space="preserve">Ice</text>
-<text x="60.57" y="78.9" font-size="14px" textLength="26.61" lengthAdjust="spacingAndGlyphs" xml:space="preserve"><tspan fill="#FFFFFF">cold</tspan></text>
-<line x1="0" y1="32" x2="52.57" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="52.57" y1="32" x2="106.03" y2="32" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="60" x2="52.57" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="52.57" y1="60" x2="106.03" y2="60" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="88" x2="52.57" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="52.57" y1="88" x2="106.03" y2="88" stroke="#d0d0d0" stroke-width="0.5"/>
-<line x1="0" y1="32" x2="106.03" y2="32" stroke="#333333" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="102" height="107" viewBox="0 0 102 107">
+<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<rect x="49.57" y="32.75" width="51.69" height="36.25" fill="#C0392B"/>
+<rect x="49.57" y="69" width="51.69" height="37.25" fill="#2980B9"/>
+<rect x="0" y="0" width="49.57" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="49.57" height="2" fill="#D3D3D3"/>
+<rect x="49.57" y="0" width="51.69" height="2" fill="#D3D3D3"/>
+<rect x="49.57" y="31.75" width="51.69" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="49.57" height="1" fill="#D3D3D3"/>
+<rect x="49.57" y="68.5" width="51.69" height="1" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="49.57" height="2" fill="#D3D3D3"/>
+<rect x="49.57" y="104.25" width="51.69" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="38.68" xml:space="preserve">Label</text>
+<text x="54.57" y="21.84" font-size="16px" textLength="41.05" xml:space="preserve">Temp</text>
+<text x="5" y="56.59" font-size="16px" textLength="26.64" xml:space="preserve">Fire</text>
+<text x="54.57" y="56.59" font-size="16px" textLength="23.17" xml:space="preserve"><tspan fill="#FFFFFF">hot</tspan></text>
+<text x="5" y="92.34" font-size="16px" textLength="21.21" xml:space="preserve">Ice</text>
+<text x="54.57" y="92.34" font-size="16px" textLength="30.41" xml:space="preserve"><tspan fill="#FFFFFF">cold</tspan></text>
 </svg>
