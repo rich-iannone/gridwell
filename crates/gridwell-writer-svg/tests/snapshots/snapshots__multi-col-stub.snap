@@ -3,7 +3,7 @@ source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="223" height="107" viewBox="0 0 223 107">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
 <rect x="0" y="0" width="62.35" height="2" fill="#D3D3D3"/>
 <rect x="0" y="31.75" width="62.35" height="2" fill="#D3D3D3"/>
 <rect x="62.35" y="0" width="45.78" height="2" fill="#D3D3D3"/>
@@ -12,17 +12,17 @@ expression: out
 <rect x="108.13" y="31.75" width="51.62" height="2" fill="#D3D3D3"/>
 <rect x="159.75" y="0" width="63.15" height="2" fill="#D3D3D3"/>
 <rect x="159.75" y="31.75" width="63.15" height="2" fill="#D3D3D3"/>
-<rect x="0" y="68.5" width="62.35" height="1" fill="#D3D3D3"/>
 <rect x="61.35" y="32.75" width="2" height="36.25" fill="#D3D3D3"/>
-<rect x="62.35" y="68.5" width="45.78" height="1" fill="#D3D3D3"/>
 <rect x="107.13" y="32.75" width="2" height="36.25" fill="#D3D3D3"/>
-<rect x="108.13" y="68.5" width="51.62" height="1" fill="#D3D3D3"/>
-<rect x="159.75" y="68.5" width="63.15" height="1" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="62.35" height="1" fill="#D3D3D3"/>
 <rect x="0" y="104.25" width="62.35" height="2" fill="#D3D3D3"/>
 <rect x="61.35" y="69" width="2" height="37.25" fill="#D3D3D3"/>
+<rect x="62.35" y="68.5" width="45.78" height="1" fill="#D3D3D3"/>
 <rect x="62.35" y="104.25" width="45.78" height="2" fill="#D3D3D3"/>
 <rect x="107.13" y="69" width="2" height="37.25" fill="#D3D3D3"/>
+<rect x="108.13" y="68.5" width="51.62" height="1" fill="#D3D3D3"/>
 <rect x="108.13" y="104.25" width="51.62" height="2" fill="#D3D3D3"/>
+<rect x="159.75" y="68.5" width="63.15" height="1" fill="#D3D3D3"/>
 <rect x="159.75" y="104.25" width="63.15" height="2" fill="#D3D3D3"/>
 <text x="5" y="21.84" font-size="16px" textLength="49.18" xml:space="preserve">Region</text>
 <text x="68.35" y="21.84" font-size="16px" textLength="27.11" xml:space="preserve">City</text>

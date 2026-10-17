@@ -3,32 +3,32 @@ source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="140" height="326" viewBox="0 0 140 326">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
 <rect x="0" y="0" width="71.94" height="2" fill="#D3D3D3"/>
 <rect x="0" y="31.75" width="71.94" height="2" fill="#D3D3D3"/>
 <rect x="71.94" y="0" width="67.86" height="2" fill="#D3D3D3"/>
 <rect x="71.94" y="31.75" width="67.86" height="2" fill="#D3D3D3"/>
 <rect x="0" y="68.5" width="71.94" height="2" fill="#D3D3D3"/>
-<rect x="0" y="105.25" width="71.94" height="1" fill="#D3D3D3"/>
 <rect x="70.94" y="69.5" width="2" height="36.25" fill="#D3D3D3"/>
 <rect x="71.94" y="68.5" width="67.86" height="2" fill="#D3D3D3"/>
+<rect x="0" y="105.25" width="71.94" height="1" fill="#D3D3D3"/>
+<rect x="70.94" y="105.75" width="2" height="36.25" fill="#D3D3D3"/>
 <rect x="71.94" y="105.25" width="67.86" height="1" fill="#D3D3D3"/>
 <rect x="0" y="141" width="71.94" height="2" fill="#D3D3D3"/>
-<rect x="70.94" y="105.75" width="2" height="36.25" fill="#D3D3D3"/>
-<rect x="71.94" y="141" width="67.86" height="2" fill="#D3D3D3"/>
 <rect x="0" y="177.75" width="71.94" height="2" fill="#D3D3D3"/>
 <rect x="70.94" y="142" width="2" height="36.75" fill="#D3D3D3"/>
+<rect x="71.94" y="141" width="67.86" height="2" fill="#D3D3D3"/>
 <rect x="71.94" y="177.75" width="67.86" height="2" fill="#D3D3D3"/>
 <rect x="0" y="214.5" width="71.94" height="2" fill="#D3D3D3"/>
-<rect x="0" y="251.25" width="71.94" height="1" fill="#D3D3D3"/>
 <rect x="70.94" y="215.5" width="2" height="36.25" fill="#D3D3D3"/>
 <rect x="71.94" y="214.5" width="67.86" height="2" fill="#D3D3D3"/>
+<rect x="0" y="251.25" width="71.94" height="1" fill="#D3D3D3"/>
+<rect x="70.94" y="251.75" width="2" height="36.25" fill="#D3D3D3"/>
 <rect x="71.94" y="251.25" width="67.86" height="1" fill="#D3D3D3"/>
 <rect x="0" y="287" width="71.94" height="2" fill="#D3D3D3"/>
-<rect x="70.94" y="251.75" width="2" height="36.25" fill="#D3D3D3"/>
-<rect x="71.94" y="287" width="67.86" height="2" fill="#D3D3D3"/>
 <rect x="0" y="323.75" width="71.94" height="2" fill="#D3D3D3"/>
 <rect x="70.94" y="288" width="2" height="37.75" fill="#D3D3D3"/>
+<rect x="71.94" y="287" width="67.86" height="2" fill="#D3D3D3"/>
 <rect x="71.94" y="323.75" width="67.86" height="2" fill="#D3D3D3"/>
 <rect x="0" y="31.75" width="139.8" height="2" fill="#D3D3D3"/>
 <rect x="0" y="68.5" width="139.8" height="2" fill="#D3D3D3"/>

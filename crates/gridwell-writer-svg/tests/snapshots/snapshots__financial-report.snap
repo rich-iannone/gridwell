@@ -3,7 +3,7 @@ source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="220" height="240" viewBox="0 0 220 240">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
 <rect x="98.57" y="102.44" width="61.18" height="35.75" fill="rgba(128, 128, 128, 0.051)"/>
 <rect x="159.75" y="102.44" width="60.17" height="35.75" fill="rgba(128, 128, 128, 0.051)"/>
 <rect x="0" y="174.44" width="98.57" height="37.75" fill="#F5F5F5"/>
@@ -16,21 +16,21 @@ expression: out
 <rect x="98.57" y="65.19" width="61.18" height="2" fill="#D3D3D3"/>
 <rect x="159.75" y="33.44" width="60.17" height="2" fill="#D3D3D3"/>
 <rect x="159.75" y="65.19" width="60.17" height="2" fill="#D3D3D3"/>
-<rect x="0" y="101.94" width="98.57" height="1" fill="#D3D3D3"/>
 <rect x="97.57" y="66.19" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="0" y="101.94" width="98.57" height="1" fill="#D3D3D3"/>
+<rect x="97.57" y="102.44" width="2" height="35.75" fill="#D3D3D3"/>
 <rect x="98.57" y="101.94" width="61.18" height="1" fill="#D3D3D3"/>
 <rect x="159.75" y="101.94" width="60.17" height="1" fill="#D3D3D3"/>
 <rect x="0" y="137.69" width="98.57" height="1" fill="#D3D3D3"/>
-<rect x="97.57" y="102.44" width="2" height="35.75" fill="#D3D3D3"/>
+<rect x="97.57" y="138.19" width="2" height="36.25" fill="#D3D3D3"/>
 <rect x="98.57" y="137.69" width="61.18" height="1" fill="#D3D3D3"/>
 <rect x="159.75" y="137.69" width="60.17" height="1" fill="#D3D3D3"/>
 <rect x="0" y="173.44" width="98.57" height="2" fill="#D3D3D3"/>
-<rect x="97.57" y="138.19" width="2" height="36.25" fill="#D3D3D3"/>
-<rect x="98.57" y="173.44" width="61.18" height="2" fill="#D3D3D3"/>
-<rect x="159.75" y="173.44" width="60.17" height="2" fill="#D3D3D3"/>
 <rect x="0" y="210.19" width="98.57" height="2" fill="#D3D3D3"/>
 <rect x="97.57" y="174.44" width="2" height="37.75" fill="#D3D3D3"/>
+<rect x="98.57" y="173.44" width="61.18" height="2" fill="#D3D3D3"/>
 <rect x="98.57" y="210.19" width="61.18" height="2" fill="#D3D3D3"/>
+<rect x="159.75" y="173.44" width="60.17" height="2" fill="#D3D3D3"/>
 <rect x="159.75" y="210.19" width="60.17" height="2" fill="#D3D3D3"/>
 <rect x="0" y="237.06" width="219.92" height="2" fill="#A8A8A8"/>
 <text x="109.96" y="24.55" font-size="20px" text-anchor="middle" textLength="121.48" xml:space="preserve">Quarterly P&amp;L</text>

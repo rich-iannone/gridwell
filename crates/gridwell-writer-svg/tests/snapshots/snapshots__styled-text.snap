@@ -3,7 +3,7 @@ source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="212" height="71" viewBox="0 0 212 71">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
 <rect x="0" y="0" width="48.13" height="2" fill="#D3D3D3"/>
 <rect x="0" y="31.75" width="48.13" height="2" fill="#D3D3D3"/>
 <rect x="48.13" y="0" width="163.17" height="2" fill="#D3D3D3"/>

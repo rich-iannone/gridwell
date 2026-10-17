@@ -3,7 +3,7 @@ source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="357" height="219" viewBox="0 0 357 219">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
 <rect x="0" y="0" width="96.37" height="2" fill="#D3D3D3"/>
 <rect x="0" y="31.75" width="96.37" height="2" fill="#D3D3D3"/>
 <rect x="96.37" y="0" width="260.39" height="2" fill="#D3D3D3"/>
@@ -15,8 +15,8 @@ expression: out
 <rect x="0" y="142.34" width="96.37" height="1" fill="#D3D3D3"/>
 <rect x="96.37" y="142.34" width="260.39" height="1" fill="#D3D3D3"/>
 <rect x="0" y="178.09" width="96.37" height="1" fill="#D3D3D3"/>
-<rect x="96.37" y="178.09" width="260.39" height="1" fill="#D3D3D3"/>
 <rect x="0" y="216.19" width="96.37" height="2" fill="#D3D3D3"/>
+<rect x="96.37" y="178.09" width="260.39" height="1" fill="#D3D3D3"/>
 <rect x="96.37" y="216.19" width="260.39" height="2" fill="#D3D3D3"/>
 <text x="5" y="21.84" font-size="16px" textLength="51.36" xml:space="preserve">Format</text>
 <text x="101.37" y="21.84" font-size="16px" textLength="53.59" xml:space="preserve">Sample</text>

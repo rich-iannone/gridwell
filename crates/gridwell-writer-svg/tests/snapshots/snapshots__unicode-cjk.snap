@@ -3,15 +3,15 @@ source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="94" height="140" viewBox="0 0 94 140">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
 <rect x="0" y="0" width="93.69" height="2" fill="#A8A8A8"/>
 <rect x="0" y="33.44" width="43.28" height="2" fill="#D3D3D3"/>
 <rect x="0" y="65.19" width="43.28" height="2" fill="#D3D3D3"/>
 <rect x="43.28" y="33.44" width="50.41" height="2" fill="#D3D3D3"/>
 <rect x="43.28" y="65.19" width="50.41" height="2" fill="#D3D3D3"/>
 <rect x="0" y="101.94" width="43.28" height="1" fill="#D3D3D3"/>
-<rect x="43.28" y="101.94" width="50.41" height="1" fill="#D3D3D3"/>
 <rect x="0" y="137.69" width="43.28" height="2" fill="#D3D3D3"/>
+<rect x="43.28" y="101.94" width="50.41" height="1" fill="#D3D3D3"/>
 <rect x="43.28" y="137.69" width="50.41" height="2" fill="#D3D3D3"/>
 <text x="46.85" y="24.55" font-size="20px" text-anchor="middle" textLength="83.2" xml:space="preserve">販売実績</text>
 <text x="5" y="55.28" font-size="16px" textLength="33.28" xml:space="preserve">地域</text>

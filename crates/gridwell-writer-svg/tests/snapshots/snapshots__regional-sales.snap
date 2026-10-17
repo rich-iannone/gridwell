@@ -3,7 +3,7 @@ source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="311" height="428" viewBox="0 0 311 428">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
 <rect x="0" y="0" width="310.19" height="2" fill="#A8A8A8"/>
 <rect x="0" y="57.38" width="117.55" height="2" fill="#D3D3D3"/>
 <rect x="117.55" y="57.38" width="50.13" height="2" fill="#D3D3D3"/>
@@ -14,35 +14,35 @@ expression: out
 <rect x="167.68" y="119.88" width="79.03" height="2" fill="#D3D3D3"/>
 <rect x="246.7" y="119.88" width="63.49" height="2" fill="#D3D3D3"/>
 <rect x="0" y="156.63" width="117.55" height="2" fill="#D3D3D3"/>
-<rect x="0" y="229.13" width="117.55" height="1" fill="#D3D3D3"/>
 <rect x="116.55" y="157.63" width="2" height="72" fill="#D3D3D3"/>
 <rect x="117.55" y="156.63" width="50.13" height="2" fill="#D3D3D3"/>
-<rect x="117.55" y="193.38" width="50.13" height="1" fill="#D3D3D3"/>
 <rect x="167.68" y="156.63" width="79.03" height="2" fill="#D3D3D3"/>
-<rect x="167.68" y="193.38" width="79.03" height="1" fill="#D3D3D3"/>
 <rect x="246.7" y="156.63" width="63.49" height="2" fill="#D3D3D3"/>
+<rect x="117.55" y="193.38" width="50.13" height="1" fill="#D3D3D3"/>
+<rect x="167.68" y="193.38" width="79.03" height="1" fill="#D3D3D3"/>
 <rect x="246.7" y="193.38" width="63.49" height="1" fill="#D3D3D3"/>
-<rect x="117.55" y="229.13" width="50.13" height="1" fill="#D3D3D3"/>
-<rect x="167.68" y="229.13" width="79.03" height="1" fill="#D3D3D3"/>
-<rect x="246.7" y="229.13" width="63.49" height="1" fill="#D3D3D3"/>
+<rect x="0" y="229.13" width="117.55" height="1" fill="#D3D3D3"/>
 <rect x="0" y="264.88" width="117.55" height="2" fill="#D3D3D3"/>
 <rect x="116.55" y="229.63" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="117.55" y="229.13" width="50.13" height="1" fill="#D3D3D3"/>
 <rect x="117.55" y="264.88" width="50.13" height="2" fill="#D3D3D3"/>
+<rect x="167.68" y="229.13" width="79.03" height="1" fill="#D3D3D3"/>
 <rect x="167.68" y="264.88" width="79.03" height="2" fill="#D3D3D3"/>
+<rect x="246.7" y="229.13" width="63.49" height="1" fill="#D3D3D3"/>
 <rect x="246.7" y="264.88" width="63.49" height="2" fill="#D3D3D3"/>
 <rect x="0" y="301.63" width="117.55" height="2" fill="#D3D3D3"/>
-<rect x="0" y="338.38" width="117.55" height="1" fill="#D3D3D3"/>
 <rect x="116.55" y="302.63" width="2" height="36.25" fill="#D3D3D3"/>
 <rect x="117.55" y="301.63" width="50.13" height="2" fill="#D3D3D3"/>
-<rect x="117.55" y="338.38" width="50.13" height="1" fill="#D3D3D3"/>
 <rect x="167.68" y="301.63" width="79.03" height="2" fill="#D3D3D3"/>
-<rect x="167.68" y="338.38" width="79.03" height="1" fill="#D3D3D3"/>
 <rect x="246.7" y="301.63" width="63.49" height="2" fill="#D3D3D3"/>
-<rect x="246.7" y="338.38" width="63.49" height="1" fill="#D3D3D3"/>
+<rect x="0" y="338.38" width="117.55" height="1" fill="#D3D3D3"/>
 <rect x="0" y="374.13" width="117.55" height="2" fill="#D3D3D3"/>
 <rect x="116.55" y="338.88" width="2" height="37.25" fill="#D3D3D3"/>
+<rect x="117.55" y="338.38" width="50.13" height="1" fill="#D3D3D3"/>
 <rect x="117.55" y="374.13" width="50.13" height="2" fill="#D3D3D3"/>
+<rect x="167.68" y="338.38" width="79.03" height="1" fill="#D3D3D3"/>
 <rect x="167.68" y="374.13" width="79.03" height="2" fill="#D3D3D3"/>
+<rect x="246.7" y="338.38" width="63.49" height="1" fill="#D3D3D3"/>
 <rect x="246.7" y="374.13" width="63.49" height="2" fill="#D3D3D3"/>
 <rect x="0" y="119.88" width="310.19" height="2" fill="#D3D3D3"/>
 <rect x="0" y="156.63" width="310.19" height="2" fill="#D3D3D3"/>

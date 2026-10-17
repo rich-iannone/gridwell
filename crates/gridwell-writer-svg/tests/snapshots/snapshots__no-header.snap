@@ -3,12 +3,12 @@ source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="38" height="75" viewBox="0 0 38 75">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
 <rect x="0" y="0" width="18.9" height="2" fill="#D3D3D3"/>
-<rect x="0" y="36.75" width="18.9" height="1" fill="#D3D3D3"/>
 <rect x="18.9" y="0" width="19.02" height="2" fill="#D3D3D3"/>
-<rect x="18.9" y="36.75" width="19.02" height="1" fill="#D3D3D3"/>
+<rect x="0" y="36.75" width="18.9" height="1" fill="#D3D3D3"/>
 <rect x="0" y="72.5" width="18.9" height="2" fill="#D3D3D3"/>
+<rect x="18.9" y="36.75" width="19.02" height="1" fill="#D3D3D3"/>
 <rect x="18.9" y="72.5" width="19.02" height="2" fill="#D3D3D3"/>
 <text x="5" y="24.84" font-size="16px" textLength="8.7" xml:space="preserve">a</text>
 <text x="23.9" y="24.84" font-size="16px" textLength="8.98" xml:space="preserve">b</text>

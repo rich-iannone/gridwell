@@ -3,26 +3,26 @@ source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="130" height="253" viewBox="0 0 130 253">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
 <rect x="0" y="0" width="77.59" height="2" fill="#D3D3D3"/>
 <rect x="0" y="31.75" width="77.59" height="2" fill="#D3D3D3"/>
 <rect x="77.59" y="0" width="52.26" height="2" fill="#D3D3D3"/>
 <rect x="77.59" y="31.75" width="52.26" height="2" fill="#D3D3D3"/>
 <rect x="0" y="68.5" width="77.59" height="2" fill="#D3D3D3"/>
-<rect x="0" y="105.25" width="77.59" height="1" fill="#D3D3D3"/>
 <rect x="76.59" y="69.5" width="2" height="36.25" fill="#D3D3D3"/>
 <rect x="77.59" y="68.5" width="52.26" height="2" fill="#D3D3D3"/>
-<rect x="77.59" y="105.25" width="52.26" height="1" fill="#D3D3D3"/>
+<rect x="0" y="105.25" width="77.59" height="1" fill="#D3D3D3"/>
 <rect x="0" y="141" width="77.59" height="2" fill="#D3D3D3"/>
 <rect x="76.59" y="105.75" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="77.59" y="105.25" width="52.26" height="1" fill="#D3D3D3"/>
 <rect x="77.59" y="141" width="52.26" height="2" fill="#D3D3D3"/>
 <rect x="0" y="177.75" width="77.59" height="2" fill="#D3D3D3"/>
-<rect x="0" y="214.5" width="77.59" height="1" fill="#D3D3D3"/>
 <rect x="76.59" y="178.75" width="2" height="36.25" fill="#D3D3D3"/>
 <rect x="77.59" y="177.75" width="52.26" height="2" fill="#D3D3D3"/>
-<rect x="77.59" y="214.5" width="52.26" height="1" fill="#D3D3D3"/>
+<rect x="0" y="214.5" width="77.59" height="1" fill="#D3D3D3"/>
 <rect x="0" y="250.25" width="77.59" height="2" fill="#D3D3D3"/>
 <rect x="76.59" y="215" width="2" height="37.25" fill="#D3D3D3"/>
+<rect x="77.59" y="214.5" width="52.26" height="1" fill="#D3D3D3"/>
 <rect x="77.59" y="250.25" width="52.26" height="2" fill="#D3D3D3"/>
 <rect x="0" y="31.75" width="129.85" height="2" fill="#D3D3D3"/>
 <rect x="0" y="68.5" width="129.85" height="2" fill="#D3D3D3"/>

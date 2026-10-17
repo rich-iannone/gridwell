@@ -3,7 +3,7 @@ source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="326" height="228" viewBox="0 0 326 228">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
 <rect x="0" y="0" width="325.29" height="2" fill="#A8A8A8"/>
 <rect x="0" y="33.44" width="98.66" height="2" fill="#D3D3D3"/>
 <rect x="0" y="65.19" width="98.66" height="2" fill="#D3D3D3"/>
@@ -13,20 +13,20 @@ expression: out
 <rect x="171.18" y="65.19" width="50" height="2" fill="#D3D3D3"/>
 <rect x="221.18" y="33.44" width="104.11" height="2" fill="#D3D3D3"/>
 <rect x="221.18" y="65.19" width="104.11" height="2" fill="#D3D3D3"/>
-<rect x="0" y="101.94" width="98.66" height="1" fill="#D3D3D3"/>
 <rect x="97.66" y="66.19" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="0" y="101.94" width="98.66" height="1" fill="#D3D3D3"/>
+<rect x="97.66" y="102.44" width="2" height="35.75" fill="#D3D3D3"/>
 <rect x="98.66" y="101.94" width="72.52" height="1" fill="#D3D3D3"/>
 <rect x="171.18" y="101.94" width="50" height="1" fill="#D3D3D3"/>
 <rect x="221.18" y="101.94" width="104.11" height="1" fill="#D3D3D3"/>
 <rect x="0" y="137.69" width="98.66" height="1" fill="#D3D3D3"/>
-<rect x="97.66" y="102.44" width="2" height="35.75" fill="#D3D3D3"/>
-<rect x="98.66" y="137.69" width="72.52" height="1" fill="#D3D3D3"/>
-<rect x="171.18" y="137.69" width="50" height="1" fill="#D3D3D3"/>
-<rect x="221.18" y="137.69" width="104.11" height="1" fill="#D3D3D3"/>
 <rect x="0" y="173.44" width="98.66" height="2" fill="#D3D3D3"/>
 <rect x="97.66" y="138.19" width="2" height="37.25" fill="#D3D3D3"/>
+<rect x="98.66" y="137.69" width="72.52" height="1" fill="#D3D3D3"/>
 <rect x="98.66" y="173.44" width="72.52" height="2" fill="#D3D3D3"/>
+<rect x="171.18" y="137.69" width="50" height="1" fill="#D3D3D3"/>
 <rect x="171.18" y="173.44" width="50" height="2" fill="#D3D3D3"/>
+<rect x="221.18" y="137.69" width="104.11" height="1" fill="#D3D3D3"/>
 <rect x="221.18" y="173.44" width="104.11" height="2" fill="#D3D3D3"/>
 <rect x="0" y="225.19" width="325.29" height="2" fill="#A8A8A8"/>
 <text x="162.65" y="24.55" font-size="20px" text-anchor="middle" textLength="211.44" xml:space="preserve">Reaction rate constants</text>

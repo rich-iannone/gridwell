@@ -3,7 +3,7 @@ source: crates/gridwell-writer-svg/tests/snapshots.rs
 expression: out
 ---
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="137" viewBox="0 0 128 137">
-<style>text { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; }</style>
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
 <rect x="0" y="0" width="63.99" height="2" fill="#D3D3D3"/>
 <rect x="0" y="30.75" width="59.99" height="2" fill="#D3D3D3"/>
 <rect x="63.99" y="0" width="63.99" height="2" fill="#D3D3D3"/>
@@ -13,12 +13,12 @@ expression: out
 <rect x="63.99" y="62.5" width="32" height="2" fill="#D3D3D3"/>
 <rect x="95.99" y="62.5" width="32" height="2" fill="#D3D3D3"/>
 <rect x="0" y="99.25" width="32" height="1" fill="#D3D3D3"/>
-<rect x="32" y="99.25" width="32" height="1" fill="#D3D3D3"/>
-<rect x="63.99" y="99.25" width="32" height="1" fill="#D3D3D3"/>
-<rect x="95.99" y="99.25" width="32" height="1" fill="#D3D3D3"/>
 <rect x="0" y="135" width="32" height="2" fill="#D3D3D3"/>
+<rect x="32" y="99.25" width="32" height="1" fill="#D3D3D3"/>
 <rect x="32" y="135" width="32" height="2" fill="#D3D3D3"/>
+<rect x="63.99" y="99.25" width="32" height="1" fill="#D3D3D3"/>
 <rect x="63.99" y="135" width="32" height="2" fill="#D3D3D3"/>
+<rect x="95.99" y="99.25" width="32" height="1" fill="#D3D3D3"/>
 <rect x="95.99" y="135" width="32" height="2" fill="#D3D3D3"/>
 <text x="30" y="21.84" font-size="16px" text-anchor="middle" textLength="57.66" xml:space="preserve">Group A</text>
 <text x="97.99" y="21.84" font-size="16px" text-anchor="middle" textLength="57.19" xml:space="preserve">Group B</text>
