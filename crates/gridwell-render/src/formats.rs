@@ -177,7 +177,7 @@ define_format!(
 fn check_svg(o: &gridwell_writer_svg::SvgConfig) -> Result<(), String> {
     for (field, v, zero_ok) in [
         ("font_size", o.font_size, false),
-        ("row_height", o.row_height, false),
+        ("row_height", o.row_height, true),
         ("default_col_width", o.default_col_width, false),
         ("cell_padding_x", o.cell_padding_x, true),
         ("cell_padding_y", o.cell_padding_y, true),
