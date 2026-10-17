@@ -81,11 +81,12 @@ options at all).
 | Option | Type | Default | Meaning |
 |---|---|---|---|
 | `font_family` | string | `"Roboto, Helvetica, Arial, 'Liberation Sans', Arimo, sans-serif"` | CSS font list for all text; letters, digits, spaces, quotes and `, - _ .` only. Layout uses Roboto's widths (and leaves room for Arial-compatible fallbacks), and every line is drawn with `textLength`, so viewers that substitute another font keep the layout; a list without Roboto or an Arial-compatible font may not fit as well in viewers that ignore `textLength` (librsvg) |
-| `font_size` | number | `14` | Base font size in px (greater than 0, at most 10000) |
-| `row_height` | number | `28` | Minimum row height in px (greater than 0, at most 10000) |
-| `cell_padding_x` | number | `8` | Horizontal cell padding in px (0–10000) |
-| `cell_padding_y` | number | `4` | Vertical cell padding in px (0–10000) |
-| `default_col_width` | number | `120` | Width in px used to size title and note text around narrow tables |
+| `font_size` | number | `16` | Base font size in px (greater than 0, at most 10000) |
+| `row_height` | number | `0` | Minimum row height in px (0–10000); `0`: rows are as tall as their content |
+| `cell_padding_x` | number | `5` | Horizontal padding of body cells in px (0–10000); column labels and spanners use the default look's own |
+| `cell_padding_y` | number | `8` | Vertical padding of body cells in px (0–10000) |
+| `default_col_width` | number | `120` | Heading and note lines wrap at the larger of the table's width and eight times this, in px (about a page) |
+| `base_styles` | boolean | `true` | Draw gridwell's default look, the same as HTML's base stylesheet (gt's rules, padding, sizes and text color); the table's own styles still win. `false`: no rules and black text, same layout |
 
 ### `ansi`
 
