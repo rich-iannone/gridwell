@@ -151,9 +151,8 @@ struct PendingCell {
     pad: Pad,
     /// A stub cell outside the head: draws the stub's right border.
     stub: bool,
-    /// The cell's own style removes its top / bottom border.
+    /// The cell's own style removes its top border.
     clears_top: bool,
-    clears_bottom: bool,
     /// The cell's own borders (from its style), which replace the base rules.
     borders: Sides<Option<RuleLine>>,
 }
@@ -239,6 +238,8 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     let mut cells: Vec<PendingCell> = Vec::new();
     let mut bands: Vec<PendingBand> = Vec::new();
     let mut hrule: Vec<Option<LookRule>> = vec![None];
+    // Boundaries whose summary rule is the summary cells' own (see `owned` below).
+    let mut summary_owned: Vec<usize> = Vec::new();
     let mut nrows = 0usize;
     // The rule a boundary gets by default: hairlines between body rows.
     let next_rule = |hrule: &mut Vec<Option<LookRule>>, r: Option<LookRule>| hrule.push(r);
@@ -301,7 +302,6 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
                     pad,
                     stub: cell.is_stub && !head,
                     clears_top: cell.style.border_cleared.top,
-                    clears_bottom: cell.style.border_cleared.bottom,
                     borders,
                 });
             }
@@ -342,7 +342,14 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
             } else {
                 look.section_rule
             };
-            hrule[first_summary] = wider(hrule[first_summary], rule);
+            let before = hrule[first_summary];
+            hrule[first_summary] = wider(before, rule);
+            // The summary cells' own top border, unless a rule from elsewhere won.
+            if hrule[first_summary] == Some(rule)
+                && before.is_none_or(|b| b.width_px < rule.width_px)
+            {
+                summary_owned.push(first_summary);
+            }
         }
     }
     // The table's bottom.
@@ -350,6 +357,17 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
         *last = Some(look.section_rule);
     }
     debug_assert_eq!(hrule.len(), nrows + 1);
+    // Who owns each boundary's rule, as in HTML: hairlines and summary rules are the
+    // lower cells' own top border, so a cell style removing its top border removes
+    // them; the table's edges, the head's bottom and group labels' rules belong to
+    // other elements and win over a removed border (`none` loses every collapsed-
+    // border conflict). Owned boundaries are drawn by the cells below; others by the
+    // cells on both sides.
+    let owned: Vec<bool> = (0..=nrows)
+        .map(|b| {
+            (b > 0 && b < nrows && hrule[b] == Some(look.row_rule)) || summary_owned.contains(&b)
+        })
+        .collect();
     if !base {
         hrule.iter_mut().for_each(|r| *r = None);
     }
@@ -713,15 +731,17 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
         if !base {
             continue;
         }
-        // The base rules on the cell's top and bottom edges (drawn per cell, so they
-        // never cross a rowspan), unless its style removes them or sets its own.
-        for (b, cleared, own) in [
-            (bt, cell.clears_top, cell.borders.top.is_some()),
-            (bb, cell.clears_bottom, cell.borders.bottom.is_some()),
-        ] {
-            if let (Some(rule), false, false) = (hrule[b], cleared, own) {
-                out.rules.push(hline(x, x + w, rule_center(b), &rule));
+        // The base rules on the cell's edges (drawn per cell, so they never cross a
+        // rowspan), unless it sets its own border there. Its top: unless the rule is
+        // its own and its style removes it. Its bottom: only rules no cell owns (an
+        // owned one is the next cell's top).
+        if let (Some(rule), false) = (hrule[bt], cell.borders.top.is_some()) {
+            if !(owned[bt] && cell.clears_top) {
+                out.rules.push(hline(x, x + w, rule_center(bt), &rule));
             }
+        }
+        if let (Some(rule), false, false) = (hrule[bb], cell.borders.bottom.is_some(), owned[bb]) {
+            out.rules.push(hline(x, x + w, rule_center(bb), &rule));
         }
         if cell.stub && cell.borders.right.is_none() {
             let rx = vcenter(vr);
@@ -988,9 +1008,14 @@ fn emit(l: &Layout, config: &SvgConfig) -> Result<String, RenderError> {
     } else {
         String::new()
     };
+    // Defaults on the root, for text to inherit: an element's own presentation
+    // attributes (a heading's `font-size`) beat inherited values, but would lose to
+    // a rule matching `text` itself. Fills and rules are drawn with crisp edges, so
+    // adjacent cells meet without antialiased seams.
     writeln!(
         buf,
-        "<style>text {{ font-family: {}; font-size: {}px;{fill} }}</style>",
+        "<style>svg {{ font-family: {}; font-size: {}px;{fill} }} \
+         rect {{ shape-rendering: crispEdges; }}</style>",
         escape_xml(&config.font_family),
         num(config.font_size)
     )?;
