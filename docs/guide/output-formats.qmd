@@ -82,10 +82,16 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 
 ### SVG
 
-- Standalone SVG image with embedded text
-- Text as `<text>` elements with computed positions
-- Backgrounds as `<rect>`, borders as `<line>` strokes
-- Self-contained (no external dependencies)
+- Standalone SVG image, self-contained (no external dependencies)
+- The same default look as HTML (gt's rules, padding, sizes and text color, from one
+  shared spec), drawn by gridwell's own layout: the table's styles (fills, bold,
+  colors, cell borders and padding) still win
+- Text laid out with Roboto's real widths (cells leave room for Arial-compatible
+  fallbacks), and every line drawn with `textLength`, so viewers that substitute
+  another font keep the layout. librsvg ignores `textLength`, so rsvg-based tools
+  (Pandoc/Quarto PDF, R's rsvg) render best with Roboto installed
+- Known differences from HTML: a word too long for a fixed-width column is broken
+  inside the column (HTML widens the column), and `max_width` always clamps
 
 ### ANSI (Terminal)
 
