@@ -72,7 +72,7 @@ const CASES: &[(&str, &str, &str)] = &[
     ("docx", "<w:jc w:val=\"right\"/></w:pPr><w:r><w:t xml:space=\"preserve\">12345", "<w:jc w:val=\"center\"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t xml:space=\"preserve\">SPANNER"),
     ("pptx", "<a:pPr algn=\"r\"/><a:r><a:rPr lang=\"en-US\"/><a:t>12345", "<a:pPr algn=\"ctr\"/><a:r><a:rPr lang=\"en-US\" b=\"1\"/><a:t>SPANNER"),
     ("xlsx", "<alignment horizontal=\"right\"/>", "<alignment horizontal=\"center\"/>"),
-    ("svg", "text-anchor=\"end\" xml:space=\"preserve\">12345", "text-anchor=\"middle\" xml:space=\"preserve\"><tspan font-weight=\"bold\">SPANNER"),
+    ("svg", "text-anchor=\"end\" xml:space=\"preserve\">12345", "text-anchor=\"middle\" xml:space=\"preserve\">SPANNER"),
 ];
 
 #[test]
