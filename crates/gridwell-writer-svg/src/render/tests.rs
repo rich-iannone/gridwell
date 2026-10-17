@@ -243,7 +243,10 @@ fn footnote_marks_are_superscript_runs() {
         .build();
     let svg = render(&table, &SvgConfig::default()).unwrap();
     assert!(
-        svg.contains("pass<tspan font-size=\"9.8px\" baseline-shift=\"super\">1</tspan>"),
+        // 75% of 16px, raised 0.4em of its own size (as HTML), italic.
+        svg.contains(
+            "pass<tspan font-style=\"italic\" font-size=\"12px\" baseline-shift=\"4.8px\">1</tspan>"
+        ),
         "{svg}"
     );
 }
@@ -280,7 +283,9 @@ fn every_column_hidden_is_an_empty_table() {
         .build();
     let l = layout(&table, &SvgConfig::default());
     assert!(l.cells.is_empty());
-    assert_eq!(l.table_width, 0.0);
+    assert_eq!(l.table_height, 0.0);
+    // The (empty) table is as wide as its note, as in HTML.
+    assert!(l.table_width > 0.0 && l.footer.len() == 1);
     assert_ok(check("all hidden", &table));
 }
 
@@ -354,4 +359,205 @@ fn decorations_and_sizes_reach_the_runs_and_the_layout() {
         big.width
     );
     assert_ok(check("decorations", &table));
+}
+
+// ─── The default look (shared with HTML's base stylesheet) ───
+
+const OUTER: &str = "#A8A8A8";
+const LIGHT: &str = "#D3D3D3";
+
+fn hrules<'a>(l: &'a Layout, color: &str, width: f64) -> Vec<&'a RuleLine> {
+    l.rules
+        .iter()
+        .filter(|r| r.y1 == r.y2 && r.color == color && (r.width - width).abs() < EPS)
+        .collect()
+}
+
+fn full_width(l: &Layout, r: &RuleLine) -> bool {
+    r.x1.abs() < EPS && (r.x2 - l.table_width).abs() < EPS
+}
+
+#[test]
+fn outer_rules_frame_the_heading_and_footer_section_rules_the_table() {
+    let t = TableBuilder::new(2)
+        .title("T")
+        .head(row(vec![cell("A"), cell("B")]))
+        .body(vec![
+            row(vec![cell("1"), cell("2")]),
+            row(vec![cell("3"), cell("4")]),
+        ])
+        .source_note("src")
+        .build();
+    let l = layout(&t, &SvgConfig::default());
+    // Dark rules: one above the title, one below the note, full width.
+    let outer = hrules(&l, OUTER, 2.0);
+    assert_eq!(outer.len(), 2, "{:?}", l.rules);
+    assert!(outer.iter().all(|r| full_width(&l, r)));
+    assert!((outer[0].y1 - 1.0).abs() < EPS, "top rule at the very top");
+    assert!(
+        (outer[1].y1 - (l.height - 1.0)).abs() < 1.0,
+        "bottom rule at the bottom"
+    );
+    // Light 2px: the table's top, under the head and the table's bottom (per cell:
+    // two cells per boundary; head bottom and body top coincide).
+    let ys: std::collections::BTreeSet<i64> = hrules(&l, LIGHT, 2.0)
+        .iter()
+        .map(|r| (r.y1 * 100.0).round() as i64)
+        .collect();
+    assert_eq!(ys.len(), 3, "{ys:?}");
+    // One hairline boundary, between the two body rows: one segment per cell, each
+    // drawn once.
+    assert_eq!(hrules(&l, LIGHT, 1.0).len(), 2);
+    // The title is centered over the table.
+    assert_eq!(l.header[0].align, Align::Center);
+    assert!((l.header[0].width - (l.table_width - 10.0)).abs() < EPS);
+}
+
+#[test]
+fn group_labels_stub_summaries_and_spanners_get_their_rules() {
+    use gridwell_testkit::{placeholder, CellExt, RowExt};
+    let t = TableBuilder::new(3)
+        .stub_cols(1)
+        .head(row(vec![cell(""), cell("Group").colspan(2), placeholder()]).role("spanner_label"))
+        .head(row(vec![cell("S"), cell("A"), cell("B")]))
+        .group(
+            gridwell_testkit::labeled_group(
+                "G",
+                vec![row(vec![cell("r").stub(), cell("1"), cell("2")])],
+            )
+            .summary(vec![
+                row(vec![cell("Total").stub(), cell("1"), cell("2")]).role("summary_row")
+            ]),
+        )
+        .group(group(vec![]).summary(vec![
+            row(vec![cell("All").stub(), cell("1"), cell("2")]).role("grand_summary_row"),
+        ]))
+        .build();
+    let l = layout(&t, &SvgConfig::default());
+    // The group label: full-width 2px rules above and below.
+    let label = l
+        .cells
+        .iter()
+        .find(|c| c.text.lines[0].text() == "G")
+        .unwrap();
+    let full: Vec<_> = hrules(&l, LIGHT, 2.0)
+        .into_iter()
+        .filter(|r| full_width(&l, r))
+        .collect();
+    assert!(full.iter().any(|r| (r.y1 - label.y).abs() < EPS));
+    assert!(full
+        .iter()
+        .any(|r| (r.y1 - (label.y + label.height)).abs() < EPS));
+    // The stub's right border beside body cells only (not the head or label).
+    let stub_rules: Vec<_> = l.rules.iter().filter(|r| r.x1 == r.x2).collect();
+    assert_eq!(stub_rules.len(), 3, "r, Total and All: {stub_rules:?}");
+    assert!(stub_rules
+        .iter()
+        .all(|r| r.y1 >= label.y + label.height - EPS));
+    // The spanner's rule: flush at the right edge (last column), inset on the left.
+    let spanner = l
+        .cells
+        .iter()
+        .find(|c| c.text.lines.first().is_some_and(|x| x.text() == "Group"))
+        .unwrap();
+    let sr = hrules(&l, LIGHT, 2.0)
+        .into_iter()
+        .find(|r| r.y1 > spanner.y + spanner.height / 2.0 && r.y1 < spanner.y + spanner.height)
+        .expect("spanner rule inside the spanner cell");
+    assert!((sr.x1 - (spanner.x + 4.0)).abs() < EPS && (sr.x2 - l.table_width).abs() < EPS);
+    // The grand summary's double rule.
+    let double: Vec<_> = l.rules.iter().filter(|r| r.double).collect();
+    assert!(!double.is_empty() && double.iter().all(|r| (r.width - 6.0).abs() < EPS));
+    assert_ok(check("parts", &t));
+}
+
+#[test]
+fn the_table_widens_to_its_heading_and_to_a_fixed_width() {
+    let t = TableBuilder::new(1)
+        .title("A heading much wider than the column")
+        .body(vec![row(vec![cell("x")])])
+        .build();
+    let l = layout(&t, &SvgConfig::default());
+    assert_eq!(l.header[0].lines.len(), 1, "no wrap below the cap");
+    assert!(
+        l.cells[0].width > 200.0,
+        "the column takes the heading's width"
+    );
+    assert!((l.cells[0].width - l.table_width).abs() < EPS);
+    assert_ok(check("wide heading", &t));
+
+    let mut t = TableBuilder::new(2)
+        .body(vec![row(vec![cell("a"), cell("b")])])
+        .build();
+    t.config.table_width = Some("400px".into());
+    let l = layout(&t, &SvgConfig::default());
+    assert!((l.table_width - 400.0).abs() < EPS, "{}", l.table_width);
+    assert_ok(check("fixed width", &t));
+}
+
+#[test]
+fn cell_borders_and_padding_from_styles_win() {
+    use gridwell_testkit::CellExt;
+    let bordered: gridwell_ir::style::StyleDef = serde_json::from_value(serde_json::json!({
+        "padding": { "top": "1px", "right": "1px", "bottom": "1px", "left": "1px" },
+        "border": { "bottom": { "width": "3px", "style": "dashed", "color": "#FF0000" },
+                    "top": { "style": "none" } }
+    }))
+    .unwrap();
+    let t = TableBuilder::new(1)
+        .style_def("b", bordered)
+        .body(vec![row(vec![cell("x").style("b")]), row(vec![cell("y")])])
+        .build();
+    let l = layout(&t, &SvgConfig::default());
+    let x = l
+        .cells
+        .iter()
+        .find(|c| c.text.lines[0].text() == "x")
+        .unwrap();
+    // Its own padding (1px) plus half... of nothing on the left: text starts at 1px.
+    assert!((x.text.x - 1.0).abs() < EPS, "{}", x.text.x);
+    // Its dashed red bottom border, and no base rule on its removed top.
+    let red: Vec<_> = l.rules.iter().filter(|r| r.color == "#FF0000").collect();
+    assert_eq!(red.len(), 1);
+    assert_eq!(red[0].dash, Some(9.0));
+    assert!((red[0].y1 - (x.y + x.height)).abs() < EPS);
+    assert!(!l.rules.iter().any(|r| r.y1 == r.y2
+        && r.color == LIGHT
+        && (r.y1 - (x.y + 1.0)).abs() < 1.5
+        && r.x1 == x.x
+        && (r.y1 - x.y).abs() < 2.1
+        && r.y1 < x.y + 2.1));
+    // The boundary is as thick as the widest border on it (3px, not the 1px hairline).
+    let y = l
+        .cells
+        .iter()
+        .find(|c| c.text.lines[0].text() == "y")
+        .unwrap();
+    assert!(
+        (y.text.y - (y.y + 1.5 + 8.0)).abs() < EPS,
+        "{} {}",
+        y.text.y,
+        y.y
+    );
+    assert_ok(check("borders", &t));
+}
+
+#[test]
+fn base_styles_off_draws_no_rules_and_no_color() {
+    let t = examples()
+        .into_iter()
+        .find(|e| e.name == "regional-sales")
+        .unwrap()
+        .table();
+    let config = SvgConfig {
+        base_styles: false,
+        ..SvgConfig::default()
+    };
+    let l = layout(&t, &config);
+    assert!(l.rules.is_empty(), "{:?}", &l.rules[..1]);
+    let svg = render(&t, &config).unwrap();
+    assert!(!svg.contains("fill: #333333"), "{svg}");
+    assert_ok(check("plain", &t));
+    // The default draws them.
+    assert!(!layout(&t, &SvgConfig::default()).rules.is_empty());
 }
