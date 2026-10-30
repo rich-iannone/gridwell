@@ -1,7 +1,9 @@
 use gridwell_core::{Color, FontSize, Length};
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{HAlign, Table};
-use gridwell_layout::{resolve, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable};
+use gridwell_ir::{BorderStyle, HAlign, Table};
+use gridwell_layout::{
+    resolve, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, Sides, Stroke,
+};
 use std::fmt::Write;
 use thiserror::Error;
 
@@ -137,8 +139,11 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
                 let text = self.content(label.content);
                 let cols = rt.columns.len();
                 self.line("table.hline(stroke: 0.5pt),");
+                let stroke = typst_stroke(&label.style.strokes(BASE_PT))
+                    .map(|s| format!(", {s}"))
+                    .unwrap_or_default();
                 self.line(&format!(
-                    "table.cell(colspan: {cols}, fill: luma(240))[#text(weight: \"bold\")[{text}]],"
+                    "table.cell(colspan: {cols}, fill: luma(240){stroke})[#text(weight: \"bold\")[{text}]],"
                 ));
                 self.line("table.hline(stroke: 0.5pt),");
             }
@@ -179,6 +184,7 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
         if let Some(fill) = cell.style.fill() {
             attrs.push(format!("fill: {}", typst_color(fill)));
         }
+        attrs.extend(typst_stroke(&cell.style.strokes(BASE_PT)));
         // The column's alignment applies unless the cell's differs (its style, or a
         // centered spanner label).
         let own = typst_align(&cell.align);
@@ -331,6 +337,39 @@ fn typst_font_size(f: &FontSize) -> Option<String> {
         FontSize::Smaller => typst_len(&Length::Em(1.0 / 1.2)),
         FontSize::Larger => typst_len(&Length::Em(1.2)),
     }
+}
+
+/// The size relative sizes resolve against: Typst's default 11pt.
+const BASE_PT: f64 = 11.0;
+
+/// A cell's `stroke:` argument, one entry per side with a border. Typst has no
+/// double line: a double border is drawn solid at its full width.
+fn typst_stroke(strokes: &Sides<Option<Stroke>>) -> Option<String> {
+    fn one(k: &Stroke) -> Option<String> {
+        let mut parts = vec![format!(
+            "thickness: {}",
+            typst_len(&Length::Pt(k.width_pt))?
+        )];
+        if let Some(c) = k.color {
+            parts.push(format!("paint: {}", typst_color(c)));
+        }
+        match k.style {
+            BorderStyle::Dashed => parts.push("dash: \"dashed\"".into()),
+            BorderStyle::Dotted => parts.push("dash: \"dotted\"".into()),
+            _ => {}
+        }
+        Some(format!("({})", parts.join(", ")))
+    }
+    // The same edge all round is one stroke; otherwise one per side.
+    let Sides { top, .. } = strokes;
+    if top.is_some() && strokes.iter().all(|(_, k)| k == top) {
+        return Some(format!("stroke: {}", one(top.as_ref()?)?));
+    }
+    let sides: Vec<String> = strokes
+        .iter()
+        .filter_map(|(side, k)| Some(format!("{side}: {}", one(k.as_ref()?)?)))
+        .collect();
+    (!sides.is_empty()).then(|| format!("stroke: ({})", sides.join(", ")))
 }
 
 /// A Typst `rgb("#RRGGBB[AA]")`; Typst colors keep alpha.
