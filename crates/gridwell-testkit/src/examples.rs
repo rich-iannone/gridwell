@@ -1477,3 +1477,38 @@ fn scientific_table() -> Table {
         .source_note("Source: laboratory notebook, 2026.")
         .build()
 }
+
+// ──────────────────────────── outside the corpus ────────────────────────────
+
+/// For writers' border tests (not in the corpus): a 2×2 merged cell `M` with a
+/// 6px (4.5pt) green border on every side and plain cells `c` and `d` beside it,
+/// under a group label whose 1px dashed blue border is its only color.
+pub fn bordered_merge() -> Table {
+    let boxed = StyleDef {
+        border: Some(border_all(border("6px", "solid", "#00AA00"))),
+        ..Default::default()
+    };
+    let label = StyleDef {
+        border: Some(border_all(border("1px", "dashed", "#0000BB"))),
+        ..Default::default()
+    };
+    TableBuilder::new(3)
+        .style_def("box", boxed)
+        .style_def("label", label)
+        .head(row(vec![cell("H1"), cell("H2"), cell("H3")]))
+        .group(
+            labeled_group(
+                "Group",
+                vec![
+                    row(vec![
+                        cell("M").colspan(2).rowspan(2).style("box"),
+                        placeholder(),
+                        cell("c"),
+                    ]),
+                    row(vec![placeholder(), placeholder(), cell("d")]),
+                ],
+            )
+            .label_style("label"),
+        )
+        .build()
+}
