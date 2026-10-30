@@ -261,7 +261,7 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
             for cell in row.cells() {
                 let mut style = RunStyle::default();
                 apply_style(&mut style, &cell.style, fs);
-                let runs = content_runs(cell.content, &style, rt, fs, base);
+                let runs = content_runs(&cell.content, &style, rt, fs, base);
                 let natural = paragraphs_width(&runs, fs);
                 let part = if spanner_row && !cell.content.is_empty() && !cell.is_stub {
                     Part::Spanner
@@ -341,7 +341,7 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
             hrule[r] = wider(hrule[r], look.section_rule);
             bands.push(PendingBand {
                 row: r,
-                runs: content_runs(label.content, &style, rt, fs, base),
+                runs: content_runs(&label.content, &style, rt, fs, base),
                 fill: label.style.fill().map(|c| c.to_css()),
             });
             nrows += 1;
@@ -499,7 +499,7 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
             let mut style = RunStyle::default();
             apply_style(&mut style, &line.style, size);
             (
-                content_runs(line.content, &style, rt, size, base),
+                content_runs(&line.content, &style, rt, size, base),
                 size,
                 pad,
             )
@@ -514,7 +514,8 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     let notes: Vec<Vec<Vec<Run>>> = {
         let footer = &rt.footer;
         let footnotes = footer.footnotes.iter().map(|n| {
-            let mut paragraphs = content_runs(n.content, &RunStyle::default(), rt, note_size, base);
+            let mut paragraphs =
+                content_runs(&n.content, &RunStyle::default(), rt, note_size, base);
             let mut first = vec![
                 Run {
                     text: n.mark.to_string(),
@@ -532,7 +533,7 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
         let sources = footer
             .source_notes
             .iter()
-            .map(|n| content_runs(n.content, &RunStyle::default(), rt, note_size, base));
+            .map(|n| content_runs(&n.content, &RunStyle::default(), rt, note_size, base));
         footnotes.chain(sources).collect()
     };
     let columns_width: f64 = widths.iter().sum();
