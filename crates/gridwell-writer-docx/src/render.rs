@@ -28,6 +28,7 @@ pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
         Part::new("_rels/.rels", xml::RELS),
         Part::new("word/_rels/document.xml.rels", xml::DOCUMENT_RELS),
         Part::new("word/document.xml", document_xml.as_str()),
+        Part::new("word/styles.xml", xml::styles().as_str()),
     ])?)
 }
 
@@ -77,16 +78,22 @@ struct Fmt<'s> {
     superscript: bool,
     /// The font (`w:rFonts`); `None` leaves Word's default.
     font: Option<&'s str>,
+    /// The paragraph style's size in half-points, which relative sizes resolve
+    /// against when the runs set none (`None`: the document's 11pt).
+    inherited: Option<u32>,
 }
 
-/// The size relative font sizes resolve against: Word's default 11pt.
-const BASE_PT: f64 = 11.0;
+/// The size relative font sizes resolve against: the document default, 11pt.
+const BASE_PT: f64 = xml::BODY_HALF_POINTS as f64 / 2.0;
 
 impl<'s> Fmt<'s> {
     /// This format with a style's weight, slant, decoration, color, size and
     /// font laid over it (a relative size resolves against the size so far).
     fn with(self, style: &'s ResolvedStyle) -> Self {
-        let parent = self.half_points.map_or(BASE_PT, |h| f64::from(h) / 2.0);
+        let parent = self
+            .half_points
+            .or(self.inherited)
+            .map_or(BASE_PT, |h| f64::from(h) / 2.0);
         Self {
             bold: self.bold || style.is_bold(),
             italic: self.italic || style.is_italic(),
@@ -99,6 +106,7 @@ impl<'s> Fmt<'s> {
                 .or(self.half_points),
             superscript: self.superscript,
             font: style.font_name().or(self.font),
+            inherited: self.inherited,
         }
     }
 
@@ -120,6 +128,7 @@ fn write_title(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> 
         buf.push_str("<w:p><w:pPr><w:pStyle w:val=\"Title\"/></w:pPr>");
         let fmt = Fmt {
             bold: true,
+            inherited: Some(xml::TITLE_HALF_POINTS),
             ..Fmt::default()
         };
         write_content(buf, rt, &title.content, fmt.with(&title.style))?;
@@ -127,7 +136,11 @@ fn write_title(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> 
     }
     for line in header.subtitle.iter().chain(&header.extra_lines) {
         buf.push_str("<w:p><w:pPr><w:pStyle w:val=\"Subtitle\"/></w:pPr>");
-        write_content(buf, rt, &line.content, Fmt::default().with(&line.style))?;
+        let fmt = Fmt {
+            inherited: Some(xml::SUBTITLE_HALF_POINTS),
+            ..Fmt::default()
+        };
+        write_content(buf, rt, &line.content, fmt.with(&line.style))?;
         buf.push_str("</w:p>\n");
     }
     Ok(())
@@ -435,7 +448,11 @@ fn write_footnotes(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
         buf.push_str("<w:p/>\n"); // spacer
         for note in &footer.footnotes {
             buf.push_str("<w:p><w:pPr><w:pStyle w:val=\"FootnoteText\"/></w:pPr>");
-            let fmt = Fmt::default().with(&note.style);
+            let fmt = Fmt {
+                inherited: Some(xml::NOTE_HALF_POINTS),
+                ..Fmt::default()
+            }
+            .with(&note.style);
             write_run(
                 buf,
                 note.mark,
@@ -452,9 +469,10 @@ fn write_footnotes(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
     if !footer.source_notes.is_empty() {
         buf.push_str("<w:p/>\n"); // spacer
         for note in &footer.source_notes {
-            buf.push_str("<w:p>");
+            buf.push_str("<w:p><w:pPr><w:pStyle w:val=\"SourceNote\"/></w:pPr>");
             let fmt = Fmt {
                 italic: true,
+                inherited: Some(xml::NOTE_HALF_POINTS),
                 ..Fmt::default()
             };
             write_content(buf, rt, &note.content, fmt.with(&note.style))?;
