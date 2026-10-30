@@ -7,6 +7,20 @@ binary (returns bytes). Which styling features each Tier-1 writer (HTML, LaTeX, 
 RTF, DOCX, XLSX) actually expresses is measured, not claimed: see the
 [Feature Matrix](feature-matrix.qmd).
 
+Two styles are CSS values that other formats translate:
+
+- `font_family` is a CSS font list, which HTML writes as given. Typst takes the whole
+  list as font names; RTF, DOCX, XLSX and PPTX take one font per run, the first name
+  in the list. Either way, a generic family becomes a common font (`serif` Times New
+  Roman, `sans-serif` Arial, `monospace` Courier New), while generics with no common
+  font (`system-ui`, `cursive`, …) and vendor keywords such as `-apple-system` are
+  dropped. A list naming no font leaves the format's default font. LaTeX writes only
+  monospace families (below); SVG draws in its own font, and ANSI, Pandoc and Quarto
+  have no fonts.
+- `text_transform` (`uppercase`, `lowercase`, `capitalize`) changes the text itself
+  in every format except HTML, where CSS's `text-transform` applies it and the markup
+  keeps the text as written. Footnote marks are never transformed.
+
 ## Text Formats
 
 ### HTML
@@ -72,6 +86,9 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   `table` option, and `ulem` with `normalem` (`\usepackage[normalem]{ulem}`, so `\emph`
   keeps its meaning)
 - Special characters escaped: `& % $ # _ { } ~ ^ \`
+- `font_family` is written only for monospace families (`\texttt`, in cells and group
+  labels): a named system font needs XeLaTeX or LuaLaTeX with `fontspec`, and the
+  output also targets pdfLaTeX
 - `vertical_align` is not written: a `tabular` row sets its cells on one baseline
 
 ### Typst
@@ -80,13 +97,17 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - `table.cell(colspan: N, rowspan: N)` for spans
 - Column widths mapped to Typst length values
 - Styles via `table.cell(fill: ...)`, `text(weight: "bold")`
+- Fonts via `text(font: ("Georgia", "Times New Roman"))`: the whole list, in order, so
+  Typst falls back through it
 - Cell borders via `table.cell(stroke: ...)`, solid, dashed or dotted (Typst has no
   double line: a double border is drawn solid)
 - Vertical alignment with the cell's horizontal one (`align: left + bottom`)
 
 ### RTF
 
-- Full RTF document with color and font tables
+- Full RTF document with color and font tables; each font in the table is
+  classed by its list's generic family (`\froman`, `\fswiss`, `\fmodern`), which a
+  reader uses to pick a substitute when the font is missing
 - Column spans via `\cellx` boundaries, row spans via `\clvmgf`/`\clvmrg`
 - Column widths in twips (1/1440 inch)
 - Cell fills via `\clcbpat`; cell borders via `\clbrdrt`/`\clbrdrl`/`\clbrdrb`/`\clbrdrr`
@@ -137,7 +158,7 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Valid Office Open XML archive (ZIP)
 - Table in `word/document.xml`
 - Horizontal merge via `<w:gridSpan>`, vertical via `<w:vMerge>`
-- Bold, italic, color, size, shading and alignment (font family is not written yet)
+- Bold, italic, color, size, font (`<w:rFonts>`), shading and alignment
 - Table-wide single grid lines; a cell's own borders (`<w:tcBorders>`: solid, dashed,
   dotted, double) replace them on the sides it sets
 - Vertical alignment via `<w:vAlign>`, on every piece of a vertically merged cell
@@ -149,9 +170,9 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   as the table does (`0.0` for `76.0`, `#,##0` for `1,250`). A typed cell whose display
   is not a plain number (`<0.001`, a footnote mark) stays text.
 - Merge regions via `<mergeCells>`
-- Styles in `xl/styles.xml` (fonts, fills, borders, number formats); rich text where a
-  cell mixes formatting, in the shared-string table (apps such as Numbers ignore run
-  formatting in inline strings)
+- Styles in `xl/styles.xml` (fonts, fills, borders, number formats; a cell with no
+  font of its own is in Calibri); rich text where a cell mixes formatting, in the
+  shared-string table (apps such as Numbers ignore run formatting in inline strings)
 - Cells with line breaks wrap, and rows are tall enough for their lines and font sizes
 - Vertical alignment via the `vertical` attribute (Excel's own default is bottom)
 
@@ -159,7 +180,8 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 
 - DrawingML table (`<a:tbl>`) in a slide shape
 - Grid-based spans with `gridSpan`/`rowSpan` attributes
-- Text color, weight, slant and size, cell fills and alignment
+- Text color, weight, slant, size and font (`<a:latin>`, `<a:ea>`, `<a:cs>`), cell
+  fills and alignment
 - Cell borders as `lnL`/`lnR`/`lnT`/`lnB` lines (solid, dashed, dotted, double)
 - Vertical alignment via the cell's `anchor`
 - A complete package (theme, master color map, notes size), so PowerPoint and Keynote
