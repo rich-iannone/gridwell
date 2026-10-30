@@ -1704,13 +1704,13 @@ fn tex_split<'a>(s: &'a str, sep: &str) -> Vec<&'a str> {
     let bytes = s.as_bytes();
     let (mut depth, mut env, mut start, mut i) = (0i32, 0i32, 0usize, 0usize);
     while i < bytes.len() {
-        if s[i..].starts_with("\\begin{") {
+        if bytes[i..].starts_with(b"\\begin{") {
             env += 1;
-        } else if s[i..].starts_with("\\end{") {
+        } else if bytes[i..].starts_with(b"\\end{") {
             env -= 1;
         }
         match bytes[i] {
-            b'\\' if !s[i..].starts_with(sep) => {
+            b'\\' if !bytes[i..].starts_with(sep.as_bytes()) => {
                 i += 2;
                 continue;
             }
@@ -1718,7 +1718,7 @@ fn tex_split<'a>(s: &'a str, sep: &str) -> Vec<&'a str> {
             b'}' => depth -= 1,
             _ => {}
         }
-        if depth == 0 && env == 0 && s[i..].starts_with(sep) {
+        if depth == 0 && env == 0 && bytes[i..].starts_with(sep.as_bytes()) {
             parts.push(&s[start..i]);
             i += sep.len();
             start = i;
@@ -1920,10 +1920,47 @@ fn tex_collapse(lines: &[Vec<Option<Edge>>]) -> Vec<Option<Edge>> {
         .collect()
 }
 
+/// A longtable's rows as one table: its title and notes rows (a zero-width box
+/// across every column) are text outside the table, the head repeated on later
+/// pages (`\endfirsthead` to `\endhead`) is dropped, and so are its feet (after
+/// `\endhead`, to the last `\endfoot` or `\endlastfoot`), drawn again on every
+/// page. Returns the rows and the text outside them (heading, then notes).
+fn tex_longtable_parts(body: &str) -> (String, String) {
+    let lines: Vec<&str> = body.split_inclusive('\n').collect();
+    let at = |l: &&str, ends: &[&str]| ends.contains(&l.trim());
+    let first = lines.iter().position(|l| at(l, &["\\endfirsthead"]));
+    let head = lines.iter().position(|l| at(l, &["\\endhead"]));
+    let foot = lines
+        .iter()
+        .rposition(|l| at(l, &["\\endfoot", "\\endlastfoot"]));
+    let (mut rows, mut outside) = (String::new(), String::new());
+    for (i, l) in lines.iter().enumerate() {
+        let repeated = first.is_some_and(|f| i >= f) && head.is_some_and(|h| i <= h);
+        let in_foot = head.is_some_and(|h| i > h) && foot.is_some_and(|f| i <= f);
+        let wide = l
+            .trim_start()
+            .starts_with("\\multicolumn{")
+            .then(|| l.find("{\\raggedright "))
+            .flatten()
+            .filter(|_| l.contains("{@{}l@{}}{\\makebox[0pt]"));
+        match wide {
+            Some(p) => {
+                let chars: Vec<char> = l[p..].chars().collect();
+                let text = tex_group(&chars, &mut 0);
+                let text = text.trim_start_matches("\\raggedright");
+                outside.push_str(&format!("{text}\n"));
+            }
+            None if repeated || in_foot => {}
+            None => rows.push_str(l),
+        }
+    }
+    (rows, outside)
+}
+
 /// Read LaTeX source as the writer emits it (source-level: the compile oracle
 /// checks that it typesets). Columns' alignment comes from the column spec or a
-/// cell's `\multicolumn`; text outside the tabular (titles, notes) is
-/// `outside`. Rules (`\toprule`, `\hline`…) are table rules, not cell borders.
+/// cell's `\multicolumn`; text outside the tabular (titles, notes; a
+/// longtable's title and notes rows) is `outside`. Rules (`\toprule`, `\hline`…) are table rules, not cell borders.
 /// A cell's left and right borders are `!{…}` in its `\multicolumn` spec; a
 /// border line between two rows is read as the bottom border of the cells above
 /// it (collapsed borders belong to both), unless a rule separates them from it.
@@ -1939,6 +1976,7 @@ pub fn latex(src: &str) -> Doc {
         "\\begin{tabular}{",
         "\\begin{tabularx}{",
         "\\begin{longtable}{",
+        "\\begin{longtable}[l]{",
     ]
     .iter()
     .filter_map(|b| src.find(b).map(|i| (i, b.len())))
@@ -1968,9 +2006,10 @@ pub fn latex(src: &str) -> Doc {
     .min()
     .unwrap_or(src.len());
     let body_start = start + blen - 1 + chars[..k].iter().collect::<String>().len();
-    let body = &src[body_start..end];
+    let (body, inside) = tex_longtable_parts(&src[body_start..end]);
     let mut before = Vec::new();
     tex_runs(&src[..start], &mut base.clone(), &mut before, &mut None);
+    tex_runs(&inside, &mut base.clone(), &mut before, &mut None);
     let mut after = Vec::new();
     tex_runs(&src[end..], &mut base.clone(), &mut after, &mut None);
     for r in before.into_iter().chain(after) {
@@ -2020,7 +2059,7 @@ pub fn latex(src: &str) -> Doc {
             }
         }
     };
-    for line in tex_split(body, "\\\\") {
+    for line in tex_split(&body, "\\\\") {
         let (mut before, mut after) = (Vec::new(), Vec::new());
         let rest = tex_borders(line, &mut before, &mut after);
         if above.is_empty() {
