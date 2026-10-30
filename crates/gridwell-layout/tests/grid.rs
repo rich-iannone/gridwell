@@ -7,7 +7,7 @@
 //! and every covered slot must point back at the origin that covers it.
 
 use gridwell_ir::{Table, VMerge};
-use gridwell_layout::{resolve, ResolvedTable, Section, Slot};
+use gridwell_layout::{resolve, ResolvedTable, Section, Sides, Slot};
 use gridwell_testkit::spans::{label, tilings, Tiling};
 use gridwell_testkit::{
     cell, column, examples, group, placeholder, row, CellExt, ColumnExt, TableBuilder,
@@ -26,7 +26,9 @@ fn text(content: &[gridwell_ir::content::ContentNode]) -> String {
 /// - every covered slot points at an origin whose rectangle contains it, with
 ///   `last` set exactly on the rectangle's bottom row;
 /// - every origin's rectangle lies inside the section and its other positions are
-///   covered by it.
+///   covered by it;
+/// - `covering` names that origin for each position of its rectangle, with the
+///   rectangle's outer sides marked, and nothing for empty positions.
 ///
 /// Returns the number of `Empty` slots.
 fn check_section(s: &Section, width: usize, what: &str) -> usize {
@@ -69,6 +71,17 @@ fn check_section(s: &Section, width: usize, what: &str) -> usize {
                                 r + dr,
                                 c + dc
                             );
+                            let (owner, sides) = s
+                                .covering(r + dr, c + dc)
+                                .unwrap_or_else(|| panic!("{what}: nothing covers ({r},{c})"));
+                            assert!(std::ptr::eq(owner, &**cell), "{what}: covering owner");
+                            let want = Sides {
+                                top: dr == 0,
+                                right: dc == cell.colspan - 1,
+                                bottom: dr == cell.rowspan - 1,
+                                left: dc == 0,
+                            };
+                            assert_eq!(sides, want, "{what}: outline of ({},{})", r + dr, c + dc);
                         }
                     }
                 }
@@ -89,10 +102,17 @@ fn check_section(s: &Section, width: usize, what: &str) -> usize {
                     assert!(*origin_row < r && r < origin_row + o.rowspan, "{what}");
                     assert!(*origin_col <= c && c < origin_col + o.colspan, "{what}");
                 }
-                Slot::Empty => empty += 1,
+                Slot::Empty => {
+                    assert!(
+                        s.covering(r, c).is_none(),
+                        "{what}: empty ({r},{c}) covered"
+                    );
+                    empty += 1
+                }
             }
         }
     }
+    assert!(s.covering(s.rows.len(), 0).is_none() && s.covering(0, width).is_none());
     empty
 }
 
@@ -101,13 +121,36 @@ fn check_table(t: &ResolvedTable, what: &str) -> usize {
     t.sections().map(|s| check_section(s, width, what)).sum()
 }
 
-/// Continuation layout: each row's spans tile the visible columns left to right.
+/// Continuation layout: each row's spans tile the visible columns left to right,
+/// and each piece's owner and outline agree with `covering` at its two ends.
 fn check_continuation(s: &Section, width: usize, what: &str) {
     for (r, cells) in s.continuation_rows().iter().enumerate() {
         let mut next = 0;
         for m in cells {
             assert_eq!(m.col, next, "{what}: row {r} gap/overlap at {}", m.col);
             assert!(m.span >= 1);
+            match (s.covering(r, m.col), s.covering(r, m.col + m.span - 1)) {
+                (Some((first, a)), Some((last, b))) => {
+                    let owner = m.owner.unwrap_or_else(|| panic!("{what}: ownerless piece"));
+                    assert!(std::ptr::eq(owner, first) && std::ptr::eq(owner, last));
+                    if let Some(c) = m.cell {
+                        assert!(std::ptr::eq(c, owner), "{what}: origin piece owner");
+                    }
+                    let want = Sides {
+                        top: a.top,
+                        right: b.right,
+                        bottom: a.bottom,
+                        left: a.left,
+                    };
+                    assert_eq!(m.outline, want, "{what}: row {r} col {}", m.col);
+                    assert!(m.outline.left && m.outline.right, "{what}");
+                }
+                (None, None) => {
+                    assert!(m.owner.is_none() && m.span == 1, "{what}");
+                    assert_eq!(m.outline, Sides::default(), "{what}");
+                }
+                other => panic!("{what}: piece ends disagree: {other:?}"),
+            }
             // Continuations have no cell; starts always do.
             match m.vmerge {
                 VMerge::Continue => assert!(m.cell.is_none(), "{what}"),
