@@ -831,6 +831,49 @@ fn docs_page_matches_the_declared_matrix() {
     );
 }
 
+/// The probes' columns have no width; a column with one (fixed, `%`, `fr`) must
+/// keep its alignment and a cell's own (LaTeX writes those as paragraph
+/// columns, aligned by `\raggedleft`…, not by a column letter).
+#[test]
+fn alignment_holds_in_sized_columns() {
+    let t = TableBuilder::new(3)
+        .style_def("left", def(|d| d.text_align = Some("left".into())))
+        .columns(vec![
+            column("a", "A").width("90pt").align("right"),
+            column("b", "B").width("25%").align("center"),
+            column("c", "C").width("1fr").align("right"),
+        ])
+        .body(vec![
+            row(vec![cell("FIXED"), cell("PERCENT"), cell("FRACTION")]),
+            row(vec![
+                cell("OWNA").style("left"),
+                cell("OWNB").style("left"),
+                cell("OWNC").style("left"),
+            ]),
+        ])
+        .build();
+    for format in FORMATS {
+        let Some(docs) = read_all(format, std::slice::from_ref(&t)) else {
+            continue;
+        };
+        let doc = docs.into_iter().next().unwrap().unwrap();
+        for (text, want) in [
+            ("FIXED", Align::Right),
+            ("PERCENT", Align::Center),
+            ("FRACTION", Align::Right),
+            ("OWNA", Align::Left),
+            ("OWNB", Align::Left),
+            ("OWNC", Align::Left),
+        ] {
+            let l = get(&doc, text).unwrap();
+            // Office paragraphs are left-aligned unless they say otherwise.
+            let office = ["rtf", "docx", "xlsx", "pptx"].contains(format);
+            let got = l.align.or(office.then_some(Align::Left));
+            assert_eq!(got, Some(want), "{format} {text}: {l:?}");
+        }
+    }
+}
+
 /// Typst ≤ 0.12 (pinned in CI) renders `#super[7]` as the character "⁷"; newer
 /// versions keep "7" and use superscript glyphs. The reader must see a
 /// superscript "7" either way.
