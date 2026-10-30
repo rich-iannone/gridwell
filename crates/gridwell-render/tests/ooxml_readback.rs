@@ -238,6 +238,73 @@ fn every_package_is_typed_and_linked() {
 }
 
 #[test]
+fn every_docx_style_is_defined() {
+    // Word and LibreOffice draw a paragraph whose style isn't defined as Normal,
+    // so every style the document names is in `word/styles.xml`, with the right
+    // type, and so is every style those are based on.
+    let mut used = std::collections::BTreeSet::new();
+    for ex in gridwell_testkit::examples() {
+        let parts = package_parts(gridwell_writer_docx::render_docx(&ex.table()).unwrap());
+        let styles = &parts["word/styles.xml"];
+        let defined: std::collections::HashMap<String, String> = tags(styles, "style")
+            .into_iter()
+            .map(|a| (a["styleId"].clone(), a["type"].clone()))
+            .collect();
+        assert_eq!(
+            defined.len(),
+            tags(styles, "style").len(),
+            "duplicate style ids"
+        );
+        let doc = &parts["word/document.xml"];
+        for (tag, kind) in [("pStyle", "paragraph"), ("tblStyle", "table")] {
+            for a in tags(doc, tag) {
+                let id = &a["val"];
+                assert_eq!(
+                    defined.get(id).map(String::as_str),
+                    Some(kind),
+                    "{}: {tag} {id}",
+                    ex.name
+                );
+                used.insert(id.clone());
+            }
+        }
+        for tag in ["basedOn", "next"] {
+            for a in tags(styles, tag) {
+                assert!(defined.contains_key(&a["val"]), "{tag} {}", a["val"]);
+            }
+        }
+        // One default per type; the defaults set the 11pt the writer assumes.
+        for kind in ["paragraph", "table"] {
+            let defaults = tags(styles, "style")
+                .into_iter()
+                .filter(|a| a["type"] == kind && a.get("default").map(String::as_str) == Some("1"))
+                .count();
+            assert_eq!(defaults, 1, "{kind} defaults");
+        }
+        let default_size = styles
+            .split("<w:rPrDefault>")
+            .nth(1)
+            .and_then(|r| r.split("</w:rPrDefault>").next())
+            .unwrap_or_else(|| panic!("no rPrDefault: {styles}"));
+        assert!(
+            default_size.contains("<w:sz w:val=\"22\"/>"),
+            "{default_size}"
+        );
+    }
+    // The corpus names every style the writer uses.
+    assert_eq!(
+        used.into_iter().collect::<Vec<_>>(),
+        [
+            "FootnoteText",
+            "SourceNote",
+            "Subtitle",
+            "TableGrid",
+            "Title"
+        ]
+    );
+}
+
+#[test]
 fn pptx_package_has_the_parts_presentationml_requires() {
     // Keynote and PowerPoint refuse a package without a theme, a master color
     // map, or the presentation's notes size (all required by the schema).
