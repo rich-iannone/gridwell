@@ -1,9 +1,10 @@
 //! Structural oracle for RTF: groups balance, and every color index used (`\cfN`,
-//! `\clcbpatN`) exists in the color table written in the header. The color table
+//! `\clcbpatN`, `\brdrcfN`) exists in the color table written in the header. The color table
 //! is written before anything that uses it, so a color first seen late (a styled
 //! run, a title, a label, a note) must still have been registered up front.
 
 use gridwell_ir::{StyleDef, Table};
+use gridwell_testkit::examples::bordered_merge;
 use gridwell_testkit::{cell_content, examples, labeled_group, row, styled, text, TableBuilder};
 use gridwell_writer_rtf::render_rtf;
 
@@ -53,7 +54,7 @@ fn check(name: &str, t: &Table) {
         .next()
         .unwrap();
     let colors = table.matches(';').count();
-    for word in ["\\cf", "\\clcbpat"] {
+    for word in ["\\cf", "\\clcbpat", "\\brdrcf"] {
         for i in indices(&rtf, word) {
             assert!(
                 i >= 1 && i <= colors,
@@ -121,4 +122,38 @@ fn colours_first_used_outside_cells_are_registered() {
         );
     }
     assert!(rtf.contains("{\\b\\cf"), "{rtf}");
+}
+
+/// The cell definitions of each row (`\trowd` … first newline), split at `\cellx`.
+fn cell_defs(rtf: &str) -> Vec<Vec<String>> {
+    rtf.split("\\trowd")
+        .skip(1)
+        .map(|r| {
+            let defs = r.split('\n').next().unwrap();
+            defs.split("\\cellx").map(str::to_string).collect()
+        })
+        .collect()
+}
+
+#[test]
+fn merged_cells_are_outlined_once() {
+    let t = bordered_merge();
+    check("bordered merge", &t);
+    let rtf = render_rtf(&t).unwrap();
+    let rows = cell_defs(&rtf);
+    // Header, group label, then the two rows the merge spans.
+    let sides = |d: &str| ["t", "r", "b", "l"].map(|s| d.contains(&format!("\\clbrdr{s}")));
+    assert_eq!(sides(&rows[2][0]), [true, true, false, true], "{rtf}");
+    assert_eq!(sides(&rows[3][0]), [false, true, true, true], "{rtf}");
+    // The plain cells beside it have no borders.
+    assert_eq!(sides(&rows[2][1]), [false; 4], "{rtf}");
+    assert_eq!(sides(&rows[3][1]), [false; 4], "{rtf}");
+    // 4.5pt is 90 twips, past `\brdrw`'s 75: drawn as `\brdrth` at half.
+    assert!(rows[2][0].contains("\\brdrth\\brdrw45\\brdrcf"), "{rtf}");
+    // The label's color is registered though nothing else uses it.
+    assert!(
+        rows[1][0].contains("\\clbrdrt\\brdrdash\\brdrw15\\brdrcf"),
+        "{rtf}"
+    );
+    assert!(rtf.contains("\\red0\\green0\\blue187;"), "{rtf}");
 }
