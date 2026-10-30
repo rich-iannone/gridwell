@@ -27,13 +27,13 @@ listed in [Keyword values](validation.qmd#keyword-values); anything else is repo
 | `font_weight`      | string or number | `"normal"`, `"bold"`, `"bolder"`, `"lighter"`, or 1–1000 |
 | `font_style`       | string  | `"normal"`, `"italic"`, `"oblique"` |
 | `font_size`        | string  | CSS font-size value            |
-| `font_family`      | string  | Font family name               |
+| `font_family`      | string  | CSS font list (`"Georgia, serif"`) |
 | `color`            | string  | Text color                     |
 | `background_color` | string  | Background color               |
 | `text_align`       | string  | `"left"`, `"center"`, `"right"`, `"justify"` |
 | `vertical_align`   | string  | `"top"`, `"middle"`, `"bottom"`, `"baseline"`, `"super"`, `"sub"` |
 | `text_decoration`  | string  | `"none"`, `"underline"`, etc.  |
-| `text_transform`   | string  | `"none"`, `"uppercase"`, etc.  |
+| `text_transform`   | string  | `"none"`, `"uppercase"`, `"lowercase"`, `"capitalize"` |
 | `white_space`      | string  | CSS white-space value          |
 | `padding`          | object  | `{ top, right, bottom, left }` |
 | `border`           | object  | `{ top, right, bottom, left }` |
@@ -43,6 +43,9 @@ Outside HTML, `"baseline"`, `"super"` and `"sub"` place a cell's content at the 
 in a table cell they line up the first lines of a row's cells, which is where top
 alignment puts them when the cells share a font size. LaTeX output doesn't write
 `vertical_align` (see the [Feature Matrix](../guide/feature-matrix.qmd)).
+
+How formats other than HTML write `font_family` and `text_transform` is described in
+[Output Formats](../guide/output-formats.qmd).
 
 ### Border Side
 
