@@ -2,7 +2,7 @@
 source: crates/gridwell-writer-latex/tests/snapshots.rs
 expression: out
 ---
-\begin{tabular}{p{30pt}l}
+\begin{tabular}{>{\raggedleft\arraybackslash}p{30pt}l}
 \toprule
 \# & Description \\
 \midrule

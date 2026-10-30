@@ -2,10 +2,10 @@
 source: crates/gridwell-writer-latex/tests/snapshots.rs
 expression: out
 ---
-\begin{tabular}{p{90pt}p{0.25\linewidth}ll}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{90pt}>{\raggedright\arraybackslash}p{0.25\dimexpr \linewidth-8\tabcolsep\relax}>{\raggedright\arraybackslash}Xl}
 \toprule
 Fixed & Percent & Fraction & Auto \\
 \midrule
 120px & 25\% & 1fr & auto \\
 \bottomrule
-\end{tabular}
+\end{tabularx}

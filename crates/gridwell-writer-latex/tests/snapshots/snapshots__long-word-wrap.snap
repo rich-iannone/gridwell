@@ -2,7 +2,7 @@
 source: crates/gridwell-writer-latex/tests/snapshots.rs
 expression: out
 ---
-\begin{tabular}{p{75pt}p{90pt}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{75pt}>{\raggedright\arraybackslash}p{90pt}}
 \toprule
 Label & Token \\
 \midrule
