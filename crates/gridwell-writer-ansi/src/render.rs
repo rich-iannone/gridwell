@@ -126,7 +126,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
         for section in rt.sections() {
             for row in &section.rows {
                 for cell in row.cells().filter(|c| c.colspan == 1) {
-                    let text = content_to_text(cell.content, superscript_marks);
+                    let text = content_to_text(&cell.content, superscript_marks);
                     let w = UnicodeWidthStr::width(text.as_str());
                     widths[cell.col] = widths[cell.col].max(w + 2);
                 }
@@ -169,7 +169,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
         }
         for group in &rt.groups {
             if let Some(label) = &group.label {
-                bands.push(Band::Label(label.content));
+                bands.push(Band::Label(&label.content));
             }
             if !group.rows.is_empty() {
                 bands.push(Band::Rows(&group.rows, false));
@@ -220,12 +220,12 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
     fn render_title(&mut self) -> Result<(), RenderError> {
         let header = &self.rt.header;
         if let Some(title) = &header.title {
-            let text = self.text(title.content);
+            let text = self.text(&title.content);
             let (open, close) = self.bold();
             writeln!(self.buf, "{open}{text}{close}")?;
         }
         if let Some(subtitle) = &header.subtitle {
-            let text = self.text(subtitle.content);
+            let text = self.text(&subtitle.content);
             writeln!(self.buf, "{text}")?;
         }
         Ok(())
@@ -290,7 +290,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
                 Slot::Origin(cell) => {
                     sep(&mut self.buf, v);
                     let width = self.span_width(col, cell.colspan);
-                    let text = self.text(cell.content);
+                    let text = self.text(&cell.content);
                     let (open, close) = self.escapes(&cell.style, strong);
                     self.buf.push_str(&open);
                     self.buf.push_str(&fit(&text, width, &cell.align));
@@ -373,7 +373,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
 
     fn render_footnotes(&mut self) -> Result<(), RenderError> {
         for note in &self.rt.footer.footnotes {
-            let text = self.text(note.content);
+            let text = self.text(&note.content);
             let mark = if self.config.box_drawing {
                 superscript(note.mark)
             } else {
@@ -383,7 +383,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
             writeln!(self.buf, "  {mark} {text}")?;
         }
         for note in &self.rt.footer.source_notes {
-            let text = self.text(note.content);
+            let text = self.text(&note.content);
             writeln!(self.buf, "  {text}")?;
         }
         Ok(())
