@@ -2,7 +2,9 @@ use gridwell_core::xml::escape as escape_xml;
 use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table};
-use gridwell_layout::{resolve, ResolvedStyle, ResolvedTable, Section, Sides, Slot, Stroke};
+use gridwell_layout::{
+    resolve, CellVAlign, ResolvedStyle, ResolvedTable, Section, Sides, Slot, Stroke,
+};
 use gridwell_ooxml::{package, Part};
 use std::fmt::Write;
 use thiserror::Error;
@@ -331,7 +333,7 @@ fn write_slot(
     }
     buf.push_str("</a:p></a:txBody>");
 
-    write_tc_pr(buf, strokes, cell.style.fill())?;
+    write_tc_pr(buf, strokes, cell.style.fill(), cell.style.cell_valign())?;
     buf.push_str("</a:tc>");
     Ok(())
 }
@@ -339,14 +341,22 @@ fn write_slot(
 /// The size relative sizes resolve against: PowerPoint's 18pt table text.
 const BASE_PT: f64 = 18.0;
 
-/// `<a:tcPr>`: the cell's border lines (in schema order: left, right, top,
-/// bottom), then its fill.
+/// `<a:tcPr>`: the cell's vertical alignment (`anchor`; unset is top), its
+/// border lines (in schema order: left, right, top, bottom), then its fill.
 fn write_tc_pr(
     buf: &mut String,
     strokes: &Sides<Option<Stroke>>,
     fill: Option<Color>,
+    valign: Option<CellVAlign>,
 ) -> Result<(), RenderError> {
-    buf.push_str("<a:tcPr>");
+    buf.push_str("<a:tcPr");
+    match valign {
+        Some(CellVAlign::Top) => buf.push_str(" anchor=\"t\""),
+        Some(CellVAlign::Middle) => buf.push_str(" anchor=\"ctr\""),
+        Some(CellVAlign::Bottom) => buf.push_str(" anchor=\"b\""),
+        None => {}
+    }
+    buf.push('>');
     for (tag, stroke) in [
         ("lnL", &strokes.left),
         ("lnR", &strokes.right),
@@ -511,7 +521,7 @@ fn write_merged_cell(
     if *strokes == Sides::default() {
         buf.push_str("<a:tcPr/>");
     } else {
-        write_tc_pr(buf, strokes, None)?;
+        write_tc_pr(buf, strokes, None, None)?;
     }
     buf.push_str("</a:tc>");
     Ok(())
@@ -552,7 +562,7 @@ fn write_group_label_row(
         })
     };
     let fill = label.style.fill().unwrap_or(Color::rgb(0xF0, 0xF0, 0xF0));
-    write_tc_pr(buf, &piece(0), Some(fill))?;
+    write_tc_pr(buf, &piece(0), Some(fill), None)?;
     buf.push_str("</a:tc>");
     for c in 1..num_cols {
         write_merged_cell(buf, true, false, &piece(c))?;
