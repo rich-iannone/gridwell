@@ -1480,12 +1480,14 @@ fn scientific_table() -> Table {
 
 // ──────────────────────────── outside the corpus ────────────────────────────
 
-/// For writers' border tests (not in the corpus): a 2×2 merged cell `M` with a
-/// 6px (4.5pt) green border on every side and plain cells `c` and `d` beside it,
-/// under a group label whose 1px dashed blue border is its only color.
-pub fn bordered_merge() -> Table {
+/// For writers' merged-cell tests (not in the corpus): a 2×2 merged cell `M`,
+/// bottom-aligned, with a 6px (4.5pt) green border on every side and plain cells
+/// `c` and `d` beside it, under a group label whose 1px dashed blue border is
+/// its only color.
+pub fn styled_merge() -> Table {
     let boxed = StyleDef {
         border: Some(border_all(border("6px", "solid", "#00AA00"))),
+        vertical_align: Some("bottom".into()),
         ..Default::default()
     };
     let label = StyleDef {
