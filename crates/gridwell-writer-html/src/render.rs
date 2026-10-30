@@ -1,6 +1,6 @@
 use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{is_valid_style_id, HAlign, Keyword, RowRole, Table};
+use gridwell_ir::{is_valid_style_id, CellScope, HAlign, Keyword, RowRole, Table};
 use gridwell_layout::{
     resolve_with, ResolveOptions, ResolvedBorder, ResolvedCell, ResolvedRow, ResolvedStyle,
     ResolvedTable, SectionKind, Sides,
@@ -65,9 +65,9 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         };
         if !config.inline_styles {
             for section in rt.sections() {
-                let is_header = section.kind == gridwell_layout::SectionKind::Head;
                 for row in &section.rows {
                     for cell in row.cells() {
+                        let is_header = is_header_cell(cell, section.kind);
                         if let Some(a) = cell_alignment(cell, is_header) {
                             if !r.alignments.contains(&a) {
                                 r.alignments.push(a);
@@ -379,6 +379,9 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         if let Some(ref aria_label) = self.table.config.aria_label {
             attrs.push(format!("aria-label=\"{}\"", escape_attr(aria_label)));
         }
+        if let Some(ref ids) = self.table.config.aria_describedby {
+            attrs.push(format!("aria-describedby=\"{}\"", escape_attr(ids)));
+        }
 
         if let Some(w) = css_length(self.table.config.table_width.as_deref()) {
             attrs.push(format!("style=\"width: {w}\""));
@@ -496,7 +499,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
     }
 
     fn render_cell(&mut self, row: &ResolvedRow, cell: &ResolvedCell, kind: SectionKind) {
-        let is_header = kind == SectionKind::Head;
+        let is_header = is_header_cell(cell, kind);
         let tag = if is_header { "th" } else { "td" };
         let mut attrs = Vec::new();
         let part = cell_part(row, cell, kind).map(|part| self.part_class(part));
@@ -531,10 +534,8 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             }
         }
 
-        if is_header {
-            if let Some(scope) = &cell.scope {
-                attrs.push(format!("scope=\"{scope}\""));
-            }
+        if let Some(scope) = cell_scope(cell, kind) {
+            attrs.push(format!("scope=\"{scope}\""));
         }
 
         if cell.colspan > 1 {
@@ -797,6 +798,20 @@ fn html_lang(locale: &str) -> Option<String> {
     let ok = tag.chars().next().is_some_and(|c| c.is_ascii_alphabetic())
         && tag.chars().all(|c| c.is_ascii_alphanumeric() || c == '-');
     ok.then_some(tag)
+}
+
+/// Whether a cell is a header cell (`<th>`): every head cell, the stub (its row's
+/// label), and any other cell given a `scope`, which only a header cell can carry.
+fn is_header_cell(cell: &ResolvedCell, kind: SectionKind) -> bool {
+    kind == SectionKind::Head || cell.is_stub || cell.scope.is_some()
+}
+
+/// A header cell's `scope`: its own, else `row` for a stub below the head.
+fn cell_scope(cell: &ResolvedCell, kind: SectionKind) -> Option<CellScope> {
+    let stub = kind != SectionKind::Head && cell.is_stub;
+    cell.scope
+        .clone()
+        .or_else(|| stub.then_some(CellScope::Row))
 }
 
 /// The `text-align` a cell needs, if any: header cells always (browsers center
