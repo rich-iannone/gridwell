@@ -154,3 +154,27 @@ fn unknown_keywords_never_reach_the_output() {
         }
     }
 }
+
+#[test]
+fn text_transform_is_left_to_css() {
+    // Other writers get transformed content from the layout; HTML keeps it as
+    // written (copied text, screen readers) and says `text-transform` instead.
+    use gridwell_testkit::{cell, row, CellExt, TableBuilder};
+    let style = gridwell_ir::StyleDef {
+        text_transform: Some("uppercase".into()),
+        ..Default::default()
+    };
+    let t = TableBuilder::new(1)
+        .style_def("up", style)
+        .body(vec![row(vec![cell("quiet words").style("up")])])
+        .build();
+    for inline in [false, true] {
+        let html = render(&t, inline);
+        assert!(html.contains(">quiet words<"), "inline={inline}:\n{html}");
+        assert!(!html.contains("QUIET"), "inline={inline}:\n{html}");
+        assert!(
+            html.contains("text-transform: uppercase"),
+            "inline={inline}:\n{html}"
+        );
+    }
+}
