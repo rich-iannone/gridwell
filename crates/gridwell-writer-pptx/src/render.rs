@@ -1,8 +1,8 @@
 use gridwell_core::xml::escape as escape_xml;
 use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{HAlign, Table};
-use gridwell_layout::{resolve, ResolvedStyle, ResolvedTable, Section, Slot};
+use gridwell_ir::{BorderStyle, HAlign, Table};
+use gridwell_layout::{resolve, ResolvedStyle, ResolvedTable, Section, Sides, Slot, Stroke};
 use gridwell_ooxml::{package, Part};
 use std::fmt::Write;
 use thiserror::Error;
@@ -264,10 +264,16 @@ fn write_section(
     section: &Section,
     strong: bool,
 ) -> Result<(), RenderError> {
-    for row in &section.rows {
+    for (r, row) in section.rows.iter().enumerate() {
         write!(buf, "<a:tr h=\"{}\">", xml::DEFAULT_ROW_HEIGHT_EMU)?;
         for (col, slot) in row.slots.iter().enumerate() {
-            write_slot(buf, rt, col, slot, strong)?;
+            // Each position draws the borders of the cell covering it on the
+            // sides that lie on that cell's outline.
+            let strokes = section
+                .covering(r, col)
+                .map(|(owner, outline)| owner.style.strokes(BASE_PT).masked(outline))
+                .unwrap_or_default();
+            write_slot(buf, rt, col, slot, &strokes, strong)?;
         }
         buf.push_str("</a:tr>\n");
     }
@@ -282,23 +288,17 @@ fn write_slot(
     rt: &ResolvedTable,
     col: usize,
     slot: &Slot,
+    strokes: &Sides<Option<Stroke>>,
     strong: bool,
 ) -> Result<(), RenderError> {
     let cell = match slot {
         Slot::Origin(cell) => cell,
-        Slot::CoveredH { .. } => {
-            write_merged_cell(buf, true, false);
-            return Ok(());
-        }
+        Slot::CoveredH { .. } => return write_merged_cell(buf, true, false, strokes),
         Slot::CoveredV { origin_col, .. } => {
-            write_merged_cell(buf, col != *origin_col, true);
-            return Ok(());
+            return write_merged_cell(buf, col != *origin_col, true, strokes);
         }
         // Invalid IR only: an empty, unmerged cell keeps the grid intact.
-        Slot::Empty => {
-            write_merged_cell(buf, false, false);
-            return Ok(());
-        }
+        Slot::Empty => return write_merged_cell(buf, false, false, strokes),
     };
 
     buf.push_str("<a:tc");
@@ -331,8 +331,48 @@ fn write_slot(
     }
     buf.push_str("</a:p></a:txBody>");
 
+    write_tc_pr(buf, strokes, cell.style.fill())?;
+    buf.push_str("</a:tc>");
+    Ok(())
+}
+
+/// The size relative sizes resolve against: PowerPoint's 18pt table text.
+const BASE_PT: f64 = 18.0;
+
+/// `<a:tcPr>`: the cell's border lines (in schema order: left, right, top,
+/// bottom), then its fill.
+fn write_tc_pr(
+    buf: &mut String,
+    strokes: &Sides<Option<Stroke>>,
+    fill: Option<Color>,
+) -> Result<(), RenderError> {
     buf.push_str("<a:tcPr>");
-    if let Some(fill) = cell.style.fill() {
+    for (tag, stroke) in [
+        ("lnL", &strokes.left),
+        ("lnR", &strokes.right),
+        ("lnT", &strokes.top),
+        ("lnB", &strokes.bottom),
+    ] {
+        let Some(k) = stroke else { continue };
+        // EMU: 12700 per point.
+        let w = (k.width_pt * 12700.0).round().clamp(1.0, 20_116_800.0) as u32;
+        write!(buf, "<a:{tag} w=\"{w}\"")?;
+        if k.style == BorderStyle::Double {
+            buf.push_str(" cmpd=\"dbl\"");
+        }
+        let color = k.color.map_or("000000".into(), |c| c.flatten().to_rrggbb());
+        write!(
+            buf,
+            "><a:solidFill><a:srgbClr val=\"{color}\"/></a:solidFill>"
+        )?;
+        match k.style {
+            BorderStyle::Dashed => buf.push_str("<a:prstDash val=\"dash\"/>"),
+            BorderStyle::Dotted => buf.push_str("<a:prstDash val=\"sysDot\"/>"),
+            _ => {}
+        }
+        write!(buf, "</a:{tag}>")?;
+    }
+    if let Some(fill) = fill {
         write!(
             buf,
             "<a:solidFill><a:srgbClr val=\"{}\"/></a:solidFill>",
@@ -340,7 +380,6 @@ fn write_slot(
         )?;
     }
     buf.push_str("</a:tcPr>");
-    buf.push_str("</a:tc>");
     Ok(())
 }
 
@@ -361,7 +400,7 @@ impl Fmt {
     /// This format with a style laid over it. A relative size resolves against
     /// the size so far, or PowerPoint's 18pt table text.
     fn with(self, style: &ResolvedStyle) -> Self {
-        let parent = self.size.map_or(18.0, |s| f64::from(s) / 100.0);
+        let parent = self.size.map_or(BASE_PT, |s| f64::from(s) / 100.0);
         Self {
             bold: self.bold || style.is_bold(),
             italic: self.italic || style.is_italic(),
@@ -452,8 +491,14 @@ fn write_run(buf: &mut String, text: &str, fmt: Fmt) -> Result<bool, RenderError
     Ok(true)
 }
 
-/// An empty `<a:tc>` for a position covered by another cell's span.
-fn write_merged_cell(buf: &mut String, h_merge: bool, v_merge: bool) {
+/// An empty `<a:tc>` for a position covered by another cell's span, carrying
+/// that cell's borders on the sides it shares with the cell's outline.
+fn write_merged_cell(
+    buf: &mut String,
+    h_merge: bool,
+    v_merge: bool,
+    strokes: &Sides<Option<Stroke>>,
+) -> Result<(), RenderError> {
     buf.push_str("<a:tc");
     if h_merge {
         buf.push_str(" hMerge=\"1\"");
@@ -462,7 +507,14 @@ fn write_merged_cell(buf: &mut String, h_merge: bool, v_merge: bool) {
         buf.push_str(" vMerge=\"1\"");
     }
     buf.push_str("><a:txBody><a:bodyPr/><a:lstStyle/>");
-    buf.push_str("<a:p><a:endParaRPr/></a:p></a:txBody><a:tcPr/></a:tc>");
+    buf.push_str("<a:p><a:endParaRPr/></a:p></a:txBody>");
+    if *strokes == Sides::default() {
+        buf.push_str("<a:tcPr/>");
+    } else {
+        write_tc_pr(buf, strokes, None)?;
+    }
+    buf.push_str("</a:tc>");
+    Ok(())
 }
 
 fn write_group_label_row(
@@ -489,17 +541,21 @@ fn write_group_label_row(
         buf.push_str("<a:endParaRPr/>");
     }
     buf.push_str("</a:p></a:txBody>");
-    let fill = label
-        .style
-        .fill()
-        .map_or("F0F0F0".into(), |c| c.flatten().to_rrggbb());
-    write!(
-        buf,
-        "<a:tcPr><a:solidFill><a:srgbClr val=\"{fill}\"/></a:solidFill></a:tcPr>"
-    )?;
+    // The label spans every column: the first position takes the left edge, the
+    // last the right, and every position the top and bottom.
+    let strokes = label.style.strokes(BASE_PT);
+    let piece = |c: usize| {
+        strokes.masked(Sides {
+            left: c == 0,
+            right: c + 1 == num_cols,
+            ..Sides::ALL
+        })
+    };
+    let fill = label.style.fill().unwrap_or(Color::rgb(0xF0, 0xF0, 0xF0));
+    write_tc_pr(buf, &piece(0), Some(fill))?;
     buf.push_str("</a:tc>");
-    for _ in 1..num_cols {
-        write_merged_cell(buf, true, false);
+    for c in 1..num_cols {
+        write_merged_cell(buf, true, false, &piece(c))?;
     }
 
     buf.push_str("</a:tr>\n");
