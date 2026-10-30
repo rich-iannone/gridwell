@@ -1781,16 +1781,24 @@ fn tex_vrule(decl: &str) -> Option<Edge> {
 fn tex_spec(spec: &str) -> (Option<Align>, Option<Edge>, Option<Edge>) {
     let sc: Vec<char> = spec.chars().collect();
     let (mut align, mut left, mut right) = (None, None, None);
+    let mut setup = String::new();
     let mut j = 0;
     while j < sc.len() {
         match sc[j] {
             'l' => align = Some(Align::Left),
             'c' => align = Some(Align::Center),
             'r' => align = Some(Align::Right),
-            'p' | 'm' | 'b' => {
-                align = Some(Align::Justify);
+            'p' | 'm' | 'b' | 'X' => {
+                align = Some(tex_paragraph_align(&std::mem::take(&mut setup)));
                 j += 1;
-                let _ = tex_group(&sc, &mut j);
+                if sc[j - 1] != 'X' {
+                    let _ = tex_group(&sc, &mut j);
+                }
+                continue;
+            }
+            '>' => {
+                j += 1;
+                setup = tex_group(&sc, &mut j);
                 continue;
             }
             '!' => {
@@ -1803,7 +1811,7 @@ fn tex_spec(spec: &str) -> (Option<Align>, Option<Edge>, Option<Edge>) {
                 }
                 continue;
             }
-            '@' | '>' | '<' => {
+            '@' | '<' => {
                 j += 1;
                 let _ = tex_group(&sc, &mut j);
                 continue;
@@ -1813,6 +1821,20 @@ fn tex_spec(spec: &str) -> (Option<Align>, Option<Edge>, Option<Edge>) {
         j += 1;
     }
     (align, left, right)
+}
+
+/// The alignment of a paragraph column (`p{…}`, tabularx's `X`) set up by the
+/// `>{…}` before it: ragged, or justified without.
+fn tex_paragraph_align(setup: &str) -> Align {
+    if setup.contains("\\raggedright") {
+        Align::Left
+    } else if setup.contains("\\centering") {
+        Align::Center
+    } else if setup.contains("\\raggedleft") {
+        Align::Right
+    } else {
+        Align::Justify
+    }
 }
 
 /// Strip the table rules and horizontal border lines that start `line`. Border
@@ -1913,10 +1935,14 @@ pub fn latex(src: &str) -> Doc {
             ..Run::default()
         },
     };
-    let begin = ["\\begin{tabular}{", "\\begin{longtable}{"]
-        .iter()
-        .filter_map(|b| src.find(b).map(|i| (i, b.len())))
-        .min();
+    let begin = [
+        "\\begin{tabular}{",
+        "\\begin{tabularx}{",
+        "\\begin{longtable}{",
+    ]
+    .iter()
+    .filter_map(|b| src.find(b).map(|i| (i, b.len())))
+    .min();
     let Some((start, blen)) = begin else {
         let mut runs = Vec::new();
         tex_runs(src, &mut base.clone(), &mut runs, &mut None);
@@ -1927,12 +1953,20 @@ pub fn latex(src: &str) -> Doc {
     };
     let chars: Vec<char> = src[start + blen - 1..].chars().collect();
     let mut k = 0;
-    let spec = tex_group(&chars, &mut k);
-    let end = ["\n\\end{tabular}", "\n\\end{longtable}"]
-        .iter()
-        .filter_map(|e| src[start..].find(e).map(|i| start + i))
-        .min()
-        .unwrap_or(src.len());
+    let mut spec = tex_group(&chars, &mut k);
+    if src[start..].starts_with("\\begin{tabularx}") {
+        // The first group is the table's width.
+        spec = tex_group(&chars, &mut k);
+    }
+    let end = [
+        "\n\\end{tabular}",
+        "\n\\end{tabularx}",
+        "\n\\end{longtable}",
+    ]
+    .iter()
+    .filter_map(|e| src[start..].find(e).map(|i| start + i))
+    .min()
+    .unwrap_or(src.len());
     let body_start = start + blen - 1 + chars[..k].iter().collect::<String>().len();
     let body = &src[body_start..end];
     let mut before = Vec::new();
@@ -1945,19 +1979,27 @@ pub fn latex(src: &str) -> Doc {
     // Column alignments.
     let mut aligns = Vec::new();
     let sc: Vec<char> = spec.chars().collect();
+    let mut setup = String::new();
     let mut j = 0;
     while j < sc.len() {
         match sc[j] {
             'l' => aligns.push(Align::Left),
             'c' => aligns.push(Align::Center),
             'r' => aligns.push(Align::Right),
-            'p' | 'm' | 'b' => {
-                aligns.push(Align::Justify);
+            'p' | 'm' | 'b' | 'X' => {
+                aligns.push(tex_paragraph_align(&std::mem::take(&mut setup)));
                 j += 1;
-                let _ = tex_group(&sc, &mut j);
+                if sc[j - 1] != 'X' {
+                    let _ = tex_group(&sc, &mut j);
+                }
                 continue;
             }
-            '@' | '>' | '<' | '!' => {
+            '>' => {
+                j += 1;
+                setup = tex_group(&sc, &mut j);
+                continue;
+            }
+            '@' | '<' | '!' => {
                 j += 1;
                 let _ = tex_group(&sc, &mut j);
                 continue;
