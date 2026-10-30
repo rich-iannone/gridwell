@@ -471,15 +471,44 @@ fn tex_table(words: &[Word]) -> Result<TexTable, String> {
         edges.push(xs.chunks(2).map(|p| (p[0], p[1])).collect());
     }
     let half = TABCOLSEP / 2.0;
+    // A cell border's rule (`!{\vrule}`) sits between two cells' edges, inside
+    // the cell to its left: a cell's left edge is where its column starts, its
+    // right edge can be a rule's width short of the next column. So boundaries
+    // are left edges, a cell ends where the next one starts, and a row's outer
+    // edges (shifted by a rule on the table's sides) are matched to the nearest
+    // boundary, so a row ending a column early still shows.
+    let (Some(start), Some(end)) = (
+        edges
+            .iter()
+            .filter_map(|row| row.first())
+            .map(|e| e.0 - half)
+            .reduce(f64::min),
+        edges
+            .iter()
+            .filter_map(|row| row.last())
+            .map(|e| e.1 + half)
+            .reduce(f64::max),
+    ) else {
+        return Err("no cells".into());
+    };
     let boundaries = distinct(
         edges
             .iter()
-            .flatten()
-            .flat_map(|&(l, r)| [l - half, r + half])
+            .flat_map(|row| row.iter().skip(1).map(|&(l, _)| l - half))
+            .chain([start, end])
             .collect(),
         SAME_EDGE,
     );
     let id = |x: f64| index_of(&boundaries, x);
+    let nearest = |x: f64| {
+        (0..boundaries.len())
+            .min_by(|&a, &b| {
+                (boundaries[a] - x)
+                    .abs()
+                    .total_cmp(&(boundaries[b] - x).abs())
+            })
+            .unwrap()
+    };
     /// A cell being filled: its edges (x) and the words found in it.
     struct Filling<'w> {
         cell: TexCell,
@@ -490,11 +519,17 @@ fn tex_table(words: &[Word]) -> Result<TexTable, String> {
     let mut rows: Vec<Vec<Filling>> = edges
         .iter()
         .map(|row| {
+            let edge = |i: usize| match i {
+                0 => nearest(row[0].0 - half),
+                i if i == row.len() => nearest(row[i - 1].1 + half),
+                i => id(row[i].0 - half),
+            };
             row.iter()
-                .map(|&(l, r)| {
+                .enumerate()
+                .map(|(i, &(l, r))| {
                     let cell = TexCell {
-                        from: id(l - half),
-                        to: id(r + half),
+                        from: edge(i),
+                        to: edge(i + 1),
                         text: String::new(),
                         words: Vec::new(),
                     };
