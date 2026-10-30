@@ -39,7 +39,11 @@ Two styles are CSS values that other formats translate:
 - Scoped `<style>` block with generated class names
 - Optional inline-style mode for email/embedded contexts
 - Footnote marks as `<sup>` linked to footer
-- Accessibility: `scope`, `aria-label`, `<caption>`
+- Accessibility: the stub is a row header (`<th scope="row">`), and any cell with a
+  `scope` is a header cell with that scope; the table takes `aria-label` and
+  `aria-describedby` from the config, and `summary` becomes its `<caption>`. A
+  browser draws `<th>` bold: the base stylesheet keeps stubs and column labels at
+  normal weight, so with `base_styles: false` or `inline_styles` both are bold
 - Class names for each structural part (below)
 
 Every structural part has a class, so a stylesheet (the host page's) can target it.
@@ -53,7 +57,7 @@ emitted with inline styles too.
 | `gw_table` | `<table>` | The table |
 | `gw_col_labels`, `gw_spanners` | `<tr>` in `<thead>` | Column-label and spanner rows (a head row without a `role` counts as column labels) |
 | `gw_col_label`, `gw_spanner` | `<th>` | Column labels; spanner labels (filler cells in a spanner row get no class) |
-| `gw_stubhead`, `gw_stub` | `<th>`, `<td>` | Stub column cells in the head and in the body |
+| `gw_stubhead`, `gw_stub` | `<th>` | Stub column cells in the head and in the body |
 | `gw_group_label` | `<td>` | A row group's label |
 | `gw_summary`, `gw_grand_summary` | `<tr>` | Summary and grand summary rows |
 | `gw_footer`, `gw_footnotes`, `gw_source_notes` | `<div>` | The footer and its two blocks |
