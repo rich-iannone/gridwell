@@ -88,6 +88,15 @@ pub struct Stroke {
     pub color: Option<Color>,
 }
 
+/// Where a cell's content sits in its box, for formats with no baseline
+/// alignment. See [`ResolvedStyle::cell_valign`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CellVAlign {
+    Top,
+    Middle,
+    Bottom,
+}
+
 /// The width of a border with no usable width of its own: CSS's `medium` is
 /// 3px, but every writer draws 1px (0.75pt), as browsers' table rules do.
 const DEFAULT_BORDER_PT: f64 = 0.75;
@@ -218,6 +227,18 @@ impl ResolvedStyle {
             .as_ref()?
             .to_pt(base_pt, base_pt)
             .filter(|pt| pt.is_finite() && *pt > 0.0)
+    }
+
+    /// The cell's vertical alignment. CSS's `baseline`, `sub` and `super` line up
+    /// the first lines of a row's cells, which is where top alignment puts them
+    /// when the cells share a font size, so they are `Top`.
+    pub fn cell_valign(&self) -> Option<CellVAlign> {
+        Some(match self.vertical_align.as_ref()? {
+            VAlign::Middle => CellVAlign::Middle,
+            VAlign::Bottom => CellVAlign::Bottom,
+            VAlign::Top | VAlign::Baseline | VAlign::Super | VAlign::Sub => CellVAlign::Top,
+            VAlign::Unknown(_) => return None,
+        })
     }
 
     /// The border edges that draw something, for formats that need a concrete
@@ -504,6 +525,19 @@ mod text_tests {
         assert!((top.width_pt - 2.0).abs() < 1e-9, "{top:?}");
         assert_eq!(top.color, None);
         assert_eq!(ResolvedStyle::default().strokes(12.0), Sides::default());
+    }
+
+    #[test]
+    fn baseline_alignments_sit_at_the_top() {
+        let v = |s: &str| style(|d| d.vertical_align = Some(s.into())).cell_valign();
+        assert_eq!(v("top"), Some(CellVAlign::Top));
+        assert_eq!(v("middle"), Some(CellVAlign::Middle));
+        assert_eq!(v("Bottom"), Some(CellVAlign::Bottom));
+        for s in ["baseline", "sub", "super"] {
+            assert_eq!(v(s), Some(CellVAlign::Top), "{s}");
+        }
+        assert_eq!(v("center"), None);
+        assert_eq!(ResolvedStyle::default().cell_valign(), None);
     }
 
     #[test]
