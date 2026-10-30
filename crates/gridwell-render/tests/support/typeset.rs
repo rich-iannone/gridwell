@@ -235,7 +235,7 @@ const SAME_EDGE: f64 = 0.1;
 /// table, and the cell-edge markers (see the module docs).
 const LATEX_PREAMBLE: &str = r"\documentclass{article}
 \usepackage[paperwidth=100in,paperheight=100in,margin=1in]{geometry}
-\usepackage{booktabs,multirow,longtable}
+\usepackage{booktabs,multirow,longtable,tabularx}
 \usepackage[normalem]{ulem}
 \usepackage[table]{xcolor}
 \setlength{\parindent}{0pt}
@@ -308,17 +308,20 @@ pub struct TexTable {
     pub rows: Vec<Vec<TexCell>>,
 }
 
-/// The tabular (or longtable) of the writer's output: titles and notes are
-/// outside the grid. `None` when there is none (every column hidden).
+/// The tabular (or tabularx, or longtable) of the writer's output: titles and
+/// notes are outside the grid. `None` when there is none (every column hidden).
 pub fn latex_tabular(src: &str) -> Option<&str> {
-    let start = src
-        .find("\\begin{tabular}{")
-        .into_iter()
-        .chain(src.find("\\begin{longtable}{"))
-        .min()?;
-    let end = ["\n\\end{tabular}\n", "\n\\end{longtable}\n"]
+    const ENVS: [&str; 3] = ["tabular", "tabularx", "longtable"];
+    let start = ENVS
         .iter()
-        .filter_map(|e| src[start..].find(e).map(|i| start + i + e.len()))
+        .filter_map(|e| src.find(&format!("\\begin{{{e}}}{{")))
+        .min()?;
+    let end = ENVS
+        .iter()
+        .filter_map(|e| {
+            let e = format!("\n\\end{{{e}}}\n");
+            src[start..].find(&e).map(|i| start + i + e.len())
+        })
         .min()?;
     Some(&src[start..end])
 }
