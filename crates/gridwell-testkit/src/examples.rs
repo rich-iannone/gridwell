@@ -1514,3 +1514,35 @@ pub fn styled_merge() -> Table {
         )
         .build()
 }
+
+/// For writers' font tests (not in the corpus): a title in `'Fira Mono',
+/// monospace`; body cells `a` in `Georgia, serif` with a bold run `e` (no font
+/// of its own), `b` with a run `c` in the monospace style, and `d` in
+/// `system-ui, cursive`, which names no font.
+pub fn font_families() -> Table {
+    let family = |f: &str| StyleDef {
+        font_family: Some(f.into()),
+        ..Default::default()
+    };
+    let mut t = TableBuilder::new(3)
+        .style_def("serif", family("Georgia, serif"))
+        .style_def("mono", family("'Fira Mono', monospace"))
+        .style_def("generic", family("system-ui, cursive"))
+        .style_def(
+            "bold",
+            StyleDef {
+                font_weight: Some("bold".into()),
+                ..Default::default()
+            },
+        )
+        .title("Title")
+        .head(row(vec![cell("H1"), cell("H2"), cell("H3")]))
+        .body(vec![row(vec![
+            cell_content(vec![text("a "), styled("e", "bold")]).style("serif"),
+            cell_content(vec![text("b "), styled("c", "mono")]),
+            cell("d").style("generic"),
+        ])])
+        .build();
+    t.header.as_mut().unwrap().title.as_mut().unwrap().style_id = Some("mono".into());
+    t
+}
