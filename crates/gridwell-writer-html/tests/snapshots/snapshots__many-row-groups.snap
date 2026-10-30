@@ -20,11 +20,11 @@ expression: out
         </td>
       </tr>
       <tr>
-        <td class="gw_stub">k1a</td>
+        <th class="gw_stub gw__al_left" scope="row">k1a</th>
         <td>10</td>
       </tr>
       <tr>
-        <td class="gw_stub">k1b</td>
+        <th class="gw_stub gw__al_left" scope="row">k1b</th>
         <td>20</td>
       </tr>
     </tbody>
@@ -35,11 +35,11 @@ expression: out
         </td>
       </tr>
       <tr>
-        <td class="gw_stub">k2a</td>
+        <th class="gw_stub gw__al_left" scope="row">k2a</th>
         <td>20</td>
       </tr>
       <tr>
-        <td class="gw_stub">k2b</td>
+        <th class="gw_stub gw__al_left" scope="row">k2b</th>
         <td>40</td>
       </tr>
     </tbody>
@@ -50,11 +50,11 @@ expression: out
         </td>
       </tr>
       <tr>
-        <td class="gw_stub">k3a</td>
+        <th class="gw_stub gw__al_left" scope="row">k3a</th>
         <td>30</td>
       </tr>
       <tr>
-        <td class="gw_stub">k3b</td>
+        <th class="gw_stub gw__al_left" scope="row">k3b</th>
         <td>60</td>
       </tr>
     </tbody>
@@ -65,11 +65,11 @@ expression: out
         </td>
       </tr>
       <tr>
-        <td class="gw_stub">k4a</td>
+        <th class="gw_stub gw__al_left" scope="row">k4a</th>
         <td>40</td>
       </tr>
       <tr>
-        <td class="gw_stub">k4b</td>
+        <th class="gw_stub gw__al_left" scope="row">k4b</th>
         <td>80</td>
       </tr>
     </tbody>
@@ -80,11 +80,11 @@ expression: out
         </td>
       </tr>
       <tr>
-        <td class="gw_stub">k5a</td>
+        <th class="gw_stub gw__al_left" scope="row">k5a</th>
         <td>50</td>
       </tr>
       <tr>
-        <td class="gw_stub">k5b</td>
+        <th class="gw_stub gw__al_left" scope="row">k5b</th>
         <td>100</td>
       </tr>
     </tbody>

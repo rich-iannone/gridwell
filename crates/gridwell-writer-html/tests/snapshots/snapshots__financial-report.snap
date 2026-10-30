@@ -22,22 +22,22 @@ expression: out
     </thead>
     <tbody>
       <tr>
-        <td class="gw_stub">Revenue</td>
+        <th class="gw_stub gw__al_left" scope="row">Revenue</th>
         <td class="gw__al_right">$1,200</td>
         <td class="gw__al_right">$1,350</td>
       </tr>
       <tr>
-        <td class="gw_stub">COGS</td>
+        <th class="gw_stub gw__al_left" scope="row">COGS</th>
         <td class="gw__al_right gw__c0">$700</td>
         <td class="gw__al_right gw__c0">$760</td>
       </tr>
       <tr>
-        <td class="gw_stub">Opex</td>
+        <th class="gw_stub gw__al_left" scope="row">Opex</th>
         <td class="gw__al_right">$300</td>
         <td class="gw__al_right">$320</td>
       </tr>
       <tr class="gw_summary">
-        <td class="gw_stub gw_style-total">Net income</td>
+        <th class="gw_stub gw__al_left gw_style-total" scope="row">Net income</th>
         <td class="gw__al_right gw_style-total">$200</td>
         <td class="gw__al_right gw_style-total">$270</td>
       </tr>

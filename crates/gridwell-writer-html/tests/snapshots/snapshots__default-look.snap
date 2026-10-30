@@ -21,9 +21,9 @@ expression: render_html(&ex.table()).unwrap()
     :where(.gw_spanner:first-child:last-child) { background-size: 100% 2px }
     :where(.gw_group_label) { border-top: 2px solid #D3D3D3; border-bottom: 2px solid #D3D3D3 }
     :where(.gw_stub) { border-right: 2px solid #D3D3D3 }
-    :where(tbody > tr.gw_summary:first-child td, tr:not(.gw_summary) + tr.gw_summary td) { border-top: 2px solid #D3D3D3 }
-    :where(tbody > tr.gw_grand_summary:first-child td, tr:not(.gw_grand_summary) + tr.gw_grand_summary td) { border-top: 6px double #D3D3D3 }
-    :where(.gw_table td.gw__al_right) { font-variant-numeric: tabular-nums }
+    :where(tbody > tr.gw_summary:first-child > *, tr:not(.gw_summary) + tr.gw_summary > *) { border-top: 2px solid #D3D3D3 }
+    :where(tbody > tr.gw_grand_summary:first-child > *, tr:not(.gw_grand_summary) + tr.gw_grand_summary > *) { border-top: 6px double #D3D3D3 }
+    :where(.gw_table tbody .gw__al_right) { font-variant-numeric: tabular-nums }
     :where(.gw_footer) { border-bottom: 2px solid #A8A8A8 }
     :where(.gw_footnote, .gw_source_note) { margin: 0; font-size: 90%; padding: 4px 5px }
     :where(.gw_footnote_mark) { font-size: 75%; vertical-align: 0.4em; line-height: 0; font-style: italic }
@@ -46,22 +46,22 @@ expression: render_html(&ex.table()).unwrap()
     </thead>
     <tbody>
       <tr>
-        <td class="gw_stub">Revenue</td>
+        <th class="gw_stub gw__al_left" scope="row">Revenue</th>
         <td class="gw__al_right">$1,200</td>
         <td class="gw__al_right">$1,350</td>
       </tr>
       <tr>
-        <td class="gw_stub">COGS</td>
+        <th class="gw_stub gw__al_left" scope="row">COGS</th>
         <td class="gw__al_right gw__c0">$700</td>
         <td class="gw__al_right gw__c0">$760</td>
       </tr>
       <tr>
-        <td class="gw_stub">Opex</td>
+        <th class="gw_stub gw__al_left" scope="row">Opex</th>
         <td class="gw__al_right">$300</td>
         <td class="gw__al_right">$320</td>
       </tr>
       <tr class="gw_summary">
-        <td class="gw_stub gw_style-total">Net income</td>
+        <th class="gw_stub gw__al_left gw_style-total" scope="row">Net income</th>
         <td class="gw__al_right gw_style-total">$200</td>
         <td class="gw__al_right gw_style-total">$270</td>
       </tr>

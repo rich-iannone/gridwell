@@ -23,19 +23,19 @@ expression: out
     </thead>
     <tbody>
       <tr>
-        <td class="gw_stub">A</td>
+        <th class="gw_stub gw__al_left" scope="row">A</th>
         <td class="gw__al_right">1.2×10³</td>
         <td class="gw__al_right">298</td>
         <td class="gw__al_right">52.3</td>
       </tr>
       <tr>
-        <td class="gw_stub">B</td>
+        <th class="gw_stub gw__al_left" scope="row">B</th>
         <td class="gw__al_right">3.4×10²</td>
         <td class="gw__al_right">298</td>
         <td class="gw__al_right">61.0</td>
       </tr>
       <tr>
-        <td class="gw_stub">C</td>
+        <th class="gw_stub gw__al_left" scope="row">C</th>
         <td class="gw__al_right">8.9×10¹</td>
         <td class="gw__al_right">310</td>
         <td class="gw__al_right">70.8</td>

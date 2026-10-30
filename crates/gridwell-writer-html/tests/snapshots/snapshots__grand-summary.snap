@@ -15,21 +15,21 @@ expression: out
     </thead>
     <tbody>
       <tr>
-        <td class="gw_stub">Alpha</td>
+        <th class="gw_stub gw__al_left" scope="row">Alpha</th>
         <td>10</td>
       </tr>
       <tr>
-        <td class="gw_stub">Beta</td>
+        <th class="gw_stub gw__al_left" scope="row">Beta</th>
         <td>20</td>
       </tr>
       <tr>
-        <td class="gw_stub">Gamma</td>
+        <th class="gw_stub gw__al_left" scope="row">Gamma</th>
         <td>30</td>
       </tr>
     </tbody>
     <tbody>
       <tr class="gw_grand_summary">
-        <td class="gw_stub">Total</td>
+        <th class="gw_stub gw__al_left" scope="row">Total</th>
         <td>60</td>
       </tr>
     </tbody>

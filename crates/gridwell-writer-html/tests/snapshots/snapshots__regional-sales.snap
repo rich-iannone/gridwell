@@ -36,7 +36,7 @@ expression: out
         </td>
       </tr>
       <tr>
-        <td class="gw_stub" rowspan="2">United States</td>
+        <th class="gw_stub gw__al_left" scope="row" rowspan="2">United States</th>
         <td class="gw__al_right">2023</td>
         <td class="gw__al_right">1,250.3</td>
         <td class="gw__al_right">
@@ -49,7 +49,7 @@ expression: out
         <td class="gw__al_right">330.3</td>
       </tr>
       <tr>
-        <td class="gw_stub">Canada</td>
+        <th class="gw_stub gw__al_left" scope="row">Canada</th>
         <td class="gw__al_right">2024</td>
         <td class="gw__al_right">420.1</td>
         <td class="gw__al_right">109.5</td>
@@ -62,13 +62,13 @@ expression: out
         </td>
       </tr>
       <tr>
-        <td class="gw_stub">Germany</td>
+        <th class="gw_stub gw__al_left" scope="row">Germany</th>
         <td class="gw__al_right">2024</td>
         <td class="gw__al_right">945.2</td>
         <td class="gw__al_right">164.9</td>
       </tr>
       <tr>
-        <td class="gw_stub">France</td>
+        <th class="gw_stub gw__al_left" scope="row">France</th>
         <td class="gw__al_right">2024</td>
         <td class="gw__al_right">610.8</td>
         <td class="gw__al_right">120.6</td>

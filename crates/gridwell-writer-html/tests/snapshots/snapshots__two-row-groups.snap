@@ -20,11 +20,11 @@ expression: out
         </td>
       </tr>
       <tr>
-        <td class="gw_stub">USA</td>
+        <th class="gw_stub gw__al_left" scope="row">USA</th>
         <td>1250</td>
       </tr>
       <tr>
-        <td class="gw_stub">Canada</td>
+        <th class="gw_stub gw__al_left" scope="row">Canada</th>
         <td>420</td>
       </tr>
     </tbody>
@@ -35,11 +35,11 @@ expression: out
         </td>
       </tr>
       <tr>
-        <td class="gw_stub">Germany</td>
+        <th class="gw_stub gw__al_left" scope="row">Germany</th>
         <td>890</td>
       </tr>
       <tr>
-        <td class="gw_stub">France</td>
+        <th class="gw_stub gw__al_left" scope="row">France</th>
         <td>610</td>
       </tr>
     </tbody>

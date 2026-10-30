@@ -15,13 +15,13 @@ expression: out
     </thead>
     <tbody>
       <tr>
-        <td class="gw_stub">
+        <th class="gw_stub gw__al_left" scope="row">
           Atlantis<sup class="gw_footnote_mark"><a href="#fn1">*</a></sup>
-        </td>
+        </th>
         <td>N/A</td>
       </tr>
       <tr>
-        <td class="gw_stub">Utopia</td>
+        <th class="gw_stub gw__al_left" scope="row">Utopia</th>
         <td>999</td>
       </tr>
     </tbody>

@@ -20,15 +20,15 @@ expression: out
         </td>
       </tr>
       <tr>
-        <td class="gw_stub">Jan</td>
+        <th class="gw_stub gw__al_left" scope="row">Jan</th>
         <td>10</td>
       </tr>
       <tr>
-        <td class="gw_stub">Feb</td>
+        <th class="gw_stub gw__al_left" scope="row">Feb</th>
         <td>20</td>
       </tr>
       <tr class="gw_summary">
-        <td class="gw_stub">Subtotal</td>
+        <th class="gw_stub gw__al_left" scope="row">Subtotal</th>
         <td>30</td>
       </tr>
     </tbody>
@@ -39,15 +39,15 @@ expression: out
         </td>
       </tr>
       <tr>
-        <td class="gw_stub">Apr</td>
+        <th class="gw_stub gw__al_left" scope="row">Apr</th>
         <td>15</td>
       </tr>
       <tr>
-        <td class="gw_stub">May</td>
+        <th class="gw_stub gw__al_left" scope="row">May</th>
         <td>25</td>
       </tr>
       <tr class="gw_summary">
-        <td class="gw_stub">Subtotal</td>
+        <th class="gw_stub gw__al_left" scope="row">Subtotal</th>
         <td>40</td>
       </tr>
     </tbody>

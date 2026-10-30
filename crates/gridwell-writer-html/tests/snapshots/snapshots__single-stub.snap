@@ -17,12 +17,12 @@ expression: out
     </thead>
     <tbody>
       <tr>
-        <td class="gw_stub">East</td>
+        <th class="gw_stub gw__al_left" scope="row">East</th>
         <td class="gw__al_right">120</td>
         <td class="gw__al_right">4%</td>
       </tr>
       <tr>
-        <td class="gw_stub">West</td>
+        <th class="gw_stub gw__al_left" scope="row">West</th>
         <td class="gw__al_right">98</td>
         <td class="gw__al_right">2%</td>
       </tr>

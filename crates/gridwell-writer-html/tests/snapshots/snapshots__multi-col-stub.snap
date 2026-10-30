@@ -17,14 +17,14 @@ expression: out
     </thead>
     <tbody>
       <tr>
-        <td class="gw_stub">East</td>
-        <td class="gw_stub">NYC</td>
+        <th class="gw_stub gw__al_left" scope="row">East</th>
+        <th class="gw_stub gw__al_left" scope="row">NYC</th>
         <td>60</td>
         <td>3%</td>
       </tr>
       <tr>
-        <td class="gw_stub">West</td>
-        <td class="gw_stub">LA</td>
+        <th class="gw_stub gw__al_left" scope="row">West</th>
+        <th class="gw_stub gw__al_left" scope="row">LA</th>
         <td>50</td>
         <td>2%</td>
       </tr>

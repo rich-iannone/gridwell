@@ -16,14 +16,14 @@ expression: out
     </thead>
     <tbody>
       <tr>
-        <td class="gw_stub" rowspan="2">Japan</td>
+        <th class="gw_stub gw__al_left" scope="row" rowspan="2">Japan</th>
         <td class="gw__al_right">100</td>
       </tr>
       <tr>
         <td class="gw__al_right">110</td>
       </tr>
       <tr>
-        <td class="gw_stub">Korea</td>
+        <th class="gw_stub gw__al_left" scope="row">Korea</th>
         <td class="gw__al_right">80</td>
       </tr>
     </tbody>
