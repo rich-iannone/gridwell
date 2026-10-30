@@ -105,3 +105,26 @@ fn rows_allow_for_lines_that_wrap_at_the_column_width() {
     let h = row_height(&sheet, 2).expect("explicit height");
     assert!(h >= 3.0 * 15.0, "{h}: {}", row_tag(&sheet, 2));
 }
+
+#[test]
+fn a_merged_cell_is_aligned_by_its_top_left_cell() {
+    let t = gridwell_testkit::examples::styled_merge();
+    let w = XlsxWriter::new();
+    let (sheet, styles) = (
+        w.render_sheet_xml(&t).unwrap(),
+        w.render_styles_xml(&t).unwrap(),
+    );
+    // Head, group label, then `M` (A3:B4) beside `c` and `d`.
+    assert!(sheet.contains("<mergeCell ref=\"A3:B4\"/>"), "{sheet}");
+    let m = xf_of(&sheet, &styles, "A3");
+    assert!(
+        m.contains("applyAlignment=\"1\"><alignment vertical=\"bottom\"/>"),
+        "{m}"
+    );
+    for plain in ["C3", "C4", "A2"] {
+        assert!(
+            !xf_of(&sheet, &styles, plain).contains("vertical="),
+            "{plain}"
+        );
+    }
+}
