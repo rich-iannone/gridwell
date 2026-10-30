@@ -76,7 +76,19 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Uses `booktabs` (`\toprule`, `\midrule`, `\bottomrule`); a column spanner is underlined
   with `\cmidrule` over its columns (`\cline` without booktabs)
 - `\multicolumn` and `\multirow` for spans
-- Column alignment via `l`, `r`, `c`, `p{width}`
+- Column alignment via `l`, `r`, `c`; a column with a width is a paragraph column
+  (`p{…}`, `X`), aligned by `\raggedright`, `\centering` or `\raggedleft` (justified
+  only if the column is `justify`), and a cell aligned apart from its column keeps the
+  column's width
+- Column widths: a fixed width is itself (`px` at 0.75pt). A `%` width is that share
+  of the table's width less every column's padding (`2\tabcolsep` each), so shares
+  that add up to 100% fill it. `fr` columns share what the others leave, in
+  proportion: in a tabular they are `tabularx`'s `X` columns, and the table is
+  exactly its width; in a longtable each one's width is worked out from the fixed
+  and `%` columns only, so natural-width columns add to the table's width. The
+  table's width is `table_width` (default the line, `\linewidth`): it is the width
+  that `%` and `fr` columns divide, so a table without either keeps its natural
+  width
 - Cell fills via `\cellcolor`, text color via `\textcolor`; underline and strike-through via
   `\uline` / `\sout`; sizes via `\fontsize`
 - Cell borders: a horizontal edge is a line of its own between two rows (`\omit` cells
@@ -86,9 +98,10 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   the gap between them are a third of its width each. Where two cells' borders meet,
   one edge is drawn: the wider, then double, solid, dashed, dotted, then the one above
   or to the left. No packages beyond those below.
-- Required packages: `booktabs`, `multirow`, `longtable` (long tables), `xcolor` with the
-  `table` option, and `ulem` with `normalem` (`\usepackage[normalem]{ulem}`, so `\emph`
-  keeps its meaning)
+- Required packages: `booktabs`, `multirow`, `longtable` (long tables), `tabularx`
+  (`fr` columns), `xcolor` with the `table` option, and `ulem` with `normalem`
+  (`\usepackage[normalem]{ulem}`, so `\emph` keeps its meaning). `tabularx` reads its
+  body as an argument, so raw LaTeX in a table with `fr` columns can't use `\verb`
 - Special characters escaped: `& % $ # _ { } ~ ^ \`
 - `font_family` is written only for monospace families (`\texttt`, in cells and group
   labels): a named system font needs XeLaTeX or LuaLaTeX with `fontspec`, and the
