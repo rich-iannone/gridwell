@@ -76,6 +76,14 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Uses `booktabs` (`\toprule`, `\midrule`, `\bottomrule`); a column spanner is underlined
   with `\cmidrule` over its columns (`\cline` without booktabs)
 - `\multicolumn` and `\multirow` for spans
+- A table with more than 30 body rows (`longtable_threshold`; `longtable: true` for
+  any table) is a `longtable`, which breaks across pages. It starts at the left
+  margin, as a tabular does. The title, subtitle and header lines are rows of its
+  first head, so a page break can't separate them from the table; the column labels
+  head every page; every page ends with the bottom rule; and the footnotes and source
+  notes are rows of its last foot, below the last row. These rows span the table
+  without widening it. There is no numbered `\caption`. Column widths settle over
+  LaTeX runs: compile until LaTeX stops asking to rerun
 - Column alignment via `l`, `r`, `c`; a column with a width is a paragraph column
   (`p{…}`, `X`), aligned by `\raggedright`, `\centering` or `\raggedleft` (justified
   only if the column is `justify`), and a cell aligned apart from its column keeps the
