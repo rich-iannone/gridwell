@@ -1,7 +1,9 @@
 use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{HAlign, Table};
-use gridwell_layout::{resolve, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, Slot};
+use gridwell_ir::{BorderStyle, HAlign, Table};
+use gridwell_layout::{
+    resolve, ResolvedCell, ResolvedStyle, ResolvedTable, Section, Sides, Slot, Stroke,
+};
 use std::fmt::Write;
 use thiserror::Error;
 
@@ -21,6 +23,9 @@ struct LatexRenderer<'r, 'a> {
     midrule_due: bool,
     /// The last line drawn was a full-width rule (nothing since but `\endhead`).
     ruled: bool,
+    /// The bottom edges of the line just written, one per column, not drawn yet:
+    /// they collapse with the next line's top edges if nothing comes between.
+    pending: Option<Vec<Option<Stroke>>>,
 }
 
 impl<'r, 'a> LatexRenderer<'r, 'a> {
@@ -31,6 +36,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
             buf: String::with_capacity(4096),
             midrule_due: false,
             ruled: false,
+            pending: None,
         }
     }
 
@@ -109,21 +115,23 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         writeln!(self.buf, "\\end{{{env}}}").unwrap();
     }
 
-    /// `p{…}` for columns with a usable width, else the alignment letter.
     fn build_column_spec(&self) -> String {
-        self.rt
-            .columns
-            .iter()
-            .map(|col| match col.width.as_ref().and_then(latex_width) {
-                Some(w) => format!("p{{{w}}}"),
-                None => align_letter(&col.align).to_string(),
-            })
-            .collect()
+        (0..self.width()).map(|c| self.column_spec(c)).collect()
+    }
+
+    /// `p{…}` for a column with a usable width, else its alignment letter.
+    fn column_spec(&self, col: usize) -> String {
+        let col = &self.rt.columns[col];
+        match col.width.as_ref().and_then(latex_width) {
+            Some(w) => format!("p{{{w}}}"),
+            None => align_letter(&col.align).to_string(),
+        }
     }
 
     // ─── Rules ───
 
     fn rule(&mut self, booktabs: &str) {
+        self.settle();
         let rule = if self.config.booktabs {
             booktabs
         } else {
@@ -152,8 +160,118 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
 
     /// Start a line of the tabular that isn't a rule.
     fn begin_row(&mut self) {
+        self.settle();
         self.flush_midrule();
         self.ruled = false;
+    }
+
+    /// Start a line of cells whose top edges are `tops`. They are drawn together
+    /// with the line above's bottom edges, unless a rule comes between.
+    fn begin_line(&mut self, tops: Vec<Option<Stroke>>) {
+        let above = if self.midrule_due && !self.ruled {
+            None
+        } else {
+            self.pending.take()
+        };
+        self.begin_row();
+        let edges = match above {
+            Some(above) => above
+                .into_iter()
+                .zip(tops)
+                .map(|(a, b)| stronger(a, b))
+                .collect(),
+            None => tops,
+        };
+        self.draw_edges(&edges);
+    }
+
+    /// Draw the pending bottom edges on their own.
+    fn settle(&mut self) {
+        if let Some(edges) = self.pending.take() {
+            self.draw_edges(&edges);
+        }
+    }
+
+    /// Horizontal cell borders, one per column: a line of `\omit`ted cells, each
+    /// filled with its edge (rule leaders, or dashes and dots as box leaders).
+    /// The line is as tall as its widest edge, with narrower edges centered in
+    /// it, so the next row's `\cellcolor` can't paint over it (it would over a
+    /// `\cline`). A double edge's second line is a line of its own, a gap below.
+    fn draw_edges(&mut self, edges: &[Option<Stroke>]) {
+        if edges.iter().all(Option::is_none) {
+            return;
+        }
+        // Columns with the same edge share one `\multispan`; trailing columns
+        // without one are left out.
+        let line = |edges: &[Option<&Stroke>]| {
+            let height = edges
+                .iter()
+                .flatten()
+                .map(|k| thickness(k))
+                .fold(0.0, f64::max);
+            let end = edges.iter().rposition(Option::is_some).map_or(0, |i| i + 1);
+            let mut cells = Vec::new();
+            let mut c = 0;
+            while c < end {
+                let n = edges[c..end].iter().take_while(|e| **e == edges[c]).count();
+                let span = if n == 1 {
+                    "\\omit".to_string()
+                } else {
+                    format!("\\multispan{{{n}}}")
+                };
+                let fill = edges[c].map(|k| leaders(k, height)).unwrap_or_default();
+                cells.push(format!("{span}{fill}"));
+                c += n;
+            }
+            format!("{}\\cr", cells.join("&"))
+        };
+        let first: Vec<Option<&Stroke>> = edges.iter().map(Option::as_ref).collect();
+        writeln!(self.buf, "{}", line(&first)).unwrap();
+        let second: Vec<Option<&Stroke>> = first
+            .iter()
+            .map(|e| e.filter(|k| k.style == BorderStyle::Double))
+            .collect();
+        let gap = second
+            .iter()
+            .flatten()
+            .map(|k| thickness(k))
+            .fold(0.0, f64::max);
+        if gap > 0.0 {
+            writeln!(self.buf, "\\noalign{{\\vskip {}}}", pt(gap)).unwrap();
+            writeln!(self.buf, "{}", line(&second)).unwrap();
+        }
+    }
+
+    /// Each column's top and bottom border in section row `r`: the covering
+    /// cell's, on the sides that lie on its outline (a cell spanning rows has no
+    /// edge between them).
+    fn horizontal_edges(&self, section: &Section, r: usize) -> Sides<Vec<Option<Stroke>>> {
+        let mut edges = Sides::<Vec<Option<Stroke>>>::default();
+        for c in 0..self.width() {
+            let s = section
+                .covering(r, c)
+                .map(|(cell, outline)| cell.style.strokes(BASE_PT).masked(outline))
+                .unwrap_or_default();
+            edges.top.push(s.top);
+            edges.bottom.push(s.bottom);
+        }
+        edges
+    }
+
+    /// The border at column boundary `b` (0: the table's left edge) in section
+    /// row `r`: the stronger of the left cell's right side and the right cell's
+    /// left side.
+    fn vertical_edge(&self, section: &Section, r: usize, b: usize) -> Option<Stroke> {
+        let side = |c: usize| {
+            let (cell, outline) = section.covering(r, c)?;
+            Some(cell.style.strokes(BASE_PT).masked(outline))
+        };
+        let left = b.checked_sub(1).and_then(side).and_then(|s| s.right);
+        let right = (b < self.width())
+            .then(|| side(b))
+            .flatten()
+            .and_then(|s| s.left);
+        stronger(left, right)
     }
 
     fn render_bottomrule(&mut self) {
@@ -179,6 +297,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
                     continue;
                 }
                 let (first, last) = (cell.col + 1, cell.col + cell.colspan);
+                self.settle();
                 if self.config.booktabs {
                     writeln!(self.buf, "\\cmidrule(lr){{{first}-{last}}}").unwrap();
                 } else {
@@ -195,14 +314,16 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         if rt.head.is_empty() {
             return;
         }
-        for (r, _) in rt.head.rows.iter().enumerate() {
-            self.render_row(&rt.head.rows, r);
+        for r in 0..rt.head.rows.len() {
+            self.render_row(&rt.head, r);
             self.render_spanner_rules(r);
         }
         self.render_midrule();
         if self.use_longtable() {
-            // The head's rule repeats with it on every page.
+            // The head's rule (and its last row's borders) repeat with it on every
+            // page.
             self.flush_midrule();
+            self.settle();
             writeln!(self.buf, "\\endhead").unwrap();
         }
     }
@@ -219,19 +340,23 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
                 if self.config.booktabs {
                     self.render_midrule();
                 }
-                self.begin_row();
+                let s = label.style.strokes(BASE_PT);
+                self.begin_line(vec![s.top.clone(); cols]);
                 writeln!(
                     self.buf,
-                    "\\multicolumn{{{cols}}}{{l}}{{\\bfseries {text}}} \\\\"
+                    "\\multicolumn{{{cols}}}{{{}l{}}}{{\\bfseries {text}}} \\\\",
+                    vrule(s.left.as_ref()),
+                    vrule(s.right.as_ref())
                 )
                 .unwrap();
+                self.pending = Some(vec![s.bottom; cols]);
                 if self.config.booktabs {
                     self.render_midrule();
                 }
             }
 
             for r in 0..group.rows.rows.len() {
-                self.render_row(&group.rows.rows, r);
+                self.render_row(&group.rows, r);
             }
 
             if !group.summary_rows.is_empty() {
@@ -240,7 +365,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
                     writeln!(self.buf, "\\cmidrule(lr){{1-{cols}}}").unwrap();
                 }
                 for r in 0..group.summary_rows.rows.len() {
-                    self.render_row(&group.summary_rows.rows, r);
+                    self.render_row(&group.summary_rows, r);
                 }
             }
 
@@ -255,13 +380,17 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
     /// covered from above is an empty cell (as wide as the spanning cell, via
     /// `\multicolumn`, for a 2D span); positions covered from the left are absorbed
     /// by the origin's `\multicolumn`.
-    fn render_row(&mut self, rows: &[ResolvedRow], r: usize) {
-        self.begin_row();
-        let row = &rows[r];
+    fn render_row(&mut self, section: &Section, r: usize) {
+        let edges = self.horizontal_edges(section, r);
+        self.begin_line(edges.top);
+        let rows = &section.rows;
         let mut cells: Vec<String> = Vec::new();
-        for (col, slot) in row.slots.iter().enumerate() {
-            match slot {
-                Slot::Origin(cell) => cells.push(self.render_cell(cell)),
+        for (col, slot) in rows[r].slots.iter().enumerate() {
+            let (span, content, align) = match slot {
+                Slot::Origin(cell) => {
+                    let (content, align) = self.render_cell(cell);
+                    (cell.colspan, content, align)
+                }
                 Slot::CoveredV {
                     origin_row,
                     origin_col,
@@ -270,20 +399,47 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
                     let span = rows[*origin_row].slots[col]
                         .origin()
                         .map_or(1, |c| c.colspan);
-                    cells.push(if span > 1 {
-                        format!("\\multicolumn{{{span}}}{{l}}{{}}")
-                    } else {
-                        String::new()
-                    });
+                    (span, String::new(), (span > 1).then_some("l"))
                 }
-                Slot::CoveredH { .. } | Slot::CoveredV { .. } => {}
-                Slot::Empty => cells.push(String::new()),
-            }
+                Slot::CoveredH { .. } | Slot::CoveredV { .. } => continue,
+                Slot::Empty => (1, String::new(), None),
+            };
+            cells.push(self.entry(section, r, col, span, content, align));
         }
         writeln!(self.buf, "{} \\\\", cells.join(" & ")).unwrap();
+        self.pending = Some(edges.bottom);
     }
 
-    fn render_cell(&self, cell: &ResolvedCell) -> String {
+    /// A row entry over `span` columns from `col`, as a `\multicolumn` when it
+    /// spans columns, has its own alignment (`align`), or has a vertical border:
+    /// a boundary's border is drawn by the entry to its left (the table's left
+    /// edge by the first entry), as `!{…}` in its column spec.
+    fn entry(
+        &self,
+        section: &Section,
+        r: usize,
+        col: usize,
+        span: usize,
+        content: String,
+        align: Option<&str>,
+    ) -> String {
+        let left = (col == 0)
+            .then(|| self.vertical_edge(section, r, 0))
+            .flatten();
+        let right = self.vertical_edge(section, r, col + span);
+        if align.is_none() && left.is_none() && right.is_none() {
+            return content;
+        }
+        let spec = align.map_or_else(|| self.column_spec(col), String::from);
+        format!(
+            "\\multicolumn{{{span}}}{{{}{spec}{}}}{{{content}}}",
+            vrule(left.as_ref()),
+            vrule(right.as_ref())
+        )
+    }
+
+    /// A cell's content, and the alignment letter its `\multicolumn` needs, if any.
+    fn render_cell(&self, cell: &ResolvedCell) -> (String, Option<&'static str>) {
         let column = &self.rt.columns[cell.col];
         let fixed_width = column.width.as_ref().and_then(latex_width).is_some();
         let mut out = self.content(cell.content, &cell.align, &cell.style);
@@ -298,14 +454,8 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         let own_align = cell.colspan == 1
             && !fixed_width
             && align_letter(&cell.align) != align_letter(&column.align);
-        if cell.colspan > 1 || own_align {
-            out = format!(
-                "\\multicolumn{{{}}}{{{}}}{{{out}}}",
-                cell.colspan,
-                align_letter(&cell.align)
-            );
-        }
-        out
+        let align = (cell.colspan > 1 || own_align).then(|| align_letter(&cell.align));
+        (out, align)
     }
 
     /// Content as LaTeX. Line breaks become a nested one-column tabular (the only
@@ -398,6 +548,87 @@ pub fn render(table: &Table, config: &LatexWriterConfig) -> Result<String, Rende
     LatexRenderer::new(&rt, config).render()
 }
 
+/// The size relative sizes and border widths resolve against: the document's
+/// 10pt.
+const BASE_PT: f64 = 10.0;
+
+fn pt(v: f64) -> String {
+    format!("{}pt", (v * 1e4).round() / 1e4)
+}
+
+/// The edge drawn where two cells' borders meet, as CSS collapses them: the
+/// wider, then the more prominent style, then the first (above or left).
+fn stronger(a: Option<Stroke>, b: Option<Stroke>) -> Option<Stroke> {
+    let rank = |k: &Stroke| match k.style {
+        BorderStyle::Double => 4,
+        BorderStyle::Solid => 3,
+        BorderStyle::Dashed => 2,
+        BorderStyle::Dotted => 1,
+        _ => 0,
+    };
+    match (a, b) {
+        (Some(a), Some(b)) if (b.width_pt, rank(&b)) > (a.width_pt, rank(&a)) => Some(b),
+        (a, b) => a.or(b),
+    }
+}
+
+/// How thick an edge's line is: a double edge's two lines and the gap between
+/// them are a third of its width each.
+fn thickness(k: &Stroke) -> f64 {
+    if k.style == BorderStyle::Double {
+        k.width_pt / 3.0
+    } else {
+        k.width_pt
+    }
+}
+
+/// One cell of a horizontal border line `height` tall: its edge, centered, in
+/// its color (grouped, so the color ends with the cell).
+fn leaders(k: &Stroke, height: f64) -> String {
+    let t = thickness(k);
+    let raise = (height - t) / 2.0;
+    let extent = if raise > 0.0 {
+        format!("height {} depth -{}", pt(t + raise), pt(raise))
+    } else {
+        format!("height {}", pt(t))
+    };
+    let dashes = |period: f64, len: f64| {
+        format!(
+            "\\xleaders\\hbox to {}{{\\hss\\vrule {extent} width {}\\hss}}\\hfill",
+            pt(period),
+            pt(len)
+        )
+    };
+    let line = match k.style {
+        BorderStyle::Dashed => dashes(6.0 * t, 3.0 * t),
+        BorderStyle::Dotted => dashes(2.0 * t, t),
+        _ => format!("\\leaders\\hrule {extent}\\hfill"),
+    };
+    match k.color {
+        Some(c) => format!("{{\\color{}{line}}}", latex_color(c)),
+        None => line,
+    }
+}
+
+/// A vertical border as `!{…}` in a column spec (from `array`, which `colortbl`
+/// loads). A rule can't be dashed or dotted, so those are drawn solid.
+fn vrule(k: Option<&Stroke>) -> String {
+    let Some(k) = k else {
+        return String::new();
+    };
+    let rule = match k.style {
+        BorderStyle::Double => {
+            let l = pt(k.width_pt / 3.0);
+            format!("\\vrule width {l}\\hskip {l}\\vrule width {l}")
+        }
+        _ => format!("\\vrule width {}", pt(k.width_pt)),
+    };
+    match k.color {
+        Some(c) => format!("!{{{{\\color{}{rule}}}}}", latex_color(c)),
+        None => format!("!{{{rule}}}"),
+    }
+}
+
 fn align_letter(align: &HAlign) -> &'static str {
     match align {
         HAlign::Right => "r",
@@ -466,7 +697,7 @@ fn styled(content: &str, style: &ResolvedStyle, decorated: bool) -> String {
         result = decorate(&result, style);
     }
     // Relative sizes resolve against the document's 10pt; leading is 1.2×.
-    if let Some(pt) = style.size_pt(10.0) {
+    if let Some(pt) = style.size_pt(BASE_PT) {
         let num = |v: f64| format!("{}", (v * 100.0).round() / 100.0);
         result = format!(
             "{{\\fontsize{{{}}}{{{}}}\\selectfont {result}}}",
