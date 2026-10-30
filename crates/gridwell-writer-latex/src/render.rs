@@ -77,7 +77,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         // Lines outside the tabular take inline styling only (`\cellcolor` is
         // table-only).
         if let Some(title) = &header.title {
-            let text = self.content(title.content, &HAlign::Left, &title.style);
+            let text = self.content(&title.content, &HAlign::Left, &title.style);
             if !text.is_empty() {
                 let text = apply_block_style(&text, &title.style);
                 writeln!(self.buf, "{{\\large\\bfseries {text}}}\\\\").unwrap();
@@ -85,7 +85,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         }
         let lines: Vec<_> = header.subtitle.iter().chain(&header.extra_lines).collect();
         for (i, line) in lines.iter().enumerate() {
-            let text = self.content(line.content, &HAlign::Left, &line.style);
+            let text = self.content(&line.content, &HAlign::Left, &line.style);
             if !text.is_empty() {
                 let text = apply_block_style(&text, &line.style);
                 let gap = if i + 1 == lines.len() { "[6pt]" } else { "" };
@@ -290,7 +290,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         }
         for (origin, row) in rows[..=r].iter().enumerate() {
             for cell in row.cells() {
-                let blank = gridwell_layout::plain_text(cell.content, " ")
+                let blank = gridwell_layout::plain_text(&cell.content, " ")
                     .trim()
                     .is_empty();
                 if origin + cell.rowspan != r + 1 || blank {
@@ -334,7 +334,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         for (g, group) in rt.groups.iter().enumerate() {
             if let Some(label) = &group.label {
                 let text = apply_style(
-                    &self.content(label.content, &HAlign::Left, &label.style),
+                    &self.content(&label.content, &HAlign::Left, &label.style),
                     &label.style,
                 );
                 if self.config.booktabs {
@@ -442,7 +442,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
     fn render_cell(&self, cell: &ResolvedCell) -> (String, Option<&'static str>) {
         let column = &self.rt.columns[cell.col];
         let fixed_width = column.width.as_ref().and_then(latex_width).is_some();
-        let mut out = self.content(cell.content, &cell.align, &cell.style);
+        let mut out = self.content(&cell.content, &cell.align, &cell.style);
         out = apply_style(&out, &cell.style);
 
         if cell.rowspan > 1 {
@@ -518,7 +518,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
             writeln!(self.buf).unwrap();
             for note in &footer.footnotes {
                 let text = apply_block_style(
-                    &self.content(note.content, &HAlign::Left, &note.style),
+                    &self.content(&note.content, &HAlign::Left, &note.style),
                     &note.style,
                 );
                 writeln!(
@@ -533,7 +533,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
             writeln!(self.buf).unwrap();
             for note in &footer.source_notes {
                 let text = apply_block_style(
-                    &self.content(note.content, &HAlign::Left, &note.style),
+                    &self.content(&note.content, &HAlign::Left, &note.style),
                     &note.style,
                 );
                 writeln!(self.buf, "{{\\footnotesize {text}}}\\\\").unwrap();
