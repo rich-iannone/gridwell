@@ -72,13 +72,16 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - `table.cell(colspan: N, rowspan: N)` for spans
 - Column widths mapped to Typst length values
 - Styles via `table.cell(fill: ...)`, `text(weight: "bold")`
+- Cell borders via `table.cell(stroke: ...)`, solid, dashed or dotted (Typst has no
+  double line: a double border is drawn solid)
 
 ### RTF
 
 - Full RTF document with color and font tables
 - Column spans via `\cellx` boundaries, row spans via `\clvmgf`/`\clvmrg`
 - Column widths in twips (1/1440 inch)
-- Cell fills via `\clcbpat`; no per-cell borders yet
+- Cell fills via `\clcbpat`; cell borders via `\clbrdrt`/`\clbrdrl`/`\clbrdrb`/`\clbrdrr`
+  (solid, dashed, dotted, double; no table-wide rules)
 
 ### SVG
 
@@ -122,8 +125,9 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Valid Office Open XML archive (ZIP)
 - Table in `word/document.xml`
 - Horizontal merge via `<w:gridSpan>`, vertical via `<w:vMerge>`
-- Bold, italic, color, shading and alignment; table-wide single borders (per-cell borders,
-  font size and family are not written yet)
+- Bold, italic, color, size, shading and alignment (font family is not written yet)
+- Table-wide single grid lines; a cell's own borders (`<w:tcBorders>`: solid, dashed,
+  dotted, double) replace them on the sides it sets
 
 ### XLSX (Microsoft Excel)
 
@@ -142,5 +146,6 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - DrawingML table (`<a:tbl>`) in a slide shape
 - Grid-based spans with `gridSpan`/`rowSpan` attributes
 - Text color, weight, slant and size, cell fills and alignment
+- Cell borders as `lnL`/`lnR`/`lnT`/`lnB` lines (solid, dashed, dotted, double)
 - A complete package (theme, master color map, notes size), so PowerPoint and Keynote
   open it
