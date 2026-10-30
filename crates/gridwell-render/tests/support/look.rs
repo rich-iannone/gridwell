@@ -785,6 +785,7 @@ pub fn rtf(rtf: &str) -> Doc {
     let mut defs: Vec<CellDef> = Vec::new();
     let mut def = CellDef::default();
     let mut border_side: Option<usize> = None;
+    let mut thick = false;
     let mut in_row = false;
     let mut cell_index = 0;
     let mut look = Look::default();
@@ -905,12 +906,14 @@ pub fn rtf(rtf: &str) -> Doc {
                                 width_pt: None,
                                 color: None,
                             });
+                            thick = w == "brdrth";
                         }
                     }
                     "brdrw" => {
                         if let Some(e) = border_side.and_then(|i| def.borders[i].as_mut()) {
-                            // Twips.
-                            e.width_pt = n.map(|v| f64::from(v) / 20.0);
+                            // Twips; `\brdrth` draws twice the pen width.
+                            let k = if thick { 2.0 } else { 1.0 };
+                            e.width_pt = n.map(|v| k * f64::from(v) / 20.0);
                         }
                     }
                     "brdrcf" => {
