@@ -2,7 +2,9 @@ use gridwell_core::xml::escape as escape_xml;
 use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table, VMerge};
-use gridwell_layout::{resolve, MergeCell, ResolvedStyle, ResolvedTable, Section, Sides, Stroke};
+use gridwell_layout::{
+    resolve, CellVAlign, MergeCell, ResolvedStyle, ResolvedTable, Section, Sides, Stroke,
+};
 use gridwell_ooxml::{package, Part};
 use std::fmt::Write;
 use thiserror::Error;
@@ -213,9 +215,13 @@ fn write_row(
         if let Some(owner) = mc.owner {
             write_borders(buf, &owner.style.strokes(BASE_PT).masked(mc.outline))?;
         }
+        // Word aligns a vertically merged cell by its first piece; every piece
+        // carries it, as every piece carries the owner's borders.
+        let valign = mc.owner.and_then(|o| o.style.cell_valign());
 
         let Some(cell) = mc.cell else {
             // Continuation (or empty position): properties only, empty paragraph.
+            write_valign(buf, valign);
             buf.push_str("</w:tcPr><w:p/></w:tc>");
             continue;
         };
@@ -227,6 +233,7 @@ fn write_row(
                 fill.flatten().to_rrggbb()
             )?;
         }
+        write_valign(buf, valign);
         buf.push_str("</w:tcPr>");
 
         buf.push_str("<w:p>");
@@ -286,6 +293,19 @@ fn write_group_label_row(
     buf.push_str("</w:tc>");
     buf.push_str("</w:tr>\n");
     Ok(())
+}
+
+/// `w:vAlign`, last in `w:tcPr` among what the writer sets. Unset is Word's top.
+fn write_valign(buf: &mut String, valign: Option<CellVAlign>) {
+    let val = match valign {
+        Some(CellVAlign::Top) => "top",
+        Some(CellVAlign::Middle) => "center",
+        Some(CellVAlign::Bottom) => "bottom",
+        None => return,
+    };
+    buf.push_str("<w:vAlign w:val=\"");
+    buf.push_str(val);
+    buf.push_str("\"/>");
 }
 
 /// A cell's own borders (`w:tcBorders`), which replace the table's grid lines on
