@@ -61,25 +61,30 @@ fn compile(dir: &Path, stem: &str, body: &str) -> Result<PathBuf, String> {
     compile_with("pdflatex", dir, stem, body)
 }
 
+/// Again while longtable asks for it: its column widths settle over runs.
 fn compile_with(engine: &str, dir: &Path, stem: &str, body: &str) -> Result<PathBuf, String> {
     std::fs::write(dir.join(format!("{stem}.tex")), document(engine, body)).unwrap();
-    let out = Command::new(engine)
-        .args(["-interaction=nonstopmode", "-halt-on-error"])
-        .arg(format!("{stem}.tex"))
-        .current_dir(dir)
-        .output()
-        .unwrap();
-    if out.status.success() {
-        Ok(dir.join(format!("{stem}.pdf")))
-    } else {
+    for _ in 0..3 {
+        let out = Command::new(engine)
+            .args(["-interaction=nonstopmode", "-halt-on-error"])
+            .arg(format!("{stem}.tex"))
+            .current_dir(dir)
+            .output()
+            .unwrap();
         let log = std::fs::read_to_string(dir.join(format!("{stem}.log"))).unwrap_or_default();
-        let err: Vec<&str> = log
-            .lines()
-            .skip_while(|l| !l.starts_with('!'))
-            .take(8)
-            .collect();
-        Err(err.join("\n"))
+        if !out.status.success() {
+            let err: Vec<&str> = log
+                .lines()
+                .skip_while(|l| !l.starts_with('!'))
+                .take(8)
+                .collect();
+            return Err(err.join("\n"));
+        }
+        if !log.contains("Rerun LaTeX") {
+            break;
+        }
     }
+    Ok(dir.join(format!("{stem}.pdf")))
 }
 
 fn pdf_text(pdf: &Path) -> String {
@@ -272,29 +277,39 @@ fn styled_titles_labels_and_notes_compile() {
     let f = t.footer.as_mut().unwrap();
     f.footnotes[0].style_id = Some("n".into());
     f.source_notes[0].style_id = Some("n".into());
-    let src = render_latex(&t).unwrap();
-    for want in [
-        "\\textcolor[HTML]{AA0000}{\\textit{Styled title}}",
-        "\\textcolor[HTML]{AA0000}{\\textit{Styled subtitle}}",
-        "{\\small Extra line}",
-        "\\cellcolor[HTML]{EEEEEE}\\textcolor[HTML]{00AA00}{\\textit{Styled label}}",
-        "\\textcolor[HTML]{0000AA}{\\textit{Styled footnote}}",
-        "\\textcolor[HTML]{0000AA}{\\textit{Styled source}}",
-    ] {
-        assert!(src.contains(want), "missing {want:?}:\n{src}");
-    }
     let dir = work_dir("styled-lines");
-    let pdf = compile(&dir, "styled", &src).unwrap_or_else(|e| panic!("{e}\n{src}"));
-    let text = pdf_text(&pdf);
-    for line in [
-        "Styled title",
-        "Styled subtitle",
-        "Extra line",
-        "Styled label",
-        "Styled footnote",
-        "Styled source",
-    ] {
-        assert!(text.contains(line), "{line} missing from PDF:\n{text}");
+    for longtable in [false, true] {
+        let src = gridwell_writer_latex::LatexWriter::with_config(
+            gridwell_writer_latex::LatexWriterConfig {
+                longtable,
+                ..Default::default()
+            },
+        )
+        .render(&t)
+        .unwrap();
+        for want in [
+            "\\textcolor[HTML]{AA0000}{\\textit{Styled title}}",
+            "\\textcolor[HTML]{AA0000}{\\textit{Styled subtitle}}",
+            "{\\small Extra line}",
+            "\\cellcolor[HTML]{EEEEEE}\\textcolor[HTML]{00AA00}{\\textit{Styled label}}",
+            "\\textcolor[HTML]{0000AA}{\\textit{Styled footnote}}",
+            "\\textcolor[HTML]{0000AA}{\\textit{Styled source}}",
+        ] {
+            assert!(src.contains(want), "missing {want:?}:\n{src}");
+        }
+        let stem = format!("styled-{longtable}");
+        let pdf = compile(&dir, &stem, &src).unwrap_or_else(|e| panic!("{e}\n{src}"));
+        let text = pdf_text(&pdf);
+        for line in [
+            "Styled title",
+            "Styled subtitle",
+            "Extra line",
+            "Styled label",
+            "Styled footnote",
+            "Styled source",
+        ] {
+            assert!(text.contains(line), "{line} missing from PDF:\n{text}");
+        }
     }
 }
 
@@ -577,4 +592,137 @@ fn column_widths_are_measured_in_the_pdf() {
         }
         near(fr2, 2.0 * fr1, "2fr column");
     }
+}
+
+/// A longtable over pages: the title and subtitle open the first page only, the
+/// column labels head every page, and the notes close the last page only, after
+/// every row. Each row is shown once. The title starts at the table's left edge
+/// (both at the margin), a note wider than the table doesn't widen it, and the
+/// columns are as wide on every page (a wide cell on the last page widens the
+/// first page's column too, once LaTeX has rerun).
+#[test]
+fn a_longtable_over_pages_repeats_its_head_and_keeps_title_and_notes() {
+    if !require("pdflatex") || !require("pdftotext") {
+        return;
+    }
+    use gridwell_testkit::CellExt;
+    use gridwell_writer_latex::{LatexWriter, LatexWriterConfig};
+    const SEP: f64 = 6.0; // `\tabcolsep`
+    const ROWS: usize = 250;
+    let long_note = format!("LTSOURCE {} LTEND", vec!["wordy"; 40].join(" "));
+    let table = |notes: bool| {
+        let mut tb = TableBuilder::new(2)
+            .title("LTTITLE")
+            .subtitle("LTSUB")
+            .style_def(
+                "right",
+                gridwell_ir::StyleDef {
+                    text_align: Some("right".into()),
+                    ..Default::default()
+                },
+            )
+            .columns(vec![column("a", "HEADA"), column("b", "HEADB")])
+            .head(row(vec![cell("HEADA"), cell("HEADB").style("right")]))
+            .body(
+                (0..ROWS)
+                    .map(|i| {
+                        row(vec![
+                            cell(&format!("R{i}")),
+                            cell(&if i == ROWS - 10 {
+                                "WIDEWIDEWIDEWIDE".to_string()
+                            } else {
+                                format!("V{i}")
+                            })
+                            .style("right"),
+                        ])
+                    })
+                    .collect(),
+            );
+        if notes {
+            tb = tb.footnote("f", "a", "LTNOTE").source_note(&long_note);
+        }
+        tb.build()
+    };
+    let render = |t: gridwell_ir::Table| {
+        LatexWriter::with_config(LatexWriterConfig {
+            longtable: true,
+            ..Default::default()
+        })
+        .render(&t)
+        .unwrap()
+    };
+    let dir = work_dir("longtable-pages");
+    let src = render(table(true));
+    let pdf = compile(&dir, "pages", &src).unwrap_or_else(|e| panic!("{e}\n{src}"));
+    let text = pdf_text(&pdf);
+    let pages: Vec<Vec<&str>> = text
+        .split('\x0c')
+        .map(|p| p.split_whitespace().collect::<Vec<_>>())
+        .filter(|p| !p.is_empty())
+        .collect();
+    assert!(pages.len() >= 3, "{} pages:\n{text}", pages.len());
+    let count = |p: &[&str], w: &str| p.iter().filter(|x| **x == w).count();
+    let last = pages.len() - 1;
+    for (n, p) in pages.iter().enumerate() {
+        let first = usize::from(n == 0);
+        assert_eq!(count(p, "LTTITLE"), first, "page {n}: {p:?}");
+        assert_eq!(count(p, "LTSUB"), first, "page {n}: {p:?}");
+        assert_eq!(count(p, "HEADA"), 1, "page {n}: {p:?}");
+        assert_eq!(count(p, "HEADB"), 1, "page {n}: {p:?}");
+        assert_eq!(
+            count(p, "LTNOTE"),
+            usize::from(n == last),
+            "page {n}: {p:?}"
+        );
+        assert_eq!(count(p, "wordy") > 0, n == last, "page {n}: {p:?}");
+        // The labels come first on the page, below the title.
+        let head = p.iter().position(|w| *w == "HEADA").unwrap();
+        assert!(
+            p[..head].iter().all(|w| ["LTTITLE", "LTSUB"].contains(w)),
+            "page {n}: {p:?}"
+        );
+    }
+    let all: Vec<&str> = pages.concat();
+    for i in 0..ROWS {
+        assert_eq!(count(&all, &format!("R{i}")), 1, "R{i}");
+    }
+    let row_end = all.iter().rposition(|w| w.starts_with('V')).unwrap();
+    let note = all.iter().position(|w| *w == "LTNOTE").unwrap();
+    assert!(note > row_end, "notes after the last row: {all:?}");
+    // Positions (first page): the title at the table's edge, and the table as
+    // wide with the long note as without.
+    let words = word_edges(&pdf);
+    let near = |got: f64, want: f64, what: &str| {
+        assert!(
+            (got - want).abs() < 0.2,
+            "{what}: {got:.2}pt, want {want:.2}pt"
+        );
+    };
+    near(
+        words["LTTITLE"].0,
+        words["HEADA"].0 - SEP,
+        "title's left edge",
+    );
+    near(
+        words["LTSOURCE"].0,
+        words["HEADA"].0 - SEP,
+        "note's left edge",
+    );
+    let plain = compile(&dir, "plain", &render(table(false))).unwrap();
+    let plain = word_edges(&plain);
+    near(
+        words["HEADB"].1,
+        plain["HEADB"].1,
+        "right edge with a wide note",
+    );
+    near(words["V0"].1, plain["V0"].1, "right edge with a wide note");
+    near(
+        words["V0"].1,
+        words["V249"].1,
+        "column width on the first and last page",
+    );
+    assert!(
+        words["LTEND"].1 > words["HEADB"].1 + 500.0,
+        "the note is wider than the table"
+    );
 }
