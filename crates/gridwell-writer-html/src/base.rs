@@ -180,22 +180,22 @@ pub fn rules(p: &str) -> Vec<String> {
         // A group's summary rows start under a section rule.
         w(
             &format!(
-                "tbody > tr.{p}_summary:first-child td, \
-                 tr:not(.{p}_summary) + tr.{p}_summary td"
+                "tbody > tr.{p}_summary:first-child > *, \
+                 tr:not(.{p}_summary) + tr.{p}_summary > *"
             ),
             &format!("border-top: {section}"),
         ),
         // The first grand summary row gets gt's double rule.
         w(
             &format!(
-                "tbody > tr.{p}_grand_summary:first-child td, \
-                 tr:not(.{p}_grand_summary) + tr.{p}_grand_summary td"
+                "tbody > tr.{p}_grand_summary:first-child > *, \
+                 tr:not(.{p}_grand_summary) + tr.{p}_grand_summary > *"
             ),
             &format!("border-top: {}", rule(&l.grand_summary_rule)),
         ),
         // Numbers line up.
         w(
-            &format!(".{p}_table td.{p}__al_right"),
+            &format!(".{p}_table tbody .{p}__al_right"),
             "font-variant-numeric: tabular-nums",
         ),
         w(&format!(".{p}_footer"), &format!("border-bottom: {outer}")),
@@ -244,5 +244,19 @@ mod tests {
         assert_eq!(p(1.0, 2.0, 3.0, 4.0), "1px 2px 3px 4px");
         assert_eq!(pct(0.85), "85%");
         assert_eq!(pct(1.25), "125%");
+    }
+
+    #[test]
+    fn no_rule_misses_the_row_headers() {
+        // A stub is a `<th>` in the body: a rule naming `td` must name `th` too.
+        for line in rules("gw") {
+            let selector = line.split('{').next().unwrap();
+            let names = |tag: &str| {
+                selector
+                    .split(|c: char| !c.is_ascii_alphanumeric())
+                    .any(|w| w == tag)
+            };
+            assert!(!names("td") || names("th"), "{line}");
+        }
     }
 }
