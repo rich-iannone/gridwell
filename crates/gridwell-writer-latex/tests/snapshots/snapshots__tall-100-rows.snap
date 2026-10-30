@@ -2,12 +2,18 @@
 source: crates/gridwell-writer-latex/tests/snapshots.rs
 expression: out
 ---
-{\large\bfseries Sequence}\\
-\begin{longtable}{lll}
+\begin{longtable}[l]{lll}
+\multicolumn{3}{@{}l@{}}{\makebox[0pt][l]{\parbox[b]{\linewidth}{\raggedright {\large\bfseries Sequence}}}} \\
+\toprule
+n & 2n & n\textasciicircum{}2 \\
+\midrule
+\endfirsthead
 \toprule
 n & 2n & n\textasciicircum{}2 \\
 \midrule
 \endhead
+\bottomrule
+\endfoot
 row 0 & 0 & 0 \\
 row 1 & 2 & 1 \\
 row 2 & 4 & 4 \\
@@ -108,5 +114,4 @@ row 96 & 192 & 9216 \\
 row 97 & 194 & 9409 \\
 row 98 & 196 & 9604 \\
 row 99 & 198 & 9801 \\
-\bottomrule
 \end{longtable}
