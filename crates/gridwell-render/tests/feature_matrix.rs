@@ -573,7 +573,9 @@ fn every_probe_is_valid() {
 /// Why a writer doesn't express a feature.
 #[derive(Clone, Copy, PartialEq)]
 enum Gap {
-    /// The format can express it; the writer doesn't yet (M3 work).
+    /// The format can express it; the writer doesn't yet. No cell is one now;
+    /// a feature added to the matrix before every writer has it would be.
+    #[allow(dead_code)]
     Todo(&'static str),
     /// The format can't (portably) express it.
     Limit(&'static str),
@@ -581,15 +583,11 @@ enum Gap {
 
 /// The declared ✗ cells; every other cell is ✓.
 fn gap(feature: &str, format: &str) -> Option<Gap> {
-    use Gap::{Limit, Todo};
-    const NOT_YET: Gap = Todo("not implemented");
+    use Gap::Limit;
     Some(match (feature, format) {
-        ("text-transform", "latex" | "typst" | "rtf" | "docx" | "xlsx" | "pptx") => NOT_YET,
         ("font-family", "latex") => Limit(
             "a named system font needs XeLaTeX/LuaLaTeX with fontspec; the output also targets pdfLaTeX (monospace families map to `\\texttt`)",
         ),
-        ("font-family", "typst") => Todo("only monospace families are mapped (to Courier New)"),
-        ("font-family", "rtf" | "docx" | "xlsx" | "pptx") => NOT_YET,
         ("vertical-align", "latex") => Limit(
             "a tabular row sets its cells on one baseline; `m`/`b` columns align whole columns, not single cells",
         ),
@@ -814,4 +812,74 @@ fn typst_reader_reads_uniform_strokes() {
         assert!(e.line == Line::Dotted && e.color == Some(RED) && near(e.width_pt, 1.5));
     }
     assert_eq!(get(&doc, "CONTROLA").unwrap().borders, [None; 4]);
+}
+
+/// Beyond the probe's one cell: a styled run gets its own font inside a plain
+/// cell and keeps the cell's when it names none, a generic family maps to a font (`monospace` after `'Fira Mono'`), and
+/// a list naming no font (`system-ui, cursive`) leaves the format's default;
+/// header lines are in the line's font. Every format but LaTeX, which has no
+/// named fonts (see `gap()`).
+#[test]
+fn fonts_reach_runs_and_lines() {
+    let t = gridwell_testkit::examples::font_families();
+    let mut title_only = t.clone();
+    for r in &mut title_only.table.tbody[0].rows {
+        for c in &mut r.cells {
+            c.style_id = None;
+            c.content = vec![text("x")];
+        }
+    }
+    let family = |l: &Look, text: &str| {
+        l.run_with(text)
+            .unwrap_or_else(|| panic!("no run {text:?} in {l:?}"))
+            .family
+            .clone()
+            .map(|f| f.to_ascii_lowercase())
+    };
+    for format in FORMATS.iter().filter(|f| **f != "latex") {
+        let Some(docs) = read_all(format, std::slice::from_ref(&t)) else {
+            continue;
+        };
+        let doc = docs.into_iter().next().unwrap().unwrap();
+        let default = family(get(&doc, "H1").unwrap(), "H1");
+        let a = get(&doc, "a e").unwrap();
+        let bc = get(&doc, "b c").unwrap();
+        let d = get(&doc, "d").unwrap();
+        let has = |f: &Option<String>, name: &str| f.as_deref().is_some_and(|f| f.contains(name));
+        // A run with no font of its own is in the cell's.
+        assert!(has(&family(a, "a"), "georgia"), "{format}: {a:?}");
+        assert!(has(&family(a, "e"), "georgia"), "{format}: {a:?}");
+        assert!(has(&family(bc, "c"), "fira mono"), "{format}: {bc:?}");
+        assert_eq!(family(bc, "b"), default, "{format}: {bc:?}");
+        if *format == "html" {
+            // CSS keeps the list as written.
+            assert!(has(&family(d, "d"), "system-ui"), "{format}: {d:?}");
+            continue;
+        }
+        assert_eq!(family(d, "d"), default, "{format}: {d:?}");
+        // The fallback for `monospace` is written where the format takes a list.
+        if *format == "typst" {
+            let src = gridwell_writer_typst::render_typst(&t).unwrap();
+            assert!(
+                src.contains("font: (\"Fira Mono\", \"Courier New\")"),
+                "{src}"
+            );
+            // Typst's title takes no style (yet), so no font either.
+            continue;
+        }
+        let out = match *format {
+            "rtf" => gridwell_writer_rtf::render_rtf(&title_only).unwrap(),
+            "docx" => gridwell_writer_docx::DocxWriter::new()
+                .render_document_xml(&title_only)
+                .unwrap(),
+            "pptx" => gridwell_writer_pptx::PptxWriter::new()
+                .render_slide_xml(&title_only)
+                .unwrap(),
+            "xlsx" => gridwell_writer_xlsx::XlsxWriter::new()
+                .render_styles_xml(&title_only)
+                .unwrap(),
+            _ => unreachable!(),
+        };
+        assert!(out.contains("Fira Mono"), "{format}: title font\n{out}");
+    }
 }
