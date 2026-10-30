@@ -263,6 +263,7 @@ const LATEX_PACKAGES: &str = "\
 \\usepackage[table]{xcolor}
 \\usepackage{colortbl}
 \\usepackage{longtable}
+\\usepackage{tabularx}
 \\usepackage[normalem]{ulem}
 ";
 
@@ -272,11 +273,18 @@ const LATEX_PACKAGES: &str = "\
 /// `varwidth` lets `standalone` hold paragraphs: without it the whole body is
 /// one line, so titles and notes (ended by `\\`) sat beside the table instead
 /// of above and below it, as in a real document. The box shrinks to the widest
-/// line; 100cm only caps it.
-fn latex_preamble(standalone: bool) -> String {
+/// line; 100cm only caps it. It is also the `\\linewidth` that `%` and `fr`
+/// columns divide, so a table with those gets a 16cm text width, as in Typst
+/// (`typst_page_width`).
+fn latex_preamble(standalone: bool, body: &str) -> String {
     if standalone {
+        let width = if body.contains("\\linewidth") {
+            "16cm"
+        } else {
+            "100cm"
+        };
         format!(
-            "\\documentclass[border=10pt,varwidth=100cm]{{standalone}}\n{LATEX_PACKAGES}\
+            "\\documentclass[border=10pt,varwidth={width}]{{standalone}}\n{LATEX_PACKAGES}\
              \\begin{{document}}\n\\setlength{{\\parindent}}{{0pt}}\n"
         )
     } else {
@@ -303,7 +311,10 @@ fn latex(
     // `longtable` breaks across pages, so it can't live in `standalone`'s single
     // box: use the page-sized `article` preview for it.
     let standalone = standalone && !body.contains("\\begin{longtable}");
-    let doc = format!("{}{body}\n\\end{{document}}\n", latex_preamble(standalone));
+    let doc = format!(
+        "{}{body}\n\\end{{document}}\n",
+        latex_preamble(standalone, &body)
+    );
     let doc_path = work_dir.join("doc.tex");
     if let Err(e) = std::fs::write(&doc_path, doc) {
         return RasterOutcome::Failed(format!("write tex: {e}"));
@@ -529,6 +540,14 @@ mod tests {
             typst_page_width("#table(\n  columns: (30pt, auto),\n  [frog],\n"),
             "auto"
         );
+    }
+
+    #[test]
+    fn latex_text_width_is_fixed_only_for_relative_columns() {
+        assert!(
+            latex_preamble(true, "\\begin{tabularx}{\\linewidth}{Xl}").contains("varwidth=16cm")
+        );
+        assert!(latex_preamble(true, "\\begin{tabular}{lp{90pt}}").contains("varwidth=100cm"));
     }
 
     fn write_png(name: &str, w: u32, h: u32, ink: &[(u32, u32)]) -> std::path::PathBuf {
