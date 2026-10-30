@@ -16,6 +16,9 @@
 //!   (column default → striping → conditionals → row → cell; see [`style`]), with
 //!   every value parsed and every invalid value dropped.
 //! - **Column labels.** With `config.column_labels_hidden`, the head is empty.
+//! - **Text transforms.** `text_transform` is applied to the content of cells,
+//!   lines and notes (see [`text::transform_case`]), unless the writer's format
+//!   has one of its own ([`ResolveOptions::transform_text`]).
 //!
 //! Resolution never panics, on any IR. On valid IR, every row's slots tile the
 //! visible columns exactly; on invalid IR, positions no cell can claim are
@@ -25,6 +28,8 @@ pub mod look;
 pub mod style;
 pub mod text;
 
+use std::borrow::Cow;
+
 use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{
@@ -32,7 +37,7 @@ use gridwell_ir::{
     RowRole, SelectorScope, Table, VMerge,
 };
 pub use style::{CellVAlign, ResolvedBorder, ResolvedStyle, Sides, Stroke};
-pub use text::plain_text;
+pub use text::{plain_text, transform_case};
 
 use gridwell_core::Color;
 use gridwell_ir::cell::{Row, TypedValue};
@@ -87,29 +92,29 @@ impl<'a> ResolvedTable<'a> {
     /// Every piece of content the writer will emit, in document order: header lines,
     /// cells (visible ones only), group labels, footnotes, source notes. For writers
     /// that must collect things (colors, fonts) before writing.
-    pub fn contents(&self) -> Vec<&'a [ContentNode]> {
+    pub fn contents(&self) -> Vec<&[ContentNode]> {
         let h = &self.header;
-        let mut out: Vec<&'a [ContentNode]> = h
+        let mut out: Vec<&[ContentNode]> = h
             .title
             .iter()
             .chain(&h.subtitle)
             .chain(&h.extra_lines)
-            .map(|l| l.content)
+            .map(|l| &*l.content)
             .collect();
         out.extend(
             self.head
                 .rows
                 .iter()
-                .flat_map(|r| r.cells().map(|c| c.content)),
+                .flat_map(|r| r.cells().map(|c| &*c.content)),
         );
         for g in &self.groups {
-            out.extend(g.label.iter().map(|l| l.content));
+            out.extend(g.label.iter().map(|l| &*l.content));
             for r in g.rows.rows.iter().chain(&g.summary_rows.rows) {
-                out.extend(r.cells().map(|c| c.content));
+                out.extend(r.cells().map(|c| &*c.content));
             }
         }
-        out.extend(self.footer.footnotes.iter().map(|n| n.content));
-        out.extend(self.footer.source_notes.iter().map(|n| n.content));
+        out.extend(self.footer.footnotes.iter().map(|n| &*n.content));
+        out.extend(self.footer.source_notes.iter().map(|n| &*n.content));
         out
     }
 
@@ -151,7 +156,8 @@ impl ResolvedHeader<'_> {
 /// A run of content outside the grid (header line, group label, note) and its style.
 #[derive(Debug, Clone)]
 pub struct Line<'a> {
-    pub content: &'a [ContentNode],
+    /// With `text_transform` applied (see [`ResolveOptions`]).
+    pub content: Cow<'a, [ContentNode]>,
     /// The style id as written (for formats that reference styles by name).
     pub style_id: Option<&'a str>,
     pub style: ResolvedStyle,
@@ -180,7 +186,8 @@ impl<'a> ResolvedFooter<'a> {
 pub struct Footnote<'a> {
     pub id: &'a str,
     pub mark: &'a str,
-    pub content: &'a [ContentNode],
+    /// With `text_transform` applied (see [`ResolveOptions`]).
+    pub content: Cow<'a, [ContentNode]>,
     pub style_id: Option<&'a str>,
     pub style: ResolvedStyle,
     /// Whether any `footnote_mark` in the table (cells, header, labels, notes)
@@ -270,7 +277,8 @@ impl<'a> Slot<'a> {
 #[derive(Debug, Clone)]
 pub struct ResolvedCell<'a> {
     pub cell: &'a Cell,
-    pub content: &'a [ContentNode],
+    /// With `text_transform` applied (see [`ResolveOptions`]).
+    pub content: Cow<'a, [ContentNode]>,
     /// Visible column of the cell's left edge.
     pub col: usize,
     /// Grid column (in `column_spec`) of the cell's visible left edge.
@@ -409,8 +417,31 @@ impl<'a> Section<'a> {
     }
 }
 
-/// Resolve a table for writing. Never panics; intended for validated IR.
+/// How [`resolve_with`] prepares content.
+#[derive(Debug, Clone, Copy)]
+pub struct ResolveOptions {
+    /// Apply `text_transform` to the content (the default). Off for formats that
+    /// transform text themselves (HTML's CSS `text-transform`), which then get
+    /// the content as written.
+    pub transform_text: bool,
+}
+
+impl Default for ResolveOptions {
+    fn default() -> Self {
+        Self {
+            transform_text: true,
+        }
+    }
+}
+
+/// Resolve a table for writing, with the default [`ResolveOptions`]. Never
+/// panics; intended for validated IR.
 pub fn resolve(table: &Table) -> ResolvedTable<'_> {
+    resolve_with(table, ResolveOptions::default())
+}
+
+/// Resolve a table for writing. Never panics; intended for validated IR.
+pub fn resolve_with(table: &Table, opts: ResolveOptions) -> ResolvedTable<'_> {
     let visibility = ColumnVisibility::from_spec(&table.column_spec);
     // The IR grid is `config.table_cols` wide; `column_spec` should match it, but
     // only columns that have a spec can be shown.
@@ -444,6 +475,7 @@ pub fn resolve(table: &Table) -> ResolvedTable<'_> {
         table,
         visibility: &visibility,
         columns: &columns,
+        opts,
     };
 
     let head = if table.config.column_labels_hidden {
@@ -468,7 +500,7 @@ pub fn resolve(table: &Table) -> ResolvedTable<'_> {
                 label: g
                     .label
                     .as_ref()
-                    .map(|l| line(table, &l.content, l.style_id.as_deref())),
+                    .map(|l| line(table, opts, &l.content, l.style_id.as_deref())),
                 rows,
                 summary_rows: ctx.section(&g.summary_rows, SectionKind::Summary, 0),
             }
@@ -482,15 +514,15 @@ pub fn resolve(table: &Table) -> ResolvedTable<'_> {
             title: h
                 .title
                 .as_ref()
-                .map(|l| line(table, &l.content, l.style_id.as_deref())),
+                .map(|l| line(table, opts, &l.content, l.style_id.as_deref())),
             subtitle: h
                 .subtitle
                 .as_ref()
-                .map(|l| line(table, &l.content, l.style_id.as_deref())),
+                .map(|l| line(table, opts, &l.content, l.style_id.as_deref())),
             extra_lines: h
                 .extra_lines
                 .iter()
-                .map(|l| line(table, &l.content, l.style_id.as_deref()))
+                .map(|l| line(table, opts, &l.content, l.style_id.as_deref()))
                 .collect(),
         })
         .unwrap_or_default();
@@ -502,19 +534,22 @@ pub fn resolve(table: &Table) -> ResolvedTable<'_> {
             footnotes: f
                 .footnotes
                 .iter()
-                .map(|n| Footnote {
-                    id: &n.id,
-                    mark: &n.mark,
-                    content: &n.content,
-                    style_id: n.style_id.as_deref(),
-                    style: style::resolve_id(table, n.style_id.as_deref()),
-                    referenced: referenced.contains(n.id.as_str()),
+                .map(|n| {
+                    let style = style::resolve_id(table, n.style_id.as_deref());
+                    Footnote {
+                        id: &n.id,
+                        mark: &n.mark,
+                        content: transformed(table, opts, &n.content, &style),
+                        style_id: n.style_id.as_deref(),
+                        style,
+                        referenced: referenced.contains(n.id.as_str()),
+                    }
                 })
                 .collect(),
             source_notes: f
                 .source_notes
                 .iter()
-                .map(|n| line(table, &n.content, n.style_id.as_deref()))
+                .map(|n| line(table, opts, &n.content, n.style_id.as_deref()))
                 .collect(),
         })
         .unwrap_or_default();
@@ -564,18 +599,40 @@ fn footnote_refs(table: &Table) -> std::collections::HashSet<&str> {
         .collect()
 }
 
-fn line<'a>(table: &'a Table, content: &'a [ContentNode], style_id: Option<&'a str>) -> Line<'a> {
+fn line<'a>(
+    table: &'a Table,
+    opts: ResolveOptions,
+    content: &'a [ContentNode],
+    style_id: Option<&'a str>,
+) -> Line<'a> {
+    let style = style::resolve_id(table, style_id);
     Line {
-        content,
+        content: transformed(table, opts, content, &style),
         style_id,
-        style: style::resolve_id(table, style_id),
+        style,
     }
+}
+
+/// `content` with `text_transform` applied, `style` being the cell's or line's.
+fn transformed<'a>(
+    table: &Table,
+    opts: ResolveOptions,
+    content: &'a [ContentNode],
+    style: &ResolvedStyle,
+) -> Cow<'a, [ContentNode]> {
+    if !opts.transform_text {
+        return Cow::Borrowed(content);
+    }
+    transform_case(content, style.text_transform.as_ref(), |id| {
+        style::resolve_id(table, Some(id)).text_transform
+    })
 }
 
 struct Ctx<'t, 'a> {
     table: &'a Table,
     visibility: &'t ColumnVisibility,
     columns: &'t [ResolvedColumn<'a>],
+    opts: ResolveOptions,
 }
 
 impl<'a> Ctx<'_, 'a> {
@@ -652,7 +709,7 @@ impl<'a> Ctx<'_, 'a> {
             let align = style.text_align.clone().unwrap_or(default_align);
             slots[r][vc] = Slot::Origin(Box::new(ResolvedCell {
                 cell,
-                content: &cell.content,
+                content: transformed(self.table, self.opts, &cell.content, &style),
                 col: vc,
                 grid_col,
                 colspan,
