@@ -62,7 +62,7 @@ pub fn render_shared_strings_xml(table: &Table) -> Result<String, RenderError> {
 }
 
 /// A cell format: what a `<c s="…">` index points at.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
 struct Format {
     bold: bool,
     italic: bool,
@@ -72,6 +72,8 @@ struct Format {
     size: Option<u32>,
     /// Font color, already flattened (no alpha in SpreadsheetML fonts here).
     color: Option<Color>,
+    /// Font name (`None`: the default Calibri).
+    font: Option<String>,
     /// Solid fill, already flattened.
     fill: Option<Color>,
     /// `horizontal` alignment; `None` is Excel's "general" (text left, numbers
@@ -233,6 +235,7 @@ impl Format {
                 .size_pt(11.0)
                 .map(|pt| (pt * 100.0).round().clamp(100.0, 40_900.0) as u32),
             color: style.paint().map(|c| c.flatten()),
+            font: style.font_name().map(str::to_string),
             fill: style.fill().map(|c| c.flatten()),
             align: match align {
                 HAlign::Right => Some("right"),
@@ -263,7 +266,7 @@ impl Format {
 }
 
 /// A font entry: what `<fonts>` deduplicates on.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 struct FontKey {
     bold: bool,
     italic: bool,
@@ -271,6 +274,7 @@ struct FontKey {
     strike: bool,
     size: Option<u32>,
     color: Option<Color>,
+    name: Option<String>,
 }
 
 impl FontKey {
@@ -283,6 +287,7 @@ impl FontKey {
             strike: f.strike,
             size: f.size,
             color: f.color,
+            name: f.font.clone(),
         }
     }
 
@@ -300,6 +305,7 @@ impl FontKey {
                 .map(|pt| (pt * 100.0).round().clamp(100.0, 40_900.0) as u32)
                 .or(self.size),
             color: style.paint().map(|c| c.flatten()).or(self.color),
+            name: style.font_name().map(str::to_string).or(self.name),
         }
     }
 }
@@ -325,7 +331,8 @@ fn write_font(buf: &mut String, font: &FontKey, name: &str) -> Result<(), Render
     if let Some(c) = font.color {
         write!(buf, "<color rgb=\"FF{}\"/>", c.to_rrggbb())?;
     }
-    write!(buf, "<{name} val=\"Calibri\"/>")?;
+    let font = font.name.as_deref().unwrap_or("Calibri");
+    write!(buf, "<{name} val=\"{}\"/>", escape_xml(font))?;
     Ok(())
 }
 
@@ -339,14 +346,16 @@ struct StyleSheet {
 
 impl StyleSheet {
     /// The `s` index of a format (0 for the default).
-    fn id(&mut self, f: Format) -> usize {
-        if f == Format::default() {
+    fn id(&mut self, f: &Format) -> usize {
+        if *f == Format::default() {
             return 0;
         }
-        *self.index.entry(f).or_insert_with(|| {
-            self.formats.push(f);
-            self.formats.len()
-        })
+        if let Some(&i) = self.index.get(f) {
+            return i;
+        }
+        self.formats.push(f.clone());
+        self.index.insert(f.clone(), self.formats.len());
+        self.formats.len()
     }
 
     fn to_xml(&self) -> Result<String, RenderError> {
@@ -548,11 +557,11 @@ fn sheet_xml(
     let header = &rt.header;
     if let Some(title) = &header.title {
         let f = Format::new(&title.style, true, &HAlign::Left);
-        sheet.text_row(&rich(rt, title.content, FontKey::of(&f)), f, false)?;
+        sheet.text_row(&rich(rt, &title.content, FontKey::of(&f)), f, false)?;
     }
     for line in header.subtitle.iter().chain(&header.extra_lines) {
         let f = Format::new(&line.style, false, &HAlign::Left);
-        sheet.text_row(&rich(rt, line.content, FontKey::of(&f)), f, false)?;
+        sheet.text_row(&rich(rt, &line.content, FontKey::of(&f)), f, false)?;
     }
 
     if !rt.is_empty() {
@@ -565,7 +574,7 @@ fn sheet_xml(
                     sheet.merges.push((0, r, rt.columns.len() - 1, r));
                 }
                 let f = Format::new(&label.style, true, &HAlign::Left);
-                sheet.text_row(&rich(rt, label.content, FontKey::of(&f)), f, true)?;
+                sheet.text_row(&rich(rt, &label.content, FontKey::of(&f)), f, true)?;
             }
             sheet.section(rt, &group.rows, false)?;
             sheet.section(rt, &group.summary_rows, true)?;
@@ -582,16 +591,16 @@ fn sheet_xml(
             let mut runs = vec![
                 RichRun {
                     text: note.mark.to_string(),
-                    font,
+                    font: font.clone(),
                     superscript: true,
                 },
                 RichRun {
                     text: " ".into(),
-                    font,
+                    font: font.clone(),
                     superscript: false,
                 },
             ];
-            runs.extend(rich(rt, note.content, font));
+            runs.extend(rich(rt, &note.content, font));
             sheet.text_row(&runs, f, false)?;
         }
     }
@@ -599,7 +608,7 @@ fn sheet_xml(
         sheet.row_num += 1;
         for note in &footer.source_notes {
             let f = Format::new(&note.style, false, &HAlign::Left);
-            sheet.text_row(&rich(rt, note.content, FontKey::of(&f)), f, false)?;
+            sheet.text_row(&rich(rt, &note.content, FontKey::of(&f)), f, false)?;
         }
     }
 
@@ -652,7 +661,7 @@ impl Sheet<'_> {
         };
         let height = text_height(runs, f.wrap.then_some(width));
         write!(self.buf, "<row r=\"{r}\"{}>", row_height(height))?;
-        let s = self.styles.id(f);
+        let s = self.styles.id(&f);
         write_text_cell(
             self.buf,
             self.strings,
@@ -682,7 +691,7 @@ impl Sheet<'_> {
             for cell in row.cells() {
                 let cell_ref = xml::cell_ref(cell.col, r);
                 let mut format = Format::cell(&cell.style, strong, &cell.align);
-                let runs = rich(rt, cell.content, FontKey::of(&format));
+                let runs = rich(rt, &cell.content, FontKey::of(&format));
                 format.wrap = has_breaks(&runs);
                 // A spanned cell's text spreads over its rows: leave them be.
                 if cell.rowspan == 1 {
@@ -708,18 +717,18 @@ impl Sheet<'_> {
                     .and_then(|t| t.value.as_f64())
                     .filter(|v| v.is_finite())
                     .and_then(|v| {
-                        let shown = plain_display(cell.content)?;
+                        let shown = plain_display(&cell.content)?;
                         Some((v, NumFmt::infer(&shown, v)?))
                     });
                 if let Some((num, num_fmt)) = number {
-                    let s = self.styles.id(Format {
+                    let s = self.styles.id(&Format {
                         num_fmt: Some(num_fmt),
                         ..format
                     });
                     write!(cells, "<c r=\"{cell_ref}\"{}><v>{num}</v></c>", s_attr(s))?;
                     continue;
                 }
-                let s = self.styles.id(format);
+                let s = self.styles.id(&format);
                 write_text_cell(
                     &mut cells,
                     self.strings,
@@ -915,7 +924,7 @@ struct RichRun {
 fn rich(rt: &ResolvedTable, nodes: &[ContentNode], font: FontKey) -> Vec<RichRun> {
     let plain = |text: String| RichRun {
         text,
-        font,
+        font: font.clone(),
         superscript: false,
     };
     let mut runs = Vec::new();
@@ -928,13 +937,13 @@ fn rich(rt: &ResolvedTable, nodes: &[ContentNode], font: FontKey) -> Vec<RichRun
                     .unwrap_or_default();
                 runs.push(RichRun {
                     text: value.clone(),
-                    font: font.with(&style),
+                    font: font.clone().with(&style),
                     superscript: false,
                 });
             }
             ContentNode::FootnoteMark { mark_text, .. } => runs.push(RichRun {
                 text: mark_text.clone(),
-                font,
+                font: font.clone(),
                 superscript: true,
             }),
             other => runs.push(plain(content_to_text(std::slice::from_ref(other)))),
