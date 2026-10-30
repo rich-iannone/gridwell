@@ -22,9 +22,9 @@ Which IR features each Tier-1 writer (plus PPTX) expresses. Every cell is *measu
 | cell-align | `text_align` on a cell | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | column-align | a column's `align` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | vertical-align | `vertical_align: bottom` | ✓ | ⊘<sup>4</sup> | ✓ | ✓ | ✓ | ✓ | ✓ |
-| border | `border` (2px solid red bottom) | ✓ | ✗<sup>3</sup> | ✓ | ✓ | ✓ | ✓ | ✓ |
-| border-styles | border styles dashed, dotted | ✓ | ✗<sup>3</sup> | ✓ | ✓ | ✓ | ✓ | ✓ |
-| border-double | border style double | ✓ | ✗<sup>3</sup> | ⊘<sup>5</sup> | ✓ | ✓ | ✓ | ✓ |
+| border | `border` (2px solid red bottom) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| border-styles | border styles dashed, dotted | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| border-double | border style double | ✓ | ✓ | ⊘<sup>5</sup> | ✓ | ✓ | ✓ | ✓ |
 | column-style | a column's `style_id` (cascades to its cells) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | row-style | a row's `style_id` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | striping | `row_striping` (every second body row filled) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

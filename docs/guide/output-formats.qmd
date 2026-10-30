@@ -61,6 +61,13 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Column alignment via `l`, `r`, `c`, `p{width}`
 - Cell fills via `\cellcolor`, text color via `\textcolor`; underline and strike-through via
   `\uline` / `\sout`; sizes via `\fontsize`
+- Cell borders: a horizontal edge is a line of its own between two rows (`\omit` cells
+  filled with leaders: solid, dashed, dotted or double), so a fill can't paint over it;
+  a vertical edge is a `!{\vrule …}` in the cell's `\multicolumn` (a rule is always
+  solid, so dashed and dotted sides are drawn solid). A double line's two strokes and
+  the gap between them are a third of its width each. Where two cells' borders meet,
+  one edge is drawn: the wider, then double, solid, dashed, dotted, then the one above
+  or to the left. No packages beyond those below.
 - Required packages: `booktabs`, `multirow`, `longtable` (long tables), `xcolor` with the
   `table` option, and `ulem` with `normalem` (`\usepackage[normalem]{ulem}`, so `\emph`
   keeps its meaning)
