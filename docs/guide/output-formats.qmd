@@ -102,6 +102,9 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Cell borders via `table.cell(stroke: ...)`, solid, dashed or dotted (Typst has no
   double line: a double border is drawn solid)
 - Vertical alignment with the cell's horizontal one (`align: left + bottom`)
+- The title (bold, 16pt), subtitle and header lines (12pt, gray), group labels (bold on
+  light gray) and notes (9pt; source notes gray) take their style's text formatting
+  (and a group label its fill) in place of those defaults
 
 ### RTF
 
