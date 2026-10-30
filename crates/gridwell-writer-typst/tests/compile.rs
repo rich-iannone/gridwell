@@ -1,7 +1,7 @@
 //! Format-native oracle: the Typst we emit must compile, and text must come out
 //! verbatim.
 //!
-//! - Every corpus example and every span layout from `gridwell_testkit::spans` is
+//! - Every corpus example (plus a bordered merge) and every span layout from `gridwell_testkit::spans` is
 //!   compiled with the `typst` CLI.
 //! - Tricky text (all ASCII punctuation, markup look-alikes, line-start markers) is
 //!   compiled to PDF and read back with `pdftotext`; it must appear unchanged.
@@ -12,6 +12,7 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use gridwell_testkit::examples::bordered_merge;
 use gridwell_testkit::spans::tilings;
 use gridwell_testkit::{cell, column, examples, group, row, CellExt, ColumnExt, TableBuilder};
 use gridwell_writer_typst::render_typst;
@@ -67,14 +68,17 @@ fn every_example_compiles() {
         return;
     }
     let dir = work_dir("examples");
+    // Plus a bordered merged cell under a bordered group label.
     let failures: Vec<String> = examples()
         .into_iter()
-        .filter_map(|ex| {
-            let src = render_typst(&ex.table()).unwrap();
-            compile(&dir, ex.name, &src).err().map(|e| {
+        .map(|ex| (ex.name, ex.table()))
+        .chain([("bordered-merge", bordered_merge())])
+        .filter_map(|(name, table)| {
+            let src = render_typst(&table).unwrap();
+            compile(&dir, name, &src).err().map(|e| {
                 format!(
                     "{}:\n{}",
-                    ex.name,
+                    name,
                     e.lines().take(6).collect::<Vec<_>>().join("\n")
                 )
             })
