@@ -16,6 +16,6 @@ expression: xml
 <w:tr><w:tc><w:tcPr><w:tcW w:w="2160" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="F5F5F5"/></w:tcPr><w:p><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">Net income</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="2160" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="F5F5F5"/></w:tcPr><w:p><w:pPr><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">$200</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="2160" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="F5F5F5"/></w:tcPr><w:p><w:pPr><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">$270</w:t></w:r></w:p></w:tc></w:tr>
 </w:tbl>
 <w:p/>
-<w:p><w:r><w:rPr><w:i/></w:rPr><w:t xml:space="preserve">Unaudited management figures.</w:t></w:r></w:p>
+<w:p><w:pPr><w:pStyle w:val="SourceNote"/></w:pPr><w:r><w:rPr><w:i/></w:rPr><w:t xml:space="preserve">Unaudited management figures.</w:t></w:r></w:p>
 </w:body>
 </w:document>

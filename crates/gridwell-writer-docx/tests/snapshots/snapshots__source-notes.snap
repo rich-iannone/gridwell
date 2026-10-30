@@ -12,7 +12,7 @@ expression: xml
 <w:tr><w:tc><w:tcPr><w:tcW w:w="2160" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Users</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="2160" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">1,024</w:t></w:r></w:p></w:tc></w:tr>
 </w:tbl>
 <w:p/>
-<w:p><w:r><w:rPr><w:i/></w:rPr><w:t xml:space="preserve">Source: internal analytics.</w:t></w:r></w:p>
-<w:p><w:r><w:rPr><w:i/></w:rPr><w:t xml:space="preserve">Collected June 2026.</w:t></w:r></w:p>
+<w:p><w:pPr><w:pStyle w:val="SourceNote"/></w:pPr><w:r><w:rPr><w:i/></w:rPr><w:t xml:space="preserve">Source: internal analytics.</w:t></w:r></w:p>
+<w:p><w:pPr><w:pStyle w:val="SourceNote"/></w:pPr><w:r><w:rPr><w:i/></w:rPr><w:t xml:space="preserve">Collected June 2026.</w:t></w:r></w:p>
 </w:body>
 </w:document>

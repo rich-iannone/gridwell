@@ -15,6 +15,6 @@ expression: xml
 <w:p/>
 <w:p><w:pPr><w:pStyle w:val="FootnoteText"/></w:pPr><w:r><w:rPr><w:vertAlign w:val="superscript"/></w:rPr><w:t xml:space="preserve">1</w:t></w:r><w:r><w:t xml:space="preserve"> </w:t></w:r><w:r><w:t xml:space="preserve">Re-run confirmed.</w:t></w:r></w:p>
 <w:p/>
-<w:p><w:r><w:rPr><w:i/></w:rPr><w:t xml:space="preserve">Source: CI pipeline.</w:t></w:r></w:p>
+<w:p><w:pPr><w:pStyle w:val="SourceNote"/></w:pPr><w:r><w:rPr><w:i/></w:rPr><w:t xml:space="preserve">Source: CI pipeline.</w:t></w:r></w:p>
 </w:body>
 </w:document>

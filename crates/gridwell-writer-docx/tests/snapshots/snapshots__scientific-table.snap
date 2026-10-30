@@ -17,6 +17,6 @@ expression: xml
 <w:p/>
 <w:p><w:pPr><w:pStyle w:val="FootnoteText"/></w:pPr><w:r><w:rPr><w:vertAlign w:val="superscript"/></w:rPr><w:t xml:space="preserve">a</w:t></w:r><w:r><w:t xml:space="preserve"> </w:t></w:r><w:r><w:t xml:space="preserve">Measured under pseudo-first-order conditions.</w:t></w:r></w:p>
 <w:p/>
-<w:p><w:r><w:rPr><w:i/></w:rPr><w:t xml:space="preserve">Source: laboratory notebook, 2026.</w:t></w:r></w:p>
+<w:p><w:pPr><w:pStyle w:val="SourceNote"/></w:pPr><w:r><w:rPr><w:i/></w:rPr><w:t xml:space="preserve">Source: laboratory notebook, 2026.</w:t></w:r></w:p>
 </w:body>
 </w:document>
