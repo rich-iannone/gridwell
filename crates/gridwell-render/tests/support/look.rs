@@ -4,7 +4,7 @@
 //!
 //! Each reader returns every table cell (span origins only, in document order)
 //! with its text and look, plus the document's text outside the table (titles,
-//! notes). The feature matrix (`tests/feature_matrix.rs`) finds cells by their
+//! notes) with its runs. The feature matrix (`tests/feature_matrix.rs`) finds cells by their
 //! text and compares looks.
 //!
 //! Readers apply the format's own inheritance and defaults where they change
@@ -126,9 +126,28 @@ pub struct Doc {
     pub cells: Vec<Look>,
     /// Text outside the table: titles, notes.
     pub outside: String,
+    /// The same text as runs, where the reader recovers its formatting.
+    pub outside_runs: Vec<Run>,
 }
 
 impl Doc {
+    /// Text outside the table, with its formatting.
+    pub fn push_outside(&mut self, run: Run) {
+        self.outside.push_str(&run.text);
+        push_run(&mut self.outside_runs, run);
+    }
+
+    /// The visible run showing `needle`, outside the table or in a cell (formats
+    /// with no "outside", such as a spreadsheet, put titles and notes in cells).
+    pub fn run_showing(&self, needle: &str) -> Option<&Run> {
+        let outside = self
+            .outside_runs
+            .iter()
+            .filter(|r| !r.text.trim().is_empty())
+            .find(|r| r.text.contains(needle));
+        outside.or_else(|| self.cells.iter().find_map(|c| c.run_with(needle)))
+    }
+
     /// The cell whose text (whitespace removed) is `text`.
     pub fn cell(&self, text: &str) -> Option<&Look> {
         let squash = |s: &str| s.split_whitespace().collect::<String>();
@@ -332,7 +351,10 @@ pub fn docx(xml: &str) -> Doc {
                             ..st.run.clone()
                         },
                     ),
-                    None => doc.outside.push_str(&text),
+                    None => doc.push_outside(Run {
+                        text,
+                        ..st.run.clone()
+                    }),
                 }
             }
             Event::End(e) => {
@@ -352,7 +374,10 @@ pub fn docx(xml: &str) -> Doc {
                                 },
                             );
                         }
-                        None => doc.outside.push('\n'),
+                        None => doc.push_outside(Run {
+                            text: "\n".into(),
+                            ..Run::default()
+                        }),
                     },
                     "tc" => {
                         places.push((row, col, st.span, st.cell_borders));
@@ -808,7 +833,7 @@ pub fn rtf(rtf: &str) -> Doc {
         if in_row {
             push_run(&mut look.runs, run_of(text, st));
         } else {
-            doc.outside.push_str(&text);
+            doc.push_outside(run_of(text, st));
         }
     };
 
@@ -1390,12 +1415,29 @@ pub fn html(html: &str) -> Doc {
         {
             continue;
         }
-        let own: String = el
-            .children()
-            .filter_map(|c| c.value().as_text().map(|t| t.to_string()))
+        // Inherit from the root down to the element.
+        let mut chain: Vec<scraper::ElementRef> = el
+            .ancestors()
+            .filter_map(scraper::ElementRef::wrap)
             .collect();
-        doc.outside.push_str(&own);
-        doc.outside.push('\n');
+        chain.reverse();
+        chain.push(el);
+        let mut inh = base.clone();
+        for a in &chain {
+            apply_text(&declared(*a, &rules), a.value().name(), &mut inh);
+        }
+        for c in el.children() {
+            if let Some(t) = c.value().as_text() {
+                doc.push_outside(Run {
+                    text: transformed(t, inh.transform.as_deref()),
+                    ..inh.run.clone()
+                });
+            }
+        }
+        doc.push_outside(Run {
+            text: "\n".into(),
+            ..Run::default()
+        });
     }
     doc
 }
@@ -1878,7 +1920,9 @@ pub fn latex(src: &str) -> Doc {
     let Some((start, blen)) = begin else {
         let mut runs = Vec::new();
         tex_runs(src, &mut base.clone(), &mut runs, &mut None);
-        doc.outside = runs.iter().map(|r| r.text.as_str()).collect();
+        for r in runs {
+            doc.push_outside(r);
+        }
         return doc;
     };
     let chars: Vec<char> = src[start + blen - 1..].chars().collect();
@@ -1895,11 +1939,9 @@ pub fn latex(src: &str) -> Doc {
     tex_runs(&src[..start], &mut base.clone(), &mut before, &mut None);
     let mut after = Vec::new();
     tex_runs(&src[end..], &mut base.clone(), &mut after, &mut None);
-    doc.outside = before
-        .iter()
-        .chain(&after)
-        .map(|r| r.text.as_str())
-        .collect();
+    for r in before.into_iter().chain(after) {
+        doc.push_outside(r);
+    }
     // Column alignments.
     let mut aligns = Vec::new();
     let sc: Vec<char> = spec.chars().collect();
@@ -2144,7 +2186,10 @@ pub fn pptx(xml: &str) -> Doc {
                             ..Run::default()
                         },
                     ),
-                    (None, _) => doc.outside.push_str(&text),
+                    (None, r) => doc.push_outside(Run {
+                        text,
+                        ..r.cloned().unwrap_or_default()
+                    }),
                 }
             }
             Event::End(e) => {
@@ -2166,7 +2211,10 @@ pub fn pptx(xml: &str) -> Doc {
                                 },
                             );
                         }
-                        None => doc.outside.push('\n'),
+                        None => doc.push_outside(Run {
+                            text: "\n".into(),
+                            ..Run::default()
+                        }),
                     },
                     "lnL" | "lnR" | "lnT" | "lnB" => {
                         if let (Some(l), Some((i, ed))) = (look.as_mut(), edge.take()) {
