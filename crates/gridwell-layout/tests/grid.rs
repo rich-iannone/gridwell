@@ -213,7 +213,7 @@ fn actual(rt: &ResolvedTable) -> Vec<(String, usize, usize, usize, usize)> {
         .enumerate()
         .flat_map(|(r, row)| {
             row.cells()
-                .map(move |c| (text(c.content), r, c.col, c.colspan, c.rowspan))
+                .map(move |c| (text(&c.content), r, c.col, c.colspan, c.rowspan))
                 .collect::<Vec<_>>()
         })
         .collect();
@@ -258,7 +258,7 @@ fn continuation_rows_match_the_ir_helper_without_hidden_columns() {
             .iter()
             .map(|r| {
                 r.iter()
-                    .map(|m| (m.col, m.span, m.cell.map(|c| text(c.content)), m.vmerge))
+                    .map(|m| (m.col, m.span, m.cell.map(|c| text(&c.content)), m.vmerge))
                     .collect()
             })
             .collect();
@@ -322,7 +322,7 @@ fn origin_in_hidden_column_moves_right() {
     assert_eq!(cells.len(), 2);
     assert_eq!(
         (
-            text(cells[0].content).as_str(),
+            text(&cells[0].content).as_str(),
             cells[0].col,
             cells[0].colspan
         ),
