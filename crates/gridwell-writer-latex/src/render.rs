@@ -144,32 +144,98 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
     }
 
     fn render(mut self) -> Result<String, RenderError> {
-        self.render_title();
         // A tabular needs at least one column: with every column hidden only the
         // title and notes remain.
-        if !self.rt.is_empty() {
+        if self.rt.is_empty() {
+            self.render_title();
+            self.render_footnotes();
+        } else if self.use_longtable() {
+            self.render_longtable();
+        } else {
+            self.render_title();
             self.render_begin();
             self.render_toprule();
             self.render_thead();
             self.render_tbody();
             self.render_bottomrule();
             self.render_end();
+            self.render_footnotes();
         }
-        self.render_footnotes();
         Ok(self.buf)
+    }
+
+    /// A longtable carries its title and notes as rows of its own, so a page
+    /// break can't part them from the table: the title (with the head) is the
+    /// first page's head, the notes (with the bottom rule) the last page's foot.
+    /// Every other page repeats the head and ends with the bottom rule.
+    fn render_longtable(&mut self) {
+        self.render_begin();
+        let heading = self.heading_lines();
+        for (text, gap) in &heading {
+            writeln!(self.buf, "{} \\\\{gap}", self.wide_row(text, 'b')).unwrap();
+        }
+        let start = self.buf.len();
+        self.render_toprule();
+        self.render_thead();
+        self.flush_midrule();
+        self.settle();
+        let head = self.buf[start..].to_string();
+        if !heading.is_empty() {
+            writeln!(self.buf, "\\endfirsthead").unwrap();
+            self.buf.push_str(&head);
+        }
+        writeln!(self.buf, "\\endhead").unwrap();
+        let rule = if self.config.booktabs {
+            "\\bottomrule"
+        } else {
+            "\\hline"
+        };
+        writeln!(self.buf, "{rule}\n\\endfoot").unwrap();
+        let notes: Vec<String> = self.note_lines().into_iter().flatten().collect();
+        if !notes.is_empty() {
+            writeln!(self.buf, "{rule}").unwrap();
+            for text in &notes {
+                writeln!(self.buf, "{} \\\\", self.wide_row(text, 't')).unwrap();
+            }
+            writeln!(self.buf, "\\endlastfoot").unwrap();
+        }
+        self.ruled = true;
+        self.render_tbody();
+        self.midrule_due = false;
+        self.settle();
+        self.render_end();
+    }
+
+    /// A row of one line of text across the table, which neither widens it nor
+    /// is boxed in its columns: a paragraph as wide as the line (as outside a
+    /// table), from the table's left edge, in a box of no width. Its baseline is
+    /// the paragraph's last line (`b`) or first (`t`).
+    fn wide_row(&self, text: &str, pos: char) -> String {
+        format!(
+            "\\multicolumn{{{}}}{{@{{}}l@{{}}}}{{\\makebox[0pt][l]{{\\parbox[{pos}]{{\\linewidth}}{{\\raggedright {text}}}}}}}",
+            self.width()
+        )
     }
 
     // ─── Title / Subtitle ───
 
     fn render_title(&mut self) {
+        for (text, gap) in self.heading_lines() {
+            writeln!(self.buf, "{text}\\\\{gap}").unwrap();
+        }
+    }
+
+    /// The title, subtitle and header lines, each with the space below it (the
+    /// last line before the table is set apart). They take inline styling only
+    /// (`\cellcolor` is table-only).
+    fn heading_lines(&self) -> Vec<(String, &'static str)> {
         let header = &self.rt.header;
-        // Lines outside the tabular take inline styling only (`\cellcolor` is
-        // table-only).
+        let mut out = Vec::new();
         if let Some(title) = &header.title {
             let text = self.content(&title.content, &HAlign::Left, &title.style);
             if !text.is_empty() {
                 let text = apply_block_style(&text, &title.style);
-                writeln!(self.buf, "{{\\large\\bfseries {text}}}\\\\").unwrap();
+                out.push((format!("{{\\large\\bfseries {text}}}"), ""));
             }
         }
         let lines: Vec<_> = header.subtitle.iter().chain(&header.extra_lines).collect();
@@ -178,9 +244,10 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
             if !text.is_empty() {
                 let text = apply_block_style(&text, &line.style);
                 let gap = if i + 1 == lines.len() { "[6pt]" } else { "" };
-                writeln!(self.buf, "{{\\small {text}}}\\\\{gap}").unwrap();
+                out.push((format!("{{\\small {text}}}"), gap));
             }
         }
+        out
     }
 
     // ─── Table Environment ───
@@ -188,10 +255,11 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
     fn render_begin(&mut self) {
         let col_spec = self.build_column_spec();
         let env = self.env();
-        let width = if env == "tabularx" {
-            format!("{{{}}}", self.table_width())
-        } else {
-            String::new()
+        // A longtable starts at the left margin, as a tabular does.
+        let width = match env {
+            "tabularx" => format!("{{{}}}", self.table_width()),
+            "longtable" => "[l]".to_string(),
+            _ => String::new(),
         };
         writeln!(self.buf, "\\begin{{{env}}}{width}{{{col_spec}}}").unwrap();
     }
@@ -437,13 +505,6 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
             self.render_spanner_rules(r);
         }
         self.render_midrule();
-        if self.use_longtable() {
-            // The head's rule (and its last row's borders) repeat with it on every
-            // page.
-            self.flush_midrule();
-            self.settle();
-            writeln!(self.buf, "\\endhead").unwrap();
-        }
     }
 
     fn render_tbody(&mut self) {
@@ -631,32 +692,36 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
     // ─── Footnotes ───
 
     fn render_footnotes(&mut self) {
+        for block in self.note_lines() {
+            writeln!(self.buf).unwrap();
+            for text in block {
+                writeln!(self.buf, "{text}\\\\").unwrap();
+            }
+        }
+    }
+
+    /// The footnotes and the source notes, as blocks of lines (an empty block
+    /// is left out).
+    fn note_lines(&self) -> Vec<Vec<String>> {
         let footer = &self.rt.footer;
-        if !footer.footnotes.is_empty() {
-            writeln!(self.buf).unwrap();
-            for note in &footer.footnotes {
-                let text = apply_block_style(
-                    &self.content(&note.content, &HAlign::Left, &note.style),
-                    &note.style,
-                );
-                writeln!(
-                    self.buf,
-                    "\\textsuperscript{{{mark}}} {text}\\\\",
-                    mark = escape_latex(note.mark)
-                )
-                .unwrap();
-            }
-        }
-        if !footer.source_notes.is_empty() {
-            writeln!(self.buf).unwrap();
-            for note in &footer.source_notes {
-                let text = apply_block_style(
-                    &self.content(&note.content, &HAlign::Left, &note.style),
-                    &note.style,
-                );
-                writeln!(self.buf, "{{\\footnotesize {text}}}\\\\").unwrap();
-            }
-        }
+        let footnotes = footer.footnotes.iter().map(|note| {
+            let text = apply_block_style(
+                &self.content(&note.content, &HAlign::Left, &note.style),
+                &note.style,
+            );
+            format!("\\textsuperscript{{{}}} {text}", escape_latex(note.mark))
+        });
+        let sources = footer.source_notes.iter().map(|note| {
+            let text = apply_block_style(
+                &self.content(&note.content, &HAlign::Left, &note.style),
+                &note.style,
+            );
+            format!("{{\\footnotesize {text}}}")
+        });
+        [footnotes.collect::<Vec<_>>(), sources.collect()]
+            .into_iter()
+            .filter(|b| !b.is_empty())
+            .collect()
     }
 }
 
