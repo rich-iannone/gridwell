@@ -16,15 +16,15 @@ Which IR features each Tier-1 writer (plus PPTX) expresses. Every cell is *measu
 | strikethrough | `text_decoration: line-through` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | text-color | `color` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | font-size | `font_size` (20px = 15pt) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| font-family | `font_family` (a named family, not just monospace) | ✓ | ⊘<sup>1</sup> | ✗<sup>2</sup> | ✗<sup>3</sup> | ✗<sup>3</sup> | ✗<sup>3</sup> | ✗<sup>3</sup> |
-| text-transform | `text_transform: uppercase` | ✓ | ✗<sup>3</sup> | ✗<sup>3</sup> | ✗<sup>3</sup> | ✗<sup>3</sup> | ✗<sup>3</sup> | ✗<sup>3</sup> |
+| font-family | `font_family` (a named family, not just monospace) | ✓ | ⊘<sup>1</sup> | ✓ | ✓ | ✓ | ✓ | ✓ |
+| text-transform | `text_transform: uppercase` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | fill | `background_color` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | cell-align | `text_align` on a cell | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | column-align | a column's `align` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| vertical-align | `vertical_align: bottom` | ✓ | ⊘<sup>4</sup> | ✓ | ✓ | ✓ | ✓ | ✓ |
+| vertical-align | `vertical_align: bottom` | ✓ | ⊘<sup>2</sup> | ✓ | ✓ | ✓ | ✓ | ✓ |
 | border | `border` (2px solid red bottom) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | border-styles | border styles dashed, dotted | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| border-double | border style double | ✓ | ✓ | ⊘<sup>5</sup> | ✓ | ✓ | ✓ | ✓ |
+| border-double | border style double | ✓ | ✓ | ⊘<sup>3</sup> | ✓ | ✓ | ✓ | ✓ |
 | column-style | a column's `style_id` (cascades to its cells) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | row-style | a row's `style_id` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | striping | `row_striping` (every second body row filled) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -38,9 +38,7 @@ Which IR features each Tier-1 writer (plus PPTX) expresses. Every cell is *measu
 **Notes**
 
 1. a named system font needs XeLaTeX/LuaLaTeX with fontspec; the output also targets pdfLaTeX (monospace families map to `\texttt`)
-2. only monospace families are mapped (to Courier New)
-3. not implemented
-4. a tabular row sets its cells on one baseline; `m`/`b` columns align whole columns, not single cells
-5. Typst strokes have no double line; a double border is drawn solid
+2. a tabular row sets its cells on one baseline; `m`/`b` columns align whole columns, not single cells
+3. Typst strokes have no double line; a double border is drawn solid
 
 Structure — spans, hidden columns, stub columns, hidden column labels, group labels and summary rows — is verified separately for every writer by the grid invariant: each output is read back as a grid and compared with the IR's.
