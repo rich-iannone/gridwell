@@ -61,7 +61,7 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
     fn render_title(&mut self) {
         let rt = self.rt;
         if let Some(title) = &rt.header.title {
-            let text = self.content(title.content);
+            let text = self.content(&title.content);
             if !text.is_empty() {
                 self.line(&format!(
                     "#align(left)[#text(size: 16pt, weight: \"bold\")[{text}]]"
@@ -69,7 +69,7 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
             }
         }
         if let Some(subtitle) = &rt.header.subtitle {
-            let text = self.content(subtitle.content);
+            let text = self.content(&subtitle.content);
             if !text.is_empty() {
                 self.line(&format!(
                     "#align(left)[#text(size: 12pt, fill: luma(100))[{text}]]"
@@ -136,7 +136,7 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
         let rt = self.rt;
         for (g, group) in rt.groups.iter().enumerate() {
             if let Some(label) = &group.label {
-                let text = self.content(label.content);
+                let text = self.content(&label.content);
                 let cols = rt.columns.len();
                 self.line("table.hline(stroke: 0.5pt),");
                 let stroke = typst_stroke(&label.style.strokes(BASE_PT))
@@ -173,7 +173,7 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
     }
 
     fn render_cell(&mut self, cell: &ResolvedCell, is_header: bool) {
-        let content = self.content(cell.content);
+        let content = self.content(&cell.content);
         let mut attrs = Vec::new();
         if cell.colspan > 1 {
             attrs.push(format!("colspan: {}", cell.colspan));
@@ -220,7 +220,7 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
                 if i > 0 {
                     self.line("");
                 }
-                let text = self.content(note.content);
+                let text = self.content(&note.content);
                 let mark = escape_typst(note.mark);
                 self.line(&format!("#text(size: 9pt)[#super[{mark}] {text}]"));
             }
@@ -231,7 +231,7 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
                 if i > 0 {
                     self.line("");
                 }
-                let text = self.content(note.content);
+                let text = self.content(&note.content);
                 self.line(&format!("#text(size: 9pt, fill: luma(100))[{text}]"));
             }
         }
@@ -278,7 +278,7 @@ pub fn render(table: &Table, config: &TypstWriterConfig) -> Result<String, Rende
 }
 
 /// `content` wrapped in `#text(…)` for the style's weight, slant, size, color and
-/// monospace family, and in `#underline[…]` / `#strike[…]` for its decoration.
+/// font family, and in `#underline[…]` / `#strike[…]` for its decoration.
 /// Header cells are bold unless their style sets a weight.
 fn text_style(content: &str, style: &ResolvedStyle, is_header: bool) -> String {
     let inner = text_attrs(content, style, is_header);
@@ -311,18 +311,26 @@ fn text_attrs(content: &str, style: &ResolvedStyle, is_header: bool) -> String {
     if let Some(c) = style.paint() {
         attrs.push(format!("fill: {}", typst_color(c)));
     }
-    if style
-        .font_family
-        .as_deref()
-        .is_some_and(|f| f.contains("monospace") || f.contains("Courier"))
-    {
-        attrs.push("font: \"Courier New\"".to_string());
+    // Typst has no generic families: they map to fonts, and Typst takes the
+    // first of the list it has.
+    match style.font_names().as_slice() {
+        [] => {}
+        [name] => attrs.push(format!("font: {}", typst_string(name))),
+        names => {
+            let names: Vec<String> = names.iter().map(|n| typst_string(n)).collect();
+            attrs.push(format!("font: ({})", names.join(", ")));
+        }
     }
     if attrs.is_empty() || content.is_empty() {
         content.to_string()
     } else {
         format!("#text({})[{content}]", attrs.join(", "))
     }
+}
+
+/// A Typst string literal.
+fn typst_string(s: &str) -> String {
+    format!("\"{}\"", s.replace('\\', "\\\\").replace('"', "\\\""))
 }
 
 fn typst_align(a: &HAlign) -> &'static str {
