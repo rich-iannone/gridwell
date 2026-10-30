@@ -31,7 +31,7 @@ use gridwell_ir::{
     resolve_slots, Cell, CellScope, ColumnSpec, ColumnVisibility, HAlign, Keyword, RowParity,
     RowRole, SelectorScope, Table, VMerge,
 };
-pub use style::{ResolvedBorder, ResolvedStyle, Sides, Stroke};
+pub use style::{CellVAlign, ResolvedBorder, ResolvedStyle, Sides, Stroke};
 pub use text::plain_text;
 
 use gridwell_core::Color;
