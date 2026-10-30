@@ -2,8 +2,8 @@ use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{is_valid_style_id, HAlign, Keyword, RowRole, Table};
 use gridwell_layout::{
-    resolve, ResolvedBorder, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, SectionKind,
-    Sides,
+    resolve_with, ResolveOptions, ResolvedBorder, ResolvedCell, ResolvedRow, ResolvedStyle,
+    ResolvedTable, SectionKind, Sides,
 };
 use std::fmt::Write;
 use thiserror::Error;
@@ -461,7 +461,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                 self.push_indent();
                 self.write_line(&format!("<td colspan=\"{colspan}\"{class}>",));
                 self.push_indent();
-                self.render_content_nodes(label.content);
+                self.render_content_nodes(&label.content);
                 self.pop_indent();
                 self.write_line("</td>");
                 self.pop_indent();
@@ -551,7 +551,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         };
 
         // For simple single-text cells, render inline
-        if let Some(text) = single_text_content(cell.content) {
+        if let Some(text) = single_text_content(&cell.content) {
             self.write_line(&format!("<{tag}{attr_str}>{}</{tag}>", escape_html(text)));
             return;
         }
@@ -563,7 +563,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 
         self.write_line(&format!("<{tag}{attr_str}>"));
         self.push_indent();
-        self.render_content_nodes(cell.content);
+        self.render_content_nodes(&cell.content);
         self.pop_indent();
         self.write_line(&format!("</{tag}>"));
     }
@@ -782,7 +782,11 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 /// Main entry point for rendering.
 pub fn render(table: &Table, config: &HtmlWriterConfig) -> Result<String, RenderError> {
     crate::check_class_prefix(&config.class_prefix).map_err(RenderError::Config)?;
-    let rt = resolve(table);
+    // CSS `text-transform` transforms the text: the content stays as written.
+    let opts = ResolveOptions {
+        transform_text: false,
+    };
+    let rt = resolve_with(table, opts);
     HtmlRenderer::new(&rt, config).render()
 }
 
