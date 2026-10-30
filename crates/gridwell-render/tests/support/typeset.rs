@@ -914,8 +914,13 @@ pub fn typst_looks(sources: &[String]) -> Vec<Result<look::Doc, String>> {
                         }
                         None => {
                             let d = docs.last_mut().unwrap();
-                            d.outside.extend(parts.iter().map(|r| r.text.as_str()));
-                            d.outside.push(' ');
+                            for r in parts {
+                                d.push_outside(r);
+                            }
+                            d.push_outside(look::Run {
+                                text: " ".into(),
+                                ..base.clone()
+                            });
                         }
                     }
                 }
