@@ -760,7 +760,8 @@ fn typst_edge(v: &Value) -> Option<look::Edge> {
     Some(look::Edge {
         line: if dash.contains("dot") {
             look::Line::Dotted
-        } else if dash == "none" {
+        } else if dash == "none" || dash == "auto" {
+            // A stroke built without a `dash` has `auto`: solid.
             look::Line::Solid
         } else {
             look::Line::Dashed
