@@ -56,26 +56,30 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
         Ok(self.buf)
     }
 
-    // ─── Title / Subtitle ───
+    // ─── Title / Subtitle / header lines ───
 
+    /// The title (bold, 16pt), then the subtitle and extra header lines (12pt,
+    /// gray). A line's style is laid over those defaults.
     fn render_title(&mut self) {
-        let rt = self.rt;
-        if let Some(title) = &rt.header.title {
+        let header = &self.rt.header;
+        if let Some(title) = &header.title {
             let text = self.content(&title.content);
             if !text.is_empty() {
-                self.line(&format!(
-                    "#align(left)[#text(size: 16pt, weight: \"bold\")[{text}]]"
-                ));
+                let styled = line_style(&text, &title.style, true, &[("size", "16pt")]);
+                self.line(&format!("#align(left)[{styled}]"));
             }
         }
-        if let Some(subtitle) = &rt.header.subtitle {
-            let text = self.content(&subtitle.content);
+        let mut lines = false;
+        for line in header.subtitle.iter().chain(&header.extra_lines) {
+            let text = self.content(&line.content);
             if !text.is_empty() {
-                self.line(&format!(
-                    "#align(left)[#text(size: 12pt, fill: luma(100))[{text}]]"
-                ));
-                self.line("#v(6pt)");
+                let styled = line_style(&text, &line.style, false, SUBTITLE);
+                self.line(&format!("#align(left)[{styled}]"));
+                lines = true;
             }
+        }
+        if lines {
+            self.line("#v(6pt)");
         }
     }
 
@@ -139,11 +143,14 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
                 let text = self.content(&label.content);
                 let cols = rt.columns.len();
                 self.line("table.hline(stroke: 0.5pt),");
+                // Bold on light gray, unless the label's style says otherwise.
+                let fill = label.style.fill().map_or("luma(240)".into(), typst_color);
                 let stroke = typst_stroke(&label.style.strokes(BASE_PT))
                     .map(|s| format!(", {s}"))
                     .unwrap_or_default();
+                let styled = text_style(&text, &label.style, true);
                 self.line(&format!(
-                    "table.cell(colspan: {cols}, fill: luma(240){stroke})[#text(weight: \"bold\")[{text}]],"
+                    "table.cell(colspan: {cols}, fill: {fill}{stroke})[{styled}],"
                 ));
                 self.line("table.hline(stroke: 0.5pt),");
             }
@@ -210,6 +217,8 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
 
     // ─── Footnotes ───
 
+    /// Footnotes (9pt) and source notes (9pt, gray), each note's style laid over
+    /// those defaults.
     fn render_footnotes(&mut self) {
         let footer = &self.rt.footer;
         if !footer.footnotes.is_empty() {
@@ -222,7 +231,9 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
                 }
                 let text = self.content(&note.content);
                 let mark = escape_typst(note.mark);
-                self.line(&format!("#text(size: 9pt)[#super[{mark}] {text}]"));
+                let text = format!("#super[{mark}] {text}");
+                let styled = line_style(&text, &note.style, false, &[("size", "9pt")]);
+                self.line(&styled);
             }
         }
         if !footer.source_notes.is_empty() {
@@ -232,7 +243,8 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
                     self.line("");
                 }
                 let text = self.content(&note.content);
-                self.line(&format!("#text(size: 9pt, fill: luma(100))[{text}]"));
+                let styled = line_style(&text, &note.style, false, SOURCE_NOTE);
+                self.line(&styled);
             }
         }
     }
@@ -277,11 +289,26 @@ pub fn render(table: &Table, config: &TypstWriterConfig) -> Result<String, Rende
     TypstRenderer::new(&rt, config).render()
 }
 
+/// The `#text` defaults of subtitle and header lines, and of source notes.
+const SUBTITLE: &[(&str, &str)] = &[("size", "12pt"), ("fill", "luma(100)")];
+const SOURCE_NOTE: &[(&str, &str)] = &[("size", "9pt"), ("fill", "luma(100)")];
+
 /// `content` wrapped in `#text(…)` for the style's weight, slant, size, color and
 /// font family, and in `#underline[…]` / `#strike[…]` for its decoration.
 /// Header cells are bold unless their style sets a weight.
 fn text_style(content: &str, style: &ResolvedStyle, is_header: bool) -> String {
-    let inner = text_attrs(content, style, is_header);
+    line_style(content, style, is_header, &[])
+}
+
+/// As `text_style`, over `#text` arguments the style replaces where it sets the
+/// same one (a title's size, a note's gray).
+fn line_style(
+    content: &str,
+    style: &ResolvedStyle,
+    is_header: bool,
+    defaults: &[(&str, &str)],
+) -> String {
+    let inner = text_attrs(content, style, is_header, defaults);
     if content.is_empty() {
         inner
     } else if style.is_underline() {
@@ -293,7 +320,12 @@ fn text_style(content: &str, style: &ResolvedStyle, is_header: bool) -> String {
     }
 }
 
-fn text_attrs(content: &str, style: &ResolvedStyle, is_header: bool) -> String {
+fn text_attrs(
+    content: &str,
+    style: &ResolvedStyle,
+    is_header: bool,
+    defaults: &[(&str, &str)],
+) -> String {
     let mut attrs = Vec::new();
     let bold = match &style.font_weight {
         Some(w) => w.is_bold(),
@@ -321,6 +353,19 @@ fn text_attrs(content: &str, style: &ResolvedStyle, is_header: bool) -> String {
             attrs.push(format!("font: ({})", names.join(", ")));
         }
     }
+    // Typst rejects a repeated argument: one the style sets replaces the default.
+    let set = |k: &str| {
+        attrs
+            .iter()
+            .any(|a| a.split_once(':').is_some_and(|(n, _)| n == k))
+    };
+    let mut all: Vec<String> = defaults
+        .iter()
+        .filter(|(k, _)| !set(k))
+        .map(|(k, v)| format!("{k}: {v}"))
+        .collect();
+    all.extend(attrs);
+    let attrs = all;
     if attrs.is_empty() || content.is_empty() {
         content.to_string()
     } else {
