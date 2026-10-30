@@ -2,7 +2,7 @@ use gridwell_core::{Color, FontSize, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table};
 use gridwell_layout::{
-    resolve, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, Sides, Stroke,
+    resolve, CellVAlign, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, Sides, Stroke,
 };
 use std::fmt::Write;
 use thiserror::Error;
@@ -186,9 +186,17 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
         }
         attrs.extend(typst_stroke(&cell.style.strokes(BASE_PT)));
         // The column's alignment applies unless the cell's differs (its style, or a
-        // centered spanner label).
+        // centered spanner label). A vertical alignment is written with the
+        // horizontal one, so the cell's alignment reads whole.
         let own = typst_align(&cell.align);
-        if own != typst_align(&self.rt.columns[cell.col].align) {
+        let vertical = cell.style.cell_valign().map(|v| match v {
+            CellVAlign::Top => "top",
+            CellVAlign::Middle => "horizon",
+            CellVAlign::Bottom => "bottom",
+        });
+        if let Some(v) = vertical {
+            attrs.push(format!("align: {own} + {v}"));
+        } else if own != typst_align(&self.rt.columns[cell.col].align) {
             attrs.push(format!("align: {own}"));
         }
 
