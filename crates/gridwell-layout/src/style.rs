@@ -39,6 +39,30 @@ impl<T> Sides<T> {
         ]
         .into_iter()
     }
+
+    /// Keep the sides `mask` marks; the others become `T::default()`.
+    pub fn masked(&self, mask: Sides<bool>) -> Self
+    where
+        T: Clone + Default,
+    {
+        let keep = |on: bool, v: &T| if on { v.clone() } else { T::default() };
+        Self {
+            top: keep(mask.top, &self.top),
+            right: keep(mask.right, &self.right),
+            bottom: keep(mask.bottom, &self.bottom),
+            left: keep(mask.left, &self.left),
+        }
+    }
+}
+
+impl Sides<bool> {
+    /// All four sides.
+    pub const ALL: Self = Self {
+        top: true,
+        right: true,
+        bottom: true,
+        left: true,
+    };
 }
 
 /// One resolved border edge. Present only when the edge is drawn: `none` and
@@ -51,6 +75,22 @@ pub struct ResolvedBorder {
     /// `None`: the text color (CSS `currentColor`).
     pub color: Option<Color>,
 }
+
+/// A border edge as formats without CSS borders draw it: a concrete width and,
+/// where one is known, a concrete color. See [`ResolvedStyle::strokes`].
+#[derive(Debug, Clone, PartialEq)]
+pub struct Stroke {
+    pub style: BorderStyle,
+    /// Width in points, always positive and finite.
+    pub width_pt: f64,
+    /// The edge's color, else the text color; `None`: neither is set (the
+    /// format's automatic color, black).
+    pub color: Option<Color>,
+}
+
+/// The width of a border with no usable width of its own: CSS's `medium` is
+/// 3px, but every writer draws 1px (0.75pt), as browsers' table rules do.
+const DEFAULT_BORDER_PT: f64 = 0.75;
 
 /// A fully parsed style: every property typed, every invalid value dropped.
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -178,6 +218,40 @@ impl ResolvedStyle {
             .as_ref()?
             .to_pt(base_pt, base_pt)
             .filter(|pt| pt.is_finite() && *pt > 0.0)
+    }
+
+    /// The border edges that draw something, for formats that need a concrete
+    /// width and color per edge. A width that is unset or doesn't resolve to
+    /// points (`%`, `auto`) is 1px; relative widths (`em`) resolve against this
+    /// style's size, itself resolved against `base_pt`. Zero-width and fully
+    /// transparent edges draw nothing, so they are `None`.
+    pub fn strokes(&self, base_pt: f64) -> Sides<Option<Stroke>> {
+        let font_pt = self.size_pt(base_pt).unwrap_or(base_pt);
+        let stroke = |b: &Option<ResolvedBorder>| {
+            let b = b.as_ref()?;
+            let width_pt = match &b.width {
+                Some(w) => match w.to_pt(font_pt, base_pt) {
+                    Some(pt) if pt.is_finite() => pt,
+                    _ => DEFAULT_BORDER_PT,
+                },
+                None => DEFAULT_BORDER_PT,
+            };
+            let color = b.color.or(self.color);
+            if width_pt <= 0.0 || color.is_some_and(|c| c.is_transparent()) {
+                return None;
+            }
+            Some(Stroke {
+                style: b.style.clone(),
+                width_pt,
+                color,
+            })
+        };
+        Sides {
+            top: stroke(&self.border.top),
+            right: stroke(&self.border.right),
+            bottom: stroke(&self.border.bottom),
+            left: stroke(&self.border.left),
+        }
     }
 }
 
@@ -371,6 +445,85 @@ mod text_tests {
         assert!(s.is_strike() && !s.is_underline());
         assert!(!o.is_underline() && !o.is_strike());
         assert!(!ResolvedStyle::default().is_underline());
+    }
+
+    #[test]
+    fn strokes_have_concrete_widths_and_colors() {
+        let s = style(|d| {
+            d.color = Some("#336699".into());
+            d.font_size = Some("20pt".into());
+            d.border = Some(BorderSet {
+                top: Some(Border {
+                    width: Some("2px".into()),
+                    style: Some("dashed".into()),
+                    color: Some("#FF0000".into()),
+                }),
+                right: Some(Border {
+                    width: None,
+                    style: Some("solid".into()),
+                    color: None,
+                }),
+                bottom: Some(Border {
+                    width: Some("0.1em".into()),
+                    style: Some("double".into()),
+                    color: Some("transparent".into()),
+                }),
+                left: Some(Border {
+                    width: Some("0".into()),
+                    style: Some("solid".into()),
+                    color: None,
+                }),
+            });
+        });
+        let k = s.strokes(12.0);
+        let top = k.top.unwrap();
+        assert_eq!(top.style, BorderStyle::Dashed);
+        assert!((top.width_pt - 1.5).abs() < 1e-9);
+        assert_eq!(top.color, Some(Color::rgb(255, 0, 0)));
+        // Unset width: 1px; unset color: the text color.
+        let right = k.right.unwrap();
+        assert!((right.width_pt - 0.75).abs() < 1e-9);
+        assert_eq!(right.color, Some(Color::rgb(0x33, 0x66, 0x99)));
+        // Transparent and zero-width edges draw nothing.
+        assert!(k.bottom.is_none() && k.left.is_none());
+        // `em` resolves against the style's own size.
+        let em = style(|d| {
+            d.font_size = Some("20pt".into());
+            d.border = Some(BorderSet {
+                top: Some(Border {
+                    width: Some("0.1em".into()),
+                    style: Some("solid".into()),
+                    color: None,
+                }),
+                right: None,
+                bottom: None,
+                left: None,
+            });
+        });
+        let top = em.strokes(12.0).top.unwrap();
+        assert!((top.width_pt - 2.0).abs() < 1e-9, "{top:?}");
+        assert_eq!(top.color, None);
+        assert_eq!(ResolvedStyle::default().strokes(12.0), Sides::default());
+    }
+
+    #[test]
+    fn masking_keeps_marked_sides() {
+        let s = Sides {
+            top: Some(1),
+            right: Some(2),
+            bottom: Some(3),
+            left: Some(4),
+        };
+        let m = s.masked(Sides {
+            top: true,
+            bottom: true,
+            ..Sides::default()
+        });
+        assert_eq!(
+            (m.top, m.right, m.bottom, m.left),
+            (Some(1), None, Some(3), None)
+        );
+        assert_eq!(s.masked(Sides::ALL), s);
     }
 
     #[test]
