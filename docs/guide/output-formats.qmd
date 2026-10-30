@@ -164,6 +164,11 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 
 - Valid Office Open XML archive (ZIP)
 - Table in `word/document.xml`
+- Styles in `word/styles.xml`: Calibri 11pt with no space between paragraphs, the
+  `Title` (16pt), `Subtitle` (12pt), `FootnoteText` and `SourceNote` (9pt) paragraph
+  styles and the `TableGrid` table style, so the document's look can be changed by
+  editing its styles in Word. A relative font size on the title or a note resolves
+  against its paragraph style's size
 - Horizontal merge via `<w:gridSpan>`, vertical via `<w:vMerge>`
 - Bold, italic, color, size, font (`<w:rFonts>`), shading and alignment
 - Table-wide single grid lines; a cell's own borders (`<w:tcBorders>`: solid, dashed,
