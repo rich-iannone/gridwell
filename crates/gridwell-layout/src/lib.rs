@@ -31,7 +31,7 @@ use gridwell_ir::{
     resolve_slots, Cell, CellScope, ColumnSpec, ColumnVisibility, HAlign, Keyword, RowParity,
     RowRole, SelectorScope, Table, VMerge,
 };
-pub use style::{ResolvedBorder, ResolvedStyle, Sides};
+pub use style::{ResolvedBorder, ResolvedStyle, Sides, Stroke};
 pub use text::plain_text;
 
 use gridwell_core::Color;
@@ -303,6 +303,13 @@ pub struct MergeCell<'r, 'a> {
     /// The cell for origins; `None` for continuations and empty positions.
     pub cell: Option<&'r ResolvedCell<'a>>,
     pub vmerge: VMerge,
+    /// The cell this piece belongs to: the origin itself, or the cell a
+    /// continuation continues. `None` only for empty positions.
+    pub owner: Option<&'r ResolvedCell<'a>>,
+    /// Which of the piece's sides lie on its owner's outline: left and right
+    /// always, the top in the owner's first row, the bottom in its last. A cell's
+    /// borders go on those sides only, so a merged cell is outlined once.
+    pub outline: Sides<bool>,
 }
 
 impl<'a> Section<'a> {
@@ -328,20 +335,29 @@ impl<'a> Section<'a> {
                             } else {
                                 VMerge::None
                             },
+                            owner: Some(c),
+                            outline: Sides {
+                                bottom: c.rowspan <= 1,
+                                ..Sides::ALL
+                            },
                         }),
                         Slot::CoveredV {
                             origin_row,
                             origin_col,
-                            ..
+                            last,
                         } if *origin_col == col => {
-                            let span = self.rows[*origin_row].slots[col]
-                                .origin()
-                                .map_or(1, |c| c.colspan);
+                            let owner = self.rows[*origin_row].slots[col].origin();
                             out.push(MergeCell {
                                 col,
-                                span,
+                                span: owner.map_or(1, |c| c.colspan),
                                 cell: None,
                                 vmerge: VMerge::Continue,
+                                owner,
+                                outline: Sides {
+                                    top: false,
+                                    bottom: *last,
+                                    ..Sides::ALL
+                                },
                             });
                         }
                         Slot::CoveredH { .. } | Slot::CoveredV { .. } => {}
@@ -350,12 +366,42 @@ impl<'a> Section<'a> {
                             span: 1,
                             cell: None,
                             vmerge: VMerge::None,
+                            owner: None,
+                            outline: Sides::default(),
                         }),
                     }
                 }
                 out
             })
             .collect()
+    }
+
+    /// The cell covering the grid position at `row`, `col` (section row, visible
+    /// column), and which of the position's sides lie on that cell's outline:
+    /// for formats that keep a cell for every position of a merged cell (PPTX),
+    /// which put the merged cell's borders on its outer pieces. `None` for empty
+    /// positions and positions outside the section.
+    pub fn covering(&self, row: usize, col: usize) -> Option<(&ResolvedCell<'a>, Sides<bool>)> {
+        let (origin_row, origin_col) = match self.rows.get(row)?.slots.get(col)? {
+            Slot::Origin(_) => (row, col),
+            Slot::CoveredH { origin_col } => (row, *origin_col),
+            Slot::CoveredV {
+                origin_row,
+                origin_col,
+                ..
+            } => (*origin_row, *origin_col),
+            Slot::Empty => return None,
+        };
+        let cell = self.rows.get(origin_row)?.slots.get(origin_col)?.origin()?;
+        Some((
+            cell,
+            Sides {
+                top: row == origin_row,
+                right: col + 1 >= origin_col + cell.colspan,
+                bottom: row + 1 >= origin_row + cell.rowspan,
+                left: col == origin_col,
+            },
+        ))
     }
 
     pub fn is_empty(&self) -> bool {
