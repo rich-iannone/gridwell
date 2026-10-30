@@ -367,3 +367,74 @@ fn decorated_multiline_cells_compile() {
         assert!(text.contains(word), "{word} missing:\n{text}");
     }
 }
+
+/// Cell borders are lines and rules of their own (`\omit` lines between rows,
+/// `!{\vrule}` in `\multicolumn` specs): every span layout, every cell boxed in
+/// one of the four styles, with and without booktabs, in a tabular and a
+/// longtable, must compile and keep every cell's text.
+#[test]
+fn bordered_span_layouts_compile_in_every_mode() {
+    if !require("pdflatex") || !require("pdftotext") {
+        return;
+    }
+    use gridwell_testkit::{border, border_all};
+    use gridwell_writer_latex::{LatexWriter, LatexWriterConfig};
+    let dir = work_dir("borders");
+    let styles = ["solid", "dashed", "dotted", "double"];
+    for (rows, cols) in [(2, 3), (3, 3)] {
+        for (booktabs, longtable) in [(true, false), (false, false), (true, true), (false, true)] {
+            let writer = LatexWriter::with_config(LatexWriterConfig {
+                booktabs,
+                longtable,
+                ..Default::default()
+            });
+            let mut body = String::new();
+            let mut labels = Vec::new();
+            for (i, t) in tilings(rows, cols).into_iter().enumerate() {
+                let mut table_rows = t.to_rows();
+                for (n, c) in table_rows.iter_mut().flat_map(|r| &mut r.cells).enumerate() {
+                    if let [gridwell_ir::content::ContentNode::Text { value }] =
+                        c.content.as_mut_slice()
+                    {
+                        *value = format!("t{i}{value}");
+                        labels.push(value.clone());
+                        c.style_id = Some(styles[(i + n) % styles.len()].into());
+                    }
+                }
+                let mut tb = TableBuilder::new(cols as u32);
+                // The last style has no color: drawn in the text's.
+                for (k, s) in styles.iter().enumerate() {
+                    let mut edge = border(&format!("{}px", k + 1), s, "#CC0000");
+                    edge.color = ["#CC0000", "#00AA00", "#0000BB"]
+                        .get(k)
+                        .map(|c| c.to_string());
+                    let def = gridwell_ir::StyleDef {
+                        border: Some(border_all(edge)),
+                        ..Default::default()
+                    };
+                    tb = tb.style_def(s, def);
+                }
+                let table = tb
+                    .head(row(vec![cell("H"); cols]))
+                    .group(group(table_rows))
+                    .build();
+                body.push_str(&writer.render(&table).unwrap());
+                body.push_str("\n\\par\\medskip\n");
+            }
+            let stem = format!("borders{rows}x{cols}-{booktabs}-{longtable}");
+            let pdf = compile(&dir, &stem, &body).unwrap_or_else(|e| {
+                panic!("{stem}: bordered span layouts failed to compile:\n{e}")
+            });
+            let text = pdf_text(&pdf);
+            let words: std::collections::HashSet<&str> = text.split_whitespace().collect();
+            let missing: Vec<&String> = labels
+                .iter()
+                .filter(|l| !words.contains(l.as_str()))
+                .collect();
+            assert!(
+                missing.is_empty(),
+                "{stem}: cells missing from the PDF: {missing:?}"
+            );
+        }
+    }
+}
