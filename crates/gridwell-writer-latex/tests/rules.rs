@@ -5,7 +5,7 @@
 use gridwell_testkit::{
     cell, column, examples, labeled_group, placeholder, row, CellExt, TableBuilder,
 };
-use gridwell_writer_latex::render_latex;
+use gridwell_writer_latex::{render_latex, LatexWriter, LatexWriterConfig};
 
 fn is_rule(line: &str) -> bool {
     [
@@ -19,21 +19,34 @@ fn is_rule(line: &str) -> bool {
     .any(|r| line.starts_with(r))
 }
 
-/// The tabular's lines, without longtable head markers (which draw nothing).
-fn grid_lines(src: &str) -> Vec<&str> {
-    src.lines()
+/// The tabular's lines, in the pieces drawn one after another: a longtable's
+/// heads and feet (ended by `\endhead`…) are each drawn apart from the body.
+fn grid_pieces(src: &str) -> Vec<Vec<&str>> {
+    let mut pieces = vec![vec![]];
+    for l in src
+        .lines()
         .skip_while(|l| !l.starts_with("\\begin{"))
         .take_while(|l| !l.starts_with("\\end{"))
-        .filter(|l| !l.starts_with("\\endhead") && !l.starts_with("\\endfirsthead"))
-        .collect()
+    {
+        if ["\\endfirsthead", "\\endhead", "\\endfoot", "\\endlastfoot"].contains(&l) {
+            pieces.push(vec![]);
+        } else {
+            pieces.last_mut().unwrap().push(l);
+        }
+    }
+    pieces
 }
 
 #[test]
 fn corpus_has_no_doubled_rules() {
-    for ex in examples() {
-        let src = render_latex(&ex.table()).unwrap();
-        let lines = grid_lines(&src);
-        for pair in lines.windows(2) {
+    for (ex, longtable) in examples().iter().flat_map(|ex| [(ex, false), (ex, true)]) {
+        let src = LatexWriter::with_config(LatexWriterConfig {
+            longtable,
+            ..Default::default()
+        })
+        .render(&ex.table())
+        .unwrap();
+        for pair in grid_pieces(&src).iter().flat_map(|p| p.windows(2)) {
             assert!(
                 !(is_rule(pair[0]) && is_rule(pair[1]) && !pair[1].starts_with("\\cmidrule")),
                 "{}: {:?} right after {:?}\n{src}",
@@ -91,7 +104,7 @@ fn spanner_table() -> gridwell_ir::Table {
 #[test]
 fn spanners_are_underlined_and_group_labels_dont_double_the_head_rule() {
     let src = render_latex(&spanner_table()).unwrap();
-    let lines = grid_lines(&src);
+    let lines = grid_pieces(&src).concat();
     let at = |needle: &str| {
         lines
             .iter()
