@@ -24,6 +24,8 @@ struct RtfRenderer<'r, 'a> {
     buf: String,
     /// The color table: index `i` here is `\cf{i + 1}` (RTF's index 0 is "auto").
     colors: Vec<Color>,
+    /// The font table: index `i` here is `\f{i}`; `\f0` is the default, Arial.
+    fonts: Vec<(String, &'static str)>,
     col_widths: Vec<u32>,
 }
 
@@ -46,11 +48,12 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
             rt,
             buf: String::with_capacity(4096),
             colors: vec![Color::rgb(0, 0, 0), Color::rgb(255, 255, 255)],
+            fonts: vec![("Arial".to_string(), "")],
             col_widths,
         };
-        // Register every color the document uses, in document order, so the
-        // color table is complete before it is written: cell text and fills, line
-        // styles, and inline styled runs.
+        // Register every color and font the document uses, in document order, so
+        // the color and font tables are complete before they are written: cell
+        // text and fills, line styles, and inline styled runs.
         let mut styles: Vec<ResolvedStyle> = Vec::new();
         let h = &rt.header;
         styles.extend(
@@ -93,6 +96,11 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                     r.color_index(c);
                 }
             }
+            if let Some(name) = style.font_name() {
+                if r.font_ref(name).is_none() {
+                    r.fonts.push((name.to_string(), font_class(style)));
+                }
+            }
         }
         r
     }
@@ -126,8 +134,8 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         out
     }
 
-    /// Character formatting for a style: bold, italic, color (registered colors
-    /// only; every color was registered up front).
+    /// Character formatting for a style: bold, italic, color and font (every
+    /// color and font was registered up front).
     fn char_format(&self, style: &ResolvedStyle) -> String {
         let mut f = String::new();
         if style.is_bold() {
@@ -139,8 +147,26 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         if let Some(i) = style.paint().and_then(|c| self.color_ref(c)) {
             write!(f, "\\cf{i}").unwrap();
         }
+        f.push_str(&self.font_format(style));
         f.push_str(&text_format(style));
         f
+    }
+
+    /// `\f` for the style's font, if it names one.
+    fn font_format(&self, style: &ResolvedStyle) -> String {
+        style
+            .font_name()
+            .and_then(|name| self.font_ref(name))
+            .map(|i| format!("\\f{i}"))
+            .unwrap_or_default()
+    }
+
+    /// The index of an already registered font. Font names match regardless of
+    /// case, as fonts do.
+    fn font_ref(&self, name: &str) -> Option<usize> {
+        self.fonts
+            .iter()
+            .position(|(n, _)| n.eq_ignore_ascii_case(name))
     }
 
     /// The index of an already registered color.
@@ -189,7 +215,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
 
     /// A paragraph outside the table: `base` control words plus the line's style.
     fn line(&self, base: &str, line: &gridwell_layout::Line) -> String {
-        let text = self.content(line.content);
+        let text = self.content(&line.content);
         let fmt = self.char_format(&line.style);
         format!("\\pard{{{base}{fmt} {text}}}\\par")
     }
@@ -221,7 +247,11 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
 
     fn write_header(&mut self) {
         self.buf.push_str("{\\rtf1\\ansi\\deff0\n");
-        self.buf.push_str("{\\fonttbl{\\f0 Arial;}}\n");
+        self.buf.push_str("{\\fonttbl{\\f0 Arial;}");
+        for (i, (name, class)) in self.fonts.iter().enumerate().skip(1) {
+            write!(self.buf, "{{\\f{i}{class} {};}}", escape_rtf(name)).unwrap();
+        }
+        self.buf.push_str("}\n");
         self.buf.push_str("{\\colortbl ;");
         for c in &self.colors {
             write!(self.buf, "\\red{}\\green{}\\blue{};", c.r, c.g, c.b).unwrap();
@@ -252,7 +282,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         self.write_section(&rt.head, true);
         for group in &rt.groups {
             if let Some(label) = &group.label {
-                let text = self.content(label.content);
+                let text = self.content(&label.content);
                 let fmt = self.char_format(&label.style);
                 let borders = self.borders(&label.style.strokes(BASE_PT));
                 let fill = label
@@ -321,7 +351,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 self.buf.push_str("\\pard\\intbl\\plain\\cell\n");
                 continue;
             };
-            let text = self.content(cell.content);
+            let text = self.content(&cell.content);
             let mut fmt = String::new();
             match cell.align {
                 HAlign::Right => fmt.push_str("\\qr"),
@@ -339,6 +369,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 let i = self.color_index(c);
                 write!(fmt, "\\cf{i}").unwrap();
             }
+            fmt.push_str(&self.font_format(&cell.style));
             fmt.push_str(&text_format(&cell.style));
             // `\pard` resets paragraph formatting only: without `\plain`, the
             // previous cell's bold, italic or color would carry over.
@@ -352,7 +383,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         if !footer.footnotes.is_empty() {
             self.buf.push_str("\\par\n");
             for note in &footer.footnotes {
-                let text = self.content(note.content);
+                let text = self.content(&note.content);
                 let mark = escape_rtf(note.mark);
                 let fmt = self.char_format(&note.style);
                 writeln!(
@@ -370,6 +401,22 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
             }
         }
     }
+}
+
+/// The font table's family class for a style's font, from the generic family
+/// in its `font_family` list: what a reader substitutes from when the font
+/// itself is missing.
+fn font_class(style: &ResolvedStyle) -> &'static str {
+    let list = style.font_family.as_deref().unwrap_or("");
+    for entry in list.split(',') {
+        match entry.trim().to_ascii_lowercase().as_str() {
+            "serif" | "ui-serif" => return "\\froman",
+            "sans-serif" | "ui-sans-serif" => return "\\fswiss",
+            "monospace" | "ui-monospace" => return "\\fmodern",
+            _ => {}
+        }
+    }
+    "\\fnil"
 }
 
 /// Underline, strike-through and size (`\\fs` in half-points; relative sizes
