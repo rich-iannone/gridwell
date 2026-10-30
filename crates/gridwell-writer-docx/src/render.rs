@@ -66,7 +66,7 @@ fn write_document_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), Render
 
 /// Run formatting.
 #[derive(Debug, Clone, Copy, Default)]
-struct Fmt {
+struct Fmt<'s> {
     bold: bool,
     italic: bool,
     underline: bool,
@@ -75,15 +75,17 @@ struct Fmt {
     /// Font size in half-points (`w:sz`).
     half_points: Option<u32>,
     superscript: bool,
+    /// The font (`w:rFonts`); `None` leaves Word's default.
+    font: Option<&'s str>,
 }
 
 /// The size relative font sizes resolve against: Word's default 11pt.
 const BASE_PT: f64 = 11.0;
 
-impl Fmt {
-    /// This format with a style's weight, slant, decoration, color and size
-    /// laid over it (a relative size resolves against the size so far).
-    fn with(self, style: &ResolvedStyle) -> Self {
+impl<'s> Fmt<'s> {
+    /// This format with a style's weight, slant, decoration, color, size and
+    /// font laid over it (a relative size resolves against the size so far).
+    fn with(self, style: &'s ResolvedStyle) -> Self {
         let parent = self.half_points.map_or(BASE_PT, |h| f64::from(h) / 2.0);
         Self {
             bold: self.bold || style.is_bold(),
@@ -96,6 +98,7 @@ impl Fmt {
                 .map(|pt| (pt * 2.0).round().clamp(2.0, 3276.0) as u32)
                 .or(self.half_points),
             superscript: self.superscript,
+            font: style.font_name().or(self.font),
         }
     }
 
@@ -106,7 +109,8 @@ impl Fmt {
             || self.strike
             || self.color.is_some()
             || self.half_points.is_some()
-            || self.superscript)
+            || self.superscript
+            || self.font.is_some())
     }
 }
 
@@ -118,12 +122,12 @@ fn write_title(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> 
             bold: true,
             ..Fmt::default()
         };
-        write_content(buf, rt, title.content, fmt.with(&title.style))?;
+        write_content(buf, rt, &title.content, fmt.with(&title.style))?;
         buf.push_str("</w:p>\n");
     }
     for line in header.subtitle.iter().chain(&header.extra_lines) {
         buf.push_str("<w:p><w:pPr><w:pStyle w:val=\"Subtitle\"/></w:pPr>");
-        write_content(buf, rt, line.content, Fmt::default().with(&line.style))?;
+        write_content(buf, rt, &line.content, Fmt::default().with(&line.style))?;
         buf.push_str("</w:p>\n");
     }
     Ok(())
@@ -250,7 +254,7 @@ fn write_row(
             bold: is_header,
             ..Fmt::default()
         };
-        write_content(buf, rt, cell.content, fmt.with(&cell.style))?;
+        write_content(buf, rt, &cell.content, fmt.with(&cell.style))?;
         buf.push_str("</w:p>");
         buf.push_str("</w:tc>");
     }
@@ -288,7 +292,7 @@ fn write_group_label_row(
         bold: true,
         ..Fmt::default()
     };
-    write_content(buf, rt, label.content, fmt.with(&label.style))?;
+    write_content(buf, rt, &label.content, fmt.with(&label.style))?;
     buf.push_str("</w:p>");
     buf.push_str("</w:tc>");
     buf.push_str("</w:tr>\n");
@@ -384,8 +388,15 @@ fn write_run(buf: &mut String, text: &str, fmt: Fmt) -> Result<(), RenderError> 
     }
     buf.push_str("<w:r>");
     if !fmt.is_plain() {
-        // CT_RPr is a sequence: b, i, strike, color, sz, szCs, u, vertAlign.
+        // CT_RPr is a sequence: rFonts, b, i, strike, color, sz, szCs, u, vertAlign.
         buf.push_str("<w:rPr>");
+        if let Some(f) = fmt.font {
+            let f = escape_xml(f);
+            write!(
+                buf,
+                "<w:rFonts w:ascii=\"{f}\" w:hAnsi=\"{f}\" w:eastAsia=\"{f}\" w:cs=\"{f}\"/>"
+            )?;
+        }
         if fmt.bold {
             buf.push_str("<w:b/>");
         }
@@ -434,7 +445,7 @@ fn write_footnotes(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
                 },
             )?;
             write_run(buf, " ", fmt)?;
-            write_content(buf, rt, note.content, fmt)?;
+            write_content(buf, rt, &note.content, fmt)?;
             buf.push_str("</w:p>\n");
         }
     }
@@ -446,7 +457,7 @@ fn write_footnotes(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
                 italic: true,
                 ..Fmt::default()
             };
-            write_content(buf, rt, note.content, fmt.with(&note.style))?;
+            write_content(buf, rt, &note.content, fmt.with(&note.style))?;
             buf.push_str("</w:p>\n");
         }
     }
