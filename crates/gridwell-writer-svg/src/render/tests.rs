@@ -602,3 +602,55 @@ fn a_removed_top_border_drops_hairlines_but_not_section_rules() {
         2
     );
 }
+
+#[test]
+fn styles_place_text_vertically_in_a_taller_row() {
+    use gridwell_ir::style::StyleDef;
+    use gridwell_testkit::{cell_content, line_break, text, CellExt};
+    let at = |v: &str| StyleDef {
+        vertical_align: Some(v.into()),
+        ..Default::default()
+    };
+    let t = TableBuilder::new(4)
+        .style_def("top", at("top"))
+        .style_def("bottom", at("bottom"))
+        .style_def("base", at("baseline"))
+        .head(row(vec![
+            cell("H").style("top"),
+            cell("I"),
+            cell("J"),
+            cell("K"),
+        ]))
+        .body(vec![row(vec![
+            cell_content(vec![text("one"), line_break(), text("two")]),
+            cell("t").style("top"),
+            cell("b").style("bottom"),
+            cell("m"),
+        ])])
+        .body(vec![row(vec![
+            cell_content(vec![text("one"), line_break(), text("two")]),
+            cell("s").style("base"),
+            cell("x"),
+            cell("y"),
+        ])])
+        .build();
+    let l = layout(&t, &SvgConfig::default());
+    let find = |s: &str| {
+        let found = l.cells.iter().find(|c| c.text.lines[0].text() == s);
+        found.unwrap()
+    };
+    // Where the first line starts in the text box: 0 at the top, 1 at the bottom.
+    let place = |s: &str| {
+        let c = find(s);
+        let spare = c.text.height - block_height(&c.text.lines, c.text.font_size);
+        assert!(spare > 1.0, "{s}: no room to place it");
+        (first_line_top(&c.text) - c.text.y) / spare
+    };
+    for (s, want) in [("t", 0.0), ("b", 1.0), ("m", 0.5), ("s", 0.0)] {
+        assert!((place(s) - want).abs() < EPS, "{s}: {}", place(s));
+    }
+    // A head cell is bottom-aligned unless its style says otherwise.
+    assert_eq!(find("H").text.valign, VAlign::Top);
+    assert_eq!(find("I").text.valign, VAlign::Bottom);
+    assert_ok(check("vertical alignment", &t));
+}
