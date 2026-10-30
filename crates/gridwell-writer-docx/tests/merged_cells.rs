@@ -1,8 +1,9 @@
-//! Cell borders: each piece of a merged cell carries the borders on its outline
-//! (Word draws a vertically merged cell's bottom from its last piece), plain
-//! cells get none of their own, and `w:tcBorders` sits in schema order.
+//! Merged cells: each piece carries the borders on its outline (Word draws a
+//! vertically merged cell's bottom from its last piece) and the cell's vertical
+//! alignment; plain cells get neither of their own, and `w:tcPr` keeps schema
+//! order.
 
-use gridwell_testkit::examples::bordered_merge;
+use gridwell_testkit::examples::styled_merge;
 use gridwell_writer_docx::DocxWriter;
 
 /// The `<w:tc>`s of each `<w:tr>`.
@@ -25,7 +26,7 @@ fn sides(tc: &str) -> [bool; 4] {
 #[test]
 fn merged_cells_are_outlined_once() {
     let xml = DocxWriter::new()
-        .render_document_xml(&bordered_merge())
+        .render_document_xml(&styled_merge())
         .unwrap();
     let rows = cells(&xml);
     // Header, group label, then the two rows the merge spans.
@@ -48,4 +49,22 @@ fn merged_cells_are_outlined_once() {
         label.find("</w:tcBorders>") < label.find("<w:shd "),
         "{label}"
     );
+}
+
+#[test]
+fn every_piece_of_a_merged_cell_is_aligned() {
+    let xml = DocxWriter::new()
+        .render_document_xml(&styled_merge())
+        .unwrap();
+    let rows = cells(&xml);
+    // `w:vAlign` comes after the borders and shading, last of what is set.
+    for piece in [rows[2][0], rows[3][0]] {
+        assert!(
+            piece.contains("</w:tcBorders><w:vAlign w:val=\"bottom\"/></w:tcPr>"),
+            "{piece}"
+        );
+    }
+    for plain in [rows[1][0], rows[2][1], rows[3][1]] {
+        assert!(!plain.contains("<w:vAlign"), "{plain}");
+    }
 }

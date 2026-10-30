@@ -1,8 +1,8 @@
-//! Cell borders: DrawingML keeps a `<a:tc>` for every grid position, and each
+//! Merged cells: DrawingML keeps a `<a:tc>` for every grid position, and each
 //! one carries the borders of the cell covering it on the sides that lie on that
-//! cell's outline, before its fill.
+//! cell's outline, before its fill. The origin alone carries the alignment.
 
-use gridwell_testkit::examples::bordered_merge;
+use gridwell_testkit::examples::styled_merge;
 use gridwell_writer_pptx::PptxWriter;
 
 /// The `<a:tc>`s of each `<a:tr>`.
@@ -24,9 +24,7 @@ fn sides(tc: &str) -> [bool; 4] {
 
 #[test]
 fn merged_cells_are_outlined_once() {
-    let xml = PptxWriter::new()
-        .render_slide_xml(&bordered_merge())
-        .unwrap();
+    let xml = PptxWriter::new().render_slide_xml(&styled_merge()).unwrap();
     let rows = cells(&xml);
     // Header, group label, then the two rows the merge spans.
     let (r0, r1) = (&rows[2], &rows[3]);
@@ -39,7 +37,7 @@ fn merged_cells_are_outlined_once() {
     assert_eq!(sides(r1[2]), [false; 4]);
     // 4.5pt in EMU.
     assert!(r0[0].contains(
-        "<a:tcPr><a:lnL w=\"57150\"><a:solidFill><a:srgbClr val=\"00AA00\"/></a:solidFill></a:lnL>"
+        "><a:lnL w=\"57150\"><a:solidFill><a:srgbClr val=\"00AA00\"/></a:solidFill></a:lnL>"
     ));
     // The label spans the row: its first piece takes the left edge, the last
     // the right, every piece the top and bottom; the lines come before the fill.
@@ -53,4 +51,23 @@ fn merged_cells_are_outlined_once() {
         label[0]
     );
     assert!(label[0].find("</a:lnB>") < label[0].find("<a:solidFill><a:srgbClr val=\"F0F0F0\""));
+}
+
+#[test]
+fn a_merged_cell_is_anchored_by_its_origin() {
+    let xml = PptxWriter::new().render_slide_xml(&styled_merge()).unwrap();
+    let rows = cells(&xml);
+    assert!(
+        rows[2][0].contains("<a:tcPr anchor=\"b\"><a:lnL "),
+        "{}",
+        rows[2][0]
+    );
+    let anchored: Vec<(usize, usize)> = rows
+        .iter()
+        .enumerate()
+        .flat_map(|(r, tcs)| tcs.iter().enumerate().map(move |(c, tc)| (r, c, tc)))
+        .filter(|(_, _, tc)| tc.contains(" anchor="))
+        .map(|(r, c, _)| (r, c))
+        .collect();
+    assert_eq!(anchored, [(2, 0)]);
 }
