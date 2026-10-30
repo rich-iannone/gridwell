@@ -58,7 +58,7 @@ fn caption(rt: &ResolvedTable) -> Value {
         .iter()
         .chain(&h.subtitle)
         .chain(&h.extra_lines)
-        .map(|line| json!({ "t": "Para", "c": styled(&line.style, inlines(rt, line.content)) }))
+        .map(|line| json!({ "t": "Para", "c": styled(&line.style, inlines(rt, &line.content)) }))
         .collect();
     json!([Value::Null, blocks])
 }
@@ -105,7 +105,7 @@ fn bodies(rt: &ResolvedTable) -> Value {
                         json!({"t": "AlignDefault"}),
                         1,
                         rt.columns.len(),
-                        styled(&label.style, inlines(rt, label.content)),
+                        styled(&label.style, inlines(rt, &label.content)),
                     )]
                 ])],
                 _ => Vec::new(),
@@ -163,7 +163,7 @@ pub fn footnote_lines(rt: &ResolvedTable) -> Vec<Vec<Value>> {
                 json!({"t": "Superscript", "c": [{"t": "Str", "c": n.mark}]}),
                 json!({"t": "Space"}),
             ];
-            line.extend(inlines(rt, n.content));
+            line.extend(inlines(rt, &n.content));
             styled(&n.style, line)
         })
         .collect()
@@ -173,7 +173,7 @@ pub fn source_note_lines(rt: &ResolvedTable) -> Vec<Vec<Value>> {
     rt.footer
         .source_notes
         .iter()
-        .map(|n| styled(&n.style, inlines(rt, n.content)))
+        .map(|n| styled(&n.style, inlines(rt, &n.content)))
         .collect()
 }
 
@@ -195,7 +195,7 @@ fn cell(rt: &ResolvedTable, c: &ResolvedCell) -> Value {
         align,
         c.rowspan,
         c.colspan,
-        styled(&c.style, inlines(rt, c.content)),
+        styled(&c.style, inlines(rt, &c.content)),
     )
 }
 
