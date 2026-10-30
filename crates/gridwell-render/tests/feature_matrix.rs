@@ -260,36 +260,15 @@ fn features() -> Vec<Feature> {
         },
         Feature {
             id: "border-styles",
-            what: "border styles dashed, dotted, double",
-            table: || {
-                TableBuilder::new(3)
-                    .style_def("dash", def(|d| d.border = Some(bottom("dashed"))))
-                    .style_def("dot", def(|d| d.border = Some(bottom("dotted"))))
-                    .style_def("dbl", def(|d| d.border = Some(bottom("double"))))
-                    .head(row(vec![cell("H1"), cell("H2"), cell("H3")]))
-                    .body(vec![
-                        row(vec![
-                            cell("DASHED").style("dash"),
-                            cell("DOTTED").style("dot"),
-                            cell("DOUBLE").style("dbl"),
-                        ]),
-                        row(vec![cell("x"), cell("y"), cell("z")]),
-                    ])
-                    .build()
-            },
-            check: |d| {
-                for (text, line) in [
-                    ("DASHED", Line::Dashed),
-                    ("DOTTED", Line::Dotted),
-                    ("DOUBLE", Line::Double),
-                ] {
-                    let l = get(d, text)?;
-                    if l.borders[2].map(|e| e.line) != Some(line) {
-                        return Err(format!("{text}: bottom border {:?}", l.borders[2]));
-                    }
-                }
-                Ok(())
-            },
+            what: "border styles dashed, dotted",
+            table: || line_styles_table(&[("DASHED", "dashed"), ("DOTTED", "dotted")]),
+            check: |d| check_line_styles(d, &[("DASHED", Line::Dashed), ("DOTTED", Line::Dotted)]),
+        },
+        Feature {
+            id: "border-double",
+            what: "border style double",
+            table: || line_styles_table(&[("DOUBLE", "double")]),
+            check: |d| check_line_styles(d, &[("DOUBLE", Line::Double)]),
         },
         Feature {
             id: "column-style",
@@ -545,6 +524,44 @@ fn bottom(style: &str) -> BorderSet {
     }
 }
 
+/// One column per `(text, style)`: the text's cell has a 3px black bottom border
+/// in that style; the plain row below it holds controls.
+fn line_styles_table(cells: &[(&str, &str)]) -> Table {
+    let mut b = TableBuilder::new(cells.len() as u32);
+    for (text, style) in cells {
+        b = b.style_def(text, def(|d| d.border = Some(bottom(style))));
+    }
+    b.head(row((1..=cells.len())
+        .map(|i| cell(&format!("H{i}")))
+        .collect()))
+        .body(vec![
+            row(cells.iter().map(|(t, _)| cell(t).style(t)).collect()),
+            row(CONTROLS[..cells.len()].iter().map(|c| cell(c)).collect()),
+        ])
+        .build()
+}
+
+const CONTROLS: [&str; 3] = ["CONTROLA", "CONTROLB", "CONTROLC"];
+
+/// Each text's bottom border has its line style, and the control below it doesn't
+/// (it may have the format's plain grid line).
+fn check_line_styles(d: &Doc, cells: &[(&str, Line)]) -> Result<(), String> {
+    for (i, (text, line)) in cells.iter().enumerate() {
+        let l = get(d, text)?;
+        if l.borders[2].map(|e| e.line) != Some(*line) {
+            return Err(format!("{text}: bottom border {:?}", l.borders[2]));
+        }
+        let c = get(d, CONTROLS[i])?;
+        if c.borders.iter().any(|e| e.is_some_and(|e| e.line == *line)) {
+            return Err(format!(
+                "{line:?} leaks into {}: {:?}",
+                CONTROLS[i], c.borders
+            ));
+        }
+    }
+    Ok(())
+}
+
 #[test]
 fn every_probe_is_valid() {
     for f in features() {
@@ -574,7 +591,10 @@ fn gap(feature: &str, format: &str) -> Option<Gap> {
         ("font-family", "typst") => Todo("only monospace families are mapped (to Courier New)"),
         ("font-family", "rtf" | "docx" | "xlsx" | "pptx") => NOT_YET,
         ("vertical-align", "latex" | "typst" | "rtf" | "docx" | "xlsx" | "pptx") => NOT_YET,
-        ("border" | "border-styles", "latex" | "typst" | "rtf" | "docx" | "pptx") => NOT_YET,
+        ("border" | "border-styles" | "border-double", "latex") => NOT_YET,
+        ("border-double", "typst") => {
+            Limit("Typst strokes have no double line; a double border is drawn solid")
+        }
         _ => return None,
     })
 }
@@ -759,4 +779,38 @@ fn typst_reader_reads_unicode_superscripts() {
         "{:?}",
         cell.runs
     );
+}
+
+/// The Typst writer writes a border that is the same on every side as one
+/// stroke, and the reader must see it on all four sides; the probes above only
+/// set one side.
+#[test]
+fn typst_reader_reads_uniform_strokes() {
+    if !typeset::require("typst", "GRIDWELL_REQUIRE_TYPST") {
+        return;
+    }
+    let t = TableBuilder::new(2)
+        .style_def(
+            "box",
+            def(|d| {
+                d.border = Some(gridwell_testkit::border_all(border(
+                    "2px", "dotted", "#FF0000",
+                )))
+            }),
+        )
+        .head(row(vec![cell("H1"), cell("H2")]))
+        .body(vec![row(vec![
+            cell("TARGET").style("box"),
+            cell("CONTROLA"),
+        ])])
+        .build();
+    let src = gridwell_writer_typst::render_typst(&t).unwrap();
+    assert!(src.contains("stroke: (thickness: 1.5pt,"), "{src}");
+    let doc = typeset::typst_looks(&[src]).pop().unwrap().unwrap();
+    let target = get(&doc, "TARGET").unwrap();
+    for e in target.borders {
+        let e = e.unwrap_or_else(|| panic!("{:?}", target.borders));
+        assert!(e.line == Line::Dotted && e.color == Some(RED) && near(e.width_pt, 1.5));
+    }
+    assert_eq!(get(&doc, "CONTROLA").unwrap().borders, [None; 4]);
 }
