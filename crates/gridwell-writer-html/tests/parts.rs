@@ -89,7 +89,7 @@ fn found(doc: &Html, p: &str) -> Expected {
         col_label: count(doc, &format!("thead th.{p}_col_label")),
         spanner: count(doc, &format!("thead th.{p}_spanner")),
         stubhead: count(doc, &format!("thead th.{p}_stubhead")),
-        stub: count(doc, &format!("tbody td.{p}_stub")),
+        stub: count(doc, &format!("tbody th.{p}_stub")),
         group_label: count(doc, &format!("tbody td.{p}_group_label")),
         summary: count(doc, &format!("tbody > tr.{p}_summary")),
         grand_summary: count(doc, &format!("tbody > tr.{p}_grand_summary")),
