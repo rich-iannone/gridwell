@@ -103,7 +103,7 @@ fn longtable_fr_columns_share_what_fixed_and_percent_columns_leave() {
     assert_eq!(
         begin_with(&table(&["1fr", "20%", "3fr", "30pt"], None), true),
         format!(
-            "\\begin{{longtable}}{{\
+            "\\begin{{longtable}}[l]{{\
              {LEFT}p{{0.25\\dimexpr 0.8{content}-30pt\\relax}}\
              {LEFT}p{{0.2{content}}}\
              {LEFT}p{{0.75\\dimexpr 0.8{content}-30pt\\relax}}\
