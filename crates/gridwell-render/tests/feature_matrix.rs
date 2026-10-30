@@ -19,8 +19,8 @@ mod support;
 use gridwell_ir::style::{BorderSet, ConditionalSelector, StyleDef};
 use gridwell_ir::Table;
 use gridwell_testkit::{
-    border, cell, cell_content, column, footnote_mark, labeled_group, row, styled, text, CellExt,
-    ColumnExt, RowExt, TableBuilder,
+    border, cell, cell_content, column, examples, footnote_mark, labeled_group, row, styled, text,
+    CellExt, ColumnExt, RowExt, TableBuilder,
 };
 use support::look::{self, Align, Doc, Line, Look, Rgb, VAlign};
 use support::typeset;
@@ -872,6 +872,49 @@ fn alignment_holds_in_sized_columns() {
             assert_eq!(got, Some(want), "{format} {text}: {l:?}");
         }
     }
+}
+
+/// A longtable shows what its tabular does: the same cells, looking the same,
+/// and the same title and notes, in the same formatting (the matrix reads the
+/// tabular). Every feature probe and every corpus table.
+#[test]
+fn latex_longtable_reads_like_its_tabular() {
+    use gridwell_writer_latex::{LatexWriter, LatexWriterConfig};
+    let read = |t: &Table, longtable| {
+        look::latex(
+            &LatexWriter::with_config(LatexWriterConfig {
+                longtable,
+                ..Default::default()
+            })
+            .render(t)
+            .unwrap(),
+        )
+    };
+    // Runs with their text's spacing evened out (a title row's line breaks are
+    // not a tabular's), and blank runs dropped.
+    let runs = |d: &Doc| -> Vec<look::Run> {
+        d.outside_runs
+            .iter()
+            .filter(|r| !r.text.trim().is_empty())
+            .map(|r| look::Run {
+                text: r.text.split_whitespace().collect::<Vec<_>>().join(" "),
+                ..r.clone()
+            })
+            .collect()
+    };
+    let (features, examples) = (features(), examples());
+    let tables = features
+        .iter()
+        .map(|f| (f.id, (f.table)()))
+        .chain(examples.iter().map(|ex| (ex.name, ex.table())));
+    let mut titled = 0;
+    for (name, t) in tables {
+        let (tabular, longtable) = (read(&t, false), read(&t, true));
+        assert_eq!(longtable.cells, tabular.cells, "{name}");
+        assert_eq!(runs(&longtable), runs(&tabular), "{name}");
+        titled += usize::from(!runs(&tabular).is_empty());
+    }
+    assert!(titled > 10, "only {titled} tables with a title or notes");
 }
 
 /// Typst ≤ 0.12 (pinned in CI) renders `#super[7]` as the character "⁷"; newer
