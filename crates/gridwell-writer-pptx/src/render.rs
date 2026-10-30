@@ -107,7 +107,7 @@ fn write_slide_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
     if !header.is_empty() {
         write_text_box(buf, 3, "Title", y, header_h, |buf| {
             for (line, fmt, _) in &header {
-                write_paragraph(buf, rt, line.content, fmt.with(&line.style))?;
+                write_paragraph(buf, rt, &line.content, fmt.with(&line.style))?;
             }
             Ok(())
         })?;
@@ -136,11 +136,11 @@ fn write_slide_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
                     },
                 )?;
                 write_run(buf, " ", fmt)?;
-                write_content(buf, rt, n.content, fmt)?;
+                write_content(buf, rt, &n.content, fmt)?;
                 buf.push_str("</a:p>");
             }
             for n in &rt.footer.source_notes {
-                write_paragraph(buf, rt, n.content, base.with(&n.style))?;
+                write_paragraph(buf, rt, &n.content, base.with(&n.style))?;
             }
             Ok(())
         })?;
@@ -327,7 +327,7 @@ fn write_slot(
         ..Fmt::default()
     }
     .with(&cell.style);
-    let wrote = write_content(buf, rt, cell.content, fmt)?;
+    let wrote = write_content(buf, rt, &cell.content, fmt)?;
     if !wrote {
         buf.push_str("<a:endParaRPr/>");
     }
@@ -395,7 +395,7 @@ fn write_tc_pr(
 
 /// Run formatting.
 #[derive(Debug, Clone, Copy, Default)]
-struct Fmt {
+struct Fmt<'s> {
     bold: bool,
     italic: bool,
     underline: bool,
@@ -404,12 +404,14 @@ struct Fmt {
     superscript: bool,
     /// Font size in hundredths of a point (`None`: inherited).
     size: Option<u32>,
+    /// The font (`None`: the theme's).
+    font: Option<&'s str>,
 }
 
-impl Fmt {
+impl<'s> Fmt<'s> {
     /// This format with a style laid over it. A relative size resolves against
     /// the size so far, or PowerPoint's 18pt table text.
-    fn with(self, style: &ResolvedStyle) -> Self {
+    fn with(self, style: &'s ResolvedStyle) -> Self {
         let parent = self.size.map_or(BASE_PT, |s| f64::from(s) / 100.0);
         Self {
             bold: self.bold || style.is_bold(),
@@ -421,6 +423,7 @@ impl Fmt {
                 .size_pt(parent)
                 .map(|pt| (pt * 100.0).round().clamp(100.0, 400_000.0) as u32)
                 .or(self.size),
+            font: style.font_name().or(self.font),
             ..self
         }
     }
@@ -489,13 +492,26 @@ fn write_run(buf: &mut String, text: &str, fmt: Fmt) -> Result<bool, RenderError
     if fmt.superscript {
         buf.push_str(" baseline=\"30000\"");
     }
-    match fmt.color {
-        Some(c) => write!(
-            buf,
-            "><a:solidFill><a:srgbClr val=\"{}\"/></a:solidFill></a:rPr>",
-            c.flatten().to_rrggbb()
-        )?,
-        None => buf.push_str("/>"),
+    if fmt.color.is_none() && fmt.font.is_none() {
+        buf.push_str("/>");
+    } else {
+        // CT_TextCharacterProperties is a sequence: the fill, then the fonts.
+        buf.push('>');
+        if let Some(c) = fmt.color {
+            write!(
+                buf,
+                "<a:solidFill><a:srgbClr val=\"{}\"/></a:solidFill>",
+                c.flatten().to_rrggbb()
+            )?;
+        }
+        if let Some(f) = fmt.font {
+            let f = escape_xml(f);
+            write!(
+                buf,
+                "<a:latin typeface=\"{f}\"/><a:ea typeface=\"{f}\"/><a:cs typeface=\"{f}\"/>"
+            )?;
+        }
+        buf.push_str("</a:rPr>");
     }
     write!(buf, "<a:t>{}</a:t></a:r>", escape_xml(text))?;
     Ok(true)
@@ -547,7 +563,7 @@ fn write_group_label_row(
         ..Fmt::default()
     }
     .with(&label.style);
-    if !write_content(buf, rt, label.content, fmt)? {
+    if !write_content(buf, rt, &label.content, fmt)? {
         buf.push_str("<a:endParaRPr/>");
     }
     buf.push_str("</a:p></a:txBody>");
