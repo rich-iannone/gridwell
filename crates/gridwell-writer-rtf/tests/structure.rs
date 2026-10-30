@@ -4,7 +4,7 @@
 //! run, a title, a label, a note) must still have been registered up front.
 
 use gridwell_ir::{StyleDef, Table};
-use gridwell_testkit::examples::bordered_merge;
+use gridwell_testkit::examples::styled_merge;
 use gridwell_testkit::{cell_content, examples, labeled_group, row, styled, text, TableBuilder};
 use gridwell_writer_rtf::render_rtf;
 
@@ -137,8 +137,8 @@ fn cell_defs(rtf: &str) -> Vec<Vec<String>> {
 
 #[test]
 fn merged_cells_are_outlined_once() {
-    let t = bordered_merge();
-    check("bordered merge", &t);
+    let t = styled_merge();
+    check("styled merge", &t);
     let rtf = render_rtf(&t).unwrap();
     let rows = cell_defs(&rtf);
     // Header, group label, then the two rows the merge spans.
@@ -156,4 +156,26 @@ fn merged_cells_are_outlined_once() {
         "{rtf}"
     );
     assert!(rtf.contains("\\red0\\green0\\blue187;"), "{rtf}");
+}
+
+#[test]
+fn every_piece_of_a_merged_cell_is_aligned() {
+    let rtf = render_rtf(&styled_merge()).unwrap();
+    let rows = cell_defs(&rtf);
+    // After the merge flag, before the borders (top, left, bottom, right), as
+    // the spec orders a cell definition; no other cell is aligned.
+    assert!(
+        rows[2][0].starts_with("\\clvmgf\\clvertalb\\clbrdrt"),
+        "{rtf}"
+    );
+    assert!(
+        rows[3][0].starts_with("\\clvmrg\\clvertalb\\clbrdrl"),
+        "{rtf}"
+    );
+    let aligned = rows
+        .iter()
+        .flatten()
+        .filter(|d| d.contains("\\clvertal"))
+        .count();
+    assert_eq!(aligned, 2, "{rtf}");
 }
