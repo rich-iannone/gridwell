@@ -1,8 +1,8 @@
 use gridwell_core::xml::escape as escape_xml;
 use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{HAlign, Table, VMerge};
-use gridwell_layout::{resolve, MergeCell, ResolvedStyle, ResolvedTable, Section};
+use gridwell_ir::{BorderStyle, HAlign, Table, VMerge};
+use gridwell_layout::{resolve, MergeCell, ResolvedStyle, ResolvedTable, Section, Sides, Stroke};
 use gridwell_ooxml::{package, Part};
 use std::fmt::Write;
 use thiserror::Error;
@@ -210,6 +210,9 @@ fn write_row(
             VMerge::Continue => buf.push_str("<w:vMerge/>"),
             VMerge::None => {}
         }
+        if let Some(owner) = mc.owner {
+            write_borders(buf, &owner.style.strokes(BASE_PT).masked(mc.outline))?;
+        }
 
         let Some(cell) = mc.cell else {
             // Continuation (or empty position): properties only, empty paragraph.
@@ -263,6 +266,7 @@ fn write_group_label_row(
     if col_widths.len() > 1 {
         write!(buf, "<w:gridSpan w:val=\"{}\"/>", col_widths.len())?;
     }
+    write_borders(buf, &label.style.strokes(BASE_PT))?;
     let fill = label
         .style
         .fill()
@@ -281,6 +285,39 @@ fn write_group_label_row(
     buf.push_str("</w:p>");
     buf.push_str("</w:tc>");
     buf.push_str("</w:tr>\n");
+    Ok(())
+}
+
+/// A cell's own borders (`w:tcBorders`), which replace the table's grid lines on
+/// the sides they set; sides without one keep the grid line.
+fn write_borders(buf: &mut String, strokes: &Sides<Option<Stroke>>) -> Result<(), RenderError> {
+    if *strokes == Sides::default() {
+        return Ok(());
+    }
+    buf.push_str("<w:tcBorders>");
+    // CT_TcBorders order: top, left (start), bottom, right (end).
+    for (side, stroke) in [
+        ("top", &strokes.top),
+        ("left", &strokes.left),
+        ("bottom", &strokes.bottom),
+        ("right", &strokes.right),
+    ] {
+        let Some(k) = stroke else { continue };
+        let val = match k.style {
+            BorderStyle::Dashed => "dashed",
+            BorderStyle::Dotted => "dotted",
+            BorderStyle::Double => "double",
+            _ => "single",
+        };
+        // `w:sz` is in eighths of a point; Word allows 2 to 96.
+        let sz = (k.width_pt * 8.0).round().clamp(2.0, 96.0) as u32;
+        let color = k.color.map_or("auto".into(), |c| c.flatten().to_rrggbb());
+        write!(
+            buf,
+            "<w:{side} w:val=\"{val}\" w:sz=\"{sz}\" w:space=\"0\" w:color=\"{color}\"/>"
+        )?;
+    }
+    buf.push_str("</w:tcBorders>");
     Ok(())
 }
 
