@@ -319,15 +319,22 @@ fn latex(
     if let Err(e) = std::fs::write(&doc_path, doc) {
         return RasterOutcome::Failed(format!("write tex: {e}"));
     }
-    let out = Command::new(tex_bin)
-        .args(["-interaction=nonstopmode", "-halt-on-error"])
-        .arg(format!("-output-directory={}", work_dir.display()))
-        .arg(&doc_path)
-        .output();
-    let pdf = work_dir.join("doc.pdf");
-    if let Err(e) = check(out) {
-        return RasterOutcome::Failed(format!("xelatex: {e}"));
+    // Again while longtable asks for it: its column widths settle over runs.
+    for _ in 0..3 {
+        let out = Command::new(tex_bin)
+            .args(["-interaction=nonstopmode", "-halt-on-error"])
+            .arg(format!("-output-directory={}", work_dir.display()))
+            .arg(&doc_path)
+            .output();
+        if let Err(e) = check(out) {
+            return RasterOutcome::Failed(format!("xelatex: {e}"));
+        }
+        let log = std::fs::read_to_string(work_dir.join("doc.log")).unwrap_or_default();
+        if !log.contains("Rerun LaTeX") {
+            break;
+        }
     }
+    let pdf = work_dir.join("doc.pdf");
     if !pdf.exists() {
         return RasterOutcome::Failed("xelatex produced no pdf".into());
     }
