@@ -1,7 +1,9 @@
 use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table, VMerge};
-use gridwell_layout::{resolve, MergeCell, ResolvedStyle, ResolvedTable, Section, Sides, Stroke};
+use gridwell_layout::{
+    resolve, CellVAlign, MergeCell, ResolvedStyle, ResolvedTable, Section, Sides, Stroke,
+};
 use std::fmt::Write;
 use thiserror::Error;
 
@@ -293,6 +295,13 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 VMerge::Start => self.buf.push_str("\\clvmgf"),
                 VMerge::Continue => self.buf.push_str("\\clvmrg"),
                 VMerge::None => {}
+            }
+            // Before the borders, as the spec orders cell definitions.
+            match mc.owner.and_then(|o| o.style.cell_valign()) {
+                Some(CellVAlign::Top) => self.buf.push_str("\\clvertalt"),
+                Some(CellVAlign::Middle) => self.buf.push_str("\\clvertalc"),
+                Some(CellVAlign::Bottom) => self.buf.push_str("\\clvertalb"),
+                None => {}
             }
             if let Some(owner) = mc.owner {
                 let borders = self.borders(&owner.style.strokes(BASE_PT).masked(mc.outline));
