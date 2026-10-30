@@ -309,12 +309,15 @@ pub struct TexTable {
 }
 
 /// The tabular (or tabularx, or longtable) of the writer's output: titles and
-/// notes are outside the grid. `None` when there is none (every column hidden).
-pub fn latex_tabular(src: &str) -> Option<&str> {
+/// notes are outside the grid, so a longtable's title and notes rows (a
+/// zero-width box across every column) are left out. `None` when there is none
+/// (every column hidden).
+pub fn latex_tabular(src: &str) -> Option<String> {
     const ENVS: [&str; 3] = ["tabular", "tabularx", "longtable"];
     let start = ENVS
         .iter()
-        .filter_map(|e| src.find(&format!("\\begin{{{e}}}{{")))
+        .flat_map(|e| ["{", "[l]{"].map(|o| src.find(&format!("\\begin{{{e}}}{o}"))))
+        .flatten()
         .min()?;
     let end = ENVS
         .iter()
@@ -323,7 +326,14 @@ pub fn latex_tabular(src: &str) -> Option<&str> {
             src[start..].find(&e).map(|i| start + i + e.len())
         })
         .min()?;
-    Some(&src[start..end])
+    let outside =
+        |l: &str| l.starts_with("\\multicolumn{") && l.contains("{@{}l@{}}{\\makebox[0pt]");
+    Some(
+        src[start..end]
+            .split_inclusive('\n')
+            .filter(|l| !outside(l))
+            .collect(),
+    )
 }
 
 /// Typeset each tabular and read it back (`Err`: it doesn't compile, or its
