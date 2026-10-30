@@ -35,13 +35,13 @@ pub fn render(table: &Table, config: &QuartoConfig) -> Result<String, RenderErro
         .collect();
     // The caption also stays in the Table itself, for compatibility.
     if let Some(title) = &rt.header.title {
-        let text = ast::plain_text(title.content);
+        let text = ast::plain_text(&title.content);
         if !text.is_empty() {
             kv_pairs.push(json!(["tbl-cap", text]));
         }
     }
     if let Some(subtitle) = &rt.header.subtitle {
-        let text = ast::plain_text(subtitle.content);
+        let text = ast::plain_text(&subtitle.content);
         if !text.is_empty() {
             kv_pairs.push(json!(["tbl-subcap", text]));
         }
