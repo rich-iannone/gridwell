@@ -20,7 +20,9 @@ use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, RowRole, Table};
 use gridwell_layout::look::{Pad, Rule as LookRule, LOOK};
-use gridwell_layout::{resolve, ResolvedBorder, ResolvedStyle, ResolvedTable, SectionKind, Sides};
+use gridwell_layout::{
+    resolve, CellVAlign, ResolvedBorder, ResolvedStyle, ResolvedTable, SectionKind, Sides,
+};
 use thiserror::Error;
 
 use crate::measure::{max_width, wrap, Line, Run, RunStyle, SUP_SCALE};
@@ -59,6 +61,8 @@ pub enum Align {
 /// Vertical alignment of text within its box.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VAlign {
+    Top,
+    /// Body cells, as in HTML's base stylesheet.
     Middle,
     /// Column labels and spanners, as in HTML's base stylesheet.
     Bottom,
@@ -146,6 +150,9 @@ struct PendingCell {
     runs: Vec<Vec<Run>>,
     natural: f64,
     align: Align,
+    /// The style's vertical alignment, else the part's (middle in the body,
+    /// bottom in the head).
+    valign: VAlign,
     fill: Option<String>,
     part: Part,
     pad: Pad,
@@ -297,6 +304,13 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
                     runs,
                     natural,
                     align: svg_align(&cell.align),
+                    valign: match cell.style.cell_valign() {
+                        Some(CellVAlign::Top) => VAlign::Top,
+                        Some(CellVAlign::Middle) => VAlign::Middle,
+                        Some(CellVAlign::Bottom) => VAlign::Bottom,
+                        None if part == Part::Body => VAlign::Middle,
+                        None => VAlign::Bottom,
+                    },
                     fill: cell.style.fill().map(|c| c.to_css()),
                     part,
                     pad,
@@ -682,11 +696,7 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
                 lines,
                 font_size: fs,
                 align: cell.align,
-                valign: if cell.part == Part::Body {
-                    VAlign::Middle
-                } else {
-                    VAlign::Bottom
-                },
+                valign: cell.valign,
                 x: x + left + pad.left,
                 y: cy + top + pad.top,
                 width: w - left - right - pad.left - pad.right,
@@ -1103,6 +1113,7 @@ fn block_height(lines: &[Line], font_size: f64) -> f64 {
 fn first_line_top(b: &TextBlock) -> f64 {
     let spare = (b.height - block_height(&b.lines, b.font_size)).max(0.0);
     match b.valign {
+        VAlign::Top => b.y,
         VAlign::Middle => b.y + spare / 2.0,
         VAlign::Bottom => b.y + spare,
     }
