@@ -4,9 +4,14 @@ expression: out
 ---
 \begin{tabular}{lll}
 \toprule
-A & B & C \\
+\multispan{3}{\color[HTML]{333333}\xleaders\hbox to 4.5pt{\hss\vrule height 0.75pt width 2.25pt\hss}\hfill}\cr
+\multicolumn{1}{!{{\color[HTML]{333333}\vrule width 0.75pt}}l!{{\color[HTML]{333333}\vrule width 0.75pt}}}{A} & \multicolumn{1}{l!{{\color[HTML]{333333}\vrule width 0.75pt}}}{B} & \multicolumn{1}{l!{{\color[HTML]{333333}\vrule width 0.75pt}}}{C} \\
+\multispan{3}{\color[HTML]{333333}\xleaders\hbox to 4.5pt{\hss\vrule height 0.75pt width 2.25pt\hss}\hfill}\cr
 \midrule
-1 & 2 & 3 \\
-4 & 5 & 6 \\
+\multispan{3}{\color[HTML]{333333}\xleaders\hbox to 4.5pt{\hss\vrule height 0.75pt width 2.25pt\hss}\hfill}\cr
+\multicolumn{1}{!{{\color[HTML]{333333}\vrule width 0.75pt}}l!{{\color[HTML]{333333}\vrule width 0.75pt}}}{1} & \multicolumn{1}{l!{{\color[HTML]{333333}\vrule width 0.75pt}}}{2} & \multicolumn{1}{l!{{\color[HTML]{333333}\vrule width 0.75pt}}}{3} \\
+\multispan{3}{\color[HTML]{333333}\xleaders\hbox to 4.5pt{\hss\vrule height 0.75pt width 2.25pt\hss}\hfill}\cr
+\multicolumn{1}{!{{\color[HTML]{333333}\vrule width 0.75pt}}l!{{\color[HTML]{333333}\vrule width 0.75pt}}}{4} & \multicolumn{1}{l!{{\color[HTML]{333333}\vrule width 0.75pt}}}{5} & \multicolumn{1}{l!{{\color[HTML]{333333}\vrule width 0.75pt}}}{6} \\
+\multispan{3}{\color[HTML]{333333}\xleaders\hbox to 4.5pt{\hss\vrule height 0.75pt width 2.25pt\hss}\hfill}\cr
 \bottomrule
 \end{tabular}

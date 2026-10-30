@@ -4,9 +4,24 @@ expression: out
 ---
 \begin{tabular}{lll}
 \toprule
-A & B & C \\
+\multispan{3}{\color[HTML]{333333}\leaders\hrule height 0.25pt\hfill}\cr
+\noalign{\vskip 0.25pt}
+\multispan{3}{\color[HTML]{333333}\leaders\hrule height 0.25pt\hfill}\cr
+\multicolumn{1}{!{{\color[HTML]{333333}\vrule width 0.25pt\hskip 0.25pt\vrule width 0.25pt}}l!{{\color[HTML]{333333}\vrule width 0.25pt\hskip 0.25pt\vrule width 0.25pt}}}{A} & \multicolumn{1}{l!{{\color[HTML]{333333}\vrule width 0.25pt\hskip 0.25pt\vrule width 0.25pt}}}{B} & \multicolumn{1}{l!{{\color[HTML]{333333}\vrule width 0.25pt\hskip 0.25pt\vrule width 0.25pt}}}{C} \\
+\multispan{3}{\color[HTML]{333333}\leaders\hrule height 0.25pt\hfill}\cr
+\noalign{\vskip 0.25pt}
+\multispan{3}{\color[HTML]{333333}\leaders\hrule height 0.25pt\hfill}\cr
 \midrule
-1 & 2 & 3 \\
-4 & 5 & 6 \\
+\multispan{3}{\color[HTML]{333333}\leaders\hrule height 0.25pt\hfill}\cr
+\noalign{\vskip 0.25pt}
+\multispan{3}{\color[HTML]{333333}\leaders\hrule height 0.25pt\hfill}\cr
+\multicolumn{1}{!{{\color[HTML]{333333}\vrule width 0.25pt\hskip 0.25pt\vrule width 0.25pt}}l!{{\color[HTML]{333333}\vrule width 0.25pt\hskip 0.25pt\vrule width 0.25pt}}}{1} & \multicolumn{1}{l!{{\color[HTML]{333333}\vrule width 0.25pt\hskip 0.25pt\vrule width 0.25pt}}}{2} & \multicolumn{1}{l!{{\color[HTML]{333333}\vrule width 0.25pt\hskip 0.25pt\vrule width 0.25pt}}}{3} \\
+\multispan{3}{\color[HTML]{333333}\leaders\hrule height 0.25pt\hfill}\cr
+\noalign{\vskip 0.25pt}
+\multispan{3}{\color[HTML]{333333}\leaders\hrule height 0.25pt\hfill}\cr
+\multicolumn{1}{!{{\color[HTML]{333333}\vrule width 0.25pt\hskip 0.25pt\vrule width 0.25pt}}l!{{\color[HTML]{333333}\vrule width 0.25pt\hskip 0.25pt\vrule width 0.25pt}}}{4} & \multicolumn{1}{l!{{\color[HTML]{333333}\vrule width 0.25pt\hskip 0.25pt\vrule width 0.25pt}}}{5} & \multicolumn{1}{l!{{\color[HTML]{333333}\vrule width 0.25pt\hskip 0.25pt\vrule width 0.25pt}}}{6} \\
+\multispan{3}{\color[HTML]{333333}\leaders\hrule height 0.25pt\hfill}\cr
+\noalign{\vskip 0.25pt}
+\multispan{3}{\color[HTML]{333333}\leaders\hrule height 0.25pt\hfill}\cr
 \bottomrule
 \end{tabular}
