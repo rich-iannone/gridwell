@@ -34,6 +34,7 @@ Which IR features each Tier-1 writer (plus PPTX) expresses. Every cell is *measu
 | footnote-mark | footnote marks as superscript | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | title | `header.title` and `header.subtitle` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | notes | footnotes and source notes | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| line-styles | a `style_id` on the title, subtitle, header lines, group labels (and their fill) and notes | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 **Notes**
 
