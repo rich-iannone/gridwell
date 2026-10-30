@@ -19,8 +19,8 @@ mod support;
 use gridwell_ir::style::{BorderSet, ConditionalSelector, StyleDef};
 use gridwell_ir::Table;
 use gridwell_testkit::{
-    border, cell, cell_content, column, footnote_mark, row, styled, text, CellExt, ColumnExt,
-    RowExt, TableBuilder,
+    border, cell, cell_content, column, footnote_mark, labeled_group, row, styled, text, CellExt,
+    ColumnExt, RowExt, TableBuilder,
 };
 use support::look::{self, Align, Doc, Line, Look, Rgb, VAlign};
 use support::typeset;
@@ -500,7 +500,82 @@ fn features() -> Vec<Feature> {
             },
             check: |d| shown(d, &["FOOTNOTETEXT", "SOURCETEXT"]),
         },
+        Feature {
+            id: "line-styles",
+            what: "a `style_id` on the title, subtitle, header lines, group labels (and their fill) and notes",
+            table: styled_lines_table,
+            check: |d| {
+                let purple = |r: &look::Run| r.underline && r.color == Some(PURPLE);
+                for t in STYLED_LINES {
+                    let r = d.run_showing(t).ok_or_else(|| format!("{t} not shown"))?;
+                    if !purple(r) {
+                        return Err(format!("{t} not purple and underlined: {r:?}"));
+                    }
+                }
+                let label = get(d, "LABELTEXT")?;
+                if label.fill != Some(NAVY) {
+                    return Err(format!("LABELTEXT not filled #123456: {label:?}"));
+                }
+                let r = d.run_showing("PLAINNOTE").ok_or("PLAINNOTE not shown")?;
+                if r.underline || r.color == Some(PURPLE) {
+                    return Err(format!("the style leaks into PLAINNOTE: {r:?}"));
+                }
+                Ok(())
+            },
+        },
     ]
+}
+
+const STYLED_LINES: [&str; 6] = [
+    "TITLETEXT",
+    "SUBTITLETEXT",
+    "EXTRATEXT",
+    "LABELTEXT",
+    "FOOTNOTETEXT",
+    "SOURCETEXT",
+];
+
+/// Every kind of line outside the grid's cells, styled purple and underlined
+/// (the group label filled too), and an unstyled source note.
+fn styled_lines_table() -> Table {
+    let purple = |d: &mut StyleDef| {
+        d.color = Some("#9932CC".into());
+        d.text_decoration = Some("underline".into());
+    };
+    let mut t = TableBuilder::new(2)
+        .style_def("s", def(purple))
+        .style_def(
+            "label",
+            def(|d| {
+                purple(d);
+                d.background_color = Some("#123456".into());
+            }),
+        )
+        .title("TITLETEXT")
+        .subtitle("SUBTITLETEXT")
+        .extra_line("EXTRATEXT")
+        .head(row(vec![cell("H1"), cell("H2")]))
+        .group(
+            labeled_group("LABELTEXT", vec![row(vec![cell("a"), cell("b")])]).label_style("label"),
+        )
+        .footnote("f", "1", "FOOTNOTETEXT")
+        .source_note("SOURCETEXT")
+        .source_note("PLAINNOTE")
+        .build();
+    let s = || Some("s".to_string());
+    let header = t.header.as_mut().unwrap();
+    for line in header
+        .title
+        .iter_mut()
+        .chain(&mut header.subtitle)
+        .chain(&mut header.extra_lines)
+    {
+        line.style_id = s();
+    }
+    let footer = t.footer.as_mut().unwrap();
+    footer.footnotes[0].style_id = s();
+    footer.source_notes[0].style_id = s();
+    t
 }
 
 /// Each text is shown outside the table's data cells (formats with no "outside",
