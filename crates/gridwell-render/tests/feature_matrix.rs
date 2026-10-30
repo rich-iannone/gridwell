@@ -590,7 +590,9 @@ fn gap(feature: &str, format: &str) -> Option<Gap> {
         ),
         ("font-family", "typst") => Todo("only monospace families are mapped (to Courier New)"),
         ("font-family", "rtf" | "docx" | "xlsx" | "pptx") => NOT_YET,
-        ("vertical-align", "latex" | "typst" | "rtf" | "docx" | "xlsx" | "pptx") => NOT_YET,
+        ("vertical-align", "latex") => Limit(
+            "a tabular row sets its cells on one baseline; `m`/`b` columns align whole columns, not single cells",
+        ),
         ("border" | "border-styles" | "border-double", "latex") => NOT_YET,
         ("border-double", "typst") => {
             Limit("Typst strokes have no double line; a double border is drawn solid")
