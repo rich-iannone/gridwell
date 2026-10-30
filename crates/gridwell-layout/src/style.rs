@@ -219,6 +219,46 @@ impl ResolvedStyle {
         self.text_decoration == Some(TextDecoration::LineThrough)
     }
 
+    /// The `font_family` list as font names, in order, for formats that name
+    /// fonts rather than CSS families: names as written (quotes removed), and a
+    /// generic family as a font that usually stands for it (`serif` → Times New
+    /// Roman, `sans-serif` → Arial, `monospace` → Courier New; their `ui-` forms
+    /// alike). Other generic families (`system-ui`, `cursive`, …) and vendor
+    /// keywords (`-apple-system`) name no font and are left out; so are repeats.
+    pub fn font_names(&self) -> Vec<&str> {
+        let mut out: Vec<&str> = Vec::new();
+        for entry in self.font_family.as_deref().unwrap_or("").split(',') {
+            let entry = entry.trim();
+            let quoted = entry.len() >= 2
+                && (entry.starts_with('"') && entry.ends_with('"')
+                    || entry.starts_with('\'') && entry.ends_with('\''));
+            let name = if quoted {
+                // A quoted name is a family name, even `"serif"`.
+                entry[1..entry.len() - 1].trim()
+            } else {
+                match entry.to_ascii_lowercase().as_str() {
+                    "serif" | "ui-serif" => "Times New Roman",
+                    "sans-serif" | "ui-sans-serif" => "Arial",
+                    "monospace" | "ui-monospace" => "Courier New",
+                    "system-ui" | "cursive" | "fantasy" | "math" | "emoji" | "fangsong"
+                    | "ui-rounded" => continue,
+                    _ if entry.starts_with('-') => continue,
+                    _ => entry,
+                }
+            };
+            if !name.is_empty() && !out.iter().any(|n| n.eq_ignore_ascii_case(name)) {
+                out.push(name);
+            }
+        }
+        out
+    }
+
+    /// The font for formats naming one font per run: the first of
+    /// [`font_names`](Self::font_names).
+    pub fn font_name(&self) -> Option<&str> {
+        self.font_names().first().copied()
+    }
+
     /// The font size in points. Relative sizes (`em`, `%`, `smaller`, …) resolve
     /// against `base_pt`, the size the target format uses when none is set.
     /// `None` when unset, or when the size is not a usable positive number.
@@ -421,6 +461,40 @@ pub(crate) fn resolve_id(table: &Table, id: Option<&str>) -> ResolvedStyle {
 #[cfg(test)]
 mod text_tests {
     use super::*;
+
+    #[test]
+    fn font_families_become_font_names() {
+        let names = |f: &str| {
+            let s = ResolvedStyle::from_def(&StyleDef {
+                font_family: Some(f.into()),
+                ..StyleDef::default()
+            });
+            s.font_names()
+                .iter()
+                .map(|n| n.to_string())
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(names("Georgia, serif"), ["Georgia", "Times New Roman"]);
+        assert_eq!(
+            names("'Fira Sans', \"Source Sans Pro\" ,SANS-SERIF"),
+            ["Fira Sans", "Source Sans Pro", "Arial"]
+        );
+        assert_eq!(names("ui-monospace, monospace"), ["Courier New"]);
+        assert_eq!(names("\"serif\""), ["serif"]);
+        assert_eq!(
+            names("system-ui, -apple-system, Segoe UI, cursive"),
+            ["Segoe UI"]
+        );
+        assert_eq!(names("system-ui"), Vec::<String>::new());
+        assert_eq!(names("Arial, arial, sans-serif"), ["Arial"]);
+        assert_eq!(names(" , '' ,Menlo"), ["Menlo"]);
+        let s = ResolvedStyle::from_def(&StyleDef {
+            font_family: Some("cursive, Georgia".into()),
+            ..StyleDef::default()
+        });
+        assert_eq!(s.font_name(), Some("Georgia"));
+        assert_eq!(ResolvedStyle::default().font_name(), None);
+    }
 
     #[test]
     fn removed_borders_are_told_apart_from_unset_ones() {
