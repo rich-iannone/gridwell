@@ -12,9 +12,12 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use gridwell_ir::style::StyleDef;
 use gridwell_testkit::examples::{font_families, styled_merge};
 use gridwell_testkit::spans::tilings;
-use gridwell_testkit::{cell, column, examples, group, row, CellExt, ColumnExt, TableBuilder};
+use gridwell_testkit::{
+    cell, column, examples, group, labeled_group, row, CellExt, ColumnExt, TableBuilder,
+};
 use gridwell_writer_typst::render_typst;
 
 /// Whether `tool` can be launched. Exit status is deliberately ignored: tools disagree
@@ -98,6 +101,59 @@ fn every_example_compiles() {
         failures.len(),
         failures.join("\n\n")
     );
+}
+
+#[test]
+fn line_styles_replace_their_defaults() {
+    // Typst rejects a repeated `#text` argument: a style setting the size, color
+    // or weight of a line must replace the line's default, not add to it.
+    let mut table = TableBuilder::new(1)
+        .style_def(
+            "s",
+            StyleDef {
+                font_weight: Some("normal".into()),
+                font_size: Some("20px".into()),
+                color: Some("#9932CC".into()),
+                background_color: Some("#123456".into()),
+                ..StyleDef::default()
+            },
+        )
+        .title("Title")
+        .subtitle("Subtitle")
+        .extra_line("Extra")
+        .head(row(vec![cell("H")]))
+        .group(labeled_group("Label", vec![row(vec![cell("x")])]).label_style("s"))
+        .footnote("f1", "a", "Footnote")
+        .source_note("Source")
+        .build();
+    let s = || Some("s".to_string());
+    let header = table.header.as_mut().unwrap();
+    header.title.as_mut().unwrap().style_id = s();
+    header.subtitle.as_mut().unwrap().style_id = s();
+    header.extra_lines[0].style_id = s();
+    let footer = table.footer.as_mut().unwrap();
+    footer.footnotes[0].style_id = s();
+    footer.source_notes[0].style_id = s();
+    let src = render_typst(&table).unwrap();
+
+    let text = "#text(size: 15pt, fill: rgb(\"#9932CC\"))";
+    let lines: Vec<&str> = src.lines().map(str::trim).collect();
+    for want in [
+        format!("#align(left)[{text}[Title]]"),
+        format!("#align(left)[{text}[Subtitle]]"),
+        format!("#align(left)[{text}[Extra]]"),
+        format!("{text}[#super[a] Footnote]"),
+        format!("{text}[Source]"),
+        format!("table.cell(colspan: 1, fill: rgb(\"#123456\"))[{text}[Label]],"),
+    ] {
+        assert!(lines.contains(&want.as_str()), "no {want:?} in\n{src}");
+    }
+    // Only the header cell is bold; no line keeps its default gray.
+    assert_eq!(src.matches("weight").count(), 1, "{src}");
+    assert!(!src.contains("luma"), "{src}");
+    if require("typst") {
+        compile(&work_dir("lines"), "lines", &src).unwrap_or_else(|e| panic!("{e}\n{src}"));
+    }
 }
 
 #[test]
