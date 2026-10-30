@@ -18,6 +18,8 @@ pub enum RenderError {
 struct LatexRenderer<'r, 'a> {
     rt: &'r ResolvedTable<'a>,
     config: &'r LatexWriterConfig,
+    /// How each column's width is written.
+    widths: Vec<ColWidth>,
     buf: String,
     /// A `\midrule` is due before the next row.
     midrule_due: bool,
@@ -30,13 +32,100 @@ struct LatexRenderer<'r, 'a> {
 
 impl<'r, 'a> LatexRenderer<'r, 'a> {
     fn new(rt: &'r ResolvedTable<'a>, config: &'r LatexWriterConfig) -> Self {
-        Self {
+        let mut r = Self {
             rt,
             config,
+            widths: Vec::new(),
             buf: String::with_capacity(4096),
             midrule_due: false,
             ruled: false,
             pending: None,
+        };
+        r.widths = r.column_widths();
+        r
+    }
+
+    /// The width `%` and `fr` columns divide: the table's `table_width`, else
+    /// the line.
+    fn table_width(&self) -> String {
+        let width = self.rt.table.config.table_width.as_deref();
+        match width.and_then(|w| w.parse::<Length>().ok()) {
+            Some(Length::Percent(p)) if p > 0.0 && p != 100.0 => {
+                format!("{}\\linewidth", num(p / 100.0))
+            }
+            Some(w) => absolute_width(&w).unwrap_or_else(|| "\\linewidth".into()),
+            None => "\\linewidth".into(),
+        }
+    }
+
+    /// Each column's width. A `%` column is that share of the table's width less
+    /// every column's padding (so shares adding up to 100% fill the table); `fr`
+    /// columns share what the other columns leave, in proportion. A tabular
+    /// leaves that to `tabularx`, which measures the natural-width columns; a
+    /// longtable can't use it, so there each `fr` column's width is worked out
+    /// from the fixed and `%` columns alone, and natural-width columns add to it.
+    fn column_widths(&self) -> Vec<ColWidth> {
+        let n = self.width();
+        let content = format!(
+            "\\dimexpr {}-{}\\tabcolsep\\relax",
+            self.table_width(),
+            2 * n
+        );
+        let mut widths: Vec<ColWidth> = self
+            .rt
+            .columns
+            .iter()
+            .map(|c| match c.width {
+                Some(Length::Percent(p)) if p.is_finite() && p > 0.0 => {
+                    ColWidth::Fixed(format!("{}{content}", num(p / 100.0)))
+                }
+                Some(Length::Fr(f)) if f.is_finite() && f > 0.0 => ColWidth::Fr(f),
+                Some(ref w) => absolute_width(w).map_or(ColWidth::Natural, ColWidth::Fixed),
+                None => ColWidth::Natural,
+            })
+            .collect();
+        if !self.use_longtable() {
+            return widths;
+        }
+        let total_fr: f64 = widths
+            .iter()
+            .map(|w| if let ColWidth::Fr(f) = w { *f } else { 0.0 })
+            .sum();
+        if total_fr == 0.0 {
+            return widths;
+        }
+        let percent: f64 = self
+            .rt
+            .columns
+            .iter()
+            .filter_map(|c| match c.width {
+                Some(Length::Percent(p)) if p.is_finite() && p > 0.0 => Some(p / 100.0),
+                _ => None,
+            })
+            .sum();
+        let mut rest = format!("{}{content}", num((1.0 - percent).max(0.0)));
+        for (c, w) in self.rt.columns.iter().zip(&widths) {
+            if let (ColWidth::Fixed(_), Some(abs)) = (w, c.width.as_ref().and_then(absolute_width))
+            {
+                write!(rest, "-{abs}").unwrap();
+            }
+        }
+        for w in &mut widths {
+            if let ColWidth::Fr(f) = *w {
+                *w = ColWidth::Fixed(format!("{}\\dimexpr {rest}\\relax", num(f / total_fr)));
+            }
+        }
+        widths
+    }
+
+    /// `tabularx` when a column is `fr` (a longtable's `fr` columns are fixed).
+    fn env(&self) -> &'static str {
+        if self.use_longtable() {
+            "longtable"
+        } else if self.widths.iter().any(|w| matches!(w, ColWidth::Fr(_))) {
+            "tabularx"
+        } else {
+            "tabular"
         }
     }
 
@@ -98,33 +187,62 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
 
     fn render_begin(&mut self) {
         let col_spec = self.build_column_spec();
-        let env = if self.use_longtable() {
-            "longtable"
+        let env = self.env();
+        let width = if env == "tabularx" {
+            format!("{{{}}}", self.table_width())
         } else {
-            "tabular"
+            String::new()
         };
-        writeln!(self.buf, "\\begin{{{env}}}{{{col_spec}}}").unwrap();
+        writeln!(self.buf, "\\begin{{{env}}}{width}{{{col_spec}}}").unwrap();
     }
 
     fn render_end(&mut self) {
-        let env = if self.use_longtable() {
-            "longtable"
-        } else {
-            "tabular"
-        };
-        writeln!(self.buf, "\\end{{{env}}}").unwrap();
+        writeln!(self.buf, "\\end{{{}}}", self.env()).unwrap();
     }
 
     fn build_column_spec(&self) -> String {
         (0..self.width()).map(|c| self.column_spec(c)).collect()
     }
 
-    /// `p{…}` for a column with a usable width, else its alignment letter.
+    /// The column's spec with its own alignment.
     fn column_spec(&self, col: usize) -> String {
-        let col = &self.rt.columns[col];
-        match col.width.as_ref().and_then(latex_width) {
-            Some(w) => format!("p{{{w}}}"),
-            None => align_letter(&col.align).to_string(),
+        self.aligned_spec(col, &self.rt.columns[col].align)
+    }
+
+    /// Column `col`'s spec with alignment `align`: a letter for a natural-width
+    /// column; a paragraph column (`p{…}`, `fr`'s `X`) is aligned by its
+    /// paragraphs (`\raggedright`…; `array`'s `>{…}`, loaded by `colortbl`).
+    /// `X` columns divide their space by their `\hsize`, which must add up to
+    /// their count.
+    fn aligned_spec(&self, col: usize, align: &HAlign) -> String {
+        let (setup, column) = match &self.widths[col] {
+            ColWidth::Natural => return align_letter(align).to_string(),
+            ColWidth::Fixed(w) => (String::new(), format!("p{{{w}}}")),
+            ColWidth::Fr(f) => {
+                let frs = self.widths.iter().filter_map(|w| match w {
+                    ColWidth::Fr(f) => Some(*f),
+                    _ => None,
+                });
+                let (count, total) = frs.fold((0.0, 0.0), |(n, t), f| (n + 1.0, t + f));
+                let share = f * count / total;
+                let setup = if (share - 1.0).abs() < 1e-9 {
+                    String::new()
+                } else {
+                    format!("\\hsize={}\\hsize", num(share))
+                };
+                (setup, "X".to_string())
+            }
+        };
+        let ragged = match align {
+            HAlign::Left => "\\raggedright\\arraybackslash",
+            HAlign::Center => "\\centering\\arraybackslash",
+            HAlign::Right => "\\raggedleft\\arraybackslash",
+            _ => "",
+        };
+        if ragged.is_empty() && setup.is_empty() {
+            column
+        } else {
+            format!(">{{{ragged}{setup}}}{column}")
         }
     }
 
@@ -399,12 +517,12 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
                     let span = rows[*origin_row].slots[col]
                         .origin()
                         .map_or(1, |c| c.colspan);
-                    (span, String::new(), (span > 1).then_some("l"))
+                    (span, String::new(), (span > 1).then(|| "l".to_string()))
                 }
                 Slot::CoveredH { .. } | Slot::CoveredV { .. } => continue,
                 Slot::Empty => (1, String::new(), None),
             };
-            cells.push(self.entry(section, r, col, span, content, align));
+            cells.push(self.entry(section, r, col, span, content, align.as_deref()));
         }
         writeln!(self.buf, "{} \\\\", cells.join(" & ")).unwrap();
         self.pending = Some(edges.bottom);
@@ -439,9 +557,8 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
     }
 
     /// A cell's content, and the alignment letter its `\multicolumn` needs, if any.
-    fn render_cell(&self, cell: &ResolvedCell) -> (String, Option<&'static str>) {
+    fn render_cell(&self, cell: &ResolvedCell) -> (String, Option<String>) {
         let column = &self.rt.columns[cell.col];
-        let fixed_width = column.width.as_ref().and_then(latex_width).is_some();
         let mut out = self.content(&cell.content, &cell.align, &cell.style);
         out = apply_style(&out, &cell.style);
 
@@ -449,13 +566,14 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
             out = format!("\\multirow{{{}}}{{*}}{{{out}}}", cell.rowspan);
         }
         // A cell's own alignment differs from its column's: a one-column
-        // `\multicolumn` overrides it (not for fixed-width `p{}` columns, whose
-        // width it would drop).
-        let own_align = cell.colspan == 1
-            && !fixed_width
-            && align_letter(&cell.align) != align_letter(&column.align);
-        let align = (cell.colspan > 1 || own_align).then(|| align_letter(&cell.align));
-        (out, align)
+        // `\multicolumn` overrides it, keeping the column's width.
+        let spec = if cell.colspan > 1 {
+            Some(align_letter(&cell.align).to_string())
+        } else {
+            let own = self.aligned_spec(cell.col, &cell.align);
+            (own != self.aligned_spec(cell.col, &column.align)).then_some(own)
+        };
+        (out, spec)
     }
 
     /// Content as LaTeX. Line breaks become a nested one-column tabular (the only
@@ -637,22 +755,34 @@ fn align_letter(align: &HAlign) -> &'static str {
     }
 }
 
-/// A column width usable in `p{…}`: absolute units and `em` keep their unit
-/// (px → pt at 0.75pt/px), `%` is a fraction of `\linewidth`. `fr`, `auto` and
-/// non-positive widths have no `p{}` form.
-fn latex_width(w: &Length) -> Option<String> {
-    fn num(v: f64) -> Option<String> {
-        (v.is_finite() && v > 0.0).then(|| format!("{}", (v * 1e4).round() / 1e4))
-    }
+/// How a column's width is written.
+enum ColWidth {
+    /// As wide as its content: an alignment letter.
+    Natural,
+    /// A paragraph column, `p{…}`, this wide.
+    Fixed(String),
+    /// A `tabularx` `X` column taking this share of the space left.
+    Fr(f64),
+}
+
+/// A number for TeX, to four decimals.
+fn num(v: f64) -> String {
+    format!("{}", (v * 1e4).round() / 1e4)
+}
+
+/// A width with an absolute meaning, usable in `p{…}`: absolute units and `em`
+/// keep their unit (px → pt at 0.75pt/px). `%`, `fr`, `auto` and non-positive
+/// widths have none.
+fn absolute_width(w: &Length) -> Option<String> {
+    let pos = |v: f64| (v.is_finite() && v > 0.0).then(|| num(v));
     Some(match *w {
-        Length::Px(v) => format!("{}pt", num(v * 0.75)?),
-        Length::Pt(v) => format!("{}pt", num(v)?),
-        Length::Em(v) | Length::Rem(v) => format!("{}em", num(v)?),
-        Length::In(v) => format!("{}in", num(v)?),
-        Length::Cm(v) => format!("{}cm", num(v)?),
-        Length::Mm(v) => format!("{}mm", num(v)?),
-        Length::Percent(v) => format!("{}\\linewidth", num(v / 100.0)?),
-        Length::Fr(_) | Length::Auto => return None,
+        Length::Px(v) => format!("{}pt", pos(v * 0.75)?),
+        Length::Pt(v) => format!("{}pt", pos(v)?),
+        Length::Em(v) | Length::Rem(v) => format!("{}em", pos(v)?),
+        Length::In(v) => format!("{}in", pos(v)?),
+        Length::Cm(v) => format!("{}cm", pos(v)?),
+        Length::Mm(v) => format!("{}mm", pos(v)?),
+        Length::Percent(_) | Length::Fr(_) | Length::Auto => return None,
     })
 }
 
@@ -767,9 +897,9 @@ mod tests {
 
     #[test]
     fn widths_convert_to_latex_units() {
-        let w = |s: &str| latex_width(&s.parse().unwrap());
+        let w = |s: &str| absolute_width(&s.parse().unwrap());
         assert_eq!(w("120px").as_deref(), Some("90pt"));
-        assert_eq!(w("25%").as_deref(), Some("0.25\\linewidth"));
+        assert_eq!(w("25%"), None);
         assert_eq!(w("3cm").as_deref(), Some("3cm"));
         assert_eq!(w("1.5em").as_deref(), Some("1.5em"));
         assert_eq!(w("1fr"), None);
