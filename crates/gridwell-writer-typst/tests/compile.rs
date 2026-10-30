@@ -12,7 +12,7 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use gridwell_testkit::examples::styled_merge;
+use gridwell_testkit::examples::{font_families, styled_merge};
 use gridwell_testkit::spans::tilings;
 use gridwell_testkit::{cell, column, examples, group, row, CellExt, ColumnExt, TableBuilder};
 use gridwell_writer_typst::render_typst;
@@ -68,11 +68,19 @@ fn every_example_compiles() {
         return;
     }
     let dir = work_dir("examples");
-    // Plus a styled merged cell under a bordered group label.
+    // Plus a styled merged cell under a bordered group label, font lists, and a
+    // font name needing escapes.
+    let mut quoted = font_families();
+    quoted.styles.defs.get_mut("serif").unwrap().font_family =
+        Some(r#"'Odd "Name\', serif"#.into());
     let failures: Vec<String> = examples()
         .into_iter()
         .map(|ex| (ex.name, ex.table()))
-        .chain([("styled-merge", styled_merge())])
+        .chain([
+            ("styled-merge", styled_merge()),
+            ("font-families", font_families()),
+            ("font-quoted", quoted),
+        ])
         .filter_map(|(name, table)| {
             let src = render_typst(&table).unwrap();
             compile(&dir, name, &src).err().map(|e| {
