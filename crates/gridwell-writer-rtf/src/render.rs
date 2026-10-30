@@ -1,7 +1,7 @@
 use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{HAlign, Table, VMerge};
-use gridwell_layout::{resolve, MergeCell, ResolvedStyle, ResolvedTable, Section};
+use gridwell_ir::{BorderStyle, HAlign, Table, VMerge};
+use gridwell_layout::{resolve, MergeCell, ResolvedStyle, ResolvedTable, Section, Sides, Stroke};
 use std::fmt::Write;
 use thiserror::Error;
 
@@ -10,6 +10,9 @@ pub enum RenderError {
     #[error("formatting error: {0}")]
     Fmt(#[from] std::fmt::Error),
 }
+
+/// The size relative sizes resolve against: RTF's default 12pt (`\\fs24`).
+const BASE_PT: f64 = 12.0;
 
 /// Default column width in twips (1 inch = 1440 twips).
 const DEFAULT_COL_WIDTH: u32 = 2160; // 1.5 inches
@@ -32,7 +35,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 // to resolve against in RTF and get the default.
                 col.width
                     .as_ref()
-                    .and_then(|w| w.to_twips(12.0, 12.0))
+                    .and_then(|w| w.to_twips(BASE_PT, BASE_PT))
                     .filter(|t| t.is_finite() && *t >= 1.0 && *t <= u32::MAX as f64)
                     .map_or(DEFAULT_COL_WIDTH, |t| t as u32)
             })
@@ -82,8 +85,43 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
             for c in [style.paint(), style.fill()].into_iter().flatten() {
                 r.color_index(c);
             }
+            let strokes = style.strokes(BASE_PT);
+            for (_, k) in strokes.iter() {
+                if let Some(c) = k.as_ref().and_then(|k| k.color) {
+                    r.color_index(c);
+                }
+            }
         }
         r
+    }
+
+    /// Cell border definitions (`\clbrdr*`), which come before the cell's
+    /// shading and `\cellx`. Every color was registered up front.
+    fn borders(&self, strokes: &Sides<Option<Stroke>>) -> String {
+        let mut out = String::new();
+        for (word, stroke) in [
+            ("t", &strokes.top),
+            ("l", &strokes.left),
+            ("b", &strokes.bottom),
+            ("r", &strokes.right),
+        ] {
+            let Some(k) = stroke else { continue };
+            // `\brdrw` is in twips and stops at 75; a solid line can go to twice
+            // that as `\brdrth`, which doubles it.
+            let twips = (k.width_pt * 20.0).round().max(1.0);
+            let (kind, twips) = match k.style {
+                BorderStyle::Dashed => ("\\brdrdash", twips),
+                BorderStyle::Dotted => ("\\brdrdot", twips),
+                BorderStyle::Double => ("\\brdrdb", twips),
+                _ if twips > 75.0 => ("\\brdrth", (twips / 2.0).round()),
+                _ => ("\\brdrs", twips),
+            };
+            write!(out, "\\clbrdr{word}{kind}\\brdrw{}", twips.min(75.0) as u32).unwrap();
+            if let Some(i) = k.color.and_then(|c| self.color_ref(c)) {
+                write!(out, "\\brdrcf{i}").unwrap();
+            }
+        }
+        out
     }
 
     /// Character formatting for a style: bold, italic, color (registered colors
@@ -214,6 +252,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
             if let Some(label) = &group.label {
                 let text = self.content(label.content);
                 let fmt = self.char_format(&label.style);
+                let borders = self.borders(&label.style.strokes(BASE_PT));
                 let fill = label
                     .style
                     .fill()
@@ -223,7 +262,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 let total_width: u32 = self.col_widths.iter().sum();
                 writeln!(
                     self.buf,
-                    "\\trowd\\trqc{fill}\\cellx{total_width}\n\\pard\\intbl{{\\b{fmt} {text}}}\\cell\n\\row"
+                    "\\trowd\\trqc{borders}{fill}\\cellx{total_width}\n\\pard\\intbl{{\\b{fmt} {text}}}\\cell\n\\row"
                 )
                 .unwrap();
             }
@@ -254,6 +293,10 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 VMerge::Start => self.buf.push_str("\\clvmgf"),
                 VMerge::Continue => self.buf.push_str("\\clvmrg"),
                 VMerge::None => {}
+            }
+            if let Some(owner) = mc.owner {
+                let borders = self.borders(&owner.style.strokes(BASE_PT).masked(mc.outline));
+                self.buf.push_str(&borders);
             }
             if let Some(fill) = mc.cell.and_then(|c| c.style.fill()) {
                 let i = self.color_index(fill);
@@ -330,7 +373,7 @@ fn text_format(style: &ResolvedStyle) -> String {
     if style.is_strike() {
         f.push_str("\\strike");
     }
-    if let Some(pt) = style.size_pt(12.0) {
+    if let Some(pt) = style.size_pt(BASE_PT) {
         write!(f, "\\fs{}", (pt * 2.0).round().clamp(1.0, 32767.0) as u32).unwrap();
     }
     f
