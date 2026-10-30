@@ -4,7 +4,7 @@
 //! run, a title, a label, a note) must still have been registered up front.
 
 use gridwell_ir::{StyleDef, Table};
-use gridwell_testkit::examples::styled_merge;
+use gridwell_testkit::examples::{font_families, styled_merge};
 use gridwell_testkit::{cell_content, examples, labeled_group, row, styled, text, TableBuilder};
 use gridwell_writer_rtf::render_rtf;
 
@@ -178,4 +178,23 @@ fn every_piece_of_a_merged_cell_is_aligned() {
         .filter(|d| d.contains("\\clvertal"))
         .count();
     assert_eq!(aligned, 2, "{rtf}");
+}
+
+#[test]
+fn fonts_are_registered_once_with_their_class() {
+    let mut t = font_families();
+    // Fonts match regardless of case: `georgia` is Georgia's entry.
+    t.styles.defs.get_mut("generic").unwrap().font_family = Some("georgia, sans-serif".into());
+    let rtf = render_rtf(&t).unwrap();
+    check("font-families", &t);
+    // In first-use order (the title's mono first); the class comes from the
+    // list's generic family, the first style registering a font giving it.
+    assert!(
+        rtf.contains("{\\fonttbl{\\f0 Arial;}{\\f1\\fmodern Fira Mono;}{\\f2\\froman Georgia;}}"),
+        "{rtf}"
+    );
+    assert!(rtf.contains("{\\f1 c}"), "{rtf}");
+    // The table entry, then cells a and d.
+    let georgia = indices(&rtf, "\\f").into_iter().filter(|&i| i == 2).count();
+    assert_eq!(georgia, 3, "{rtf}");
 }
