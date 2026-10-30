@@ -48,7 +48,7 @@ fn document(engine: &str, body: &str) -> String {
     format!(
         "\\documentclass{{article}}\n{fontenc}\
          \\usepackage[a2paper,landscape,margin=1cm]{{geometry}}\n\
-         \\usepackage{{booktabs,multirow,longtable}}\n\
+         \\usepackage{{booktabs,multirow,longtable,tabularx}}\n\
          \\usepackage[normalem]{{ulem}}\n\
          \\usepackage[table]{{xcolor}}\n\
          \\setlength{{\\parindent}}{{0pt}}\n\
@@ -370,8 +370,9 @@ fn decorated_multiline_cells_compile() {
 
 /// Cell borders are lines and rules of their own (`\omit` lines between rows,
 /// `!{\vrule}` in `\multicolumn` specs): every span layout, every cell boxed in
-/// one of the four styles, with and without booktabs, in a tabular and a
-/// longtable, must compile and keep every cell's text.
+/// one of the four styles (some aligned right), with and without booktabs, in a
+/// tabular and a longtable, with natural and with `fr` and `%` widths, must
+/// compile and keep every cell's text.
 #[test]
 fn bordered_span_layouts_compile_in_every_mode() {
     if !require("pdflatex") || !require("pdftotext") {
@@ -381,8 +382,12 @@ fn bordered_span_layouts_compile_in_every_mode() {
     use gridwell_writer_latex::{LatexWriter, LatexWriterConfig};
     let dir = work_dir("borders");
     let styles = ["solid", "dashed", "dotted", "double"];
-    for (rows, cols) in [(2, 3), (3, 3)] {
-        for (booktabs, longtable) in [(true, false), (false, false), (true, true), (false, true)] {
+    let modes = [(true, false), (false, false), (true, true), (false, true)];
+    for ((rows, cols), widths) in [(2, 3), (3, 3)]
+        .into_iter()
+        .flat_map(|shape| [(shape, false), (shape, true)])
+    {
+        for (booktabs, longtable) in modes {
             let writer = LatexWriter::with_config(LatexWriterConfig {
                 booktabs,
                 longtable,
@@ -410,9 +415,19 @@ fn bordered_span_layouts_compile_in_every_mode() {
                         .map(|c| c.to_string());
                     let def = gridwell_ir::StyleDef {
                         border: Some(border_all(edge)),
+                        text_align: (k == 1).then(|| "right".into()),
                         ..Default::default()
                     };
                     tb = tb.style_def(s, def);
+                }
+                if widths {
+                    tb = tb.columns(
+                        ["1fr", "25%", "2fr"]
+                            .iter()
+                            .enumerate()
+                            .map(|(c, w)| column(&format!("c{c}"), "H").width(w))
+                            .collect(),
+                    );
                 }
                 let table = tb
                     .head(row(vec![cell("H"); cols]))
@@ -421,7 +436,7 @@ fn bordered_span_layouts_compile_in_every_mode() {
                 body.push_str(&writer.render(&table).unwrap());
                 body.push_str("\n\\par\\medskip\n");
             }
-            let stem = format!("borders{rows}x{cols}-{booktabs}-{longtable}");
+            let stem = format!("borders{rows}x{cols}-{booktabs}-{longtable}-{widths}");
             let pdf = compile(&dir, &stem, &body).unwrap_or_else(|e| {
                 panic!("{stem}: bordered span layouts failed to compile:\n{e}")
             });
@@ -436,5 +451,130 @@ fn bordered_span_layouts_compile_in_every_mode() {
                 "{stem}: cells missing from the PDF: {missing:?}"
             );
         }
+    }
+}
+
+/// Each word of the PDF with its left and right edges (its advance, not its
+/// ink), in TeX points.
+fn word_edges(pdf: &Path) -> std::collections::HashMap<String, (f64, f64)> {
+    let out = Command::new("pdftotext")
+        .arg("-bbox")
+        .arg(pdf)
+        .arg("-")
+        .output()
+        .unwrap();
+    let xml = String::from_utf8_lossy(&out.stdout).into_owned();
+    let attr = |tag: &str, name: &str| -> f64 {
+        let v = tag.split(&format!("{name}=\"")).nth(1).unwrap();
+        v.split('"').next().unwrap().parse::<f64>().unwrap() * 72.27 / 72.0
+    };
+    xml.split("<word ")
+        .skip(1)
+        .map(|w| {
+            let (tag, rest) = w.split_once('>').unwrap();
+            let text = rest.split('<').next().unwrap().to_string();
+            (text, (attr(tag, "xMin"), attr(tag, "xMax")))
+        })
+        .collect()
+}
+
+/// Column widths, measured in the PDF: a fixed column is its width, a `%`
+/// column that share of the table's width less the columns' padding, and `fr`
+/// columns divide the rest in proportion; a cell aligned apart from its column
+/// keeps the column's width. In a tabular (`tabularx`), the table is exactly its
+/// `table_width`; in a longtable, the `fr` columns' share leaves out
+/// natural-width columns.
+#[test]
+fn column_widths_are_measured_in_the_pdf() {
+    if !require("pdflatex") || !require("pdftotext") {
+        return;
+    }
+    use gridwell_testkit::CellExt;
+    use gridwell_writer_latex::{LatexWriter, LatexWriterConfig};
+    const SEP: f64 = 6.0; // `\tabcolsep`
+    const W: f64 = 500.0;
+    let table = |tag: &str| {
+        let w = |s: &str| format!("{tag}{s}");
+        TableBuilder::new(5)
+            .table_width("500pt")
+            .style_def(
+                "right",
+                gridwell_ir::StyleDef {
+                    text_align: Some("right".into()),
+                    ..Default::default()
+                },
+            )
+            .columns(vec![
+                column("a", "A").width("90pt").align("left"),
+                column("b", "B").width("25%").align("left"),
+                column("c", "C").width("1fr").align("left"),
+                column("d", "D").width("2fr").align("right"),
+                column("e", "E").align("left"),
+            ])
+            .body(vec![
+                row(vec![
+                    cell(&w("QA")),
+                    cell(&w("QB")),
+                    cell(&w("QC")),
+                    cell(&w("QD")),
+                    cell(&w("QE")),
+                ]),
+                row(vec![
+                    cell(&w("RA")).style("right"),
+                    cell(&w("RB")).style("right"),
+                    cell(&w("RC")).style("right"),
+                    cell(&w("RD")),
+                    cell(""),
+                ]),
+            ])
+            .build()
+    };
+    let dir = work_dir("widths");
+    for longtable in [false, true] {
+        let tag = if longtable { "L" } else { "T" };
+        let src = LatexWriter::with_config(LatexWriterConfig {
+            longtable,
+            ..Default::default()
+        })
+        .render(&table(tag))
+        .unwrap();
+        let env = if longtable { "longtable" } else { "tabularx" };
+        assert!(src.contains(&format!("\\begin{{{env}}}")), "{src}");
+        let pdf = compile(&dir, &format!("widths-{tag}"), &src)
+            .unwrap_or_else(|e| panic!("compile failed:\n{e}\n\nsource:\n{src}"));
+        let words = word_edges(&pdf);
+        let at = |w: &str| words[&format!("{tag}{w}")];
+        // Column edges from the left-aligned words, and the right-aligned ones.
+        let left: Vec<f64> = ["QA", "QB", "QC", "QE"]
+            .iter()
+            .map(|w| at(w).0 - SEP)
+            .collect();
+        let (l0, l1, l2, l4) = (left[0], left[1], left[2], left[3]);
+        let r0 = at("RA").1 + SEP;
+        let r1 = at("RB").1 + SEP;
+        let r2 = at("RC").1 + SEP;
+        let r3 = at("QD").1 + SEP;
+        let near = |got: f64, want: f64, what: &str| {
+            assert!(
+                (got - want).abs() < 0.2,
+                "{tag} {what}: {got:.2}pt, want {want:.2}pt\n{src}"
+            );
+        };
+        near(at("RD").1 + SEP, r3, "fr column's rows");
+        let content = W - 10.0 * SEP;
+        near(l1 - l0, 90.0 + 2.0 * SEP, "fixed column");
+        near(r0, l1, "right-aligned cell in the fixed column");
+        near(l2 - l1, 0.25 * content + 2.0 * SEP, "25% column");
+        near(r1, l2, "right-aligned cell in the % column");
+        near(r3, l4, "right-aligned fr column");
+        let fr1 = r2 - l2 - 2.0 * SEP;
+        let fr2 = r3 - r2 - 2.0 * SEP;
+        if longtable {
+            near(fr1, (0.75 * content - 90.0) / 3.0, "1fr column");
+        } else {
+            let table = at("QE").1 + SEP - l0;
+            near(table, W, "table width");
+        }
+        near(fr2, 2.0 * fr1, "2fr column");
     }
 }
