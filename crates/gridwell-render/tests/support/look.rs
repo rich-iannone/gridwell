@@ -1688,10 +1688,181 @@ fn tex_split<'a>(s: &'a str, sep: &str) -> Vec<&'a str> {
     parts
 }
 
+/// The number before `pt` after `key ` in `s` (`height 1.5pt`).
+fn tex_dim(s: &str, key: &str) -> Option<f64> {
+    let rest = &s[s.find(&format!("{key} "))? + key.len() + 1..];
+    rest[..rest.find("pt")?].trim().parse().ok()
+}
+
+/// The color a `\color[model]{spec}` in `s` sets, if any.
+fn tex_color_in(s: &str) -> Option<Rgb> {
+    let chars: Vec<char> = s[s.find("\\color")? + 6..].chars().collect();
+    let mut i = 0;
+    let model = tex_optional(&chars, &mut i);
+    tex_color(model.as_deref(), &tex_group(&chars, &mut i))
+}
+
+/// A horizontal border line's cell (after its `\omit` / `\multispan{n}`): rule
+/// leaders are solid, box leaders dashes (longer than thick) or dots. Its
+/// thickness is the rule's height less any raise (`depth -…`).
+fn tex_leaders(fill: &str) -> Option<Edge> {
+    let t = tex_dim(fill, "height")? - tex_dim(fill, "depth").map_or(0.0, |d| -d);
+    let line = if fill.contains("\\xleaders") {
+        if tex_dim(fill, "width")? > 1.5 * t {
+            Line::Dashed
+        } else {
+            Line::Dotted
+        }
+    } else {
+        Line::Solid
+    };
+    Some(Edge {
+        line,
+        width_pt: Some(t),
+        color: tex_color_in(fill),
+    })
+}
+
+/// A vertical border from a column spec's `!{…}`: one `\vrule` is solid, two
+/// (rule, gap, rule) double.
+fn tex_vrule(decl: &str) -> Option<Edge> {
+    let w = tex_dim(decl, "\\vrule width")?;
+    let double = decl.matches("\\vrule").count() == 2;
+    Some(Edge {
+        line: if double { Line::Double } else { Line::Solid },
+        width_pt: Some(if double { 3.0 * w } else { w }),
+        color: tex_color_in(decl),
+    })
+}
+
+/// A column spec's alignment and its left and right borders.
+fn tex_spec(spec: &str) -> (Option<Align>, Option<Edge>, Option<Edge>) {
+    let sc: Vec<char> = spec.chars().collect();
+    let (mut align, mut left, mut right) = (None, None, None);
+    let mut j = 0;
+    while j < sc.len() {
+        match sc[j] {
+            'l' => align = Some(Align::Left),
+            'c' => align = Some(Align::Center),
+            'r' => align = Some(Align::Right),
+            'p' | 'm' | 'b' => {
+                align = Some(Align::Justify);
+                j += 1;
+                let _ = tex_group(&sc, &mut j);
+                continue;
+            }
+            '!' => {
+                j += 1;
+                let edge = tex_vrule(&tex_group(&sc, &mut j));
+                if align.is_none() {
+                    left = edge;
+                } else {
+                    right = edge;
+                }
+                continue;
+            }
+            '@' | '>' | '<' => {
+                j += 1;
+                let _ = tex_group(&sc, &mut j);
+                continue;
+            }
+            _ => {}
+        }
+        j += 1;
+    }
+    (align, left, right)
+}
+
+/// Strip the table rules and horizontal border lines that start `line`. Border
+/// lines go to `before` until a rule (`\toprule`, `\cmidrule`…), then to
+/// `after`, one entry per column per line.
+type TexEdges = Vec<Vec<Option<Edge>>>;
+fn tex_borders<'s>(mut line: &'s str, before: &mut TexEdges, after: &mut TexEdges) -> &'s str {
+    let mut ruled = false;
+    loop {
+        line = line.trim_start();
+        let chars: Vec<char> = line.chars().collect();
+        let mut q = 0;
+        let word: String = chars
+            .iter()
+            .skip(1)
+            .take_while(|c| c.is_ascii_alphabetic())
+            .collect();
+        if !line.starts_with('\\') || word.is_empty() {
+            return line;
+        }
+        q += 1 + word.len();
+        match word.as_str() {
+            "toprule" | "midrule" | "bottomrule" | "hline" | "addlinespace" => ruled = true,
+            "endhead" | "endfirsthead" => {}
+            "cmidrule" | "cline" => {
+                if chars.get(q) == Some(&'(') {
+                    while q < chars.len() && chars[q] != ')' {
+                        q += 1;
+                    }
+                    q += 1;
+                }
+                let _ = tex_group(&chars, &mut q);
+                ruled = true;
+            }
+            "noalign" => {
+                let _ = tex_group(&chars, &mut q);
+            }
+            "omit" | "multispan" => {
+                let end = line.find("\\cr").unwrap_or(line.len());
+                let mut row = Vec::new();
+                for cell in tex_split(&line[..end], "&") {
+                    let cell = cell.trim();
+                    let (n, fill) = match cell.strip_prefix("\\multispan") {
+                        Some(rest) => {
+                            let rc: Vec<char> = rest.chars().collect();
+                            let mut k = 0;
+                            let n = tex_group(&rc, &mut k).parse().unwrap_or(1);
+                            (n, rc[k..].iter().collect::<String>())
+                        }
+                        None => (1, cell.trim_start_matches("\\omit").to_string()),
+                    };
+                    let edge = tex_leaders(&fill);
+                    row.extend(std::iter::repeat_n(edge, n));
+                }
+                if ruled { &mut *after } else { &mut *before }.push(row);
+                line = &line[(end + 3).min(line.len())..];
+                continue;
+            }
+            _ => return line,
+        }
+        let consumed: String = chars[..q].iter().collect();
+        line = &line[consumed.len()..];
+    }
+}
+
+/// One edge per column from consecutive border lines: a column with a line in
+/// two of them is double, three times as wide as either line.
+fn tex_collapse(lines: &[Vec<Option<Edge>>]) -> Vec<Option<Edge>> {
+    let cols = lines.iter().map(Vec::len).max().unwrap_or(0);
+    (0..cols)
+        .map(|c| {
+            let mut drawn = lines.iter().filter_map(|l| l.get(c).copied().flatten());
+            let first = drawn.next()?;
+            Some(match drawn.next() {
+                Some(_) => Edge {
+                    line: Line::Double,
+                    width_pt: first.width_pt.map(|w| 3.0 * w),
+                    ..first
+                },
+                None => first,
+            })
+        })
+        .collect()
+}
+
 /// Read LaTeX source as the writer emits it (source-level: the compile oracle
 /// checks that it typesets). Columns' alignment comes from the column spec or a
 /// cell's `\multicolumn`; text outside the tabular (titles, notes) is
 /// `outside`. Rules (`\toprule`, `\hline`…) are table rules, not cell borders.
+/// A cell's left and right borders are `!{…}` in its `\multicolumn` spec; a
+/// border line between two rows is read as the bottom border of the cells above
+/// it (collapsed borders belong to both), unless a rule separates them from it.
 pub fn latex(src: &str) -> Doc {
     let mut doc = Doc::default();
     let base = TexState {
@@ -1753,69 +1924,64 @@ pub fn latex(src: &str) -> Doc {
         }
         j += 1;
     }
+    // The last line's cells as (index in `doc.cells`, column, span), and top
+    // borders waiting for the next line.
+    let mut above: Vec<(usize, usize, usize)> = Vec::new();
+    let mut tops: Vec<Option<Edge>>;
+    let mark = |doc: &mut Doc, cells: &[(usize, usize, usize)], edges: &[Option<Edge>], side| {
+        for &(idx, col, span) in cells {
+            let edge = (col..col + span).find_map(|c| edges.get(c).copied().flatten());
+            if edge.is_some() {
+                doc.cells[idx].borders[side] = edge;
+            }
+        }
+    };
     for line in tex_split(body, "\\\\") {
-        let line = line.trim();
-        // Drop rules and longtable markers.
-        let mut l = line.to_string();
-        for rule in [
-            "\\toprule",
-            "\\midrule",
-            "\\bottomrule",
-            "\\hline",
-            "\\endhead",
-            "\\endfirsthead",
-            "\\addlinespace",
-        ] {
-            l = l.replace(rule, "");
+        let (mut before, mut after) = (Vec::new(), Vec::new());
+        let rest = tex_borders(line, &mut before, &mut after);
+        if above.is_empty() {
+            before.append(&mut after);
+            tops = tex_collapse(&before);
+        } else {
+            mark(&mut doc, &above, &tex_collapse(&before), 2);
+            tops = tex_collapse(&after);
         }
-        while let Some(p) = l.find("\\cmidrule") {
-            let rest: Vec<char> = l[p + 9..].chars().collect();
-            let mut q = 0;
-            let _ = (rest.first() == Some(&'(')).then(|| {
-                while q < rest.len() && rest[q] != ')' {
-                    q += 1;
-                }
-                q += 1;
-            });
-            let _ = tex_group(&rest, &mut q);
-            let consumed: String = rest[..q].iter().collect();
-            l = format!("{}{}", &l[..p], &l[p + 9 + consumed.len()..]);
-        }
-        let l = l.trim();
+        let l = rest.trim();
         if l.is_empty() {
             continue;
         }
         let mut col = 0;
+        let mut cells = Vec::new();
         for cell in tex_split(l, "&") {
             let cell = cell.trim();
             let mut fill = None;
             let mut runs = Vec::new();
             let mut align = aligns.get(col).copied();
+            let (mut left, mut right) = (None, None);
             let mut span = 1;
             let content = if let Some(rest) = cell.strip_prefix("\\multicolumn") {
                 let rc: Vec<char> = rest.chars().collect();
                 let mut q = 0;
                 span = tex_group(&rc, &mut q).trim().parse().unwrap_or(1);
-                let a = tex_group(&rc, &mut q);
-                align = match a.trim() {
-                    "c" => Some(Align::Center),
-                    "r" => Some(Align::Right),
-                    "l" => Some(Align::Left),
-                    _ => Some(Align::Justify),
-                };
+                let (a, l, r) = tex_spec(&tex_group(&rc, &mut q));
+                (align, left, right) = (a.or(Some(Align::Justify)), l, r);
                 tex_group(&rc, &mut q)
             } else {
                 cell.to_string()
             };
             tex_runs(&content, &mut base.clone(), &mut runs, &mut fill);
+            cells.push((doc.cells.len(), col, span));
             col += span;
             doc.cells.push(finish(Look {
                 runs,
                 fill,
                 align,
+                borders: [None, right, None, left],
                 ..Look::default()
             }));
         }
+        mark(&mut doc, &cells, &std::mem::take(&mut tops), 0);
+        above = cells;
     }
     doc
 }
