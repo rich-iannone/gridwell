@@ -2,7 +2,7 @@ use gridwell_core::xml::escape as escape_xml;
 use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table, ValueType};
-use gridwell_layout::{resolve, ResolvedBorder, ResolvedStyle, ResolvedTable, Section};
+use gridwell_layout::{resolve, CellVAlign, ResolvedBorder, ResolvedStyle, ResolvedTable, Section};
 use gridwell_ooxml::{package, Part};
 use std::collections::HashMap;
 use std::fmt::Write;
@@ -77,6 +77,8 @@ struct Format {
     /// `horizontal` alignment; `None` is Excel's "general" (text left, numbers
     /// right), which is also what a left-aligned column gets.
     align: Option<&'static str>,
+    /// `vertical` alignment; `None` is Excel's bottom.
+    valign: Option<&'static str>,
     /// Border edges in SpreadsheetML order: left, right, top, bottom.
     border: [Option<Edge>; 4],
     /// Wrap text: set for text with line breaks, which Excel shows only when
@@ -238,6 +240,11 @@ impl Format {
                 HAlign::Justify => Some("justify"),
                 _ => None,
             },
+            valign: style.cell_valign().map(|v| match v {
+                CellVAlign::Top => "top",
+                CellVAlign::Middle => "center",
+                CellVAlign::Bottom => "bottom",
+            }),
             border: [None; 4],
             wrap: false,
             num_fmt: None,
@@ -382,7 +389,7 @@ impl StyleSheet {
                     borders.push(f.border);
                     borders.len() - 1
                 });
-            xfs.push((num_fmt, font, fill, border, f.align, f.wrap));
+            xfs.push((num_fmt, font, fill, border, f.align, f.valign, f.wrap));
         }
 
         let mut buf = String::new();
@@ -448,7 +455,7 @@ impl StyleSheet {
         buf.push_str(
             "    <xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>\n",
         );
-        for (num_fmt, font, fill, border, align, wrap) in xfs {
+        for (num_fmt, font, fill, border, align, valign, wrap) in xfs {
             write!(
                 buf,
                 "    <xf numFmtId=\"{num_fmt}\" fontId=\"{font}\" fillId=\"{fill}\" borderId=\"{border}\" xfId=\"0\""
@@ -465,13 +472,16 @@ impl StyleSheet {
             if border != 0 {
                 buf.push_str(" applyBorder=\"1\"");
             }
-            if align.is_none() && !wrap {
+            if align.is_none() && valign.is_none() && !wrap {
                 buf.push_str("/>\n");
                 continue;
             }
             buf.push_str(" applyAlignment=\"1\"><alignment");
             if let Some(h) = align {
                 write!(buf, " horizontal=\"{h}\"")?;
+            }
+            if let Some(v) = valign {
+                write!(buf, " vertical=\"{v}\"")?;
             }
             if wrap {
                 buf.push_str(" wrapText=\"1\"");
