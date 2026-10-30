@@ -65,6 +65,7 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   `table` option, and `ulem` with `normalem` (`\usepackage[normalem]{ulem}`, so `\emph`
   keeps its meaning)
 - Special characters escaped: `& % $ # _ { } ~ ^ \`
+- `vertical_align` is not written: a `tabular` row sets its cells on one baseline
 
 ### Typst
 
@@ -74,6 +75,7 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Styles via `table.cell(fill: ...)`, `text(weight: "bold")`
 - Cell borders via `table.cell(stroke: ...)`, solid, dashed or dotted (Typst has no
   double line: a double border is drawn solid)
+- Vertical alignment with the cell's horizontal one (`align: left + bottom`)
 
 ### RTF
 
@@ -82,6 +84,7 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Column widths in twips (1/1440 inch)
 - Cell fills via `\clcbpat`; cell borders via `\clbrdrt`/`\clbrdrl`/`\clbrdrb`/`\clbrdrr`
   (solid, dashed, dotted, double; no table-wide rules)
+- Vertical alignment via `\clvertalt`/`\clvertalc`/`\clvertalb`
 
 ### SVG
 
@@ -93,6 +96,8 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   fallbacks), and every line drawn with `textLength`, so viewers that substitute
   another font keep the layout. librsvg ignores `textLength`, so rsvg-based tools
   (Pandoc/Quarto PDF, R's rsvg) render best with Roboto installed
+- Body cells are vertically centered and head cells bottom-aligned, as in HTML, unless
+  a style's `vertical_align` says otherwise
 - Known differences from HTML: a word too long for a fixed-width column is broken
   inside the column (HTML widens the column), and `max_width` always clamps
 
@@ -128,6 +133,7 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Bold, italic, color, size, shading and alignment (font family is not written yet)
 - Table-wide single grid lines; a cell's own borders (`<w:tcBorders>`: solid, dashed,
   dotted, double) replace them on the sides it sets
+- Vertical alignment via `<w:vAlign>`, on every piece of a vertically merged cell
 
 ### XLSX (Microsoft Excel)
 
@@ -140,6 +146,7 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   cell mixes formatting, in the shared-string table (apps such as Numbers ignore run
   formatting in inline strings)
 - Cells with line breaks wrap, and rows are tall enough for their lines and font sizes
+- Vertical alignment via the `vertical` attribute (Excel's own default is bottom)
 
 ### PPTX (Microsoft PowerPoint)
 
@@ -147,5 +154,6 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Grid-based spans with `gridSpan`/`rowSpan` attributes
 - Text color, weight, slant and size, cell fills and alignment
 - Cell borders as `lnL`/`lnR`/`lnT`/`lnB` lines (solid, dashed, dotted, double)
+- Vertical alignment via the cell's `anchor`
 - A complete package (theme, master color map, notes size), so PowerPoint and Keynote
   open it

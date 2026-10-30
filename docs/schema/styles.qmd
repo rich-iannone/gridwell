@@ -39,6 +39,11 @@ listed in [Keyword values](validation.qmd#keyword-values); anything else is repo
 | `border`           | object  | `{ top, right, bottom, left }` |
 | `indent`           | string  | Text indent value              |
 
+Outside HTML, `"baseline"`, `"super"` and `"sub"` place a cell's content at the top:
+in a table cell they line up the first lines of a row's cells, which is where top
+alignment puts them when the cells share a font size. LaTeX output doesn't write
+`vertical_align` (see the [Feature Matrix](../guide/feature-matrix.qmd)).
+
 ### Border Side
 
 | Field   | Type   | Description                                                    |
