@@ -211,14 +211,7 @@ pub unsafe extern "C" fn gridwell_render_text_with_options(
             panic!("deliberate test panic");
         }
         match gridwell_render::render_text(table, format, options) {
-            Ok(text) => {
-                let len = text.len();
-                let mut bytes = text.into_bytes();
-                bytes.push(0);
-                // Exactly len + 1 bytes; gridwell_free_text_result rebuilds this box.
-                let text = Box::into_raw(bytes.into_boxed_slice()) as *mut c_char;
-                GridwellTextResult { text, len }
-            }
+            Ok(text) => text_result(text),
             Err(e) => {
                 set_render_error(err, &e);
                 failed()
@@ -288,6 +281,66 @@ pub unsafe extern "C" fn gridwell_render_binary_with_options(
     })
 }
 
+// ─── Warnings ───
+
+/// The features of a table that a format can't express, and where: one
+/// `[UNSUPPORTED_FEATURE]` message per line (separated by "\n", no trailing
+/// newline), for the named format, or for every format in the order of
+/// `gridwell_format_names()` when `format` is null. An empty string (`len` 0,
+/// `text` non-null) when the table is expressed whole. A warning doesn't stop
+/// the table rendering. Free the result with `gridwell_free_text_result`.
+///
+/// The table is validated first; invalid IR fails with `GRIDWELL_ERR_VALIDATE`
+/// and an unknown format with `GRIDWELL_ERR_RENDER`.
+///
+/// # Safety
+/// - `table` must be a valid pointer returned by `gridwell_parse_ir`.
+/// - `format` must be null or a valid null-terminated C string.
+/// - `err` may be null; if non-null, `*err` is written on failure.
+#[no_mangle]
+pub unsafe extern "C" fn gridwell_warnings(
+    table: *const GridwellTable,
+    format: *const c_char,
+    err: *mut *mut GridwellError,
+) -> GridwellTextResult {
+    let failed = || GridwellTextResult {
+        text: ptr::null_mut(),
+        len: 0,
+    };
+    guard(err, failed(), || {
+        if table.is_null() {
+            set_error(err, GRIDWELL_ERR_INVALID_ARG, "table pointer is null");
+            return failed();
+        }
+        let table = unsafe { &(*table).inner };
+        let format = if format.is_null() {
+            None
+        } else {
+            match unsafe { CStr::from_ptr(format) }.to_str() {
+                Ok(s) => Some(s),
+                Err(e) => {
+                    set_error(
+                        err,
+                        GRIDWELL_ERR_INVALID_ARG,
+                        &format!("invalid format string: {e}"),
+                    );
+                    return failed();
+                }
+            }
+        };
+        match gridwell_render::warnings(table, format) {
+            Ok(found) => {
+                let lines: Vec<String> = found.iter().map(|w| w.to_string()).collect();
+                text_result(lines.join("\n"))
+            }
+            Err(e) => {
+                set_render_error(err, &e);
+                failed()
+            }
+        }
+    })
+}
+
 // ─── Formats ───
 
 /// The supported format names, comma-separated (e.g. "html,latex,…,pptx"). The
@@ -337,11 +390,11 @@ pub unsafe extern "C" fn gridwell_free_table(table: *mut GridwellTable) {
     }
 }
 
-/// Free a text result returned by `gridwell_render_text`.
+/// Free a text result returned by `gridwell_render_text` or `gridwell_warnings`.
 ///
 /// # Safety
-/// - `result` must be a value returned by `gridwell_render_text` (unmodified), and
-///   must not be freed twice.
+/// - `result` must be a value returned by `gridwell_render_text` or
+///   `gridwell_warnings` (unmodified), and must not be freed twice.
 #[no_mangle]
 pub unsafe extern "C" fn gridwell_free_text_result(result: GridwellTextResult) {
     if !result.text.is_null() {
@@ -425,6 +478,16 @@ fn guard<T>(err: *mut *mut GridwellError, fallback: T, f: impl FnOnce() -> T) ->
             fallback
         }
     }
+}
+
+/// A text result owning `text` and its terminator.
+fn text_result(text: String) -> GridwellTextResult {
+    let len = text.len();
+    let mut bytes = text.into_bytes();
+    bytes.push(0);
+    // Exactly len + 1 bytes; gridwell_free_text_result rebuilds this box.
+    let text = Box::into_raw(bytes.into_boxed_slice()) as *mut c_char;
+    GridwellTextResult { text, len }
 }
 
 /// Shared argument handling for the render functions: null checks and UTF-8 for
