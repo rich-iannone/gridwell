@@ -191,3 +191,92 @@ def test_missing_values_show_what_great_tables_shows():
         assert c["sort_key"] is None
         assert "typed_value" not in c
     assert all(c["sort_key"] is not None for i, c in enumerate(cells) if i not in (8, 11))
+
+
+def make_typed_gt():
+    """GT with a column of each typed kind, some formatted."""
+    import datetime as dt
+
+    df = pd.DataFrame({
+        "b": [True, False],
+        "i": [1, 2],
+        "f": [0.5, 1234.5],
+        "d": [dt.date(2024, 3, 15), dt.date(2024, 3, 16)],
+        "ts": pd.to_datetime(["2024-03-15 14:30:00", "2024-03-15 09:05:30"]),
+        "t": [dt.time(14, 30), dt.time(9, 5, 3)],
+        "neg": [-1.5, -2.24],
+        "cur": [49.95, 1.5],
+        "s": ["x", "y"],
+        # Booleans and datetimes in object columns, typed by their values.
+        "ob": pd.Series([True, False], dtype=object),
+        "odt": pd.Series([dt.datetime(2024, 3, 15, 14, 30)] * 2, dtype=object),
+    })
+    return (
+        GT(df)
+        .fmt_number(columns="f", decimals=1)
+        .fmt_number(columns="neg", decimals=1)
+        .fmt_date(columns="d", date_style="month_day_year")
+        .fmt_currency(columns="cur")
+    )
+
+
+def test_typed_values_are_json_values_as_displayed():
+    ir = gridwell.gt_to_dict(make_typed_gt())
+    rows = ir["table"]["tbody"][0]["rows"]
+    typed = [[c.get("typed_value") for c in r["cells"]] for r in rows]
+    assert typed[0] == [
+        {"type": "boolean", "value": True},
+        {"type": "integer", "value": 1},
+        {"type": "number", "value": 0.5},
+        {"type": "date", "value": "2024-03-15"},
+        {"type": "datetime", "value": "2024-03-15T14:30:00"},
+        {"type": "time", "value": "14:30:00"},
+        # The number shown (U+2212 MINUS SIGN read as a minus), not the data's.
+        {"type": "number", "value": -1.5},
+        # A display that isn't a plain number has no typed value, as in R.
+        None,
+        {"type": "string", "value": "x"},
+        {"type": "boolean", "value": True},
+        {"type": "datetime", "value": "2024-03-15T14:30:00"},
+    ]
+    assert typed[1][:7] == [
+        {"type": "boolean", "value": False},
+        {"type": "integer", "value": 2},
+        # Thousands separators dropped.
+        {"type": "number", "value": 1234.5},
+        {"type": "date", "value": "2024-03-16"},
+        {"type": "datetime", "value": "2024-03-15T09:05:30"},
+        {"type": "time", "value": "09:05:03"},
+        {"type": "number", "value": -2.2},
+    ]
+
+
+def test_typed_values_are_typed_xlsx_cells():
+    import io
+    import re
+    import zipfile
+
+    table = gridwell.Table.from_json(gridwell.gt_to_ir(make_typed_gt()))
+    data = table.render_binary("xlsx")
+    sheet = zipfile.ZipFile(io.BytesIO(data)).read("xl/worksheets/sheet1.xml").decode()
+    row = re.search(r'<row r="2".*?</row>', sheet).group(0)
+    cells = re.findall(r'<c r="([A-Z]+)2"([^>]*)>(.*?)</c>', row)
+    # A number (no `t`) or boolean (`t="b"`) cell's value; any other is text.
+    got = {}
+    for col, attrs, body in cells:
+        t = re.search(r' t="(\w+)"', attrs)
+        t = t.group(1) if t else "n"
+        got[col] = (t, re.search(r"<v>(.*?)</v>", body).group(1)) if t in ("n", "b") else "text"
+    assert got == {
+        "A": ("b", "1"),  # TRUE
+        "B": ("n", "1"),
+        "C": ("n", "0.5"),
+        "D": ("n", "45366"),  # 2024-03-15
+        "E": ("n", "45366.604166666664"),  # 14:30
+        "F": ("n", "0.6041666666666666"),
+        "G": ("n", "-1.5"),
+        "H": "text",  # $49.95
+        "I": "text",  # "x"
+        "J": ("b", "1"),
+        "K": ("n", "45366.604166666664"),
+    }
