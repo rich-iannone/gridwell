@@ -157,6 +157,7 @@ fn options_take_effect() {
     .find('\n')
     .is_none());
     assert!(text("html", json!({ "class_prefix": "tbl" })).contains("class=\"tbl_table\""));
+    assert!(text("html", json!({ "table_id": "sales" })).contains("<div id=\"sales\""));
     assert!(!text("latex", json!({ "booktabs": false })).contains("\\toprule"));
     assert!(text("latex", json!({ "longtable": true })).contains("\\begin{longtable}"));
     assert!(!text("typst", json!({ "repeat_header": false })).contains("table.header("));
@@ -202,6 +203,9 @@ fn bad_options_are_invalid_options_errors() {
         ),
         ("html", json!({ "class_prefix": "" }), "class_prefix"),
         ("html", json!({ "class_prefix": "1abc" }), "class_prefix"),
+        ("html", json!({ "table_id": "" }), "table_id"),
+        ("html", json!({ "table_id": "a b" }), "table_id"),
+        ("html", json!({ "table_id": 7 }), "invalid type"),
         (
             "latex",
             json!({ "longtable_threshold": -1 }),
