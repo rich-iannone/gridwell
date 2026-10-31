@@ -74,6 +74,7 @@ fn header_declares_the_whole_api() {
         "gridwell_render_binary_with_options",
         "gridwell_format_names",
         "gridwell_format_kind",
+        "gridwell_warnings",
         "gridwell_free_table",
         "gridwell_free_text_result",
         "gridwell_free_binary_result",
