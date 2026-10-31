@@ -110,6 +110,9 @@ fn assert_clean(html: &str, what: &str) {
         "colspan",
         "rowspan",
         "id",
+        "headers",
+        "aria-labelledby",
+        "aria-describedby",
         "href",
     ];
     let mut styles = 0;
@@ -128,6 +131,11 @@ fn assert_clean(html: &str, what: &str) {
             if name == "class" {
                 for token in value.split_whitespace() {
                     assert!(is_plain(token), "{what}: class token {token:?}:\n{html}");
+                }
+            }
+            if ["id", "headers", "aria-labelledby", "aria-describedby"].contains(&name) {
+                for token in value.split_whitespace() {
+                    assert!(is_plain(token), "{what}: {name} token {token:?}:\n{html}");
                 }
             }
         }
@@ -192,8 +200,8 @@ fn hostile_ids_still_style_their_cells() {
     assert!(html.contains(".gw__s1 { font-weight: bold }"), "{html}");
     let doc = Html::parse_fragment(&html);
     let n = |s: &str| doc.select(&Selector::parse(s).unwrap()).count();
-    assert_eq!(n("td.gw__s0"), 2, "{html}"); // the cell and the group label
-    assert_eq!(n("td.gw_group_label.gw__s0"), 1, "{html}");
+    assert_eq!(n("td.gw__s0"), 1, "{html}"); // the cell
+    assert_eq!(n("th.gw_group_label.gw__s0"), 1, "{html}");
     assert_eq!(n("p.gw_footnote.gw__s0"), 1, "{html}");
     assert_eq!(n("p.gw_source_note.gw__s1"), 1, "{html}");
     assert_eq!(n("span.gw__s0"), 1, "{html}"); // the styled run
@@ -213,7 +221,10 @@ fn an_undefined_hostile_reference_gets_no_class() {
     t.table.tbody[0].rows[0].cells[1].style_id = Some("x\" onclick=\"y".into());
     let html = render(&t, false);
     assert_clean(&html, "undefined ref");
-    assert!(html.contains("<td>1</td>"), "{html}");
+    assert!(
+        html.contains("<td headers=\"g stub-1 col_1\">1</td>"),
+        "{html}"
+    );
 }
 
 #[test]
