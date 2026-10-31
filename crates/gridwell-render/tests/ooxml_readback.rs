@@ -406,3 +406,43 @@ fn pptx_package_has_the_parts_presentationml_requires() {
         assert!(count_in(list) >= 3, "{list} has {} styles", count_in(list));
     }
 }
+
+/// Typed values read back typed, by calamine: numbers as numbers, booleans as
+/// booleans, and dates and times as datetimes (calamine reads a number as one
+/// when its format is a date format), which calamine turns back into the
+/// value's date and time.
+#[test]
+fn xlsx_typed_values_read_back_typed() {
+    use calamine::{Data, Reader as _, Xlsx};
+    use gridwell_testkit::{cell, row, CellExt, TableBuilder};
+    use serde_json::json;
+
+    let t = TableBuilder::new(7)
+        .body(vec![row(vec![
+            cell("1,250.5").typed("number", json!(1250.5)),
+            cell("TRUE").typed("boolean", json!(true)),
+            cell("Mar 15, 2024").typed("date", json!("2024-03-15")),
+            cell("2024-03-15 14:30:05.250").typed("datetime", json!("2024-03-15T14:30:05.25")),
+            cell("2:30 PM").typed("time", json!("14:30:00")),
+            cell("12/31/9999").typed("date", json!("9999-12-31")),
+            // No format reproduces it: text.
+            cell("Q1 2024").typed("date", json!("2024-03-15")),
+        ])])
+        .build();
+    let bytes = gridwell_writer_xlsx::XlsxWriter::new().render(&t).unwrap();
+    let mut book: Xlsx<_> = Xlsx::new(std::io::Cursor::new(bytes)).unwrap();
+    let range = book.worksheet_range("Table").unwrap();
+    let at = |c: u32| range.get_value((0, c)).unwrap().clone();
+    assert_eq!(at(0), Data::Float(1250.5));
+    assert_eq!(at(1), Data::Bool(true));
+    let when = |c: u32| match at(c) {
+        Data::DateTime(d) if d.is_datetime() => d.to_ymd_hms_milli(),
+        other => panic!("column {c}: not a datetime: {other:?}"),
+    };
+    assert_eq!(when(2), (2024, 3, 15, 0, 0, 0, 0));
+    assert_eq!(when(3), (2024, 3, 15, 14, 30, 5, 250));
+    let (.., h, m, s, ms) = when(4);
+    assert_eq!((h, m, s, ms), (14, 30, 0, 0));
+    assert_eq!(when(5), (9999, 12, 31, 0, 0, 0, 0));
+    assert_eq!(at(6), Data::String("Q1 2024".into()));
+}
