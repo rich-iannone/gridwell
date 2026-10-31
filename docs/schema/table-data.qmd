@@ -77,6 +77,27 @@ The body is an array of row groups. Each group has a label, data rows, and optio
 | `sort_key`      | any?    | No       | Sort value                        |
 | `data_type`     | string? | No       | Value type: `"string"`, `"number"`, `"integer"`, `"boolean"`, `"date"`, `"datetime"`, `"time"`, `"duration"` |
 
+## Typed Values
+
+`typed_value` is the value behind a cell's display, `{"type": …, "value": …}`, with a
+`type` from the `data_type` list. Writers that keep values (XLSX) read `value` as:
+
+| `type`                 | `value`                                             |
+|------------------------|-----------------------------------------------------|
+| `number`, `integer`    | a JSON number                                       |
+| `boolean`              | `true` or `false`                                   |
+| `date`                 | an ISO 8601 date string: `"2024-03-15"`             |
+| `datetime`             | `"2024-03-15T14:30:00"` (or a space for the `T`; seconds and their fraction optional; no offset) |
+| `time`                 | `"14:30:00"` (seconds and their fraction optional)  |
+
+The value is what the cell holds; `content` is still what it shows. A value in
+another form is kept as text.
+
+```json
+{ "content": [{"type": "text", "value": "Mar 15, 2024"}],
+  "typed_value": {"type": "date", "value": "2024-03-15"}, ... }
+```
+
 ## Spans and Placeholders
 
 Cells with `colspan` or `rowspan` > 1 span multiple positions. Spanned-over positions
