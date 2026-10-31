@@ -162,6 +162,27 @@ fn the_line_default_and_em_are_each_formats_own() {
     assert_eq!(pptx(&t), emu(&[36.0, 252.0]));
 }
 
+/// Widths too wide for a format's integers are scaled down to fit them, in
+/// proportion, and thin ones are a unit wide.
+#[test]
+fn extreme_widths_fit_each_formats_integers() {
+    let max = u64::from(i32::MAX as u32);
+    let t = table(None, &["1e300pt", "1e300pt", "1e-300pt"]);
+    for (name, got) in [("RTF", rtf(&t)), ("DOCX", docx(&t)), ("PPTX", pptx(&t))] {
+        assert!(got.iter().sum::<u64>() <= max, "{name} {got:?}");
+        assert_eq!(got[0], got[1], "{name} {got:?}");
+        assert!(got[0] > max / 2 - 2, "{name} {got:?}");
+        assert_eq!(got[2], 1, "{name} {got:?}");
+    }
+    // Just over the PPTX limit (about 169,000pt): only PPTX scales.
+    let t = table(None, &["100000pt", "100000pt"]);
+    assert_eq!(rtf(&t), [2_000_000; 2]);
+    assert_eq!(docx(&t), [2_000_000; 2]);
+    let p = pptx(&t);
+    assert_eq!(p[0], p[1]);
+    assert_eq!(p.iter().sum::<u64>(), max - 1);
+}
+
 /// Every corpus example has as many widths as visible columns, and RTF and DOCX
 /// agree on them.
 #[test]

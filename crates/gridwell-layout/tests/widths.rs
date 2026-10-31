@@ -112,6 +112,40 @@ fn widths_in_points() {
     assert_close(&points(Some("400pt"), &["100pt", "10%"]), &[100.0, 40.0]);
 }
 
+fn units(table_width: Option<&str>, widths: &[&str], max: u32) -> Vec<u32> {
+    resolve(&table(table_width, widths)).column_widths_in(LINE, AUTO, EM, 20.0, max)
+}
+
+#[test]
+fn widths_in_a_formats_unit_are_rounded_and_at_least_one() {
+    assert_eq!(units(Some("100pt"), &["", "", ""], 10_000), [667, 667, 667]);
+    assert_eq!(units(None, &["1.5pt", ""], 10_000), [30, 2160]);
+    // Too thin to round to a unit: one unit.
+    assert_eq!(units(None, &["0.01pt", "1e-300px"], 10_000), [1, 1]);
+}
+
+#[test]
+fn widths_in_a_formats_unit_add_up_to_at_most_its_maximum() {
+    // Under the maximum: as they are.
+    assert_eq!(units(None, &["40pt", "10pt"], 1000), [800, 200]);
+    // Over: a unit each, and the rest in proportion.
+    assert_eq!(units(None, &["40pt", "10pt"], 500), [399, 100]);
+    assert_eq!(units(None, &["40pt", "20pt", "20pt"], 999), [499, 250, 250]);
+    // One column over the maximum on its own, and an infinite sum.
+    for cols in [&["1e300pt", "10pt"][..], &["1e300pt", "1e300pt", "1e300pt"]] {
+        let got = units(None, cols, u32::MAX);
+        let total: u64 = got.iter().map(|&u| u64::from(u)).sum();
+        assert!(total <= u64::from(u32::MAX), "{cols:?}: {got:?}");
+        assert!(got.iter().all(|&u| u >= 1), "{cols:?}: {got:?}");
+    }
+    assert_eq!(units(None, &["1e300pt", "1e300pt"], 1000), [500, 500]);
+    // Too wide for an `f64` in the unit (an infinite sum).
+    assert_eq!(units(None, &["1e307pt", "1e308pt"], 1000), [500, 500]);
+    // The thin column keeps its unit.
+    assert_eq!(units(None, &["1e300pt", "1pt"], 1000), [999, 1]);
+    assert_eq!(units(None, &["1e300pt", "1e300pt", "1pt"], 9), [4, 4, 1]);
+}
+
 #[test]
 fn fr_columns_with_no_room_get_the_default() {
     assert_close(
