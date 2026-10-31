@@ -35,6 +35,7 @@ Which IR features each Tier-1 writer (plus PPTX) expresses. Every cell is *measu
 | title | `header.title` and `header.subtitle` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | notes | footnotes and source notes | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | line-styles | a `style_id` on the title, subtitle, header lines, group labels (and their fill) and notes | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| normal-weight | `font_weight: normal` on what a format draws bold by default (column labels, the title, a group label, a run in a bold cell) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 **Notes**
 
