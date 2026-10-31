@@ -136,7 +136,8 @@ fn line_styles_replace_their_defaults() {
     footer.source_notes[0].style_id = s();
     let src = render_typst(&table).unwrap();
 
-    let text = "#text(size: 15pt, fill: rgb(\"#9932CC\"))";
+    // The weight the style sets is written, not left to the default.
+    let text = "#text(weight: \"regular\", size: 15pt, fill: rgb(\"#9932CC\"))";
     let lines: Vec<&str> = src.lines().map(str::trim).collect();
     for want in [
         format!("#align(left)[{text}[Title]]"),
@@ -149,7 +150,7 @@ fn line_styles_replace_their_defaults() {
         assert!(lines.contains(&want.as_str()), "no {want:?} in\n{src}");
     }
     // Only the header cell is bold; no line keeps its default gray.
-    assert_eq!(src.matches("weight").count(), 1, "{src}");
+    assert_eq!(src.matches("weight: \"bold\"").count(), 1, "{src}");
     assert!(!src.contains("luma"), "{src}");
     if require("typst") {
         compile(&work_dir("lines"), "lines", &src).unwrap_or_else(|e| panic!("{e}\n{src}"));
