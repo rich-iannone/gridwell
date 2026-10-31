@@ -110,6 +110,48 @@ impl ResolvedTable<'_> {
             })
             .collect()
     }
+
+    /// [`column_widths_pt`](Self::column_widths_pt) in a format's integer unit,
+    /// `units_per_pt` to the point, rounded. Each width is at least 1, and when
+    /// they would add up to more than `max_total`, they are scaled down in
+    /// proportion so they don't: a format stores its widths, and the table's
+    /// width, as integers of a fixed size.
+    pub fn column_widths_in(
+        &self,
+        line_pt: f64,
+        auto_pt: f64,
+        em_pt: f64,
+        units_per_pt: f64,
+        max_total: u32,
+    ) -> Vec<u32> {
+        let auto = (auto_pt * units_per_pt).clamp(1.0, f64::MAX);
+        let units: Vec<f64> = self
+            .column_widths_pt(line_pt, auto_pt, em_pt)
+            .into_iter()
+            .map(|pt| {
+                let u = pt * units_per_pt;
+                if u.is_nan() {
+                    auto
+                } else {
+                    u.clamp(1.0, f64::MAX)
+                }
+            })
+            .collect();
+        let total: f64 = units.iter().map(|u| u.round()).sum();
+        if total <= f64::from(max_total) {
+            return units.iter().map(|u| u.round() as u32).collect();
+        }
+        // Shares of the widest, so their sum is finite; each column gets a unit
+        // and its share of the rest.
+        let widest = units.iter().copied().fold(1.0, f64::max);
+        let shares: Vec<f64> = units.iter().map(|u| u / widest).collect();
+        let rest = f64::from(max_total.saturating_sub(units.len() as u32));
+        let scale = rest / shares.iter().sum::<f64>();
+        shares
+            .iter()
+            .map(|s| 1 + (s * scale).floor() as u32)
+            .collect()
+    }
 }
 
 #[cfg(test)]
