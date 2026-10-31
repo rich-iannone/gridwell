@@ -67,6 +67,13 @@ GridwellBinaryResult gridwell_render_binary_with_options(
     const GridwellTable *table, const char *format, const char *options,
     GridwellError **err);
 
+// Warnings: what the format can't express, one "[UNSUPPORTED_FEATURE] …" message
+// per line ("\n"-separated, no trailing newline); an empty string if none. A null
+// format means every format. Validates first, as rendering does. Free the result
+// with gridwell_free_text_result.
+GridwellTextResult gridwell_warnings(
+    const GridwellTable *table, const char *format, GridwellError **err);
+
 // Formats: a static comma-separated list of names (do not free), and a name's kind
 // (GRIDWELL_FORMAT_TEXT, GRIDWELL_FORMAT_BINARY or GRIDWELL_FORMAT_UNKNOWN).
 const char *gridwell_format_names(void);
@@ -85,7 +92,8 @@ void gridwell_free_binary_result(GridwellBinaryResult result);
 
 Every `err` out-parameter may be null if you don't need the error. Format names are
 case-insensitive. See [Writer Options](../guide/writer-options.qmd) for each format's
-options.
+options. See [Warnings](../schema/validation.qmd#warnings) for what each format warns
+about.
 
 ## Example
 
