@@ -234,6 +234,51 @@ static void test_options_and_formats(const char *dir) {
     gridwell_free_table(table);
 }
 
+static void test_warnings(const char *dir) {
+    GridwellTable *table = parse_fixture(dir, "minimal/styles_borders.json");
+    GridwellError *err = NULL;
+    GridwellTextResult t;
+    const char *newline;
+
+    /* One format: one line. */
+    t = gridwell_warnings(table, "latex", &err);
+    CHECK(err == NULL && t.text != NULL);
+    CHECK(strncmp(t.text, "[UNSUPPORTED_FEATURE] latex ", 28) == 0);
+    CHECK(strchr(t.text, '\n') == NULL);
+    CHECK(strlen(t.text) == t.len);
+    gridwell_free_text_result(t);
+
+    /* Every format: a line each, latex then typst. */
+    t = gridwell_warnings(table, NULL, &err);
+    CHECK(err == NULL && t.text != NULL);
+    newline = strchr(t.text, '\n');
+    CHECK(newline != NULL);
+    if (newline) {
+        CHECK(strncmp(newline + 1, "[UNSUPPORTED_FEATURE] typst ", 28) == 0);
+        CHECK(strchr(newline + 1, '\n') == NULL);
+    }
+    gridwell_free_text_result(t);
+
+    /* None: an empty string. */
+    t = gridwell_warnings(table, "html", &err);
+    CHECK(err == NULL && t.text != NULL && t.len == 0 && t.text[0] == '\0');
+    gridwell_free_text_result(t);
+
+    t = gridwell_warnings(table, "pdf", &err);
+    CHECK(t.text == NULL);
+    CHECK(gridwell_error_code(err) == GRIDWELL_ERR_RENDER);
+    gridwell_free_error(err);
+    gridwell_free_table(table);
+
+    err = NULL;
+    table = parse_fixture(dir, "invalid/span_overlap.json");
+    t = gridwell_warnings(table, NULL, &err);
+    CHECK(t.text == NULL);
+    CHECK(gridwell_error_code(err) == GRIDWELL_ERR_VALIDATE);
+    gridwell_free_error(err);
+    gridwell_free_table(table);
+}
+
 int main(int argc, char **argv) {
     if (argc != 2) {
         fprintf(stderr, "usage: %s <fixtures-dir>\n", argv[0]);
@@ -244,6 +289,7 @@ int main(int argc, char **argv) {
     test_invalid_ir_is_refused(argv[1]);
     test_errors(argv[1]);
     test_options_and_formats(argv[1]);
+    test_warnings(argv[1]);
 
     if (failures) {
         fprintf(stderr, "%d check(s) failed\n", failures);
