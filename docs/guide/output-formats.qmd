@@ -51,11 +51,14 @@ its cell's but can't remove them.
 - Scoped `<style>` block with generated class names
 - Optional inline-style mode for email/embedded contexts
 - Footnote marks as `<sup>` linked to footer
-- Accessibility: the stub is a row header (`<th scope="row">`), and any cell with a
-  `scope` is a header cell with that scope; the table takes `aria-label` and
-  `aria-describedby` from the config, and `summary` becomes its `<caption>`. A
-  browser draws `<th>` bold: the base stylesheet keeps stubs and column labels at
-  normal weight, so with `base_styles: false` or `inline_styles` both are bold
+- Accessibility: the stub is a row header (`<th scope="row">`, or `rowgroup` for a
+  stub cell spanning rows), a row group's label heads its rows (`<th
+  scope="colgroup">`), and any cell with a `scope` is a header cell with that scope;
+  the table takes `aria-label` and `aria-describedby` from the config, and `summary`
+  becomes its `<caption>`. A browser draws `<th>` bold: the base stylesheet keeps
+  stubs, group labels and column labels at normal weight, so with `base_styles:
+  false` or `inline_styles` they are bold
+- Header ids, as Great Tables makes them (below)
 - Class names for each structural part (below)
 
 Every structural part has a class, so a stylesheet (the host page's) can target it.
@@ -70,11 +73,35 @@ emitted with inline styles too.
 | `gw_col_labels`, `gw_spanners` | `<tr>` in `<thead>` | Column-label and spanner rows (a head row without a `role` counts as column labels) |
 | `gw_col_label`, `gw_spanner` | `<th>` | Column labels; spanner labels (filler cells in a spanner row get no class) |
 | `gw_stubhead`, `gw_stub` | `<th>` | Stub column cells in the head and in the body |
-| `gw_group_label` | `<td>` | A row group's label |
+| `gw_group_label` | `<th>` | A row group's label |
 | `gw_summary`, `gw_grand_summary` | `<tr>` | Summary and grand summary rows |
 | `gw_footer`, `gw_footnotes`, `gw_source_notes` | `<div>` | The footer and its two blocks |
 | `gw_footnote`, `gw_source_note` | `<p>` | One footnote or source note |
 | `gw_footnote_mark` | `<sup>` | A footnote mark, in a cell or before its footnote |
+
+Header cells get ids, and every other cell in the body lists the ids of its headers
+in `headers`, so a screen reader can announce them, as Great Tables does:
+
+- Column labels take their column's id, spanners and the stubhead their label's
+  text, a row group its `group_id` (else its label's text), and a stub cell its
+  row's number, `stub-1`, `stub-2` (`stub-1-2` for the second column of a stub with
+  several). A summary row's label is `summary-{group}-{label}`, a grand summary's
+  `grand-summary-{label}`. The title and subtitle are `title` and `subtitle`, and the
+  table is `aria-labelledby` the title (unless the config gives an `aria-label` or a
+  `summary` caption) and `aria-describedby` the subtitle (unless the config says
+  what describes it).
+- An id is its text with each run of other characters than letters, digits, `_`,
+  `.`, `:` and `-` replaced by `-`; a repeated one gets a suffix (`a`, `a-2`), and
+  footnote ids are never reused. Blank head cells get none.
+- A body cell's `headers` lists its group's label (not for a grand summary), the stub
+  cells of its row (including one spanning into it from above), then the spanners
+  over it, top down, and its column labels.
+- With the `table_id` option, the container takes it as its `id`, and every id above
+  starts `{table_id}-`. Ids inside an SVG in a body cell are prefixed with its
+  column and row (`flag-0-clip`), so the same SVG in many cells doesn't repeat them.
+
+Two things differ from Great Tables: stub cells are numbered in the order the rows
+are shown, and a subtitle gets its id with no title too.
 
 Style classes are added alongside these as `gw_style-<style id>` (e.g.
 `class="gw_title gw_style-gw_1"`). That namespace can't meet the part classes, so a
