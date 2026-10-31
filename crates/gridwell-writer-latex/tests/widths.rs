@@ -1,6 +1,7 @@
 //! Column widths in the source: fixed and `%` columns are `p{…}` columns, `fr`
 //! columns tabularx's `X` (worked out in a longtable), each aligned by its
-//! paragraphs. The PDF measurements are in `compile.rs`.
+//! paragraphs; in a table with a width and no `fr` column, the columns without a
+//! width are `X` too. The PDF measurements are in `compile.rs`.
 
 use gridwell_ir::{StyleDef, Table};
 use gridwell_testkit::{cell, column, placeholder, row, CellExt, ColumnExt, TableBuilder};
@@ -195,4 +196,34 @@ fn a_cell_aligned_apart_keeps_its_columns_width() {
     );
     assert!(src.contains("\nla & lb & lc \\\\"), "{src}");
     assert!(src.contains("\\multicolumn{2}{l}{span} & c \\\\"), "{src}");
+}
+
+#[test]
+fn columns_without_a_width_fill_a_table_that_has_one() {
+    // With no `fr` column, they are `1fr` each.
+    assert_eq!(
+        begin(&table(&["auto", "40pt", "auto"], Some("300pt"))),
+        format!("\\begin{{tabularx}}{{300pt}}{{{LEFT}X{LEFT}p{{40pt}}{LEFT}X}}")
+    );
+    assert_eq!(
+        begin(&table(&["auto", "25%"], Some("100%"))),
+        format!(
+            "\\begin{{tabularx}}{{\\linewidth}}{{\
+             {LEFT}X{LEFT}p{{0.25\\dimexpr \\linewidth-4\\tabcolsep\\relax}}}}"
+        )
+    );
+    // An `fr` column takes the room, so the others keep their natural width.
+    assert_eq!(
+        begin(&table(&["auto", "1fr"], Some("50%"))),
+        format!("\\begin{{tabularx}}{{0.5\\linewidth}}{{l{LEFT}X}}")
+    );
+    // A longtable works their widths out.
+    assert_eq!(
+        begin_with(&table(&["auto", "30pt", "auto"], Some("300pt")), true),
+        format!(
+            "\\begin{{longtable}}[l]{{\
+             {LEFT}p{{{half}}}{LEFT}p{{30pt}}{LEFT}p{{{half}}}}}",
+            half = "0.5\\dimexpr 1\\dimexpr 300pt-6\\tabcolsep\\relax-30pt\\relax"
+        )
+    );
 }
