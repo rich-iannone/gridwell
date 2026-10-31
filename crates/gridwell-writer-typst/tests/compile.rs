@@ -435,3 +435,135 @@ fn every_font_size_form_alignment_and_striping_compiles() {
     }
     compile(&work_dir("styles"), "styles", &src).unwrap_or_else(|e| panic!("{e}\n{src}"));
 }
+
+/// Each word's left and right edge in the PDF, in points.
+fn word_edges(pdf: &Path) -> std::collections::HashMap<String, (f64, f64)> {
+    let out = Command::new("pdftotext")
+        .arg("-bbox")
+        .arg(pdf)
+        .arg("-")
+        .output()
+        .unwrap();
+    let xml = String::from_utf8_lossy(&out.stdout).into_owned();
+    let attr = |tag: &str, name: &str| -> f64 {
+        let v = tag.split(&format!("{name}=\"")).nth(1).unwrap();
+        v.split('"').next().unwrap().parse::<f64>().unwrap()
+    };
+    xml.split("<word ")
+        .skip(1)
+        .map(|w| {
+            let (tag, rest) = w.split_once('>').unwrap();
+            let text = rest.split('<').next().unwrap().to_string();
+            (text, (attr(tag, "xMin"), attr(tag, "xMax")))
+        })
+        .collect()
+}
+
+/// Column and table widths, measured in the PDF: a fixed column is its width, a
+/// `%` column that share of the table's width, and `fr` columns divide what the
+/// others leave, in proportion. A table with a width is that wide (a `%` width is
+/// a share of the line); its columns without a width share it equally when no
+/// column is `fr`. Without a width, `fr` columns fill the line.
+#[test]
+fn column_and_table_widths_are_measured_in_the_pdf() {
+    if !require("typst") || !require("pdftotext") {
+        return;
+    }
+    const INSET: f64 = 5.0; // Typst's default cell inset
+    const LINE: f64 = (60.0 - 2.0) / 2.54 * 72.0; // the test page's line, in pt
+
+    // A row of left-aligned words named `{tag}{i}`, then one right-aligned word in
+    // the last column, `{tag}R`.
+    let table = |tag: &str, table_width: Option<&str>, widths: &[&str]| {
+        let n = widths.len();
+        let cols = widths
+            .iter()
+            .enumerate()
+            .map(|(i, w)| {
+                let c = column(&format!("c{i}"), "C");
+                if w.is_empty() {
+                    c
+                } else {
+                    c.width(w)
+                }
+            })
+            .collect();
+        let mut b = TableBuilder::new(n as u32).columns(cols).style_def(
+            "right",
+            gridwell_ir::StyleDef {
+                text_align: Some("right".into()),
+                ..Default::default()
+            },
+        );
+        if let Some(w) = table_width {
+            b = b.table_width(w);
+        }
+        let last = (0..n)
+            .map(|i| {
+                if i + 1 == n {
+                    cell(&format!("{tag}R")).style("right")
+                } else {
+                    cell("")
+                }
+            })
+            .collect();
+        b.body(vec![
+            row((0..n).map(|i| cell(&format!("{tag}{i}"))).collect()),
+            row(last),
+        ])
+        .build()
+    };
+    let dir = work_dir("widths");
+    // Each column's width, from the left edges and the table's right edge.
+    let measure = |tag: &str, table_width: Option<&str>, widths: &[&str]| -> Vec<f64> {
+        let src = render_typst(&table(tag, table_width, widths)).unwrap();
+        let pdf = compile(&dir, tag, &src)
+            .unwrap_or_else(|e| panic!("compile failed:\n{e}\n\nsource:\n{src}"));
+        let words = word_edges(&pdf);
+        let at = |i: usize| words[&format!("{tag}{i}")];
+        let n = widths.len();
+        let mut edges: Vec<f64> = (0..n).map(|i| at(i).0 - INSET).collect();
+        edges.push(words[&format!("{tag}R")].1 + INSET);
+        assert!(
+            (edges[0] - 1.0 / 2.54 * 72.0).abs() < 0.5,
+            "{tag} starts at {}\n{src}",
+            edges[0]
+        );
+        edges.windows(2).map(|e| e[1] - e[0]).collect()
+    };
+    let near = |got: &[f64], want: &[f64], what: &str| {
+        assert_eq!(got.len(), want.len());
+        for (g, w) in got.iter().zip(want) {
+            assert!((g - w).abs() < 0.5, "{what}: {got:.2?}, want {want:.2?}");
+        }
+    };
+    // A 400pt table: 1fr and 3fr share what the fixed, 25% and `auto` columns leave.
+    let got = measure("WA", Some("400pt"), &["100pt", "25%", "1fr", "3fr", ""]);
+    let fr = (400.0 - 200.0 - got[4]) / 4.0;
+    near(&got, &[100.0, 100.0, fr, 3.0 * fr, got[4]], "400pt table");
+    assert!(got[4] > 2.0 * INSET && fr > 20.0, "{got:?}");
+    // Columns without a width share the table's width.
+    near(
+        &measure("WB", Some("300pt"), &["", "", ""]),
+        &[100.0; 3],
+        "300pt table",
+    );
+    near(
+        &measure("WC", Some("300pt"), &["60pt", ""]),
+        &[60.0, 240.0],
+        "300pt, fixed + auto",
+    );
+    // A `%` table width is a share of the line, which its `%` columns divide.
+    let half = LINE / 2.0;
+    near(
+        &measure("WD", Some("50%"), &["25%", ""]),
+        &[half / 4.0, half * 3.0 / 4.0],
+        "50% table",
+    );
+    // Without a table width, `fr` fills the line.
+    near(
+        &measure("WE", None, &["100pt", "1fr"]),
+        &[100.0, LINE - 100.0],
+        "no table width",
+    );
+}
