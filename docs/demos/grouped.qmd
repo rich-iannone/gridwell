@@ -38,23 +38,35 @@ with `colspan`, `rowspan`, `is_placeholder`, etc.
 
 ```html
 <div class="gw_container">
+  <style>…</style>
   <table class="gw_table">
     <thead>
-      <tr>
-        <th scope="col">City</th>
-        <th scope="col">Pop (M)</th>
-        <th scope="col">Area (km²)</th>
+      <tr class="gw_col_labels">
+        <th class="gw_stubhead gw__al_left" scope="col" id="City">City</th>
+        <th class="gw_col_label gw__al_right" scope="col" id="col_1">Pop (M)</th>
+        <th class="gw_col_label gw__al_right" scope="col" id="col_2">Area (km²)</th>
       </tr>
     </thead>
     <tbody>
-      <tr><td colspan="3">Asia</td></tr>
-      <tr><td>Tokyo</td><td>13.96</td><td>2,194</td></tr>
-      <tr><td>Seoul</td><td>9.74</td><td>605</td></tr>
+      <tr>
+        <th colspan="3" scope="colgroup" class="gw_group_label gw__al_left" id="grp_asia">
+          Asia
+        </th>
+      </tr>
+      <tr>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-1">Tokyo</th>
+        <td class="gw__al_right" headers="grp_asia stub-1 col_1">13.96</td>
+        <td class="gw__al_right" headers="grp_asia stub-1 col_2">2,194</td>
+      </tr>
+      <!-- Seoul: stub-2 -->
     </tbody>
     <tbody>
-      <tr><td colspan="3">Europe</td></tr>
-      <tr><td>London</td><td>8.98</td><td>1,572</td></tr>
-      <tr><td>Paris</td><td>2.16</td><td>105</td></tr>
+      <tr>
+        <th colspan="3" scope="colgroup" class="gw_group_label gw__al_left" id="grp_europe">
+          Europe
+        </th>
+      </tr>
+      <!-- London and Paris: stub-3, stub-4 -->
     </tbody>
   </table>
 </div>
