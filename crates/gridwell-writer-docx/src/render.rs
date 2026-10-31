@@ -482,17 +482,25 @@ fn write_footnotes(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
     Ok(())
 }
 
-/// Column widths in dxa: absolute lengths convert exactly; `%`, `fr` and `auto`
-/// get the default.
+/// The width of the line, in points, that `%` and `fr` widths divide. The
+/// document sets no page, so the application chooses it: 6in fits Letter and A4 at
+/// their usual margins.
+const LINE_PT: f64 = 432.0;
+
+/// Column widths in dxa: absolute lengths convert exactly, `%` and `fr` resolve
+/// against the table's width (else the line), and `auto` gets the default (see
+/// [`ResolvedTable::column_widths_pt`]).
 fn compute_col_widths(rt: &ResolvedTable) -> Vec<u32> {
-    rt.columns
-        .iter()
-        .map(|col| {
-            col.width
-                .as_ref()
-                .and_then(|w| w.to_twips(12.0, 12.0))
-                .filter(|t| t.is_finite() && *t >= 1.0 && *t <= u32::MAX as f64)
-                .map_or(xml::DEFAULT_COL_WIDTH_DXA, |t| t as u32)
+    let auto_pt = f64::from(xml::DEFAULT_COL_WIDTH_DXA) / 20.0;
+    rt.column_widths_pt(LINE_PT, auto_pt, BASE_PT)
+        .into_iter()
+        .map(|pt| {
+            let dxa = (pt * 20.0).round();
+            if dxa >= 1.0 && dxa <= f64::from(u32::MAX) {
+                dxa as u32
+            } else {
+                xml::DEFAULT_COL_WIDTH_DXA
+            }
         })
         .collect()
 }
