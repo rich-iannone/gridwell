@@ -588,17 +588,23 @@ fn write_group_label_row(
     Ok(())
 }
 
-/// Column widths in EMU: absolute lengths convert exactly; `%`, `fr` and `auto`
-/// get the default.
+/// Column widths in EMU: absolute lengths convert exactly, `%` and `fr` resolve
+/// against the table's width (else the slide's text width, as the text boxes),
+/// `auto` gets the default, and `em` is the table text's size (see
+/// [`ResolvedTable::column_widths_pt`]).
 fn compute_col_widths(rt: &ResolvedTable) -> Vec<u32> {
-    rt.columns
-        .iter()
-        .map(|col| {
-            col.width
-                .as_ref()
-                .and_then(|w| w.to_emu(12.0, 12.0))
-                .filter(|e| e.is_finite() && *e >= 1.0 && *e <= u32::MAX as f64)
-                .map_or(xml::DEFAULT_COL_WIDTH_EMU, |e| e as u32)
+    const EMU_PER_PT: f64 = 12700.0;
+    let line_pt = f64::from(TEXT_W) / EMU_PER_PT;
+    let auto_pt = f64::from(xml::DEFAULT_COL_WIDTH_EMU) / EMU_PER_PT;
+    rt.column_widths_pt(line_pt, auto_pt, BASE_PT)
+        .into_iter()
+        .map(|pt| {
+            let emu = (pt * EMU_PER_PT).round();
+            if emu >= 1.0 && emu <= f64::from(u32::MAX) {
+                emu as u32
+            } else {
+                xml::DEFAULT_COL_WIDTH_EMU
+            }
         })
         .collect()
 }
