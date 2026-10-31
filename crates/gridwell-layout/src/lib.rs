@@ -27,6 +27,7 @@
 pub mod look;
 pub mod style;
 pub mod text;
+pub mod unsupported;
 
 use std::borrow::Cow;
 
