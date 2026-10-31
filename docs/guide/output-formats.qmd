@@ -107,8 +107,9 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   exactly its width; in a longtable each one's width is worked out from the fixed
   and `%` columns only, so natural-width columns add to the table's width. The
   table's width is `table_width` (default the line, `\linewidth`): it is the width
-  that `%` and `fr` columns divide, so a table without either keeps its natural
-  width
+  that `%` and `fr` columns divide. When `table_width` is set and no column is `fr`,
+  the columns without a width are `1fr`, so the table is that wide; otherwise a table
+  without `fr` columns keeps its natural width
 - Cell fills via `\cellcolor`, text color via `\textcolor`; underline and strike-through via
   `\uline` / `\sout`; sizes via `\fontsize`
 - Cell borders: a horizontal edge is a line of its own between two rows (`\omit` cells
@@ -133,7 +134,10 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 
 - Uses Typst's `#table()` function with named parameters
 - `table.cell(colspan: N, rowspan: N)` for spans
-- Column widths mapped to Typst length values
+- Column widths mapped to Typst length values. `%` and `fr` columns divide the
+  table's width: a table with `table_width` is a `#block` that wide (a `%` width is a
+  share of the container), and its columns without a width are `1fr` when no column
+  is; without it, the container's width
 - Styles via `table.cell(fill: ...)`, `text(weight: "bold")`
 - Fonts via `text(font: ("Georgia", "Times New Roman"))`: the whole list, in order, so
   Typst falls back through it
@@ -150,7 +154,12 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   classed by its list's generic family (`\froman`, `\fswiss`, `\fmodern`), which a
   reader uses to pick a substitute when the font is missing
 - Column spans via `\cellx` boundaries, row spans via `\clvmgf`/`\clvmrg`
-- Column widths in twips (1/1440 inch)
+- Column widths in twips (1/1440 inch). `%` and `fr` columns divide the table's
+  width: `table_width`, else the line, 6in (the document sets no page, so the
+  reader's default page decides; RTF's own default, Letter with 1.25in margins, has a
+  6in line). When `table_width` is set and no column is `fr`, the columns without a
+  width share what the others leave; otherwise each is 1.5in, as is an `fr` column
+  the others leave no room for. `em` is 12pt
 - Cell fills via `\clcbpat`; cell borders via `\clbrdrt`/`\clbrdrl`/`\clbrdrb`/`\clbrdrr`
   (solid, dashed, dotted, double; no table-wide rules)
 - Vertical alignment via `\clvertalt`/`\clvertalc`/`\clvertalb`
@@ -208,6 +217,11 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Table-wide single grid lines; a cell's own borders (`<w:tcBorders>`: solid, dashed,
   dotted, double) replace them on the sides it sets
 - Vertical alignment via `<w:vAlign>`, on every piece of a vertically merged cell
+- Column widths in `<w:tblGrid>` (dxa, 1/1440 inch), the table's width their sum.
+  `%` and `fr` columns divide the table's width: `table_width`, else a 6in line (the
+  document sets no page). When `table_width` is set and no column is `fr`, the
+  columns without a width share what the others leave; otherwise each is 1.5in, as
+  is an `fr` column the others leave no room for. `em` is 11pt
 
 ### XLSX (Microsoft Excel)
 
@@ -243,5 +257,10 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   fills and alignment
 - Cell borders as `lnL`/`lnR`/`lnT`/`lnB` lines (solid, dashed, dotted, double)
 - Vertical alignment via the cell's `anchor`
+- Column widths in EMU, the table centered on the slide. `%` and `fr` columns divide
+  the table's width: `table_width`, else the slide's text width (9in, as the title
+  and notes). When `table_width` is set and no column is `fr`, the columns without a
+  width share what the others leave; otherwise each is 1in, as is an `fr` column the
+  others leave no room for. `em` is 18pt, PowerPoint's table text size
 - A complete package (theme, master color map, notes size), so PowerPoint and Keynote
   open it
