@@ -1,3 +1,4 @@
+mod date;
 mod render;
 mod xml;
 
