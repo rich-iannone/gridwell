@@ -189,6 +189,35 @@ test_that("gw_validate reports documented rule ids", {
     expect_true(any(startsWith(errors, "[SPAN_OVERLAP]")))
 })
 
+test_that("gw_warnings names what a format can't express", {
+    tbl <- gw_parse_ir(load_fixture("minimal/styles_borders.json"))
+    latex <- gw_warnings(tbl, "latex")
+    expect_length(latex, 1)
+    expect_true(startsWith(
+        latex,
+        "[UNSUPPORTED_FEATURE] latex can't express border-styles (group 1 row 2, column 1"
+    ))
+    expect_identical(gw_warnings(tbl, " LaTeX "), latex)
+    expect_identical(gw_warnings(tbl, "html"), character(0))
+    # Every format, in registry order.
+    every <- gw_warnings(tbl)
+    expect_identical(every, gw_warnings(tbl, format = NULL))
+    expect_identical(vapply(strsplit(every, " "), `[`, "", 2), c("latex", "typst"))
+    expect_identical(every[1], latex)
+    # A warning doesn't stop rendering.
+    expect_true(nzchar(gw_render_latex(tbl)))
+    expect_identical(gw_warnings(gw_parse_ir(load_fixture("minimal/minimal_1x1.json"))), character(0))
+})
+
+test_that("gw_warnings checks the format and the table", {
+    tbl <- gw_parse_ir(load_fixture("minimal/styles_borders.json"))
+    expect_error(gw_warnings(tbl, "pdf"), "unknown format \"pdf\"", fixed = TRUE)
+    expect_error(gw_warnings(tbl, 1), "`format` must be NULL or a single string", fixed = TRUE)
+    invalid <- gw_parse_ir(load_fixture("invalid/span_overlap.json"))
+    expect_error(gw_warnings(invalid, "latex"), "[SPAN_OVERLAP]", fixed = TRUE)
+    expect_error(gw_warnings(invalid), "[SPAN_OVERLAP]", fixed = TRUE)
+})
+
 test_that("adjacent colspans render in every format (regression)", {
     # Valid IR that used to panic the RTF/SVG writers and drop cells elsewhere.
     cell <- function(text, colspan = 1) {
