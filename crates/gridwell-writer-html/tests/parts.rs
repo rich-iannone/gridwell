@@ -90,7 +90,7 @@ fn found(doc: &Html, p: &str) -> Expected {
         spanner: count(doc, &format!("thead th.{p}_spanner")),
         stubhead: count(doc, &format!("thead th.{p}_stubhead")),
         stub: count(doc, &format!("tbody th.{p}_stub")),
-        group_label: count(doc, &format!("tbody td.{p}_group_label")),
+        group_label: count(doc, &format!("tbody th.{p}_group_label")),
         summary: count(doc, &format!("tbody > tr.{p}_summary")),
         grand_summary: count(doc, &format!("tbody > tr.{p}_grand_summary")),
         footnote: count(doc, &format!("div.{p}_footnotes > p.{p}_footnote")),
@@ -230,7 +230,10 @@ fn part_classes_combine_with_style_classes() {
     let html = HtmlWriter::new().render(&t).unwrap();
     assert!(html.contains("class=\"gw_title gw_style-hl\""), "{html}");
     // A data cell has no part, so it only has its style class.
-    assert!(html.contains("<td class=\"gw_style-hl\">2</td>"), "{html}");
+    assert!(
+        html.contains("<td class=\"gw_style-hl\" headers=\"g stub-1 Group col_2\">2</td>"),
+        "{html}"
+    );
 
     // Inline styles: the part class stays, the style moves into `style`.
     let inline = HtmlWriter::with_config(HtmlWriterConfig {
