@@ -594,6 +594,68 @@ fn column_widths_are_measured_in_the_pdf() {
     }
 }
 
+/// A table with a width and no `fr` column is that wide: its columns without a
+/// width share what the others leave, in a tabular (`tabularx`) and a longtable.
+#[test]
+fn columns_without_a_width_fill_the_table_width() {
+    if !require("pdflatex") || !require("pdftotext") {
+        return;
+    }
+    use gridwell_testkit::CellExt;
+    use gridwell_writer_latex::{LatexWriter, LatexWriterConfig};
+    const SEP: f64 = 6.0; // `\tabcolsep`
+    let table = |tag: &str| {
+        let w = |s: &str| format!("{tag}{s}");
+        TableBuilder::new(3)
+            .table_width("300pt")
+            .style_def(
+                "right",
+                gridwell_ir::StyleDef {
+                    text_align: Some("right".into()),
+                    ..Default::default()
+                },
+            )
+            .columns(vec![
+                column("a", "A"),
+                column("b", "B").width("60pt"),
+                column("c", "C"),
+            ])
+            .body(vec![
+                row(vec![cell(&w("QA")), cell(&w("QB")), cell(&w("QC"))]),
+                row(vec![cell(""), cell(""), cell(&w("RC")).style("right")]),
+            ])
+            .build()
+    };
+    let dir = work_dir("fill");
+    for longtable in [false, true] {
+        let tag = if longtable { "L" } else { "T" };
+        let src = LatexWriter::with_config(LatexWriterConfig {
+            longtable,
+            ..Default::default()
+        })
+        .render(&table(tag))
+        .unwrap();
+        let pdf = compile(&dir, &format!("fill-{tag}"), &src)
+            .unwrap_or_else(|e| panic!("compile failed:\n{e}\n\nsource:\n{src}"));
+        let words = word_edges(&pdf);
+        let at = |w: &str| words[&format!("{tag}{w}")];
+        let edges = [
+            at("QA").0 - SEP,
+            at("QB").0 - SEP,
+            at("QC").0 - SEP,
+            at("RC").1 + SEP,
+        ];
+        let got: Vec<f64> = edges.windows(2).map(|e| e[1] - e[0]).collect();
+        let fill = (300.0 - 60.0 - 6.0 * SEP) / 2.0 + 2.0 * SEP;
+        for (g, want) in got.iter().zip([fill, 60.0 + 2.0 * SEP, fill]) {
+            assert!(
+                (g - want).abs() < 0.2,
+                "{tag}: {got:.2?}, want {fill:.2} / 72 / {fill:.2}\n{src}"
+            );
+        }
+    }
+}
+
 /// A longtable over pages: the title and subtitle open the first page only, the
 /// column labels head every page, and the notes close the last page only, after
 /// every row. Each row is shown once. The title starts at the table's left edge
