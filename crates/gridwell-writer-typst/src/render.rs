@@ -2,7 +2,8 @@ use gridwell_core::{Color, FontSize, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table};
 use gridwell_layout::{
-    resolve, CellVAlign, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, Sides, Stroke,
+    resolve, CellVAlign, ColumnWidth, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable,
+    Sides, Stroke,
 };
 use std::fmt::Write;
 use thiserror::Error;
@@ -92,18 +93,27 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
         if rt.is_empty() {
             return;
         }
+        // Typst sizes `%` and `fr` columns against the container, so a table with a
+        // width is a block that wide.
         let columns: Vec<String> = rt
-            .columns
+            .column_widths()
             .iter()
-            .map(|c| {
-                c.width
-                    .as_ref()
-                    .and_then(typst_len)
-                    .unwrap_or_else(|| "auto".into())
+            .map(|w| {
+                match w {
+                    ColumnWidth::Auto => None,
+                    ColumnWidth::Fixed(l) => typst_len(l),
+                    ColumnWidth::Percent(p) => typst_len(&Length::Percent(*p)),
+                    ColumnWidth::Fr(f) => typst_len(&Length::Fr(*f)),
+                }
+                .unwrap_or_else(|| "auto".into())
             })
             .collect();
         let aligns: Vec<&str> = rt.columns.iter().map(|c| typst_align(&c.align)).collect();
-        self.line("#table(");
+        let block = rt.table_width().as_ref().and_then(typst_len);
+        match &block {
+            Some(width) => self.line(&format!("#block(width: {width}, table(")),
+            None => self.line("#table("),
+        }
         self.push();
         // A trailing comma keeps a one-element array an array.
         self.line(&format!("columns: ({},),", columns.join(", ")));
@@ -114,7 +124,7 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
         self.render_tbody();
 
         self.pop();
-        self.line(")");
+        self.line(if block.is_some() { "))" } else { ")" });
     }
 
     fn render_thead(&mut self) {
