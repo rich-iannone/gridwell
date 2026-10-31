@@ -248,6 +248,35 @@ def test_validate_returns_documented_rule_ids():
     assert any(e.startswith("[SPAN_OVERLAP]") for e in errors), errors
 
 
+def test_warnings_name_what_a_format_cant_express():
+    table = gridwell.Table.from_json(load_fixture("minimal/styles_borders.json"))
+    latex = table.warnings("latex")
+    assert len(latex) == 1
+    assert latex[0].startswith(
+        "[UNSUPPORTED_FEATURE] latex can't express border-styles (group 1 row 2, column 1"
+    ), latex
+    assert table.warnings(" LaTeX ") == latex
+    assert table.warnings("html") == []
+    # Every format, in registry order.
+    every = table.warnings()
+    assert every == table.warnings(format=None)
+    assert [w.split()[1] for w in every] == ["latex", "typst"], every
+    assert every[0] == latex[0]
+    # A warning doesn't stop rendering.
+    assert table.render("latex")
+    assert gridwell.Table.from_json(load_fixture("minimal/minimal_1x1.json")).warnings() == []
+
+
+def test_warnings_check_the_format_and_table():
+    table = gridwell.Table.from_json(load_fixture("minimal/styles_borders.json"))
+    with pytest.raises(ValueError, match='unknown format "pdf"'):
+        table.warnings("pdf")
+    invalid = gridwell.Table.from_json(load_fixture("invalid/span_overlap.json"))
+    for fmt in ("latex", None):
+        with pytest.raises(gridwell.InvalidTableError, match="SPAN_OVERLAP"):
+            invalid.warnings(fmt)
+
+
 def _adjacent_colspans_ir():
     def cell(text, colspan=1):
         return {"content": [{"type": "text", "value": text}], "colspan": colspan}
