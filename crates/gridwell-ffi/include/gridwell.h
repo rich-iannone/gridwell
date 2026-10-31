@@ -140,6 +140,24 @@ struct GridwellBinaryResult gridwell_render_binary_with_options(const struct Gri
                                                                 const char *options,
                                                                 struct GridwellError **err);
 
+// The features of a table that a format can't express, and where: one
+// `[UNSUPPORTED_FEATURE]` message per line (separated by "\n", no trailing
+// newline), for the named format, or for every format in the order of
+// `gridwell_format_names()` when `format` is null. An empty string (`len` 0,
+// `text` non-null) when the table is expressed whole. A warning doesn't stop
+// the table rendering. Free the result with `gridwell_free_text_result`.
+//
+// The table is validated first; invalid IR fails with `GRIDWELL_ERR_VALIDATE`
+// and an unknown format with `GRIDWELL_ERR_RENDER`.
+//
+// # Safety
+// - `table` must be a valid pointer returned by `gridwell_parse_ir`.
+// - `format` must be null or a valid null-terminated C string.
+// - `err` may be null; if non-null, `*err` is written on failure.
+struct GridwellTextResult gridwell_warnings(const struct GridwellTable *table,
+                                            const char *format,
+                                            struct GridwellError **err);
+
 // The supported format names, comma-separated (e.g. "html,latex,…,pptx"). The
 // string is static: do not free it.
 const char *gridwell_format_names(void);
@@ -158,11 +176,11 @@ int32_t gridwell_format_kind(const char *format);
 //   be used afterwards.
 void gridwell_free_table(struct GridwellTable *table);
 
-// Free a text result returned by `gridwell_render_text`.
+// Free a text result returned by `gridwell_render_text` or `gridwell_warnings`.
 //
 // # Safety
-// - `result` must be a value returned by `gridwell_render_text` (unmodified), and
-//   must not be freed twice.
+// - `result` must be a value returned by `gridwell_render_text` or
+//   `gridwell_warnings` (unmodified), and must not be freed twice.
 void gridwell_free_text_result(struct GridwellTextResult result);
 
 // Free a binary result returned by `gridwell_render_binary`.
