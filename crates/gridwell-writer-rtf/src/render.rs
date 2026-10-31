@@ -36,18 +36,14 @@ struct RtfRenderer<'r, 'a> {
 
 impl<'r, 'a> RtfRenderer<'r, 'a> {
     fn new(rt: &'r ResolvedTable<'a>) -> Self {
-        let col_widths = rt
-            .column_widths_pt(LINE_PT, f64::from(DEFAULT_COL_WIDTH) / 20.0, BASE_PT)
-            .into_iter()
-            .map(|pt| {
-                let twips = (pt * 20.0).round();
-                if twips >= 1.0 && twips <= f64::from(u32::MAX) {
-                    twips as u32
-                } else {
-                    DEFAULT_COL_WIDTH
-                }
-            })
-            .collect();
+        // In twips; a `\cellx` edge is a signed 32-bit number.
+        let col_widths = rt.column_widths_in(
+            LINE_PT,
+            f64::from(DEFAULT_COL_WIDTH) / 20.0,
+            BASE_PT,
+            20.0,
+            i32::MAX as u32,
+        );
         let mut r = Self {
             rt,
             buf: String::with_capacity(4096),

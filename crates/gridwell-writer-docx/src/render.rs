@@ -489,18 +489,9 @@ const LINE_PT: f64 = 432.0;
 
 /// Column widths in dxa: absolute lengths convert exactly, `%` and `fr` resolve
 /// against the table's width (else the line), and `auto` gets the default (see
-/// [`ResolvedTable::column_widths_pt`]).
+/// [`ResolvedTable::column_widths_pt`]). The table's width is a signed 32-bit
+/// number, which they add up to at most.
 fn compute_col_widths(rt: &ResolvedTable) -> Vec<u32> {
     let auto_pt = f64::from(xml::DEFAULT_COL_WIDTH_DXA) / 20.0;
-    rt.column_widths_pt(LINE_PT, auto_pt, BASE_PT)
-        .into_iter()
-        .map(|pt| {
-            let dxa = (pt * 20.0).round();
-            if dxa >= 1.0 && dxa <= f64::from(u32::MAX) {
-                dxa as u32
-            } else {
-                xml::DEFAULT_COL_WIDTH_DXA
-            }
-        })
-        .collect()
+    rt.column_widths_in(LINE_PT, auto_pt, BASE_PT, 20.0, i32::MAX as u32)
 }

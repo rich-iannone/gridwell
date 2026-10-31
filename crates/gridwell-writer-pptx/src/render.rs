@@ -591,20 +591,11 @@ fn write_group_label_row(
 /// Column widths in EMU: absolute lengths convert exactly, `%` and `fr` resolve
 /// against the table's width (else the slide's text width, as the text boxes),
 /// `auto` gets the default, and `em` is the table text's size (see
-/// [`ResolvedTable::column_widths_pt`]).
+/// [`ResolvedTable::column_widths_pt`]). They add up to at most `i32::MAX` EMU
+/// (about 60m), so the frame's width holds them.
 fn compute_col_widths(rt: &ResolvedTable) -> Vec<u32> {
     const EMU_PER_PT: f64 = 12700.0;
     let line_pt = f64::from(TEXT_W) / EMU_PER_PT;
     let auto_pt = f64::from(xml::DEFAULT_COL_WIDTH_EMU) / EMU_PER_PT;
-    rt.column_widths_pt(line_pt, auto_pt, BASE_PT)
-        .into_iter()
-        .map(|pt| {
-            let emu = (pt * EMU_PER_PT).round();
-            if emu >= 1.0 && emu <= f64::from(u32::MAX) {
-                emu as u32
-            } else {
-                xml::DEFAULT_COL_WIDTH_EMU
-            }
-        })
-        .collect()
+    rt.column_widths_in(line_pt, auto_pt, BASE_PT, EMU_PER_PT, i32::MAX as u32)
 }
