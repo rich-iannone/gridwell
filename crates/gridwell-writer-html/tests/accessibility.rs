@@ -68,7 +68,12 @@ fn stubs_are_row_headers() {
         assert_eq!(
             body_cells(&doc),
             vec![
-                td("North"),
+                // The group label heads its group's rows, as in Great Tables.
+                (
+                    "th".to_string(),
+                    Some("colgroup".to_string()),
+                    "North".to_string()
+                ),
                 th("Oslo"),
                 td("1"),
                 td("2"),
@@ -131,12 +136,13 @@ fn a_cells_own_scope_wins_and_makes_it_a_header() {
 }
 
 /// A browser centers `<th>`: every header cell below the head must say how it
-/// is aligned, so a stub keeps its column's (left) alignment.
+/// is aligned, so a stub keeps its column's (left) alignment, and a group label
+/// is left-aligned.
 #[test]
 fn row_headers_keep_their_alignment() {
     let doc = render(&stub_table(), false);
     let stubs = select(&doc, "tbody th");
-    assert_eq!(stubs.len(), 3);
+    assert_eq!(stubs.len(), 4);
     for s in &stubs {
         assert!(
             s.value()
