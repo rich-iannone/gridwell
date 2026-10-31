@@ -325,7 +325,7 @@ impl FontKey {
         let parent = self.size.map_or(11.0, |h| f64::from(h) / 100.0);
         Self {
             bold: style.bold_over(self.bold),
-            italic: self.italic || style.is_italic(),
+            italic: style.italic_over(self.italic),
             underline: self.underline || style.is_underline(),
             strike: self.strike || style.is_strike(),
             size: style
