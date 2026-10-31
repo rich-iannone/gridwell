@@ -208,4 +208,15 @@ warnings <- gw_warnings(tbl, "latex")
 # warnings: character vector; gw_warnings(tbl) for every format
 ```
 
+### C
+
+```c
+GridwellError *invalid = gridwell_validate(table);
+// null if valid, else an error listing every problem
+GridwellError *err = NULL;
+GridwellTextResult w = gridwell_warnings(table, "latex", &err);
+// one warning per line ("" if none); NULL for every format
+gridwell_free_text_result(w);
+```
+
 :::
