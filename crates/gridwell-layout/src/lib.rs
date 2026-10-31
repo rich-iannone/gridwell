@@ -19,6 +19,9 @@
 //! - **Text transforms.** `text_transform` is applied to the content of cells,
 //!   lines and notes (see [`text::transform_case`]), unless the writer's format
 //!   has one of its own ([`ResolveOptions::transform_text`]).
+//! - **Widths.** Each column's declared width, and the widths in points for a
+//!   format that gives every column one ([`ResolvedTable::column_widths`],
+//!   [`ResolvedTable::column_widths_pt`]; see [`widths`]).
 //!
 //! Resolution never panics, on any IR. On valid IR, every row's slots tile the
 //! visible columns exactly; on invalid IR, positions no cell can claim are
@@ -28,6 +31,7 @@ pub mod look;
 pub mod style;
 pub mod text;
 pub mod unsupported;
+pub mod widths;
 
 use std::borrow::Cow;
 
@@ -39,6 +43,7 @@ use gridwell_ir::{
 };
 pub use style::{CellVAlign, ResolvedBorder, ResolvedStyle, Sides, Stroke};
 pub use text::{plain_text, transform_case};
+pub use widths::ColumnWidth;
 
 use gridwell_core::Color;
 use gridwell_ir::cell::{Row, TypedValue};
