@@ -252,6 +252,118 @@ fn validate_reports_success_and_failure() {
     assert!(stderr(&bad).contains("[SPAN_OVERLAP]"), "{}", stderr(&bad));
 }
 
+const LATEX_DASHED: &str = "[UNSUPPORTED_FEATURE] latex can't express border-styles (group 1 \
+                            row 2, column 1 and 2 other places): a vertical rule is always solid";
+const TYPST_DOUBLE: &str = "[UNSUPPORTED_FEATURE] typst can't express border-double (head row \
+                            1, column 1 and 2 other places): Typst strokes have no double line";
+
+#[test]
+fn validate_warns_of_what_formats_cant_express_and_still_succeeds() {
+    let validate = |args: &[&str], rel: &str| {
+        bin()
+            .arg("validate")
+            .args(args)
+            .arg(fixture(rel))
+            .output()
+            .unwrap()
+    };
+    // Every format, in registry order.
+    let o = validate(&[], "minimal/styles_borders.json");
+    assert!(o.status.success(), "{}", stderr(&o));
+    let err = stderr(&o);
+    assert!(
+        err.starts_with("Valid: no errors found.\n2 warning(s):\n"),
+        "{err}"
+    );
+    let latex = err.find(LATEX_DASHED).expect(&err);
+    assert!(err.find(TYPST_DOUBLE).expect(&err) > latex, "{err}");
+
+    // One format, named as `convert` names it.
+    for to in [["--to", "latex"], ["-t", "LaTeX"]] {
+        let o = validate(&to, "minimal/styles_borders.json");
+        assert!(o.status.success(), "{}", stderr(&o));
+        let err = stderr(&o);
+        assert!(
+            err.contains("1 warning(s):") && err.contains(LATEX_DASHED),
+            "{err}"
+        );
+        assert!(!err.contains("typst"), "{err}");
+    }
+    let o = validate(&["-t", "html"], "minimal/styles_borders.json");
+    assert!(
+        o.status.success() && !stderr(&o).contains("warning"),
+        "{}",
+        stderr(&o)
+    );
+    let o = validate(&[], "comprehensive/reference_table.json");
+    assert!(
+        o.status.success() && !stderr(&o).contains("warning"),
+        "{}",
+        stderr(&o)
+    );
+
+    // An unknown format, and an invalid table, fail as they do without.
+    let o = validate(&["-t", "pdf"], "minimal/styles_borders.json");
+    assert!(!o.status.success());
+    assert!(
+        stderr(&o).contains("unknown format \"pdf\""),
+        "{}",
+        stderr(&o)
+    );
+    let o = validate(&["-t", "latex"], "invalid/span_overlap.json");
+    assert_clean_failure(&o);
+    assert!(!stderr(&o).contains("warning"), "{}", stderr(&o));
+}
+
+#[test]
+fn convert_warns_of_what_its_format_cant_express() {
+    let input = fixture("minimal/styles_borders.json");
+    let o = bin()
+        .args(["convert", "-t", "typst"])
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    assert!(!o.stdout.is_empty());
+    let err = stderr(&o);
+    assert!(
+        err.starts_with(&format!("Warning: {TYPST_DOUBLE}")),
+        "{err}"
+    );
+    assert_eq!(err.lines().count(), 1, "{err}");
+
+    // To a file, after saying it's written.
+    let out = scratch_dir("warn").join("out.tex");
+    let o = bin()
+        .arg("convert")
+        .arg(&input)
+        .arg("-o")
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    let err = stderr(&o);
+    let lines: Vec<&str> = err.lines().collect();
+    assert_eq!(lines.len(), 2, "{err}");
+    assert!(
+        lines[0].starts_with("Wrote ") && lines[1].starts_with(&format!("Warning: {LATEX_DASHED}")),
+        "{err}"
+    );
+    assert!(std::fs::metadata(&out).unwrap().len() > 0);
+
+    // A format that expresses it all.
+    let o = bin()
+        .args(["convert", "-t", "html"])
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert!(
+        o.status.success() && stderr(&o).is_empty(),
+        "{}",
+        stderr(&o)
+    );
+}
+
 #[test]
 fn formats_lists_every_format() {
     let o = bin().arg("formats").output().unwrap();
