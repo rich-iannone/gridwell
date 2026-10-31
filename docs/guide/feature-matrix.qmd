@@ -6,7 +6,7 @@ title: "Feature Matrix"
 
 Which IR features each Tier-1 writer (plus PPTX) expresses. Every cell is *measured*: the test renders a probe table, reads the output back with a format-specific reader (cell by cell: weight, slant, decoration, color, size, font, fill, alignment, borders) and checks the feature is there — and doesn't leak into neighboring cells. The test fails whenever a measurement disagrees with this page.
 
-✓ supported · ✗ not yet (the format can express it) · ⊘ the format can't (portably) express it. Numbers refer to the notes below.
+✓ supported · ✗ not yet (the format can express it) · ⊘ the format can't (portably) express it. Numbers refer to the notes below. A table that uses a feature its format lacks gets a warning saying where, with the note as its reason: see [Validation](../schema/validation.qmd#warnings).
 
 | Feature | IR | HTML | LaTeX | Typst | RTF | DOCX | XLSX | PPTX |
 |---|---|---|---|---|---|---|---|---|
@@ -21,7 +21,7 @@ Which IR features each Tier-1 writer (plus PPTX) expresses. Every cell is *measu
 | fill | `background_color` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | cell-align | `text_align` on a cell | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | column-align | a column's `align` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| vertical-align | `vertical_align: bottom` | ✓ | ⊘<sup>2</sup> | ✓ | ✓ | ✓ | ✓ | ✓ |
+| vertical-align | `vertical_align: bottom` (beside a taller cell) | ✓ | ⊘<sup>2</sup> | ✓ | ✓ | ✓ | ✓ | ✓ |
 | border | `border` (2px solid red bottom) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | border-styles | border styles dashed, dotted | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | border-double | border style double | ✓ | ✓ | ⊘<sup>3</sup> | ✓ | ✓ | ✓ | ✓ |

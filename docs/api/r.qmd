@@ -27,6 +27,14 @@ if (length(errors) > 0) {
 }
 ```
 
+A valid table can still use a feature a format can't express. `gw_warnings(tbl, format)`
+lists those [warnings](../schema/validation.qmd#warnings) for one format, or every
+format with `format = NULL` (the default); invalid IR and an unknown format are errors.
+
+```r
+warnings <- gw_warnings(tbl, "latex")
+```
+
 ## Text Rendering
 
 ```r

@@ -5,7 +5,10 @@ title: "Output Formats"
 Gridwell renders the table IR to 11 output formats, split into text (returns a string) and
 binary (returns bytes). Which styling features each Tier-1 writer (HTML, LaTeX, Typst,
 RTF, DOCX, XLSX) actually expresses is measured, not claimed: see the
-[Feature Matrix](feature-matrix.qmd).
+[Feature Matrix](feature-matrix.qmd). Where a format can't express a feature a table
+uses (the notes below say which), you can ask for a
+[warning](../schema/validation.qmd#warnings) saying where before rendering, and
+`gridwell convert` prints one.
 
 Two styles are CSS values that other formats translate:
 
@@ -120,7 +123,8 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - `font_family` is written only for monospace families (`\texttt`, in cells and group
   labels): a named system font needs XeLaTeX or LuaLaTeX with `fontspec`, and the
   output also targets pdfLaTeX
-- `vertical_align` is not written: a `tabular` row sets its cells on one baseline
+- `vertical_align` is not written: a `tabular` row sets its cells on one baseline,
+  at its top. A cell spanning rows is a `\multirow`, centered on them
 
 ### Typst
 

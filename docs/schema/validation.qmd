@@ -135,6 +135,38 @@ Each error includes the rule name, location, and a human-readable message:
 [INVALID_LENGTH] column_spec[1].width is "-5px", which is not valid here: it is negative (expected a non-negative length (px, pt, em, rem, in, cm, mm), or a percentage, or a fraction (fr), or auto)
 ```
 
+## Warnings
+
+A valid table can still use a feature an output format can't express: LaTeX can't
+align one cell to the bottom of its row, and Typst has no double borders. The writer
+then draws something close, and you can ask for a **warning** first. A warning
+doesn't fail validation or stop rendering.
+
+Each warning has the rule id `UNSUPPORTED_FEATURE`, the format, the feature (named as
+in the [feature matrix](../guide/feature-matrix.qmd)), where the table uses it (the
+first place, and how many others), and what the writer draws instead:
+
+```text
+[UNSUPPORTED_FEATURE] typst can't express border-double (head row 1, column 1 and 2 other places): Typst strokes have no double line; a double border is drawn solid
+```
+
+| Format | Feature | Warned for |
+|--------|---------|------------|
+| `latex` | `font-family` | A font family, anywhere. A cell or group label in a monospace family is `\texttt`, and `system-ui` and the like are drawn in no format: neither is warned |
+| `latex` | `vertical-align` | A `middle` or `bottom` cell beside one that may be taller: it breaks lines, has raw LaTeX, sits in a column with a width, or is in a larger font size. A cell spanning rows is centered on them, so only `bottom` is warned there |
+| `latex` | `border-styles` | A dashed or dotted left or right border on a cell or group label |
+| `typst` | `border-double` | A double border on a cell or group label |
+
+Places count from 1: `the title`, `the subtitle`, `header line 1`,
+`head row 1, column 2`, `group 1 row 3, column 2`, `group 1 summary row 1, column 1`,
+`the label of group 2`, `footnote 1`, `source note 1`. A row counts within its part of
+the IR (the head, or a group's rows or summary rows), and a column within
+`column_spec`, hidden columns included. A cell in a hidden column isn't drawn, so it
+isn't warned for.
+
+Warnings are for a valid table: asking for them for an invalid one is the same error
+rendering it would be.
+
 ## Usage
 
 ::: {.panel-tabset}
@@ -144,6 +176,9 @@ Each error includes the rule name, location, and a human-readable message:
 ```bash
 gridwell validate table.json
 # Exit code 0 = valid, 1 = errors found
+# Warnings for every format, or one (they don't change the exit code)
+gridwell validate --to latex table.json
+# convert prints its format's warnings to stderr
 ```
 
 ### Rust
@@ -151,6 +186,8 @@ gridwell validate table.json
 ```rust
 let errors = table.validate();
 // errors: Vec<ValidationError>
+let warnings = gridwell_render::warnings(&table, Some("latex"))?;
+// warnings: Vec<Warning>; None for every format
 ```
 
 ### Python
@@ -158,6 +195,8 @@ let errors = table.validate();
 ```python
 errors = table.validate()
 # errors: list[str]
+warnings = table.warnings("latex")
+# warnings: list[str]; table.warnings() for every format
 ```
 
 ### R
@@ -165,6 +204,8 @@ errors = table.validate()
 ```r
 errors <- gw_validate(tbl)
 # errors: character vector
+warnings <- gw_warnings(tbl, "latex")
+# warnings: character vector; gw_warnings(tbl) for every format
 ```
 
 :::

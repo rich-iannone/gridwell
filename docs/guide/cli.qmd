@@ -16,7 +16,9 @@ cargo install gridwell-cli
 
 Convert a table IR JSON file to an output format. The input is validated first; if it
 is invalid, the validation errors are printed to stderr, nothing is written, and the
-exit code is 1.
+exit code is 1. If the table uses a feature the format can't express, a
+[warning](../schema/validation.qmd#warnings) saying where is printed to stderr after
+the output is written; it doesn't change the exit code.
 
 ```bash
 gridwell convert [OPTIONS] --to <FORMAT> [INPUT]
@@ -68,14 +70,27 @@ gridwell convert table.json --to html | pbcopy
 ### `gridwell validate`
 
 Check an IR file for structural errors. Exits with code 0 if valid, code 1 if errors found.
+A valid table is also checked for features the output formats can't express, and
+each one is listed as a [warning](../schema/validation.qmd#warnings); warnings don't
+change the exit code.
 
 ```bash
-gridwell validate [INPUT]
+gridwell validate [OPTIONS] [INPUT]
 ```
+
+**Options:**
+
+- `-t, --to <FORMAT>` — Warn only of what this format can't express (default: every
+  format)
 
 ```{.bash filename="Example output"}
 $ gridwell validate valid_table.json
 Valid: no errors found.
+
+$ gridwell validate --to typst borders.json
+Valid: no errors found.
+1 warning(s):
+  - [UNSUPPORTED_FEATURE] typst can't express border-double (head row 1, column 1 and 2 other places): Typst strokes have no double line; a double border is drawn solid
 
 $ gridwell validate broken_table.json
 Found 2 validation error(s):

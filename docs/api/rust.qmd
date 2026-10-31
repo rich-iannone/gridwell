@@ -45,6 +45,18 @@ if errors.is_empty() {
 }
 ```
 
+A valid table can still use a feature a format can't express.
+`gridwell_render::warnings` lists those [warnings](../schema/validation.qmd#warnings)
+for one format, or every format with `None`, each with the format, the feature, its
+places and the reason; like `render`, it fails for invalid IR or an unknown format.
+A writer reports its own through `Writer::unsupported`.
+
+```rust
+for w in gridwell_render::warnings(&table, Some("latex"))? {
+    eprintln!("{w}");
+}
+```
+
 ## Rendering by format name
 
 The registry validates the table, looks up the format, and checks the options. This is
