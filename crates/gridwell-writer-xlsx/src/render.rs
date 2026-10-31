@@ -254,7 +254,7 @@ impl Edge {
 impl Format {
     fn new(style: &ResolvedStyle, bold: bool, align: &HAlign) -> Self {
         Self {
-            bold: bold || style.is_bold(),
+            bold: style.bold_over(bold),
             italic: style.is_italic(),
             underline: style.is_underline(),
             strike: style.is_strike(),
@@ -324,7 +324,7 @@ impl FontKey {
     fn with(self, style: &ResolvedStyle) -> Self {
         let parent = self.size.map_or(11.0, |h| f64::from(h) / 100.0);
         Self {
-            bold: self.bold || style.is_bold(),
+            bold: style.bold_over(self.bold),
             italic: self.italic || style.is_italic(),
             underline: self.underline || style.is_underline(),
             strike: self.strike || style.is_strike(),
