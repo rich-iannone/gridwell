@@ -28,6 +28,8 @@ use serde_json::Value;
 use thiserror::Error;
 
 pub use formats::REGISTRY;
+pub use gridwell_layout::unsupported::{Place, Unsupported};
+pub use gridwell_layout::SectionKind;
 
 /// Whether a format produces text or bytes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -158,6 +160,77 @@ pub trait Writer: Send + Sync {
         table: &ValidatedTable<'_>,
         options: Option<&Value>,
     ) -> Result<Output, RenderError>;
+    /// The features of the table this format can't express, and where it uses
+    /// them (see [`warnings`]). Empty by default: only the formats of the
+    /// feature matrix report what they drop.
+    fn unsupported(&self, table: &ValidatedTable<'_>) -> Vec<Unsupported> {
+        let _ = table;
+        Vec::new()
+    }
+}
+
+/// A feature of a table that a format can't express: the output drops or
+/// approximates it. A warning, not an error: the table is valid, and renders.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Warning {
+    /// The format, by name (`"latex"`).
+    pub format: &'static str,
+    /// The feature, as the feature matrix names it (`"vertical-align"`).
+    pub feature: &'static str,
+    /// Why the format can't express it, and what its output does instead.
+    pub reason: &'static str,
+    /// Where the table uses it, in document order; never empty.
+    pub places: Vec<Place>,
+}
+
+impl Warning {
+    /// The rule every warning reports under, as validation errors report theirs.
+    pub const RULE: &'static str = "UNSUPPORTED_FEATURE";
+}
+
+impl std::fmt::Display for Warning {
+    /// `[UNSUPPORTED_FEATURE] latex can't express vertical-align (group 1 row 1,
+    /// column 2 and 1 other place): a tabular row …`
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "[{}] {} can't express {} (",
+            Self::RULE,
+            self.format,
+            self.feature
+        )?;
+        if let Some(first) = self.places.first() {
+            write!(f, "{first}")?;
+        }
+        match self.places.len() {
+            0 | 1 => {}
+            2 => write!(f, " and 1 other place")?,
+            n => write!(f, " and {} other places", n - 1)?,
+        }
+        write!(f, "): {}", self.reason)
+    }
+}
+
+/// Validate `table`, then list the features it uses that `format` can't
+/// express (every format's, in registry order, for `None`). A valid table with
+/// warnings still renders: they say what the output will lack.
+pub fn warnings(table: &Table, format: Option<&str>) -> Result<Vec<Warning>, RenderError> {
+    let writers = match format {
+        Some(name) => vec![find(name)?],
+        None => REGISTRY.to_vec(),
+    };
+    let validated = table.validated()?;
+    Ok(writers
+        .into_iter()
+        .flat_map(|w| {
+            w.unsupported(&validated).into_iter().map(move |u| Warning {
+                format: w.name(),
+                feature: u.feature,
+                reason: u.reason,
+                places: u.places,
+            })
+        })
+        .collect())
 }
 
 /// Every format name, in registry order.
