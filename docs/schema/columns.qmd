@@ -36,9 +36,17 @@ The `column_spec` array defines one entry per column.
 |---------|------------------------------------------------|
 | `auto`  | Content-determined width                       |
 | `120px` | Fixed pixel width                              |
-| `25%`   | Percentage of container                        |
-| `1fr`   | Fractional unit (like CSS grid)                |
+| `25%`   | Share of the table's width                     |
+| `1fr`   | Share of what the other columns leave          |
 | `3cm`   | Absolute length (cm, mm, in, pt)               |
+
+The table's width is `config.table_width` when set, else the width of the line
+(the page's text width, or the container's). `fr` columns divide what the fixed and
+`%` columns leave, in proportion to their numbers (`2fr` is twice `1fr`). When the
+table has a width and no column is `fr`, the `auto` columns share what the others
+leave, so the table is as wide as it says; a table whose columns all have fixed or
+`%` widths is as wide as they add up to. HTML leaves the sizing to the browser; how
+each other format sizes its columns is in [Output Formats](../guide/output-formats.qmd).
 
 `min_width` and `max_width` take the same forms except `fr` and `auto`. Widths may not
 be negative; an invalid width fails validation with `INVALID_LENGTH` (see
