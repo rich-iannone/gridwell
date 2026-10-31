@@ -3,11 +3,13 @@ use gridwell_ir::content::ContentNode;
 use gridwell_ir::{is_valid_style_id, CellScope, HAlign, Keyword, RowRole, Table};
 use gridwell_layout::{
     resolve_with, ResolveOptions, ResolvedBorder, ResolvedCell, ResolvedRow, ResolvedStyle,
-    ResolvedTable, SectionKind, Sides,
+    ResolvedTable, Section, SectionKind, Sides, Slot,
 };
+use std::collections::HashMap;
 use std::fmt::Write;
 use thiserror::Error;
 
+use crate::ids::{id_text, is_blank, prefix_svg_ids, IdRegistry};
 use crate::HtmlWriterConfig;
 
 #[derive(Debug, Error)]
@@ -37,6 +39,107 @@ struct HtmlRenderer<'r, 'a> {
     /// generated classes `{prefix}__s{n}` instead of their names. Only reachable
     /// when the writer is handed unvalidated IR.
     unsafe_style_ids: Vec<&'a str>,
+    /// Makes the ids of header cells, the title and subtitle.
+    ids: IdRegistry,
+    /// The ids of the head's cells and of the title and subtitle.
+    head_ids: HeadIds,
+    /// While a body cell is written: the prefix that makes the ids in its SVGs
+    /// unique.
+    svg_prefix: Option<String>,
+    /// Summary rows written so far, which number their cells' SVG ids.
+    summary_rows: usize,
+}
+
+/// The ids made before the body (in this order, as Great Tables makes them): the
+/// stubhead's, the column labels', the spanners', the title's and the subtitle's.
+#[derive(Default)]
+struct HeadIds {
+    /// The id of each head cell that has one, by its origin (head row, visible
+    /// column).
+    cells: HashMap<(usize, usize), String>,
+    /// Per visible column, the ids of the spanners over it, top down.
+    spanners: Vec<Vec<String>>,
+    /// Per visible column, the ids of its column labels.
+    labels: Vec<Vec<String>>,
+    title: Option<String>,
+    subtitle: Option<String>,
+}
+
+impl HeadIds {
+    fn new(rt: &ResolvedTable, ids: &mut IdRegistry) -> Self {
+        let n = rt.columns.len();
+        let mut h = HeadIds {
+            spanners: vec![Vec::new(); n],
+            labels: vec![Vec::new(); n],
+            ..HeadIds::default()
+        };
+        let rows = || rt.head.rows.iter().enumerate();
+        let spanner_row = |row: &ResolvedRow| row.role == Some(RowRole::SpannerLabel);
+        // The stubhead, if it has a label.
+        for (r, row) in rows() {
+            for cell in row.cells().filter(|c| c.is_stub && !is_blank(&c.content)) {
+                let id = ids.make(&id_text(&cell.content), "stubhead");
+                h.cells.insert((r, cell.col), id);
+            }
+        }
+        // Column labels, by their column's id.
+        for (r, row) in rows().filter(|(_, row)| !spanner_row(row)) {
+            for cell in row.cells().filter(|c| !c.is_stub) {
+                let column = rt.table.column_spec.get(cell.grid_col);
+                let id = ids.make(column.map_or("", |c| &c.id), "column");
+                for list in h.labels.iter_mut().skip(cell.col).take(cell.colspan) {
+                    list.push(id.clone());
+                }
+                h.cells.insert((r, cell.col), id);
+            }
+        }
+        // Spanners (not the blank cells beside them), by their label.
+        for (r, row) in rows().filter(|(_, row)| spanner_row(row)) {
+            for cell in row.cells().filter(|c| !c.is_stub && !is_blank(&c.content)) {
+                let id = ids.make(&id_text(&cell.content), "spanner");
+                for list in h.spanners.iter_mut().skip(cell.col).take(cell.colspan) {
+                    list.push(id.clone());
+                }
+                h.cells.insert((r, cell.col), id);
+            }
+        }
+        if rt.header.title.is_some() {
+            h.title = Some(ids.make("title", "title"));
+        }
+        if rt.header.subtitle.is_some() {
+            h.subtitle = Some(ids.make("subtitle", "subtitle"));
+        }
+        h
+    }
+
+    /// The ids of the spanners and column labels over visible columns `cols`,
+    /// spanners first.
+    fn columns(&self, cols: std::ops::Range<usize>) -> Vec<&String> {
+        let mut out: Vec<&String> = Vec::new();
+        for lists in [&self.spanners, &self.labels] {
+            for id in cols.clone().filter_map(|c| lists.get(c)).flatten() {
+                if !out.contains(&id) {
+                    out.push(id);
+                }
+            }
+        }
+        out
+    }
+}
+
+/// What a row's cells need for their `id` and `headers` attributes.
+enum RowIds<'s> {
+    /// A head row: its index in the head.
+    Head(usize),
+    /// A row below the head: its index in its section, the ids of the section's
+    /// stub cells (by origin), the ids of the row's headers (its group's label,
+    /// its stub cells), and what numbers its cells' SVG ids.
+    Body {
+        r: usize,
+        stubs: &'s HashMap<(usize, usize), String>,
+        headers: &'s [String],
+        svg_row: String,
+    },
 }
 
 impl<'r, 'a> HtmlRenderer<'r, 'a> {
@@ -62,8 +165,22 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                 ids.dedup();
                 ids
             },
+            ids: IdRegistry::new(
+                config.table_id.as_deref(),
+                rt.footer.footnotes.iter().map(|n| n.id),
+            ),
+            head_ids: HeadIds::default(),
+            svg_prefix: None,
+            summary_rows: 0,
         };
+        r.head_ids = HeadIds::new(rt, &mut r.ids);
         if !config.inline_styles {
+            for label in rt.groups.iter().filter_map(|g| g.label.as_ref()) {
+                let a = group_label_alignment(label);
+                if !r.alignments.contains(&a) {
+                    r.alignments.push(a);
+                }
+            }
             for section in rt.sections() {
                 for row in &section.rows {
                     for cell in row.cells() {
@@ -220,6 +337,9 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 
     fn render_container_open(&mut self) {
         let mut attrs = Vec::new();
+        if let Some(id) = &self.config.table_id {
+            attrs.push(format!("id=\"{}\"", escape_attr(id)));
+        }
         attrs.push(format!("class=\"{}\"", self.container_class()));
 
         let mut style_parts = Vec::new();
@@ -344,7 +464,10 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 
         if let Some(ref title) = header.title {
             let class = self.part_attrs("title", &title.style_id);
-            self.write_line(&format!("<div{class} role=\"heading\" aria-level=\"1\">"));
+            let id = id_attr(self.head_ids.title.as_deref());
+            self.write_line(&format!(
+                "<div{class}{id} role=\"heading\" aria-level=\"1\">"
+            ));
             self.push_indent();
             self.render_content_nodes(&title.content);
             self.pop_indent();
@@ -353,7 +476,10 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 
         if let Some(ref subtitle) = header.subtitle {
             let class = self.part_attrs("subtitle", &subtitle.style_id);
-            self.write_line(&format!("<div{class} role=\"heading\" aria-level=\"2\">"));
+            let id = id_attr(self.head_ids.subtitle.as_deref());
+            self.write_line(&format!(
+                "<div{class}{id} role=\"heading\" aria-level=\"2\">"
+            ));
             self.push_indent();
             self.render_content_nodes(&subtitle.content);
             self.pop_indent();
@@ -376,11 +502,19 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         let mut attrs = Vec::new();
         attrs.push(format!("class=\"{}_table\"", self.config.class_prefix));
 
-        if let Some(ref aria_label) = self.table.config.aria_label {
+        // The title names the table and the subtitle describes it, unless the
+        // config names it (`aria_label`, or a caption from `summary`) or says what
+        // describes it.
+        let config = &self.table.config;
+        if let Some(ref aria_label) = config.aria_label {
             attrs.push(format!("aria-label=\"{}\"", escape_attr(aria_label)));
+        } else if let (Some(title), None) = (&self.head_ids.title, &config.summary) {
+            attrs.push(format!("aria-labelledby=\"{title}\""));
         }
-        if let Some(ref ids) = self.table.config.aria_describedby {
+        if let Some(ref ids) = config.aria_describedby {
             attrs.push(format!("aria-describedby=\"{}\"", escape_attr(ids)));
+        } else if let Some(subtitle) = &self.head_ids.subtitle {
+            attrs.push(format!("aria-describedby=\"{subtitle}\""));
         }
 
         if let Some(w) = css_length(self.table.config.table_width.as_deref()) {
@@ -443,8 +577,8 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 
         self.write_line("<thead>");
         self.push_indent();
-        for row in &rt.head.rows {
-            self.render_row(row, SectionKind::Head);
+        for (r, row) in rt.head.rows.iter().enumerate() {
+            self.render_row(row, SectionKind::Head, RowIds::Head(r));
         }
         self.pop_indent();
         self.write_line("</thead>");
@@ -456,34 +590,137 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             self.write_line("<tbody>");
             self.push_indent();
 
-            // Group label row, spanning the full (visible) width.
+            // The group's key, which its label's and summary rows' ids are made
+            // from: its id, else its label.
+            let key = match (group.id, &group.label) {
+                (Some(id), _) if !id.is_empty() => id.to_string(),
+                (_, Some(label)) => id_text(&label.content),
+                _ => String::new(),
+            };
+
+            // Group label row, spanning the full (visible) width: the header of
+            // the group's rows.
+            let mut group_id = None;
             if let Some(label) = &group.label {
+                let id = self.ids.make(&key, "group");
                 let colspan = rt.columns.len();
-                let class = self.part_attrs("group_label", &label.style_id.map(str::to_string));
+                let scope = if colspan > 1 { "colgroup" } else { "col" };
+                let attrs = self.group_label_attrs(label);
                 self.write_line("<tr>");
                 self.push_indent();
-                self.write_line(&format!("<td colspan=\"{colspan}\"{class}>",));
+                self.write_line(&format!(
+                    "<th colspan=\"{colspan}\" scope=\"{scope}\"{attrs} id=\"{id}\">"
+                ));
                 self.push_indent();
                 self.render_content_nodes(&label.content);
                 self.pop_indent();
-                self.write_line("</td>");
+                self.write_line("</th>");
                 self.pop_indent();
                 self.write_line("</tr>");
+                group_id = Some(id);
             }
 
-            for row in &group.rows.rows {
-                self.render_row(row, SectionKind::Body);
-            }
-            for row in &group.summary_rows.rows {
-                self.render_row(row, SectionKind::Summary);
-            }
+            self.render_section(&group.rows, group_id.as_deref(), &key);
+            self.render_section(&group.summary_rows, group_id.as_deref(), &key);
 
             self.pop_indent();
             self.write_line("</tbody>");
         }
     }
 
-    fn render_row(&mut self, row: &ResolvedRow, kind: SectionKind) {
+    /// A group label's attributes after its `colspan` and `scope`: its classes
+    /// (or style) and, as for any header cell (a browser centers `<th>`), its
+    /// alignment.
+    fn group_label_attrs(&self, label: &gridwell_layout::Line) -> String {
+        let part = self.part_class("group_label");
+        let align = group_label_alignment(label);
+        let style_id = label.style_id.map(str::to_string);
+        if self.config.inline_styles {
+            let mut css = style_id
+                .as_deref()
+                .map(|id| style_css(&self.rt.style(id)))
+                .unwrap_or_default();
+            if label.style.text_align.is_none() {
+                if !css.is_empty() {
+                    css.push_str("; ");
+                }
+                css.push_str(&format!("text-align: {align}"));
+            }
+            format!(" class=\"{part}\" style=\"{}\"", escape_attr(&css))
+        } else {
+            let mut classes = vec![part, format!("{}__al_{align}", self.config.class_prefix)];
+            classes.extend(style_id.as_deref().and_then(|id| self.style_class(id)));
+            format!(" class=\"{}\"", classes.join(" "))
+        }
+    }
+
+    /// A group's data or summary rows. Each stub cell gets an id (`stub-{row}`,
+    /// with `-{column}` when the stub has several columns; a summary row's label
+    /// `summary-{group}-{label}`, or `grand-summary-{label}`), and each other cell
+    /// lists its headers: the group's label (`group_id`; not for a grand summary),
+    /// the stub cells covering its row, and the spanners and column labels over it.
+    fn render_section(&mut self, section: &Section, group_id: Option<&str>, key: &str) {
+        let mut stubs: HashMap<(usize, usize), String> = HashMap::new();
+        for (r, row) in section.rows.iter().enumerate() {
+            let grand = row.role == Some(RowRole::GrandSummary);
+            for cell in row.cells().filter(|c| c.is_stub) {
+                let id = if section.kind == SectionKind::Summary {
+                    let label = id_text(&cell.content);
+                    let base = match (grand, key) {
+                        (true, _) => format!("grand-summary-{label}"),
+                        (false, "") => format!("summary-{label}"),
+                        (false, key) => format!("summary-{key}-{label}"),
+                    };
+                    self.ids.make(&base, "summary")
+                } else if self.rt.stub_cols > 1 {
+                    let base = format!("stub-{}-{}", row.number, cell.col + 1);
+                    self.ids.make(&base, "stub")
+                } else {
+                    self.ids.make(&format!("stub-{}", row.number), "stub")
+                };
+                stubs.insert((r, cell.col), id);
+            }
+
+            let mut headers: Vec<String> = group_id
+                .filter(|_| !grand)
+                .map(str::to_string)
+                .into_iter()
+                .collect();
+            for (c, slot) in row.slots.iter().enumerate() {
+                let origin = match slot {
+                    Slot::Origin(_) => (r, c),
+                    Slot::CoveredH { origin_col } => (r, *origin_col),
+                    Slot::CoveredV {
+                        origin_row,
+                        origin_col,
+                        ..
+                    } => (*origin_row, *origin_col),
+                    Slot::Empty => continue,
+                };
+                if let Some(id) = stubs.get(&origin) {
+                    if !headers.contains(id) {
+                        headers.push(id.clone());
+                    }
+                }
+            }
+
+            let svg_row = if section.kind == SectionKind::Summary {
+                self.summary_rows += 1;
+                format!("summary-{}", self.summary_rows)
+            } else {
+                (row.number - 1).to_string()
+            };
+            let ids = RowIds::Body {
+                r,
+                stubs: &stubs,
+                headers: &headers,
+                svg_row,
+            };
+            self.render_row(row, section.kind, ids);
+        }
+    }
+
+    fn render_row(&mut self, row: &ResolvedRow, kind: SectionKind, ids: RowIds) {
         let row_class = match row_part(row, kind) {
             Some(part) => self.part_attrs(part, &row.row.style_id),
             None => self.style_class_attr(&row.row.style_id),
@@ -492,13 +729,19 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         self.push_indent();
         // Covered positions are implied by the origins' spans.
         for cell in row.cells() {
-            self.render_cell(row, cell, kind);
+            self.render_cell(row, cell, kind, &ids);
         }
         self.pop_indent();
         self.write_line("</tr>");
     }
 
-    fn render_cell(&mut self, row: &ResolvedRow, cell: &ResolvedCell, kind: SectionKind) {
+    fn render_cell(
+        &mut self,
+        row: &ResolvedRow,
+        cell: &ResolvedCell,
+        kind: SectionKind,
+        ids: &RowIds,
+    ) {
         let is_header = is_header_cell(cell, kind);
         let tag = if is_header { "th" } else { "td" };
         let mut attrs = Vec::new();
@@ -545,6 +788,41 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             attrs.push(format!("rowspan=\"{}\"", cell.rowspan));
         }
 
+        // Header cells have ids, and the cells they head list them.
+        match ids {
+            RowIds::Head(r) => {
+                if let Some(id) = self.head_ids.cells.get(&(*r, cell.col)) {
+                    attrs.push(format!("id=\"{id}\""));
+                }
+            }
+            RowIds::Body {
+                r,
+                stubs,
+                headers,
+                svg_row,
+            } => {
+                if cell.is_stub {
+                    if let Some(id) = stubs.get(&(*r, cell.col)) {
+                        attrs.push(format!("id=\"{id}\""));
+                    }
+                } else {
+                    let mut all: Vec<&String> = headers.iter().collect();
+                    for id in self.head_ids.columns(cell.col..cell.col + cell.colspan) {
+                        if !all.contains(&id) {
+                            all.push(id);
+                        }
+                    }
+                    if !all.is_empty() {
+                        let all: Vec<&str> = all.into_iter().map(String::as_str).collect();
+                        attrs.push(format!("headers=\"{}\"", all.join(" ")));
+                    }
+                }
+                let column = self.table.column_spec.get(cell.grid_col);
+                let column = column.map_or("", |c| c.id.as_str());
+                self.svg_prefix = Some(format!("{}{column}-{svg_row}", self.ids.prefix));
+            }
+        }
+
         let attr_str = if attrs.is_empty() {
             String::new()
         } else {
@@ -554,11 +832,13 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         // For simple single-text cells, render inline
         if let Some(text) = single_text_content(&cell.content) {
             self.write_line(&format!("<{tag}{attr_str}>{}</{tag}>", escape_html(text)));
+            self.svg_prefix = None;
             return;
         }
 
         if cell.content.is_empty() {
             self.write_line(&format!("<{tag}{attr_str}></{tag}>"));
+            self.svg_prefix = None;
             return;
         }
 
@@ -567,6 +847,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         self.render_content_nodes(&cell.content);
         self.pop_indent();
         self.write_line(&format!("</{tag}>"));
+        self.svg_prefix = None;
     }
 
     // ─── Footer ───
@@ -719,7 +1000,14 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                 }
                 ContentNode::Raw { format, value } => {
                     if format == "html" {
-                        let _ = write!(self.buf, "{value}");
+                        match &self.svg_prefix {
+                            Some(p) if value.contains("<svg") => {
+                                let _ = write!(self.buf, "{}", prefix_svg_ids(value, p));
+                            }
+                            _ => {
+                                let _ = write!(self.buf, "{value}");
+                            }
+                        }
                     }
                     // Non-HTML raw content is skipped
                 }
@@ -782,7 +1070,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 
 /// Main entry point for rendering.
 pub fn render(table: &Table, config: &HtmlWriterConfig) -> Result<String, RenderError> {
-    crate::check_class_prefix(&config.class_prefix).map_err(RenderError::Config)?;
+    crate::check_config(config).map_err(RenderError::Config)?;
     // CSS `text-transform` transforms the text: the content stays as written.
     let opts = ResolveOptions {
         transform_text: false,
@@ -806,25 +1094,43 @@ fn is_header_cell(cell: &ResolvedCell, kind: SectionKind) -> bool {
     kind == SectionKind::Head || cell.is_stub || cell.scope.is_some()
 }
 
-/// A header cell's `scope`: its own, else `row` for a stub below the head.
+/// A header cell's `scope`: its own, else, for a stub below the head, `row`, or
+/// `rowgroup` when it spans rows (it heads them all), as in Great Tables and gt.
 fn cell_scope(cell: &ResolvedCell, kind: SectionKind) -> Option<CellScope> {
     let stub = kind != SectionKind::Head && cell.is_stub;
-    cell.scope
-        .clone()
-        .or_else(|| stub.then_some(CellScope::Row))
+    let scope = if cell.rowspan > 1 {
+        CellScope::RowGroup
+    } else {
+        CellScope::Row
+    };
+    cell.scope.clone().or_else(|| stub.then_some(scope))
 }
 
 /// The `text-align` a cell needs, if any: header cells always (browsers center
 /// `<th>` by default), body cells unless left-aligned (the default for `<td>`).
 /// Decimal (`char`) alignment is approximated by right alignment.
 fn cell_alignment(cell: &ResolvedCell, is_header: bool) -> Option<&'static str> {
-    let a = match cell.align {
+    let a = halign_css(&cell.align);
+    (is_header || a != "left").then_some(a)
+}
+
+/// A group label's `text-align`: its style's, else left.
+fn group_label_alignment(label: &gridwell_layout::Line) -> &'static str {
+    label.style.text_align.as_ref().map_or("left", halign_css)
+}
+
+fn halign_css(a: &HAlign) -> &'static str {
+    match a {
         HAlign::Center => "center",
         HAlign::Right | HAlign::Char => "right",
         HAlign::Justify => "justify",
         _ => "left",
-    };
-    (is_header || a != "left").then_some(a)
+    }
+}
+
+/// An ` id="…"` attribute, for an id the registry made (it needs no escaping).
+fn id_attr(id: Option<&str>) -> String {
+    id.map(|id| format!(" id=\"{id}\"")).unwrap_or_default()
 }
 
 // ─── CSS Generation ───
