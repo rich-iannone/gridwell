@@ -208,6 +208,14 @@ impl ResolvedStyle {
         self.font_style.as_ref().is_some_and(FontStyle::is_italic)
     }
 
+    /// Italic over what holds the text: the style's slant when it sets one
+    /// (`normal` un-italics an italic cell or line), else `default`.
+    pub fn italic_over(&self, default: bool) -> bool {
+        self.font_style
+            .as_ref()
+            .map_or(default, FontStyle::is_italic)
+    }
+
     /// The text color, if any and not fully transparent.
     pub fn paint(&self) -> Option<Color> {
         self.color.filter(|c| !c.is_transparent())
