@@ -549,7 +549,46 @@ fn features() -> Vec<Feature> {
                 Ok(())
             },
         },
+        Feature {
+            id: "normal-style",
+            what: "`font_style: normal` on a run in an italic cell or line",
+            table: normal_style_table,
+            check: |d| {
+                for t in ["RUNTEXT", "LINERUN"] {
+                    let r = d.run_showing(t).ok_or_else(|| format!("{t} not shown"))?;
+                    if r.italic {
+                        return Err(format!("{t} is italic: {r:?}"));
+                    }
+                }
+                for t in ["ITALICTEXT", "LINETEXT"] {
+                    let r = d.run_showing(t).ok_or_else(|| format!("{t} not shown"))?;
+                    if !r.italic {
+                        return Err(format!("{t} is not italic: {r:?}"));
+                    }
+                }
+                Ok(())
+            },
+        },
     ]
+}
+
+/// `font_style: normal` on a run inside an italic cell and an italic source
+/// note (`ITALICTEXT` and `LINETEXT`, the rest of each, stay italic).
+fn normal_style_table() -> Table {
+    let mut t = TableBuilder::new(2)
+        .style_def("s", def(|d| d.font_style = Some("normal".into())))
+        .style_def("i", def(|d| d.font_style = Some("italic".into())))
+        .head(row(vec![cell("H1"), cell("H2")]))
+        .body(vec![row(vec![
+            cell_content(vec![text("ITALICTEXT "), styled("RUNTEXT", "s")]).style("i"),
+            cell("b"),
+        ])])
+        .source_note("N")
+        .build();
+    let note = &mut t.footer.as_mut().unwrap().source_notes[0];
+    note.content = vec![text("LINETEXT "), styled("LINERUN", "s")];
+    note.style_id = Some("i".into());
+    t
 }
 
 /// `font_weight: normal` on a column label, the title, a group label and a run
