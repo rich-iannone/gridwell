@@ -1604,6 +1604,7 @@ fn tex_runs(src: &str, st: &mut TexState, out: &mut Vec<Run>, fill: &mut Option<
                 };
                 match name.as_str() {
                     "textbf" => scoped(st, &|s| s.run.bold = true, &mut i, out, fill),
+                    "textmd" => scoped(st, &|s| s.run.bold = false, &mut i, out, fill),
                     "textit" | "emph" => scoped(st, &|s| s.run.italic = true, &mut i, out, fill),
                     "underline" | "uline" => {
                         scoped(st, &|s| s.run.underline = true, &mut i, out, fill)
@@ -1629,6 +1630,7 @@ fn tex_runs(src: &str, st: &mut TexState, out: &mut Vec<Run>, fill: &mut Option<
                         }
                     }
                     "bfseries" => st.run.bold = true,
+                    "mdseries" => st.run.bold = false,
                     "itshape" => st.run.italic = true,
                     "ttfamily" => st.run.family = Some("monospace".into()),
                     "textcolor" => {
