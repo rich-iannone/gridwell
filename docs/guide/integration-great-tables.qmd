@@ -59,7 +59,18 @@ ir_dict = gridwell.gt_to_dict(gt)  # returns dict
 | Column alignment | `column_spec[].align` |
 | Column widths | `column_spec[].width` |
 | Formatted values | Cell `content` (display text) |
-| Raw data | Cell `typed_value` |
+| Typed values | Cell `typed_value` (below) |
+
+A cell's [typed value](../schema/table-data.qmd#typed-values) is what a spreadsheet
+holds, so XLSX keeps numbers, booleans, dates and times as values, each shown as the
+table shows it:
+
+- A number is the number displayed (`0.11` for `0.1111` formatted to two decimals),
+  as the R package does for gt tables. A display that isn't a plain number
+  (`$49.95`, `<0.001`) has none, so the cell stays text.
+- Booleans, and `datetime.date`, `datetime.datetime` (or pandas `Timestamp`) and
+  `datetime.time` values are typed; a date or time is written without its time
+  zone, as the wall-clock time the table shows. Dates held as strings stay strings.
 
 ## Full Pipeline Example
 
