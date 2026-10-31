@@ -5,7 +5,7 @@ use gridwell_ir::ValidatedTable;
 use serde::Serialize;
 use serde_json::Value;
 
-use crate::{parse_options, Output, OutputKind, RenderError, Writer};
+use crate::{parse_options, Output, OutputKind, RenderError, Unsupported, Writer};
 
 /// Every format gridwell can write, text formats first.
 pub static REGISTRY: &[&dyn Writer] = &[
@@ -33,13 +33,15 @@ fn defaults<T: Serialize + Default>() -> Value {
 
 /// Declare a format. `$options` is the writer's config type (or `()` for none);
 /// `$check` validates parsed options; `$render` turns (table, options) into the
-/// writer's result.
+/// writer's result; `$unsupported`, if given, lists what the format can't
+/// express of a table.
 macro_rules! define_format {
     (
         $ty:ident, $name:literal, $desc:literal, $kind:ident, $ext:literal, $media:literal,
         options: $options:ty,
         check: $check:expr,
-        render: $render:expr $(,)?
+        render: $render:expr
+        $(, unsupported: $unsupported:expr)? $(,)?
     ) => {
         pub struct $ty;
 
@@ -75,6 +77,12 @@ macro_rules! define_format {
                     .map(Into::into)
                     .map_err(|e| failed($name, e))
             }
+            $(
+                fn unsupported(&self, table: &ValidatedTable<'_>) -> Vec<Unsupported> {
+                    let unsupported: fn(&gridwell_ir::Table) -> Vec<Unsupported> = $unsupported;
+                    unsupported(table.table())
+                }
+            )?
         }
     };
 }
@@ -111,12 +119,14 @@ define_format!(
     options: gridwell_writer_latex::LatexWriterConfig,
     check: ok,
     render: |t, o| gridwell_writer_latex::LatexWriter::with_config(o).render(t),
+    unsupported: gridwell_writer_latex::unsupported,
 );
 define_format!(
     Typst, "typst", "Typst table markup", Text, "typ", "text/x-typst",
     options: gridwell_writer_typst::TypstWriterConfig,
     check: ok,
     render: |t, o| gridwell_writer_typst::TypstWriter::with_config(o).render(t),
+    unsupported: gridwell_writer_typst::unsupported,
 );
 define_format!(
     Rtf, "rtf", "Rich Text Format", Text, "rtf", "application/rtf",
