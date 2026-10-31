@@ -523,7 +523,48 @@ fn features() -> Vec<Feature> {
                 Ok(())
             },
         },
+        Feature {
+            id: "normal-weight",
+            what: "`font_weight: normal` on what a format draws bold by default (column labels, the title, a group label, a run in a bold cell)",
+            table: normal_weight_table,
+            check: |d| {
+                for t in ["HEADTEXT", "TITLETEXT", "LABELTEXT", "RUNTEXT"] {
+                    let r = d.run_showing(t).ok_or_else(|| format!("{t} not shown"))?;
+                    if r.bold {
+                        return Err(format!("{t} is bold: {r:?}"));
+                    }
+                }
+                let r = d.run_showing("BOLDTEXT").ok_or("BOLDTEXT not shown")?;
+                if !r.bold {
+                    return Err(format!("BOLDTEXT is not bold: {r:?}"));
+                }
+                Ok(())
+            },
+        },
     ]
+}
+
+/// `font_weight: normal` on a column label, the title, a group label and a run
+/// inside a bold cell (`BOLDTEXT`, the rest of that cell, stays bold).
+fn normal_weight_table() -> Table {
+    let mut t = TableBuilder::new(2)
+        .style_def("s", def(|d| d.font_weight = Some("normal".into())))
+        .style_def("b", def(|d| d.font_weight = Some("bold".into())))
+        .title("TITLETEXT")
+        .head(row(vec![cell("HEADTEXT").style("s"), cell("H2")]).role("column_label"))
+        .group(
+            labeled_group(
+                "LABELTEXT",
+                vec![row(vec![
+                    cell_content(vec![text("BOLDTEXT "), styled("RUNTEXT", "s")]).style("b"),
+                    cell("b"),
+                ])],
+            )
+            .label_style("s"),
+        )
+        .build();
+    t.header.as_mut().unwrap().title.as_mut().unwrap().style_id = Some("s".into());
+    t
 }
 
 const STYLED_LINES: [&str; 6] = [
