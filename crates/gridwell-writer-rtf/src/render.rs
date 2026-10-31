@@ -136,7 +136,8 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
 
     /// Character formatting for a style: bold, italic, color and font (every
     /// color and font was registered up front). A weight that isn't bold is
-    /// `\b0`, which un-bolds what holds it (a bold cell, title or group label).
+    /// `\b0`, which un-bolds what holds it (a bold cell, title or group label);
+    /// an upright style is `\i0`, likewise.
     fn char_format(&self, style: &ResolvedStyle) -> String {
         let mut f = String::new();
         match style.font_weight {
@@ -144,8 +145,10 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
             Some(_) => f.push_str("\\b0"),
             None => {}
         }
-        if style.is_italic() {
-            f.push_str("\\i");
+        match style.font_style {
+            Some(_) if style.is_italic() => f.push_str("\\i"),
+            Some(_) => f.push_str("\\i0"),
+            None => {}
         }
         if let Some(i) = style.paint().and_then(|c| self.color_ref(c)) {
             write!(f, "\\cf{i}").unwrap();
