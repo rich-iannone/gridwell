@@ -9,37 +9,37 @@ expression: out
     .gw_style-total { font-weight: bold; background-color: #F5F5F5 }
     .gw_table .gw__c0 { background-color: rgba(128, 128, 128, 0.051) }
   </style>
-  <div class="gw_title" role="heading" aria-level="1">
+  <div class="gw_title" id="title" role="heading" aria-level="1">
     Quarterly P&amp;L
   </div>
-  <table class="gw_table">
+  <table class="gw_table" aria-labelledby="title">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_stubhead gw__al_left">Line item</th>
-        <th class="gw_col_label gw__al_right">Q1</th>
-        <th class="gw_col_label gw__al_right">Q2</th>
+        <th class="gw_stubhead gw__al_left" id="Line-item">Line item</th>
+        <th class="gw_col_label gw__al_right" id="col_1">Q1</th>
+        <th class="gw_col_label gw__al_right" id="col_2">Q2</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">Revenue</th>
-        <td class="gw__al_right">$1,200</td>
-        <td class="gw__al_right">$1,350</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-1">Revenue</th>
+        <td class="gw__al_right" headers="stub-1 col_1">$1,200</td>
+        <td class="gw__al_right" headers="stub-1 col_2">$1,350</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">COGS</th>
-        <td class="gw__al_right gw__c0">$700</td>
-        <td class="gw__al_right gw__c0">$760</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-2">COGS</th>
+        <td class="gw__al_right gw__c0" headers="stub-2 col_1">$700</td>
+        <td class="gw__al_right gw__c0" headers="stub-2 col_2">$760</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">Opex</th>
-        <td class="gw__al_right">$300</td>
-        <td class="gw__al_right">$320</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-3">Opex</th>
+        <td class="gw__al_right" headers="stub-3 col_1">$300</td>
+        <td class="gw__al_right" headers="stub-3 col_2">$320</td>
       </tr>
       <tr class="gw_summary">
-        <th class="gw_stub gw__al_left gw_style-total" scope="row">Net income</th>
-        <td class="gw__al_right gw_style-total">$200</td>
-        <td class="gw__al_right gw_style-total">$270</td>
+        <th class="gw_stub gw__al_left gw_style-total" scope="row" id="summary-Net-income">Net income</th>
+        <td class="gw__al_right gw_style-total" headers="summary-Net-income col_1">$200</td>
+        <td class="gw__al_right gw_style-total" headers="summary-Net-income col_2">$270</td>
       </tr>
     </tbody>
   </table>

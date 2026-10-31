@@ -11,18 +11,18 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">Label</th>
-        <th class="gw_col_label gw__al_left">Temp</th>
+        <th class="gw_col_label gw__al_left" id="col_0">Label</th>
+        <th class="gw_col_label gw__al_left" id="col_1">Temp</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>Fire</td>
-        <td class="gw_style-hot">hot</td>
+        <td headers="col_0">Fire</td>
+        <td class="gw_style-hot" headers="col_1">hot</td>
       </tr>
       <tr>
-        <td>Ice</td>
-        <td class="gw_style-cool">cold</td>
+        <td headers="col_0">Ice</td>
+        <td class="gw_style-cool" headers="col_1">cold</td>
       </tr>
     </tbody>
   </table>

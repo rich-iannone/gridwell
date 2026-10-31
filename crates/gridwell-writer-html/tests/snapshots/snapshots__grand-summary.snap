@@ -9,28 +9,28 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_stubhead gw__al_left">Item</th>
-        <th class="gw_col_label gw__al_left">Amount</th>
+        <th class="gw_stubhead gw__al_left" id="Item">Item</th>
+        <th class="gw_col_label gw__al_left" id="col_1">Amount</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">Alpha</th>
-        <td>10</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-1">Alpha</th>
+        <td headers="stub-1 col_1">10</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">Beta</th>
-        <td>20</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-2">Beta</th>
+        <td headers="stub-2 col_1">20</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">Gamma</th>
-        <td>30</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-3">Gamma</th>
+        <td headers="stub-3 col_1">30</td>
       </tr>
     </tbody>
     <tbody>
       <tr class="gw_grand_summary">
-        <th class="gw_stub gw__al_left" scope="row">Total</th>
-        <td>60</td>
+        <th class="gw_stub gw__al_left" scope="row" id="grand-summary-Total">Total</th>
+        <td headers="grand-summary-Total col_1">60</td>
       </tr>
     </tbody>
   </table>

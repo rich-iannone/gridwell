@@ -13,30 +13,30 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">Format</th>
-        <th class="gw_col_label gw__al_left">Sample</th>
+        <th class="gw_col_label gw__al_left" id="col_0">Format</th>
+        <th class="gw_col_label gw__al_left" id="col_1">Sample</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>underline</td>
-        <td class="gw_style-u">Underlined</td>
+        <td headers="col_0">underline</td>
+        <td class="gw_style-u" headers="col_1">Underlined</td>
       </tr>
       <tr>
-        <td>line-through</td>
-        <td class="gw_style-s">Struck out</td>
+        <td headers="col_0">line-through</td>
+        <td class="gw_style-s" headers="col_1">Struck out</td>
       </tr>
       <tr>
-        <td>18px</td>
-        <td class="gw_style-big">Larger text</td>
+        <td headers="col_0">18px</td>
+        <td class="gw_style-big" headers="col_1">Larger text</td>
       </tr>
       <tr>
-        <td>smaller</td>
-        <td class="gw_style-small">Smaller text</td>
+        <td headers="col_0">smaller</td>
+        <td class="gw_style-small" headers="col_1">Smaller text</td>
       </tr>
       <tr>
-        <td>inline</td>
-        <td>
+        <td headers="col_0">inline</td>
+        <td headers="col_1">
           Plain, <span class="gw_style-u">underlined</span>, <span class="gw_style-s">struck</span> and <span class="gw_style-big">large</span>
         </td>
       </tr>

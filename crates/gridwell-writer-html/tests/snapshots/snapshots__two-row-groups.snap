@@ -9,38 +9,38 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_stubhead gw__al_left">Country</th>
-        <th class="gw_col_label gw__al_left">Value</th>
+        <th class="gw_stubhead gw__al_left" id="Country">Country</th>
+        <th class="gw_col_label gw__al_left" id="col_1">Value</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td colspan="2" class="gw_group_label">
+        <th colspan="2" scope="colgroup" class="gw_group_label gw__al_left" id="north_america">
           North America
-        </td>
+        </th>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">USA</th>
-        <td>1250</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-1">USA</th>
+        <td headers="north_america stub-1 col_1">1250</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">Canada</th>
-        <td>420</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-2">Canada</th>
+        <td headers="north_america stub-2 col_1">420</td>
       </tr>
     </tbody>
     <tbody>
       <tr>
-        <td colspan="2" class="gw_group_label">
+        <th colspan="2" scope="colgroup" class="gw_group_label gw__al_left" id="europe">
           Europe
-        </td>
+        </th>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">Germany</th>
-        <td>890</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-3">Germany</th>
+        <td headers="europe stub-3 col_1">890</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">France</th>
-        <td>610</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-4">France</th>
+        <td headers="europe stub-4 col_1">610</td>
       </tr>
     </tbody>
   </table>

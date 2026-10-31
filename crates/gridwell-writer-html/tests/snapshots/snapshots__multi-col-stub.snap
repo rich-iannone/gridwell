@@ -9,24 +9,24 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_stubhead gw__al_left">Region</th>
-        <th class="gw_stubhead gw__al_left">City</th>
-        <th class="gw_col_label gw__al_left">Sales</th>
-        <th class="gw_col_label gw__al_left">Growth</th>
+        <th class="gw_stubhead gw__al_left" id="Region">Region</th>
+        <th class="gw_stubhead gw__al_left" id="City">City</th>
+        <th class="gw_col_label gw__al_left" id="col_2">Sales</th>
+        <th class="gw_col_label gw__al_left" id="col_3">Growth</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">East</th>
-        <th class="gw_stub gw__al_left" scope="row">NYC</th>
-        <td>60</td>
-        <td>3%</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-1-1">East</th>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-1-2">NYC</th>
+        <td headers="stub-1-1 stub-1-2 col_2">60</td>
+        <td headers="stub-1-1 stub-1-2 col_3">3%</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">West</th>
-        <th class="gw_stub gw__al_left" scope="row">LA</th>
-        <td>50</td>
-        <td>2%</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-2-1">West</th>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-2-2">LA</th>
+        <td headers="stub-2-1 stub-2-2 col_2">50</td>
+        <td headers="stub-2-1 stub-2-2 col_3">2%</td>
       </tr>
     </tbody>
   </table>

@@ -10,14 +10,14 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">Term</th>
-        <th class="gw_col_label gw__al_left">Note</th>
+        <th class="gw_col_label gw__al_left" id="col_0">Term</th>
+        <th class="gw_col_label gw__al_left" id="col_1">Note</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>Rust</td>
-        <td>
+        <td headers="col_0">Rust</td>
+        <td headers="col_1">
           A <span class="gw_style-em">systems</span> language.
         </td>
       </tr>

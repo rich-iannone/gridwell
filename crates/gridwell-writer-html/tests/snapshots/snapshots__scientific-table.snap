@@ -7,38 +7,38 @@ expression: out
     .gw_table .gw__al_left { text-align: left }
     .gw_table .gw__al_right { text-align: right }
   </style>
-  <div class="gw_title" role="heading" aria-level="1">
+  <div class="gw_title" id="title" role="heading" aria-level="1">
     Reaction rate constants
   </div>
-  <table class="gw_table">
+  <table class="gw_table" aria-labelledby="title">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_stubhead gw__al_left">Compound</th>
-        <th class="gw_col_label gw__al_right">
+        <th class="gw_stubhead gw__al_left" id="Compound">Compound</th>
+        <th class="gw_col_label gw__al_right" id="col_1">
           k (s⁻¹)<sup class="gw_footnote_mark"><a href="#fn1">a</a></sup>
         </th>
-        <th class="gw_col_label gw__al_right">T (K)</th>
-        <th class="gw_col_label gw__al_right">Ea (kJ/mol)</th>
+        <th class="gw_col_label gw__al_right" id="col_2">T (K)</th>
+        <th class="gw_col_label gw__al_right" id="col_3">Ea (kJ/mol)</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">A</th>
-        <td class="gw__al_right">1.2×10³</td>
-        <td class="gw__al_right">298</td>
-        <td class="gw__al_right">52.3</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-1">A</th>
+        <td class="gw__al_right" headers="stub-1 col_1">1.2×10³</td>
+        <td class="gw__al_right" headers="stub-1 col_2">298</td>
+        <td class="gw__al_right" headers="stub-1 col_3">52.3</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">B</th>
-        <td class="gw__al_right">3.4×10²</td>
-        <td class="gw__al_right">298</td>
-        <td class="gw__al_right">61.0</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-2">B</th>
+        <td class="gw__al_right" headers="stub-2 col_1">3.4×10²</td>
+        <td class="gw__al_right" headers="stub-2 col_2">298</td>
+        <td class="gw__al_right" headers="stub-2 col_3">61.0</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">C</th>
-        <td class="gw__al_right">8.9×10¹</td>
-        <td class="gw__al_right">310</td>
-        <td class="gw__al_right">70.8</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-3">C</th>
+        <td class="gw__al_right" headers="stub-3 col_1">8.9×10¹</td>
+        <td class="gw__al_right" headers="stub-3 col_2">310</td>
+        <td class="gw__al_right" headers="stub-3 col_3">70.8</td>
       </tr>
     </tbody>
   </table>

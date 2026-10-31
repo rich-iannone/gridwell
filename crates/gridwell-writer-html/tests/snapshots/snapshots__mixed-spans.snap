@@ -9,23 +9,23 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">A</th>
-        <th class="gw_col_label gw__al_left">B</th>
-        <th class="gw_col_label gw__al_left">C</th>
+        <th class="gw_col_label gw__al_left" id="col_0">A</th>
+        <th class="gw_col_label gw__al_left" id="col_1">B</th>
+        <th class="gw_col_label gw__al_left" id="col_2">C</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td colspan="2" rowspan="2">2x2 block</td>
-        <td>top-right</td>
+        <td colspan="2" rowspan="2" headers="col_0 col_1">2x2 block</td>
+        <td headers="col_2">top-right</td>
       </tr>
       <tr>
-        <td>mid-right</td>
+        <td headers="col_2">mid-right</td>
       </tr>
       <tr>
-        <td>x</td>
-        <td>y</td>
-        <td>z</td>
+        <td headers="col_0">x</td>
+        <td headers="col_1">y</td>
+        <td headers="col_2">z</td>
       </tr>
     </tbody>
   </table>

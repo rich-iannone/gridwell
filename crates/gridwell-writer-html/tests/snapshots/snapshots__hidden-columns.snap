@@ -9,18 +9,18 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">Visible 1</th>
-        <th class="gw_col_label gw__al_left">Visible 2</th>
+        <th class="gw_col_label gw__al_left" id="col_0">Visible 1</th>
+        <th class="gw_col_label gw__al_left" id="col_2">Visible 2</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>a</td>
-        <td>b</td>
+        <td headers="col_0">a</td>
+        <td headers="col_2">b</td>
       </tr>
       <tr>
-        <td>c</td>
-        <td>d</td>
+        <td headers="col_0">c</td>
+        <td headers="col_2">d</td>
       </tr>
     </tbody>
   </table>

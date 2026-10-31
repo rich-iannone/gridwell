@@ -9,16 +9,16 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">Icon</th>
-        <th class="gw_col_label gw__al_left">Label</th>
+        <th class="gw_col_label gw__al_left" id="col_0">Icon</th>
+        <th class="gw_col_label gw__al_left" id="col_1">Label</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>
+        <td headers="col_0">
           <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAYUlEQVR42mP8//8/AzUAEwOVAAuEUkt5Q7YRt+aIUNNFw9ggFmICkpgIYSLSFEwusQZh1YbHLCbiTcEvNeLSEZ6YxiXFRJIGPBbg8xqaNvwJkkDKJr54GS1GCAPGQVeLAACHNx+lIoe2YQAAAABJRU5ErkJggg==" alt="logo">
         </td>
-        <td>Brand</td>
+        <td headers="col_1">Brand</td>
       </tr>
     </tbody>
   </table>

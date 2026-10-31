@@ -10,21 +10,21 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_stubhead gw__al_left">Country</th>
-        <th class="gw_col_label gw__al_right">Value</th>
+        <th class="gw_stubhead gw__al_left" id="Country">Country</th>
+        <th class="gw_col_label gw__al_right" id="col_1">Value</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row" rowspan="2">Japan</th>
-        <td class="gw__al_right">100</td>
+        <th class="gw_stub gw__al_left" scope="rowgroup" rowspan="2" id="stub-1">Japan</th>
+        <td class="gw__al_right" headers="stub-1 col_1">100</td>
       </tr>
       <tr>
-        <td class="gw__al_right">110</td>
+        <td class="gw__al_right" headers="stub-1 col_1">110</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">Korea</th>
-        <td class="gw__al_right">80</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-3">Korea</th>
+        <td class="gw__al_right" headers="stub-3 col_1">80</td>
       </tr>
     </tbody>
   </table>

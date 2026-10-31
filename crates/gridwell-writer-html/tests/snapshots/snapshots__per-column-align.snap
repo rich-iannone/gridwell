@@ -12,18 +12,18 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">L</th>
-        <th class="gw_col_label gw__al_center">C</th>
-        <th class="gw_col_label gw__al_right">R</th>
-        <th class="gw_col_label gw__al_justify">J</th>
+        <th class="gw_col_label gw__al_left" id="col_0">L</th>
+        <th class="gw_col_label gw__al_center" id="col_1">C</th>
+        <th class="gw_col_label gw__al_right" id="col_2">R</th>
+        <th class="gw_col_label gw__al_justify" id="col_3">J</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>left</td>
-        <td class="gw__al_center">center</td>
-        <td class="gw__al_right">right</td>
-        <td class="gw__al_justify">justified text here</td>
+        <td headers="col_0">left</td>
+        <td class="gw__al_center" headers="col_1">center</td>
+        <td class="gw__al_right" headers="col_2">right</td>
+        <td class="gw__al_justify" headers="col_3">justified text here</td>
       </tr>
     </tbody>
   </table>

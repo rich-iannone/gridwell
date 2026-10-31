@@ -9,22 +9,22 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">Form</th>
-        <th class="gw_col_label gw__al_left">Text</th>
+        <th class="gw_col_label gw__al_left" id="col_0">Form</th>
+        <th class="gw_col_label gw__al_left" id="col_1">Text</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>composed</td>
-        <td>café</td>
+        <td headers="col_0">composed</td>
+        <td headers="col_1">café</td>
       </tr>
       <tr>
-        <td>decomposed</td>
-        <td>café</td>
+        <td headers="col_0">decomposed</td>
+        <td headers="col_1">café</td>
       </tr>
       <tr>
-        <td>stacked</td>
-        <td>à́̂</td>
+        <td headers="col_0">stacked</td>
+        <td headers="col_1">à́̂</td>
       </tr>
     </tbody>
   </table>

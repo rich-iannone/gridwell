@@ -9,83 +9,83 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_stubhead gw__al_left">Key</th>
-        <th class="gw_col_label gw__al_left">Value</th>
+        <th class="gw_stubhead gw__al_left" id="Key">Key</th>
+        <th class="gw_col_label gw__al_left" id="col_1">Value</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td colspan="2" class="gw_group_label">
+        <th colspan="2" scope="colgroup" class="gw_group_label gw__al_left" id="group_1">
           Group 1
-        </td>
+        </th>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">k1a</th>
-        <td>10</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-1">k1a</th>
+        <td headers="group_1 stub-1 col_1">10</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">k1b</th>
-        <td>20</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-2">k1b</th>
+        <td headers="group_1 stub-2 col_1">20</td>
       </tr>
     </tbody>
     <tbody>
       <tr>
-        <td colspan="2" class="gw_group_label">
+        <th colspan="2" scope="colgroup" class="gw_group_label gw__al_left" id="group_2">
           Group 2
-        </td>
+        </th>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">k2a</th>
-        <td>20</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-3">k2a</th>
+        <td headers="group_2 stub-3 col_1">20</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">k2b</th>
-        <td>40</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-4">k2b</th>
+        <td headers="group_2 stub-4 col_1">40</td>
       </tr>
     </tbody>
     <tbody>
       <tr>
-        <td colspan="2" class="gw_group_label">
+        <th colspan="2" scope="colgroup" class="gw_group_label gw__al_left" id="group_3">
           Group 3
-        </td>
+        </th>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">k3a</th>
-        <td>30</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-5">k3a</th>
+        <td headers="group_3 stub-5 col_1">30</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">k3b</th>
-        <td>60</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-6">k3b</th>
+        <td headers="group_3 stub-6 col_1">60</td>
       </tr>
     </tbody>
     <tbody>
       <tr>
-        <td colspan="2" class="gw_group_label">
+        <th colspan="2" scope="colgroup" class="gw_group_label gw__al_left" id="group_4">
           Group 4
-        </td>
+        </th>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">k4a</th>
-        <td>40</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-7">k4a</th>
+        <td headers="group_4 stub-7 col_1">40</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">k4b</th>
-        <td>80</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-8">k4b</th>
+        <td headers="group_4 stub-8 col_1">80</td>
       </tr>
     </tbody>
     <tbody>
       <tr>
-        <td colspan="2" class="gw_group_label">
+        <th colspan="2" scope="colgroup" class="gw_group_label gw__al_left" id="group_5">
           Group 5
-        </td>
+        </th>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">k5a</th>
-        <td>50</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-9">k5a</th>
+        <td headers="group_5 stub-9 col_1">50</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">k5b</th>
-        <td>100</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-10">k5b</th>
+        <td headers="group_5 stub-10 col_1">100</td>
       </tr>
     </tbody>
   </table>

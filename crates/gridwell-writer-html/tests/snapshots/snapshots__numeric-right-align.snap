@@ -10,21 +10,21 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">Product</th>
-        <th class="gw_col_label gw__al_right">Qty</th>
-        <th class="gw_col_label gw__al_right">Price</th>
+        <th class="gw_col_label gw__al_left" id="col_0">Product</th>
+        <th class="gw_col_label gw__al_right" id="col_1">Qty</th>
+        <th class="gw_col_label gw__al_right" id="col_2">Price</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>Widget</td>
-        <td class="gw__al_right">12</td>
-        <td class="gw__al_right">3.50</td>
+        <td headers="col_0">Widget</td>
+        <td class="gw__al_right" headers="col_1">12</td>
+        <td class="gw__al_right" headers="col_2">3.50</td>
       </tr>
       <tr>
-        <td>Gadget</td>
-        <td class="gw__al_right">4</td>
-        <td class="gw__al_right">19.99</td>
+        <td headers="col_0">Gadget</td>
+        <td class="gw__al_right" headers="col_1">4</td>
+        <td class="gw__al_right" headers="col_2">19.99</td>
       </tr>
     </tbody>
   </table>

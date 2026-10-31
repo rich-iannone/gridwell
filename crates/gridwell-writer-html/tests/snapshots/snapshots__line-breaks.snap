@@ -9,14 +9,14 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">Name</th>
-        <th class="gw_col_label gw__al_left">Address</th>
+        <th class="gw_col_label gw__al_left" id="col_0">Name</th>
+        <th class="gw_col_label gw__al_left" id="col_1">Address</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>HQ</td>
-        <td>
+        <td headers="col_0">HQ</td>
+        <td headers="col_1">
           123 Main St<br>Suite 100<br>Anytown
         </td>
       </tr>

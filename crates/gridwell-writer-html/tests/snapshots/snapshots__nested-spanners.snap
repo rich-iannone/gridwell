@@ -10,28 +10,28 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_spanners">
-        <th class="gw_spanner gw__al_center" scope="colgroup" colspan="2">Group A</th>
-        <th class="gw_spanner gw__al_center" scope="colgroup" colspan="2">Group B</th>
+        <th class="gw_spanner gw__al_center" scope="colgroup" colspan="2" id="Group-A">Group A</th>
+        <th class="gw_spanner gw__al_center" scope="colgroup" colspan="2" id="Group-B">Group B</th>
       </tr>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">A1</th>
-        <th class="gw_col_label gw__al_left">A2</th>
-        <th class="gw_col_label gw__al_left">B1</th>
-        <th class="gw_col_label gw__al_left">B2</th>
+        <th class="gw_col_label gw__al_left" id="col_0">A1</th>
+        <th class="gw_col_label gw__al_left" id="col_1">A2</th>
+        <th class="gw_col_label gw__al_left" id="col_2">B1</th>
+        <th class="gw_col_label gw__al_left" id="col_3">B2</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>1</td>
-        <td>2</td>
-        <td>3</td>
-        <td>4</td>
+        <td headers="Group-A col_0">1</td>
+        <td headers="Group-A col_1">2</td>
+        <td headers="Group-B col_2">3</td>
+        <td headers="Group-B col_3">4</td>
       </tr>
       <tr>
-        <td>5</td>
-        <td>6</td>
-        <td>7</td>
-        <td>8</td>
+        <td headers="Group-A col_0">5</td>
+        <td headers="Group-A col_1">6</td>
+        <td headers="Group-B col_2">7</td>
+        <td headers="Group-B col_3">8</td>
       </tr>
     </tbody>
   </table>

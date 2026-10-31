@@ -6,517 +6,517 @@ expression: out
   <style>
     .gw_table .gw__al_left { text-align: left }
   </style>
-  <div class="gw_title" role="heading" aria-level="1">
+  <div class="gw_title" id="title" role="heading" aria-level="1">
     Sequence
   </div>
-  <table class="gw_table">
+  <table class="gw_table" aria-labelledby="title">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">n</th>
-        <th class="gw_col_label gw__al_left">2n</th>
-        <th class="gw_col_label gw__al_left">n^2</th>
+        <th class="gw_col_label gw__al_left" id="col_0">n</th>
+        <th class="gw_col_label gw__al_left" id="col_1">2n</th>
+        <th class="gw_col_label gw__al_left" id="col_2">n^2</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>row 0</td>
-        <td>0</td>
-        <td>0</td>
+        <td headers="col_0">row 0</td>
+        <td headers="col_1">0</td>
+        <td headers="col_2">0</td>
       </tr>
       <tr>
-        <td>row 1</td>
-        <td>2</td>
-        <td>1</td>
+        <td headers="col_0">row 1</td>
+        <td headers="col_1">2</td>
+        <td headers="col_2">1</td>
       </tr>
       <tr>
-        <td>row 2</td>
-        <td>4</td>
-        <td>4</td>
+        <td headers="col_0">row 2</td>
+        <td headers="col_1">4</td>
+        <td headers="col_2">4</td>
       </tr>
       <tr>
-        <td>row 3</td>
-        <td>6</td>
-        <td>9</td>
+        <td headers="col_0">row 3</td>
+        <td headers="col_1">6</td>
+        <td headers="col_2">9</td>
       </tr>
       <tr>
-        <td>row 4</td>
-        <td>8</td>
-        <td>16</td>
+        <td headers="col_0">row 4</td>
+        <td headers="col_1">8</td>
+        <td headers="col_2">16</td>
       </tr>
       <tr>
-        <td>row 5</td>
-        <td>10</td>
-        <td>25</td>
+        <td headers="col_0">row 5</td>
+        <td headers="col_1">10</td>
+        <td headers="col_2">25</td>
       </tr>
       <tr>
-        <td>row 6</td>
-        <td>12</td>
-        <td>36</td>
+        <td headers="col_0">row 6</td>
+        <td headers="col_1">12</td>
+        <td headers="col_2">36</td>
       </tr>
       <tr>
-        <td>row 7</td>
-        <td>14</td>
-        <td>49</td>
+        <td headers="col_0">row 7</td>
+        <td headers="col_1">14</td>
+        <td headers="col_2">49</td>
       </tr>
       <tr>
-        <td>row 8</td>
-        <td>16</td>
-        <td>64</td>
+        <td headers="col_0">row 8</td>
+        <td headers="col_1">16</td>
+        <td headers="col_2">64</td>
       </tr>
       <tr>
-        <td>row 9</td>
-        <td>18</td>
-        <td>81</td>
+        <td headers="col_0">row 9</td>
+        <td headers="col_1">18</td>
+        <td headers="col_2">81</td>
       </tr>
       <tr>
-        <td>row 10</td>
-        <td>20</td>
-        <td>100</td>
+        <td headers="col_0">row 10</td>
+        <td headers="col_1">20</td>
+        <td headers="col_2">100</td>
       </tr>
       <tr>
-        <td>row 11</td>
-        <td>22</td>
-        <td>121</td>
+        <td headers="col_0">row 11</td>
+        <td headers="col_1">22</td>
+        <td headers="col_2">121</td>
       </tr>
       <tr>
-        <td>row 12</td>
-        <td>24</td>
-        <td>144</td>
+        <td headers="col_0">row 12</td>
+        <td headers="col_1">24</td>
+        <td headers="col_2">144</td>
       </tr>
       <tr>
-        <td>row 13</td>
-        <td>26</td>
-        <td>169</td>
+        <td headers="col_0">row 13</td>
+        <td headers="col_1">26</td>
+        <td headers="col_2">169</td>
       </tr>
       <tr>
-        <td>row 14</td>
-        <td>28</td>
-        <td>196</td>
+        <td headers="col_0">row 14</td>
+        <td headers="col_1">28</td>
+        <td headers="col_2">196</td>
       </tr>
       <tr>
-        <td>row 15</td>
-        <td>30</td>
-        <td>225</td>
+        <td headers="col_0">row 15</td>
+        <td headers="col_1">30</td>
+        <td headers="col_2">225</td>
       </tr>
       <tr>
-        <td>row 16</td>
-        <td>32</td>
-        <td>256</td>
+        <td headers="col_0">row 16</td>
+        <td headers="col_1">32</td>
+        <td headers="col_2">256</td>
       </tr>
       <tr>
-        <td>row 17</td>
-        <td>34</td>
-        <td>289</td>
+        <td headers="col_0">row 17</td>
+        <td headers="col_1">34</td>
+        <td headers="col_2">289</td>
       </tr>
       <tr>
-        <td>row 18</td>
-        <td>36</td>
-        <td>324</td>
+        <td headers="col_0">row 18</td>
+        <td headers="col_1">36</td>
+        <td headers="col_2">324</td>
       </tr>
       <tr>
-        <td>row 19</td>
-        <td>38</td>
-        <td>361</td>
+        <td headers="col_0">row 19</td>
+        <td headers="col_1">38</td>
+        <td headers="col_2">361</td>
       </tr>
       <tr>
-        <td>row 20</td>
-        <td>40</td>
-        <td>400</td>
+        <td headers="col_0">row 20</td>
+        <td headers="col_1">40</td>
+        <td headers="col_2">400</td>
       </tr>
       <tr>
-        <td>row 21</td>
-        <td>42</td>
-        <td>441</td>
+        <td headers="col_0">row 21</td>
+        <td headers="col_1">42</td>
+        <td headers="col_2">441</td>
       </tr>
       <tr>
-        <td>row 22</td>
-        <td>44</td>
-        <td>484</td>
+        <td headers="col_0">row 22</td>
+        <td headers="col_1">44</td>
+        <td headers="col_2">484</td>
       </tr>
       <tr>
-        <td>row 23</td>
-        <td>46</td>
-        <td>529</td>
+        <td headers="col_0">row 23</td>
+        <td headers="col_1">46</td>
+        <td headers="col_2">529</td>
       </tr>
       <tr>
-        <td>row 24</td>
-        <td>48</td>
-        <td>576</td>
+        <td headers="col_0">row 24</td>
+        <td headers="col_1">48</td>
+        <td headers="col_2">576</td>
       </tr>
       <tr>
-        <td>row 25</td>
-        <td>50</td>
-        <td>625</td>
+        <td headers="col_0">row 25</td>
+        <td headers="col_1">50</td>
+        <td headers="col_2">625</td>
       </tr>
       <tr>
-        <td>row 26</td>
-        <td>52</td>
-        <td>676</td>
+        <td headers="col_0">row 26</td>
+        <td headers="col_1">52</td>
+        <td headers="col_2">676</td>
       </tr>
       <tr>
-        <td>row 27</td>
-        <td>54</td>
-        <td>729</td>
+        <td headers="col_0">row 27</td>
+        <td headers="col_1">54</td>
+        <td headers="col_2">729</td>
       </tr>
       <tr>
-        <td>row 28</td>
-        <td>56</td>
-        <td>784</td>
+        <td headers="col_0">row 28</td>
+        <td headers="col_1">56</td>
+        <td headers="col_2">784</td>
       </tr>
       <tr>
-        <td>row 29</td>
-        <td>58</td>
-        <td>841</td>
+        <td headers="col_0">row 29</td>
+        <td headers="col_1">58</td>
+        <td headers="col_2">841</td>
       </tr>
       <tr>
-        <td>row 30</td>
-        <td>60</td>
-        <td>900</td>
+        <td headers="col_0">row 30</td>
+        <td headers="col_1">60</td>
+        <td headers="col_2">900</td>
       </tr>
       <tr>
-        <td>row 31</td>
-        <td>62</td>
-        <td>961</td>
+        <td headers="col_0">row 31</td>
+        <td headers="col_1">62</td>
+        <td headers="col_2">961</td>
       </tr>
       <tr>
-        <td>row 32</td>
-        <td>64</td>
-        <td>1024</td>
+        <td headers="col_0">row 32</td>
+        <td headers="col_1">64</td>
+        <td headers="col_2">1024</td>
       </tr>
       <tr>
-        <td>row 33</td>
-        <td>66</td>
-        <td>1089</td>
+        <td headers="col_0">row 33</td>
+        <td headers="col_1">66</td>
+        <td headers="col_2">1089</td>
       </tr>
       <tr>
-        <td>row 34</td>
-        <td>68</td>
-        <td>1156</td>
+        <td headers="col_0">row 34</td>
+        <td headers="col_1">68</td>
+        <td headers="col_2">1156</td>
       </tr>
       <tr>
-        <td>row 35</td>
-        <td>70</td>
-        <td>1225</td>
+        <td headers="col_0">row 35</td>
+        <td headers="col_1">70</td>
+        <td headers="col_2">1225</td>
       </tr>
       <tr>
-        <td>row 36</td>
-        <td>72</td>
-        <td>1296</td>
+        <td headers="col_0">row 36</td>
+        <td headers="col_1">72</td>
+        <td headers="col_2">1296</td>
       </tr>
       <tr>
-        <td>row 37</td>
-        <td>74</td>
-        <td>1369</td>
+        <td headers="col_0">row 37</td>
+        <td headers="col_1">74</td>
+        <td headers="col_2">1369</td>
       </tr>
       <tr>
-        <td>row 38</td>
-        <td>76</td>
-        <td>1444</td>
+        <td headers="col_0">row 38</td>
+        <td headers="col_1">76</td>
+        <td headers="col_2">1444</td>
       </tr>
       <tr>
-        <td>row 39</td>
-        <td>78</td>
-        <td>1521</td>
+        <td headers="col_0">row 39</td>
+        <td headers="col_1">78</td>
+        <td headers="col_2">1521</td>
       </tr>
       <tr>
-        <td>row 40</td>
-        <td>80</td>
-        <td>1600</td>
+        <td headers="col_0">row 40</td>
+        <td headers="col_1">80</td>
+        <td headers="col_2">1600</td>
       </tr>
       <tr>
-        <td>row 41</td>
-        <td>82</td>
-        <td>1681</td>
+        <td headers="col_0">row 41</td>
+        <td headers="col_1">82</td>
+        <td headers="col_2">1681</td>
       </tr>
       <tr>
-        <td>row 42</td>
-        <td>84</td>
-        <td>1764</td>
+        <td headers="col_0">row 42</td>
+        <td headers="col_1">84</td>
+        <td headers="col_2">1764</td>
       </tr>
       <tr>
-        <td>row 43</td>
-        <td>86</td>
-        <td>1849</td>
+        <td headers="col_0">row 43</td>
+        <td headers="col_1">86</td>
+        <td headers="col_2">1849</td>
       </tr>
       <tr>
-        <td>row 44</td>
-        <td>88</td>
-        <td>1936</td>
+        <td headers="col_0">row 44</td>
+        <td headers="col_1">88</td>
+        <td headers="col_2">1936</td>
       </tr>
       <tr>
-        <td>row 45</td>
-        <td>90</td>
-        <td>2025</td>
+        <td headers="col_0">row 45</td>
+        <td headers="col_1">90</td>
+        <td headers="col_2">2025</td>
       </tr>
       <tr>
-        <td>row 46</td>
-        <td>92</td>
-        <td>2116</td>
+        <td headers="col_0">row 46</td>
+        <td headers="col_1">92</td>
+        <td headers="col_2">2116</td>
       </tr>
       <tr>
-        <td>row 47</td>
-        <td>94</td>
-        <td>2209</td>
+        <td headers="col_0">row 47</td>
+        <td headers="col_1">94</td>
+        <td headers="col_2">2209</td>
       </tr>
       <tr>
-        <td>row 48</td>
-        <td>96</td>
-        <td>2304</td>
+        <td headers="col_0">row 48</td>
+        <td headers="col_1">96</td>
+        <td headers="col_2">2304</td>
       </tr>
       <tr>
-        <td>row 49</td>
-        <td>98</td>
-        <td>2401</td>
+        <td headers="col_0">row 49</td>
+        <td headers="col_1">98</td>
+        <td headers="col_2">2401</td>
       </tr>
       <tr>
-        <td>row 50</td>
-        <td>100</td>
-        <td>2500</td>
+        <td headers="col_0">row 50</td>
+        <td headers="col_1">100</td>
+        <td headers="col_2">2500</td>
       </tr>
       <tr>
-        <td>row 51</td>
-        <td>102</td>
-        <td>2601</td>
+        <td headers="col_0">row 51</td>
+        <td headers="col_1">102</td>
+        <td headers="col_2">2601</td>
       </tr>
       <tr>
-        <td>row 52</td>
-        <td>104</td>
-        <td>2704</td>
+        <td headers="col_0">row 52</td>
+        <td headers="col_1">104</td>
+        <td headers="col_2">2704</td>
       </tr>
       <tr>
-        <td>row 53</td>
-        <td>106</td>
-        <td>2809</td>
+        <td headers="col_0">row 53</td>
+        <td headers="col_1">106</td>
+        <td headers="col_2">2809</td>
       </tr>
       <tr>
-        <td>row 54</td>
-        <td>108</td>
-        <td>2916</td>
+        <td headers="col_0">row 54</td>
+        <td headers="col_1">108</td>
+        <td headers="col_2">2916</td>
       </tr>
       <tr>
-        <td>row 55</td>
-        <td>110</td>
-        <td>3025</td>
+        <td headers="col_0">row 55</td>
+        <td headers="col_1">110</td>
+        <td headers="col_2">3025</td>
       </tr>
       <tr>
-        <td>row 56</td>
-        <td>112</td>
-        <td>3136</td>
+        <td headers="col_0">row 56</td>
+        <td headers="col_1">112</td>
+        <td headers="col_2">3136</td>
       </tr>
       <tr>
-        <td>row 57</td>
-        <td>114</td>
-        <td>3249</td>
+        <td headers="col_0">row 57</td>
+        <td headers="col_1">114</td>
+        <td headers="col_2">3249</td>
       </tr>
       <tr>
-        <td>row 58</td>
-        <td>116</td>
-        <td>3364</td>
+        <td headers="col_0">row 58</td>
+        <td headers="col_1">116</td>
+        <td headers="col_2">3364</td>
       </tr>
       <tr>
-        <td>row 59</td>
-        <td>118</td>
-        <td>3481</td>
+        <td headers="col_0">row 59</td>
+        <td headers="col_1">118</td>
+        <td headers="col_2">3481</td>
       </tr>
       <tr>
-        <td>row 60</td>
-        <td>120</td>
-        <td>3600</td>
+        <td headers="col_0">row 60</td>
+        <td headers="col_1">120</td>
+        <td headers="col_2">3600</td>
       </tr>
       <tr>
-        <td>row 61</td>
-        <td>122</td>
-        <td>3721</td>
+        <td headers="col_0">row 61</td>
+        <td headers="col_1">122</td>
+        <td headers="col_2">3721</td>
       </tr>
       <tr>
-        <td>row 62</td>
-        <td>124</td>
-        <td>3844</td>
+        <td headers="col_0">row 62</td>
+        <td headers="col_1">124</td>
+        <td headers="col_2">3844</td>
       </tr>
       <tr>
-        <td>row 63</td>
-        <td>126</td>
-        <td>3969</td>
+        <td headers="col_0">row 63</td>
+        <td headers="col_1">126</td>
+        <td headers="col_2">3969</td>
       </tr>
       <tr>
-        <td>row 64</td>
-        <td>128</td>
-        <td>4096</td>
+        <td headers="col_0">row 64</td>
+        <td headers="col_1">128</td>
+        <td headers="col_2">4096</td>
       </tr>
       <tr>
-        <td>row 65</td>
-        <td>130</td>
-        <td>4225</td>
+        <td headers="col_0">row 65</td>
+        <td headers="col_1">130</td>
+        <td headers="col_2">4225</td>
       </tr>
       <tr>
-        <td>row 66</td>
-        <td>132</td>
-        <td>4356</td>
+        <td headers="col_0">row 66</td>
+        <td headers="col_1">132</td>
+        <td headers="col_2">4356</td>
       </tr>
       <tr>
-        <td>row 67</td>
-        <td>134</td>
-        <td>4489</td>
+        <td headers="col_0">row 67</td>
+        <td headers="col_1">134</td>
+        <td headers="col_2">4489</td>
       </tr>
       <tr>
-        <td>row 68</td>
-        <td>136</td>
-        <td>4624</td>
+        <td headers="col_0">row 68</td>
+        <td headers="col_1">136</td>
+        <td headers="col_2">4624</td>
       </tr>
       <tr>
-        <td>row 69</td>
-        <td>138</td>
-        <td>4761</td>
+        <td headers="col_0">row 69</td>
+        <td headers="col_1">138</td>
+        <td headers="col_2">4761</td>
       </tr>
       <tr>
-        <td>row 70</td>
-        <td>140</td>
-        <td>4900</td>
+        <td headers="col_0">row 70</td>
+        <td headers="col_1">140</td>
+        <td headers="col_2">4900</td>
       </tr>
       <tr>
-        <td>row 71</td>
-        <td>142</td>
-        <td>5041</td>
+        <td headers="col_0">row 71</td>
+        <td headers="col_1">142</td>
+        <td headers="col_2">5041</td>
       </tr>
       <tr>
-        <td>row 72</td>
-        <td>144</td>
-        <td>5184</td>
+        <td headers="col_0">row 72</td>
+        <td headers="col_1">144</td>
+        <td headers="col_2">5184</td>
       </tr>
       <tr>
-        <td>row 73</td>
-        <td>146</td>
-        <td>5329</td>
+        <td headers="col_0">row 73</td>
+        <td headers="col_1">146</td>
+        <td headers="col_2">5329</td>
       </tr>
       <tr>
-        <td>row 74</td>
-        <td>148</td>
-        <td>5476</td>
+        <td headers="col_0">row 74</td>
+        <td headers="col_1">148</td>
+        <td headers="col_2">5476</td>
       </tr>
       <tr>
-        <td>row 75</td>
-        <td>150</td>
-        <td>5625</td>
+        <td headers="col_0">row 75</td>
+        <td headers="col_1">150</td>
+        <td headers="col_2">5625</td>
       </tr>
       <tr>
-        <td>row 76</td>
-        <td>152</td>
-        <td>5776</td>
+        <td headers="col_0">row 76</td>
+        <td headers="col_1">152</td>
+        <td headers="col_2">5776</td>
       </tr>
       <tr>
-        <td>row 77</td>
-        <td>154</td>
-        <td>5929</td>
+        <td headers="col_0">row 77</td>
+        <td headers="col_1">154</td>
+        <td headers="col_2">5929</td>
       </tr>
       <tr>
-        <td>row 78</td>
-        <td>156</td>
-        <td>6084</td>
+        <td headers="col_0">row 78</td>
+        <td headers="col_1">156</td>
+        <td headers="col_2">6084</td>
       </tr>
       <tr>
-        <td>row 79</td>
-        <td>158</td>
-        <td>6241</td>
+        <td headers="col_0">row 79</td>
+        <td headers="col_1">158</td>
+        <td headers="col_2">6241</td>
       </tr>
       <tr>
-        <td>row 80</td>
-        <td>160</td>
-        <td>6400</td>
+        <td headers="col_0">row 80</td>
+        <td headers="col_1">160</td>
+        <td headers="col_2">6400</td>
       </tr>
       <tr>
-        <td>row 81</td>
-        <td>162</td>
-        <td>6561</td>
+        <td headers="col_0">row 81</td>
+        <td headers="col_1">162</td>
+        <td headers="col_2">6561</td>
       </tr>
       <tr>
-        <td>row 82</td>
-        <td>164</td>
-        <td>6724</td>
+        <td headers="col_0">row 82</td>
+        <td headers="col_1">164</td>
+        <td headers="col_2">6724</td>
       </tr>
       <tr>
-        <td>row 83</td>
-        <td>166</td>
-        <td>6889</td>
+        <td headers="col_0">row 83</td>
+        <td headers="col_1">166</td>
+        <td headers="col_2">6889</td>
       </tr>
       <tr>
-        <td>row 84</td>
-        <td>168</td>
-        <td>7056</td>
+        <td headers="col_0">row 84</td>
+        <td headers="col_1">168</td>
+        <td headers="col_2">7056</td>
       </tr>
       <tr>
-        <td>row 85</td>
-        <td>170</td>
-        <td>7225</td>
+        <td headers="col_0">row 85</td>
+        <td headers="col_1">170</td>
+        <td headers="col_2">7225</td>
       </tr>
       <tr>
-        <td>row 86</td>
-        <td>172</td>
-        <td>7396</td>
+        <td headers="col_0">row 86</td>
+        <td headers="col_1">172</td>
+        <td headers="col_2">7396</td>
       </tr>
       <tr>
-        <td>row 87</td>
-        <td>174</td>
-        <td>7569</td>
+        <td headers="col_0">row 87</td>
+        <td headers="col_1">174</td>
+        <td headers="col_2">7569</td>
       </tr>
       <tr>
-        <td>row 88</td>
-        <td>176</td>
-        <td>7744</td>
+        <td headers="col_0">row 88</td>
+        <td headers="col_1">176</td>
+        <td headers="col_2">7744</td>
       </tr>
       <tr>
-        <td>row 89</td>
-        <td>178</td>
-        <td>7921</td>
+        <td headers="col_0">row 89</td>
+        <td headers="col_1">178</td>
+        <td headers="col_2">7921</td>
       </tr>
       <tr>
-        <td>row 90</td>
-        <td>180</td>
-        <td>8100</td>
+        <td headers="col_0">row 90</td>
+        <td headers="col_1">180</td>
+        <td headers="col_2">8100</td>
       </tr>
       <tr>
-        <td>row 91</td>
-        <td>182</td>
-        <td>8281</td>
+        <td headers="col_0">row 91</td>
+        <td headers="col_1">182</td>
+        <td headers="col_2">8281</td>
       </tr>
       <tr>
-        <td>row 92</td>
-        <td>184</td>
-        <td>8464</td>
+        <td headers="col_0">row 92</td>
+        <td headers="col_1">184</td>
+        <td headers="col_2">8464</td>
       </tr>
       <tr>
-        <td>row 93</td>
-        <td>186</td>
-        <td>8649</td>
+        <td headers="col_0">row 93</td>
+        <td headers="col_1">186</td>
+        <td headers="col_2">8649</td>
       </tr>
       <tr>
-        <td>row 94</td>
-        <td>188</td>
-        <td>8836</td>
+        <td headers="col_0">row 94</td>
+        <td headers="col_1">188</td>
+        <td headers="col_2">8836</td>
       </tr>
       <tr>
-        <td>row 95</td>
-        <td>190</td>
-        <td>9025</td>
+        <td headers="col_0">row 95</td>
+        <td headers="col_1">190</td>
+        <td headers="col_2">9025</td>
       </tr>
       <tr>
-        <td>row 96</td>
-        <td>192</td>
-        <td>9216</td>
+        <td headers="col_0">row 96</td>
+        <td headers="col_1">192</td>
+        <td headers="col_2">9216</td>
       </tr>
       <tr>
-        <td>row 97</td>
-        <td>194</td>
-        <td>9409</td>
+        <td headers="col_0">row 97</td>
+        <td headers="col_1">194</td>
+        <td headers="col_2">9409</td>
       </tr>
       <tr>
-        <td>row 98</td>
-        <td>196</td>
-        <td>9604</td>
+        <td headers="col_0">row 98</td>
+        <td headers="col_1">196</td>
+        <td headers="col_2">9604</td>
       </tr>
       <tr>
-        <td>row 99</td>
-        <td>198</td>
-        <td>9801</td>
+        <td headers="col_0">row 99</td>
+        <td headers="col_1">198</td>
+        <td headers="col_2">9801</td>
       </tr>
     </tbody>
   </table>

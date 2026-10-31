@@ -9,22 +9,22 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">Mood</th>
-        <th class="gw_col_label gw__al_left">Icon</th>
+        <th class="gw_col_label gw__al_left" id="col_0">Mood</th>
+        <th class="gw_col_label gw__al_left" id="col_1">Icon</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>happy</td>
-        <td>😀</td>
+        <td headers="col_0">happy</td>
+        <td headers="col_1">😀</td>
       </tr>
       <tr>
-        <td>party</td>
-        <td>🎉🎊</td>
+        <td headers="col_0">party</td>
+        <td headers="col_1">🎉🎊</td>
       </tr>
       <tr>
-        <td>family</td>
-        <td>👨‍👩‍👧‍👦</td>
+        <td headers="col_0">family</td>
+        <td headers="col_1">👨‍👩‍👧‍👦</td>
       </tr>
     </tbody>
   </table>

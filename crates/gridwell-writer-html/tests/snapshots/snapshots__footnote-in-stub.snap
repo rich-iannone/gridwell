@@ -9,20 +9,20 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_stubhead gw__al_left">Country</th>
-        <th class="gw_col_label gw__al_left">GDP</th>
+        <th class="gw_stubhead gw__al_left" id="Country">Country</th>
+        <th class="gw_col_label gw__al_left" id="col_1">GDP</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">
+        <th class="gw_stub gw__al_left" scope="row" id="stub-1">
           Atlantis<sup class="gw_footnote_mark"><a href="#fn1">*</a></sup>
         </th>
-        <td>N/A</td>
+        <td headers="stub-1 col_1">N/A</td>
       </tr>
       <tr>
-        <th class="gw_stub gw__al_left" scope="row">Utopia</th>
-        <td>999</td>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-2">Utopia</th>
+        <td headers="stub-2 col_1">999</td>
       </tr>
     </tbody>
   </table>

@@ -10,12 +10,12 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">Message</th>
+        <th class="gw_col_label gw__al_left" id="col_0">Message</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>
+        <td headers="col_0">
           Status: <span class="gw_style-warn">degraded</span><br>Retry advised<sup class="gw_footnote_mark"><a href="#fn1">†</a></sup>
         </td>
       </tr>

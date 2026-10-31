@@ -10,21 +10,21 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left gw_style-bordered">A</th>
-        <th class="gw_col_label gw__al_left gw_style-bordered">B</th>
-        <th class="gw_col_label gw__al_left gw_style-bordered">C</th>
+        <th class="gw_col_label gw__al_left gw_style-bordered" id="col_0">A</th>
+        <th class="gw_col_label gw__al_left gw_style-bordered" id="col_1">B</th>
+        <th class="gw_col_label gw__al_left gw_style-bordered" id="col_2">C</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td class="gw_style-bordered">1</td>
-        <td class="gw_style-bordered">2</td>
-        <td class="gw_style-bordered">3</td>
+        <td class="gw_style-bordered" headers="col_0">1</td>
+        <td class="gw_style-bordered" headers="col_1">2</td>
+        <td class="gw_style-bordered" headers="col_2">3</td>
       </tr>
       <tr>
-        <td class="gw_style-bordered">4</td>
-        <td class="gw_style-bordered">5</td>
-        <td class="gw_style-bordered">6</td>
+        <td class="gw_style-bordered" headers="col_0">4</td>
+        <td class="gw_style-bordered" headers="col_1">5</td>
+        <td class="gw_style-bordered" headers="col_2">6</td>
       </tr>
     </tbody>
   </table>

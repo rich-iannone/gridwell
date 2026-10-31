@@ -9,14 +9,14 @@ expression: out
   <table class="gw_table">
     <thead>
       <tr class="gw_col_labels">
-        <th class="gw_col_label gw__al_left">Constrained</th>
-        <th class="gw_col_label gw__al_left">Free</th>
+        <th class="gw_col_label gw__al_left" id="col_0">Constrained</th>
+        <th class="gw_col_label gw__al_left" id="col_1">Free</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>clamped between 80 and 200px</td>
-        <td>grows freely</td>
+        <td headers="col_0">clamped between 80 and 200px</td>
+        <td headers="col_1">grows freely</td>
       </tr>
     </tbody>
   </table>
