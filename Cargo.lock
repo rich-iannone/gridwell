@@ -531,6 +531,7 @@ dependencies = [
  "calamine",
  "gridwell-core",
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-ooxml",
  "gridwell-testkit",
  "gridwell-writer-ansi",
