@@ -733,7 +733,7 @@ pub fn render(table: &Table, config: &LatexWriterConfig) -> Result<String, Rende
 
 /// The size relative sizes and border widths resolve against: the document's
 /// 10pt.
-const BASE_PT: f64 = 10.0;
+pub(crate) const BASE_PT: f64 = 10.0;
 
 fn pt(v: f64) -> String {
     format!("{}pt", (v * 1e4).round() / 1e4)
@@ -911,17 +911,22 @@ fn styled(content: &str, style: &ResolvedStyle, decorated: bool) -> String {
 /// background (`\cellcolor` must come first in the cell).
 fn apply_style(content: &str, style: &ResolvedStyle) -> String {
     let mut result = apply_block_style(content, style);
-    if style
-        .font_family
-        .as_deref()
-        .is_some_and(|f| f.contains("monospace") || f.contains("Courier"))
-    {
+    if monospace(style) {
         result = format!("\\texttt{{{result}}}");
     }
     if let Some(bg) = style.fill() {
         result = format!("\\cellcolor{}{result}", latex_color(bg));
     }
     result
+}
+
+/// Whether a style's family is monospace, which a cell or group label draws in
+/// `\texttt` (the one family pdfLaTeX has without naming a font).
+pub(crate) fn monospace(style: &ResolvedStyle) -> bool {
+    style
+        .font_family
+        .as_deref()
+        .is_some_and(|f| f.contains("monospace") || f.contains("Courier"))
 }
 
 /// An xcolor `[HTML]{RRGGBB}` spec; LaTeX colors have no alpha, so translucent
