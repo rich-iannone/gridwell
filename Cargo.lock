@@ -599,6 +599,7 @@ dependencies = [
  "gridwell-layout",
  "gridwell-testkit",
  "insta",
+ "proptest",
  "scraper",
  "serde",
  "serde_json",
