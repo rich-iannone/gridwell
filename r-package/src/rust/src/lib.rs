@@ -24,6 +24,17 @@ fn options_from(options: &Robj) -> Option<String> {
     }
 }
 
+/// `NULL` or a format name.
+fn format_from(format: &Robj) -> Option<String> {
+    if format.is_null() {
+        return None;
+    }
+    match format.as_str() {
+        Some(s) => Some(s.to_string()),
+        None => throw_r_error("`format` must be NULL or a single string"),
+    }
+}
+
 /// extendr turns a panic in an exported function into an R error.
 fn throw_r_error(msg: &str) -> ! {
     panic!("{msg}");
@@ -45,6 +56,17 @@ fn rs_parse_ir(json: &str) -> Robj {
 fn rs_validate(table_ptr: Robj) -> Strings {
     let table = table_from(&table_ptr);
     Strings::from_values(table.validate().into_iter().map(|e| e.to_string()))
+}
+
+/// What a format (or every format, for `NULL`) can't express of a valid table.
+/// @noRd
+#[extendr]
+fn rs_warnings(table_ptr: Robj, format: Robj) -> Strings {
+    let table = table_from(&table_ptr);
+    let format = format_from(&format);
+    let found = gridwell_render::warnings(&table, format.as_deref())
+        .unwrap_or_else(|e| throw_r_error(&e.to_string()));
+    Strings::from_values(found.iter().map(|w| w.to_string()))
 }
 
 /// The table as JSON.
@@ -85,14 +107,7 @@ fn rs_render_binary(table_ptr: Robj, format: &str, options: Robj) -> Raw {
 #[extendr]
 fn rs_save(table_ptr: Robj, path: &str, format: Robj, options: Robj) -> String {
     let table = table_from(&table_ptr);
-    let format = if format.is_null() {
-        None
-    } else {
-        match format.as_str() {
-            Some(s) => Some(s.to_string()),
-            None => throw_r_error("`format` must be NULL or a single string"),
-        }
-    };
+    let format = format_from(&format);
     let options = options_from(&options);
     match gridwell_render::save(
         &table,
@@ -132,6 +147,7 @@ extendr_module! {
     mod gridwell;
     fn rs_parse_ir;
     fn rs_validate;
+    fn rs_warnings;
     fn rs_to_json;
     fn rs_render_text;
     fn rs_render_binary;
