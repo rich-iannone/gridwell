@@ -401,7 +401,7 @@ fn typst_font_size(f: &FontSize) -> Option<String> {
 }
 
 /// The size relative sizes resolve against: Typst's default 11pt.
-const BASE_PT: f64 = 11.0;
+pub(crate) const BASE_PT: f64 = 11.0;
 
 /// A cell's `stroke:` argument, one entry per side with a border. Typst has no
 /// double line: a double border is drawn solid at its full width.
