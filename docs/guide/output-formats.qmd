@@ -28,7 +28,10 @@ A style's `font_weight` replaces the weight a format draws by default: `normal` 
 `lighter`) un-bolds column labels, the title or a group label, and a styled run's
 weight replaces its cell's, so a `normal` run in a bold cell is not bold. Pandoc and
 Quarto have bold (`Strong`) but no way to undo it, and ANSI draws its title and group
-labels bold whatever their style.
+labels bold whatever their style. `font_style` works the same way: a `normal` run in
+an italic cell, title or note is upright, except in Pandoc and Quarto (`Emph` can't be
+undone). Underline and strike-through are different: as in CSS, a run adds them to
+its cell's but can't remove them.
 
 ## Text Formats
 
