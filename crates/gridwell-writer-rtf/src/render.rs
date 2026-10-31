@@ -135,11 +135,14 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
     }
 
     /// Character formatting for a style: bold, italic, color and font (every
-    /// color and font was registered up front).
+    /// color and font was registered up front). A weight that isn't bold is
+    /// `\b0`, which un-bolds what holds it (a bold cell, title or group label).
     fn char_format(&self, style: &ResolvedStyle) -> String {
         let mut f = String::new();
-        if style.is_bold() {
-            f.push_str("\\b");
+        match style.font_weight {
+            Some(_) if style.is_bold() => f.push_str("\\b"),
+            Some(_) => f.push_str("\\b0"),
+            None => {}
         }
         if style.is_italic() {
             f.push_str("\\i");
@@ -359,7 +362,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 HAlign::Justify => fmt.push_str("\\qj"),
                 _ => {}
             }
-            if is_header || cell.style.is_bold() {
+            if cell.style.bold_over(is_header) {
                 fmt.push_str("\\b");
             }
             if cell.style.is_italic() {

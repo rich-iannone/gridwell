@@ -879,8 +879,12 @@ fn decorate(content: &str, style: &ResolvedStyle) -> String {
 
 fn styled(content: &str, style: &ResolvedStyle, decorated: bool) -> String {
     let mut result = content.to_string();
-    if style.is_bold() {
-        result = format!("\\textbf{{{result}}}");
+    // A weight that isn't bold un-bolds what holds it (a bold cell, title or
+    // group label).
+    match style.font_weight {
+        Some(_) if style.is_bold() => result = format!("\\textbf{{{result}}}"),
+        Some(_) => result = format!("\\textmd{{{result}}}"),
+        None => {}
     }
     if style.is_italic() {
         result = format!("\\textit{{{result}}}");

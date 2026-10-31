@@ -414,7 +414,7 @@ impl<'s> Fmt<'s> {
     fn with(self, style: &'s ResolvedStyle) -> Self {
         let parent = self.size.map_or(BASE_PT, |s| f64::from(s) / 100.0);
         Self {
-            bold: self.bold || style.is_bold(),
+            bold: style.bold_over(self.bold),
             italic: self.italic || style.is_italic(),
             underline: self.underline || style.is_underline(),
             strike: self.strike || style.is_strike(),

@@ -295,7 +295,7 @@ const SOURCE_NOTE: &[(&str, &str)] = &[("size", "9pt"), ("fill", "luma(100)")];
 
 /// `content` wrapped in `#text(…)` for the style's weight, slant, size, color and
 /// font family, and in `#underline[…]` / `#strike[…]` for its decoration.
-/// Header cells are bold unless their style sets a weight.
+/// Header cells are bold unless their style sets another weight.
 fn text_style(content: &str, style: &ResolvedStyle, is_header: bool) -> String {
     line_style(content, style, is_header, &[])
 }
@@ -327,12 +327,12 @@ fn text_attrs(
     defaults: &[(&str, &str)],
 ) -> String {
     let mut attrs = Vec::new();
-    let bold = match &style.font_weight {
-        Some(w) => w.is_bold(),
-        None => is_header,
-    };
-    if bold {
-        attrs.push("weight: \"bold\"".to_string());
+    // A weight the style sets is written either way: a run's un-bolds a bold
+    // cell's.
+    match &style.font_weight {
+        Some(_) if !style.is_bold() => attrs.push("weight: \"regular\"".to_string()),
+        _ if style.bold_over(is_header) => attrs.push("weight: \"bold\"".to_string()),
+        _ => {}
     }
     if style.is_italic() {
         attrs.push("style: \"italic\"".to_string());
