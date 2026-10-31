@@ -116,6 +116,18 @@ impl PyTable {
             .collect()
     }
 
+    /// Features of the table a format can't express, and where, as messages:
+    /// for one format by name, or every format (`None`). Empty if each is
+    /// expressed whole. A warning doesn't stop the table rendering.
+    ///
+    /// Raises `InvalidTableError` for invalid IR, and `ValueError` for an
+    /// unknown format.
+    #[pyo3(signature = (format=None))]
+    fn warnings(&self, format: Option<&str>) -> PyResult<Vec<String>> {
+        let found = gridwell_render::warnings(&self.inner, format).map_err(to_py_err)?;
+        Ok(found.iter().map(|w| w.to_string()).collect())
+    }
+
     /// Serialize the table back to a JSON string.
     fn to_json(&self) -> PyResult<String> {
         self.inner
