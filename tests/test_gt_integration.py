@@ -280,3 +280,58 @@ def test_typed_values_are_typed_xlsx_cells():
         "J": ("b", "1"),
         "K": ("n", "45366.604166666664"),
     }
+
+
+def _header_ids(html):
+    """The ids of the `<th>` cells, the `headers` of the `<td>` cells, and the
+    table's aria attributes, in document order."""
+    from html.parser import HTMLParser
+
+    found = {"th": [], "td": [], "table": []}
+
+    class Parser(HTMLParser):
+        def handle_starttag(self, tag, attrs):
+            a = dict(attrs)
+            if tag == "th":
+                found["th"].append(a.get("id"))
+            elif tag == "td" and "headers" in a:
+                found["td"].append(a["headers"])
+            elif tag == "table":
+                found["table"].append((a.get("aria-labelledby"), a.get("aria-describedby")))
+
+    Parser().feed(html)
+    return found
+
+
+@pytest.mark.parametrize("table_id", [None, "sales"])
+def test_header_ids_are_great_tables_ids(table_id):
+    df = pd.DataFrame({
+        "name": ["Oslo", "Bergen", "Rome"],
+        "grp": ["North East", "North East", "South"],
+        "x (km)": [1, 2, 3],
+        "y": [4, 5, 6],
+    })
+    gt_obj = GT(df, rowname_col="name", groupname_col="grp", id=table_id).tab_header(
+        title="Sales", subtitle="By region"
+    )
+    options = {} if table_id is None else {"table_id": table_id}
+    ours = gridwell.Table.from_json(gridwell.gt_to_ir(gt_obj)).render_html(**options)
+    theirs = _header_ids(gt_obj.as_raw_html())
+    assert _header_ids(ours) == theirs
+    # Not vacuous: every kind of header is there.
+    p = "" if table_id is None else "sales-"
+    assert theirs["th"] == [
+        None,  # the blank stubhead
+        f"{p}x-km",
+        f"{p}y",
+        f"{p}North-East",
+        f"{p}stub-1",
+        f"{p}stub-2",
+        f"{p}South",
+        f"{p}stub-3",
+    ]
+    assert theirs["td"][0] == f"{p}North-East {p}stub-1 {p}x-km"
+    assert theirs["table"] == [(f"{p}title", f"{p}subtitle")]
+    # The container has the table's id.
+    if table_id is not None:
+        assert ours.startswith('<div id="sales"')
