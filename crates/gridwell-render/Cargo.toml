@@ -8,6 +8,7 @@ description = "The gridwell format registry: one Writer trait, every output form
 
 [dependencies]
 gridwell-ir = { path = "../gridwell-ir" }
+gridwell-layout = { path = "../gridwell-layout" }
 gridwell-writer-html = { path = "../gridwell-writer-html" }
 gridwell-writer-latex = { path = "../gridwell-writer-latex" }
 gridwell-writer-typst = { path = "../gridwell-writer-typst" }
