@@ -336,7 +336,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
         if !self.config.color {
             return (open, "");
         }
-        if strong || style.is_bold() {
+        if style.bold_over(strong) {
             open.push_str(BOLD);
         }
         if style.is_italic() {
