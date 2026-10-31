@@ -2,7 +2,7 @@ use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table};
 use gridwell_layout::{
-    resolve, ResolvedCell, ResolvedStyle, ResolvedTable, Section, Sides, Slot, Stroke,
+    resolve, ColumnWidth, ResolvedCell, ResolvedStyle, ResolvedTable, Section, Sides, Slot, Stroke,
 };
 use std::fmt::Write;
 use thiserror::Error;
@@ -60,10 +60,12 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
 
     /// Each column's width. A `%` column is that share of the table's width less
     /// every column's padding (so shares adding up to 100% fill the table); `fr`
-    /// columns share what the other columns leave, in proportion. A tabular
-    /// leaves that to `tabularx`, which measures the natural-width columns; a
-    /// longtable can't use it, so there each `fr` column's width is worked out
-    /// from the fixed and `%` columns alone, and natural-width columns add to it.
+    /// columns share what the other columns leave, in proportion. When the table
+    /// has a width and no column is `fr`, the columns without a width are `1fr`
+    /// (see [`ResolvedTable::column_widths`]). A tabular leaves that to
+    /// `tabularx`, which measures the natural-width columns; a longtable can't use
+    /// it, so there each `fr` column's width is worked out from the fixed and `%`
+    /// columns alone, and natural-width columns add to it.
     fn column_widths(&self) -> Vec<ColWidth> {
         let n = self.width();
         let content = format!(
@@ -73,15 +75,15 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         );
         let mut widths: Vec<ColWidth> = self
             .rt
-            .columns
-            .iter()
-            .map(|c| match c.width {
-                Some(Length::Percent(p)) if p.is_finite() && p > 0.0 => {
-                    ColWidth::Fixed(format!("{}{content}", num(p / 100.0)))
+            .column_widths()
+            .into_iter()
+            .map(|w| match w {
+                ColumnWidth::Percent(p) => ColWidth::Fixed(format!("{}{content}", num(p / 100.0))),
+                ColumnWidth::Fr(f) => ColWidth::Fr(f),
+                ColumnWidth::Fixed(w) => {
+                    absolute_width(&w).map_or(ColWidth::Natural, ColWidth::Fixed)
                 }
-                Some(Length::Fr(f)) if f.is_finite() && f > 0.0 => ColWidth::Fr(f),
-                Some(ref w) => absolute_width(w).map_or(ColWidth::Natural, ColWidth::Fixed),
-                None => ColWidth::Natural,
+                ColumnWidth::Auto => ColWidth::Natural,
             })
             .collect();
         if !self.use_longtable() {
