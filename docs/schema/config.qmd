@@ -16,7 +16,7 @@ The `config` block contains table-level metadata used for validation and renderi
 | `row_striping_include_stub`  | boolean | false     | Include stub in striping         |
 | `row_striping_include_body`  | boolean | false     | Include body in striping         |
 | `column_labels_hidden`       | boolean | false     | Hide column header row           |
-| `table_width`                | string? | null      | CSS-like width value             |
+| `table_width`                | string? | null      | Table width: a length, or a % of the line ([widths](columns.qmd#width-values)) |
 | `container_width`            | string? | null      | Container width                  |
 | `container_height`           | string? | null      | Container height                 |
 | `container_overflow`         | string? | null      | Overflow behavior                |
