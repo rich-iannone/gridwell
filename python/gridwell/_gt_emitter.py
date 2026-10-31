@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import datetime as dt
 import json
+import re
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 
@@ -271,12 +274,10 @@ def _build_row(
             "sort_key": text.lower() if text and not missing else None,
         }
 
-        # Add typed_value for non-stub cells
-        if not is_stub and text and not missing:
-            cell["typed_value"] = {
-                "type": data_type or "string",
-                "value": str(orig_val) if not pd.isna(orig_val) else text,
-            }
+        if not is_stub and text and not missing and not pd.isna(orig_val):
+            typed = _typed_value(orig_val, text, data_type)
+            if typed is not None:
+                cell["typed_value"] = typed
 
         cells.append(cell)
 
@@ -304,15 +305,56 @@ def _infer_data_type(value: Any, col_name: str, dtypes: Any) -> str | None:
         elif "bool" in dtype_str:
             return "boolean"
 
-    # Heuristic from value
-    if isinstance(value, (int,)):
-        return "integer"
-    elif isinstance(value, (float,)):
-        return "number"
-    elif isinstance(value, bool):
+    # Heuristic from value (a bool is an int, and a datetime a date)
+    if isinstance(value, (bool, np.bool_)):
         return "boolean"
+    elif isinstance(value, (int, np.integer)):
+        return "integer"
+    elif isinstance(value, (float, np.floating)):
+        return "number"
+    elif isinstance(value, dt.datetime):
+        return "datetime"
+    elif isinstance(value, dt.date):
+        return "date"
+    elif isinstance(value, dt.time):
+        return "time"
 
     return "string"
+
+
+# A number as displayed: an optional minus, digits, an optional fraction and
+# exponent (thousands separators and U+2212 MINUS SIGN removed first).
+_PLAIN_NUMBER = re.compile(r"-?[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?")
+
+
+def _typed_value(value: Any, text: str, data_type: str | None) -> dict | None:
+    """The cell's typed value, as the R emitter gives it.
+
+    A number is the number displayed, so a spreadsheet holds what the table
+    states (0.11, not 0.1111); a display that isn't a plain number (`$49.95`,
+    `<0.001`) has none. Dates and times are ISO 8601 strings, without an offset
+    (a spreadsheet has no time zone: the value is the wall-clock time).
+    Anything else is a string, the text shown.
+    """
+    if data_type in ("number", "integer"):
+        shown = text.replace("\u2212", "-").replace(",", "")
+        if not _PLAIN_NUMBER.fullmatch(shown):
+            return None
+        if data_type == "integer" and not re.search(r"[.eE]", shown):
+            return {"type": "integer", "value": int(shown)}
+        return {"type": "number", "value": float(shown)}
+    if data_type == "boolean":
+        return {"type": "boolean", "value": bool(value)}
+    if data_type == "datetime":
+        stamp = pd.Timestamp(value)
+        if stamp.tzinfo is not None:
+            stamp = stamp.tz_localize(None)
+        return {"type": "datetime", "value": stamp.isoformat()}
+    if data_type == "date" and isinstance(value, dt.date):
+        return {"type": "date", "value": value.isoformat()}
+    if data_type == "time" and isinstance(value, dt.time):
+        return {"type": "time", "value": value.replace(tzinfo=None).isoformat()}
+    return {"type": "string", "value": text}
 
 
 def _build_footer(source_notes: list, footnotes: list) -> dict:
