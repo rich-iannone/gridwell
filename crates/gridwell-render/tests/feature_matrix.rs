@@ -18,6 +18,7 @@ mod support;
 
 use gridwell_ir::style::{BorderSet, ConditionalSelector, StyleDef};
 use gridwell_ir::Table;
+use gridwell_render::{Place, SectionKind};
 use gridwell_testkit::{
     border, cell, cell_content, column, examples, footnote_mark, labeled_group, row, styled, text,
     CellExt, ColumnExt, RowExt, TableBuilder,
@@ -233,8 +234,15 @@ fn features() -> Vec<Feature> {
         },
         Feature {
             id: "vertical-align",
-            what: "`vertical_align: bottom`",
-            table: || probe(def(|d| d.vertical_align = Some("bottom".into()))),
+            what: "`vertical_align: bottom` (beside a taller cell)",
+            // Alignment shows only in a row of cells of different heights.
+            table: || {
+                let mut t = probe(def(|d| d.vertical_align = Some("bottom".into())));
+                let big = def(|d| d.font_size = Some("30px".into()));
+                t.styles.defs.insert("big".into(), big);
+                t.table.tbody[0].rows[0].cells[1].style_id = Some("big".into());
+                t
+            },
             check: |d| target_only(d, "bottom alignment", |l| l.valign == Some(VAlign::Bottom)),
         },
         Feature {
@@ -686,32 +694,38 @@ fn every_probe_is_valid() {
     }
 }
 
-/// Why a writer doesn't express a feature.
+/// Why a writer doesn't express a feature. Either way the writer warns of it
+/// (`gridwell_render::warnings`), and its warning's reason is the note on the
+/// docs page.
 #[derive(Clone, Copy, PartialEq)]
 enum Gap {
     /// The format can express it; the writer doesn't yet. No cell is one now;
     /// a feature added to the matrix before every writer has it would be.
     #[allow(dead_code)]
-    Todo(&'static str),
+    Todo,
     /// The format can't (portably) express it.
-    Limit(&'static str),
+    Limit,
 }
 
 /// The declared ✗ cells; every other cell is ✓.
 fn gap(feature: &str, format: &str) -> Option<Gap> {
     use Gap::Limit;
     Some(match (feature, format) {
-        ("font-family", "latex") => Limit(
-            "a named system font needs XeLaTeX/LuaLaTeX with fontspec; the output also targets pdfLaTeX (monospace families map to `\\texttt`)",
-        ),
-        ("vertical-align", "latex") => Limit(
-            "a tabular row sets its cells on one baseline; `m`/`b` columns align whole columns, not single cells",
-        ),
-        ("border-double", "typst") => {
-            Limit("Typst strokes have no double line; a double border is drawn solid")
-        }
+        ("font-family", "latex") => Limit,
+        ("vertical-align", "latex") => Limit,
+        ("border-double", "typst") => Limit,
         _ => return None,
     })
+}
+
+/// The reason `format` gives for not expressing feature `f`: its warning for
+/// the probe table.
+fn reason(f: &Feature, format: &str) -> Option<&'static str> {
+    gridwell_render::warnings(&(f.table)(), Some(format))
+        .unwrap()
+        .into_iter()
+        .find(|w| w.feature == f.id)
+        .map(|w| w.reason)
 }
 
 /// The docs page for the declared matrix.
@@ -730,7 +744,9 @@ fn matrix_page(features: &[Feature]) -> String {
          neighboring cells. The test fails whenever a measurement disagrees with this \
          page.\n\n\
          ✓ supported · ✗ not yet (the format can express it) · ⊘ the format can't \
-         (portably) express it. Numbers refer to the notes below.\n\n",
+         (portably) express it. Numbers refer to the notes below. A table that uses a \
+         feature its format lacks gets a warning saying where, with the note as its \
+         reason: see [Validation](../schema/validation.qmd#warnings).\n\n",
     );
     out.push_str("| Feature | IR | ");
     out.push_str(
@@ -749,10 +765,12 @@ fn matrix_page(features: &[Feature]) -> String {
             let mark = match gap(f.id, format) {
                 None => "✓".to_string(),
                 Some(g) => {
-                    let (sym, why) = match g {
-                        Gap::Todo(w) => ("✗", w),
-                        Gap::Limit(w) => ("⊘", w),
+                    let sym = match g {
+                        Gap::Todo => "✗",
+                        Gap::Limit => "⊘",
                     };
+                    let why = reason(f, format)
+                        .unwrap_or_else(|| panic!("{} / {format}: a gap, but no warning", f.id));
                     let n = match notes.iter().position(|x| *x == why) {
                         Some(i) => i + 1,
                         None => {
@@ -870,6 +888,40 @@ fn docs_page_matches_the_declared_matrix() {
         on_disk == page,
         "docs/guide/feature-matrix.qmd is out of date; rerun with GRIDWELL_BLESS_MATRIX=1"
     );
+}
+
+/// A writer warns of exactly the features it lacks: every ✗ cell's probe gets a
+/// warning naming the feature, at the cell carrying it (each such probe's is
+/// the first body cell), and no ✓ cell's does.
+#[test]
+fn writers_warn_of_their_gaps() {
+    let mut wrong = Vec::new();
+    let mut warned = 0;
+    for f in features() {
+        let table = (f.table)();
+        for format in FORMATS {
+            let warnings = gridwell_render::warnings(&table, Some(format)).unwrap();
+            let named: Vec<_> = warnings.iter().filter(|w| w.feature == f.id).collect();
+            match (gap(f.id, format), named.as_slice()) {
+                (Some(_), [w]) => {
+                    warned += 1;
+                    assert_eq!(w.format, *format);
+                    let first = Place::Cell {
+                        section: SectionKind::Body,
+                        group: Some(0),
+                        row: 0,
+                        col: 0,
+                    };
+                    assert_eq!(w.places, [first], "{w}");
+                }
+                (Some(_), _) => wrong.push(format!("{} / {format}: {named:?}", f.id)),
+                (None, []) => {}
+                (None, _) => wrong.push(format!("{} / {format}: warns {named:?}", f.id)),
+            }
+        }
+    }
+    assert!(wrong.is_empty(), "{}", wrong.join("\n"));
+    assert_eq!(warned, 3);
 }
 
 /// The probes' columns have no width; a column with one (fixed, `%`, `fr`) must
