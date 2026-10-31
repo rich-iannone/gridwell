@@ -334,8 +334,11 @@ fn text_attrs(
         _ if style.bold_over(is_header) => attrs.push("weight: \"bold\"".to_string()),
         _ => {}
     }
-    if style.is_italic() {
-        attrs.push("style: \"italic\"".to_string());
+    // Likewise a slant: a run's upright un-italics an italic cell's.
+    match &style.font_style {
+        Some(_) if style.is_italic() => attrs.push("style: \"italic\"".to_string()),
+        Some(_) => attrs.push("style: \"normal\"".to_string()),
+        None => {}
     }
     if let Some(size) = style.font_size.as_ref().and_then(typst_font_size) {
         attrs.push(format!("size: {size}"));
