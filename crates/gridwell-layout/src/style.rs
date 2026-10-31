@@ -194,6 +194,15 @@ impl ResolvedStyle {
         self.font_weight.as_ref().is_some_and(FontWeight::is_bold)
     }
 
+    /// Bold over what the format draws by default: the style's weight when
+    /// it sets one (`normal` and `lighter` un-bold a bold default), else
+    /// `default`.
+    pub fn bold_over(&self, default: bool) -> bool {
+        self.font_weight
+            .as_ref()
+            .map_or(default, FontWeight::is_bold)
+    }
+
     /// Italic or oblique.
     pub fn is_italic(&self) -> bool {
         self.font_style.as_ref().is_some_and(FontStyle::is_italic)
