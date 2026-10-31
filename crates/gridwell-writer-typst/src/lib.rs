@@ -1,7 +1,9 @@
+mod limits;
 mod render;
 
 use gridwell_ir::Table;
 
+pub use limits::unsupported;
 pub use render::RenderError;
 
 /// Configuration for Typst output.
