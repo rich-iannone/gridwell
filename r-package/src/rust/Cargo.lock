@@ -161,6 +161,7 @@ name = "gridwell-render"
 version = "0.1.0"
 dependencies = [
  "gridwell-ir",
+ "gridwell-layout",
  "gridwell-writer-ansi",
  "gridwell-writer-docx",
  "gridwell-writer-html",
