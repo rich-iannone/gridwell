@@ -96,7 +96,7 @@ impl<'s> Fmt<'s> {
             .map_or(BASE_PT, |h| f64::from(h) / 2.0);
         Self {
             bold: style.bold_over(self.bold),
-            italic: self.italic || style.is_italic(),
+            italic: style.italic_over(self.italic),
             underline: self.underline || style.is_underline(),
             strike: self.strike || style.is_strike(),
             color: style.paint().or(self.color),
