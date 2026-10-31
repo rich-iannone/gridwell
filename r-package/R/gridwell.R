@@ -19,6 +19,22 @@ gw_validate <- function(table_ptr) {
     rs_validate(table_ptr)
 }
 
+#' Find what output formats can't express of a parsed table.
+#'
+#' Some formats lack a feature the IR has (LaTeX can't align a single cell to
+#' the bottom of its row, Typst has no double borders); the writer then draws
+#' something close. Each warning names the format, the feature, where the
+#' table uses it, and what's drawn instead. A warning doesn't stop rendering.
+#'
+#' @param table_ptr An external pointer to a parsed table (from `gw_parse_ir()`).
+#' @param format A format name (see [gw_formats()]), or `NULL` for every format.
+#' @return A character vector of warnings (empty if every feature the table
+#'   uses is expressed). Invalid IR, and an unknown format, are errors.
+#' @export
+gw_warnings <- function(table_ptr, format = NULL) {
+    rs_warnings(table_ptr, format)
+}
+
 #' Serialize a parsed table back to JSON.
 #'
 #' @param table_ptr An external pointer to a parsed table.

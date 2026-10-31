@@ -13,6 +13,10 @@ rs_parse_ir <- function(json) .Call(wrap__rs_parse_ir, json)
 #' @noRd
 rs_validate <- function(table_ptr) .Call(wrap__rs_validate, table_ptr)
 
+#' What a format (or every format, for `NULL`) can't express of a valid table.
+#' @noRd
+rs_warnings <- function(table_ptr, format) .Call(wrap__rs_warnings, table_ptr, format)
+
 #' The table as JSON.
 #' @noRd
 rs_to_json <- function(table_ptr) .Call(wrap__rs_to_json, table_ptr)
