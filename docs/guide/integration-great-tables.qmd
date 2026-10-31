@@ -54,6 +54,7 @@ ir_dict = gridwell.gt_to_dict(gt)  # returns dict
 | Column labels | `thead` rows |
 | Row groups | `tbody` array with group labels |
 | Stub column | Cells with `is_stub: true` |
+| Stubhead label (`tab_stubhead()`) | The stub column's head cell (blank without one) |
 | Title/subtitle | `header` block |
 | Source notes | `footer.source_notes` |
 | Column alignment | `column_spec[].align` |
@@ -71,6 +72,19 @@ table shows it:
 - Booleans, and `datetime.date`, `datetime.datetime` (or pandas `Timestamp`) and
   `datetime.time` values are typed; a date or time is written without its time
   zone, as the wall-clock time the table shows. Dates held as strings stay strings.
+
+## HTML ids
+
+The HTML writer gives the header cells the ids Great Tables gives them, and each
+body cell the same `headers` (except that stub cells are numbered in the order the
+rows are shown, where Great Tables numbers them by data row, which differs when row
+groups reorder the rows). Great Tables' `GT(id=)` isn't part of the table, so
+pass it to the writer as `table_id`:
+
+```python
+gt = GT(df, rowname_col="name", groupname_col="grp", id="sales")
+html = gridwell.parse_ir(gridwell.gt_to_ir(gt)).render_html(table_id="sales")
+```
 
 ## Full Pipeline Example
 
