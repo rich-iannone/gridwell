@@ -199,9 +199,22 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 ### XLSX (Microsoft Excel)
 
 - SpreadsheetML format
-- Cells preserve typed values (numbers stay numeric), with a number format that shows them
-  as the table does (`0.0` for `76.0`, `#,##0` for `1,250`). A typed cell whose display
-  is not a plain number (`<0.001`, a footnote mark) stays text.
+- Cells preserve typed values, each shown as the table shows it:
+  - Numbers stay numeric, with a number format read off the display (`0.0` for `76.0`,
+    `#,##0` for `1,250`).
+  - Dates, datetimes and times are date serials, with a date format read off the display
+    (`yyyy\-mm\-dd` for `2024-03-15`, `mmm d\, yyyy` for `Mar 15, 2024`). Month and
+    weekday names and AM/PM are English (the format pins en-US, so Excel shows them
+    in English whatever its language), and literal separators are escaped (Excel
+    would otherwise put its own date separator in place of `/`). The display's
+    digits must all be the value's fields, and a time with fractions of a second
+    must show them (to milliseconds). Dates before 1900-03-01 stay text: Excel
+    counts a 1900-02-29 that never was.
+  - Booleans are boolean cells when the display is `TRUE` or `FALSE` (in any case:
+    Excel shows its own `TRUE` and `FALSE`).
+
+  A typed cell whose display no format reproduces (`<0.001`, `yes`, `Q1 2024`, a
+  footnote mark) stays text.
 - Merge regions via `<mergeCells>`
 - Styles in `xl/styles.xml` (fonts, fills, borders, number formats; a cell with no
   font of its own is in Calibri); rich text where a cell mixes formatting, in the
