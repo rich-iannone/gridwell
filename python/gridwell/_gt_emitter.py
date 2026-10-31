@@ -83,7 +83,7 @@ def _gt_to_dict(gt_obj: Any) -> dict:
     header = _build_header(built._heading)
 
     # Build thead
-    thead = _build_thead(all_cols)
+    thead = _build_thead(all_cols, has_stub, built._stubhead)
 
     # Build tbody (with row groups)
     tbody = _build_tbody(tbl_data, all_cols, built, has_stub, has_groups, group_rows)
@@ -169,11 +169,18 @@ def _build_header(heading: Any) -> dict:
     }
 
 
-def _build_thead(all_cols: list) -> dict:
-    """Build the thead section with column labels."""
+def _build_thead(all_cols: list, has_stub: bool, stubhead: Any) -> dict:
+    """Build the thead section with column labels.
+
+    The stub column's label is the stubhead's (`tab_stubhead()`), blank without
+    one, as Great Tables shows it.
+    """
     cells = []
-    for col in all_cols:
-        label = str(col.column_label) if col.column_label else col.var
+    for i, col in enumerate(all_cols):
+        if has_stub and i == 0:
+            label = _stubhead_label(stubhead)
+        else:
+            label = str(col.column_label) if col.column_label else col.var
         cells.append({
             "content": [{"type": "text", "value": label}],
             "colspan": 1,
@@ -193,6 +200,13 @@ def _build_thead(all_cols: list) -> dict:
             "cells": cells,
         }],
     }
+
+
+def _stubhead_label(stubhead: Any) -> str:
+    """The stubhead's label text, or "" when there is none."""
+    if isinstance(stubhead, list):
+        stubhead = stubhead[0] if stubhead else None
+    return "" if stubhead is None else str(stubhead)
 
 
 def _build_tbody(
