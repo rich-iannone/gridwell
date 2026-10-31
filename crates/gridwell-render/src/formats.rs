@@ -111,7 +111,7 @@ fn ok<T>(_: &T) -> Result<(), String> {
 define_format!(
     Html, "html", "HTML5 table", Text, "html", "text/html",
     options: gridwell_writer_html::HtmlWriterConfig,
-    check: |o| gridwell_writer_html::check_class_prefix(&o.class_prefix),
+    check: gridwell_writer_html::check_config,
     render: |t, o| gridwell_writer_html::HtmlWriter::with_config(o).render(t),
 );
 define_format!(
