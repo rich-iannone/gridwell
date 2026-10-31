@@ -129,6 +129,9 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   output also targets pdfLaTeX
 - `vertical_align` is not written: a `tabular` row sets its cells on one baseline,
   at its top. A cell spanning rows is a `\multirow`, centered on them
+- Lengths are written as given, and TeX holds none above `\maxdimen` (16383.99998pt,
+  about 5.75m): a table with a longer one, or with widths that add up to more, doesn't
+  compile ("Dimension too large")
 
 ### Typst
 
@@ -159,7 +162,9 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   reader's default page decides; RTF's own default, Letter with 1.25in margins, has a
   6in line). When `table_width` is set and no column is `fr`, the columns without a
   width share what the others leave; otherwise each is 1.5in, as is an `fr` column
-  the others leave no room for. `em` is 12pt
+  the others leave no room for. `em` is 12pt. Every column is at least a twip wide,
+  and widths that would add up to more than RTF's largest number (about 38km) are
+  scaled down to fit, in proportion
 - Cell fills via `\clcbpat`; cell borders via `\clbrdrt`/`\clbrdrl`/`\clbrdrb`/`\clbrdrr`
   (solid, dashed, dotted, double; no table-wide rules)
 - Vertical alignment via `\clvertalt`/`\clvertalc`/`\clvertalb`
@@ -221,7 +226,9 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   `%` and `fr` columns divide the table's width: `table_width`, else a 6in line (the
   document sets no page). When `table_width` is set and no column is `fr`, the
   columns without a width share what the others leave; otherwise each is 1.5in, as
-  is an `fr` column the others leave no room for. `em` is 11pt
+  is an `fr` column the others leave no room for. `em` is 11pt. Every column is at
+  least a dxa wide, and widths that would add up to more than the table's width can
+  hold (about 38km) are scaled down to fit, in proportion
 
 ### XLSX (Microsoft Excel)
 
@@ -261,6 +268,8 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   the table's width: `table_width`, else the slide's text width (9in, as the title
   and notes). When `table_width` is set and no column is `fr`, the columns without a
   width share what the others leave; otherwise each is 1in, as is an `fr` column the
-  others leave no room for. `em` is 18pt, PowerPoint's table text size
+  others leave no room for. `em` is 18pt, PowerPoint's table text size. Widths that
+  would add up to more than the table's frame can hold (about 60m) are scaled down
+  to fit, in proportion
 - A complete package (theme, master color map, notes size), so PowerPoint and Keynote
   open it
