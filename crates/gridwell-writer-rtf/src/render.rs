@@ -19,6 +19,11 @@ const BASE_PT: f64 = 12.0;
 /// Default column width in twips (1 inch = 1440 twips).
 const DEFAULT_COL_WIDTH: u32 = 2160; // 1.5 inches
 
+/// The width of the line, in points, that `%` and `fr` widths divide: RTF's
+/// default page (`\paperw12240`, 8.5in) less its default margins (`\margl1800`,
+/// `\margr1800`), 6in. The document sets no page, so it fits Letter and A4.
+const LINE_PT: f64 = 432.0;
+
 struct RtfRenderer<'r, 'a> {
     rt: &'r ResolvedTable<'a>,
     buf: String,
@@ -32,16 +37,15 @@ struct RtfRenderer<'r, 'a> {
 impl<'r, 'a> RtfRenderer<'r, 'a> {
     fn new(rt: &'r ResolvedTable<'a>) -> Self {
         let col_widths = rt
-            .columns
-            .iter()
-            .map(|col| {
-                // Absolute widths convert exactly; `%`, `fr` and `auto` have nothing
-                // to resolve against in RTF and get the default.
-                col.width
-                    .as_ref()
-                    .and_then(|w| w.to_twips(BASE_PT, BASE_PT))
-                    .filter(|t| t.is_finite() && *t >= 1.0 && *t <= u32::MAX as f64)
-                    .map_or(DEFAULT_COL_WIDTH, |t| t as u32)
+            .column_widths_pt(LINE_PT, f64::from(DEFAULT_COL_WIDTH) / 20.0, BASE_PT)
+            .into_iter()
+            .map(|pt| {
+                let twips = (pt * 20.0).round();
+                if twips >= 1.0 && twips <= f64::from(u32::MAX) {
+                    twips as u32
+                } else {
+                    DEFAULT_COL_WIDTH
+                }
             })
             .collect();
         let mut r = Self {
