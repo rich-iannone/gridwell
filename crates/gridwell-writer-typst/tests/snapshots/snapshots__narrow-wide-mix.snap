@@ -2,8 +2,8 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
-#table(
-  columns: (30pt, auto,),
+#block(width: 100%, table(
+  columns: (30pt, 1fr,),
   align: (right, left,),
   stroke: none,
   table.header(
@@ -15,4 +15,4 @@ expression: out
   [A long descriptive line of text\.],
   [2],
   [Another spanning description here\.],
-)
+))

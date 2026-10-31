@@ -2,7 +2,7 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
-#table(
+#block(width: 100%, table(
   columns: (90pt, 25%, 1fr, auto,),
   align: (left, left, left, left,),
   stroke: none,
@@ -17,4 +17,4 @@ expression: out
   [25\%],
   [1fr],
   [auto],
-)
+))
