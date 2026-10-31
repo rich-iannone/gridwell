@@ -56,11 +56,15 @@ enum Command {
         options_file: Option<PathBuf>,
     },
 
-    /// Validate a table IR JSON file
+    /// Validate a table IR JSON file, and warn of features a format can't express
     Validate {
         /// Input file (use "-" or omit for stdin)
         #[arg(value_name = "INPUT")]
         input: Option<PathBuf>,
+
+        /// Warn of what this format can't express (default: every format)
+        #[arg(short = 't', long = "to", value_name = "FORMAT", value_parser = parse_format)]
+        format: Option<&'static dyn Writer>,
     },
 
     /// List supported output formats
@@ -86,7 +90,7 @@ fn main() {
             options,
             options_file,
         } => cmd_convert(input, format, output, options, options_file),
-        Command::Validate { input } => cmd_validate(input),
+        Command::Validate { input, format } => cmd_validate(input, format),
         Command::Formats { json } => cmd_formats(json),
     }
 }
@@ -125,6 +129,8 @@ fn cmd_convert(
 
     let json = read_input(input.as_deref());
     let table = parse_table(&json);
+    // The table is validated with the rest below; a warning needs a valid one.
+    let warnings = gridwell_render::warnings(&table, Some(writer.name())).unwrap_or_default();
 
     // The registry validates the IR (writers never see invalid tables) and the
     // options, and writes nothing if either fails.
@@ -147,6 +153,9 @@ fn cmd_convert(
             out.write_all(&rendered.into_bytes()).unwrap();
         }
     }
+    for w in &warnings {
+        eprintln!("Warning: {w}");
+    }
 }
 
 /// Extension errors say "pass a format"; on the command line that's --to.
@@ -154,13 +163,22 @@ fn with_to_hint(e: RenderError) -> String {
     format!("{e} with --to")
 }
 
-fn cmd_validate(input: Option<PathBuf>) {
+fn cmd_validate(input: Option<PathBuf>, format: Option<&'static dyn Writer>) {
     let json = read_input(input.as_deref());
     let table = parse_table(&json);
 
     let errors = table.validate();
     if errors.is_empty() {
         eprintln!("Valid: no errors found.");
+        // Warnings don't fail validation: the table renders, without them.
+        let warnings =
+            gridwell_render::warnings(&table, format.map(|w| w.name())).unwrap_or_else(|e| fail(e));
+        if !warnings.is_empty() {
+            eprintln!("{} warning(s):", warnings.len());
+            for w in &warnings {
+                eprintln!("  - {w}");
+            }
+        }
     } else {
         eprintln!("Found {} validation error(s):", errors.len());
         for err in &errors {
