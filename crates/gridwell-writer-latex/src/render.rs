@@ -886,8 +886,11 @@ fn styled(content: &str, style: &ResolvedStyle, decorated: bool) -> String {
         Some(_) => result = format!("\\textmd{{{result}}}"),
         None => {}
     }
-    if style.is_italic() {
-        result = format!("\\textit{{{result}}}");
+    // And an upright style un-italics an italic one.
+    match style.font_style {
+        Some(_) if style.is_italic() => result = format!("\\textit{{{result}}}"),
+        Some(_) => result = format!("\\textup{{{result}}}"),
+        None => {}
     }
     if let Some(c) = style.paint() {
         result = format!("\\textcolor{}{{{result}}}", latex_color(c));
