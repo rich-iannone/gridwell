@@ -1,5 +1,6 @@
 use gridwell_core::xml::escape as escape_xml;
 use gridwell_core::Color;
+use gridwell_ir::cell::TypedValue;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table, ValueType};
 use gridwell_layout::{resolve, CellVAlign, ResolvedBorder, ResolvedStyle, ResolvedTable, Section};
@@ -8,6 +9,7 @@ use std::collections::HashMap;
 use std::fmt::Write;
 use thiserror::Error;
 
+use crate::date::Moment;
 use crate::xml;
 
 #[derive(Debug, Error)]
@@ -86,8 +88,34 @@ struct Format {
     /// Wrap text: set for text with line breaks, which Excel shows only when
     /// wrapping is on.
     wrap: bool,
-    /// How a numeric cell shows its value (`None`: General).
-    num_fmt: Option<NumFmt>,
+    /// How a typed cell shows its value (`None`: General).
+    num_fmt: Option<ValueFmt>,
+}
+
+/// How a typed cell shows its value: a number format, or a date and time
+/// format's code.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+enum ValueFmt {
+    Number(NumFmt),
+    Date(String),
+}
+
+impl ValueFmt {
+    /// The built-in `numFmtId` with this format, if there is one. Excel's
+    /// built-in date formats follow the reader's locale, so dates have none.
+    fn builtin(&self) -> Option<u32> {
+        match self {
+            Self::Number(n) => n.builtin(),
+            Self::Date(_) => None,
+        }
+    }
+
+    fn code(&self) -> String {
+        match self {
+            Self::Number(n) => n.code(),
+            Self::Date(code) => code.clone(),
+        }
+    }
 }
 
 /// A number format that shows a value as the table displays it: `0.0` for
@@ -365,13 +393,14 @@ impl StyleSheet {
         // Border 0 is "no border".
         let mut borders: Vec<[Option<Edge>; 4]> = vec![[None; 4]];
         // Number formats without a built-in id get custom ids from 164.
-        let mut custom: Vec<NumFmt> = Vec::new();
+        let mut custom: Vec<String> = Vec::new();
         let mut xfs = Vec::new();
         for f in &self.formats {
-            let num_fmt = f.num_fmt.map_or(0, |n| {
+            let num_fmt = f.num_fmt.as_ref().map_or(0, |n| {
                 n.builtin().unwrap_or_else(|| {
-                    164 + custom.iter().position(|k| *k == n).unwrap_or_else(|| {
-                        custom.push(n);
+                    let code = n.code();
+                    164 + custom.iter().position(|k| *k == code).unwrap_or_else(|| {
+                        custom.push(code);
                         custom.len() - 1
                     }) as u32
                 })
@@ -414,7 +443,7 @@ impl StyleSheet {
                     buf,
                     "    <numFmt numFmtId=\"{}\" formatCode=\"{}\"/>",
                     164 + i,
-                    escape_xml(&n.code())
+                    escape_xml(n)
                 )?;
             }
             buf.push_str("  </numFmts>\n");
@@ -709,23 +738,15 @@ impl Sheet<'_> {
                     ));
                 }
 
-                // A number shows as the table displays it, through a number
-                // format; a display no format reproduces stays text.
-                let number = cell
+                // A typed value shows as the table displays it; a display no
+                // format reproduces stays text.
+                let typed = cell
                     .typed_value
-                    .filter(|t| matches!(t.value_type, ValueType::Number | ValueType::Integer))
-                    .and_then(|t| t.value.as_f64())
-                    .filter(|v| v.is_finite())
-                    .and_then(|v| {
-                        let shown = plain_display(&cell.content)?;
-                        Some((v, NumFmt::infer(&shown, v)?))
-                    });
-                if let Some((num, num_fmt)) = number {
-                    let s = self.styles.id(&Format {
-                        num_fmt: Some(num_fmt),
-                        ..format
-                    });
-                    write!(cells, "<c r=\"{cell_ref}\"{}><v>{num}</v></c>", s_attr(s))?;
+                    .zip(plain_display(&cell.content))
+                    .and_then(|(t, shown)| typed_cell(t, &shown));
+                if let Some((t, v, num_fmt)) = typed {
+                    let s = self.styles.id(&Format { num_fmt, ..format });
+                    write!(cells, "<c r=\"{cell_ref}\"{}{t}><v>{v}</v></c>", s_attr(s))?;
                     continue;
                 }
                 let s = self.styles.id(&format);
@@ -744,6 +765,34 @@ impl Sheet<'_> {
             self.row_num += 1;
         }
         Ok(())
+    }
+}
+
+/// A typed value as a cell holds it: its `t` attribute, its `<v>` and the
+/// format that shows it as `shown`. A number (`NumFmt::infer`) or a date or
+/// time (`Moment::format`) needs a format that reproduces its display; a
+/// boolean shows as Excel's `TRUE` or `FALSE`, so its display must be that
+/// word, in any case. Anything else is `None`: the cell keeps its text.
+fn typed_cell(t: &TypedValue, shown: &str) -> Option<(&'static str, String, Option<ValueFmt>)> {
+    match t.value_type {
+        ValueType::Number | ValueType::Integer => {
+            let v = t.value.as_f64().filter(|v| v.is_finite())?;
+            let num_fmt = NumFmt::infer(shown, v)?;
+            Some(("", v.to_string(), Some(ValueFmt::Number(num_fmt))))
+        }
+        ValueType::Boolean => {
+            let b = t.value.as_bool()?;
+            let word = if b { "true" } else { "false" };
+            shown
+                .eq_ignore_ascii_case(word)
+                .then(|| (" t=\"b\"", u8::from(b).to_string(), None))
+        }
+        ValueType::Date | ValueType::Datetime | ValueType::Time => {
+            let moment = Moment::parse(&t.value_type, t.value.as_str()?)?;
+            let code = moment.format(shown)?;
+            Some(("", moment.serial().to_string(), Some(ValueFmt::Date(code))))
+        }
+        _ => None,
     }
 }
 
