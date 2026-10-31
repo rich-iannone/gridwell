@@ -65,7 +65,7 @@ fn without_text_length(svg: &str) -> String {
 
 /// (format, marker for the right-aligned number, marker for the centered spanner)
 const CASES: &[(&str, &str, &str)] = &[
-    ("html", "<td class=\"gw__al_right\">12345</td>", "<th class=\"gw_col_label gw__al_center\" colspan=\"2\">SPANNER</th>"),
+    ("html", "<td class=\"gw__al_right\" headers=\"n v\">12345</td>", "<th class=\"gw_col_label gw__al_center\" colspan=\"2\" id=\"n\">SPANNER</th>"),
     ("latex", "\\begin{tabular}{lr}", "\\multicolumn{2}{c}{SPANNER}"),
     ("typst", "align: (left, right,),", "table.cell(colspan: 2, align: center)"),
     ("rtf", "\\pard\\intbl\\plain\\qr 12345\\cell", "\\pard\\intbl\\plain\\qc\\b SPANNER\\cell"),
