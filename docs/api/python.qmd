@@ -36,6 +36,15 @@ if errors:
         print(f"Error: {e}")
 ```
 
+A valid table can still use a feature a format can't express. `table.warnings(format)`
+lists those [warnings](../schema/validation.qmd#warnings) for one format, or every
+format with no argument; it raises like `render` for invalid IR or an unknown format.
+
+```python
+for w in table.warnings("latex"):  # returns list[str]
+    print(w)
+```
+
 ## Text Rendering
 
 ```python
