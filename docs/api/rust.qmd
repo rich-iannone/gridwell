@@ -113,6 +113,9 @@ let config = HtmlWriterConfig {
     inline_styles: true,
     pretty_print: false,
     class_prefix: "my-table".to_string(),
+    // The container's id, and the prefix of the header ids.
+    table_id: Some("sales".to_string()),
+    ..HtmlWriterConfig::default()
 };
 let writer = HtmlWriter::with_config(config);
 let html = writer.render(&table)?;
