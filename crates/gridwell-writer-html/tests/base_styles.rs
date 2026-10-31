@@ -174,13 +174,19 @@ fn a_removed_border_removes_the_base_hairline_too() {
         html.contains(".gw_table .gw__c0 { border-top: none }"),
         "{html}"
     );
-    assert!(html.contains("<td class=\"gw__c0\">3</td>"), "{html}");
-    assert!(html.contains("<td class=\"gw__c0\">4</td>"), "{html}");
-    assert!(html.contains("<td>1</td>"), "{html}");
+    assert!(
+        html.contains("<td class=\"gw__c0\" headers=\"col_0\">3</td>"),
+        "{html}"
+    );
+    assert!(
+        html.contains("<td class=\"gw__c0\" headers=\"col_1\">4</td>"),
+        "{html}"
+    );
+    assert!(html.contains("<td headers=\"col_0\">1</td>"), "{html}");
     // Inline: on the cells' own `style`.
     let inline = render(&t, true, true, "gw");
     assert!(
-        inline.contains("<td style=\"border-top: none\">3</td>"),
+        inline.contains("<td style=\"border-top: none\" headers=\"col_0\">3</td>"),
         "{inline}"
     );
     // `hidden` counts as removed; an unset side doesn't.
@@ -205,5 +211,8 @@ fn a_drawn_row_border_is_carried_by_its_cells() {
         .find(|l| l.contains(".gw__c0 {"))
         .unwrap_or_else(|| panic!("no generated class:\n{html}"));
     assert!(rule.contains("border-top: 1px dashed #FF0000"), "{rule}");
-    assert!(html.contains("<td class=\"gw__c0\">3</td>"), "{html}");
+    assert!(
+        html.contains("<td class=\"gw__c0\" headers=\"col_0\">3</td>"),
+        "{html}"
+    );
 }
