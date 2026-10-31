@@ -1,4 +1,5 @@
 mod base;
+mod ids;
 mod render;
 
 use gridwell_ir::Table;
@@ -25,6 +26,11 @@ pub struct HtmlWriterConfig {
     /// charset="utf-8">`, a `<title>` from the table's title) for a file opened on
     /// its own. Off gives a fragment for a host page.
     pub standalone: bool,
+    /// The table's id, as Great Tables' `GT(id=)`: the container's `id`, and the
+    /// prefix (`{table_id}-`) of every id the writer makes (header cells, the
+    /// title and subtitle), so they stay unique on a page holding several tables.
+    /// Without one, those ids are unprefixed.
+    pub table_id: Option<String>,
 }
 
 impl Default for HtmlWriterConfig {
@@ -35,6 +41,7 @@ impl Default for HtmlWriterConfig {
             class_prefix: "gw".to_string(),
             base_styles: true,
             standalone: false,
+            table_id: None,
         }
     }
 }
@@ -82,6 +89,22 @@ pub fn check_class_prefix(v: &str) -> Result<(), String> {
             "class_prefix must start with a letter or `_` and contain only letters, digits, `_` and `-`; got {v:?}"
         ))
     }
+}
+
+/// Check a `table_id`: an HTML id, so not empty and without whitespace.
+pub fn check_table_id(v: Option<&str>) -> Result<(), String> {
+    match v {
+        Some(id) if id.is_empty() || id.chars().any(char::is_whitespace) => Err(format!(
+            "table_id must be a valid HTML id, not empty and without whitespace; got {id:?}"
+        )),
+        _ => Ok(()),
+    }
+}
+
+/// Check a whole config: its `class_prefix` and `table_id`.
+pub fn check_config(config: &HtmlWriterConfig) -> Result<(), String> {
+    check_class_prefix(&config.class_prefix)?;
+    check_table_id(config.table_id.as_deref())
 }
 
 /// Convenience function to render a table to HTML with default settings.
