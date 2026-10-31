@@ -21,6 +21,12 @@ Two styles are CSS values that other formats translate:
   in every format except HTML, where CSS's `text-transform` applies it and the markup
   keeps the text as written. Footnote marks are never transformed.
 
+A style's `font_weight` replaces the weight a format draws by default: `normal` (or
+`lighter`) un-bolds column labels, the title or a group label, and a styled run's
+weight replaces its cell's, so a `normal` run in a bold cell is not bold. Pandoc and
+Quarto have bold (`Strong`) but no way to undo it, and ANSI draws its title and group
+labels bold whatever their style.
+
 ## Text Formats
 
 ### HTML
