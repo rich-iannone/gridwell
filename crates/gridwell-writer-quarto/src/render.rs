@@ -46,6 +46,8 @@ pub fn render(table: &Table, config: &QuartoConfig) -> Result<String, RenderErro
             kv_pairs.push(json!(["tbl-subcap", text]));
         }
     }
+    // The notes after the table are in its language and direction too.
+    kv_pairs.extend(ast::lang_dir(table));
     let attr = json!([id, ["quarto-table", "cell-output-display"], kv_pairs]);
 
     // Div(attr, [Table, footnotes Para, source notes Para]).
