@@ -47,13 +47,41 @@ fn writers() -> Vec<(&'static str, RenderFn)> {
         }),
         ("xlsx", |t| {
             gridwell_writer_xlsx::render_xlsx(t).map_err(|e| e.to_string())?;
-            e(gridwell_writer_xlsx::XlsxWriter::new().render_sheet_xml(t))
+            let w = gridwell_writer_xlsx::XlsxWriter::new();
+            let sheet = e(w.render_sheet_xml(t))?;
+            Ok(inline_shared_strings(
+                &sheet,
+                &e(w.render_shared_strings_xml(t))?,
+            ))
         }),
         ("pptx", |t| {
             gridwell_writer_pptx::render_pptx(t).map_err(|e| e.to_string())?;
             e(gridwell_writer_pptx::PptxWriter::new().render_slide_xml(t))
         }),
     ]
+}
+
+/// `sheet` with each shared-string cell (`t="s"`) holding its string inline, so
+/// that a cell's text sits in the cell.
+fn inline_shared_strings(sheet: &str, strings: &str) -> String {
+    let items: Vec<&str> = strings
+        .split("<si>")
+        .skip(1)
+        .map(|i| &i[..i.find("</si>").unwrap()])
+        .collect();
+    let mut out = String::with_capacity(sheet.len());
+    let mut rest = sheet;
+    while let Some(at) = rest.find(" t=\"s\"><v>") {
+        let (head, tail) = rest.split_at(at);
+        let tail = &tail[" t=\"s\"><v>".len()..];
+        let end = tail.find("</v>").unwrap();
+        let n: usize = tail[..end].parse().unwrap();
+        out.push_str(head);
+        out.push_str(&format!(" t=\"inlineStr\"><is>{}</is>", items[n]));
+        rest = &tail[end + "</v>".len()..];
+    }
+    out.push_str(rest);
+    out
 }
 
 /// Writers known to drop origin cells for some span layouts, by placement. Remove
