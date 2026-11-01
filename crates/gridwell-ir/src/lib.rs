@@ -16,8 +16,8 @@ pub use config::Config;
 pub use content::ContentNode;
 pub use keywords::{
     BorderStyle, CellScope, FontStyle, FontWeight, HAlign, Keyword, Overflow, PageBreakMode,
-    RowParity, RowRole, SelectorScope, TextDecoration, TextOverflow, TextTransform, VAlign,
-    ValueType, WhiteSpace, WordBreak,
+    RowParity, RowRole, SelectorScope, TextDecoration, TextDirection, TextOverflow, TextTransform,
+    VAlign, ValueType, WhiteSpace, WordBreak,
 };
 pub use span::{resolve_slots, vmerge_layout, MergeCell, Slot, VMerge};
 pub use style::{StyleDef, StylePalette};
