@@ -118,13 +118,28 @@ fn xlsx_writes_integers_and_numbers_as_numeric_cells() {
             cell("x").typed("string", serde_json::json!("x")),
         ])])
         .build();
-    let xml = gridwell_writer_xlsx::XlsxWriter::new()
-        .render_sheet_xml(&t)
-        .unwrap();
-    assert!(xml.contains("<v>42</v>"), "integer not numeric: {xml}");
-    assert!(xml.contains("<v>1.5</v>"), "number not numeric: {xml}");
+    let w = gridwell_writer_xlsx::XlsxWriter::new();
+    let xml = w.render_sheet_xml(&t).unwrap();
+    let strings = w.render_shared_strings_xml(&t).unwrap();
+    let c = |r: &str| {
+        let at = xml.find(&format!("<c r=\"{r}\"")).expect(r);
+        &xml[at..at + xml[at..].find("</c>").unwrap()]
+    };
     assert!(
-        xml.contains("t=\"inlineStr\"><is><t xml:space=\"preserve\">x</t>"),
-        "string not text: {xml}"
+        !c("A1").contains("t=") && c("A1").ends_with("<v>42</v>"),
+        "{xml}"
+    );
+    assert!(
+        !c("B1").contains("t=") && c("B1").ends_with("<v>1.5</v>"),
+        "{xml}"
+    );
+    // Text is a shared string: the only one, at index 0.
+    assert!(
+        c("C1").contains("t=\"s\"") && c("C1").ends_with("<v>0</v>"),
+        "{xml}"
+    );
+    assert!(
+        strings.contains("<si><t>x</t></si>"),
+        "string not text: {strings}"
     );
 }
