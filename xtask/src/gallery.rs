@@ -366,6 +366,7 @@ fn render_html(rows: &[GalleryRow], tools: &Tools) -> String {
     h.push_str("<h1>Gridwell render gallery</h1>");
     h.push_str(
         "<p class=\"meta\"><a class=\"raw\" href=\"gt.html\">gt vs gridwell HTML →</a> · \
+         <a class=\"raw\" href=\"great-tables.html\">Great Tables vs gridwell HTML →</a> · \
          <a class=\"raw\" href=\"svg.html\">gridwell HTML vs SVG →</a></p>",
     );
     let _ = write!(
@@ -523,6 +524,27 @@ mod tests {
         CellStatus::Png {
             rel: String::new(),
             diff,
+        }
+    }
+
+    #[test]
+    fn the_index_links_to_every_comparison_page() {
+        let tools = Tools {
+            chromium: None,
+            rsvg: None,
+            typst: None,
+            xelatex: None,
+            soffice: None,
+            pdftoppm: None,
+            standalone_cls: false,
+        };
+        let html = render_html(&[], &tools);
+        for page in crate::gt_compare::SOURCES
+            .iter()
+            .map(|s| s.page)
+            .chain(["svg.html"])
+        {
+            assert!(html.contains(&format!("href=\"{page}\"")), "{page}");
         }
     }
 
