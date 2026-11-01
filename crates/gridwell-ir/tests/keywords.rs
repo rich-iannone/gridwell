@@ -11,7 +11,8 @@ fn base() -> Value {
     json!({
         "ir_version": "1.0",
         "config": { "table_cols": 2, "header_rows": 1, "body_rows": 1, "stub_cols": 1,
-                    "page_break_mode": "avoid", "container_overflow": "auto" },
+                    "page_break_mode": "avoid", "container_overflow": "auto",
+                    "lang": "ar", "dir": "rtl" },
         "styles": {
             "defs": { "s": { "font_weight": "bold", "font_style": "italic", "text_align": "right",
                              "vertical_align": "middle", "text_transform": "none",
@@ -54,6 +55,7 @@ fn aliases_and_case_variants_validate_cleanly() {
     let mut v = base();
     v["column_spec"][1]["align"] = json!("  RIGHT ");
     v["config"]["page_break_mode"] = json!("Force_Between_Groups");
+    v["config"]["dir"] = json!("RTL");
     v["styles"]["conditionals"][0]["selector"]["scope"] = json!("body");
     v["table"]["tbody"][0]["summary_rows"][0]["role"] = json!("summary");
     v["styles"]["defs"]["s"]["font_weight"] = json!(700);
@@ -75,6 +77,10 @@ fn every_keyword_field_reports_unknown_values() {
         (
             "config.page_break_mode",
             Box::new(|v| v["config"]["page_break_mode"] = json!("sometimes")),
+        ),
+        (
+            "config.dir",
+            Box::new(|v| v["config"]["dir"] = json!("sideways")),
         ),
         (
             "config.container_overflow",

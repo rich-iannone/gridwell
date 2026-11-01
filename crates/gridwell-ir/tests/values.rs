@@ -1,5 +1,6 @@
-//! INVALID_COLOR and INVALID_LENGTH: every color and length field is checked, with a
-//! message naming the field and the value, and valid forms of every kind pass.
+//! INVALID_COLOR, INVALID_LENGTH and INVALID_LANG: every color, length and language
+//! field is checked, with a message naming the field and the value, and valid forms
+//! of every kind pass.
 
 use gridwell_ir::{Table, ValidationRule};
 use serde_json::{json, Value};
@@ -460,4 +461,22 @@ fn every_bad_value_is_reported_and_order_is_deterministic() {
     for _ in 0..5 {
         assert_eq!(errors_for(&v), a);
     }
+}
+
+#[test]
+fn lang_must_be_a_language_tag() {
+    for good in ["en", "fr-CA", "zh-Hant-TW", "AR-eg", "es-419", "x-private"] {
+        let mut v = base();
+        v["config"]["lang"] = json!(good);
+        assert_eq!(errors_for(&v), vec![], "{good}");
+    }
+    for bad in ["fr_CA", "", "e", "en-", "en-US-Latn", "toolongtag", "ar EG"] {
+        let mut v = base();
+        v["config"]["lang"] = json!(bad);
+        expect_one(&v, ValidationRule::InvalidLang, "config.lang", bad);
+    }
+    let mut v = base();
+    v["config"]["lang"] = json!("fr_CA");
+    let (_, msg) = &errors_for(&v)[0];
+    assert!(msg.contains("not `_`"), "{msg}");
 }
