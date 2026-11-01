@@ -1,5 +1,6 @@
 """Integration tests: Great Tables GT -> gridwell IR -> all output formats."""
 
+import importlib
 import json
 
 import pytest
@@ -368,3 +369,67 @@ def test_without_a_locale_the_language_is_unset():
     assert "lang" not in config and "dir" not in config
     html = gridwell.Table.from_json(gridwell.gt_to_ir(make_simple_gt())).render_html()
     assert "lang=" not in html and "dir=" not in html
+
+
+# ─── Footnotes and source notes ───
+
+
+def _footnotes_shown(html):
+    """(mark, text) of each footnote Great Tables lists under the table."""
+    import re
+
+    out = []
+    for item in re.findall(r'<td class="gt_footnote"[^>]*>(.*?)</td>', html, re.S):
+        mark = re.search(r'<span class="gt_footnote_marks"[^>]*>([^<]*)</span>', item)
+        text = re.sub(r"<[^>]+>", "", re.sub(r'<span class="gt_footnote_marks".*?</span>', "", item))
+        out.append((mark.group(1) if mark else "", text.strip()))
+    return out
+
+
+def make_footnoted_gt():
+    """Footnotes added out of reading order, one text on two cells, one without a mark."""
+    from great_tables import loc
+
+    return (
+        GT(exibble[["char", "num"]].head(3))
+        .tab_header(title="Title")
+        .tab_footnote("Body note.", locations=loc.body(columns="char", rows=[1]))
+        .tab_footnote("Label note.", locations=loc.column_labels(columns="num"))
+        .tab_footnote("Title note.", locations=loc.title())
+        .tab_footnote("Body note.", locations=loc.body(columns="num", rows=[2]))
+        .tab_footnote("A general note.")
+    )
+
+
+@pytest.mark.skipif(
+    not hasattr(
+        importlib.import_module("great_tables._utils_render_html"),
+        "_process_footnotes_for_display",
+    ),
+    reason="Great Tables before 1.0 doesn't show footnotes",
+)
+def test_footnotes_are_the_ones_great_tables_shows_with_its_marks():
+    gt_obj = make_footnoted_gt()
+    shown = _footnotes_shown(gt_obj.as_raw_html())
+    # The probe sees what Great Tables shows: reading order, one per text.
+    assert shown == [
+        ("", "A general note."),
+        ("1", "Title note."),
+        ("2", "Label note."),
+        ("3", "Body note."),
+    ]
+    ir = gridwell.gt_to_dict(gt_obj)
+    footnotes = ir["footer"]["footnotes"]
+    assert [(f["mark"], f["content"][0]["value"]) for f in footnotes] == shown
+    assert len({f["id"] for f in footnotes}) == len(footnotes)
+    table = gridwell.Table.from_json(gridwell.gt_to_ir(gt_obj))
+    assert table.validate() == []
+    assert "Title note." in table.render_html()
+
+
+def test_md_notes_are_their_text_not_the_objects_repr():
+    from great_tables import md
+
+    gt_obj = GT(exibble[["num"]].head(1)).tab_source_note(md("Source *two*."))
+    note = gridwell.gt_to_dict(gt_obj)["footer"]["source_notes"][0]["content"][0]["value"]
+    assert "two" in note and "Md(" not in note and "Text(" not in note
