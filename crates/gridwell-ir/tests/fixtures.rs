@@ -273,6 +273,7 @@ fn every_rule_has_an_invalid_fixture() {
         InvalidColor,
         InvalidLength,
         InvalidStyleId,
+        InvalidLang,
     ];
     for rule in all {
         match rule {
@@ -293,7 +294,8 @@ fn every_rule_has_an_invalid_fixture() {
             | UnknownValue
             | InvalidColor
             | InvalidLength
-            | InvalidStyleId => {
+            | InvalidStyleId
+            | InvalidLang => {
                 assert!(
                     covered.contains(rule.id()),
                     "no invalid fixture produces {rule}"
