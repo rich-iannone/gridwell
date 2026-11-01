@@ -34,7 +34,7 @@ fn writers() -> Vec<WriterCase> {
         (
             "rtf",
             |t| gridwell_writer_rtf::render_rtf(t).unwrap(),
-            "\\b BOLDCELL",
+            "\\b\\ab BOLDCELL",
         ),
         (
             "svg",
