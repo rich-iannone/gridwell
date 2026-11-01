@@ -17,7 +17,7 @@
 mod support;
 
 use gridwell_ir::style::{BorderSet, ConditionalSelector, StyleDef};
-use gridwell_ir::Table;
+use gridwell_ir::{Table, TextDirection};
 use gridwell_render::{Place, SectionKind};
 use gridwell_testkit::{
     border, cell, cell_content, column, examples, footnote_mark, labeled_group, row, styled, text,
@@ -34,11 +34,12 @@ fn read_one(format: &str, t: &Table) -> Option<Doc> {
         "html" => look::html(&gridwell_writer_html::render_html(t).unwrap()),
         "latex" => look::latex(&gridwell_writer_latex::render_latex(t).unwrap()),
         "rtf" => look::rtf(&gridwell_writer_rtf::render_rtf(t).unwrap()),
-        "docx" => look::docx(
-            &gridwell_writer_docx::DocxWriter::new()
-                .render_document_xml(t)
-                .unwrap(),
-        ),
+        "docx" => {
+            let w = gridwell_writer_docx::DocxWriter::new();
+            let mut doc = look::docx(&w.render_document_xml(t).unwrap());
+            doc.lang = look::docx_lang(&w.render_styles_xml(t));
+            doc
+        }
         "pptx" => look::pptx(
             &gridwell_writer_pptx::PptxWriter::new()
                 .render_slide_xml(t)
@@ -569,8 +570,34 @@ fn features() -> Vec<Feature> {
                 Ok(())
             },
         },
+        Feature {
+            id: "lang",
+            what: "`config.lang`, the table's language",
+            table: || {
+                let mut t = probe(StyleDef::default());
+                t.config.lang = Some("ar".into());
+                t
+            },
+            check: |d| match d.lang.as_deref() {
+                Some("ar") => Ok(()),
+                other => Err(format!("the language is {other:?}")),
+            },
+        },
+        Feature {
+            id: "rtl",
+            what: "`config.dir: rtl`, columns and text right to left",
+            table: || {
+                let mut t = probe(StyleDef::default());
+                t.config.dir = Some(TextDirection::Rtl);
+                t
+            },
+            check: |d| d.rtl.then_some(()).ok_or_else(|| "left to right".into()),
+        },
     ]
 }
+
+/// Features of the table as a whole, which a writer warns of at the table.
+const TABLE_WIDE: &[&str] = &["lang", "rtl"];
 
 /// `font_style: normal` on a run inside an italic cell and an italic source
 /// note (`ITALICTEXT` and `LINETEXT`, the rest of each, stay italic).
@@ -738,9 +765,7 @@ fn every_probe_is_valid() {
 /// docs page.
 #[derive(Clone, Copy, PartialEq)]
 enum Gap {
-    /// The format can express it; the writer doesn't yet. No cell is one now;
-    /// a feature added to the matrix before every writer has it would be.
-    #[allow(dead_code)]
+    /// The format can express it; the writer doesn't yet.
     Todo,
     /// The format can't (portably) express it.
     Limit,
@@ -748,11 +773,14 @@ enum Gap {
 
 /// The declared ✗ cells; every other cell is ✓.
 fn gap(feature: &str, format: &str) -> Option<Gap> {
-    use Gap::Limit;
+    use Gap::{Limit, Todo};
     Some(match (feature, format) {
         ("font-family", "latex") => Limit,
         ("vertical-align", "latex") => Limit,
         ("border-double", "typst") => Limit,
+        ("lang", "latex" | "xlsx") => Limit,
+        ("lang", "rtf") => Todo,
+        ("rtl", "latex") => Limit,
         _ => return None,
     })
 }
@@ -779,9 +807,9 @@ fn matrix_page(features: &[Feature]) -> String {
          *measured*: \
          the test renders a probe table, reads the output back with a format-specific \
          reader (cell by cell: weight, slant, decoration, color, size, font, fill, \
-         alignment, borders) and checks the feature is there — and doesn't leak into \
-         neighboring cells. The test fails whenever a measurement disagrees with this \
-         page.\n\n\
+         alignment, borders; for the table as a whole, its language and direction) and \
+         checks the feature is there — and doesn't leak into neighboring cells. The test \
+         fails whenever a measurement disagrees with this page.\n\n\
          ✓ supported · ✗ not yet (the format can express it) · ⊘ the format can't \
          (portably) express it. Numbers refer to the notes below. A table that uses a \
          feature its format lacks gets a warning saying where, with the note as its \
@@ -931,7 +959,8 @@ fn docs_page_matches_the_declared_matrix() {
 
 /// A writer warns of exactly the features it lacks: every ✗ cell's probe gets a
 /// warning naming the feature, at the cell carrying it (each such probe's is
-/// the first body cell), and no ✓ cell's does.
+/// the first body cell) or at the table for a table-wide feature, and no ✓
+/// cell's does.
 #[test]
 fn writers_warn_of_their_gaps() {
     let mut wrong = Vec::new();
@@ -945,11 +974,15 @@ fn writers_warn_of_their_gaps() {
                 (Some(_), [w]) => {
                     warned += 1;
                     assert_eq!(w.format, *format);
-                    let first = Place::Cell {
-                        section: SectionKind::Body,
-                        group: Some(0),
-                        row: 0,
-                        col: 0,
+                    let first = if TABLE_WIDE.contains(&f.id) {
+                        Place::Table
+                    } else {
+                        Place::Cell {
+                            section: SectionKind::Body,
+                            group: Some(0),
+                            row: 0,
+                            col: 0,
+                        }
                     };
                     assert_eq!(w.places, [first], "{w}");
                 }
@@ -960,7 +993,7 @@ fn writers_warn_of_their_gaps() {
         }
     }
     assert!(wrong.is_empty(), "{}", wrong.join("\n"));
-    assert_eq!(warned, 3);
+    assert_eq!(warned, 7);
 }
 
 /// The probes' columns have no width; a column with one (fixed, `%`, `fr`) must
