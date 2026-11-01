@@ -244,7 +244,21 @@ fn features() -> Vec<Feature> {
                 t.table.tbody[0].rows[0].cells[1].style_id = Some("big".into());
                 t
             },
-            check: |d| target_only(d, "bottom alignment", |l| l.valign == Some(VAlign::Bottom)),
+            // Where bottom is the format's default (XLSX), TARGET states nothing:
+            // so it counts, and a control that states bottom leaks it.
+            check: |d| {
+                let t = get(d, "TARGET")?;
+                if t.valign.or(d.valign_default) != Some(VAlign::Bottom) {
+                    return Err(format!("TARGET lacks bottom alignment: {t:?}"));
+                }
+                for c in ["CONTROLA", "CONTROLB", "CONTROLC"] {
+                    let l = get(d, c)?;
+                    if l.valign == Some(VAlign::Bottom) {
+                        return Err(format!("bottom alignment leaks into {c}: {l:?}"));
+                    }
+                }
+                Ok(())
+            },
         },
         Feature {
             id: "border",
