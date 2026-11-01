@@ -128,6 +128,10 @@ pub struct Doc {
     pub outside: String,
     /// The same text as runs, where the reader recovers its formatting.
     pub outside_runs: Vec<Run>,
+    /// The language the format gives the table's text, where it states one.
+    pub lang: Option<String>,
+    /// The format lays the table out right to left.
+    pub rtl: bool,
 }
 
 impl Doc {
@@ -182,6 +186,11 @@ pub fn finish(mut look: Look) -> Look {
     }
     look.text = look.runs.iter().map(|r| r.text.as_str()).collect();
     look
+}
+
+/// An XML boolean attribute is set (`1` or `true`).
+fn on_flag(e: &BytesStart, key: &str) -> bool {
+    attr(e, key).is_some_and(|v| v == "1" || v == "true")
 }
 
 fn local(e: &BytesStart) -> String {
@@ -340,7 +349,10 @@ pub fn docx(xml: &str) -> Doc {
                 st.element(&e, path.last().map(String::as_str).unwrap_or(""));
                 path.push(name);
             }
-            Event::Empty(e) => st.element(&e, path.last().map(String::as_str).unwrap_or("")),
+            Event::Empty(e) => {
+                doc.rtl |= local(&e) == "bidiVisual";
+                st.element(&e, path.last().map(String::as_str).unwrap_or(""))
+            }
             Event::Text(t) if in_text => {
                 let text = t.unescape().unwrap().into_owned();
                 match st.look.as_mut() {
@@ -415,6 +427,21 @@ pub fn docx(xml: &str) -> Doc {
         }
     }
     doc
+}
+
+/// The document's default language in a DOCX `styles.xml`: its right-to-left
+/// one (`w:bidi`) if set, else the Latin one.
+pub fn docx_lang(styles: &str) -> Option<String> {
+    let mut reader = Reader::from_str(styles);
+    loop {
+        match reader.read_event().expect("well-formed styles.xml") {
+            Event::Empty(e) | Event::Start(e) if local(&e) == "lang" => {
+                return attr(&e, "bidi").or_else(|| attr(&e, "val"));
+            }
+            Event::Eof => return None,
+            _ => {}
+        }
+    }
 }
 
 // ─── XLSX ───
@@ -618,6 +645,9 @@ pub fn xlsx(sheet: &str, styles: &str, strings: &str) -> Doc {
             }
             Event::Empty(e) if local(&e) == "c" => {
                 doc.cells.push(st.look(style(&e), String::new()))
+            }
+            Event::Empty(e) | Event::Start(e) if local(&e) == "sheetView" => {
+                doc.rtl = on_flag(&e, "rightToLeft");
             }
             Event::Start(e) if local(&e) == "r" => run = Some(Run::default()),
             Event::Start(e) if local(&e) == "rPr" => in_rpr = true,
@@ -886,6 +916,7 @@ pub fn rtf(rtf: &str) -> Doc {
                 match w.as_str() {
                     "fonttbl" | "colortbl" | "stylesheet" | "info" => skip_from = Some(stack.len()),
                     "plain" => *st = Chars::default(),
+                    "rtlrow" => doc.rtl = true,
                     "b" => st.bold = flag,
                     "i" => st.italic = flag,
                     "ul" => st.underline = flag,
@@ -1309,6 +1340,18 @@ pub fn html(html: &str) -> Doc {
         parse_css(&style.text().collect::<String>(), &mut rules);
     }
     let mut doc = Doc::default();
+    // The language and direction the table has: its own, or the nearest
+    // ancestor's.
+    let table = scraper::Selector::parse("table").unwrap();
+    if let Some(t) = doc_html.select(&table).next() {
+        let inherited = |key: &str| {
+            std::iter::once(t)
+                .chain(t.ancestors().filter_map(scraper::ElementRef::wrap))
+                .find_map(|e| e.value().attr(key).map(str::to_string))
+        };
+        doc.lang = inherited("lang");
+        doc.rtl = inherited("dir").as_deref() == Some("rtl");
+    }
     let cells = scraper::Selector::parse("table td, table th").unwrap();
     let base = Inherited {
         run: Run {
@@ -2145,6 +2188,7 @@ pub fn pptx(xml: &str) -> Doc {
                     skip_cell = attr(&e, "hMerge").is_some() || attr(&e, "vMerge").is_some();
                     look = Some(Look::default());
                 }
+                "tblPr" => doc.rtl = on_flag(&e, "rtl"),
                 "tcPr" => {
                     if let Some(l) = look.as_mut() {
                         l.valign = match attr(&e, "anchor").as_deref() {
@@ -2166,6 +2210,9 @@ pub fn pptx(xml: &str) -> Doc {
                 }
                 "p" => para_align = None,
                 "rPr" | "endParaRPr" if name == "rPr" => {
+                    if look.is_some() && doc.lang.is_none() {
+                        doc.lang = attr(&e, "lang");
+                    }
                     let flag = |k: &str| attr(&e, k).is_some_and(|v| v == "1" || v == "true");
                     run = Some(Run {
                         bold: flag("b"),
