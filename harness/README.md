@@ -16,6 +16,7 @@ harness/
   Dockerfile               # pinned renderer toolchain (chromium/xelatex/typst/libreoffice/…)
   goldens/<fmt>/<name>.png # committed golden images for the gated subset
   gt-reference/            # real gt tables: gt's HTML + gridwell IR (committed)
+  gt-reference-py/         # the same tables in Great Tables: its HTML + IR (committed)
   corpus/                  # generated IR JSON            (gitignored)
   gallery/                 # generated gallery + previews (gitignored)
 ```
@@ -120,6 +121,30 @@ Rscript harness/gt-reference/make.R
 
 Add a case by adding an entry to `cases.R` and regenerating. The xtask tests
 check that the manifest and files agree and that gt's HTML is self-contained.
+
+## Great Tables vs gridwell HTML (report only)
+
+`harness/gallery/great-tables.html` is the same page for Great Tables (Python):
+its own HTML next to gridwell's for the same tables, via `gridwell.gt_to_ir()`.
+It measures the Python emitter the way the gt page measures the R one, and is
+built and scored the same way.
+
+- **Inputs** (committed): `harness/gt-reference-py/<name>.gt.html` (Great Tables'
+  `as_raw_html()`), `<name>.ir.json` and `manifest.json` (with the Python, Great
+  Tables and gridwell versions used). The cases in `cases.py` mirror `cases.R`:
+  the same names and tables, so the two pages can be read side by side (an xtask
+  test checks that the names agree). `make.py` writes the files.
+- `cargo xtask gt` builds both pages.
+
+Regenerate the references after changing the Great Tables emitter or upgrading
+Great Tables, in an environment with the development gridwell, `great_tables` and
+`pandas` installed (the Python tests fail if the checked-in IR no longer matches
+`gt_to_ir()`, when run with the Great Tables version in the manifest):
+
+```bash
+maturin develop --release
+python harness/gt-reference-py/make.py
+```
 
 ## gridwell HTML vs SVG (report only)
 
