@@ -6,8 +6,8 @@ expression: out
 {\fonttbl{\f0 Arial;}}
 {\colortbl ;\red0\green0\blue0;\red255\green255\blue255;}
 \trowd\trhdr\cellx1500\cellx3300
-\pard\intbl\plain\b Label\cell
-\pard\intbl\plain\b Token\cell
+\pard\intbl\plain\b\ab Label\cell
+\pard\intbl\plain\b\ab Token\cell
 \row
 \trowd\cellx1500\cellx3300
 \pard\intbl\plain URL\cell

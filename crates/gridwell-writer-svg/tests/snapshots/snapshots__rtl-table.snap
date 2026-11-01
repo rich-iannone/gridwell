@@ -1,0 +1,63 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: out
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="246" height="393" viewBox="0 0 246 393" xml:lang="ar">
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
+<rect x="0" y="0" width="245.11" height="2" fill="#A8A8A8"/>
+<rect x="128.53" y="57.38" width="116.59" height="2" fill="#D3D3D3"/>
+<rect x="0" y="57.38" width="128.53" height="2" fill="#D3D3D3"/>
+<rect x="0" y="88.13" width="124.53" height="2" fill="#D3D3D3"/>
+<rect x="128.53" y="119.88" width="116.59" height="2" fill="#D3D3D3"/>
+<rect x="68.94" y="119.88" width="59.58" height="2" fill="#D3D3D3"/>
+<rect x="0" y="119.88" width="68.94" height="2" fill="#D3D3D3"/>
+<rect x="128.53" y="156.63" width="116.59" height="2" fill="#D3D3D3"/>
+<rect x="127.53" y="157.63" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="68.94" y="156.63" width="59.58" height="2" fill="#D3D3D3"/>
+<rect x="0" y="156.63" width="68.94" height="2" fill="#D3D3D3"/>
+<rect x="128.53" y="193.38" width="116.59" height="1" fill="#D3D3D3"/>
+<rect x="128.53" y="229.13" width="116.59" height="2" fill="#D3D3D3"/>
+<rect x="127.53" y="193.88" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="68.94" y="193.38" width="59.58" height="1" fill="#D3D3D3"/>
+<rect x="68.94" y="229.13" width="59.58" height="2" fill="#D3D3D3"/>
+<rect x="0" y="193.38" width="68.94" height="1" fill="#D3D3D3"/>
+<rect x="0" y="229.13" width="68.94" height="2" fill="#D3D3D3"/>
+<rect x="128.53" y="265.88" width="116.59" height="2" fill="#D3D3D3"/>
+<rect x="127.53" y="266.88" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="68.94" y="265.88" width="59.58" height="2" fill="#D3D3D3"/>
+<rect x="0" y="265.88" width="68.94" height="2" fill="#D3D3D3"/>
+<rect x="128.53" y="302.63" width="116.59" height="1" fill="#D3D3D3"/>
+<rect x="128.53" y="338.38" width="116.59" height="2" fill="#D3D3D3"/>
+<rect x="127.53" y="303.13" width="2" height="37.25" fill="#D3D3D3"/>
+<rect x="68.94" y="302.63" width="59.58" height="1" fill="#D3D3D3"/>
+<rect x="68.94" y="338.38" width="59.58" height="2" fill="#D3D3D3"/>
+<rect x="0" y="302.63" width="68.94" height="1" fill="#D3D3D3"/>
+<rect x="0" y="338.38" width="68.94" height="2" fill="#D3D3D3"/>
+<rect x="0" y="119.88" width="245.11" height="2" fill="#D3D3D3"/>
+<rect x="0" y="156.63" width="245.11" height="2" fill="#D3D3D3"/>
+<rect x="0" y="229.13" width="245.11" height="2" fill="#D3D3D3"/>
+<rect x="0" y="265.88" width="245.11" height="2" fill="#D3D3D3"/>
+<rect x="0" y="390.13" width="245.11" height="2" fill="#A8A8A8"/>
+<text x="122.56" y="24.55" font-size="20px" direction="rtl" text-anchor="middle" textLength="233.92" xml:space="preserve">المبيعات حسب البلد</text>
+<text x="122.56" y="49.05" font-size="13.6px" direction="rtl" text-anchor="middle" textLength="155.69" xml:space="preserve">بملايين الدولارات</text>
+<text x="61.76" y="79.22" font-size="16px" direction="rtl" text-anchor="middle" textLength="100.8" xml:space="preserve">الإيرادات</text>
+<text x="240.11" y="109.97" font-size="16px" direction="rtl" textLength="56" xml:space="preserve">البلد</text>
+<text x="73.94" y="109.97" font-size="16px" direction="rtl" text-anchor="end" textLength="35.97" xml:space="preserve">2023</text>
+<text x="5" y="109.97" font-size="16px" direction="rtl" text-anchor="end" textLength="35.97" xml:space="preserve">2024</text>
+<text x="240.11" y="181.47" font-size="16px" direction="rtl" textLength="89.6" xml:space="preserve">السعودية</text>
+<text x="73.94" y="181.47" font-size="16px" direction="rtl" text-anchor="end" textLength="40.19" xml:space="preserve">120.5</text>
+<text x="5" y="181.47" font-size="16px" direction="rtl" text-anchor="end" textLength="46.73" xml:space="preserve">131.2<tspan font-style="italic" font-size="12px" baseline-shift="4.8px">1</tspan></text>
+<text x="240.11" y="217.22" font-size="16px" direction="rtl" textLength="89.6" xml:space="preserve">الإمارات</text>
+<text x="73.94" y="217.22" font-size="16px" direction="rtl" text-anchor="end" textLength="31.2" xml:space="preserve">98.1</text>
+<text x="5" y="217.22" font-size="16px" direction="rtl" text-anchor="end" textLength="40.19" xml:space="preserve">104.7</text>
+<text x="240.11" y="290.72" font-size="16px" direction="rtl" textLength="33.6" xml:space="preserve">مصر</text>
+<text x="73.94" y="290.72" font-size="16px" direction="rtl" text-anchor="end" textLength="31.2" xml:space="preserve">75.3</text>
+<text x="5" y="290.72" font-size="16px" direction="rtl" text-anchor="end" textLength="31.2" xml:space="preserve">80.9</text>
+<text x="240.11" y="326.47" font-size="16px" direction="rtl" textLength="67.2" xml:space="preserve">المغرب</text>
+<text x="73.94" y="326.47" font-size="16px" direction="rtl" text-anchor="end" textLength="31.2" xml:space="preserve">40.2</text>
+<text x="5" y="326.47" font-size="16px" direction="rtl" text-anchor="end" textLength="31.2" xml:space="preserve">43.8</text>
+<text x="240.11" y="144.72" font-size="16px" direction="rtl" textLength="67.2" xml:space="preserve">الخليج</text>
+<text x="240.11" y="253.97" font-size="16px" direction="rtl" textLength="127.17" xml:space="preserve">شمال أفريقيا</text>
+<text x="240.11" y="357.73" font-size="14.4px" direction="rtl" textLength="137.75" xml:space="preserve"><tspan font-style="italic" font-size="10.8px" baseline-shift="4.32px">1</tspan><tspan font-style="italic"> </tspan>تقديرات أولية.</text>
+<text x="240.11" y="382.61" font-size="14.4px" direction="rtl" textLength="205.95" xml:space="preserve">المصدر: بيانات تجريبية.</text>
+</svg>

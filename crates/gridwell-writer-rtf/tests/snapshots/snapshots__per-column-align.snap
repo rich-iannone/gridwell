@@ -6,10 +6,10 @@ expression: out
 {\fonttbl{\f0 Arial;}}
 {\colortbl ;\red0\green0\blue0;\red255\green255\blue255;}
 \trowd\trhdr\cellx2160\cellx4320\cellx6480\cellx8640
-\pard\intbl\plain\b L\cell
-\pard\intbl\plain\qc\b C\cell
-\pard\intbl\plain\qr\b R\cell
-\pard\intbl\plain\qj\b J\cell
+\pard\intbl\plain\b\ab L\cell
+\pard\intbl\plain\qc\b\ab C\cell
+\pard\intbl\plain\qr\b\ab R\cell
+\pard\intbl\plain\qj\b\ab J\cell
 \row
 \trowd\cellx2160\cellx4320\cellx6480\cellx8640
 \pard\intbl\plain left\cell

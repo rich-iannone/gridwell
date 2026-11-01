@@ -1,0 +1,27 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+{\large\bfseries المبيعات حسب البلد}\\
+{\small بملايين الدولارات}\\[6pt]
+\begin{tabular}{rll}
+\toprule
+ & \multicolumn{2}{c}{الإيرادات} \\
+\cmidrule(lr){2-3}
+البلد & 2023 & 2024 \\
+\midrule
+\multicolumn{3}{l}{\bfseries الخليج} \\
+\midrule
+السعودية & 120.5 & 131.2\textsuperscript{1} \\
+الإمارات & 98.1 & 104.7 \\
+\midrule
+\multicolumn{3}{l}{\bfseries شمال أفريقيا} \\
+\midrule
+مصر & 75.3 & 80.9 \\
+المغرب & 40.2 & 43.8 \\
+\bottomrule
+\end{tabular}
+
+\textsuperscript{1} تقديرات أولية.\\
+
+{\footnotesize المصدر: بيانات تجريبية.}\\

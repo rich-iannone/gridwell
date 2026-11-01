@@ -1,0 +1,31 @@
+---
+source: crates/gridwell-writer-pptx/tests/snapshots.rs
+expression: xml
+---
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<p:cSld><p:spTree>
+<p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/>
+<p:sp><p:nvSpPr><p:cNvPr id="3" name="Title"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="457200" y="1463040"/><a:ext cx="8229600" cy="731520"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr><p:txBody><a:bodyPr wrap="square"/><a:lstStyle/><a:p><a:pPr algn="r" rtl="1"/><a:r><a:rPr lang="ar" b="1" sz="2400"/><a:t>المبيعات حسب البلد</a:t></a:r></a:p><a:p><a:pPr algn="r" rtl="1"/><a:r><a:rPr lang="ar" sz="1400"/><a:t>بملايين الدولارات</a:t></a:r></a:p></p:txBody></p:sp>
+<p:graphicFrame>
+<p:nvGraphicFramePr><p:cNvPr id="2" name="Table"/><p:cNvGraphicFramePr><a:graphicFrameLocks noGrp="1"/></p:cNvGraphicFramePr><p:nvPr/></p:nvGraphicFramePr>
+<p:xfrm><a:off x="3200400" y="2286000"/><a:ext cx="2743200" cy="2560320"/></p:xfrm>
+<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/table">
+<a:tbl>
+<a:tblPr rtl="1" firstRow="1" bandRow="1"/>
+<a:tblGrid><a:gridCol w="914400"/><a:gridCol w="914400"/><a:gridCol w="914400"/></a:tblGrid>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r" rtl="1"/><a:endParaRPr/></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc gridSpan="2"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="ctr" rtl="1"/><a:r><a:rPr lang="ar" b="1"/><a:t>الإيرادات</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc hMerge="1"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:endParaRPr/></a:p></a:txBody><a:tcPr/></a:tc></a:tr>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r" rtl="1"/><a:r><a:rPr lang="ar" b="1"/><a:t>البلد</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="l" rtl="1"/><a:r><a:rPr lang="ar" b="1"/><a:t>2023</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="l" rtl="1"/><a:r><a:rPr lang="ar" b="1"/><a:t>2024</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="320040"><a:tc gridSpan="3"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r" rtl="1"/><a:r><a:rPr lang="ar" b="1"/><a:t>الخليج</a:t></a:r></a:p></a:txBody><a:tcPr><a:solidFill><a:srgbClr val="F0F0F0"/></a:solidFill></a:tcPr></a:tc><a:tc hMerge="1"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:endParaRPr/></a:p></a:txBody><a:tcPr/></a:tc><a:tc hMerge="1"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:endParaRPr/></a:p></a:txBody><a:tcPr/></a:tc></a:tr>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r" rtl="1"/><a:r><a:rPr lang="ar"/><a:t>السعودية</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="l" rtl="1"/><a:r><a:rPr lang="ar"/><a:t>120.5</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="l" rtl="1"/><a:r><a:rPr lang="ar"/><a:t>131.2</a:t></a:r><a:r><a:rPr lang="ar" baseline="30000"/><a:t>1</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r" rtl="1"/><a:r><a:rPr lang="ar"/><a:t>الإمارات</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="l" rtl="1"/><a:r><a:rPr lang="ar"/><a:t>98.1</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="l" rtl="1"/><a:r><a:rPr lang="ar"/><a:t>104.7</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="320040"><a:tc gridSpan="3"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r" rtl="1"/><a:r><a:rPr lang="ar" b="1"/><a:t>شمال أفريقيا</a:t></a:r></a:p></a:txBody><a:tcPr><a:solidFill><a:srgbClr val="F0F0F0"/></a:solidFill></a:tcPr></a:tc><a:tc hMerge="1"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:endParaRPr/></a:p></a:txBody><a:tcPr/></a:tc><a:tc hMerge="1"><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:endParaRPr/></a:p></a:txBody><a:tcPr/></a:tc></a:tr>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r" rtl="1"/><a:r><a:rPr lang="ar"/><a:t>مصر</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="l" rtl="1"/><a:r><a:rPr lang="ar"/><a:t>75.3</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="l" rtl="1"/><a:r><a:rPr lang="ar"/><a:t>80.9</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r" rtl="1"/><a:r><a:rPr lang="ar"/><a:t>المغرب</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="l" rtl="1"/><a:r><a:rPr lang="ar"/><a:t>40.2</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="l" rtl="1"/><a:r><a:rPr lang="ar"/><a:t>43.8</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+</a:tbl>
+</a:graphicData></a:graphic>
+</p:graphicFrame>
+<p:sp><p:nvSpPr><p:cNvPr id="4" name="Notes"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="457200" y="4937760"/><a:ext cx="8229600" cy="457200"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr><p:txBody><a:bodyPr wrap="square"/><a:lstStyle/><a:p><a:pPr algn="r" rtl="1"/><a:r><a:rPr lang="ar" sz="1000" baseline="30000"/><a:t>1</a:t></a:r><a:r><a:rPr lang="ar" sz="1000"/><a:t> </a:t></a:r><a:r><a:rPr lang="ar" sz="1000"/><a:t>تقديرات أولية.</a:t></a:r></a:p><a:p><a:pPr algn="r" rtl="1"/><a:r><a:rPr lang="ar" sz="1000"/><a:t>المصدر: بيانات تجريبية.</a:t></a:r></a:p></p:txBody></p:sp>
+</p:spTree></p:cSld>
+<p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr>
+</p:sld>
