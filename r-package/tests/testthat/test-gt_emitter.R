@@ -280,3 +280,27 @@ test_that("missing values show as gt shows them and sort as missing", {
     expect_null(na_char$typed_value)
     expect_identical(rows[[1]]$cells[[2]]$sort_key, tolower(rows[[1]]$cells[[2]]$content[[1]]$value))
 })
+
+test_that("a locale is the table's language and direction", {
+    cases <- list(
+        c("ar_EG", "ar-EG", "rtl"), c("he", "he", "rtl"), c("pa_Arab", "pa-Arab", "rtl"),
+        c("fr_CA", "fr-CA", NA), c("zh_Hant_TW", "zh-Hant-TW", NA), c("uz_Latn", "uz-Latn", NA)
+    )
+    for (case in cases) {
+        out <- ir_of(gt::gt(data.frame(x = 1.5), locale = case[[1]]))
+        expect_equal(out$ir$config$locale, case[[2]])
+        expect_equal(out$ir$config$lang, case[[2]])
+        expect_equal(out$ir$config$dir %||% NA_character_, case[[3]])
+        html <- gw_render(out$tbl, "html")
+        expect_true(grepl(sprintf('lang="%s"', case[[2]]), html, fixed = TRUE))
+        expect_equal(grepl('dir="rtl"', html, fixed = TRUE), !is.na(case[[3]]))
+    }
+})
+
+test_that("without a locale the language is unset", {
+    out <- ir_of(gt::gt(data.frame(x = 1.5)))
+    expect_equal(out$ir$config$locale, "en-US")
+    expect_null(out$ir$config$lang)
+    expect_null(out$ir$config$dir)
+    expect_false(grepl("lang=", gw_render(out$tbl, "html"), fixed = TRUE))
+})
