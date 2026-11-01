@@ -1,4 +1,4 @@
-use gridwell_core::{Color, FontSize, Length};
+use gridwell_core::{Color, FontSize, LanguageTag, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table};
 use gridwell_layout::{
@@ -54,7 +54,22 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
         self.render_title();
         self.render_table();
         self.render_footnotes();
-        Ok(self.buf)
+        // The language and direction are set for the table only: in a content
+        // block, which scopes the set rule.
+        match text_settings(self.rt) {
+            Some(set) => Ok(format!("#[\n#set text({set})\n{}]\n", self.buf)),
+            None => Ok(self.buf),
+        }
+    }
+
+    /// Where the heading lines go: the start side when a direction is set (the
+    /// right, in a right-to-left table), else the left, as always.
+    fn lead(&self) -> &'static str {
+        if self.rt.table.config.dir.is_some() {
+            "start"
+        } else {
+            "left"
+        }
     }
 
     // ─── Title / Subtitle / header lines ───
@@ -67,7 +82,7 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
             let text = self.content(&title.content);
             if !text.is_empty() {
                 let styled = line_style(&text, &title.style, true, &[("size", "16pt")]);
-                self.line(&format!("#align(left)[{styled}]"));
+                self.line(&format!("#align({})[{styled}]", self.lead()));
             }
         }
         let mut lines = false;
@@ -75,7 +90,7 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
             let text = self.content(&line.content);
             if !text.is_empty() {
                 let styled = line_style(&text, &line.style, false, SUBTITLE);
-                self.line(&format!("#align(left)[{styled}]"));
+                self.line(&format!("#align({})[{styled}]", self.lead()));
                 lines = true;
             }
         }
@@ -384,6 +399,33 @@ fn text_attrs(
     } else {
         format!("#text({})[{content}]", attrs.join(", "))
     }
+}
+
+/// The `text` settings for the table's language and direction, if it has either.
+/// Typst takes a 2–3 letter language and a 2-letter region, so other tags give no
+/// `lang`. The direction is always explicit: Typst would otherwise take it from
+/// the language, which gridwell never does (`auto` is resolved from the text, as
+/// HTML does).
+fn text_settings(rt: &ResolvedTable) -> Option<String> {
+    let config = &rt.table.config;
+    if config.lang.is_none() && config.dir.is_none() {
+        return None;
+    }
+    let tag = config
+        .lang
+        .as_deref()
+        .and_then(|l| LanguageTag::parse(l).ok());
+    let mut set = Vec::new();
+    if let Some(tag) = &tag {
+        if let Some(lang) = tag.language.as_ref().filter(|l| l.len() <= 3) {
+            set.push(format!("lang: {}", typst_string(lang)));
+            if let Some(region) = tag.region.as_ref().filter(|r| r.len() == 2) {
+                set.push(format!("region: {}", typst_string(region)));
+            }
+        }
+    }
+    set.push(format!("dir: {}", if rt.is_rtl() { "rtl" } else { "ltr" }));
+    Some(set.join(", "))
 }
 
 /// A Typst string literal.
