@@ -3,8 +3,8 @@ mod render;
 /// AST building blocks, shared with the Quarto writer.
 pub mod ast {
     pub use crate::render::{
-        footnote_lines, inlines, note_lines, null_attr, plain_text, source_note_lines, styled,
-        table_block,
+        footnote_lines, inlines, lang_dir, note_lines, null_attr, plain_text, source_note_lines,
+        styled, table_block,
     };
 }
 
