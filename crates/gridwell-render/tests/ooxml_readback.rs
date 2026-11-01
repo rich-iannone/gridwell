@@ -238,6 +238,22 @@ fn every_package_is_typed_and_linked() {
 }
 
 #[test]
+fn the_docx_styles_part_is_the_one_with_the_language() {
+    let t = gridwell_testkit::examples()
+        .into_iter()
+        .find(|e| e.name == "rtl-table")
+        .unwrap()
+        .table();
+    let parts = package_parts(gridwell_writer_docx::render_docx(&t).unwrap());
+    let styles = gridwell_writer_docx::DocxWriter::new().render_styles_xml(&t);
+    assert_eq!(parts["word/styles.xml"], styles);
+    assert!(
+        styles.contains("<w:lang w:val=\"ar\" w:bidi=\"ar\"/>"),
+        "{styles}"
+    );
+}
+
+#[test]
 fn every_docx_style_is_defined() {
     // Word and LibreOffice draw a paragraph whose style isn't defined as Normal,
     // so every style the document names is in `word/styles.xml`, with the right
