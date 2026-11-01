@@ -122,7 +122,7 @@ fn formats_and_tables_are_checked() {
 }
 
 #[test]
-fn the_corpus_warns_only_of_its_dashed_and_double_borders() {
+fn the_corpus_warns_only_of_its_borders_and_its_rtl_table() {
     for ex in examples() {
         let found: Vec<_> = warnings(&ex.table(), None)
             .unwrap()
@@ -132,8 +132,63 @@ fn the_corpus_warns_only_of_its_dashed_and_double_borders() {
         let want: &[(&str, &str)] = match ex.name {
             "borders-dashed" => &[("latex", "border-styles")],
             "borders-double" => &[("typst", "border-double")],
+            "rtl-table" => &[
+                ("latex", "lang"),
+                ("latex", "rtl"),
+                ("rtf", "lang"),
+                ("ansi", "rtl"),
+                ("xlsx", "lang"),
+            ],
             _ => &[],
         };
         assert_eq!(found, want, "{}", ex.name);
     }
+}
+
+#[test]
+fn a_language_or_a_right_to_left_table_is_warned_of_once_for_the_table() {
+    use gridwell_ir::TextDirection;
+    use gridwell_testkit::examples::directed;
+    let found = |t: &Table| -> Vec<(&str, &str)> {
+        let w = warnings(t, None).unwrap();
+        assert!(w.iter().all(|w| w.places == [Place::Table]), "{w:?}");
+        w.iter().map(|w| (w.format, w.feature)).collect()
+    };
+    assert_eq!(
+        found(&directed(Some(TextDirection::Rtl), Some("ar"))),
+        [
+            ("latex", "lang"),
+            ("latex", "rtl"),
+            ("rtf", "lang"),
+            ("ansi", "rtl"),
+            ("xlsx", "lang")
+        ]
+    );
+    assert_eq!(
+        found(&directed(Some(TextDirection::Rtl), None)),
+        [("latex", "rtl"), ("ansi", "rtl")]
+    );
+    assert_eq!(
+        found(&directed(Some(TextDirection::Ltr), Some("de"))),
+        [("latex", "lang"), ("rtf", "lang"), ("xlsx", "lang")]
+    );
+    // `auto` is right to left only for right-to-left text.
+    assert_eq!(found(&directed(Some(TextDirection::Auto), None)), []);
+    let mut arabic = directed(Some(TextDirection::Auto), None);
+    arabic
+        .header
+        .as_mut()
+        .unwrap()
+        .title
+        .as_mut()
+        .unwrap()
+        .content = vec![text("جدول")];
+    assert_eq!(found(&arabic), [("latex", "rtl"), ("ansi", "rtl")]);
+
+    let w = warnings(&directed(Some(TextDirection::Rtl), None), Some("ansi")).unwrap();
+    assert_eq!(
+        w[0].to_string(),
+        "[UNSUPPORTED_FEATURE] ansi can't express rtl (the table): a terminal shows columns \
+         left to right, and whether it reorders right-to-left text is up to the terminal"
+    );
 }
