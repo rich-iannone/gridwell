@@ -53,6 +53,26 @@ impl<T> Sides<T> {
             left: keep(mask.left, &self.left),
         }
     }
+
+    /// Left and right swapped when `on`: a box's sides seen from the other
+    /// direction (a right-to-left table's start side is its right).
+    pub fn mirrored(self, on: bool) -> Self {
+        if !on {
+            return self;
+        }
+        let Self {
+            top,
+            right,
+            bottom,
+            left,
+        } = self;
+        Self {
+            top,
+            right: left,
+            bottom,
+            left: right,
+        }
+    }
 }
 
 impl Sides<bool> {
