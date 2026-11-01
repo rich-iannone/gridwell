@@ -126,16 +126,17 @@ fn write_slide_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
             };
             for n in &rt.footer.footnotes {
                 let fmt = base.with(&n.style);
-                buf.push_str("<a:p>");
+                open_paragraph(buf, rt, None);
                 write_run(
                     buf,
+                    rt,
                     n.mark,
                     Fmt {
                         superscript: true,
                         ..fmt
                     },
                 )?;
-                write_run(buf, " ", fmt)?;
+                write_run(buf, rt, " ", fmt)?;
                 write_content(buf, rt, &n.content, fmt)?;
                 buf.push_str("</a:p>");
             }
@@ -200,6 +201,20 @@ fn write_text_box(
     Ok(())
 }
 
+/// Open an `<a:p>` with its properties: an alignment (`algn`), and right to left
+/// when the table is. `algn` is physical, so in a right-to-left table a paragraph
+/// without one is put on the right, where it starts.
+fn open_paragraph(buf: &mut String, rt: &ResolvedTable, algn: Option<&str>) {
+    buf.push_str("<a:p>");
+    let (algn, rtl) = match (algn, rt.is_rtl()) {
+        (algn, false) => (algn, ""),
+        (algn, true) => (algn.or(Some("r")), " rtl=\"1\""),
+    };
+    if let Some(algn) = algn {
+        write!(buf, "<a:pPr algn=\"{algn}\"{rtl}/>").unwrap();
+    }
+}
+
 /// One `<a:p>` of content (an empty paragraph if the content is empty).
 fn write_paragraph(
     buf: &mut String,
@@ -207,7 +222,7 @@ fn write_paragraph(
     nodes: &[ContentNode],
     fmt: Fmt,
 ) -> Result<(), RenderError> {
-    buf.push_str("<a:p>");
+    open_paragraph(buf, rt, None);
     if !write_content(buf, rt, nodes, fmt)? {
         buf.push_str("<a:endParaRPr/>");
     }
@@ -235,7 +250,9 @@ fn write_table_frame(
     )?;
     buf.push_str("<a:graphic><a:graphicData uri=\"http://schemas.openxmlformats.org/drawingml/2006/table\">\n");
     buf.push_str("<a:tbl>\n");
-    buf.push_str("<a:tblPr firstRow=\"1\" bandRow=\"1\"/>\n");
+    // Right to left: the first column is on the right.
+    let rtl = if rt.is_rtl() { " rtl=\"1\"" } else { "" };
+    writeln!(buf, "<a:tblPr{rtl} firstRow=\"1\" bandRow=\"1\"/>")?;
 
     buf.push_str("<a:tblGrid>");
     for w in &col_widths {
@@ -270,10 +287,16 @@ fn write_section(
         write!(buf, "<a:tr h=\"{}\">", xml::DEFAULT_ROW_HEIGHT_EMU)?;
         for (col, slot) in row.slots.iter().enumerate() {
             // Each position draws the borders of the cell covering it on the
-            // sides that lie on that cell's outline.
+            // sides that lie on that cell's outline. In a right-to-left table
+            // `lnL` and `lnR` are the cell's start and end: the strokes are
+            // mirrored, before the mask (a span's start edge is its outline's
+            // left).
             let strokes = section
                 .covering(r, col)
-                .map(|(owner, outline)| owner.style.strokes(BASE_PT).masked(outline))
+                .map(|(owner, outline)| {
+                    let strokes = owner.style.strokes(BASE_PT).mirrored(rt.is_rtl());
+                    strokes.masked(outline)
+                })
                 .unwrap_or_default();
             write_slot(buf, rt, col, slot, &strokes, strong)?;
         }
@@ -312,16 +335,16 @@ fn write_slot(
     }
     buf.push('>');
 
-    buf.push_str("<a:txBody><a:bodyPr/><a:lstStyle/><a:p>");
-    let algn = match cell.align {
-        HAlign::Right => Some("r"),
-        HAlign::Center => Some("ctr"),
-        HAlign::Justify => Some("just"),
-        _ => None,
+    buf.push_str("<a:txBody><a:bodyPr/><a:lstStyle/>");
+    let algn = match (&cell.align, rt.is_rtl()) {
+        (HAlign::Right, _) => Some("r"),
+        (HAlign::Center, _) => Some("ctr"),
+        (HAlign::Justify, _) => Some("just"),
+        (_, false) => None,
+        // Left, said outright: unset is the start.
+        (_, true) => Some("l"),
     };
-    if let Some(algn) = algn {
-        write!(buf, "<a:pPr algn=\"{algn}\"/>")?;
-    }
+    open_paragraph(buf, rt, algn);
     let fmt = Fmt {
         bold: strong,
         ..Fmt::default()
@@ -439,13 +462,13 @@ fn write_content(
     let mut wrote = false;
     for node in nodes {
         wrote |= match node {
-            ContentNode::Text { value } => write_run(buf, value, fmt)?,
+            ContentNode::Text { value } => write_run(buf, rt, value, fmt)?,
             ContentNode::StyledText { value, style_id } => {
                 let style = style_id
                     .as_deref()
                     .map(|id| rt.style(id))
                     .unwrap_or_default();
-                write_run(buf, value, fmt.with(&style))?
+                write_run(buf, rt, value, fmt.with(&style))?
             }
             ContentNode::LineBreak {} => {
                 buf.push_str("<a:br/>");
@@ -453,6 +476,7 @@ fn write_content(
             }
             ContentNode::FootnoteMark { mark_text, .. } => write_run(
                 buf,
+                rt,
                 mark_text,
                 Fmt {
                     superscript: true,
@@ -460,7 +484,7 @@ fn write_content(
                 },
             )?,
             ContentNode::Image { alt, .. } => match alt {
-                Some(alt) => write_run(buf, alt, fmt)?,
+                Some(alt) => write_run(buf, rt, alt, fmt)?,
                 None => false,
             },
             ContentNode::Raw { .. } | ContentNode::Unknown => false,
@@ -469,11 +493,18 @@ fn write_content(
     Ok(wrote)
 }
 
-fn write_run(buf: &mut String, text: &str, fmt: Fmt) -> Result<bool, RenderError> {
+/// One `<a:r>`, in the table's language (`en-US` unless it has one).
+fn write_run(
+    buf: &mut String,
+    rt: &ResolvedTable,
+    text: &str,
+    fmt: Fmt,
+) -> Result<bool, RenderError> {
     if text.is_empty() {
         return Ok(false);
     }
-    buf.push_str("<a:r><a:rPr lang=\"en-US\"");
+    let lang = rt.table.config.lang.as_deref().unwrap_or("en-US");
+    write!(buf, "<a:r><a:rPr lang=\"{}\"", escape_xml(lang))?;
     if fmt.bold {
         buf.push_str(" b=\"1\"");
     }
@@ -557,7 +588,8 @@ fn write_group_label_row(
         write!(buf, " gridSpan=\"{num_cols}\"")?;
     }
     buf.push('>');
-    buf.push_str("<a:txBody><a:bodyPr/><a:lstStyle/><a:p>");
+    buf.push_str("<a:txBody><a:bodyPr/><a:lstStyle/>");
+    open_paragraph(buf, rt, None);
     let fmt = Fmt {
         bold: true,
         ..Fmt::default()
@@ -567,9 +599,10 @@ fn write_group_label_row(
         buf.push_str("<a:endParaRPr/>");
     }
     buf.push_str("</a:p></a:txBody>");
-    // The label spans every column: the first position takes the left edge, the
-    // last the right, and every position the top and bottom.
-    let strokes = label.style.strokes(BASE_PT);
+    // The label spans every column: the first position takes the start edge
+    // (`lnL`; mirrored in a right-to-left table), the last the end, and every
+    // position the top and bottom.
+    let strokes = label.style.strokes(BASE_PT).mirrored(rt.is_rtl());
     let piece = |c: usize| {
         strokes.masked(Sides {
             left: c == 0,
