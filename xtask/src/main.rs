@@ -6,9 +6,10 @@
 //! - `cargo xtask gallery --check`  — additionally diff the gated (deterministic)
 //!   formats against `harness/goldens` and exit non-zero on a regression
 //! - `cargo xtask gallery --accept` — update the goldens from the current render
-//!   (and `harness/gallery/gt.html`, gt's HTML beside gridwell's for the tables in
-//!   `harness/gt-reference`; report only)
-//! - `cargo xtask gt` — build only that comparison page
+//!   (and `harness/gallery/gt.html` and `great-tables.html`, gt's and Great Tables'
+//!   HTML beside gridwell's for the tables in `harness/gt-reference` and
+//!   `harness/gt-reference-py`; report only)
+//! - `cargo xtask gt` — build only those comparison pages
 //! - `cargo xtask svg` — build only `harness/gallery/svg.html` (gridwell's HTML vs its
 //!   SVG for every corpus example and gt reference; report only; `gallery` builds it
 //!   too)
@@ -49,7 +50,8 @@ enum Command {
         #[arg(long)]
         accept: bool,
     },
-    /// Build only harness/gallery/gt.html (gt vs gridwell HTML; report only)
+    /// Build only harness/gallery/gt.html and great-tables.html (gt and Great Tables vs
+    /// gridwell HTML; report only)
     Gt,
     /// Build only harness/gallery/svg.html (gridwell HTML vs SVG; report only)
     Svg,
