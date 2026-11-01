@@ -12,6 +12,9 @@
 //! set directly on a cell beats one it would inherit from a row style on its
 //! `<tr>`, whatever the specificity. Such properties go on the container or the
 //! row instead, and `th` inherits its weight rather than being bold.
+//!
+//! The few one-sided rules (the stub's rule, the spanner rules' ends) are mirrored
+//! for a right-to-left table (`dir: rtl`), whose first column is on the right.
 
 use gridwell_layout::look::{Pad, Rule, LOOK};
 
@@ -53,8 +56,14 @@ fn rule(r: &Rule) -> String {
     format!("{} {style} {}", px(r.width_px), r.color.to_css())
 }
 
-/// The base rules for class prefix `p`, one per line, in order.
-pub fn rules(p: &str) -> Vec<String> {
+/// The base rules for class prefix `p`, one per line, in order; `rtl` mirrors them.
+pub fn rules(p: &str, rtl: bool) -> Vec<String> {
+    // The table's start and end sides.
+    let (start, end) = if rtl {
+        ("right", "left")
+    } else {
+        ("left", "right")
+    };
     let l = &LOOK;
     let w = |selector: &str, decls: &str| format!(":where({selector}) {{ {decls} }}");
     let outer = rule(&l.outer_rule);
@@ -155,16 +164,16 @@ pub fn rules(p: &str) -> Vec<String> {
         w(
             &format!(".{p}_spanner:first-child"),
             &format!(
-                "padding-left: 0; background-size: calc(100% - {}) {spanner_width}; \
-                 background-position: bottom left",
+                "padding-{start}: 0; background-size: calc(100% - {}) {spanner_width}; \
+                 background-position: bottom {start}",
                 px(inset)
             ),
         ),
         w(
             &format!(".{p}_spanner:last-child"),
             &format!(
-                "padding-right: 0; background-size: calc(100% - {}) {spanner_width}; \
-                 background-position: bottom right",
+                "padding-{end}: 0; background-size: calc(100% - {}) {spanner_width}; \
+                 background-position: bottom {end}",
                 px(inset)
             ),
         ),
@@ -176,7 +185,7 @@ pub fn rules(p: &str) -> Vec<String> {
             &format!(".{p}_group_label"),
             &format!("border-top: {section}; border-bottom: {section}"),
         ),
-        w(&format!(".{p}_stub"), &format!("border-right: {section}")),
+        w(&format!(".{p}_stub"), &format!("border-{end}: {section}")),
         // A group's summary rows start under a section rule.
         w(
             &format!(
@@ -247,9 +256,33 @@ mod tests {
     }
 
     #[test]
+    fn rtl_mirrors_exactly_the_one_sided_rules() {
+        let (ltr, rtl) = (rules("gw", false), rules("gw", true));
+        assert_eq!(ltr.len(), rtl.len());
+        let mirror = |s: &str| {
+            s.replace("left", "\0")
+                .replace("right", "left")
+                .replace('\0', "right")
+        };
+        let mut changed = 0;
+        for (l, r) in ltr.iter().zip(&rtl) {
+            if l != r {
+                assert_eq!(&mirror(l), r);
+                changed += 1;
+            }
+        }
+        // The stub's rule and the first and last spanners'.
+        assert_eq!(changed, 3);
+        assert!(
+            rtl.iter().any(|r| r.contains("_stub) { border-left:")),
+            "{rtl:?}"
+        );
+    }
+
+    #[test]
     fn no_rule_misses_the_row_headers() {
         // A stub is a `<th>` in the body: a rule naming `td` must name `th` too.
-        for line in rules("gw") {
+        for line in rules("gw", false) {
             let selector = line.split('{').next().unwrap();
             let names = |tag: &str| {
                 selector
