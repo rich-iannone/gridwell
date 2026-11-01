@@ -160,6 +160,15 @@ impl Default for PageBreakMode {
 }
 
 keyword! {
+    /// The direction a table's columns and text run in.
+    TextDirection {
+        Ltr = "ltr",
+        Rtl = "rtl",
+        Auto = "auto",
+    }
+}
+
+keyword! {
     /// Border line style.
     BorderStyle {
         None = "none",
