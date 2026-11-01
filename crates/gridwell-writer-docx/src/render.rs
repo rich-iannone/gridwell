@@ -1,5 +1,5 @@
 use gridwell_core::xml::escape as escape_xml;
-use gridwell_core::Color;
+use gridwell_core::{Color, LanguageTag};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table, VMerge};
 use gridwell_layout::{
@@ -22,14 +22,24 @@ pub enum RenderError {
 /// Render the full .docx ZIP file as bytes.
 pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
     let document_xml = render_document_xml(table)?;
-
     Ok(package(&[
         Part::new("[Content_Types].xml", xml::CONTENT_TYPES),
         Part::new("_rels/.rels", xml::RELS),
         Part::new("word/_rels/document.xml.rels", xml::DOCUMENT_RELS),
         Part::new("word/document.xml", document_xml.as_str()),
-        Part::new("word/styles.xml", xml::styles().as_str()),
+        Part::new("word/styles.xml", render_styles_xml(table).as_str()),
     ])?)
+}
+
+/// The `word/styles.xml` content: the paragraph styles, and the table's
+/// language as the document default.
+pub fn render_styles_xml(table: &Table) -> String {
+    let lang = table
+        .config
+        .lang
+        .as_deref()
+        .and_then(|l| LanguageTag::parse(l).ok());
+    xml::styles(lang.as_ref())
 }
 
 /// Render only the document.xml content (for snapshot testing).
@@ -125,7 +135,7 @@ impl<'s> Fmt<'s> {
 fn write_title(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> {
     let header = &rt.header;
     if let Some(title) = &header.title {
-        buf.push_str("<w:p><w:pPr><w:pStyle w:val=\"Title\"/></w:pPr>");
+        open_paragraph(buf, rt, Some("Title"), None);
         let fmt = Fmt {
             bold: true,
             inherited: Some(xml::TITLE_HALF_POINTS),
@@ -135,7 +145,7 @@ fn write_title(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> 
         buf.push_str("</w:p>\n");
     }
     for line in header.subtitle.iter().chain(&header.extra_lines) {
-        buf.push_str("<w:p><w:pPr><w:pStyle w:val=\"Subtitle\"/></w:pPr>");
+        open_paragraph(buf, rt, Some("Subtitle"), None);
         let fmt = Fmt {
             inherited: Some(xml::SUBTITLE_HALF_POINTS),
             ..Fmt::default()
@@ -153,6 +163,10 @@ fn write_table(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> 
 
     buf.push_str("<w:tblPr>");
     buf.push_str("<w:tblStyle w:val=\"TableGrid\"/>");
+    // Right to left: the first cell of a row is the rightmost.
+    if rt.is_rtl() {
+        buf.push_str("<w:bidiVisual/>");
+    }
     let total_width: u32 = col_widths.iter().sum();
     write!(buf, "<w:tblW w:w=\"{total_width}\" w:type=\"dxa\"/>")?;
     buf.push_str("<w:tblBorders>");
@@ -230,7 +244,9 @@ fn write_row(
             VMerge::None => {}
         }
         if let Some(owner) = mc.owner {
-            write_borders(buf, &owner.style.strokes(BASE_PT).masked(mc.outline))?;
+            // Mirrored before the mask: a span's start edge is its outline's left.
+            let strokes = owner.style.strokes(BASE_PT).mirrored(rt.is_rtl());
+            write_borders(buf, &strokes.masked(mc.outline))?;
         }
         // Word aligns a vertically merged cell by its first piece; every piece
         // carries it, as every piece carries the owner's borders.
@@ -253,16 +269,18 @@ fn write_row(
         write_valign(buf, valign);
         buf.push_str("</w:tcPr>");
 
-        buf.push_str("<w:p>");
-        let jc = match cell.align {
-            HAlign::Right => Some("right"),
-            HAlign::Center => Some("center"),
-            HAlign::Justify => Some("both"),
-            _ => None,
+        // In a right-to-left paragraph Word and LibreOffice read `left` and
+        // `right` as its start and end, so alignment, which is physical, swaps;
+        // and a left-aligned cell must say so (unset is the start).
+        let jc = match (&cell.align, rt.is_rtl()) {
+            (HAlign::Center, _) => Some("center"),
+            (HAlign::Justify, _) => Some("both"),
+            (HAlign::Right, false) => Some("right"),
+            (HAlign::Right, true) => Some("left"),
+            (_, false) => None,
+            (_, true) => Some("right"),
         };
-        if let Some(jc) = jc {
-            write!(buf, "<w:pPr><w:jc w:val=\"{jc}\"/></w:pPr>")?;
-        }
+        open_paragraph(buf, rt, None, jc);
         let fmt = Fmt {
             bold: is_header,
             ..Fmt::default()
@@ -290,7 +308,7 @@ fn write_group_label_row(
     if col_widths.len() > 1 {
         write!(buf, "<w:gridSpan w:val=\"{}\"/>", col_widths.len())?;
     }
-    write_borders(buf, &label.style.strokes(BASE_PT))?;
+    write_borders(buf, &label.style.strokes(BASE_PT).mirrored(rt.is_rtl()))?;
     let fill = label
         .style
         .fill()
@@ -300,7 +318,7 @@ fn write_group_label_row(
         "<w:shd w:val=\"clear\" w:color=\"auto\" w:fill=\"{fill}\"/>"
     )?;
     buf.push_str("</w:tcPr>");
-    buf.push_str("<w:p>");
+    open_paragraph(buf, rt, None, None);
     let fmt = Fmt {
         bold: true,
         ..Fmt::default()
@@ -310,6 +328,33 @@ fn write_group_label_row(
     buf.push_str("</w:tc>");
     buf.push_str("</w:tr>\n");
     Ok(())
+}
+
+/// Open a `<w:p>` with its properties: a paragraph style, right to left (`w:bidi`)
+/// when the table is, and a justification. Unset, a paragraph starts on the left,
+/// or on the right when right to left.
+fn open_paragraph(buf: &mut String, rt: &ResolvedTable, style: Option<&str>, jc: Option<&str>) {
+    let bidi = rt.is_rtl();
+    if style.is_none() && jc.is_none() && !bidi {
+        buf.push_str("<w:p>");
+        return;
+    }
+    // CT_PPr order: pStyle, …, bidi, …, jc.
+    buf.push_str("<w:p><w:pPr>");
+    if let Some(style) = style {
+        buf.push_str("<w:pStyle w:val=\"");
+        buf.push_str(style);
+        buf.push_str("\"/>");
+    }
+    if bidi {
+        buf.push_str("<w:bidi/>");
+    }
+    if let Some(jc) = jc {
+        buf.push_str("<w:jc w:val=\"");
+        buf.push_str(jc);
+        buf.push_str("\"/>");
+    }
+    buf.push_str("</w:pPr>");
 }
 
 /// `w:vAlign`, last in `w:tcPr` among what the writer sets. Unset is Word's top.
@@ -326,7 +371,9 @@ fn write_valign(buf: &mut String, valign: Option<CellVAlign>) {
 }
 
 /// A cell's own borders (`w:tcBorders`), which replace the table's grid lines on
-/// the sides they set; sides without one keep the grid line.
+/// the sides they set; sides without one keep the grid line. `left` and `right`
+/// are the cell's start and end, so a right-to-left (`bidiVisual`) table's
+/// strokes come mirrored.
 fn write_borders(buf: &mut String, strokes: &Sides<Option<Stroke>>) -> Result<(), RenderError> {
     if *strokes == Sides::default() {
         return Ok(());
@@ -401,7 +448,8 @@ fn write_run(buf: &mut String, text: &str, fmt: Fmt) -> Result<(), RenderError> 
     }
     buf.push_str("<w:r>");
     if !fmt.is_plain() {
-        // CT_RPr is a sequence: rFonts, b, i, strike, color, sz, szCs, u, vertAlign.
+        // CT_RPr is a sequence: rFonts, b, bCs, i, iCs, strike, color, sz, szCs, u,
+        // vertAlign. The `Cs` forms are for complex scripts (Arabic, Hebrew, …).
         buf.push_str("<w:rPr>");
         if let Some(f) = fmt.font {
             let f = escape_xml(f);
@@ -411,10 +459,10 @@ fn write_run(buf: &mut String, text: &str, fmt: Fmt) -> Result<(), RenderError> 
             )?;
         }
         if fmt.bold {
-            buf.push_str("<w:b/>");
+            buf.push_str("<w:b/><w:bCs/>");
         }
         if fmt.italic {
-            buf.push_str("<w:i/>");
+            buf.push_str("<w:i/><w:iCs/>");
         }
         if fmt.strike {
             buf.push_str("<w:strike/>");
@@ -447,7 +495,7 @@ fn write_footnotes(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
     if !footer.footnotes.is_empty() {
         buf.push_str("<w:p/>\n"); // spacer
         for note in &footer.footnotes {
-            buf.push_str("<w:p><w:pPr><w:pStyle w:val=\"FootnoteText\"/></w:pPr>");
+            open_paragraph(buf, rt, Some("FootnoteText"), None);
             let fmt = Fmt {
                 inherited: Some(xml::NOTE_HALF_POINTS),
                 ..Fmt::default()
@@ -469,7 +517,7 @@ fn write_footnotes(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
     if !footer.source_notes.is_empty() {
         buf.push_str("<w:p/>\n"); // spacer
         for note in &footer.source_notes {
-            buf.push_str("<w:p><w:pPr><w:pStyle w:val=\"SourceNote\"/></w:pPr>");
+            open_paragraph(buf, rt, Some("SourceNote"), None);
             let fmt = Fmt {
                 italic: true,
                 inherited: Some(xml::NOTE_HALF_POINTS),
