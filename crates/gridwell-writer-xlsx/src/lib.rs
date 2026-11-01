@@ -1,7 +1,6 @@
 mod date;
 mod limits;
 mod render;
-mod xml;
 
 use gridwell_ir::Table;
 
