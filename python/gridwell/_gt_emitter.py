@@ -111,7 +111,7 @@ def _gt_to_dict(gt_obj: Any) -> dict:
 
 def _build_config(n_cols: int, n_body_rows: int, stub_cols: int, built: Any) -> dict:
     """Build the config section."""
-    return {
+    config = {
         "table_cols": n_cols,
         "header_rows": 1,
         "body_rows": n_body_rows,
@@ -130,6 +130,34 @@ def _build_config(n_cols: int, n_body_rows: int, stub_cols: int, built: Any) -> 
         "aria_describedby": None,
         "summary": None,
     }
+    # A locale set on the table (`GT(locale=...)`) is its language; the
+    # direction follows from the language, since the IR doesn't infer it.
+    locale = getattr(getattr(built, "_locale", None), "_locale", None)
+    if locale:
+        lang = locale.replace("_", "-")
+        config["locale"] = lang
+        config["lang"] = lang
+        if _is_rtl(lang):
+            config["dir"] = "rtl"
+    return config
+
+
+# Scripts written right to left, and languages written right to left when the
+# tag names no script (as in gridwell_core::lang).
+_RTL_SCRIPTS = frozenset(
+    "Adlm Arab Aran Hebr Mand Mend Nkoo Rohg Samr Syrc Thaa Yezi".split()
+)
+_RTL_LANGUAGES = frozenset(
+    "ar arc bal bqi ckb dv fa glk he iw ji ks lrc mzn nqo pnb prs ps sd sdh syr ug ur yi".split()
+)
+
+
+def _is_rtl(lang: str) -> bool:
+    """Whether a language tag's text is written right to left."""
+    subtags = lang.split("-")
+    if len(subtags) > 1 and len(subtags[1]) == 4 and subtags[1].isalpha():
+        return subtags[1].title() in _RTL_SCRIPTS
+    return subtags[0].lower() in _RTL_LANGUAGES
 
 
 def _build_column_spec(all_cols: list, has_stub: bool) -> list[dict]:
