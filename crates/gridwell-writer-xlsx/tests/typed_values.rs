@@ -3,17 +3,20 @@
 //! it as the table does, and a boolean is a boolean cell. A display no format
 //! reproduces stays text.
 
+#[allow(dead_code)]
 mod support;
 
 use gridwell_testkit::{cell, CellExt};
 use serde_json::{json, Value};
-use support::{attr, cell_xml, format_code, one_row, render};
+use support::{attr, cell_xml, format_code, one_row, render, text_of};
 
-/// The cell `A1` of a one-cell table showing `shown`, typed `kind` `value`.
-fn a1(shown: &str, kind: &str, value: Value) -> (String, String) {
-    let (sheet, styles, _) = render(&one_row(vec![cell(shown).typed(kind, value)]));
+/// The cell `A1` of a one-cell table showing `shown`, typed `kind` `value`: its
+/// `<c>`, its number format and, if it is a string, its text.
+fn a1(shown: &str, kind: &str, value: Value) -> (String, String, Option<String>) {
+    let (sheet, styles, sst) = render(&one_row(vec![cell(shown).typed(kind, value)]));
     let c = cell_xml(&sheet, "A1").to_owned();
-    (c, format_code(&sheet, &styles, "A1"))
+    let text = (attr(&c, "t") == Some("s")).then(|| text_of(&sheet, &sst, "A1"));
+    (c, format_code(&sheet, &styles, "A1"), text)
 }
 
 /// The number a cell holds.
@@ -23,11 +26,8 @@ fn number(c: &str) -> f64 {
     v[..v.find("</v>").unwrap()].parse().unwrap()
 }
 
-fn assert_text(shown: &str, c: &str) {
-    assert!(
-        attr(c, "t") == Some("inlineStr") && c.contains(&format!(">{shown}</t>")),
-        "{shown}: not text: {c}"
-    );
+fn assert_text(shown: &str, (c, _, text): &(String, String, Option<String>)) {
+    assert_eq!(text.as_deref(), Some(shown), "{shown}: not text: {c}");
 }
 
 #[test]
@@ -71,7 +71,7 @@ fn dates_get_the_format_of_their_display() {
         ("1900-03-01", "1900-03-01", "yyyy\\-mm\\-dd", 61.0),
     ];
     for (shown, value, code, serial) in cases {
-        let (c, got) = a1(shown, "date", json!(value));
+        let (c, got, _) = a1(shown, "date", json!(value));
         assert_eq!(number(&c), serial, "{shown}: {c}");
         assert_eq!(got, code, "{shown}");
     }
@@ -163,7 +163,7 @@ fn datetimes_and_times_get_formats_too() {
         ("30:05", "time", "00:30:05", "mm\\:ss", 0.020891203703703703),
     ];
     for (shown, kind, value, code, serial) in cases {
-        let (c, got) = a1(shown, kind, json!(value));
+        let (c, got, _) = a1(shown, kind, json!(value));
         assert!(
             (number(&c) - serial).abs() < 1e-9,
             "{shown}: {c} is not {serial}"
@@ -220,8 +220,8 @@ fn a_display_no_date_format_reproduces_stays_text() {
         // No field at all.
         ("today", "date", json!("2024-03-15")),
     ] {
-        let (c, _) = a1(shown, kind, value);
-        assert_text(shown, &c);
+        let cell = a1(shown, kind, value);
+        assert_text(shown, &cell);
     }
 }
 
@@ -234,7 +234,7 @@ fn booleans_are_boolean_cells() {
         ("True", true, "1"),
         ("false", false, "0"),
     ] {
-        let (c, code) = a1(shown, "boolean", json!(value));
+        let (c, code, _) = a1(shown, "boolean", json!(value));
         assert_eq!(attr(&c, "t"), Some("b"), "{shown}: {c}");
         assert!(c.contains(&format!("<v>{v}</v>")), "{shown}: {c}");
         assert_eq!(code, "General");
@@ -250,8 +250,8 @@ fn a_boolean_shown_otherwise_stays_text() {
         ("1", json!(true)),
         ("TRUE", json!("TRUE")),
     ] {
-        let (c, _) = a1(shown, "boolean", value);
-        assert_text(shown, &c);
+        let cell = a1(shown, "boolean", value);
+        assert_text(shown, &cell);
     }
 }
 
