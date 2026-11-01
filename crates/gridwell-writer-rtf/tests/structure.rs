@@ -121,7 +121,7 @@ fn colours_first_used_outside_cells_are_registered() {
             "{word} color missing\n{rtf}"
         );
     }
-    assert!(rtf.contains("{\\b\\cf"), "{rtf}");
+    assert!(rtf.contains("{\\b\\ab\\cf"), "{rtf}");
 }
 
 /// The cell definitions of each row (`\trowd` … first newline), split at `\cellx`.
