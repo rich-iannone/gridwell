@@ -156,27 +156,38 @@ gt_to_ir_list <- function(gt_obj) {
         })
     }
 
+    config <- list(
+        table_cols = length(all_vars),
+        header_rows = length(thead_rows),
+        body_rows = length(rows),
+        stub_cols = if (has_stub) 1L else 0L,
+        row_striping = opts$striping$row_striping,
+        row_striping_include_stub = opts$striping$include_stub,
+        row_striping_include_body = opts$striping$include_body,
+        column_labels_hidden = FALSE,
+        table_width = NULL,
+        container_width = NULL,
+        container_height = NULL,
+        container_overflow = NULL,
+        locale = "en-US",
+        page_break_mode = "avoid",
+        aria_label = NULL,
+        aria_describedby = NULL,
+        summary = NULL
+    )
+    # A locale set on the table (`gt(locale = ...)`) is its language; the
+    # direction follows from the language, since the IR doesn't infer it.
+    locale <- gt_obj[["_locale"]]$locale
+    if (is.character(locale) && length(locale) == 1 && nzchar(locale)) {
+        lang <- gsub("_", "-", locale, fixed = TRUE)
+        config$locale <- lang
+        config$lang <- lang
+        if (.gw_is_rtl(lang)) config$dir <- "rtl"
+    }
+
     list(
         ir_version = "1.0",
-        config = list(
-            table_cols = length(all_vars),
-            header_rows = length(thead_rows),
-            body_rows = length(rows),
-            stub_cols = if (has_stub) 1L else 0L,
-            row_striping = opts$striping$row_striping,
-            row_striping_include_stub = opts$striping$include_stub,
-            row_striping_include_body = opts$striping$include_body,
-            column_labels_hidden = FALSE,
-            table_width = NULL,
-            container_width = NULL,
-            container_height = NULL,
-            container_overflow = NULL,
-            locale = "en-US",
-            page_break_mode = "avoid",
-            aria_label = NULL,
-            aria_describedby = NULL,
-            summary = NULL
-        ),
+        config = config,
         styles = list(
             defs = styles$defs(),
             compositions = setNames(list(), character(0)),
@@ -191,6 +202,27 @@ gt_to_ir_list <- function(gt_obj) {
         footer = footer,
         extensions = setNames(list(), character(0))
     )
+}
+
+# Scripts written right to left, and languages written right to left when the
+# tag names no script (as in gridwell_core::lang).
+.gw_rtl_scripts <- c(
+    "Adlm", "Arab", "Aran", "Hebr", "Mand", "Mend", "Nkoo", "Rohg", "Samr", "Syrc", "Thaa",
+    "Yezi"
+)
+.gw_rtl_languages <- c(
+    "ar", "arc", "bal", "bqi", "ckb", "dv", "fa", "glk", "he", "iw", "ji", "ks", "lrc",
+    "mzn", "nqo", "pnb", "prs", "ps", "sd", "sdh", "syr", "ug", "ur", "yi"
+)
+
+# Whether a language tag's text is written right to left.
+.gw_is_rtl <- function(lang) {
+    subtags <- strsplit(lang, "-", fixed = TRUE)[[1]]
+    if (length(subtags) > 1 && grepl("^[A-Za-z]{4}$", subtags[2])) {
+        script <- paste0(toupper(substr(subtags[2], 1, 1)), tolower(substring(subtags[2], 2)))
+        return(script %in% .gw_rtl_scripts)
+    }
+    tolower(subtags[1]) %in% .gw_rtl_languages
 }
 
 # ---- gt's build ---------------------------------------------------------------
