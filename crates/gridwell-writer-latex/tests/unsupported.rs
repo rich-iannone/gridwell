@@ -347,9 +347,10 @@ fn places_are_where_the_ir_has_them() {
 }
 
 #[test]
-fn the_corpus_has_one_gap() {
-    // Every corpus table but one is expressed whole: `borders-dashed` has
-    // dashed and dotted sides.
+fn the_corpus_has_two_gaps() {
+    // Every corpus table but two is expressed whole: `borders-dashed` has
+    // dashed and dotted sides, and `rtl-table` an Arabic language and right to
+    // left direction, which are the document's.
     for ex in gridwell_testkit::examples() {
         let found: Vec<_> = unsupported(&ex.table())
             .into_iter()
@@ -357,6 +358,7 @@ fn the_corpus_has_one_gap() {
             .collect();
         let want: &[&str] = match ex.name {
             "borders-dashed" => &["border-styles"],
+            "rtl-table" => &["lang", "rtl"],
             _ => &[],
         };
         assert_eq!(found, want, "{}", ex.name);
