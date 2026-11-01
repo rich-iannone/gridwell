@@ -39,7 +39,7 @@ use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{
     resolve_slots, Cell, CellScope, ColumnSpec, ColumnVisibility, HAlign, Keyword, RowParity,
-    RowRole, SelectorScope, Table, VMerge,
+    RowRole, SelectorScope, Table, TextDirection, VMerge,
 };
 pub use style::{CellVAlign, ResolvedBorder, ResolvedStyle, Sides, Stroke};
 pub use text::{plain_text, transform_case};
@@ -67,6 +67,8 @@ pub struct ResolvedTable<'a> {
     pub head: Section<'a>,
     pub groups: Vec<Group<'a>>,
     pub footer: ResolvedFooter<'a>,
+    /// See [`ResolvedTable::is_rtl`].
+    rtl: bool,
 }
 
 impl<'a> ResolvedTable<'a> {
@@ -122,6 +124,25 @@ impl<'a> ResolvedTable<'a> {
         out.extend(self.footer.footnotes.iter().map(|n| &*n.content));
         out.extend(self.footer.source_notes.iter().map(|n| &*n.content));
         out
+    }
+
+    /// Whether the table runs right to left: `config.dir` is `rtl`, or `auto` and
+    /// the first strongly directional character of its text (in document order)
+    /// is right to left, as HTML resolves `auto`. Never taken from `config.lang`.
+    pub fn is_rtl(&self) -> bool {
+        self.rtl
+    }
+
+    fn resolve_rtl(&self) -> bool {
+        match self.table.config.dir {
+            Some(TextDirection::Rtl) => true,
+            Some(TextDirection::Auto) => self
+                .contents()
+                .into_iter()
+                .find_map(|c| gridwell_core::lang::first_strong_is_rtl(&plain_text(c, " ")))
+                .unwrap_or(false),
+            _ => false,
+        }
     }
 
     /// True if no column is visible: writers emit no table body at all.
@@ -560,7 +581,7 @@ pub fn resolve_with(table: &Table, opts: ResolveOptions) -> ResolvedTable<'_> {
         })
         .unwrap_or_default();
 
-    ResolvedTable {
+    let mut rt = ResolvedTable {
         table,
         columns,
         stub_cols,
@@ -568,7 +589,10 @@ pub fn resolve_with(table: &Table, opts: ResolveOptions) -> ResolvedTable<'_> {
         head,
         groups,
         footer,
-    }
+        rtl: false,
+    };
+    rt.rtl = rt.resolve_rtl();
+    rt
 }
 
 /// Every footnote id some `footnote_mark` refers to, anywhere in the table.
