@@ -133,6 +133,7 @@ define_format!(
     options: NoOptions,
     check: ok,
     render: |t, _| gridwell_writer_rtf::render_rtf(t),
+    unsupported: gridwell_writer_rtf::unsupported,
 );
 define_format!(
     Svg, "svg", "SVG image (standalone, measured layout)", Text, "svg", "image/svg+xml",
@@ -145,6 +146,7 @@ define_format!(
     options: gridwell_writer_ansi::AnsiConfig,
     check: ok,
     render: |t, o| gridwell_writer_ansi::AnsiWriter::with_config(o).render(t),
+    unsupported: gridwell_writer_ansi::unsupported,
 );
 define_format!(
     Pandoc, "pandoc", "Pandoc JSON AST (Table block)", Text, "json", "application/json",
@@ -172,6 +174,7 @@ define_format!(
     options: NoOptions,
     check: ok,
     render: |t, _| gridwell_writer_xlsx::render_xlsx(t),
+    unsupported: gridwell_writer_xlsx::unsupported,
 );
 define_format!(
     Pptx, "pptx", "Microsoft PowerPoint slide", Binary, "pptx",
