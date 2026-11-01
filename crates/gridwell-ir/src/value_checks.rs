@@ -1,13 +1,13 @@
 //! INVALID_COLOR and INVALID_LENGTH: every color and length in the IR parses, and
 //! each length uses a form that makes sense for its field (no `fr` padding, no
-//! negative widths, …).
+//! negative widths, …). INVALID_LANG: `config.lang` is a well-formed language tag.
 
 use crate::cell::Row;
 use crate::content::ContentNode;
 use crate::style::StyleDef;
 use crate::validation::{ValidationError, ValidationRule};
 use crate::Table;
-use gridwell_core::{Color, FontSize, Length};
+use gridwell_core::{Color, FontSize, LanguageTag, Length};
 
 /// Which length forms a field accepts beyond plain non-negative absolute/relative
 /// lengths (`px pt em rem in cm mm`).
@@ -248,6 +248,14 @@ pub(crate) fn validate_values(table: &Table, errors: &mut Vec<ValidationError>) 
         ("config.container_height", &cfg.container_height),
     ] {
         ck.length(v.as_ref(), field, LengthKind::SIZE, config);
+    }
+    if let Some(lang) = &cfg.lang {
+        if let Err(why) = LanguageTag::parse(lang) {
+            ck.errors.push(config.error(
+                ValidationRule::InvalidLang,
+                format!("config.lang is \"{lang}\", which is not a language tag: {why}"),
+            ));
+        }
     }
 
     for (i, col) in table.column_spec.iter().enumerate() {

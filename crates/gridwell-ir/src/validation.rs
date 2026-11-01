@@ -38,6 +38,9 @@ pub enum ValidationRule {
     /// character other than an ASCII letter, digit, `_` or `-`. Writers put style ids
     /// into markup (HTML class names and selectors), so they must be plain names.
     InvalidStyleId,
+    /// `config.lang` is not a well-formed BCP 47 language tag (see
+    /// [`gridwell_core::lang`]).
+    InvalidLang,
 }
 
 impl ValidationRule {
@@ -64,6 +67,7 @@ impl ValidationRule {
             ValidationRule::InvalidColor => "INVALID_COLOR",
             ValidationRule::InvalidLength => "INVALID_LENGTH",
             ValidationRule::InvalidStyleId => "INVALID_STYLE_ID",
+            ValidationRule::InvalidLang => "INVALID_LANG",
         }
     }
 }
@@ -931,6 +935,15 @@ fn validate_keywords(table: &Table, errors: &mut Vec<ValidationError>) {
     check(
         Some(&table.config.page_break_mode),
         "config.page_break_mode",
+        "config",
+        None,
+        None,
+        None,
+        errors,
+    );
+    check(
+        table.config.dir.as_ref(),
+        "config.dir",
         "config",
         None,
         None,
