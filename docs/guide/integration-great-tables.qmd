@@ -57,6 +57,7 @@ ir_dict = gridwell.gt_to_dict(gt)  # returns dict
 | Stubhead label (`tab_stubhead()`) | The stub column's head cell (blank without one) |
 | Title/subtitle | `header` block |
 | Source notes | `footer.source_notes` |
+| Footnotes (`tab_footnote()`) | `footer.footnotes`, the ones Great Tables lists, in its order and with its marks (not yet placed on the cells they annotate) |
 | Column alignment | `column_spec[].align` |
 | Column widths | `column_spec[].width` |
 | Formatted values | Cell `content` (display text) |
