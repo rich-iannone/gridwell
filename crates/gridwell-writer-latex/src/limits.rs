@@ -2,10 +2,25 @@
 
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, Table};
-use gridwell_layout::unsupported::{find, Check, Unsupported};
+use gridwell_layout::unsupported::{find, find_table, Check, TableCheck, Unsupported};
 use gridwell_layout::{resolve, CellVAlign, ResolvedCell, ResolvedTable};
 
 use crate::render::{monospace, BASE_PT};
+
+const TABLE_CHECKS: &[TableCheck] = &[
+    TableCheck {
+        feature: "lang",
+        reason: "a language is the document's, set up by babel or polyglossia in the \
+                 preamble the table goes into",
+        uses: |rt| rt.table.config.lang.is_some(),
+    },
+    TableCheck {
+        feature: "rtl",
+        reason: "right to left needs the bidirectional support of babel or polyglossia, set \
+                 up in the document's preamble; the table is written left to right",
+        uses: |rt| rt.is_rtl(),
+    },
+];
 
 const CHECKS: &[Check] = &[
     Check {
@@ -75,5 +90,8 @@ fn tall(rt: &ResolvedTable, c: &ResolvedCell) -> bool {
 
 /// The features of `table` that its LaTeX output can't express, and where.
 pub fn unsupported(table: &Table) -> Vec<Unsupported> {
-    find(&resolve(table), CHECKS)
+    let rt = resolve(table);
+    let mut found = find_table(&rt, TABLE_CHECKS);
+    found.extend(find(&rt, CHECKS));
+    found
 }
