@@ -7,7 +7,7 @@ mod support;
 
 use gridwell_ir::TextDirection;
 use gridwell_testkit::examples::directed;
-use support::{attr, cell_xml, render};
+use support::{attr, cell_xml, find_text, render};
 
 /// The `<xf>` of a cell, with its alignment, and its `<border>`.
 fn format(sheet: &str, styles: &str, cell_ref: &str) -> (String, String) {
@@ -27,18 +27,12 @@ fn format(sheet: &str, styles: &str, cell_ref: &str) -> (String, String) {
     (xf, border)
 }
 
-/// The cell whose text is `text`.
-fn cell_ref<'s>(sheet: &'s str, text: &str) -> &'s str {
-    let end = sheet.find(&format!(">{text}</t>")).unwrap();
-    let start = sheet[..end].rfind("<c r=\"").unwrap() + 6;
-    &sheet[start..start + sheet[start..].find('"').unwrap()]
-}
-
 #[test]
 fn a_right_to_left_table_is_a_right_to_left_sheet() {
     let (sheet, ..) = render(&directed(Some(TextDirection::Rtl), None));
+    let view = &sheet[sheet.find("<sheetView ").unwrap()..];
     assert!(
-        sheet.contains("<sheetView rightToLeft=\"1\" workbookViewId=\"0\"/>"),
+        view[..view.find('>').unwrap()].contains(" rightToLeft=\"1\""),
         "{sheet}"
     );
     for dir in [None, Some(TextDirection::Ltr), Some(TextDirection::Auto)] {
@@ -50,28 +44,29 @@ fn a_right_to_left_table_is_a_right_to_left_sheet() {
 #[test]
 fn borders_swap_and_alignment_stays_physical() {
     let red = "<color rgb=\"FFFF0000\"/>";
-    let (sheet, styles, _) = render(&directed(None, None));
-    let (xf, border) = format(&sheet, &styles, cell_ref(&sheet, "LEFTRED"));
+    let (sheet, styles, sst) = render(&directed(None, None));
+    let cell_ref = |sheet: &str, sst: &str, text| find_text(sheet, sst, text);
+    let (xf, border) = format(&sheet, &styles, &cell_ref(&sheet, &sst, "LEFTRED"));
     assert!(
         border.contains(&format!("<left style=\"medium\">{red}</left><right/>")),
         "{border}"
     );
     assert!(xf.contains("<alignment horizontal=\"right\"/>"), "{xf}");
     // Left is general alignment's side.
-    let (xf, _) = format(&sheet, &styles, cell_ref(&sheet, "one"));
+    let (xf, _) = format(&sheet, &styles, &cell_ref(&sheet, &sst, "one"));
     assert!(!xf.contains("<alignment"), "{xf}");
 
-    let (sheet, styles, _) = render(&directed(Some(TextDirection::Rtl), None));
-    let (xf, border) = format(&sheet, &styles, cell_ref(&sheet, "LEFTRED"));
+    let (sheet, styles, sst) = render(&directed(Some(TextDirection::Rtl), None));
+    let (xf, border) = format(&sheet, &styles, &cell_ref(&sheet, &sst, "LEFTRED"));
     assert!(
         border.contains(&format!("<left/><right style=\"medium\">{red}</right>")),
         "{border}"
     );
     assert!(xf.contains("<alignment horizontal=\"right\"/>"), "{xf}");
     // General alignment would start it on the right.
-    let (xf, _) = format(&sheet, &styles, cell_ref(&sheet, "one"));
+    let (xf, _) = format(&sheet, &styles, &cell_ref(&sheet, &sst, "one"));
     assert!(xf.contains("<alignment horizontal=\"left\"/>"), "{xf}");
     // Lines outside the grid start where the text does.
-    let (xf, _) = format(&sheet, &styles, cell_ref(&sheet, "Title"));
+    let (xf, _) = format(&sheet, &styles, &cell_ref(&sheet, &sst, "Title"));
     assert!(!xf.contains("<alignment"), "{xf}");
 }
