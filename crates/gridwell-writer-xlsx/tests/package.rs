@@ -103,7 +103,7 @@ fn a_footnotes_mark_counts_toward_the_limit() {
         .build();
     assert_eq!(cut(&t), Some(vec![Place::Footnote(0)]));
     let (sheet, _, sst) = render(&t);
-    assert_eq!(text_of(&sheet, &sst, "A3"), format!("1 {}", &long(32_765)));
+    assert_eq!(text_of(&sheet, &sst, "A3"), format!("1 {}", long(32_765)));
 }
 
 #[test]
