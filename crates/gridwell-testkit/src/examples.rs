@@ -9,7 +9,7 @@
 use crate::builder::*;
 use crate::{Category, Example, Feature};
 use gridwell_ir::style::{ConditionalSelector, StyleDef};
-use gridwell_ir::Table;
+use gridwell_ir::{Table, TextDirection};
 use serde_json::json;
 
 use Category::*;
@@ -369,6 +369,23 @@ pub fn all() -> Vec<Example> {
             "Right-to-left (Arabic/Hebrew) text",
             &[F::Header, F::Rtl],
             unicode_rtl,
+        ),
+        ex(
+            "rtl-table",
+            I18n,
+            "A right-to-left table (lang ar, dir rtl): stub, spanner, groups, notes",
+            &[
+                F::Header,
+                F::Spanner,
+                F::Colspan,
+                F::Stub,
+                F::RowGroup,
+                F::Footnote,
+                F::SourceNote,
+                F::Alignment,
+                F::Rtl,
+            ],
+            rtl_table,
         ),
         ex(
             "unicode-emoji",
@@ -1283,6 +1300,56 @@ fn unicode_rtl() -> Table {
         .build()
 }
 
+/// An Arabic table that runs right to left: the stub is the rightmost column, and
+/// the text is right-aligned and the numbers left-aligned (the mirror of the usual
+/// left-to-right layout; alignment is physical, as in CSS).
+fn rtl_table() -> Table {
+    TableBuilder::new(3)
+        .config(|c| {
+            c.locale = "ar".into();
+            c.lang = Some("ar".into());
+            c.dir = Some(TextDirection::Rtl);
+        })
+        .stub_cols(1)
+        .title("المبيعات حسب البلد")
+        .subtitle("بملايين الدولارات")
+        .columns(vec![
+            column("country", "البلد").align("right"),
+            column("y2023", "2023").align("left"),
+            column("y2024", "2024").align("left"),
+        ])
+        .head(
+            row(vec![
+                cell_content(vec![]).stub(),
+                cell("الإيرادات").colspan(2).scope("colgroup"),
+                placeholder(),
+            ])
+            .role("spanner_label"),
+        )
+        .head(row(vec![cell("البلد").stub(), cell("2023"), cell("2024")]).role("column_label"))
+        .group(labeled_group(
+            "الخليج",
+            vec![
+                row(vec![
+                    cell("السعودية").stub(),
+                    cell("120.5"),
+                    cell_content(vec![text("131.2"), footnote_mark("prelim", "1")]),
+                ]),
+                row(vec![cell("الإمارات").stub(), cell("98.1"), cell("104.7")]),
+            ],
+        ))
+        .group(labeled_group(
+            "شمال أفريقيا",
+            vec![
+                row(vec![cell("مصر").stub(), cell("75.3"), cell("80.9")]),
+                row(vec![cell("المغرب").stub(), cell("40.2"), cell("43.8")]),
+            ],
+        ))
+        .footnote("prelim", "1", "تقديرات أولية.")
+        .source_note("المصدر: بيانات تجريبية.")
+        .build()
+}
+
 fn unicode_emoji() -> Table {
     TableBuilder::new(2)
         .head(row(vec![cell("Mood"), cell("Icon")]).role("column_label"))
@@ -1512,6 +1579,44 @@ pub fn styled_merge() -> Table {
             )
             .label_style("label"),
         )
+        .build()
+}
+
+/// For writers' direction tests (not in the corpus): a table in `dir` and `lang`
+/// with a title, a stub column `Name` and a right-aligned column `Value`, a
+/// group label `Group`, a source note, and one cell, `LEFTRED`, whose only border
+/// is a 2px red one on its left.
+pub fn directed(dir: Option<TextDirection>, lang: Option<&str>) -> Table {
+    let left_red = StyleDef {
+        border: Some(gridwell_ir::style::BorderSet {
+            left: Some(border("2px", "solid", "#FF0000")),
+            top: None,
+            right: None,
+            bottom: None,
+        }),
+        ..Default::default()
+    };
+    TableBuilder::new(2)
+        .config(|c| {
+            c.dir = dir;
+            c.lang = lang.map(str::to_string);
+        })
+        .stub_cols(1)
+        .title("Title")
+        .columns(vec![
+            column("name", "Name"),
+            column("value", "Value").align("right"),
+        ])
+        .style_def("left_red", left_red)
+        .head(row(vec![cell("Name").stub(), cell("Value")]).role("column_label"))
+        .group(labeled_group(
+            "Group",
+            vec![
+                row(vec![cell("one").stub(), cell("LEFTRED").style("left_red")]),
+                row(vec![cell("two").stub(), cell("2")]),
+            ],
+        ))
+        .source_note("Source")
         .build()
 }
 
