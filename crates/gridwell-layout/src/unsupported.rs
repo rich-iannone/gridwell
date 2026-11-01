@@ -16,6 +16,8 @@ use crate::{Line, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, Secti
 /// shown counting from 1.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Place {
+    /// The table as a whole: its language or direction.
+    Table,
     Title,
     Subtitle,
     HeaderLine(usize),
@@ -34,6 +36,7 @@ pub enum Place {
 impl fmt::Display for Place {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
+            Place::Table => write!(f, "the table"),
             Place::Title => write!(f, "the title"),
             Place::Subtitle => write!(f, "the subtitle"),
             Place::HeaderLine(i) => write!(f, "header line {}", i + 1),
@@ -166,6 +169,28 @@ pub struct Check {
     pub feature: &'static str,
     pub reason: &'static str,
     pub uses: fn(&ResolvedTable, &Part) -> bool,
+}
+
+/// A feature of the table as a whole (its language, its direction), and how to
+/// tell the table uses it.
+pub struct TableCheck {
+    pub feature: &'static str,
+    pub reason: &'static str,
+    pub uses: fn(&ResolvedTable) -> bool,
+}
+
+/// Run table-wide `checks`: one [`Unsupported`] at [`Place::Table`] for each
+/// the table uses, in the order of `checks`.
+pub fn find_table(rt: &ResolvedTable, checks: &[TableCheck]) -> Vec<Unsupported> {
+    checks
+        .iter()
+        .filter(|c| (c.uses)(rt))
+        .map(|c| Unsupported {
+            feature: c.feature,
+            reason: c.reason,
+            places: vec![Place::Table],
+        })
+        .collect()
 }
 
 /// Run `checks` over every part of the table: one [`Unsupported`] for each
