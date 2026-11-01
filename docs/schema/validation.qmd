@@ -146,8 +146,9 @@ then draws something close, and you can ask for a **warning** first. A warning
 doesn't fail validation or stop rendering.
 
 Each warning has the rule id `UNSUPPORTED_FEATURE`, the format, the feature (named as
-in the [feature matrix](../guide/feature-matrix.qmd)), where the table uses it (the
-first place, and how many others), and what the writer draws instead:
+in the [feature matrix](../guide/feature-matrix.qmd), or for a format's own limits, as
+below), where the table uses it (the first place, and how many others), and what the
+writer draws instead:
 
 ```text
 [UNSUPPORTED_FEATURE] typst can't express border-double (head row 1, column 1 and 2 other places): Typst strokes have no double line; a double border is drawn solid
@@ -164,6 +165,8 @@ first place, and how many others), and what the writer draws instead:
 | `rtf` | `lang` | A `config.lang`: RTF's `\lang` takes a Windows language id, which the writer doesn't map tags to yet |
 | `ansi` | `rtl` | A right-to-left table: a terminal shows the columns left to right |
 | `xlsx` | `lang` | A `config.lang`: a spreadsheet's cells have no language |
+| `xlsx` | `text-length` | Text over a cell's 32,767 characters (a footnote's counting its mark and the space after it): the rest is cut |
+| `xlsx` | `rich-text-length` | Rich text within 32,767 characters that its formatting markup takes over them: it is written without its formatting |
 
 A language or a direction is the table's as a whole, warned for at `the table`.
 Places count from 1: `the title`, `the subtitle`, `header line 1`,
