@@ -30,7 +30,7 @@ fn cases(root: &Path) -> Result<Vec<Case>, String> {
             table: Ok(ex.table()),
         })
         .collect();
-    if let Some(reference) = crate::gt_compare::load(&root.join("harness/gt-reference"))? {
+    if let Some(reference) = crate::gt_compare::GT.load(root)? {
         for c in reference.cases {
             let table = fs::read_to_string(&c.ir)
                 .map_err(|e| format!("read {}: {e}", c.ir.display()))
