@@ -1,6 +1,6 @@
 use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{is_valid_style_id, CellScope, HAlign, Keyword, RowRole, Table};
+use gridwell_ir::{is_valid_style_id, CellScope, HAlign, Keyword, RowRole, Table, TextDirection};
 use gridwell_layout::{
     resolve_with, ResolveOptions, ResolvedBorder, ResolvedCell, ResolvedRow, ResolvedStyle,
     ResolvedTable, Section, SectionKind, Sides, Slot,
@@ -176,7 +176,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         r.head_ids = HeadIds::new(rt, &mut r.ids);
         if !config.inline_styles {
             for label in rt.groups.iter().filter_map(|g| g.label.as_ref()) {
-                let a = group_label_alignment(label);
+                let a = group_label_alignment(label, directed(rt.table));
                 if !r.alignments.contains(&a) {
                     r.alignments.push(a);
                 }
@@ -185,7 +185,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                 for row in &section.rows {
                     for cell in row.cells() {
                         let is_header = is_header_cell(cell, section.kind);
-                        if let Some(a) = cell_alignment(cell, is_header) {
+                        if let Some(a) = cell_alignment(cell, is_header, directed(rt.table)) {
                             if !r.alignments.contains(&a) {
                                 r.alignments.push(a);
                             }
@@ -277,8 +277,13 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
     /// `fragment` as a complete UTF-8 document, titled after the table.
     fn document(&self, fragment: &str) -> String {
         let nl = self.nl();
-        let lang = html_lang(&self.table.config.locale)
-            .map(|l| format!(" lang=\"{l}\""))
+        let lang = self
+            .table
+            .config
+            .lang
+            .clone()
+            .or_else(|| html_lang(&self.table.config.locale))
+            .map(|l| format!(" lang=\"{}\"", escape_attr(&l)))
             .unwrap_or_default();
         let title = escape_html(&self.document_title());
         let mut out = String::with_capacity(fragment.len() + 256);
@@ -341,6 +346,12 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             attrs.push(format!("id=\"{}\"", escape_attr(id)));
         }
         attrs.push(format!("class=\"{}\"", self.container_class()));
+        if let Some(lang) = &self.table.config.lang {
+            attrs.push(format!("lang=\"{}\"", escape_attr(lang)));
+        }
+        if let Some(dir) = known(&self.table.config.dir) {
+            attrs.push(format!("dir=\"{dir}\""));
+        }
 
         let mut style_parts = Vec::new();
         if let Some(w) = css_length(self.table.config.container_width.as_deref()) {
@@ -391,7 +402,8 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 
         // The base look first: zero specificity, so everything below wins.
         if self.config.base_styles {
-            for line in crate::base::rules(&self.config.class_prefix) {
+            let rtl = self.table.config.dir == Some(TextDirection::Rtl);
+            for line in crate::base::rules(&self.config.class_prefix, rtl) {
                 self.write_line(&line);
             }
         }
@@ -633,7 +645,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
     /// alignment.
     fn group_label_attrs(&self, label: &gridwell_layout::Line) -> String {
         let part = self.part_class("group_label");
-        let align = group_label_alignment(label);
+        let align = group_label_alignment(label, directed(self.table));
         let style_id = label.style_id.map(str::to_string);
         if self.config.inline_styles {
             let mut css = style_id
@@ -747,7 +759,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         let mut attrs = Vec::new();
         let part = cell_part(row, cell, kind).map(|part| self.part_class(part));
 
-        let align = cell_alignment(cell, is_header);
+        let align = cell_alignment(cell, is_header, directed(self.table));
         if self.config.inline_styles {
             let mut css = style_css(&cell.style);
             // The cascade's own text-align, if any, already equals the cell's.
@@ -1107,16 +1119,28 @@ fn cell_scope(cell: &ResolvedCell, kind: SectionKind) -> Option<CellScope> {
 }
 
 /// The `text-align` a cell needs, if any: header cells always (browsers center
-/// `<th>` by default), body cells unless left-aligned (the default for `<td>`).
-/// Decimal (`char`) alignment is approximated by right alignment.
-fn cell_alignment(cell: &ResolvedCell, is_header: bool) -> Option<&'static str> {
+/// `<th>` by default), body cells unless left-aligned (the default for `<td>`,
+/// but only left to right: `directed`, it is the start). Decimal (`char`)
+/// alignment is approximated by right alignment.
+fn cell_alignment(cell: &ResolvedCell, is_header: bool, directed: bool) -> Option<&'static str> {
     let a = halign_css(&cell.align);
-    (is_header || a != "left").then_some(a)
+    (is_header || directed || a != "left").then_some(a)
 }
 
-/// A group label's `text-align`: its style's, else left.
-fn group_label_alignment(label: &gridwell_layout::Line) -> &'static str {
-    label.style.text_align.as_ref().map_or("left", halign_css)
+/// A group label's `text-align`: its style's, else left, or the start when
+/// `directed`.
+fn group_label_alignment(label: &gridwell_layout::Line, directed: bool) -> &'static str {
+    let default = if directed { "start" } else { "left" };
+    label.style.text_align.as_ref().map_or(default, halign_css)
+}
+
+/// The table sets a direction that may be right to left (`rtl` or `auto`):
+/// alignment, which is physical, is then said outright.
+fn directed(table: &Table) -> bool {
+    matches!(
+        table.config.dir,
+        Some(TextDirection::Rtl | TextDirection::Auto)
+    )
 }
 
 fn halign_css(a: &HAlign) -> &'static str {
