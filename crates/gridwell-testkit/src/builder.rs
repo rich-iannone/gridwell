@@ -577,6 +577,8 @@ fn default_config(cols: u32) -> Config {
         container_height: None,
         container_overflow: None,
         locale: "en-US".to_string(),
+        lang: None,
+        dir: None,
         page_break_mode: PageBreakMode::Avoid,
         aria_label: None,
         aria_describedby: None,
