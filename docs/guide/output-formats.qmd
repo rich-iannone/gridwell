@@ -33,6 +33,38 @@ an italic cell, title or note is upright, except in Pandoc and Quarto (`Emph` ca
 undone). Underline and strike-through are different: as in CSS, a run adds them to
 its cell's but can't remove them.
 
+## Language and direction
+
+A table's [`lang` and `dir`](../schema/config.qmd#language-and-direction) are written
+in each format's own terms. Alignment and borders are physical in the IR, so a format
+whose "left" means "start" in a right-to-left table gets them swapped. Lines outside
+the grid (the title, subtitle, group labels and notes) start on the table's start
+side, which is the right in a right-to-left table.
+
+| Format | `lang` | Right to left |
+|--------|--------|---------------|
+| HTML | `lang` on the container, and on `<html>` in a standalone document (else the `locale`) | `dir` on the container (`auto` too, left to the browser). With `rtl` or `auto`, every alignment is written out, since the browser's default is the start |
+| LaTeX | ⊘ warned: the document's language, set up in its preamble | ⊘ warned: written left to right |
+| Typst | `#set text(lang:, region:)` around the table | `#set text(dir: rtl)` around the table; heading lines `#align(start)` |
+| RTF | ⊘ warned: no `\lang` id for the tag yet | `\rtlrow` rows and `\rtlpar` paragraphs; `\ql`/`\qr` are physical; cell borders swap |
+| SVG | `xml:lang` on the drawing | The drawing is mirrored, and every line of text is `direction="rtl"` |
+| ANSI | not written | ⊘ warned: drawn left to right |
+| Pandoc | `lang` on the `Table` | `dir` on the `Table`. Pandoc's HTML writer writes both out; its LaTeX writer ignores them on a `Table` |
+| Quarto | `lang` on the `Div` and the `Table` | `dir` on both. On the `Div`, Pandoc's LaTeX writer puts the table in babel or polyglossia's `otherlanguage` and `RTL` environments |
+| DOCX | `<w:lang>` in the document's run defaults (`styles.xml`), also as `w:eastAsia` for Chinese, Japanese and Korean and as `w:bidi` for right-to-left languages | `<w:bidiVisual/>` table and `<w:bidi/>` paragraphs. Word reads `w:jc` left and right, and cell borders, as start and end there, so both swap |
+| XLSX | ⊘ warned: cells have no language | A `rightToLeft` sheet. Horizontal alignment stays physical, and `left` is written out, since a general-aligned cell starts on the right. Cell borders swap |
+| PPTX | `lang` on every run (else `en-US`) | `rtl="1"` on the table and its paragraphs. `algn` is physical (a paragraph without one is put on the right); cell borders swap |
+
+The OOXML formats' readings of left and right are from the specification, and
+haven't been checked in Word, Excel or PowerPoint yet: DOCX's `w:jc` and cell
+borders, XLSX's cell borders (its alignment is physical, per ECMA-376), and PPTX's
+cell borders.
+
+Bold and italic are also set for complex-script text in every table: DOCX writes
+`<w:bCs/>` and `<w:iCs/>` beside `<w:b/>` and `<w:i/>`, and RTF writes `\ab` and `\ai`
+beside `\b` and `\i`. Without them, Word draws Arabic or Hebrew text in a bold or
+italic cell as regular, upright text.
+
 ## Text Formats
 
 ### HTML

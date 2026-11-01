@@ -21,6 +21,8 @@ The `config` block contains table-level metadata used for validation and renderi
 | `container_height`           | string? | null      | Container height                 |
 | `container_overflow`         | string? | null      | Overflow behavior                |
 | `locale`                     | string  | "en-US"   | Locale identifier                |
+| `lang`                       | string? | null      | The language of the table's text, a BCP 47 tag ([language and direction](#language-and-direction)) |
+| `dir`                        | string? | null      | `"ltr"`, `"rtl"` or `"auto"`: the direction its columns and text run in |
 | `page_break_mode`            | string  | "avoid"   | `"avoid"`, `"allow"`, `"force-between-groups"` |
 | `aria_label`                 | string? | null      | Accessibility label              |
 | `aria_describedby`           | string? | null      | Accessibility description ref    |
@@ -35,6 +37,40 @@ striped when `row_striping_include_stub` is set and other cells when
 summary rows are never striped. Striping sits below conditional, row and cell styles
 in the [style cascade](styles.qmd#how-styles-combine), so any of them can override it.
 Formats without transparency show the stripe as it looks on white (`#F9F9F9`).
+
+## Language and direction
+
+`lang` is the language the table's text is in, as a BCP 47 tag (`"ar"`, `"fr-CA"`,
+`"zh-Hant-TW"`). It lets a format choose fonts, hyphenation and shaping for the text,
+and screen readers choose a voice. A value that isn't a well-formed tag is an
+[`INVALID_LANG`](validation.qmd#rules) error. Unlike `locale`, which only sets how
+values were formatted, `lang` is written into the output.
+
+`dir` is the direction the table runs in. With `"rtl"`, the first column is on the
+right, text runs right to left, and lines outside the grid (the title, group labels,
+notes) start on the right. `"auto"` is right to left when the table's first strongly
+directional character (in its title, labels and cells, in that order) is from a
+right-to-left script such as Arabic or Hebrew. HTML leaves that to the browser. `"ltr"`
+says left to right outright. Without `dir`, the table is left to right as before.
+The direction is never inferred from `lang`, so an Arabic-language table without `dir`
+still runs left to right.
+
+Alignment and borders stay **physical** in either direction. A `left`-aligned column
+is aligned left and a cell's `left` border is drawn on its left, wherever the cell
+ends up. To make a column start-aligned in a right-to-left table, align it `right`.
+How each format expresses this is listed under [output formats](../guide/output-formats.qmd#language-and-direction).
+
+```json
+{
+  "config": {
+    "table_cols": 3,
+    "header_rows": 1,
+    "body_rows": 4,
+    "lang": "ar",
+    "dir": "rtl"
+  }
+}
+```
 
 ## Example
 

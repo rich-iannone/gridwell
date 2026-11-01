@@ -29,6 +29,7 @@ and when errors are serialized.
 | `INVALID_COLOR` | A color field is not a CSS color (see [Colors](#colors)) |
 | `INVALID_LENGTH` | A length field does not parse, or uses a form its field does not allow (see [Lengths](#lengths)) |
 | `INVALID_STYLE_ID` | A style id (a key of `styles.defs` or `styles.compositions`) is empty or uses a character other than ASCII letters, digits, `_` and `-` |
+| `INVALID_LANG` | `config.lang` is not a well-formed BCP 47 language tag: subtags of ASCII letters and digits separated by `-` (`fr-CA`, not `fr_CA`), as in `ar`, `zh-Hant-TW`, `es-419` or a private-use `x-…` tag |
 
 ## Span Rules
 
@@ -59,6 +60,7 @@ at once. Known values are written back in their canonical spelling.
 | `row.role` | `column_label`, `spanner_label`, `summary_row` (`summary`), `grand_summary_row` (`grand_summary`) |
 | `cell.scope` | `col`, `colgroup`, `row`, `rowgroup` |
 | `config.page_break_mode` | `avoid`, `allow`, `force-between-groups` (`force_between_groups`) |
+| `config.dir` | `ltr`, `rtl`, `auto` |
 | `border.*.style` | `none`, `hidden`, `solid`, `dashed`, `dotted`, `double` |
 | `font_weight` | `normal`, `bold`, `bolder`, `lighter`, or a number 1–1000 (JSON string or number) |
 | `font_style` | `normal`, `italic`, `oblique` |
@@ -133,6 +135,7 @@ Each error includes the rule name, location, and a human-readable message:
 [SPAN_OVERFLOW_RIGHT] cell at (row=1, col=4) has colspan=3 but table has 5 columns
 [SPAN_PLACEHOLDER_HAS_CONTENT] placeholder cell at (row=2, col=1) has non-empty content
 [INVALID_LENGTH] column_spec[1].width is "-5px", which is not valid here: it is negative (expected a non-negative length (px, pt, em, rem, in, cm, mm), or a percentage, or a fraction (fr), or auto)
+[INVALID_LANG] config.lang is "fr_CA", which is not a language tag: subtags are separated by `-`, not `_` (fr-CA, not fr_CA)
 ```
 
 ## Warnings
@@ -155,8 +158,14 @@ first place, and how many others), and what the writer draws instead:
 | `latex` | `font-family` | A font family, anywhere. A cell or group label in a monospace family is `\texttt`, and `system-ui` and the like are drawn in no format: neither is warned |
 | `latex` | `vertical-align` | A `middle` or `bottom` cell beside one that may be taller: it breaks lines, has raw LaTeX, sits in a column with a width, or is in a larger font size. A cell spanning rows is centered on them, so only `bottom` is warned there |
 | `latex` | `border-styles` | A dashed or dotted left or right border on a cell or group label |
+| `latex` | `lang` | A `config.lang`: the language is the document's, set up by babel or polyglossia |
+| `latex` | `rtl` | A right-to-left table (`dir: rtl`, or `auto` with right-to-left text): it is written left to right |
 | `typst` | `border-double` | A double border on a cell or group label |
+| `rtf` | `lang` | A `config.lang`: RTF's `\lang` takes a Windows language id, which the writer doesn't map tags to yet |
+| `ansi` | `rtl` | A right-to-left table: a terminal shows the columns left to right |
+| `xlsx` | `lang` | A `config.lang`: a spreadsheet's cells have no language |
 
+A language or a direction is the table's as a whole, warned for at `the table`.
 Places count from 1: `the title`, `the subtitle`, `header line 1`,
 `head row 1, column 2`, `group 1 row 3, column 2`, `group 1 summary row 1, column 1`,
 `the label of group 2`, `footnote 1`, `source note 1`. A row counts within its part of

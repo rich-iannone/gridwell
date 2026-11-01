@@ -73,6 +73,18 @@ table shows it:
   `datetime.time` values are typed; a date or time is written without its time
   zone, as the wall-clock time the table shows. Dates held as strings stay strings.
 
+## Language and direction
+
+A table given a locale (`GT(df, locale="ar_EG")`) is in that language: the IR's
+`config.locale` and [`config.lang`](../schema/config.qmd#language-and-direction) are
+the locale as a language tag (`ar-EG`). When the language is written right to left
+(Arabic, Hebrew, Persian, Urdu and the like, or any language in a right-to-left
+script such as `pa_Arab`), `config.dir` is `rtl`, so the columns and text run right
+to left. Great Tables' own HTML stays left to right. A table without a locale gets
+neither `lang` nor `dir`, as before.
+
+The R package does the same for gt's `locale` (`gt(df, locale = "ar")`).
+
 ## HTML ids
 
 The HTML writer gives the header cells the ids Great Tables gives them, and each
