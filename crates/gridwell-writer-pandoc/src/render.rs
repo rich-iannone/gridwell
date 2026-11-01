@@ -5,7 +5,7 @@
 
 use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
-use gridwell_ir::{HAlign, Table};
+use gridwell_ir::{HAlign, Keyword, Table};
 use gridwell_layout::{resolve, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable};
 use serde_json::{json, Value};
 use thiserror::Error;
@@ -36,7 +36,7 @@ pub fn table_block(rt: &ResolvedTable, notes_in_foot: bool) -> Value {
     json!({
         "t": "Table",
         "c": [
-            null_attr(),
+            ["", [], lang_dir(rt.table)],
             caption(rt),
             colspecs(rt),
             [null_attr(), rt.head.rows.iter().map(|r| row(rt, r)).collect::<Vec<_>>()],
@@ -48,6 +48,20 @@ pub fn table_block(rt: &ResolvedTable, notes_in_foot: bool) -> Value {
 
 pub fn null_attr() -> Value {
     json!(["", [], []])
+}
+
+/// The table's `lang` and `dir` as attribute key-value pairs. Pandoc's HTML
+/// writer writes them out as they are; its LaTeX writer reads them from a `Div`
+/// (Quarto's), not from a `Table`.
+pub fn lang_dir(table: &Table) -> Vec<Value> {
+    let config = &table.config;
+    let lang = config.lang.as_ref().map(|l| json!(["lang", l]));
+    let dir = config
+        .dir
+        .as_ref()
+        .filter(|d| d.is_known())
+        .map(|d| json!(["dir", d.to_string()]));
+    lang.into_iter().chain(dir).collect()
 }
 
 fn caption(rt: &ResolvedTable) -> Value {
