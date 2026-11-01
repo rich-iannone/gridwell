@@ -89,7 +89,7 @@ def _gt_to_dict(gt_obj: Any) -> dict:
     tbody = _build_tbody(tbl_data, all_cols, built, has_stub, has_groups, group_rows)
 
     # Build footer
-    footer = _build_footer(built._source_notes, built._footnotes)
+    footer = _build_footer(built)
 
     # Build styles
     styles = _build_styles(built._styles)
@@ -399,27 +399,47 @@ def _typed_value(value: Any, text: str, data_type: str | None) -> dict | None:
     return {"type": "string", "value": text}
 
 
-def _build_footer(source_notes: list, footnotes: list) -> dict:
-    """Build the footer section."""
+def _build_footer(built: Any) -> dict:
+    """Build the footer section.
+
+    The footnotes are the ones Great Tables lists under the table, in its order and
+    with its marks (one per distinct text; footnotes of hidden columns dropped).
+    Before 1.0 Great Tables stored footnotes but didn't show them, so neither do we.
+    """
+    try:
+        from great_tables._utils_render_html import _process_footnotes_for_display
+    except ImportError:
+        shown = []
+    else:
+        shown = _process_footnotes_for_display(built, built._footnotes)
+
     fn_list = []
-    for i, fn in enumerate(footnotes):
-        fn_text = str(fn) if not isinstance(fn, dict) else fn.get("text", str(fn))
+    for i, fn in enumerate(shown):
         fn_list.append({
             "id": f"fn{i + 1}",
-            "content": [{"type": "text", "value": fn_text}],
+            "mark": fn["mark"],
+            "content": [{"type": "text", "value": _note_text(fn["text"])}],
         })
 
     sn_list = []
-    for sn in source_notes:
-        sn_text = str(sn) if not isinstance(sn, dict) else sn.get("text", str(sn))
+    for sn in built._source_notes:
         sn_list.append({
-            "content": [{"type": "text", "value": sn_text}],
+            "content": [{"type": "text", "value": _note_text(sn)}],
         })
 
     return {
         "footnotes": fn_list,
         "source_notes": sn_list,
     }
+
+
+def _note_text(note: Any) -> str:
+    """A note's text: a string as given, a Text (md(), html()) as Great Tables renders it."""
+    if isinstance(note, str):
+        return note
+    from great_tables._text import _process_text
+
+    return _process_text(note)
 
 
 def _build_styles(styles: list) -> dict:
