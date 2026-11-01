@@ -756,7 +756,8 @@ const TYPST_LOOK_PRELUDE: &str = r#"#set page(width: 100cm, height: auto, margin
 #show text: it => context [#metadata((k: "run", t: it.text, w: repr(text.weight), st: repr(text.style),
   fill: gw-hex(text.fill), size: text.size.to-absolute().pt(),
   font: if type(text.font) == array { text.font.at(0) } else { text.font },
-  u: gw-u.get(), s: gw-s.get(), b: gw-b.get(), e: gw-e.get(), p: gw-p.get())) <gw>] + it
+  u: gw-u.get(), s: gw-s.get(), b: gw-b.get(), e: gw-e.get(), p: gw-p.get(),
+  lang: text.lang, dir: repr(text.dir))) <gw>] + it
 "#;
 
 /// A Unicode superscript character's plain form.
@@ -866,6 +867,13 @@ pub fn typst_looks(sources: &[String]) -> Vec<Result<look::Doc, String>> {
                     }
                 }
                 Some("run") => {
+                    // The table's language and direction: its cells' text's.
+                    if let (Some(d), true) = (docs.last_mut(), cell.is_some()) {
+                        if d.lang.is_none() {
+                            d.lang = v["lang"].as_str().map(str::to_string);
+                            d.rtl = v["dir"].as_str() == Some("rtl");
+                        }
+                    }
                     let weight = v["w"].as_str().unwrap_or("").trim_matches('"').to_string();
                     let n = |k: &str| v[k].as_i64().unwrap_or(0);
                     let bold =
