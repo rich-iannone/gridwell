@@ -1,17 +1,71 @@
 ---
 source: crates/gridwell-writer-xlsx/tests/snapshots.rs
-expression: xml
+expression: lines(&xml)
 ---
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-<cols><col min="1" max="1" width="12.00" customWidth="1"/><col min="2" max="2" width="12.00" customWidth="1"/><col min="3" max="3" width="12.00" customWidth="1"/></cols>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<dimension ref="A1:C8"/>
+<sheetViews><sheetView tabSelected="1" workbookViewId="0"/></sheetViews>
+<sheetFormatPr defaultRowHeight="15"/>
+<cols><col min="1" max="3" width="12" customWidth="1"/></cols>
 <sheetData>
-<row r="1"><c r="A1" t="inlineStr" s="1"><is><t xml:space="preserve">Quarterly P&amp;L</t></is></c></row>
-<row r="2"><c r="A2" t="inlineStr" s="1"><is><t xml:space="preserve">Line item</t></is></c><c r="B2" t="inlineStr" s="2"><is><t xml:space="preserve">Q1</t></is></c><c r="C2" t="inlineStr" s="2"><is><t xml:space="preserve">Q2</t></is></c></row>
-<row r="3"><c r="A3" t="inlineStr"><is><t xml:space="preserve">Revenue</t></is></c><c r="B3" t="inlineStr" s="3"><is><t xml:space="preserve">$1,200</t></is></c><c r="C3" t="inlineStr" s="3"><is><t xml:space="preserve">$1,350</t></is></c></row>
-<row r="4"><c r="A4" t="inlineStr"><is><t xml:space="preserve">COGS</t></is></c><c r="B4" t="inlineStr" s="4"><is><t xml:space="preserve">$700</t></is></c><c r="C4" t="inlineStr" s="4"><is><t xml:space="preserve">$760</t></is></c></row>
-<row r="5"><c r="A5" t="inlineStr"><is><t xml:space="preserve">Opex</t></is></c><c r="B5" t="inlineStr" s="3"><is><t xml:space="preserve">$300</t></is></c><c r="C5" t="inlineStr" s="3"><is><t xml:space="preserve">$320</t></is></c></row>
-<row r="6"><c r="A6" t="inlineStr" s="5"><is><t xml:space="preserve">Net income</t></is></c><c r="B6" t="inlineStr" s="6"><is><t xml:space="preserve">$200</t></is></c><c r="C6" t="inlineStr" s="6"><is><t xml:space="preserve">$270</t></is></c></row>
-<row r="8"><c r="A8" t="inlineStr"><is><t xml:space="preserve">Unaudited management figures.</t></is></c></row>
+<row r="1" spans="1:3"><c r="A1" s="1" t="s"><v>0</v></c></row>
+<row r="2" spans="1:3"><c r="A2" s="1" t="s"><v>1</v></c><c r="B2" s="2" t="s"><v>2</v></c><c r="C2" s="2" t="s"><v>3</v></c></row>
+<row r="3" spans="1:3"><c r="A3" t="s"><v>4</v></c><c r="B3" s="3" t="s"><v>5</v></c><c r="C3" s="3" t="s"><v>6</v></c></row>
+<row r="4" spans="1:3"><c r="A4" t="s"><v>7</v></c><c r="B4" s="4" t="s"><v>8</v></c><c r="C4" s="4" t="s"><v>9</v></c></row>
+<row r="5" spans="1:3"><c r="A5" t="s"><v>10</v></c><c r="B5" s="3" t="s"><v>11</v></c><c r="C5" s="3" t="s"><v>12</v></c></row>
+<row r="6" spans="1:3"><c r="A6" s="5" t="s"><v>13</v></c><c r="B6" s="6" t="s"><v>14</v></c><c r="C6" s="6" t="s"><v>15</v></c></row>
+<row r="8" spans="1:3"><c r="A8" t="s"><v>16</v></c></row>
 </sheetData>
+<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
 </worksheet>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="17" uniqueCount="17">
+<si><t>Quarterly P&amp;L</t></si>
+<si><t>Line item</t></si>
+<si><t>Q1</t></si>
+<si><t>Q2</t></si>
+<si><t>Revenue</t></si>
+<si><t>$1,200</t></si>
+<si><t>$1,350</t></si>
+<si><t>COGS</t></si>
+<si><t>$700</t></si>
+<si><t>$760</t></si>
+<si><t>Opex</t></si>
+<si><t>$300</t></si>
+<si><t>$320</t></si>
+<si><t>Net income</t></si>
+<si><t>$200</t></si>
+<si><t>$270</t></si>
+<si><t>Unaudited management figures.</t></si>
+</sst>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<fonts count="2">
+<font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>
+<font><b/><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>
+</fonts>
+<fills count="4">
+<fill><patternFill patternType="none"/></fill>
+<fill><patternFill patternType="gray125"/></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFF9F9F9"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFF5F5F5"/><bgColor indexed="64"/></patternFill></fill>
+</fills>
+<borders count="1">
+<border><left/><right/><top/><bottom/><diagonal/></border>
+</borders>
+<cellStyleXfs count="1">
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="7">
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="right"/></xf>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment horizontal="right"/></xf>
+<xf numFmtId="0" fontId="0" fillId="2" borderId="0" xfId="0" applyFill="1" applyAlignment="1"><alignment horizontal="right"/></xf>
+<xf numFmtId="0" fontId="1" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1"/>
+<xf numFmtId="0" fontId="1" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="right"/></xf>
+</cellXfs>
+<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+<dxfs count="0"/>
+<tableStyles count="0" defaultTableStyle="TableStyleMedium9" defaultPivotStyle="PivotStyleLight16"/>
+</styleSheet>

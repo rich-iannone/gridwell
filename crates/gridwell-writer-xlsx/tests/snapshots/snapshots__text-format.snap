@@ -1,20 +1,66 @@
 ---
 source: crates/gridwell-writer-xlsx/tests/snapshots.rs
-expression: xml
+expression: lines(&xml)
 ---
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-<cols><col min="1" max="1" width="12.00" customWidth="1"/><col min="2" max="2" width="12.00" customWidth="1"/></cols>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<dimension ref="A1:B6"/>
+<sheetViews><sheetView tabSelected="1" workbookViewId="0"/></sheetViews>
+<sheetFormatPr defaultRowHeight="15"/>
+<cols><col min="1" max="2" width="12" customWidth="1"/></cols>
 <sheetData>
-<row r="1"><c r="A1" t="inlineStr" s="1"><is><t xml:space="preserve">Format</t></is></c><c r="B1" t="inlineStr" s="1"><is><t xml:space="preserve">Sample</t></is></c></row>
-<row r="2"><c r="A2" t="inlineStr"><is><t xml:space="preserve">underline</t></is></c><c r="B2" t="inlineStr" s="2"><is><t xml:space="preserve">Underlined</t></is></c></row>
-<row r="3"><c r="A3" t="inlineStr"><is><t xml:space="preserve">line-through</t></is></c><c r="B3" t="inlineStr" s="3"><is><t xml:space="preserve">Struck out</t></is></c></row>
-<row r="4" ht="18.41" customHeight="1"><c r="A4" t="inlineStr"><is><t xml:space="preserve">18px</t></is></c><c r="B4" t="inlineStr" s="4"><is><t xml:space="preserve">Larger text</t></is></c></row>
-<row r="5"><c r="A5" t="inlineStr"><is><t xml:space="preserve">smaller</t></is></c><c r="B5" t="inlineStr" s="5"><is><t xml:space="preserve">Smaller text</t></is></c></row>
-<row r="6" ht="18.41" customHeight="1"><c r="A6" t="inlineStr"><is><t xml:space="preserve">inline</t></is></c><c r="B6" t="s"><v>0</v></c></row>
+<row r="1" spans="1:2"><c r="A1" s="1" t="s"><v>0</v></c><c r="B1" s="1" t="s"><v>1</v></c></row>
+<row r="2" spans="1:2"><c r="A2" t="s"><v>2</v></c><c r="B2" s="2" t="s"><v>3</v></c></row>
+<row r="3" spans="1:2"><c r="A3" t="s"><v>4</v></c><c r="B3" s="3" t="s"><v>5</v></c></row>
+<row r="4" spans="1:2" ht="18.75" customHeight="1"><c r="A4" t="s"><v>6</v></c><c r="B4" s="4" t="s"><v>7</v></c></row>
+<row r="5" spans="1:2"><c r="A5" t="s"><v>8</v></c><c r="B5" s="5" t="s"><v>9</v></c></row>
+<row r="6" spans="1:2" ht="18.75" customHeight="1"><c r="A6" t="s"><v>10</v></c><c r="B6" t="s"><v>11</v></c></row>
 </sheetData>
+<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
 </worksheet>
-
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="1" uniqueCount="1">
-<si><r><rPr><sz val="11"/><rFont val="Calibri"/></rPr><t xml:space="preserve">Plain, </t></r><r><rPr><u/><sz val="11"/><rFont val="Calibri"/></rPr><t xml:space="preserve">underlined</t></r><r><rPr><sz val="11"/><rFont val="Calibri"/></rPr><t xml:space="preserve">, </t></r><r><rPr><strike/><sz val="11"/><rFont val="Calibri"/></rPr><t xml:space="preserve">struck</t></r><r><rPr><sz val="11"/><rFont val="Calibri"/></rPr><t xml:space="preserve"> and </t></r><r><rPr><sz val="13.5"/><rFont val="Calibri"/></rPr><t xml:space="preserve">large</t></r></si></sst>
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="12" uniqueCount="12">
+<si><t>Format</t></si>
+<si><t>Sample</t></si>
+<si><t>underline</t></si>
+<si><t>Underlined</t></si>
+<si><t>line-through</t></si>
+<si><t>Struck out</t></si>
+<si><t>18px</t></si>
+<si><t>Larger text</t></si>
+<si><t>smaller</t></si>
+<si><t>Smaller text</t></si>
+<si><t>inline</t></si>
+<si><r><rPr><sz val="11"/><color theme="1"/><rFont val="Calibri"/><family val="2"/></rPr><t xml:space="preserve">Plain, </t></r><r><rPr><u/><sz val="11"/><color theme="1"/><rFont val="Calibri"/><family val="2"/></rPr><t>underlined</t></r><r><rPr><sz val="11"/><color theme="1"/><rFont val="Calibri"/><family val="2"/></rPr><t xml:space="preserve">, </t></r><r><rPr><strike/><sz val="11"/><color theme="1"/><rFont val="Calibri"/><family val="2"/></rPr><t>struck</t></r><r><rPr><sz val="11"/><color theme="1"/><rFont val="Calibri"/><family val="2"/></rPr><t xml:space="preserve"> and </t></r><r><rPr><sz val="13.5"/><color theme="1"/><rFont val="Calibri"/><family val="2"/></rPr><t>large</t></r></si>
+</sst>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<fonts count="6">
+<font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>
+<font><b/><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>
+<font><u/><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>
+<font><strike/><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>
+<font><sz val="13.5"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>
+<font><sz val="9.17"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>
+</fonts>
+<fills count="2">
+<fill><patternFill patternType="none"/></fill>
+<fill><patternFill patternType="gray125"/></fill>
+</fills>
+<borders count="1">
+<border><left/><right/><top/><bottom/><diagonal/></border>
+</borders>
+<cellStyleXfs count="1">
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="6">
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+<xf numFmtId="0" fontId="5" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+</cellXfs>
+<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+<dxfs count="0"/>
+<tableStyles count="0" defaultTableStyle="TableStyleMedium9" defaultPivotStyle="PivotStyleLight16"/>
+</styleSheet>
