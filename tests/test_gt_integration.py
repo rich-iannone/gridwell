@@ -335,3 +335,36 @@ def test_header_ids_are_great_tables_ids(table_id):
     # The container has the table's id.
     if table_id is not None:
         assert ours.startswith('<div id="sales"')
+
+
+@pytest.mark.parametrize(
+    "locale,lang,direction",
+    [
+        ("ar_EG", "ar-EG", "rtl"),
+        ("he", "he", "rtl"),
+        ("fa", "fa", "rtl"),
+        ("pa_Arab", "pa-Arab", "rtl"),
+        ("fr_CA", "fr-CA", None),
+        ("zh_Hant_TW", "zh-Hant-TW", None),
+        ("uz_Latn", "uz-Latn", None),
+    ],
+)
+def test_a_locale_is_the_tables_language_and_direction(locale, lang, direction):
+    gt_obj = GT(pd.DataFrame({"x": [1.5]}), locale=locale)
+    config = json.loads(gridwell.gt_to_ir(gt_obj))["config"]
+    assert config["locale"] == lang
+    assert config["lang"] == lang
+    assert config.get("dir") == direction
+    table = gridwell.Table.from_json(gridwell.gt_to_ir(gt_obj))
+    assert table.validate() == []
+    html = table.render_html()
+    assert f'lang="{lang}"' in html
+    assert ('dir="rtl"' in html) == (direction == "rtl")
+
+
+def test_without_a_locale_the_language_is_unset():
+    config = json.loads(gridwell.gt_to_ir(make_simple_gt()))["config"]
+    assert config["locale"] == "en-US"
+    assert "lang" not in config and "dir" not in config
+    html = gridwell.Table.from_json(gridwell.gt_to_ir(make_simple_gt())).render_html()
+    assert "lang=" not in html and "dir=" not in html
