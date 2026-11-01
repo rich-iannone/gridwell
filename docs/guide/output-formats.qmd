@@ -291,7 +291,8 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 
 ### XLSX (Microsoft Excel)
 
-- SpreadsheetML format
+- SpreadsheetML format, written with [rust_xlsxwriter](https://crates.io/crates/rust_xlsxwriter).
+  The same table makes the same file (the creation date is fixed at 1980-01-01)
 - Cells preserve typed values, each shown as the table shows it:
   - Numbers stay numeric, with a number format read off the display (`0.0` for `76.0`,
     `#,##0` for `1,250`).
@@ -308,12 +309,19 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 
   A typed cell whose display no format reproduces (`<0.001`, `yes`, `Q1 2024`, a
   footnote mark) stays text.
-- Merge regions via `<mergeCells>`
+- Merge regions via `<mergeCells>`. Every cell a merge covers has the spanning
+  cell's format, so its borders and fill reach the region's edges
 - Styles in `xl/styles.xml` (fonts, fills, borders, number formats; a cell with no
-  font of its own is in Calibri); rich text where a cell mixes formatting, in the
-  shared-string table (apps such as Numbers ignore run formatting in inline strings)
+  font of its own is in Calibri). Text is in the shared-string table, as rich text
+  where a cell mixes formatting (each run with its full font)
+- A cell holds at most 32,767 characters: longer text is cut, and rich text whose
+  formatting markup takes it over is written without its formatting (both are
+  [warned](../schema/validation.qmd#warnings) for). A table with more rows or
+  columns than a sheet (1,048,576 by 16,384, counting the title, header lines and
+  notes) can't be written: rendering it is an error
 - Cells with line breaks wrap, and rows are tall enough for their lines and font sizes
-- Vertical alignment via the `vertical` attribute (Excel's own default is bottom)
+- Vertical alignment via the `vertical` attribute; bottom, Excel's own default, is
+  left unstated
 
 ### PPTX (Microsoft PowerPoint)
 
