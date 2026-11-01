@@ -11,7 +11,8 @@ gridwell-ir = { path = "../gridwell-ir" }
 gridwell-core = { path = "../gridwell-core" }
 gridwell-layout = { path = "../gridwell-layout" }
 thiserror = { workspace = true }
-gridwell-ooxml = { path = "../gridwell-ooxml" }
+rust_xlsxwriter = { workspace = true }
+zip = { workspace = true }
 
 [dev-dependencies]
 gridwell-testkit = { path = "../gridwell-testkit" }
