@@ -106,8 +106,11 @@ fn rows_allow_for_lines_that_wrap_at_the_column_width() {
     assert!(h >= 3.0 * 15.0, "{h}: {}", row_tag(&sheet, 2));
 }
 
+/// A merged cell's format is on every position it covers, so its border and
+/// fill reach the range's edges. Its bottom alignment is Excel's default: no
+/// `vertical`.
 #[test]
-fn a_merged_cell_is_aligned_by_its_top_left_cell() {
+fn a_merged_cell_formats_its_whole_range() {
     let t = gridwell_testkit::examples::styled_merge();
     let w = XlsxWriter::new();
     let (sheet, styles) = (
@@ -117,11 +120,11 @@ fn a_merged_cell_is_aligned_by_its_top_left_cell() {
     // Head, group label, then `M` (A3:B4) beside `c` and `d`.
     assert!(sheet.contains("<mergeCell ref=\"A3:B4\"/>"), "{sheet}");
     let m = xf_of(&sheet, &styles, "A3");
-    assert!(
-        m.contains("applyAlignment=\"1\"><alignment vertical=\"bottom\"/>"),
-        "{m}"
-    );
-    for plain in ["C3", "C4", "A2"] {
+    assert!(m.contains("applyBorder=\"1\""), "{m}");
+    for covered in ["B3", "A4", "B4"] {
+        assert_eq!(xf_of(&sheet, &styles, covered), m, "{covered}: {sheet}");
+    }
+    for plain in ["A3", "C3", "C4", "A2"] {
         assert!(
             !xf_of(&sheet, &styles, plain).contains("vertical="),
             "{plain}"
