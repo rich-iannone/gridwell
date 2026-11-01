@@ -16,6 +16,10 @@ pub enum RenderError {
 /// The size relative sizes resolve against: RTF's default 12pt (`\\fs24`).
 const BASE_PT: f64 = 12.0;
 
+/// Bold and italic, for left-to-right and right-to-left text alike.
+const BOLD: &str = "\\b\\ab";
+const ITALIC: &str = "\\i\\ai";
+
 /// Default column width in twips (1 inch = 1440 twips).
 const DEFAULT_COL_WIDTH: u32 = 2160; // 1.5 inches
 
@@ -32,6 +36,8 @@ struct RtfRenderer<'r, 'a> {
     /// The font table: index `i` here is `\f{i}`; `\f0` is the default, Arial.
     fonts: Vec<(String, &'static str)>,
     col_widths: Vec<u32>,
+    /// The table runs right to left.
+    rtl: bool,
 }
 
 impl<'r, 'a> RtfRenderer<'r, 'a> {
@@ -50,6 +56,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
             colors: vec![Color::rgb(0, 0, 0), Color::rgb(255, 255, 255)],
             fonts: vec![("Arial".to_string(), "")],
             col_widths,
+            rtl: rt.is_rtl(),
         };
         // Register every color and font the document uses, in document order, so
         // the color and font tables are complete before they are written: cell
@@ -105,8 +112,40 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         r
     }
 
+    /// `\rtlrow` for a right-to-left table: the row's first cell is on the
+    /// right, and `\cellx` edges count from there.
+    fn row_dir(&self) -> &'static str {
+        if self.rtl {
+            "\\rtlrow"
+        } else {
+            ""
+        }
+    }
+
+    /// `\rtlpar` for a paragraph of a right-to-left table.
+    fn par_dir(&self) -> &'static str {
+        if self.rtl {
+            "\\rtlpar"
+        } else {
+            ""
+        }
+    }
+
+    /// A paragraph that starts on the table's start side (a line outside the
+    /// table, a group label): right to left and on the right, if the table is
+    /// (`\ql`, the default, is physical).
+    fn line_dir(&self) -> &'static str {
+        if self.rtl {
+            "\\rtlpar\\qr"
+        } else {
+            ""
+        }
+    }
+
     /// Cell border definitions (`\clbrdr*`), which come before the cell's
-    /// shading and `\cellx`. Every color was registered up front.
+    /// shading and `\cellx`. Every color was registered up front. Left and right
+    /// are the cell's start and end, so a right-to-left row's strokes come
+    /// mirrored.
     fn borders(&self, strokes: &Sides<Option<Stroke>>) -> String {
         let mut out = String::new();
         for (word, stroke) in [
@@ -137,17 +176,18 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
     /// Character formatting for a style: bold, italic, color and font (every
     /// color and font was registered up front). A weight that isn't bold is
     /// `\b0`, which un-bolds what holds it (a bold cell, title or group label);
-    /// an upright style is `\i0`, likewise.
+    /// an upright style is `\i0`, likewise. Bold and italic are also set for
+    /// right-to-left text (`\ab`, `\ai`, its "associated" formatting).
     fn char_format(&self, style: &ResolvedStyle) -> String {
         let mut f = String::new();
         match style.font_weight {
-            Some(_) if style.is_bold() => f.push_str("\\b"),
-            Some(_) => f.push_str("\\b0"),
+            Some(_) if style.is_bold() => f.push_str(BOLD),
+            Some(_) => f.push_str("\\b0\\ab0"),
             None => {}
         }
         match style.font_style {
-            Some(_) if style.is_italic() => f.push_str("\\i"),
-            Some(_) => f.push_str("\\i0"),
+            Some(_) if style.is_italic() => f.push_str(ITALIC),
+            Some(_) => f.push_str("\\i0\\ai0"),
             None => {}
         }
         if let Some(i) = style.paint().and_then(|c| self.color_ref(c)) {
@@ -223,7 +263,8 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
     fn line(&self, base: &str, line: &gridwell_layout::Line) -> String {
         let text = self.content(&line.content);
         let fmt = self.char_format(&line.style);
-        format!("\\pard{{{base}{fmt} {text}}}\\par")
+        let dir = self.line_dir();
+        format!("\\pard{dir}{{{base}{fmt} {text}}}\\par")
     }
 
     /// The `\cf` / `\clcbpat` index of a color, registering it if new. RTF has no
@@ -272,7 +313,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         }
         let mut lines = Vec::new();
         if let Some(title) = &header.title {
-            lines.push(self.line("\\b\\fs36", title));
+            lines.push(self.line(&format!("{BOLD}\\fs36"), title));
         }
         for l in header.subtitle.iter().chain(&header.extra_lines) {
             lines.push(self.line("\\fs24", l));
@@ -290,7 +331,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
             if let Some(label) = &group.label {
                 let text = self.content(&label.content);
                 let fmt = self.char_format(&label.style);
-                let borders = self.borders(&label.style.strokes(BASE_PT));
+                let borders = self.borders(&label.style.strokes(BASE_PT).mirrored(self.rtl));
                 let fill = label
                     .style
                     .fill()
@@ -300,7 +341,9 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 let total_width: u32 = self.col_widths.iter().sum();
                 writeln!(
                     self.buf,
-                    "\\trowd\\trqc{borders}{fill}\\cellx{total_width}\n\\pard\\intbl{{\\b{fmt} {text}}}\\cell\n\\row"
+                    "\\trowd{}\\trqc{borders}{fill}\\cellx{total_width}\n\\pard\\intbl{}{{{BOLD}{fmt} {text}}}\\cell\n\\row",
+                    self.row_dir(),
+                    self.line_dir(),
                 )
                 .unwrap();
             }
@@ -319,6 +362,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
 
     fn write_row(&mut self, cells: &[MergeCell<'_, '_>], is_header: bool) {
         self.buf.push_str("\\trowd");
+        self.buf.push_str(self.row_dir());
         if is_header {
             self.buf.push_str("\\trhdr");
         }
@@ -340,7 +384,10 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 None => {}
             }
             if let Some(owner) = mc.owner {
-                let borders = self.borders(&owner.style.strokes(BASE_PT).masked(mc.outline));
+                // Mirrored before the mask: a span's start edge is its
+                // outline's left.
+                let strokes = owner.style.strokes(BASE_PT).mirrored(self.rtl);
+                let borders = self.borders(&strokes.masked(mc.outline));
                 self.buf.push_str(&borders);
             }
             if let Some(fill) = mc.cell.and_then(|c| c.style.fill()) {
@@ -354,22 +401,25 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         // Cell contents (one `\cell` per definition above, in the same order).
         for mc in cells {
             let Some(cell) = mc.cell else {
-                self.buf.push_str("\\pard\\intbl\\plain\\cell\n");
+                writeln!(self.buf, "\\pard\\intbl{}\\plain\\cell", self.par_dir()).unwrap();
                 continue;
             };
             let text = self.content(&cell.content);
             let mut fmt = String::new();
+            // `\ql` and `\qr` are physical; a right-to-left paragraph says
+            // which it is rather than rely on the default.
             match cell.align {
                 HAlign::Right => fmt.push_str("\\qr"),
                 HAlign::Center => fmt.push_str("\\qc"),
                 HAlign::Justify => fmt.push_str("\\qj"),
+                _ if self.rtl => fmt.push_str("\\ql"),
                 _ => {}
             }
             if cell.style.bold_over(is_header) {
-                fmt.push_str("\\b");
+                fmt.push_str(BOLD);
             }
             if cell.style.is_italic() {
-                fmt.push_str("\\i");
+                fmt.push_str(ITALIC);
             }
             if let Some(c) = cell.style.paint() {
                 let i = self.color_index(c);
@@ -379,7 +429,8 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
             fmt.push_str(&text_format(&cell.style));
             // `\pard` resets paragraph formatting only: without `\plain`, the
             // previous cell's bold, italic or color would carry over.
-            writeln!(self.buf, "\\pard\\intbl\\plain{fmt} {text}\\cell").unwrap();
+            let dir = self.par_dir();
+            writeln!(self.buf, "\\pard\\intbl{dir}\\plain{fmt} {text}\\cell").unwrap();
         }
         self.buf.push_str("\\row\n");
     }
@@ -394,7 +445,8 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 let fmt = self.char_format(&note.style);
                 writeln!(
                     self.buf,
-                    "\\pard{{\\fs18{fmt} {{\\super {mark}}} {text}}}\\par"
+                    "\\pard{}{{\\fs18{fmt} {{\\super {mark}}} {text}}}\\par",
+                    self.line_dir()
                 )
                 .unwrap();
             }
