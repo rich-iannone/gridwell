@@ -1,14 +1,15 @@
 //! Typed numbers keep their display: the cell holds the value, and its number
 //! format shows it as the table does (`76.0`, not `76`). A display no number
-//! format can reproduce stays text. Rich text (footnote marks, styled runs) goes
-//! in the shared-string table, where spreadsheet apps (Numbers among them) honor
-//! run formatting; inline strings lose it there.
+//! format can reproduce stays text. Text goes in the shared-string table, where
+//! spreadsheet apps (Numbers among them) honor rich text's run formatting
+//! (footnote marks, styled runs); inline strings lose it there.
 
+#[allow(dead_code)]
 mod support;
 
 use gridwell_testkit::{cell, cell_content, footnote_mark, row, text, CellExt, TableBuilder};
 use serde_json::json;
-use support::{attr, cell_xml, format_code, one_row, render};
+use support::{attr, cell_xml, format_code, one_row, render, string_item, text_of};
 
 #[test]
 fn typed_numbers_get_the_format_of_their_display() {
@@ -64,13 +65,8 @@ fn a_display_no_format_reproduces_stays_text() {
         (".5", json!(0.5)),
     ] {
         let t = one_row(vec![cell(shown).typed("number", value)]);
-        let (sheet, _, _) = render(&t);
-        let c = cell_xml(&sheet, "A1");
-        assert!(
-            c.contains("t=\"inlineStr\"")
-                && c.contains(&format!(">{}</t>", shown.replace('<', "&lt;"))),
-            "{shown}: {c}"
-        );
+        let (sheet, _, sst) = render(&t);
+        assert_eq!(text_of(&sheet, &sst, "A1"), shown, "{sheet}");
     }
 }
 
@@ -115,27 +111,20 @@ fn rich_text_lives_in_shared_strings() {
         .footnote("fn1", "1", "SD = standard deviation.")
         .build();
     let (sheet, _, sst) = render(&t);
-    // Plain text stays inline.
-    assert!(
-        cell_xml(&sheet, "B1").contains("t=\"inlineStr\""),
-        "{sheet}"
-    );
-    // The cell's mark and the footer's mark are rich shared strings.
-    for (r, idx) in [("A1", 0), ("A3", 1)] {
-        let c = cell_xml(&sheet, r);
-        assert!(
-            c.contains("t=\"s\"") && c.contains(&format!("<v>{idx}</v>")),
-            "{r}: {c}"
-        );
-    }
+    // Plain text is a plain string.
+    assert_eq!(string_item(&sheet, &sst, "B1"), "<t>plain</t>", "{sst}");
+    // The cell's mark and the footer's mark are rich strings.
     assert!(!sheet.contains("<rPr>"), "rich text left inline: {sheet}");
-    let items: Vec<&str> = sst.split("<si>").skip(1).collect();
-    assert_eq!(items.len(), 2, "{sst}");
-    assert!(sst.contains("count=\"2\" uniqueCount=\"2\""), "{sst}");
-    for item in items {
-        assert!(item.contains("<vertAlign val=\"superscript\"/><"), "{item}");
+    assert!(sst.contains("count=\"3\" uniqueCount=\"3\""), "{sst}");
+    for r in ["A1", "A3"] {
+        let item = string_item(&sheet, &sst, r);
+        assert!(
+            item.contains("<rPr><vertAlign val=\"superscript\"/><"),
+            "{item}"
+        );
         assert!(item.contains(">1</t></r>"), "{item}");
     }
+    assert_eq!(text_of(&sheet, &sst, "A3"), "1 SD = standard deviation.");
 }
 
 #[test]
