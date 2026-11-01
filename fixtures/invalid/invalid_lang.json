@@ -1,0 +1,48 @@
+{
+  "_comment": "INVALID: config.lang is not a BCP 47 language tag (an underscore, as in a POSIX locale).",
+  "_expect": [
+    "INVALID_LANG"
+  ],
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 1,
+    "header_rows": 0,
+    "body_rows": 1,
+    "stub_cols": 0,
+    "lang": "fr_CA"
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "column_spec": [
+    {
+      "id": "a",
+      "label": "A"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": []
+    },
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
