@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::keywords::{Overflow, PageBreakMode};
+use crate::keywords::{Overflow, PageBreakMode, TextDirection};
 
 /// Table-level configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -33,6 +33,12 @@ pub struct Config {
 
     #[serde(default = "default_locale")]
     pub locale: String,
+    /// The language of the table's text, a BCP 47 tag (`ar`, `fr-CA`).
+    #[serde(default)]
+    pub lang: Option<String>,
+    /// The direction its columns and text run in.
+    #[serde(default)]
+    pub dir: Option<TextDirection>,
 
     #[serde(default)]
     pub page_break_mode: PageBreakMode,
