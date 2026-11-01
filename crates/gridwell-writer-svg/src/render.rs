@@ -126,6 +126,11 @@ pub struct Layout {
     /// Footnotes and source notes (below the table).
     pub footer: Vec<TextBlock>,
     pub rules: Vec<RuleLine>,
+    /// The table runs right to left: its first column is on the right, and its
+    /// text's base direction is right to left.
+    pub rtl: bool,
+    /// The table's language (`xml:lang`).
+    pub lang: Option<String>,
 }
 
 // ──────────────────────────────── layout ─────────────────────────────────
@@ -239,6 +244,10 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     let rt = resolve(table);
     let rt = &rt;
     let ncols = rt.columns.len();
+    // Right to left, the table is laid out left to right and then mirrored. A
+    // style's padding and borders are physical, so they are mirrored first, to
+    // end up where they say.
+    let rtl = rt.is_rtl();
 
     // 1. Collect cells and bands in display order, assigning global row indices, and
     //    the rule on every row boundary (`hrule[r]` is above row `r`).
@@ -284,7 +293,7 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
                         pad.right = 0.0;
                     }
                 }
-                let pad = styled_pad(pad, &cell.style);
+                let pad = mirror_pad(styled_pad(mirror_pad(pad, rtl), &cell.style), rtl);
                 let text_color = cell
                     .style
                     .paint()
@@ -295,7 +304,8 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
                     right: ir_border(&b.right, &text_color),
                     bottom: ir_border(&b.bottom, &text_color),
                     left: ir_border(&b.left, &text_color),
-                };
+                }
+                .mirrored(rtl);
                 cells.push(PendingCell {
                     row: *nrows + r,
                     col: cell.col,
@@ -635,8 +645,13 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     // 5. The heading, centered over the table, under the outer rule.
     let mut out = Layout {
         table_width,
+        rtl,
+        lang: table.config.lang.clone(),
         ..Layout::default()
     };
+    // Lines without an alignment of their own (group labels, notes) start on the
+    // left, or the right.
+    let start = if rtl { Align::Right } else { Align::Left };
     let outer = look.outer_rule;
     let mut y = 0.0;
     if base && !heading.is_empty() {
@@ -793,7 +808,7 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
             text: TextBlock {
                 lines,
                 font_size: fs,
-                align: Align::Left,
+                align: start,
                 valign: VAlign::Middle,
                 x: body_pad.left,
                 y: cy + top + body_pad.top,
@@ -820,7 +835,7 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
         out.footer.push(TextBlock {
             lines,
             font_size: note_size,
-            align: Align::Left,
+            align: start,
             valign: VAlign::Middle,
             x: pad.left,
             y: y + pad.top,
@@ -854,10 +869,39 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
         ))
     });
 
-    // 8. Canvas: the table's width (everything else is laid out within it).
+    // 8. Right to left: mirror every box and rule across the table.
+    if rtl {
+        let flip = |x: f64, w: f64| table_width - x - w;
+        let blocks = out.header.iter_mut().chain(&mut out.footer);
+        for b in blocks.chain(out.cells.iter_mut().map(|c| &mut c.text)) {
+            b.x = flip(b.x, b.width);
+        }
+        for c in &mut out.cells {
+            c.x = flip(c.x, c.width);
+        }
+        for r in &mut out.rules {
+            (r.x1, r.x2) = (flip(r.x2, 0.0), flip(r.x1, 0.0));
+        }
+        out.table_x = flip(out.table_x, out.table_width);
+    }
+
+    // 9. Canvas: the table's width (everything else is laid out within it).
     out.width = table_width.ceil();
     out.height = y.ceil();
     out
+}
+
+/// A padding's left and right swapped when `on`.
+fn mirror_pad(pad: Pad, on: bool) -> Pad {
+    if on {
+        Pad {
+            left: pad.right,
+            right: pad.left,
+            ..pad
+        }
+    } else {
+        pad
+    }
 }
 
 fn hline(x1: f64, x2: f64, y: f64, rule: &LookRule) -> RuleLine {
@@ -1008,9 +1052,14 @@ fn px(l: &Length) -> Option<f64> {
 
 fn emit(l: &Layout, config: &SvgConfig) -> Result<String, RenderError> {
     let mut buf = String::with_capacity(8192);
+    let lang = l
+        .lang
+        .as_deref()
+        .map(|t| format!(" xml:lang=\"{}\"", escape_xml(t)))
+        .unwrap_or_default();
     writeln!(
         buf,
-        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{w}\" height=\"{h}\" viewBox=\"0 0 {w} {h}\">",
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{w}\" height=\"{h}\" viewBox=\"0 0 {w} {h}\"{lang}>",
         w = num(l.width),
         h = num(l.height)
     )?;
@@ -1048,13 +1097,13 @@ fn emit(l: &Layout, config: &SvgConfig) -> Result<String, RenderError> {
         rule_line(&mut buf, rule)?;
     }
     for block in &l.header {
-        text_block(&mut buf, block)?;
+        text_block(&mut buf, block, l.rtl)?;
     }
     for cell in &l.cells {
-        text_block(&mut buf, &cell.text)?;
+        text_block(&mut buf, &cell.text, l.rtl)?;
     }
     for block in &l.footer {
-        text_block(&mut buf, block)?;
+        text_block(&mut buf, block, l.rtl)?;
     }
 
     buf.push_str("</svg>\n");
@@ -1120,13 +1169,20 @@ fn first_line_top(b: &TextBlock) -> f64 {
     }
 }
 
-/// Write a block's lines.
-fn text_block(buf: &mut String, b: &TextBlock) -> Result<(), RenderError> {
+/// Write a block's lines; with `rtl`, in that base direction, whose start (the
+/// default anchor) is on the right.
+fn text_block(buf: &mut String, b: &TextBlock, rtl: bool) -> Result<(), RenderError> {
     let mut top = first_line_top(b);
-    let (x, anchor) = match b.align {
-        Align::Left => (b.x, ""),
-        Align::Center => (b.x + b.width / 2.0, " text-anchor=\"middle\""),
-        Align::Right => (b.x + b.width, " text-anchor=\"end\""),
+    let (x, anchor) = match (b.align, rtl) {
+        (Align::Left, false) => (b.x, ""),
+        (Align::Left, true) => (b.x, " direction=\"rtl\" text-anchor=\"end\""),
+        (Align::Center, false) => (b.x + b.width / 2.0, " text-anchor=\"middle\""),
+        (Align::Center, true) => (
+            b.x + b.width / 2.0,
+            " direction=\"rtl\" text-anchor=\"middle\"",
+        ),
+        (Align::Right, false) => (b.x + b.width, " text-anchor=\"end\""),
+        (Align::Right, true) => (b.x + b.width, " direction=\"rtl\""),
     };
     for line in &b.lines {
         let size = line.size(b.font_size);
