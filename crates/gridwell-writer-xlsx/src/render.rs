@@ -282,13 +282,28 @@ impl Format {
         }
     }
 
-    /// A cell's format: `new` plus its border edges.
-    fn cell(style: &ResolvedStyle, bold: bool, align: &HAlign) -> Self {
+    /// A cell's format: `new` plus its border edges. In a right-to-left sheet,
+    /// which Excel shows mirrored, a border's `left` and `right` are the cell's
+    /// start and end, so borders (which are physical) swap. Horizontal `left` and
+    /// `right` stay physical even then (ECMA-376, `ST_HorizontalAlignment`), but
+    /// general alignment starts text on the right, so a left-aligned cell says
+    /// so.
+    fn cell(style: &ResolvedStyle, bold: bool, align: &HAlign, rtl: bool) -> Self {
         let b = &style.border;
         let edge = |e: &Option<ResolvedBorder>| e.as_ref().map(Edge::from);
+        let (left, right) = if rtl {
+            (&b.right, &b.left)
+        } else {
+            (&b.left, &b.right)
+        };
+        let base = Self::new(style, bold, align);
         Self {
-            border: [edge(&b.left), edge(&b.right), edge(&b.top), edge(&b.bottom)],
-            ..Self::new(style, bold, align)
+            border: [edge(left), edge(right), edge(&b.top), edge(&b.bottom)],
+            align: match (align, rtl) {
+                (HAlign::Right | HAlign::Center | HAlign::Justify, _) | (_, false) => base.align,
+                (_, true) => Some("left"),
+            },
+            ..base
         }
     }
 }
@@ -546,6 +561,13 @@ fn sheet_xml(
     );
     buf.push('\n');
 
+    // A right-to-left sheet: column A is on the right.
+    if rt.is_rtl() {
+        buf.push_str(
+            "<sheetViews><sheetView rightToLeft=\"1\" workbookViewId=\"0\"/></sheetViews>\n",
+        );
+    }
+
     // Column widths, in characters of the default font (≈ 7px each). `<cols>`
     // may not be empty.
     let col_chars: Vec<f64> = rt
@@ -719,7 +741,7 @@ impl Sheet<'_> {
             let mut height = 0.0f64;
             for cell in row.cells() {
                 let cell_ref = xml::cell_ref(cell.col, r);
-                let mut format = Format::cell(&cell.style, strong, &cell.align);
+                let mut format = Format::cell(&cell.style, strong, &cell.align, rt.is_rtl());
                 let runs = rich(rt, &cell.content, FontKey::of(&format));
                 format.wrap = has_breaks(&runs);
                 // A spanned cell's text spreads over its rows: leave them be.
