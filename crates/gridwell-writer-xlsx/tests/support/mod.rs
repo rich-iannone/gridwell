@@ -1,4 +1,4 @@
-//! Reading a cell's value and number format back out of the XLSX parts.
+//! Reading a cell's value, text and number format back out of the XLSX parts.
 
 use gridwell_ir::Table;
 use gridwell_testkit::{row, TableBuilder};
@@ -22,6 +22,42 @@ pub fn cell_xml<'a>(sheet: &'a str, cell_ref: &str) -> &'a str {
         return &rest[..=open];
     }
     &rest[..rest.find("</c>").unwrap() + 4]
+}
+
+/// The shared-string item (`<si>` content) of the string cell `cell_ref`.
+pub fn string_item<'a>(sheet: &str, sst: &'a str, cell_ref: &str) -> &'a str {
+    let c = cell_xml(sheet, cell_ref);
+    assert_eq!(attr(c, "t"), Some("s"), "not a string: {c}");
+    let v = &c[c.find("<v>").unwrap() + 3..];
+    let i: usize = v[..v.find("</v>").unwrap()].parse().unwrap();
+    let item = sst
+        .split("<si>")
+        .nth(i + 1)
+        .unwrap_or_else(|| panic!("no string {i}: {sst}"));
+    &item[..item.find("</si>").unwrap()]
+}
+
+/// The text of the string cell `cell_ref`: its runs' `<t>`s, unescaped.
+pub fn text_of(sheet: &str, sst: &str, cell_ref: &str) -> String {
+    let item = string_item(sheet, sst, cell_ref);
+    item.split("<t")
+        .skip(1)
+        .map(|t| &t[t.find('>').unwrap() + 1..t.find("</t>").unwrap()])
+        .collect::<String>()
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&amp;", "&")
+}
+
+/// The reference of the string cell whose text is `text`.
+pub fn find_text(sheet: &str, sst: &str, text: &str) -> String {
+    sheet
+        .split("<c r=\"")
+        .skip(1)
+        .map(|c| &c[..c.find('"').unwrap()])
+        .find(|r| attr(cell_xml(sheet, r), "t") == Some("s") && text_of(sheet, sst, r) == text)
+        .unwrap_or_else(|| panic!("no cell shows {text:?}: {sheet}"))
+        .to_owned()
 }
 
 /// The number format code of a cell (`General` without one).
