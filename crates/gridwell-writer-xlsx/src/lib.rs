@@ -1,9 +1,11 @@
 mod date;
+mod limits;
 mod render;
 mod xml;
 
 use gridwell_ir::Table;
 
+pub use limits::unsupported;
 pub use render::RenderError;
 
 /// Excel (.xlsx) writer: converts a gridwell IR Table into an .xlsx byte vector.
