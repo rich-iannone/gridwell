@@ -22,6 +22,12 @@ impl DocxWriter {
     pub fn render_document_xml(&self, table: &Table) -> Result<String, RenderError> {
         render::render_document_xml(table)
     }
+
+    /// Render only the `word/styles.xml` content, which carries the table's
+    /// language.
+    pub fn render_styles_xml(&self, table: &Table) -> String {
+        render::render_styles_xml(table)
+    }
 }
 
 impl Default for DocxWriter {
