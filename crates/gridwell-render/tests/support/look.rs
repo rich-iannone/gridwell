@@ -132,6 +132,9 @@ pub struct Doc {
     pub lang: Option<String>,
     /// The format lays the table out right to left.
     pub rtl: bool,
+    /// The vertical alignment of a cell that states none, where the format
+    /// defines one (SpreadsheetML: bottom, which writers leave unstated).
+    pub valign_default: Option<VAlign>,
 }
 
 impl Doc {
@@ -616,7 +619,10 @@ pub fn xlsx(sheet: &str, styles: &str, strings: &str) -> Doc {
             _ => {}
         }
     }
-    let mut doc = Doc::default();
+    let mut doc = Doc {
+        valign_default: Some(VAlign::Bottom),
+        ..Doc::default()
+    };
     let mut reader = Reader::from_str(sheet);
     let mut cell: Option<(usize, String)> = None;
     // Rich text: the runs so far, and the one being read.
