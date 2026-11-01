@@ -1,5 +1,8 @@
 //! Static XML parts for the minimal .docx package.
 
+use gridwell_core::xml::escape;
+use gridwell_core::LanguageTag;
+
 pub const CONTENT_TYPES: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
@@ -25,12 +28,12 @@ pub const TITLE_HALF_POINTS: u32 = 32;
 pub const SUBTITLE_HALF_POINTS: u32 = 24;
 pub const NOTE_HALF_POINTS: u32 = 18;
 
-/// `word/styles.xml`: the document defaults (Calibri 11pt, no paragraph spacing)
-/// and every style the document names: `Title`, `Subtitle`, `FootnoteText` and
+/// `word/styles.xml`: the document defaults (Calibri 11pt, no paragraph spacing,
+/// the table's language) and every style the document names: `Title`, `Subtitle`, `FootnoteText` and
 /// `SourceNote` paragraphs, and the `TableGrid` table style over `TableNormal`
 /// (Word's cell margins). Word and LibreOffice treat a style that is named but not
 /// defined as `Normal`.
-pub fn styles() -> String {
+pub fn styles(lang: Option<&LanguageTag>) -> String {
     let size = |hp: u32| format!("<w:rPr><w:sz w:val=\"{hp}\"/><w:szCs w:val=\"{hp}\"/></w:rPr>");
     let line = |side: &str| {
         format!("<w:{side} w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"auto\"/>")
@@ -51,10 +54,11 @@ pub fn styles() -> String {
         format!(
             "<w:docDefaults><w:rPrDefault><w:rPr>\
              <w:rFonts w:ascii=\"Calibri\" w:hAnsi=\"Calibri\" w:cs=\"Calibri\"/>\
-             <w:sz w:val=\"{BODY_HALF_POINTS}\"/><w:szCs w:val=\"{BODY_HALF_POINTS}\"/>\
+             <w:sz w:val=\"{BODY_HALF_POINTS}\"/><w:szCs w:val=\"{BODY_HALF_POINTS}\"/>{}\
              </w:rPr></w:rPrDefault><w:pPrDefault><w:pPr>\
              <w:spacing w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>\
-             </w:pPr></w:pPrDefault></w:docDefaults>"
+             </w:pPr></w:pPrDefault></w:docDefaults>",
+            lang.map(w_lang).unwrap_or_default()
         ),
         r#"<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>"#
             .to_string(),
@@ -92,6 +96,22 @@ pub fn styles() -> String {
         "</w:styles>".to_string(),
     ]
     .join("\n")
+}
+
+/// `w:lang` for a language: Word keeps one for each kind of text, so the tag is
+/// also the East Asian language for Chinese, Japanese and Korean, and the
+/// complex-script one for a right-to-left language.
+fn w_lang(tag: &LanguageTag) -> String {
+    let t = escape(&tag.tag);
+    let mut out = format!("<w:lang w:val=\"{t}\"");
+    if matches!(tag.language.as_deref(), Some("zh" | "ja" | "ko")) {
+        out.push_str(&format!(" w:eastAsia=\"{t}\""));
+    }
+    if tag.is_rtl() {
+        out.push_str(&format!(" w:bidi=\"{t}\""));
+    }
+    out.push_str("/>");
+    out
 }
 
 /// Default column width in dxa (twentieths of a point; 1.5 inches).
