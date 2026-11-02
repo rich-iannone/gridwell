@@ -146,6 +146,7 @@ const TYPST_PRELUDE: &str = r#"#set page(width: 100cm, height: auto, margin: 1cm
   else if c.has("children") { c.children.map(gw-plain).fold("", (a, b) => a + b) }
   else if c.has("body") { gw-plain(c.body) }
   else if c.has("child") { gw-plain(c.child) }
+  else if c.func() == image { if c.alt == none { "" } else { c.alt } }
   else { "⟨" + repr(c.func()) + "⟩" }
 }
 #show table.cell: it => [#metadata((x: it.x, y: it.y, cs: it.colspan, rs: it.rowspan, text: gw-plain(it.body))) <gw-cell>] + it
@@ -758,6 +759,9 @@ const TYPST_LOOK_PRELUDE: &str = r#"#set page(width: 100cm, height: auto, margin
   font: if type(text.font) == array { text.font.at(0) } else { text.font },
   u: gw-u.get(), s: gw-s.get(), b: gw-b.get(), e: gw-e.get(), p: gw-p.get(),
   lang: text.lang, dir: repr(text.dir))) <gw>] + it
+#let gw-side-pt(s) = if type(s) == relative { s.length.to-absolute().pt() } else if type(s) == length { s.to-absolute().pt() } else { none }
+#show image: it => context [#metadata((k: "image", w: gw-side-pt(it.width), h: gw-side-pt(it.height),
+  alt: it.alt)) <gw>] + it
 "#;
 
 /// A Unicode superscript character's plain form.
@@ -943,6 +947,21 @@ pub fn typst_looks(sources: &[String]) -> Vec<Result<look::Doc, String>> {
                                 ..base.clone()
                             });
                         }
+                    }
+                }
+                // A picture reads as its alt text.
+                Some("image") => {
+                    if let Some(c) = cell.as_mut() {
+                        let side = |k: &str| v[k].as_f64().unwrap_or(f64::NAN);
+                        c.pictures.push((side("w"), side("h")));
+                        let alt = v["alt"].as_str().unwrap_or("").to_string();
+                        look::push_run(
+                            &mut c.runs,
+                            look::Run {
+                                text: alt,
+                                ..look::Run::default()
+                            },
+                        );
                     }
                 }
                 _ => {}
