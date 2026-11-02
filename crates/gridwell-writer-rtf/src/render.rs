@@ -1,4 +1,4 @@
-use gridwell_core::Color;
+use gridwell_core::{Color, Image, ImageFormat};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table, VMerge};
 use gridwell_layout::{
@@ -243,11 +243,19 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 ContentNode::FootnoteMark { mark_text, .. } => {
                     write!(out, "{{\\super {}}}", escape_rtf(mark_text)).unwrap();
                 }
-                ContentNode::Image { alt, .. } => {
-                    if let Some(alt_text) = alt {
-                        out.push_str(&escape_rtf(alt_text));
+                ContentNode::Image {
+                    src,
+                    alt,
+                    width,
+                    height,
+                } => match pict(src, alt.as_deref(), width.as_deref(), height.as_deref()) {
+                    Some(pict) => out.push_str(&pict),
+                    None => {
+                        if let Some(alt_text) = alt {
+                            out.push_str(&escape_rtf(alt_text));
+                        }
                     }
-                }
+                },
                 ContentNode::Raw { format, value } => {
                     if format == "rtf" {
                         out.push_str(value);
@@ -496,6 +504,47 @@ fn text_format(style: &ResolvedStyle) -> String {
 pub fn render(table: &Table) -> Result<String, RenderError> {
     let rt = resolve(table);
     RtfRenderer::new(&rt).render()
+}
+
+/// A PNG or JPEG embedded as a `data:` URI, as a `\\pict` group drawn at its
+/// size (`\\picwgoal`/`\\pichgoal`, twips; `\\picw`/`\\pich` are its pixels), its
+/// alt text the picture's `wzDescription` property (as Word writes it), its
+/// bytes in hex; or `None` for any other image (RTF has no GIF or SVG picture,
+/// and `limits` warns of those).
+fn pict(src: &str, alt: Option<&str>, width: Option<&str>, height: Option<&str>) -> Option<String> {
+    let image = Image::from_src(src)?;
+    let blip = match image.format {
+        ImageFormat::Png => "\\pngblip",
+        ImageFormat::Jpeg => "\\jpegblip",
+        ImageFormat::Gif | ImageFormat::Svg => return None,
+    };
+    let (w, h) = image.size_pt(width, height, BASE_PT);
+    let (pw, ph) = image.natural_px?;
+    let mut out = String::with_capacity(image.data.len() * 2 + image.data.len() / 32 + 80);
+    out.push_str("{\\pict");
+    if let Some(alt) = alt.filter(|a| !a.is_empty()) {
+        write!(
+            out,
+            "{{\\*\\picprop{{\\sp{{\\sn wzDescription}}{{\\sv {}}}}}}}",
+            escape_rtf(alt)
+        )
+        .unwrap();
+    }
+    write!(
+        out,
+        "{blip}\\picw{pw}\\pich{ph}\\picwgoal{}\\pichgoal{}",
+        (w * 20.0).round(),
+        (h * 20.0).round()
+    )
+    .unwrap();
+    for (i, b) in image.data.iter().enumerate() {
+        if i % 64 == 0 {
+            out.push('\n');
+        }
+        write!(out, "{b:02x}").unwrap();
+    }
+    out.push('}');
+    Some(out)
 }
 
 /// Escape text for RTF: control words for `\`, `{`, `}`; non-ASCII as `\uN?` with
