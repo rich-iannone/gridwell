@@ -7,6 +7,7 @@
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::style::{Border, BorderSet, Padding, StyleDef};
 use gridwell_ir::{Row, Table};
+use gridwell_testkit::images::LOGO_PNG;
 use gridwell_testkit::{
     cell, cell_content, column, row, styled, text, CellExt, ColumnExt, TableBuilder,
 };
@@ -133,8 +134,8 @@ fn tables(v: &str) -> Vec<(String, Table)> {
     for (name, s) in styles {
         out.push((name, base(Some(s)).body(body(true)).build()));
     }
-    let image = ContentNode::Image {
-        src: "x.png".into(),
+    let image = |src: &str| ContentNode::Image {
+        src: src.into(),
         alt: Some("x".into()),
         width: side(),
         height: side(),
@@ -147,9 +148,9 @@ fn tables(v: &str) -> Vec<(String, Table)> {
         "image and run",
         base(Some(run))
             .body(vec![row(vec![
-                cell_content(vec![image]),
+                cell_content(vec![image("x.png")]),
                 cell_content(vec![styled("r", "s")]),
-                cell_content(vec![text("t")]),
+                cell_content(vec![text("t"), image(LOGO_PNG)]),
             ])])
             .build(),
     ));
