@@ -24,6 +24,12 @@ const TABLE_CHECKS: &[TableCheck] = &[
 
 const CHECKS: &[Check] = &[
     Check {
+        feature: "image",
+        reason: "a LaTeX fragment can't carry an image's data (`\\includegraphics` reads a \
+                 file): an image shows its alt text",
+        uses: |_, p| p.images().next().is_some(),
+    },
+    Check {
         feature: "font-family",
         reason: "a named system font needs XeLaTeX/LuaLaTeX with fontspec; the output also \
                  targets pdfLaTeX (monospace families map to `\\texttt`)",
