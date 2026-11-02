@@ -468,6 +468,7 @@ dependencies = [
  "gridwell-ir",
  "gridwell-testkit",
  "serde_json",
+ "unicode-width",
 ]
 
 [[package]]
@@ -652,7 +653,6 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
- "unicode-width",
 ]
 
 [[package]]
