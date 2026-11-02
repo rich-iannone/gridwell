@@ -82,6 +82,9 @@ fn every_part_of_every_package_is_well_formed_xml() {
             for i in 0..zip.len() {
                 let mut part = zip.by_index(i).unwrap();
                 let name = part.name().to_string();
+                if is_media(&name) {
+                    continue;
+                }
                 let mut xml = String::new();
                 part.read_to_string(&mut xml).unwrap();
                 // One root element, every tag closed, nothing after the root.
@@ -109,7 +112,12 @@ fn every_part_of_every_package_is_well_formed_xml() {
     }
 }
 
-/// Every part of `bytes` (a zip), by name.
+/// A part that isn't XML: an image (`word/media/image1.png`).
+fn is_media(name: &str) -> bool {
+    !name.ends_with(".xml") && !name.ends_with(".rels")
+}
+
+/// Every part of `bytes` (a zip), by name: its XML, or "" for a media part.
 fn package_parts(bytes: Vec<u8>) -> std::collections::BTreeMap<String, String> {
     use gridwell_ooxml::zip::ZipArchive;
     use std::io::{Cursor, Read};
@@ -118,7 +126,9 @@ fn package_parts(bytes: Vec<u8>) -> std::collections::BTreeMap<String, String> {
         .map(|i| {
             let mut part = zip.by_index(i).unwrap();
             let mut xml = String::new();
-            part.read_to_string(&mut xml).unwrap();
+            if !is_media(part.name()) {
+                part.read_to_string(&mut xml).unwrap();
+            }
             (part.name().to_string(), xml)
         })
         .collect()
@@ -169,9 +179,10 @@ fn resolve_target(source: &str, target: &str) -> String {
 
 #[test]
 fn every_package_is_typed_and_linked() {
-    // Open Packaging Conventions: every part has its own content type, every
-    // relationship points at a part that exists, and every part is reachable
-    // from the package's root relationships.
+    // Open Packaging Conventions: every XML part has its own content type, and
+    // a media part one by its extension; every relationship points at a part
+    // that exists, and every part is reachable from the package's root
+    // relationships.
     for ex in gridwell_testkit::examples() {
         let t = ex.table();
         for format in ["docx", "xlsx", "pptx"] {
@@ -186,8 +197,28 @@ fn every_package_is_typed_and_linked() {
                 .into_iter()
                 .map(|a| (a["PartName"].clone(), a["ContentType"].clone()))
                 .collect();
+            let defaults: std::collections::HashMap<String, String> = tags(types, "Default")
+                .into_iter()
+                .map(|a| {
+                    (
+                        a["Extension"].to_ascii_lowercase(),
+                        a["ContentType"].clone(),
+                    )
+                })
+                .collect();
             for name in parts.keys() {
                 if name == "[Content_Types].xml" || name.ends_with(".rels") {
+                    continue;
+                }
+                if is_media(name) {
+                    let ext = name.rsplit_once('.').map(|(_, e)| e.to_ascii_lowercase());
+                    let ct = ext.and_then(|e| defaults.get(&e));
+                    let ct = ct.unwrap_or_else(|| panic!("{what}: {name} has no content type"));
+                    assert!(ct.starts_with("image/"), "{what}: {name}: {ct}");
+                    assert!(
+                        !overrides.contains_key(&format!("/{name}")),
+                        "{what}: {name}"
+                    );
                     continue;
                 }
                 let ct = overrides
@@ -232,6 +263,65 @@ fn every_package_is_typed_and_linked() {
                     continue;
                 }
                 assert!(seen.contains(name), "{what}: {name} is not linked");
+            }
+        }
+    }
+}
+
+#[test]
+fn every_drawn_image_is_a_linked_media_part() {
+    // A picture's `r:embed` names an image relationship of the part it is in,
+    // whose target is the image's bytes; drawing ids are unique; extents are
+    // positive. The inline-image example draws its logo in both packages.
+    let t = gridwell_testkit::examples()
+        .into_iter()
+        .find(|e| e.name == "inline-image")
+        .unwrap()
+        .table();
+    for (format, part, id_tag) in [
+        ("docx", "word/document.xml", "docPr"),
+        ("xlsx", "xl/drawings/drawing1.xml", "cNvPr"),
+    ] {
+        let parts = package_parts(
+            gridwell_render::render(&t, format, None)
+                .unwrap()
+                .into_bytes(),
+        );
+        let xml = &parts[part];
+        let (dir, file) = part.rsplit_once('/').unwrap();
+        let rels: std::collections::HashMap<String, std::collections::HashMap<String, String>> =
+            tags(&parts[&format!("{dir}/_rels/{file}.rels")], "Relationship")
+                .into_iter()
+                .map(|r| (r["Id"].clone(), r))
+                .collect();
+        let blips = tags(xml, "blip");
+        assert_eq!(blips.len(), 1, "{format}: {xml}");
+        for blip in &blips {
+            let rel = &rels[&blip["embed"]];
+            assert!(
+                rel["Type"].ends_with("/relationships/image"),
+                "{format}: {rel:?}"
+            );
+            let target = resolve_target(part, &rel["Target"]);
+            assert!(
+                is_media(&target) && parts.contains_key(&target),
+                "{format}: {target}"
+            );
+            assert!(target.ends_with(".png"), "{format}: {target}");
+        }
+        let mut ids: Vec<String> = tags(xml, id_tag)
+            .into_iter()
+            .map(|a| a["id"].clone())
+            .collect();
+        let n = ids.len();
+        ids.sort();
+        ids.dedup();
+        assert_eq!((ids.len(), n), (blips.len(), blips.len()), "{format}: ids");
+        for ext in tags(xml, "ext").into_iter().chain(tags(xml, "extent")) {
+            if let (Some(cx), Some(cy)) = (ext.get("cx"), ext.get("cy")) {
+                let (cx, cy): (u64, u64) = (cx.parse().unwrap(), cy.parse().unwrap());
+                // The logo is 24px: 18pt, 228,600 EMU.
+                assert_eq!((cx, cy), (228_600, 228_600), "{format}");
             }
         }
     }
