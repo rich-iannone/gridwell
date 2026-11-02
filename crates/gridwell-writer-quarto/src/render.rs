@@ -2,7 +2,6 @@
 //! cross-reference attributes, and the notes as paragraphs after the table.
 
 use gridwell_ir::Table;
-use gridwell_layout::resolve;
 use gridwell_writer_pandoc::ast;
 use serde_json::{json, Value};
 use thiserror::Error;
@@ -21,7 +20,7 @@ pub enum RenderError {
 /// Quarto-specific attributes for cross-referencing (`tbl-` prefix IDs)
 /// and caption handling.
 pub fn render(table: &Table, config: &QuartoConfig) -> Result<String, RenderError> {
-    let rt = resolve(table);
+    let rt = ast::resolve(table);
 
     let id = config
         .table_id
