@@ -23,12 +23,18 @@ pub struct RawCell {
 }
 
 /// Parse table rows: `row_tag` elements containing `cell_tag` elements, with the
-/// text of every `text_tag` inside a cell concatenated.
+/// text of every `text_tag` inside a cell concatenated. A DrawingML run without
+/// a fill (`<a:rPr><a:noFill/>`: the padding aligning a cell on a character) is
+/// invisible and has none.
 pub fn parse_rows(xml: &str, row_tag: &str, cell_tag: &str, text_tag: &str) -> Vec<Vec<RawCell>> {
     let mut reader = Reader::from_str(xml);
     let mut rows: Vec<Vec<RawCell>> = Vec::new();
     let mut cell: Option<RawCell> = None;
     let mut in_text = false;
+    // The last element opened (`""` once one closes), and whether the run so
+    // far is drawn without a fill.
+    let mut opened = String::new();
+    let mut unfilled = false;
     let start = |e: &BytesStart, rows: &mut Vec<Vec<RawCell>>, cell: &mut Option<RawCell>| {
         let name = e.local_name();
         let name = std::str::from_utf8(name.as_ref()).unwrap();
@@ -65,10 +71,14 @@ pub fn parse_rows(xml: &str, row_tag: &str, cell_tag: &str, text_tag: &str) -> V
         match reader.read_event().expect("well-formed XML") {
             Event::Start(e) => {
                 start(&e, &mut rows, &mut cell);
-                in_text = e.local_name().as_ref() == text_tag.as_bytes();
+                in_text = e.local_name().as_ref() == text_tag.as_bytes() && !unfilled;
+                opened = String::from_utf8_lossy(e.local_name().as_ref()).into_owned();
             }
             Event::Empty(e) => {
                 let name = e.local_name();
+                if name.as_ref() == b"noFill" && opened == "rPr" {
+                    unfilled = true;
+                }
                 start(&e, &mut rows, &mut cell);
                 if name.as_ref() == cell_tag.as_bytes() {
                     rows.last_mut().unwrap().push(cell.take().unwrap());
@@ -81,6 +91,10 @@ pub fn parse_rows(xml: &str, row_tag: &str, cell_tag: &str, text_tag: &str) -> V
             }
             Event::End(e) => {
                 in_text = false;
+                opened.clear();
+                if e.local_name().as_ref() == b"r" {
+                    unfilled = false;
+                }
                 if e.local_name().as_ref() == cell_tag.as_bytes() {
                     rows.last_mut().unwrap().push(cell.take().unwrap());
                 }
