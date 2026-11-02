@@ -53,6 +53,17 @@ pub fn image(src: &str, alt: &str) -> ContentNode {
     }
 }
 
+/// An inline image drawn `width` × `height` (CSS lengths; `None`: from the
+/// image).
+pub fn sized_image(src: &str, alt: &str, width: Option<&str>, height: Option<&str>) -> ContentNode {
+    ContentNode::Image {
+        src: src.to_string(),
+        alt: Some(alt.to_string()),
+        width: width.map(str::to_string),
+        height: height.map(str::to_string),
+    }
+}
+
 /// Raw markup for a specific format (e.g. `("html", "<b>x</b>")`).
 pub fn raw(format: &str, value: &str) -> ContentNode {
     ContentNode::Raw {
