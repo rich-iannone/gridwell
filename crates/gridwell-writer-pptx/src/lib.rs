@@ -1,8 +1,10 @@
+mod limits;
 mod render;
 mod xml;
 
 use gridwell_ir::Table;
 
+pub use limits::unsupported;
 pub use render::RenderError;
 
 /// PowerPoint (.pptx) writer: converts a gridwell IR Table into a .pptx byte vector.
