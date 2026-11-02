@@ -162,6 +162,11 @@ writer draws instead:
 | `latex` | `lang` | A `config.lang`: the language is the document's, set up by babel or polyglossia |
 | `latex` | `rtl` | A right-to-left table (`dir: rtl`, or `auto` with right-to-left text): it is written left to right |
 | `typst` | `border-double` | A double border on a cell or group label |
+| `typst`, `svg` | `image` | An image that isn't a PNG, JPEG, GIF or SVG `data:` URI (one linked by URL or path) |
+| `rtf` | `image` | An image that isn't a PNG or JPEG `data:` URI |
+| `docx` | `image` | An image that isn't a PNG, JPEG or GIF `data:` URI |
+| `xlsx` | `image` | An image that isn't a PNG, JPEG or GIF `data:` URI alone in its cell or line, or one in a footnote |
+| `latex`, `pptx`, `ansi` | `image` | Any image |
 | `rtf` | `lang` | A `config.lang`: RTF's `\lang` takes a Windows language id, which the writer doesn't map tags to yet |
 | `ansi` | `rtl` | A right-to-left table: a terminal shows the columns left to right |
 | `xlsx` | `lang` | A `config.lang`: a spreadsheet's cells have no language |
