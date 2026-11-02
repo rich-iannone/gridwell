@@ -100,6 +100,14 @@ impl Part<'_> {
             _ => None,
         })
     }
+
+    /// The `src` of each image in the content.
+    pub fn images(&self) -> impl Iterator<Item = &str> + '_ {
+        self.content.iter().filter_map(|n| match n {
+            ContentNode::Image { src, .. } => Some(src.as_str()),
+            _ => None,
+        })
+    }
 }
 
 impl ResolvedTable<'_> {
