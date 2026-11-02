@@ -2,9 +2,9 @@
 //! same widths in each, from `gridwell_layout`'s [`column_widths_pt`]. Absolute
 //! widths are themselves; `%` and `fr` divide the table's width, which is
 //! `table_width` or the line (6in in RTF and DOCX, the slide's text width in
-//! PPTX); a column without a width gets the format's default, unless the table has
-//! a width and no column is `fr`, when such columns share what the others leave.
-//! `em` is each format's body text size.
+//! PPTX); a column without a width gets the format's default (in PPTX, its
+//! content's width), unless the table has a width and no column is `fr`, when
+//! such columns share what the others leave. `em` is each format's body text size.
 //!
 //! [`column_widths_pt`]: gridwell_layout::ResolvedTable::column_widths_pt
 
@@ -127,13 +127,17 @@ fn an_absolute_table_width_is_the_same_everywhere() {
 
 /// `%` and `fr` divide the line when the table has no absolute width; a column
 /// without a width, or an `fr` column the others leave no room for, gets the
-/// format's default; `em` is the body text's size.
+/// format's default (a PPTX column without a width, its content's width); `em`
+/// is the body text's size.
 #[test]
 fn the_line_default_and_em_are_each_formats_own() {
+    // A PPTX column of `x` at 18pt: its estimated width (0.6em), 4% and a point
+    // more, and 0.1in insets.
+    const X: f64 = 0.6 * 18.0 * 1.04 + 1.0 + 14.4;
     // (table width, columns, RTF and DOCX widths at a 432pt line, PPTX at 648pt)
     type Case<'a> = (Option<&'a str>, &'a [&'a str], &'a [f64], &'a [f64]);
     let cases: [Case; 5] = [
-        (None, &["", ""], &[108.0, 108.0], &[72.0, 72.0]),
+        (None, &["", ""], &[108.0, 108.0], &[X, X]),
         (None, &["30%", "1fr"], &[129.6, 302.4], &[194.4, 453.6]),
         (Some("50%"), &["25%", ""], &[54.0, 162.0], &[81.0, 243.0]),
         (
@@ -146,7 +150,7 @@ fn the_line_default_and_em_are_each_formats_own() {
             Some("100%"),
             &["10%", "", "3fr"],
             &[43.2, 108.0, 280.8],
-            &[64.8, 72.0, 511.2],
+            &[64.8, X, 648.0 - 64.8 - X],
         ),
     ];
     for (width, cols, line, slide) in cases {

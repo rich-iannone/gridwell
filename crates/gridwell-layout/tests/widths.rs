@@ -1,10 +1,11 @@
 //! Column widths as declared, and in points for formats that give every column a
 //! width: `%` divides the table's width, `fr` what the other columns leave, and a
 //! table with a width but no `fr` column spreads it over the columns without one.
+//! Columns without a width can be sized for their content, within the line.
 
 use gridwell_core::Length;
 use gridwell_ir::Table;
-use gridwell_layout::{resolve, ColumnWidth};
+use gridwell_layout::{resolve, ColumnWidth, ContentWidth};
 use gridwell_testkit::{cell, column, row, ColumnExt, TableBuilder};
 
 const LINE: f64 = 432.0;
@@ -159,4 +160,75 @@ fn fr_columns_with_no_room_get_the_default() {
         (got.iter().sum::<f64>() - 7.0 * 72.0).abs() < 1e-9,
         "{got:?}"
     );
+}
+
+fn fit(table_width: Option<&str>, widths: &[&str], content: &[(f64, f64)]) -> Vec<f64> {
+    let content: Vec<ContentWidth> = content
+        .iter()
+        .map(|&(min, max)| ContentWidth { min, max })
+        .collect();
+    resolve(&table(table_width, widths)).column_widths_fit_pt(LINE, AUTO, EM, &content)
+}
+
+#[test]
+fn columns_without_a_width_fit_their_content_on_the_line() {
+    // Room for every line: each as wide as its widest.
+    assert_close(
+        &fit(None, &["", ""], &[(20.0, 50.0), (30.0, 300.0)]),
+        &[50.0, 300.0],
+    );
+    // Not enough (an absolute and a `%` column take 100pt and 43.2pt): from
+    // their `max` toward their `min`, in proportion to how far apart they are
+    // (they need 60pt and 360pt, the line leaves 288.8pt of 410pt: 228.8pt
+    // over the `min`s, of 350pt between them).
+    let got = fit(
+        None,
+        &["", "100pt", "", "10%"],
+        &[(20.0, 50.0), (0.0, 0.0), (40.0, 360.0), (0.0, 0.0)],
+    );
+    let k = (LINE - 100.0 - 43.2 - 60.0) / 350.0;
+    assert_close(&got, &[20.0 + 30.0 * k, 100.0, 40.0 + 320.0 * k, 43.2]);
+    assert!((got.iter().sum::<f64>() - LINE).abs() < 1e-9, "{got:?}");
+    // Not even for their `min`: their `min`, past the line.
+    assert_close(
+        &fit(None, &["", ""], &[(300.0, 400.0), (200.0, 200.0)]),
+        &[300.0, 200.0],
+    );
+    // `fr` columns share what they leave.
+    assert_close(
+        &fit(
+            None,
+            &["", "1fr", "3fr"],
+            &[(10.0, 32.0), (5.0, 5.0), (5.0, 5.0)],
+        ),
+        &[32.0, 100.0, 300.0],
+    );
+    // A table with a width and no `fr` column: shared, whatever the content.
+    assert_close(
+        &fit(Some("300pt"), &["", ""], &[(10.0, 10.0), (20.0, 290.0)]),
+        &[150.0, 150.0],
+    );
+}
+
+#[test]
+fn content_widths_are_taken_with_care() {
+    // A column left out gets the default; a `max` that isn't finite is the
+    // default, a `min` that isn't is the `max`, and a `min` over the `max`
+    // (or under zero) is clamped to it.
+    assert_close(
+        &fit(None, &["", "", ""], &[(10.0, 20.0)]),
+        &[20.0, AUTO, AUTO],
+    );
+    assert_close(
+        &fit(None, &["", ""], &[(1.0, f64::NAN), (f64::INFINITY, 30.0)]),
+        &[AUTO, 30.0],
+    );
+    let got = fit(None, &["", ""], &[(500.0, 300.0), (-50.0, 400.0)]);
+    assert_close(&got, &[300.0, LINE - 300.0]);
+    // Content for a column with a width is ignored.
+    assert_close(&fit(None, &["30pt"], &[(100.0, 200.0)]), &[30.0]);
+    // Without content, as `column_widths_pt`.
+    for cols in [&["", ""][..], &["90pt", "25%", "1fr", ""], &["100pt", ""]] {
+        assert_close(&fit(None, cols, &[]), &points(None, cols));
+    }
 }
