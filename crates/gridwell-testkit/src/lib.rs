@@ -15,6 +15,7 @@
 pub mod arb;
 pub mod builder;
 pub mod examples;
+pub mod images;
 pub mod spans;
 
 pub use builder::*;
