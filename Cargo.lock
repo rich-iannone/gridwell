@@ -551,6 +551,7 @@ dependencies = [
  "insta",
  "serde_json",
  "thiserror",
+ "zip",
 ]
 
 [[package]]
