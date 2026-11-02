@@ -55,6 +55,10 @@ pub fn parse_rows(xml: &str, row_tag: &str, cell_tag: &str, text_tag: &str) -> V
                 c.attrs
                     .insert(name.to_string(), attr(e, "val").unwrap_or_default());
             }
+            // An inline image reads as its alt text.
+            if name == "docPr" {
+                c.text.push_str(&attr(e, "descr").unwrap_or_default());
+            }
         }
     };
     loop {
