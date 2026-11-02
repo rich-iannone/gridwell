@@ -53,6 +53,32 @@ Cell content is an array of content nodes:
 | `image`        | `src`, `alt`, `width`, `height` | Inline image |
 | `raw`          | `format`, `value`   | Format-specific passthrough|
 
+## Images
+
+An `image` node's `src` is drawn only when it is a `data:` URI (base64 or
+percent-encoded) holding a whole PNG, JPEG, GIF or SVG file. Writers never fetch a
+URL or read a path named by `src`, as the IR may come from anywhere. HTML is the
+exception: it writes `src` as given, and the browser loads it. An image a format
+can't draw shows its `alt` text instead, and is [warned](validation.qmd#warnings) of.
+
+`width` and `height` are CSS lengths, and an image is sized the way a browser sizes
+an `<img>`. A side that is set is used. A side that isn't keeps the image's aspect
+ratio, and with neither set the image keeps its own size (1px = 0.75pt). `em` is
+relative to the text around the image.
+
+| Format | Draws |
+|--------|-------|
+| HTML | any `src` |
+| SVG, Typst | PNG, JPEG, GIF, SVG |
+| DOCX | PNG, JPEG, GIF |
+| RTF | PNG, JPEG |
+| XLSX | PNG, JPEG, GIF, alone in its cell or line, but not in a footnote (it is drawn over the cell) |
+| LaTeX, PPTX, ANSI | none (the alt text) |
+
+Data that is whole but corrupt inside (a broken compressed stream, say) gets past
+the check: depending on the format, the image may then show up blank, or the Typst
+compiler may reject the document.
+
 ## Sections
 
 - [Config](config.qmd) — table-level configuration
