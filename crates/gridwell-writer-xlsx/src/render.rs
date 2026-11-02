@@ -123,13 +123,16 @@ enum ValueFmt {
 /// A number format that shows a value as the table displays it: `0.0` for
 /// `76.0`, `#,##0` for `1,250`. The IR carries the display text and the value,
 /// not a format pattern, so the format is read off the display.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct NumFmt {
     decimals: u8,
     /// Thousands separators.
     grouping: bool,
     /// Negatives show U+2212 MINUS SIGN (as gt writes them), not `-`.
     unicode_minus: bool,
+    /// Room after the number (`_0` a digit's, `_.` a period's), aligning it on
+    /// a character: [`pad_code`].
+    pad: String,
 }
 
 impl NumFmt {
@@ -183,11 +186,15 @@ impl NumFmt {
             decimals: decimals as u8,
             grouping,
             unicode_minus,
+            pad: String::new(),
         })
     }
 
     /// The built-in `numFmtId` with this pattern, if there is one.
     fn builtin(&self) -> Option<u8> {
+        if !self.pad.is_empty() {
+            return None;
+        }
         match (self.decimals, self.grouping, self.unicode_minus) {
             (0, false, false) => Some(1),
             (2, false, false) => Some(2),
@@ -204,12 +211,21 @@ impl NumFmt {
             pattern.push('.');
             pattern.push_str(&"0".repeat(self.decimals.into()));
         }
+        pattern.push_str(&self.pad);
         if self.unicode_minus {
             format!("{pattern};\"\u{2212}\"{pattern}")
         } else {
             pattern
         }
     }
+}
+
+/// The format code that leaves the room of a cell's padding: `_` and the
+/// character for each character of the mark, `_0` for each digit.
+fn pad_code(pad: &gridwell_layout::AlignPad) -> String {
+    let mark = pad.mark.unwrap_or("").chars();
+    let digits = std::iter::repeat_n('0', pad.digits);
+    mark.chain(digits).flat_map(|c| ['_', c]).collect()
 }
 
 /// One drawn border edge: a SpreadsheetML line style and an optional color
@@ -686,6 +702,20 @@ impl Sheet<'_> {
             for cell in r.cells() {
                 let mut format = Format::cell(&cell.style, strong, &cell.align, rt.is_rtl());
                 let mut runs = rich(rt, &cell.content, FontKey::of(&format));
+                // Aligned on a character: the padding as figure and punctuation
+                // spaces, undecorated, after the text (a number's format
+                // leaves the room instead).
+                if let Some(pad) = cell.align_pad {
+                    runs.push(RichRun {
+                        text: pad.spaces(),
+                        font: FontKey {
+                            underline: false,
+                            strike: false,
+                            ..FontKey::of(&format)
+                        },
+                        superscript: false,
+                    });
+                }
                 let pic = picture(&cell.content, font_pt(&cell.style));
                 if let Some(pic) = &pic {
                     runs.clear();
@@ -709,7 +739,15 @@ impl Sheet<'_> {
                     .typed_value
                     .zip(plain_display(&cell.content))
                     .and_then(|(t, shown)| typed_cell(t, &shown));
-                if let Some((value, num_fmt)) = typed {
+                if let Some((value, mut num_fmt)) = typed {
+                    if let Some(pad) = cell.align_pad {
+                        let code = pad_code(&pad);
+                        match &mut num_fmt {
+                            Some(ValueFmt::Number(n)) => n.pad = code,
+                            Some(ValueFmt::Date(c)) => c.push_str(&code),
+                            None => {}
+                        }
+                    }
                     let f = self.format(&Format { num_fmt, ..format });
                     self.merge(row, cell.col, last_row, last_col, &f)?;
                     let (r, c) = (row_num(row)?, col_num(cell.col)?);

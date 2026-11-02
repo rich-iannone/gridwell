@@ -224,7 +224,11 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
     /// ends by its inset, and neighboring spanners' rules stay apart), on the cell's
     /// bottom edge: the default inset below the content.
     fn render_cell(&mut self, cell: &ResolvedCell, is_header: bool, rule: bool) {
-        let content = self.content(&cell.content);
+        let mut content = self.content(&cell.content);
+        // Aligned on a character: the padding, hidden, in the cell's font.
+        if let Some(pad) = cell.align_pad {
+            write!(content, "#hide[{}]", escape_typst(&pad.text())).unwrap();
+        }
         let mut attrs = Vec::new();
         if cell.colspan > 1 {
             attrs.push(format!("colspan: {}", cell.colspan));

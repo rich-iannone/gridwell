@@ -353,7 +353,18 @@ fn write_row(
             bold: is_header,
             ..Fmt::default()
         };
-        write_content(buf, rt, media, &cell.content, fmt.with(&cell.style))?;
+        let fmt = fmt.with(&cell.style);
+        write_content(buf, rt, media, &cell.content, fmt)?;
+        // Aligned on a character: the padding as figure and punctuation spaces
+        // (Word can't hide text and keep its room), undecorated.
+        if let Some(pad) = cell.align_pad {
+            let fmt = Fmt {
+                underline: false,
+                strike: false,
+                ..fmt
+            };
+            write_run(buf, &pad.spaces(), fmt)?;
+        }
         buf.push_str("</w:p>");
         buf.push_str("</w:tc>");
     }

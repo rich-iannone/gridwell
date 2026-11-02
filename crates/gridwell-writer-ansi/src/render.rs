@@ -1,6 +1,8 @@
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{HAlign, Table};
-use gridwell_layout::{resolve, ResolvedRow, ResolvedStyle, ResolvedTable, Section, Slot};
+use gridwell_layout::{
+    resolve, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, Section, Slot,
+};
 use std::fmt::Write;
 use thiserror::Error;
 use unicode_width::UnicodeWidthStr;
@@ -126,7 +128,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
         for section in rt.sections() {
             for row in &section.rows {
                 for cell in row.cells().filter(|c| c.colspan == 1) {
-                    let text = content_to_text(&cell.content, superscript_marks);
+                    let text = cell_text(cell, superscript_marks);
                     let w = UnicodeWidthStr::width(text.as_str());
                     widths[cell.col] = widths[cell.col].max(w + 2);
                 }
@@ -290,7 +292,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
                 Slot::Origin(cell) => {
                     sep(&mut self.buf, v);
                     let width = self.span_width(col, cell.colspan);
-                    let text = self.text(&cell.content);
+                    let text = cell_text(cell, self.config.box_drawing);
                     let (open, close) = self.escapes(&cell.style, strong);
                     self.buf.push_str(&open);
                     self.buf.push_str(&fit(&text, width, &cell.align));
@@ -489,6 +491,17 @@ fn superscript(mark: &str) -> String {
         .map(sup)
         .collect::<Option<String>>()
         .unwrap_or_else(|| mark.to_string())
+}
+
+/// A cell's text, ending with as many spaces as its padding is wide when it is
+/// aligned on a character.
+fn cell_text(cell: &ResolvedCell, superscript_marks: bool) -> String {
+    let mut text = content_to_text(&cell.content, superscript_marks);
+    if let Some(pad) = cell.align_pad {
+        let width = UnicodeWidthStr::width(pad.text().as_str());
+        text.extend(std::iter::repeat_n(' ', width));
+    }
+    text
 }
 
 /// `text` laid out in exactly `width` terminal columns: one space of padding on

@@ -622,7 +622,11 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
     /// A cell's content, and the alignment letter its `\multicolumn` needs, if any.
     fn render_cell(&self, cell: &ResolvedCell) -> (String, Option<String>) {
         let column = &self.rt.columns[cell.col];
-        let mut out = self.content(&cell.content, &cell.align, &cell.style);
+        // Aligned on a character: the padding, invisible, after the last line.
+        let pad = cell.align_pad.map_or_else(String::new, |pad| {
+            format!("\\phantom{{{}}}", escape_latex(&pad.text()))
+        });
+        let mut out = self.content_ending(&cell.content, &cell.align, &cell.style, &pad);
         out = apply_style(&out, &cell.style);
 
         if cell.rowspan > 1 {
@@ -643,6 +647,17 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
     /// form that works in `l`/`c`/`r` columns as well as `p{}`). `block`'s
     /// underline and strike-through are applied to each line.
     fn content(&self, nodes: &[ContentNode], align: &HAlign, block: &ResolvedStyle) -> String {
+        self.content_ending(nodes, align, block, "")
+    }
+
+    /// [`Self::content`], its last line ending with `tail` (undecorated).
+    fn content_ending(
+        &self,
+        nodes: &[ContentNode],
+        align: &HAlign,
+        block: &ResolvedStyle,
+        tail: &str,
+    ) -> String {
         let mut lines = vec![String::new()];
         for node in nodes {
             let out = lines.last_mut().unwrap();
@@ -671,7 +686,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
                 ContentNode::Unknown => {}
             }
         }
-        let lines: Vec<String> = lines
+        let mut lines: Vec<String> = lines
             .iter()
             .map(|l| {
                 if l.is_empty() {
@@ -681,6 +696,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
                 }
             })
             .collect();
+        lines.last_mut().unwrap().push_str(tail);
         if lines.len() == 1 {
             return lines.into_iter().next().unwrap();
         }

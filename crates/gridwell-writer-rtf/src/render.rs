@@ -412,7 +412,12 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 writeln!(self.buf, "\\pard\\intbl{}\\plain\\cell", self.par_dir()).unwrap();
                 continue;
             };
-            let text = self.content(&cell.content);
+            let mut text = self.content(&cell.content);
+            // Aligned on a character: the padding as figure and punctuation
+            // spaces (RTF can't hide text and keep its room), undecorated.
+            if let Some(pad) = cell.align_pad {
+                write!(text, "{{\\ulnone\\strike0 {}}}", escape_rtf(&pad.spaces())).unwrap();
+            }
             let mut fmt = String::new();
             // `\ql` and `\qr` are physical; a right-to-left paragraph says
             // which it is rather than rely on the default.

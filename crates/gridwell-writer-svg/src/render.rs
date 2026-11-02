@@ -294,7 +294,24 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
                         pad.right = 0.0;
                     }
                 }
-                let pad = mirror_pad(styled_pad(mirror_pad(pad, rtl), &cell.style), rtl);
+                let mut pad = mirror_pad(styled_pad(mirror_pad(pad, rtl), &cell.style), rtl);
+                // Aligned on a character: room on the (physical) right for the
+                // padding, as wide as it would be drawn after the cell's text.
+                if let Some(align_pad) = cell.align_pad {
+                    // (A footnote mark's size and an image aside.)
+                    let last = runs.last().and_then(|p| p.last());
+                    let style = last.map_or(style, |r| RunStyle {
+                        sup: false,
+                        image: None,
+                        ..r.style.clone()
+                    });
+                    let run = Run {
+                        text: align_pad.text(),
+                        style,
+                    };
+                    let width = run.draw_width(fs);
+                    *if rtl { &mut pad.left } else { &mut pad.right } += width;
+                }
                 let text_color = cell
                     .style
                     .paint()
@@ -1056,7 +1073,8 @@ fn apply_style(style: &mut RunStyle, s: &ResolvedStyle, block_px: f64) {
 fn svg_align(a: &HAlign) -> Align {
     match a {
         HAlign::Center => Align::Center,
-        // Decimal ("char") alignment is approximated by right alignment.
+        // A cell aligned on a character is right-aligned, with room on the
+        // right for its padding (`align_pad`).
         HAlign::Right | HAlign::Char => Align::Right,
         _ => Align::Left,
     }

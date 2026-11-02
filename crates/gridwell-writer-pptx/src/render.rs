@@ -350,7 +350,17 @@ fn write_slot(
         ..Fmt::default()
     }
     .with(&cell.style);
-    let wrote = write_content(buf, rt, &cell.content, fmt)?;
+    let mut wrote = write_content(buf, rt, &cell.content, fmt)?;
+    // Aligned on a character: the padding as figure and punctuation spaces
+    // (PowerPoint can't hide text and keep its room), undecorated.
+    if let Some(pad) = cell.align_pad {
+        let fmt = Fmt {
+            underline: false,
+            strike: false,
+            ..fmt
+        };
+        wrote |= write_run(buf, rt, &pad.spaces(), fmt)?;
+    }
     if !wrote {
         buf.push_str("<a:endParaRPr/>");
     }

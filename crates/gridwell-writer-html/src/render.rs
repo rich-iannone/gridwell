@@ -2,8 +2,8 @@ use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{is_valid_style_id, CellScope, HAlign, Keyword, RowRole, Table, TextDirection};
 use gridwell_layout::{
-    resolve_with, ResolveOptions, ResolvedBorder, ResolvedCell, ResolvedRow, ResolvedStyle,
-    ResolvedTable, Section, SectionKind, Sides, Slot,
+    resolve_with, AlignPad, ResolveOptions, ResolvedBorder, ResolvedCell, ResolvedRow,
+    ResolvedStyle, ResolvedTable, Section, SectionKind, Sides, Slot,
 };
 use std::collections::HashMap;
 use std::fmt::Write;
@@ -35,6 +35,9 @@ struct HtmlRenderer<'r, 'a> {
     cell_styles: Vec<ResolvedStyle>,
     /// Alignment classes `{prefix}__al_<value>` the cells use, in a fixed order.
     alignments: Vec<&'static str>,
+    /// Some cell ends with padding that aligns it on a character, hidden by the
+    /// class `{prefix}__pad`.
+    pads: bool,
     /// Defined style ids that aren't valid ([`is_valid_style_id`]), sorted: they get
     /// generated classes `{prefix}__s{n}` instead of their names. Only reachable
     /// when the writer is handed unvalidated IR.
@@ -152,6 +155,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             indent_level: 0,
             cell_styles: Vec::new(),
             alignments: Vec::new(),
+            pads: false,
             unsafe_style_ids: {
                 let styles = &rt.table.styles;
                 let mut ids: Vec<&str> = styles
@@ -190,6 +194,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                                 r.alignments.push(a);
                             }
                         }
+                        r.pads |= cell.align_pad.is_some();
                         if r.needs_generated_class(row, cell)
                             && !r.cell_styles.contains(&cell.style)
                         {
@@ -393,6 +398,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             && styles.compositions.is_empty()
             && self.cell_styles.is_empty()
             && self.alignments.is_empty()
+            && !self.pads
         {
             return;
         }
@@ -419,6 +425,9 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         for a in alignments {
             let line = format!(".{p}_table .{p}__al_{a} {{ text-align: {a} }}");
             self.write_line(&line);
+        }
+        if self.pads {
+            self.write_line(&format!(".{p}_table .{p}__pad {{ visibility: hidden }}"));
         }
 
         // Emit style definitions as CSS classes
@@ -769,6 +778,14 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                 }
                 css.push_str(&format!("text-align: {a}"));
             }
+            // Digits as wide as each other, for the padding to be exact (the
+            // base stylesheet does this for every right-aligned body cell).
+            if cell.align_char.is_some() {
+                if !css.is_empty() {
+                    css.push_str("; ");
+                }
+                css.push_str("font-variant-numeric: tabular-nums");
+            }
             if let Some(part) = part {
                 attrs.push(format!("class=\"{part}\""));
             }
@@ -841,9 +858,13 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             format!(" {}", attrs.join(" "))
         };
 
+        let pad = cell.align_pad.map(|pad| self.align_pad(&pad));
+
         // For simple single-text cells, render inline
         if let Some(text) = single_text_content(&cell.content) {
-            self.write_line(&format!("<{tag}{attr_str}>{}</{tag}>", escape_html(text)));
+            let pad = pad.unwrap_or_default();
+            let text = escape_html(text);
+            self.write_line(&format!("<{tag}{attr_str}>{text}{pad}</{tag}>"));
             self.svg_prefix = None;
             return;
         }
@@ -857,9 +878,24 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         self.write_line(&format!("<{tag}{attr_str}>"));
         self.push_indent();
         self.render_content_nodes(&cell.content);
+        if let Some(pad) = pad {
+            self.write_line(&pad);
+        }
         self.pop_indent();
         self.write_line(&format!("</{tag}>"));
         self.svg_prefix = None;
+    }
+
+    /// The padding that aligns a cell on a character: its text, invisible (and
+    /// not read out), so it takes the room it would in the cell's font.
+    fn align_pad(&self, pad: &AlignPad) -> String {
+        let hidden = if self.config.inline_styles {
+            "style=\"visibility: hidden\"".to_string()
+        } else {
+            format!("class=\"{}__pad\"", self.config.class_prefix)
+        };
+        let text = escape_html(&pad.text());
+        format!("<span {hidden} aria-hidden=\"true\">{text}</span>")
     }
 
     // ─── Footer ───
@@ -1122,8 +1158,8 @@ fn cell_scope(cell: &ResolvedCell, kind: SectionKind) -> Option<CellScope> {
 
 /// The `text-align` a cell needs, if any: header cells always (browsers center
 /// `<th>` by default), body cells unless left-aligned (the default for `<td>`,
-/// but only left to right: `directed`, it is the start). Decimal (`char`)
-/// alignment is approximated by right alignment.
+/// but only left to right: `directed`, it is the start). A cell aligned on a
+/// character is right-aligned, its padding lining it up ([`AlignPad`]).
 fn cell_alignment(cell: &ResolvedCell, is_header: bool, directed: bool) -> Option<&'static str> {
     let a = halign_css(&cell.align);
     (is_header || directed || a != "left").then_some(a)
