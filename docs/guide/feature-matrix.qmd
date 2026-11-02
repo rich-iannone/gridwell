@@ -38,6 +38,7 @@ Which IR features each Tier-1 writer (plus PPTX) expresses. Every cell is *measu
 | normal-weight | `font_weight: normal` on what a format draws bold by default (column labels, the title, a group label, a run in a bold cell) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | normal-style | `font_style: normal` on a run in an italic cell or line | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | image | an image (a PNG `data:` URI, 32×16px = 24×12pt) | ✓ | ⊘<sup>4</sup> | ✓ | ✓ | ✓ | ✓ | ⊘<sup>5</sup> |
+| raw-html | a `raw` HTML node's markup (`<b>`, `<i>`, a `style` attribute's `color`) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | lang | `config.lang`, the table's language | ✓ | ⊘<sup>6</sup> | ✓ | ✗<sup>7</sup> | ✓ | ⊘<sup>8</sup> | ✓ |
 | rtl | `config.dir: rtl`, columns and text right to left | ✓ | ⊘<sup>9</sup> | ✓ | ✓ | ✓ | ✓ | ✓ |
 
