@@ -6,7 +6,9 @@
 use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{HAlign, Keyword, Table};
-use gridwell_layout::{resolve, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable};
+use gridwell_layout::{
+    resolve_with, ResolveOptions, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable,
+};
 use serde_json::{json, Value};
 use thiserror::Error;
 
@@ -14,6 +16,16 @@ use thiserror::Error;
 pub enum RenderError {
     #[error("JSON serialization error: {0}")]
     Json(#[from] serde_json::Error),
+}
+
+/// The table resolved for the AST. Raw HTML stays a `RawInline`, which pandoc
+/// passes on to its HTML outputs (and drops from the others).
+pub fn resolve(table: &Table) -> ResolvedTable<'_> {
+    let opts = ResolveOptions {
+        lower_html: false,
+        ..ResolveOptions::default()
+    };
+    resolve_with(table, opts)
 }
 
 /// Renders a gridwell IR Table to a Pandoc JSON AST Table block.
