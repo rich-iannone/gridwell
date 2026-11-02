@@ -106,6 +106,7 @@ fn opting_out_keeps_the_content_as_written() {
         &t,
         ResolveOptions {
             transform_text: false,
+            ..ResolveOptions::default()
         },
     );
     assert_eq!(
