@@ -196,6 +196,11 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 
 - Uses Typst's `#table()` function with named parameters
 - `table.cell(colspan: N, rowspan: N)` for spans
+- A column spanner (a column-label cell with more column-label rows below it) is
+  underlined with a 0.5pt rule on its bottom edge, as wide as its text area, so it
+  stops short of the cell's ends (by Typst's 5pt inset) and neighboring spanners'
+  rules stay apart, as with LaTeX's `\cmidrule`. A blank cell gets none, and a cell
+  whose style sets (or removes) its bottom border keeps that instead
 - Column widths mapped to Typst length values. `%` and `fr` columns divide the
   table's width: a table with `table_width` is a `#block` that wide (a `%` width is a
   share of the container), and its columns without a width are `1fr` when no column
