@@ -14,9 +14,9 @@ expression: xml
 <a:tblPr firstRow="1" bandRow="1"/>
 <a:tblGrid><a:gridCol w="914400"/><a:gridCol w="914400"/></a:tblGrid>
 <a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Item</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r"/><a:r><a:rPr lang="en-US" b="1"/><a:t>Amount</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
-<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>A</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r"/><a:r><a:rPr lang="en-US"/><a:t>1234.5</a:t></a:r><a:r><a:rPr lang="en-US"/><a:t>  </a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>A</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r"/><a:r><a:rPr lang="en-US"/><a:t>1234.5</a:t></a:r><a:r><a:rPr lang="en-US"><a:noFill/></a:rPr><a:t>00</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
 <a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>B</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r"/><a:r><a:rPr lang="en-US"/><a:t>6.789</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
-<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>C</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r"/><a:r><a:rPr lang="en-US"/><a:t>42.0</a:t></a:r><a:r><a:rPr lang="en-US"/><a:t>  </a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>C</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="r"/><a:r><a:rPr lang="en-US"/><a:t>42.0</a:t></a:r><a:r><a:rPr lang="en-US"><a:noFill/></a:rPr><a:t>00</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
 </a:tbl>
 </a:graphicData></a:graphic>
 </p:graphicFrame>
