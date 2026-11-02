@@ -1083,9 +1083,11 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 /// Main entry point for rendering.
 pub fn render(table: &Table, config: &HtmlWriterConfig) -> Result<String, RenderError> {
     crate::check_config(config).map_err(RenderError::Config)?;
-    // CSS `text-transform` transforms the text: the content stays as written.
+    // CSS `text-transform` transforms the text, and raw HTML is written as it
+    // is: the content stays as written.
     let opts = ResolveOptions {
         transform_text: false,
+        lower_html: false,
     };
     let rt = resolve_with(table, opts);
     HtmlRenderer::new(&rt, config).render()
