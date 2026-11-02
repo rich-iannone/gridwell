@@ -10,15 +10,14 @@ expression: lines(&xml)
 <cols><col min="1" max="2" width="12" customWidth="1"/></cols>
 <sheetData>
 <row r="1" spans="1:2"><c r="A1" s="1" t="s"><v>0</v></c><c r="B1" s="1" t="s"><v>1</v></c></row>
-<row r="2" spans="1:2"><c r="A2" t="s"><v>2</v></c><c r="B2" t="s"><v>3</v></c></row>
+<row r="2" spans="1:2" ht="21" customHeight="1"><c r="B2" t="s"><v>2</v></c></row>
 </sheetData>
-<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
+<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/><drawing r:id="rId1"/>
 </worksheet>
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="4" uniqueCount="4">
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="3" uniqueCount="3">
 <si><t>Icon</t></si>
 <si><t>Label</t></si>
-<si><t>logo</t></si>
 <si><t>Brand</t></si>
 </sst>
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>

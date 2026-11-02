@@ -13,7 +13,7 @@ expression: out
   stroke: none,
   table.header(
     [],
-    table.cell(colspan: 2, align: center)[#text(weight: "bold")[الإيرادات]],
+    table.cell(colspan: 2, align: center)[#text(weight: "bold")[الإيرادات]#place(bottom + center, dy: 5pt, line(length: 100%, stroke: 0.5pt))],
     [#text(weight: "bold")[البلد]],
     [#text(weight: "bold")[2023]],
     [#text(weight: "bold")[2024]],
