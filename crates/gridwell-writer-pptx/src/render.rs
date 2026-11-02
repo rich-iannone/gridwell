@@ -351,15 +351,17 @@ fn write_slot(
     }
     .with(&cell.style);
     let mut wrote = write_content(buf, rt, &cell.content, fmt)?;
-    // Aligned on a character: the padding as figure and punctuation spaces
-    // (PowerPoint can't hide text and keep its room), undecorated.
+    // Aligned on a character: the padding as text without a fill, keeping
+    // its room exactly (LibreOffice hangs spaces ending a line in the margin,
+    // where they move nothing), undecorated.
     if let Some(pad) = cell.align_pad {
         let fmt = Fmt {
             underline: false,
             strike: false,
+            hidden: true,
             ..fmt
         };
-        wrote |= write_run(buf, rt, &pad.spaces(), fmt)?;
+        wrote |= write_run(buf, rt, &pad.text(), fmt)?;
     }
     if !wrote {
         buf.push_str("<a:endParaRPr/>");
@@ -439,6 +441,8 @@ struct Fmt<'s> {
     size: Option<u32>,
     /// The font (`None`: the theme's).
     font: Option<&'s str>,
+    /// Drawn without a fill: invisible, keeping its room.
+    hidden: bool,
 }
 
 impl<'s> Fmt<'s> {
@@ -533,12 +537,14 @@ fn write_run(
     if fmt.superscript {
         buf.push_str(" baseline=\"30000\"");
     }
-    if fmt.color.is_none() && fmt.font.is_none() {
+    if fmt.color.is_none() && fmt.font.is_none() && !fmt.hidden {
         buf.push_str("/>");
     } else {
         // CT_TextCharacterProperties is a sequence: the fill, then the fonts.
         buf.push('>');
-        if let Some(c) = fmt.color {
+        if fmt.hidden {
+            buf.push_str("<a:noFill/>");
+        } else if let Some(c) = fmt.color {
             write!(
                 buf,
                 "<a:solidFill><a:srgbClr val=\"{}\"/></a:solidFill>",
