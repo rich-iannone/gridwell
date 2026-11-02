@@ -92,6 +92,10 @@ pub struct Look {
     pub valign: Option<VAlign>,
     /// Top, right, bottom, left.
     pub borders: [Option<Edge>; 4],
+    /// The pictures drawn in the cell: each one's width and height in points.
+    /// A picture reads as its alt text (as a format that can't draw it shows
+    /// it), so the cell's text is the same either way.
+    pub pictures: Vec<(f64, f64)>,
 }
 
 impl Look {
@@ -252,6 +256,8 @@ struct DocxState {
     tbl_borders: HashMap<String, Option<Edge>>,
     span: usize,
     cols: usize,
+    /// The size of the drawing being read (`wp:extent`), in points.
+    extent: (f64, f64),
 }
 
 impl DocxState {
@@ -307,6 +313,26 @@ impl DocxState {
                     .map(|v| v / 2.0)
             }
             ("rPr", "rFonts") => self.run.family = attr(e, "ascii"),
+            // An inline picture: its size, then its description (alt text).
+            ("inline", "extent") => {
+                let pt = |k| {
+                    attr(e, k)
+                        .and_then(|v| v.parse::<f64>().ok())
+                        .unwrap_or(0.0)
+                        / 12700.0
+                };
+                self.extent = (pt("cx"), pt("cy"));
+            }
+            ("inline", "docPr") => {
+                if let Some(l) = self.look.as_mut() {
+                    l.pictures.push(self.extent);
+                    let r = Run {
+                        text: attr(e, "descr").unwrap_or_default(),
+                        ..self.run.clone()
+                    };
+                    push_run(&mut l.runs, r);
+                }
+            }
             ("r", "br" | "tab") => {
                 if let Some(l) = self.look.as_mut() {
                     let r = Run {
@@ -597,10 +623,36 @@ fn inline_shared_strings(sheet: &str, strings: &str) -> String {
     out
 }
 
-/// Read the worksheet, styles and shared-strings parts (cells without `s` use
-/// style 0). Text outside the table (title rows, notes) is not separated: every
-/// cell is listed.
-pub fn xlsx(sheet: &str, styles: &str, strings: &str) -> Doc {
+/// A cell reference's (0-based) column and row: `B3` is (1, 2).
+fn xlsx_ref(r: &str) -> Option<(u64, u64)> {
+    let split = r.find(|c: char| c.is_ascii_digit())?;
+    let col = r[..split].chars().try_fold(0u64, |n, c| {
+        c.is_ascii_uppercase()
+            .then(|| n * 26 + u64::from(c as u8 - b'A' + 1))
+    })?;
+    let row: u64 = r[split..].parse().ok()?;
+    Some((col.checked_sub(1)?, row.checked_sub(1)?))
+}
+
+/// The (still escaped) value of the first attribute `name` in `xml`.
+fn xml_attr(xml: &str, name: &str) -> Option<String> {
+    let key = format!(" {name}=\"");
+    let start = xml.find(&key)? + key.len();
+    Some(xml[start..start + xml[start..].find('"')?].to_string())
+}
+
+/// The value of `<xdr:{tag}>` in `xml`.
+fn xdr_value(xml: &str, tag: &str) -> Option<u64> {
+    let open = format!("<xdr:{tag}>");
+    let start = xml.find(&open)? + open.len();
+    xml[start..start + xml[start..].find('<')?].parse().ok()
+}
+
+/// Read the worksheet, styles, shared-strings and drawing parts (cells without
+/// `s` use style 0). Text outside the table (title rows, notes) is not
+/// separated: every cell is listed. A picture drawn over a cell (anchored at
+/// its top left) is that cell's, read as its alt text.
+pub fn xlsx(sheet: &str, styles: &str, strings: &str, drawing: &str) -> Doc {
     let sheet = &inline_shared_strings(sheet, strings);
     let mut st = XlsxStyles::default();
     let mut reader = Reader::from_str(styles);
@@ -625,6 +677,9 @@ pub fn xlsx(sheet: &str, styles: &str, strings: &str) -> Doc {
     };
     let mut reader = Reader::from_str(sheet);
     let mut cell: Option<(usize, String)> = None;
+    // Each listed cell's place and style.
+    let mut places: Vec<(Option<(u64, u64)>, usize)> = Vec::new();
+    let place = |e: &BytesStart| attr(e, "r").as_deref().and_then(xlsx_ref);
     // Rich text: the runs so far, and the one being read.
     let mut rich: Vec<Run> = Vec::new();
     let mut run: Option<Run> = None;
@@ -647,9 +702,11 @@ pub fn xlsx(sheet: &str, styles: &str, strings: &str) -> Doc {
         match reader.read_event().expect("well-formed sheet.xml") {
             Event::Start(e) if local(&e) == "c" => {
                 cell = Some((style(&e), String::new()));
+                places.push((place(&e), style(&e)));
                 rich.clear();
             }
             Event::Empty(e) if local(&e) == "c" => {
+                places.push((place(&e), style(&e)));
                 doc.cells.push(st.look(style(&e), String::new()))
             }
             Event::Empty(e) | Event::Start(e) if local(&e) == "sheetView" => {
@@ -697,6 +754,36 @@ pub fn xlsx(sheet: &str, styles: &str, strings: &str) -> Doc {
             _ => {}
         }
     }
+    for a in drawing.split("<xdr:twoCellAnchor").skip(1) {
+        let from = &a[a.find("<xdr:from>").unwrap()..a.find("</xdr:from>").unwrap()];
+        let at = (
+            xdr_value(from, "col").unwrap(),
+            xdr_value(from, "row").unwrap(),
+        );
+        let ext = &a[a.find("<a:ext ").unwrap()..];
+        let ext = &ext[..ext.find("/>").unwrap()];
+        let pt = |k| {
+            xml_attr(ext, k)
+                .and_then(|v| v.parse::<f64>().ok())
+                .unwrap()
+                / 12700.0
+        };
+        let pr = &a[a.find("<xdr:cNvPr ").unwrap()..];
+        let alt = xml_attr(&pr[..pr.find('>').unwrap()], "descr").unwrap_or_default();
+        let alt = quick_xml::escape::unescape(&alt).unwrap().into_owned();
+        let i = match places.iter().position(|(p, _)| *p == Some(at)) {
+            Some(i) => i,
+            None => {
+                places.push((Some(at), 0));
+                doc.cells.push(Look::default());
+                doc.cells.len() - 1
+            }
+        };
+        let mut look = st.look(places[i].1, format!("{}{alt}", doc.cells[i].text));
+        look.pictures = std::mem::take(&mut doc.cells[i].pictures);
+        look.pictures.push((pt("cx"), pt("cy")));
+        doc.cells[i] = look;
+    }
     doc
 }
 
@@ -708,6 +795,62 @@ enum Tok {
     Text(char),
     Open,
     Close,
+    /// A `\pict` drawn at this width and height (points); its alt text follows.
+    Pict(f64, f64),
+}
+
+/// `toks` with each `\pict` group's content (its properties and data) replaced
+/// by a [`Tok::Pict`] of its goal size, then its description's tokens: a
+/// picture reads as its alt text.
+fn rtf_pictures(toks: Vec<Tok>) -> Vec<Tok> {
+    let mut out = Vec::new();
+    let mut toks = toks.into_iter();
+    while let Some(t) = toks.next() {
+        if !matches!(&t, Tok::Word(w, _) if w == "pict") {
+            out.push(t);
+            continue;
+        }
+        let (mut depth, mut name, mut value) = (0, String::new(), Vec::new());
+        let mut size = (0.0, 0.0);
+        // In a property's name (`\sn`) or value (`\sv`).
+        let mut field = None;
+        let mut alt = Vec::new();
+        for t in toks.by_ref() {
+            match t {
+                Tok::Close if depth == 0 => {
+                    out.push(Tok::Pict(size.0, size.1));
+                    out.append(&mut alt);
+                    out.push(Tok::Close);
+                    break;
+                }
+                Tok::Open => depth += 1,
+                Tok::Close => {
+                    depth -= 1;
+                    if field == Some("sv") && name == "wzDescription" {
+                        alt = std::mem::take(&mut value);
+                    }
+                    field = None;
+                }
+                Tok::Word(w, Some(n)) if depth == 0 && w == "picwgoal" => {
+                    size.0 = f64::from(n) / 20.0
+                }
+                Tok::Word(w, Some(n)) if depth == 0 && w == "pichgoal" => {
+                    size.1 = f64::from(n) / 20.0
+                }
+                Tok::Word(w, _) if w == "sn" || w == "sv" => {
+                    if w == "sn" {
+                        name.clear();
+                    }
+                    value.clear();
+                    field = Some(if w == "sn" { "sn" } else { "sv" });
+                }
+                Tok::Text(c) if field == Some("sn") => name.push(c),
+                t if field == Some("sv") => value.push(t),
+                _ => {}
+            }
+        }
+    }
+    out
 }
 
 fn rtf_tokens(rtf: &str) -> Vec<Tok> {
@@ -835,7 +978,7 @@ fn rtf_tables(toks: &[Tok]) -> (Vec<Option<Rgb>>, HashMap<i32, String>) {
 /// its group, as Word and LibreOffice apply it — so formatting a writer forgets
 /// to reset shows up in later cells. Font size defaults to 12pt (`\fs24`).
 pub fn rtf(rtf: &str) -> Doc {
-    let toks = rtf_tokens(rtf);
+    let toks = rtf_pictures(rtf_tokens(rtf));
     let (colors, fonts) = rtf_tables(&toks);
     let color = |n: usize| colors.get(n).copied().flatten();
 
@@ -901,6 +1044,11 @@ pub fn rtf(rtf: &str) -> Doc {
             Tok::Close => {
                 if stack.len() > 1 {
                     stack.pop();
+                }
+            }
+            Tok::Pict(w, h) => {
+                if in_row {
+                    look.pictures.push((w, h));
                 }
             }
             Tok::Text(c) => {
@@ -1443,7 +1591,7 @@ pub fn html(html: &str) -> Doc {
                 look.borders[i] = Some(e);
             }
         }
-        html_runs(td, &rules, &inh, &mut look.runs);
+        html_runs(td, &rules, &inh, &mut look);
         doc.cells.push(finish(look));
     }
     for el in doc_html
@@ -1491,11 +1639,11 @@ pub fn html(html: &str) -> Doc {
     doc
 }
 
-fn html_runs(el: scraper::ElementRef, rules: &[Rule], inh: &Inherited, runs: &mut Vec<Run>) {
+fn html_runs(el: scraper::ElementRef, rules: &[Rule], inh: &Inherited, look: &mut Look) {
     for child in el.children() {
         if let Some(t) = child.value().as_text() {
             push_run(
-                runs,
+                &mut look.runs,
                 Run {
                     text: transformed(t, inh.transform.as_deref()),
                     ..inh.run.clone()
@@ -1504,24 +1652,36 @@ fn html_runs(el: scraper::ElementRef, rules: &[Rule], inh: &Inherited, runs: &mu
         } else if let Some(e) = scraper::ElementRef::wrap(child) {
             match e.value().name() {
                 "br" => push_run(
-                    runs,
+                    &mut look.runs,
                     Run {
                         text: " ".into(),
                         ..inh.run.clone()
                     },
                 ),
-                "img" => push_run(
-                    runs,
-                    Run {
-                        text: e.value().attr("alt").unwrap_or("").to_string(),
-                        ..inh.run.clone()
-                    },
-                ),
+                "img" => {
+                    // A browser draws an embedded image at its CSS size, else
+                    // its own (a linked one can't be measured here).
+                    let src = e.value().attr("src").unwrap_or("");
+                    if let Some(image) = gridwell_core::Image::from_src(src) {
+                        let props = declared(e, rules);
+                        let side = |k| props.get(k).map(String::as_str);
+                        let em = inh.run.size_pt.unwrap_or(12.0);
+                        look.pictures
+                            .push(image.size_pt(side("width"), side("height"), em));
+                    }
+                    push_run(
+                        &mut look.runs,
+                        Run {
+                            text: e.value().attr("alt").unwrap_or("").to_string(),
+                            ..inh.run.clone()
+                        },
+                    );
+                }
                 "style" | "script" => {}
                 name => {
                     let mut inner = inh.clone();
                     apply_text(&declared(e, rules), name, &mut inner);
-                    html_runs(e, rules, &inner, runs);
+                    html_runs(e, rules, &inner, look);
                 }
             }
         }
