@@ -1,0 +1,31 @@
+//! Small images as `data:` URIs, one in each format writers embed.
+
+/// A 24×24px PNG: a white dot on blue (the `inline-image` example's logo).
+pub const LOGO_PNG: &str = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAYUlEQVR42mP8//8/AzUAEwOVAAuEUkt5Q7YRt+aIUNNFw9ggFmICkpgIYSLSFEwusQZh1YbHLCbiTcEvNeLSEZ6YxiXFRJIGPBbg8xqaNvwJkkDKJr54GS1GCAPGQVeLAACHNx+lIoe2YQAAAABJRU5ErkJggg==";
+
+/// The same logo as a GIF.
+pub const LOGO_GIF: &str = "data:image/gif;base64,R0lGODdhGAAYAJEAAAAAACVj6////wAAACH5BAQAAAAALAAAAAAYABgAAAJAlI+py50Bo5wT0Xst3lBz7H1UKJGRGSjZMS6tUTUxXMo1fdo53uk9/3vMBCsUKsUqEkVKZtM5hEalO4f1ihUUAAA7";
+
+/// A 40×20px JPEG (a flat orange), saved at 72dpi.
+pub const WIDE_JPEG: &str = "data:image/jpeg;base64,\
+    /9j/4AAQSkZJRgABAQAASABIAAD/4QBMRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAA\
+    A6ABAAMAAAABAAEAAKACAAQAAAABAAAAKKADAAQAAAABAAAAFAAAAAD/7QA4UGhvdG9zaG9wIDMu\
+    MAA4QklNBAQAAAAAAAA4QklNBCUAAAAAABDUHYzZjwCyBOmACZjs+EJ+/8AAEQgAFAAoAwEiAAIR\
+    AQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAAB\
+    fQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5\
+    OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeo\
+    qaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMB\
+    AQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYS\
+    QVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNU\
+    VVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5\
+    usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMADw8PDw8PGg8PGiQaGhok\
+    MSQkJCQxPjExMTExPks+Pj4+Pj5LS0tLS0tLS1paWlpaWmlpaWlpdnZ2dnZ2dnZ2dv/bAEMBEhMT\
+    HhweNBwcNHtURVR7e3t7e3t7e3t7e3t7e3t7e3t7e3t7e3t7e3t7e3t7e3t7e3t7e3t7e3t7e3t7\
+    e3t7e//dAAQAA//aAAwDAQACEQMRAD8ArUUUV5h9CFFFFABRRRQB/9CtRRRXmH0IUUUUAFFFFAH/\
+    2Q==";
+
+/// A 30×15px SVG, percent-encoded.
+pub const FLAG_SVG: &str = "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2730%27%20height%3D%2715%27%3E%3Crect%20width%3D%2730%27%20height%3D%2715%27%20fill%3D%27%23c33%27/%3E%3C/svg%3E";
+
+/// An image linked by URL, which no writer but HTML's shows.
+pub const REMOTE_PNG: &str = "https://example.com/logo.png";
