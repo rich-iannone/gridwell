@@ -140,6 +140,7 @@ define_format!(
     options: gridwell_writer_svg::SvgConfig,
     check: check_svg,
     render: |t, o| gridwell_writer_svg::SvgWriter::with_config(o).render(t),
+    unsupported: gridwell_writer_svg::unsupported,
 );
 define_format!(
     Ansi, "ansi", "Terminal output with box drawing and ANSI colors", Text, "txt", "text/plain",
@@ -167,6 +168,7 @@ define_format!(
     options: NoOptions,
     check: ok,
     render: |t, _| gridwell_writer_docx::render_docx(t),
+    unsupported: gridwell_writer_docx::unsupported,
 );
 define_format!(
     Xlsx, "xlsx", "Microsoft Excel workbook", Binary, "xlsx",
@@ -182,6 +184,7 @@ define_format!(
     options: NoOptions,
     check: ok,
     render: |t, _| gridwell_writer_pptx::render_pptx(t),
+    unsupported: gridwell_writer_pptx::unsupported,
 );
 
 /// SVG sizes must be finite and positive (padding may be zero), and the font
