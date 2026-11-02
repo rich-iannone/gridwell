@@ -2,14 +2,26 @@
 
 use gridwell_ir::Table;
 use gridwell_layout::resolve;
-use gridwell_layout::unsupported::{find_table, TableCheck, Unsupported};
+use gridwell_layout::unsupported::{find, find_table, Check, Place, TableCheck, Unsupported};
 
-use crate::render::losses;
+use crate::render::{font_pt, losses, picture};
 
 const TABLE_CHECKS: &[TableCheck] = &[TableCheck {
     feature: "lang",
     reason: "a spreadsheet's cells have no language",
     uses: |rt| rt.table.config.lang.is_some(),
+}];
+
+const CHECKS: &[Check] = &[Check {
+    feature: "image",
+    reason: "only an image alone in its cell or line, embedded as a PNG, JPEG or GIF `data:` \
+             URI, is drawn (over the cell); one beside text or in a footnote, an SVG, and one \
+             linked by URL or path show their alt text",
+    uses: |_, p| {
+        p.images().next().is_some()
+            && (matches!(p.place, Place::Footnote(_))
+                || picture(p.content, font_pt(p.style)).is_none())
+    },
 }];
 
 /// The features of `table` that its XLSX output can't express, and where.
@@ -18,6 +30,7 @@ const TABLE_CHECKS: &[TableCheck] = &[TableCheck {
 pub fn unsupported(table: &Table) -> Vec<Unsupported> {
     let rt = resolve(table);
     let mut found = find_table(&rt, TABLE_CHECKS);
+    found.extend(find(&rt, CHECKS));
     let lost = losses(&rt);
     for (feature, reason, places) in [
         (
