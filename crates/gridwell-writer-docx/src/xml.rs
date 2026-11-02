@@ -1,25 +1,51 @@
-//! Static XML parts for the minimal .docx package.
+//! The XML parts of the minimal .docx package, other than the document.
 
 use gridwell_core::xml::escape;
-use gridwell_core::LanguageTag;
+use gridwell_core::{ImageFormat, LanguageTag};
 
-pub const CONTENT_TYPES: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+/// `[Content_Types].xml`, with a default for each of the `images`' formats.
+pub fn content_types(images: &[ImageFormat]) -> String {
+    let mut defaults = String::new();
+    for (i, f) in images.iter().enumerate() {
+        if !images[..i].contains(f) {
+            defaults.push_str(&format!(
+                "\n  <Default Extension=\"{}\" ContentType=\"{}\"/>",
+                f.extension(),
+                f.mime()
+            ));
+        }
+    }
+    format!(
+        r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>{defaults}
   <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
   <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
-</Types>"#;
+</Types>"#
+    )
+}
 
 pub const RELS: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
 </Relationships>"#;
 
-pub const DOCUMENT_RELS: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+/// `word/_rels/document.xml.rels`: the styles, and each image (id, target).
+pub fn document_rels(images: &[(String, &str)]) -> String {
+    let mut rels = String::new();
+    for (id, target) in images {
+        rels.push_str(&format!(
+            "\n  <Relationship Id=\"{id}\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"{target}\"/>"
+        ));
+    }
+    format!(
+        r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-</Relationships>"#;
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>{rels}
+</Relationships>"#
+    )
+}
 
 /// Text sizes in half-points (`w:sz`): the document default (Word's 11pt), the
 /// title, subtitle and header lines, and notes.
@@ -116,3 +142,48 @@ fn w_lang(tag: &LanguageTag) -> String {
 
 /// Default column width in dxa (twentieths of a point; 1.5 inches).
 pub const DEFAULT_COL_WIDTH_DXA: u32 = 2160;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn without_images_the_package_parts_are_unchanged() {
+        assert_eq!(
+            content_types(&[]),
+            r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>"#
+        );
+        assert_eq!(
+            document_rels(&[]),
+            r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>"#
+        );
+    }
+
+    #[test]
+    fn each_image_format_has_one_default() {
+        let ct = content_types(&[ImageFormat::Png, ImageFormat::Gif, ImageFormat::Png]);
+        assert_eq!(
+            ct.matches("Extension=\"png\" ContentType=\"image/png\"")
+                .count(),
+            1
+        );
+        assert_eq!(
+            ct.matches("Extension=\"gif\" ContentType=\"image/gif\"")
+                .count(),
+            1
+        );
+        let rels = document_rels(&[("rIdImage1".into(), "media/image1.png")]);
+        assert!(rels.contains(
+            "Id=\"rIdImage1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"media/image1.png\""
+        ));
+    }
+}
