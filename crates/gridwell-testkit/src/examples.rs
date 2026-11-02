@@ -1134,7 +1134,7 @@ fn line_breaks() -> Table {
 }
 
 /// A 24×24 PNG (blue square, white dot) as a data URI.
-const LOGO_PNG: &str = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAYUlEQVR42mP8//8/AzUAEwOVAAuEUkt5Q7YRt+aIUNNFw9ggFmICkpgIYSLSFEwusQZh1YbHLCbiTcEvNeLSEZ6YxiXFRJIGPBbg8xqaNvwJkkDKJr54GS1GCAPGQVeLAACHNx+lIoe2YQAAAABJRU5ErkJggg==";
+use crate::images::LOGO_PNG;
 
 fn inline_image() -> Table {
     TableBuilder::new(2)
