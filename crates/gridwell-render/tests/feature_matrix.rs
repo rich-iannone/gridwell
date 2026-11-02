@@ -21,8 +21,8 @@ use gridwell_ir::{Table, TextDirection};
 use gridwell_render::{Place, SectionKind};
 use gridwell_testkit::images::LOGO_PNG;
 use gridwell_testkit::{
-    border, cell, cell_content, column, examples, footnote_mark, labeled_group, row, sized_image,
-    styled, text, CellExt, ColumnExt, RowExt, TableBuilder,
+    border, cell, cell_content, column, examples, footnote_mark, labeled_group, raw, row,
+    sized_image, styled, text, CellExt, ColumnExt, RowExt, TableBuilder,
 };
 use support::look::{self, Align, Doc, Line, Look, Rgb, VAlign};
 use support::typeset;
@@ -600,6 +600,23 @@ fn features() -> Vec<Feature> {
             check: |d| {
                 target_only(d, "a 24×12pt picture", |l| {
                     matches!(l.pictures[..], [(w, h)] if near(Some(w), 24.0) && near(Some(h), 12.0))
+                })
+            },
+        },
+        Feature {
+            id: "raw-html",
+            what: "a `raw` HTML node's markup (`<b>`, `<i>`, a `style` attribute's `color`)",
+            table: || {
+                let mut t = probe(StyleDef::default());
+                t.table.tbody[0].rows[0].cells[0].content = vec![raw(
+                    "html",
+                    r#"<b><i style="color: #9932CC">TARGET</i></b>"#,
+                )];
+                t
+            },
+            check: |d| {
+                target_only(d, "bold italic purple", |l| {
+                    l.all(|r| r.bold && r.italic && r.color == Some(PURPLE))
                 })
             },
         },
