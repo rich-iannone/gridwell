@@ -134,8 +134,8 @@ fn batched<T: Send>(
 
 // ─── Typst ───
 
-/// Plain text of cell content, and the metadata rule. Unknown elements show up
-/// as `⟨name⟩` so a mismatch names them.
+/// Plain text of cell content, and the metadata rule. A line (a spanner's rule)
+/// has no text. Unknown elements show up as `⟨name⟩` so a mismatch names them.
 const TYPST_PRELUDE: &str = r#"#set page(width: 100cm, height: auto, margin: 1cm)
 #let gw-plain(c) = {
   if c == none { "" }
@@ -147,6 +147,7 @@ const TYPST_PRELUDE: &str = r#"#set page(width: 100cm, height: auto, margin: 1cm
   else if c.has("body") { gw-plain(c.body) }
   else if c.has("child") { gw-plain(c.child) }
   else if c.func() == image { if c.alt == none { "" } else { c.alt } }
+  else if c.func() == line { "" }
   else { "⟨" + repr(c.func()) + "⟩" }
 }
 #show table.cell: it => [#metadata((x: it.x, y: it.y, cs: it.colspan, rs: it.rowspan, text: gw-plain(it.body))) <gw-cell>] + it
