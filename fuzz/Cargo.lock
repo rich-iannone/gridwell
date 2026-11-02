@@ -127,6 +127,7 @@ version = "0.1.0"
 dependencies = [
  "gridwell-core",
  "gridwell-ir",
+ "unicode-width",
 ]
 
 [[package]]
@@ -257,7 +258,6 @@ dependencies = [
  "gridwell-layout",
  "serde",
  "thiserror",
- "unicode-width",
 ]
 
 [[package]]
