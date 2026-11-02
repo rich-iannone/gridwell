@@ -33,6 +33,32 @@ an italic cell, title or note is upright, except in Pandoc and Quarto (`Emph` ca
 undone). Underline and strike-through are different: as in CSS, a run adds them to
 its cell's but can't remove them.
 
+## Raw HTML
+
+A [`raw`](../schema/index.qmd#raw-markup) node with HTML is written as it is by
+HTML, and passed on as a `RawInline` by Pandoc and Quarto, which pandoc keeps in its
+HTML outputs only. Every other format draws its inline markup with the format's own
+runs:
+
+- `b`/`strong` bold, `i`/`em` italic, `u` underline, `s`/`del` strike-through,
+  `code`/`kbd` monospace, `small`/`big`, `mark`, `font`, and a `style` attribute's
+  `color`, `background-color`, `font-weight`, `font-style`, `font-size`,
+  `font-family`, `text-decoration` and `text-transform`. A run has one decoration
+  line: in `<u><s>…</s></u>`, the inner one.
+- `sup` and `sub` in Unicode superscript and subscript characters (`m<sup>2</sup>`
+  is m²), when every character has one; otherwise as plain text.
+- `br`, and the edges of blocks (`p`, `div`, `li`, `tr`, …), break the line; list
+  items start with a bullet, or their number in an `ol`.
+- `img` is an image, drawn as an image node is: only a `data:` URI, and nothing is
+  fetched.
+- Other elements keep their text (a link shows its text); comments, `script`,
+  `style` and hidden elements are dropped. Character references are decoded.
+
+A run's style draws as a `styled_text` run's would, so what each format does with
+it is in the notes below (ANSI, for one, draws plain text). Content with raw markup
+for other formats too (`raw` HTML beside `raw` LaTeX) carries a version for each, and
+each writer takes only its own.
+
 ## Language and direction
 
 A table's [`lang` and `dir`](../schema/config.qmd#language-and-direction) are written
