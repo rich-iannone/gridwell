@@ -122,7 +122,7 @@ fn formats_and_tables_are_checked() {
 }
 
 #[test]
-fn the_corpus_warns_only_of_its_borders_and_its_rtl_table() {
+fn the_corpus_warns_only_of_its_borders_its_rtl_table_and_its_image() {
     for ex in examples() {
         let found: Vec<_> = warnings(&ex.table(), None)
             .unwrap()
@@ -139,6 +139,8 @@ fn the_corpus_warns_only_of_its_borders_and_its_rtl_table() {
                 ("ansi", "rtl"),
                 ("xlsx", "lang"),
             ],
+            // Formats that can't draw an image.
+            "inline-image" => &[("latex", "image"), ("ansi", "image"), ("pptx", "image")],
             _ => &[],
         };
         assert_eq!(found, want, "{}", ex.name);
