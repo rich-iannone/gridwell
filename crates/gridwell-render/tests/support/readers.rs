@@ -1,6 +1,8 @@
 //! Readers for HTML (html5ever), XLSX (calamine), RTF and the Pandoc JSON AST.
+//! An image reads as its alt text, as HTML's does.
 
-use std::io::Cursor;
+use std::collections::HashMap;
+use std::io::{Cursor, Read};
 
 use calamine::{Data, Reader as _, Xlsx};
 use scraper::{ElementRef, Html, Node, Selector};
@@ -77,13 +79,18 @@ pub fn html_grid(html: &str) -> Grid {
 
 /// The grid of the table in an .xlsx file, read with calamine: `skip` rows
 /// (header lines) then `rows` × `width` cells, with merged ranges expanded.
-/// Numeric cells come back as their number's decimal form.
+/// Numeric cells come back as their number's decimal form; an image drawn over
+/// a cell as its alt text.
 pub fn xlsx_grid(bytes: &[u8], skip: usize, rows: usize, width: usize) -> Grid {
     let mut book: Xlsx<_> =
         Xlsx::new(Cursor::new(bytes.to_vec())).expect("calamine opens the workbook");
     book.load_merged_regions().expect("merged regions");
     let range = book.worksheet_range("Table").expect("sheet 'Table'");
+    let images = xlsx_images(bytes);
     let at = |r: usize, c: usize| -> String {
+        if let Some(alt) = images.get(&(r, c)) {
+            return alt.clone();
+        }
         match range.get_value((r as u32, c as u32)) {
             Some(Data::String(s)) => s.clone(),
             Some(Data::Float(f)) => f.to_string(),
@@ -110,6 +117,47 @@ pub fn xlsx_grid(bytes: &[u8], skip: usize, rows: usize, width: usize) -> Grid {
         }
     }
     grid
+}
+
+/// The alt text of each image the drawing part anchors, by its top-left cell
+/// (row, column).
+fn xlsx_images(bytes: &[u8]) -> HashMap<(usize, usize), String> {
+    use quick_xml::events::Event;
+    let mut zip = gridwell_ooxml::zip::ZipArchive::new(Cursor::new(bytes)).unwrap();
+    let mut xml = String::new();
+    match zip.by_name("xl/drawings/drawing1.xml") {
+        Ok(mut part) => part.read_to_string(&mut xml).unwrap(),
+        Err(_) => return HashMap::new(),
+    };
+    let mut reader = quick_xml::Reader::from_str(&xml);
+    let mut images = HashMap::new();
+    let (mut from, mut field, mut cell, mut alt) = (false, "", [0, 0], String::new());
+    loop {
+        match reader.read_event().unwrap() {
+            Event::Start(e) | Event::Empty(e) => match e.local_name().as_ref() {
+                b"from" => from = true,
+                b"col" if from => field = "col",
+                b"row" if from => field = "row",
+                b"cNvPr" => alt = super::ooxml::attr(&e, "descr").unwrap_or_default(),
+                _ => {}
+            },
+            Event::Text(t) if !field.is_empty() => {
+                let n = t.unescape().unwrap().parse().unwrap();
+                cell[usize::from(field == "col")] = n;
+                field = "";
+            }
+            Event::End(e) => match e.local_name().as_ref() {
+                b"from" => from = false,
+                b"twoCellAnchor" | b"oneCellAnchor" => {
+                    images.insert((cell[0], cell[1]), std::mem::take(&mut alt));
+                }
+                _ => {}
+            },
+            Event::Eof => break,
+            _ => {}
+        }
+    }
+    images
 }
 
 // ─── RTF ───
@@ -166,6 +214,51 @@ fn tokenize(rtf: &str) -> Vec<Tok> {
     out
 }
 
+/// Each `\\pict` group with its data (hex, not text) dropped and its alt text
+/// (its `wzDescription` property's value) as its text.
+fn pictures(toks: Vec<Tok>) -> Vec<Tok> {
+    let mut out = Vec::new();
+    let mut toks = toks.into_iter();
+    while let Some(t) = toks.next() {
+        if !matches!(&t, Tok::Word(w, _) if w == "pict") {
+            out.push(t);
+            continue;
+        }
+        let (mut depth, mut name, mut value) = (0, String::new(), Vec::new());
+        // In a property's name (`\\sn`) or value (`\\sv`).
+        let mut field = None;
+        let mut alt = Vec::new();
+        for t in toks.by_ref() {
+            match t {
+                Tok::Close if depth == 0 => {
+                    out.append(&mut alt);
+                    out.push(Tok::Close);
+                    break;
+                }
+                Tok::Open => depth += 1,
+                Tok::Close => {
+                    depth -= 1;
+                    if field == Some("sv") && name == "wzDescription" {
+                        alt = std::mem::take(&mut value);
+                    }
+                    field = None;
+                }
+                Tok::Word(w, _) if w == "sn" || w == "sv" => {
+                    if w == "sn" {
+                        name.clear();
+                    }
+                    value.clear();
+                    field = Some(if w == "sn" { "sn" } else { "sv" });
+                }
+                Tok::Text(c) if field == Some("sn") => name.push(c),
+                t if field == Some("sv") => value.push(t),
+                _ => {}
+            }
+        }
+    }
+    out
+}
+
 /// One cell definition of an RTF row: right edge and vertical-merge role.
 struct CellDef {
     right: i32,
@@ -177,7 +270,7 @@ struct CellDef {
 /// union of all rows' boundaries) and `\clvmrg` continuations. `None` if some
 /// column boundary never appears in any row, so columns can't be told apart.
 pub fn rtf_grid(rtf: &str, width: usize) -> Option<Grid> {
-    let toks = tokenize(rtf);
+    let toks = pictures(tokenize(rtf));
     let mut rows: Vec<(Vec<CellDef>, Vec<String>)> = Vec::new();
     let mut defs: Vec<CellDef> = Vec::new();
     let mut texts: Vec<String> = Vec::new();
