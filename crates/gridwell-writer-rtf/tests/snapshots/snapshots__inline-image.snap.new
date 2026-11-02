@@ -1,0 +1,20 @@
+---
+source: crates/gridwell-writer-rtf/tests/snapshots.rs
+assertion_line: 15
+expression: out
+---
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}}
+{\colortbl ;\red0\green0\blue0;\red255\green255\blue255;}
+\trowd\trhdr\cellx2160\cellx4320
+\pard\intbl\plain\b\ab Icon\cell
+\pard\intbl\plain\b\ab Label\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl\plain {\pict{\*\picprop{\sp{\sn wzDescription}{\sv logo}}}\pngblip\picw24\pich24\picwgoal360\pichgoal360
+89504e470d0a1a0a0000000d49484452000000180000001808020000006f15aaaf000000614944415478da63fcffff3f033500130395000b84524b7943b611b7
+e68850d345c3d8201662029298086122d2144c2eb10661d586c72c26e24dc12f35e2d2119e98c625c54492063c16e0f31a9a36fc099240ca26be78192d460803
+c641578b000087371fa52287b6610000000049454e44ae426082}\cell
+\pard\intbl\plain Brand\cell
+\row
+}

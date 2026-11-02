@@ -1,0 +1,18 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+assertion_line: 15
+expression: out
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="94" height="80" viewBox="0 0 94 80">
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
+<rect x="0" y="0" width="40.84" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="40.84" height="2" fill="#D3D3D3"/>
+<rect x="40.84" y="0" width="52.91" height="2" fill="#D3D3D3"/>
+<rect x="40.84" y="31.75" width="52.91" height="2" fill="#D3D3D3"/>
+<rect x="0" y="77.66" width="40.84" height="2" fill="#D3D3D3"/>
+<rect x="40.84" y="77.66" width="52.91" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="30.69" xml:space="preserve">Icon</text>
+<text x="45.84" y="21.84" font-size="16px" textLength="38.68" xml:space="preserve">Label</text>
+<image x="5" y="41.75" width="24" height="24" preserveAspectRatio="none" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAYUlEQVR42mP8//8/AzUAEwOVAAuEUkt5Q7YRt+aIUNNFw9ggFmICkpgIYSLSFEwusQZh1YbHLCbiTcEvNeLSEZ6YxiXFRJIGPBbg8xqaNvwJkkDKJr54GS1GCAPGQVeLAACHNx+lIoe2YQAAAABJRU5ErkJggg=="><title>logo</title></image>
+<text x="45.84" y="61.17" font-size="16px" textLength="41.95" xml:space="preserve">Brand</text>
+</svg>
