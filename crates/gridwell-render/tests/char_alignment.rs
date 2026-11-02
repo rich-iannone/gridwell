@@ -1,6 +1,6 @@
 //! Alignment on a character (`align: char`): every writer ends a cell with the
-//! padding the layout computes, in its own way (hidden text, room, figure and
-//! punctuation spaces), and where the format is laid out here (SVG, and Typst
+//! padding the layout computes, in its own way (hidden or unfilled text, room,
+//! figure and punctuation spaces), and where the format is laid out here (SVG, and Typst
 //! and LaTeX typeset), the characters really line up.
 
 mod support;
@@ -85,8 +85,10 @@ fn every_writer_pads_the_cells() {
         ),
         (
             "pptx",
-            format!("<a:t>1.5</a:t></a:r><a:r><a:rPr lang=\"en-US\"/><a:t>{fig2}</a:t>"),
-            format!("<a:t>4</a:t></a:r><a:r><a:rPr lang=\"en-US\"/><a:t>{pad4}</a:t>"),
+            "<a:t>1.5</a:t></a:r><a:r><a:rPr lang=\"en-US\"><a:noFill/></a:rPr><a:t>00</a:t>"
+                .into(),
+            "<a:t>4</a:t></a:r><a:r><a:rPr lang=\"en-US\"><a:noFill/></a:rPr><a:t>.000</a:t>"
+                .into(),
         ),
         ("xlsx", format!("1.5{fig2}"), format!("4{pad4}")),
         ("ansi", " 1.5   │".into(), " 4     │".into()),
@@ -104,7 +106,9 @@ fn every_writer_pads_the_cells() {
         .build();
     for format in ["html", "latex", "typst", "rtf", "docx", "pptx", "xlsx"] {
         let out = text(&t, format);
-        for pad in ["gw__pad", "phantom", "#hide", "\\u8199?", FIG, PUNCT] {
+        for pad in [
+            "gw__pad", "phantom", "#hide", "noFill", "\\u8199?", FIG, PUNCT,
+        ] {
             assert!(!out.contains(pad), "{format}: {pad:?} in:\n{out}");
         }
     }
