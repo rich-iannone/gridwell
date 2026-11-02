@@ -12,7 +12,7 @@ expression: xml
 <a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/table">
 <a:tbl>
 <a:tblPr firstRow="1" bandRow="1"/>
-<a:tblGrid><a:gridCol w="1143000"/><a:gridCol w="2057400"/><a:gridCol w="4114800"/><a:gridCol w="914400"/></a:tblGrid>
+<a:tblGrid><a:gridCol w="1143000"/><a:gridCol w="2057400"/><a:gridCol w="4199890"/><a:gridCol w="829310"/></a:tblGrid>
 <a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Fixed</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Percent</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Fraction</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Auto</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
 <a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>120px</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>25%</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>1fr</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>auto</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
 </a:tbl>
