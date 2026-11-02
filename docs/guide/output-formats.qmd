@@ -59,6 +59,35 @@ it is in the notes below (ANSI, for one, draws plain text). Content with raw mar
 for other formats too (`raw` HTML beside `raw` LaTeX) carries a version for each, and
 each writer takes only its own.
 
+## Alignment on a character
+
+A column aligned on a character (`align: "char"`, on `align_char` or a period) lines
+its body and summary cells up on that character, as typesetters do by hand: each cell
+is right-aligned and ends with invisible padding, which is the character itself for a
+cell without one, followed by one digit for each digit it is short of the column's
+longest fraction: beside `6.789`, `1234.5` ends with two hidden digits and `42` with
+a hidden period and three digits. A cell's last line is measured, by the characters
+after the first occurrence of the character. Column labels, cells spanning columns
+and blank cells are right-aligned without padding, and so is every cell of a column
+where no cell has the character.
+
+| Format | Padding |
+|--------|---------|
+| HTML | A hidden `<span>` (`visibility: hidden`, `aria-hidden`), in tabular figures |
+| LaTeX | `\phantom{…}` |
+| Typst | `#hide[…]` |
+| SVG | Room measured in the cell's font |
+| RTF, DOCX, PPTX | Figure spaces (U+2007) for digits and punctuation spaces (U+2008) for the character, as wide as the font makes them |
+| XLSX | A number's format leaves the room (`_0`, `_.`); text gets figure and punctuation spaces |
+| ANSI | Spaces |
+| Pandoc, Quarto | Right-aligned, unpadded: pandoc has no hidden text, and figure spaces would break its pdfLaTeX output |
+
+Hidden text takes exactly the room the characters would, so the digits line up
+exactly in a font whose figures are all one width (tabular figures, as default fonts
+have, and as the HTML base stylesheet asks for). In RTF, DOCX, PPTX and XLSX text,
+a font without figure and punctuation spaces, or drawing them a size other than a
+digit's and a period's, lines the cells up only roughly.
+
 ## Language and direction
 
 A table's [`lang` and `dir`](../schema/config.qmd#language-and-direction) are written
