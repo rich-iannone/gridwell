@@ -1,4 +1,4 @@
-use gridwell_core::{Color, FontSize, LanguageTag, Length};
+use gridwell_core::{Color, FontSize, Image, ImageFormat, LanguageTag, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table};
 use gridwell_layout::{
@@ -292,9 +292,15 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
                 ContentNode::FootnoteMark { mark_text, .. } => {
                     write!(out, "#super[{}]", escape_typst(mark_text)).unwrap();
                 }
-                ContentNode::Image { alt, .. } => match alt {
-                    Some(alt) => out.push_str(&escape_typst(alt)),
-                    None => out.push_str("[image]"),
+                ContentNode::Image {
+                    src,
+                    alt,
+                    width,
+                    height,
+                } => match (typst_image(src, alt, width, height), alt) {
+                    (Some(image), _) => out.push_str(&image),
+                    (None, Some(alt)) => out.push_str(&escape_typst(alt)),
+                    (None, None) => out.push_str("[image]"),
                 },
                 ContentNode::Raw { format, value } => {
                     if format == "typst" {
@@ -430,7 +436,20 @@ fn text_settings(rt: &ResolvedTable) -> Option<String> {
 
 /// A Typst string literal.
 fn typst_string(s: &str) -> String {
-    format!("\"{}\"", s.replace('\\', "\\\\").replace('"', "\\\""))
+    let mut out = String::with_capacity(s.len() + 2);
+    out.push('"');
+    for ch in s.chars() {
+        match ch {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c => out.push(c),
+        }
+    }
+    out.push('"');
+    out
 }
 
 fn typst_align(a: &HAlign) -> &'static str {
@@ -491,6 +510,49 @@ fn typst_stroke(strokes: &Sides<Option<Stroke>>) -> Option<String> {
 /// A Typst `rgb("#RRGGBB[AA]")`; Typst colors keep alpha.
 fn typst_color(c: Color) -> String {
     format!("rgb(\"{}\")", c.to_hex())
+}
+
+/// An image embedded as a `data:` URI, drawn inline (on the baseline, as in
+/// HTML) at its size, stretched to it if both sides are set; or `None` if it
+/// isn't one (`limits` warns of those). Typst 0.13 made `image` take the bytes
+/// that 0.12's `image.decode` does.
+fn typst_image(
+    src: &str,
+    alt: &Option<String>,
+    width: &Option<String>,
+    height: &Option<String>,
+) -> Option<String> {
+    let image = Image::from_src(src)?;
+    let (w, h) = image.size_pt(width.as_deref(), height.as_deref(), BASE_PT);
+    let data = match image.format {
+        // An SVG is text (it was sniffed as UTF-8).
+        ImageFormat::Svg => typst_string(std::str::from_utf8(&image.data).ok()?),
+        _ => {
+            let mut bytes = String::with_capacity(image.data.len() * 4 + 2);
+            bytes.push('(');
+            for b in &image.data {
+                write!(bytes, "{b},").unwrap();
+            }
+            bytes.push(')');
+            bytes
+        }
+    };
+    let format = match image.format {
+        ImageFormat::Png => "png",
+        ImageFormat::Jpeg => "jpg",
+        ImageFormat::Gif => "gif",
+        ImageFormat::Svg => "svg",
+    };
+    let alt = alt
+        .as_deref()
+        .map(|a| format!(", alt: {}", typst_string(a)))
+        .unwrap_or_default();
+    Some(format!(
+        "#box((if sys.version >= version(0, 13) {{ image }} else {{ image.decode }})(\
+         bytes({data}), format: \"{format}\", width: {}, height: {}, fit: \"stretch\"{alt}));",
+        typst_len(&Length::Pt(w))?,
+        typst_len(&Length::Pt(h))?
+    ))
 }
 
 // ─── Escaping ───
