@@ -182,7 +182,7 @@ fn a_row_of_single_lines_in_one_size_is_not_reported() {
     let t = beside(none(), x(), None);
     assert_eq!(places(&t, "vertical-align"), []);
     // Raw content for another format, and a run with no size, are one line.
-    let t = beside(none(), vec![raw("html", "<br><br>")], None);
+    let t = beside(none(), vec![raw("typst", "a #linebreak() b")], None);
     assert_eq!(places(&t, "vertical-align"), []);
     let t = beside(none(), vec![styled("x", "neighbor")], None);
     assert_eq!(places(&t, "vertical-align"), []);
@@ -211,6 +211,14 @@ fn a_cell_beside_a_taller_one_is_reported() {
             beside(none(), vec![text("a"), line_break(), text("b")], None),
         ),
         ("raw LaTeX", beside(none(), vec![raw("latex", "x")], None)),
+        (
+            "raw HTML breaking lines",
+            beside(none(), vec![raw("html", "a<br>b")], None),
+        ),
+        (
+            "raw HTML in a size of its own",
+            beside(none(), vec![raw("html", "<big>b</big>")], None),
+        ),
         ("a sized column", beside(none(), x(), Some("2in"))),
         (
             "a bigger font",
