@@ -77,16 +77,19 @@ where no cell has the character.
 | LaTeX | `\phantom{…}` |
 | Typst | `#hide[…]` |
 | SVG | Room measured in the cell's font |
-| RTF, DOCX, PPTX | Figure spaces (U+2007) for digits and punctuation spaces (U+2008) for the character, as wide as the font makes them |
+| PPTX | The characters as a run without a fill (`<a:noFill/>`) |
+| RTF, DOCX | Figure spaces (U+2007) for digits and punctuation spaces (U+2008) for the character, as wide as the font makes them |
 | XLSX | A number's format leaves the room (`_0`, `_.`); text gets figure and punctuation spaces |
 | ANSI | Spaces |
 | Pandoc, Quarto | Right-aligned, unpadded: pandoc has no hidden text, and figure spaces would break its pdfLaTeX output |
 
 Hidden text takes exactly the room the characters would, so the digits line up
 exactly in a font whose figures are all one width (tabular figures, as default fonts
-have, and as the HTML base stylesheet asks for). In RTF, DOCX, PPTX and XLSX text,
-a font without figure and punctuation spaces, or drawing them a size other than a
-digit's and a period's, lines the cells up only roughly.
+have, and as the HTML base stylesheet asks for). PPTX's unfilled characters are
+still text: copied or searched, `42.0` reads `42.000`. (Spaces wouldn't do there:
+LibreOffice hangs spaces ending a line in the margin, where they move nothing.) In RTF, DOCX and XLSX text, a font without figure and punctuation
+spaces, or drawing them a size other than a digit's and a period's, lines the cells
+up only roughly.
 
 ## Language and direction
 
