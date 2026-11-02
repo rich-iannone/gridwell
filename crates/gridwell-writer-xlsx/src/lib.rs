@@ -34,6 +34,11 @@ impl XlsxWriter {
     pub fn render_shared_strings_xml(&self, table: &Table) -> Result<String, RenderError> {
         render::render_shared_strings_xml(table)
     }
+
+    /// The `drawing1.xml` part: the images drawn over cells ("" without any).
+    pub fn render_drawing_xml(&self, table: &Table) -> Result<String, RenderError> {
+        render::render_drawing_xml(table)
+    }
 }
 
 impl Default for XlsxWriter {
