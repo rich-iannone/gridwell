@@ -51,7 +51,17 @@ Cell content is an array of content nodes:
 | `line_break`   | —                   | Line break within cell     |
 | `footnote_mark`| `ref`, `mark_text`  | Footnote reference mark    |
 | `image`        | `src`, `alt`, `width`, `height` | Inline image |
-| `raw`          | `format`, `value`   | Format-specific passthrough|
+| `raw`          | `format`, `value`   | Markup for one format ([below](#raw-markup)) |
+
+## Raw markup
+
+A `raw` node's `value` is markup in its `format` (`html`, `latex`, `typst`, `rtf`,
+…), written as it is by that format's writer and dropped by the others. HTML is the
+exception: every format draws it, by turning its inline markup (bold, italic,
+colors, line breaks, images, …) into its own runs. The
+[Output Formats](../guide/output-formats.qmd#raw-html) guide lists what is drawn.
+Content may carry raw markup for several formats side by side (one version each);
+then each writer takes only its own, HTML included.
 
 ## Images
 
