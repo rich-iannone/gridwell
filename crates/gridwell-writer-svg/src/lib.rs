@@ -1,3 +1,4 @@
+mod limits;
 pub mod measure;
 pub mod metrics;
 mod render;
@@ -5,6 +6,7 @@ mod render;
 use gridwell_ir::Table;
 use gridwell_layout::look::LOOK;
 
+pub use limits::unsupported;
 pub use render::RenderError;
 
 /// The default font list: Roboto, whose widths text is drawn at, then the
