@@ -1,8 +1,10 @@
+mod limits;
 mod render;
 mod xml;
 
 use gridwell_ir::Table;
 
+pub use limits::unsupported;
 pub use render::RenderError;
 
 /// Word (.docx) writer: converts a gridwell IR Table into a .docx byte vector.
