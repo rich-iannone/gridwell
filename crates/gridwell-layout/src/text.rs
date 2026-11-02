@@ -76,6 +76,59 @@ pub fn transform_case<'a>(
         .collect()
 }
 
+/// The Unicode superscript form of `c` (`2` → `²`): digits, `+ - − = ( )`, and
+/// every lowercase ASCII letter but `q`.
+pub fn superscript_char(c: char) -> Option<char> {
+    const DIGITS: [char; 10] = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+    const LETTERS: [char; 26] = [
+        'ᵃ', 'ᵇ', 'ᶜ', 'ᵈ', 'ᵉ', 'ᶠ', 'ᵍ', 'ʰ', 'ⁱ', 'ʲ', 'ᵏ', 'ˡ', 'ᵐ', 'ⁿ', 'ᵒ', 'ᵖ', 'q', 'ʳ',
+        'ˢ', 'ᵗ', 'ᵘ', 'ᵛ', 'ʷ', 'ˣ', 'ʸ', 'ᶻ',
+    ];
+    Some(match c {
+        '0'..='9' => DIGITS[c as usize - '0' as usize],
+        'q' => return None,
+        'a'..='z' => LETTERS[c as usize - 'a' as usize],
+        '+' => '⁺',
+        '-' | '−' => '⁻',
+        '=' => '⁼',
+        '(' => '⁽',
+        ')' => '⁾',
+        _ => return None,
+    })
+}
+
+/// The Unicode subscript form of `c` (`2` → `₂`): digits, `+ - − = ( )`, and
+/// the lowercase ASCII letters that have one.
+pub fn subscript_char(c: char) -> Option<char> {
+    const DIGITS: [char; 10] = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'];
+    Some(match c {
+        '0'..='9' => DIGITS[c as usize - '0' as usize],
+        '+' => '₊',
+        '-' | '−' => '₋',
+        '=' => '₌',
+        '(' => '₍',
+        ')' => '₎',
+        'a' => 'ₐ',
+        'e' => 'ₑ',
+        'h' => 'ₕ',
+        'i' => 'ᵢ',
+        'j' => 'ⱼ',
+        'k' => 'ₖ',
+        'l' => 'ₗ',
+        'm' => 'ₘ',
+        'n' => 'ₙ',
+        'o' => 'ₒ',
+        'p' => 'ₚ',
+        'r' => 'ᵣ',
+        's' => 'ₛ',
+        't' => 'ₜ',
+        'u' => 'ᵤ',
+        'v' => 'ᵥ',
+        'x' => 'ₓ',
+        _ => return None,
+    })
+}
+
 /// One run's text under transform `t`; `in_word` carries word state across runs.
 fn case(s: &str, t: Option<&TextTransform>, in_word: &mut bool) -> String {
     let mut capitalized = String::with_capacity(s.len());
