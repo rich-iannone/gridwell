@@ -6,6 +6,7 @@ expression: out
   <style>
     .gw_table .gw__al_left { text-align: left }
     .gw_table .gw__al_right { text-align: right }
+    .gw_table .gw__pad { visibility: hidden }
   </style>
   <table class="gw_table">
     <thead>
@@ -17,7 +18,7 @@ expression: out
     <tbody>
       <tr>
         <td headers="col_0">A</td>
-        <td class="gw__al_right" headers="col_1">1234.5</td>
+        <td class="gw__al_right" headers="col_1">1234.5<span class="gw__pad" aria-hidden="true">00</span></td>
       </tr>
       <tr>
         <td headers="col_0">B</td>
@@ -25,7 +26,7 @@ expression: out
       </tr>
       <tr>
         <td headers="col_0">C</td>
-        <td class="gw__al_right" headers="col_1">42.0</td>
+        <td class="gw__al_right" headers="col_1">42.0<span class="gw__pad" aria-hidden="true">00</span></td>
       </tr>
     </tbody>
   </table>

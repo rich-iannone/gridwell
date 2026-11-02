@@ -4,7 +4,7 @@ expression: out
 ---
 #table(
   columns: (auto, auto,),
-  align: (left, left,),
+  align: (left, right,),
   stroke: none,
   table.header(
     [#text(weight: "bold")[Item]],
@@ -12,9 +12,9 @@ expression: out
     table.hline(stroke: 0.5pt),
   ),
   [A],
-  [1234\.5],
+  [1234\.5#hide[00]],
   [B],
   [6\.789],
   [C],
-  [42\.0],
+  [42\.0#hide[00]],
 )

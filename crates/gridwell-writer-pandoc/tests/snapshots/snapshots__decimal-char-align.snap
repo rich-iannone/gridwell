@@ -24,7 +24,7 @@ expression: out
       ],
       [
         {
-          "t": "AlignDefault"
+          "t": "AlignRight"
         },
         {
           "t": "ColWidthDefault"
