@@ -16,6 +16,9 @@
 //!   (column default → striping → conditionals → row → cell; see [`style`]), with
 //!   every value parsed and every invalid value dropped.
 //! - **Column labels.** With `config.column_labels_hidden`, the head is empty.
+//! - **Raw HTML.** `raw` HTML in the content of cells, lines and notes becomes
+//!   text, styled runs, line breaks and images (see [`html`]), unless the
+//!   writer's format takes it as it is ([`ResolveOptions::lower_html`]).
 //! - **Text transforms.** `text_transform` is applied to the content of cells,
 //!   lines and notes (see [`text::transform_case`]), unless the writer's format
 //!   has one of its own ([`ResolveOptions::transform_text`]).
@@ -27,6 +30,7 @@
 //! visible columns exactly; on invalid IR, positions no cell can claim are
 //! [`Slot::Empty`].
 
+pub mod html;
 pub mod look;
 pub mod style;
 pub mod text;
@@ -80,7 +84,8 @@ impl<'a> ResolvedTable<'a> {
     }
 
     /// The style a style id names on its own (no cascade): for inline
-    /// `styled_text` runs. Unknown ids give the empty style.
+    /// `styled_text` runs, the IR's and those lowered from raw HTML (see
+    /// [`html`]). Unknown ids give the empty style.
     pub fn style(&self, id: &str) -> ResolvedStyle {
         style::resolve_id(self.table, Some(id))
     }
@@ -451,12 +456,17 @@ pub struct ResolveOptions {
     /// transform text themselves (HTML's CSS `text-transform`), which then get
     /// the content as written.
     pub transform_text: bool,
+    /// Turn `raw` HTML into content the format draws (the default; see
+    /// [`html`]). Off for formats that take raw HTML as it is: HTML, and
+    /// Pandoc, which passes it on to its HTML outputs.
+    pub lower_html: bool,
 }
 
 impl Default for ResolveOptions {
     fn default() -> Self {
         Self {
             transform_text: true,
+            lower_html: true,
         }
     }
 }
@@ -643,19 +653,34 @@ fn line<'a>(
     }
 }
 
-/// `content` with `text_transform` applied, `style` being the cell's or line's.
+/// `content` with raw HTML lowered and `text_transform` applied (as `opts`
+/// says), `style` being the cell's or line's.
 fn transformed<'a>(
     table: &Table,
     opts: ResolveOptions,
     content: &'a [ContentNode],
     style: &ResolvedStyle,
 ) -> Cow<'a, [ContentNode]> {
+    let content = match opts.lower_html {
+        true => html::lower(content),
+        false => Cow::Borrowed(content),
+    };
     if !opts.transform_text {
-        return Cow::Borrowed(content);
+        return content;
     }
-    transform_case(content, style.text_transform.as_ref(), |id| {
-        style::resolve_id(table, Some(id)).text_transform
-    })
+    fn transform<'n>(
+        table: &Table,
+        nodes: &'n [ContentNode],
+        style: &ResolvedStyle,
+    ) -> Cow<'n, [ContentNode]> {
+        transform_case(nodes, style.text_transform.as_ref(), |id| {
+            style::resolve_id(table, Some(id)).text_transform
+        })
+    }
+    match content {
+        Cow::Borrowed(c) => transform(table, c, style),
+        Cow::Owned(c) => Cow::Owned(transform(table, &c, style).into_owned()),
+    }
 }
 
 struct Ctx<'t, 'a> {
