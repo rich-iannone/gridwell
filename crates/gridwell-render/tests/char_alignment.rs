@@ -63,8 +63,16 @@ fn every_writer_pads_the_cells() {
             "1.5<span class=\"gw__pad\" aria-hidden=\"true\">00</span>".into(),
             "4<span class=\"gw__pad\" aria-hidden=\"true\">.000</span>".into(),
         ),
-        ("latex", "1.5\\phantom{00}".into(), "4\\phantom{.000}".into()),
-        ("typst", "[1\\.5#hide[00]]".into(), "[4#hide[\\.000]]".into()),
+        (
+            "latex",
+            "1.5\\phantom{00}".into(),
+            "4\\phantom{.000}".into(),
+        ),
+        (
+            "typst",
+            "[1\\.5#hide[00]]".into(),
+            "[4#hide[\\.000]]".into(),
+        ),
         (
             "rtf",
             "\\qr 1.5{\\ulnone\\strike0 \\u8199?\\u8199?}\\cell".into(),
@@ -122,7 +130,10 @@ fn xlsx_numbers_keep_their_value_and_leave_the_room() {
         assert!(out.contains(code), "{code:?} missing:\n{out}");
     }
     // `2.125` needs none, and the values stay numbers.
-    assert!(out.contains("<v>1.5</v>") && out.contains("<v>-4.25</v>"), "{out}");
+    assert!(
+        out.contains("<v>1.5</v>") && out.contains("<v>-4.25</v>"),
+        "{out}"
+    );
     assert!(!out.contains(FIG), "{out}");
 }
 
@@ -133,7 +144,10 @@ fn pandoc_and_quarto_right_align_without_padding() {
         let out = text(&table(), format);
         let compact: String = out.split_whitespace().collect();
         assert!(compact.contains(r#""t":"AlignRight""#), "{format}: {out}");
-        assert!(!out.contains(FIG) && !out.contains("\\u2007"), "{format}: {out}");
+        assert!(
+            !out.contains(FIG) && !out.contains("\\u2007"),
+            "{format}: {out}"
+        );
     }
 }
 
@@ -155,7 +169,9 @@ fn starts(words: &[(String, f64, f64)]) -> (Vec<f64>, Vec<f64>) {
 /// The numbers start at one place, and (not merely right-aligned) end apart.
 fn assert_lined_up(format: &str, starts: &[f64], ends: &[f64], tol: f64) {
     let spread = |v: &[f64]| {
-        let (lo, hi) = v.iter().fold((f64::MAX, f64::MIN), |(lo, hi), x| (lo.min(*x), hi.max(*x)));
+        let (lo, hi) = v
+            .iter()
+            .fold((f64::MAX, f64::MIN), |(lo, hi), x| (lo.min(*x), hi.max(*x)));
         hi - lo
     };
     assert!(spread(starts) < tol, "{format}: starts {starts:?}");
