@@ -151,8 +151,11 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
             self.line("table.header(");
         }
         self.push();
-        for row in &rt.head.rows {
-            self.render_row(row, true);
+        for (r, row) in rt.head.rows.iter().enumerate() {
+            for cell in row.cells() {
+                let rule = self.spanner_rule(cell, r);
+                self.render_cell(cell, true, rule);
+            }
         }
         self.line("table.hline(stroke: 0.5pt),");
         self.pop();
@@ -200,11 +203,27 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
     fn render_row(&mut self, row: &ResolvedRow, is_header: bool) {
         // Covered positions are implied by the origins' spans.
         for cell in row.cells() {
-            self.render_cell(cell, is_header);
+            self.render_cell(cell, is_header, false);
         }
     }
 
-    fn render_cell(&mut self, cell: &ResolvedCell, is_header: bool) {
+    /// Whether a head cell is underlined: a spanner, so one with head rows below it
+    /// (as LaTeX's `\cmidrule`), unless it's blank or its style sets (or removes) a
+    /// bottom border, which then stands instead. `r` is the cell's head row.
+    fn spanner_rule(&self, cell: &ResolvedCell, r: usize) -> bool {
+        let image = |n: &ContentNode| matches!(n, ContentNode::Image { .. });
+        let text = gridwell_layout::plain_text(&cell.content, " ");
+        let blank = text.trim().is_empty() && !cell.content.iter().any(image);
+        r + cell.rowspan < self.rt.head.rows.len()
+            && !blank
+            && cell.style.border.bottom.is_none()
+            && !cell.style.border_cleared.bottom
+    }
+
+    /// `rule`: underline the cell's content box (so a rule stops short of the cell's
+    /// ends by its inset, and neighboring spanners' rules stay apart), on the cell's
+    /// bottom edge: the default inset below the content.
+    fn render_cell(&mut self, cell: &ResolvedCell, is_header: bool, rule: bool) {
         let content = self.content(&cell.content);
         let mut attrs = Vec::new();
         if cell.colspan > 1 {
@@ -232,7 +251,10 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
             attrs.push(format!("align: {own}"));
         }
 
-        let styled = text_style(&content, &cell.style, is_header);
+        let mut styled = text_style(&content, &cell.style, is_header);
+        if rule {
+            styled.push_str(SPANNER_RULE);
+        }
         if attrs.is_empty() {
             self.line(&format!("[{styled}],"));
         } else {
@@ -476,6 +498,11 @@ fn typst_font_size(f: &FontSize) -> Option<String> {
 
 /// The size relative sizes resolve against: Typst's default 11pt.
 pub(crate) const BASE_PT: f64 = 11.0;
+
+/// A spanner's rule, appended to its content: as wide as the content box, on the
+/// cell's bottom edge (Typst's default inset, 5pt, below the content). The table's
+/// other rules are 0.5pt too.
+const SPANNER_RULE: &str = "#place(bottom + center, dy: 5pt, line(length: 100%, stroke: 0.5pt))";
 
 /// A cell's `stroke:` argument, one entry per side with a border. Typst has no
 /// double line: a double border is drawn solid at its full width.
