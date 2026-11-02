@@ -478,42 +478,9 @@ fn content_to_text(nodes: &[ContentNode], superscript_marks: bool) -> String {
 /// read as part of the text before it (`N = 98¹`, not `N = 981`). Marks with a
 /// character that has no superscript form, and symbols (`*`, `†`), stay as they are.
 fn superscript(mark: &str) -> String {
-    const DIGITS: [char; 10] = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
-    let sup = |c: char| -> Option<char> {
-        match c {
-            '0'..='9' => Some(DIGITS[c as usize - '0' as usize]),
-            'a' => Some('ᵃ'),
-            'b' => Some('ᵇ'),
-            'c' => Some('ᶜ'),
-            'd' => Some('ᵈ'),
-            'e' => Some('ᵉ'),
-            'f' => Some('ᶠ'),
-            'g' => Some('ᵍ'),
-            'h' => Some('ʰ'),
-            'i' => Some('ⁱ'),
-            'j' => Some('ʲ'),
-            'k' => Some('ᵏ'),
-            'l' => Some('ˡ'),
-            'm' => Some('ᵐ'),
-            'n' => Some('ⁿ'),
-            'o' => Some('ᵒ'),
-            'p' => Some('ᵖ'),
-            'r' => Some('ʳ'),
-            's' => Some('ˢ'),
-            't' => Some('ᵗ'),
-            'u' => Some('ᵘ'),
-            'v' => Some('ᵛ'),
-            'w' => Some('ʷ'),
-            'x' => Some('ˣ'),
-            'y' => Some('ʸ'),
-            'z' => Some('ᶻ'),
-            '+' => Some('⁺'),
-            '-' => Some('⁻'),
-            '(' => Some('⁽'),
-            ')' => Some('⁾'),
-            ',' => Some(','),
-            _ => None,
-        }
+    let sup = |c: char| match c {
+        ',' => Some(','),
+        c => gridwell_layout::text::superscript_char(c),
     };
     if !mark.chars().any(|c| c.is_ascii_alphanumeric()) {
         return mark.to_string();
