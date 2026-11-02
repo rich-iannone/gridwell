@@ -12,7 +12,6 @@ gridwell-ir = { path = "../gridwell-ir" }
 gridwell-core = { path = "../gridwell-core" }
 gridwell-layout = { path = "../gridwell-layout" }
 thiserror = { workspace = true }
-unicode-width = "0.2"
 
 [dev-dependencies]
 gridwell-testkit = { path = "../gridwell-testkit" }
