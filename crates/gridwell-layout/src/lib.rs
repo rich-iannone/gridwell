@@ -37,6 +37,7 @@
 pub mod decimal;
 pub mod html;
 pub mod look;
+pub mod measure;
 pub mod style;
 pub mod text;
 pub mod unsupported;
@@ -53,7 +54,7 @@ use gridwell_ir::{
 };
 pub use style::{CellVAlign, ResolvedBorder, ResolvedStyle, Sides, Stroke};
 pub use text::{plain_text, transform_case};
-pub use widths::ColumnWidth;
+pub use widths::{ColumnWidth, ContentWidth};
 
 use gridwell_core::Color;
 use gridwell_ir::cell::{Row, TypedValue};
