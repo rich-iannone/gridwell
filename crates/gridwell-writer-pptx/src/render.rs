@@ -3,13 +3,15 @@ use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table};
 use gridwell_layout::{
-    resolve, CellVAlign, ResolvedStyle, ResolvedTable, Section, Sides, Slot, Stroke,
+    resolve, CellVAlign, ResolvedCell, ResolvedStyle, ResolvedTable, Section, Sides, Slot, Stroke,
 };
 use gridwell_ooxml::{package, Part};
 use std::fmt::Write;
 use thiserror::Error;
 
 use crate::xml;
+
+mod widths;
 
 #[derive(Debug, Error)]
 pub enum RenderError {
@@ -94,10 +96,15 @@ fn write_slide_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
     let notes_h = note_count as u32 * NOTE_LINE_EMU;
     // A table with no grid columns is invalid DrawingML: with every column hidden
     // only the text boxes remain.
+    let col_widths = if rt.is_empty() {
+        Vec::new()
+    } else {
+        widths::column_widths(rt)
+    };
     let (table_w, table_h) = if rt.is_empty() {
         (0, 0)
     } else {
-        table_size(rt)
+        table_size(rt, &col_widths)
     };
     let gap = |a: u32, b: u32| if a > 0 && b > 0 { GAP_EMU } else { 0 };
     let total =
@@ -115,7 +122,7 @@ fn write_slide_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
     }
     if !rt.is_empty() {
         let x = SLIDE_W.saturating_sub(table_w) / 2;
-        write_table_frame(buf, rt, x, y)?;
+        write_table_frame(buf, rt, &col_widths, x, y)?;
         y += table_h + gap(table_h, notes_h);
     }
     if note_count > 0 {
@@ -166,9 +173,9 @@ const NOTE_LINE_EMU: u32 = 228_600;
 const TEXT_X: u32 = 457_200;
 const TEXT_W: u32 = 8_229_600;
 
-/// The table's width and height in EMU.
-fn table_size(rt: &ResolvedTable) -> (u32, u32) {
-    let width: u32 = compute_col_widths(rt).iter().sum();
+/// The table's width (its columns', `col_widths`) and height in EMU.
+fn table_size(rt: &ResolvedTable, col_widths: &[u32]) -> (u32, u32) {
+    let width: u32 = col_widths.iter().sum();
     let rows = rt.head.rows.len()
         + rt.groups
             .iter()
@@ -233,11 +240,11 @@ fn write_paragraph(
 fn write_table_frame(
     buf: &mut String,
     rt: &ResolvedTable,
+    col_widths: &[u32],
     offset_x: u32,
     offset_y: u32,
 ) -> Result<(), RenderError> {
-    let col_widths = compute_col_widths(rt);
-    let (total_width, total_height) = table_size(rt);
+    let (total_width, total_height) = table_size(rt, col_widths);
 
     buf.push_str("<p:graphicFrame>\n");
     buf.push_str("<p:nvGraphicFramePr><p:cNvPr id=\"2\" name=\"Table\"/>");
@@ -255,7 +262,7 @@ fn write_table_frame(
     writeln!(buf, "<a:tblPr{rtl} firstRow=\"1\" bandRow=\"1\"/>")?;
 
     buf.push_str("<a:tblGrid>");
-    for w in &col_widths {
+    for w in col_widths {
         write!(buf, "<a:gridCol w=\"{w}\"/>")?;
     }
     buf.push_str("</a:tblGrid>\n");
@@ -345,23 +352,10 @@ fn write_slot(
         (_, true) => Some("l"),
     };
     open_paragraph(buf, rt, algn);
-    let fmt = Fmt {
-        bold: strong,
-        ..Fmt::default()
-    }
-    .with(&cell.style);
+    let fmt = cell_fmt(cell, strong);
     let mut wrote = write_content(buf, rt, &cell.content, fmt)?;
-    // Aligned on a character: the padding as text without a fill, keeping
-    // its room exactly (LibreOffice hangs spaces ending a line in the margin,
-    // where they move nothing), undecorated.
     if let Some(pad) = cell.align_pad {
-        let fmt = Fmt {
-            underline: false,
-            strike: false,
-            hidden: true,
-            ..fmt
-        };
-        wrote |= write_run(buf, rt, &pad.text(), fmt)?;
+        wrote |= write_run(buf, rt, &pad.text(), pad_fmt(fmt))?;
     }
     if !wrote {
         buf.push_str("<a:endParaRPr/>");
@@ -371,6 +365,27 @@ fn write_slot(
     write_tc_pr(buf, strokes, cell.style.fill(), cell.style.cell_valign())?;
     buf.push_str("</a:tc>");
     Ok(())
+}
+
+/// A cell's run format: bold in a `strong` section (the head, summary rows).
+fn cell_fmt<'s>(cell: &'s ResolvedCell, strong: bool) -> Fmt<'s> {
+    Fmt {
+        bold: strong,
+        ..Fmt::default()
+    }
+    .with(&cell.style)
+}
+
+/// Aligned on a character: the padding as text without a fill, keeping its
+/// room exactly (LibreOffice hangs spaces ending a line in the margin, where
+/// they move nothing), undecorated.
+fn pad_fmt(fmt: Fmt) -> Fmt {
+    Fmt {
+        underline: false,
+        strike: false,
+        hidden: true,
+        ..fmt
+    }
 }
 
 /// The size relative sizes resolve against: PowerPoint's 18pt table text.
@@ -474,37 +489,57 @@ fn write_content(
     fmt: Fmt,
 ) -> Result<bool, RenderError> {
     let mut wrote = false;
+    for_each_run::<RenderError>(rt, nodes, fmt, &mut |run| {
+        wrote |= match run {
+            Some((text, fmt)) => write_run(buf, rt, text, fmt)?,
+            None => {
+                buf.push_str("<a:br/>");
+                true
+            }
+        };
+        Ok(())
+    })?;
+    Ok(wrote)
+}
+
+/// A run's text and format, or a line break (`None`).
+type Run<'t, 's> = Option<(&'t str, Fmt<'s>)>;
+
+/// Content as it is written: each run, in order. Raw and unknown nodes are
+/// nothing; an image is its alt text.
+fn for_each_run<E>(
+    rt: &ResolvedTable,
+    nodes: &[ContentNode],
+    fmt: Fmt,
+    f: &mut dyn FnMut(Run) -> Result<(), E>,
+) -> Result<(), E> {
     for node in nodes {
-        wrote |= match node {
-            ContentNode::Text { value } => write_run(buf, rt, value, fmt)?,
+        match node {
+            ContentNode::Text { value } => f(Some((value, fmt)))?,
             ContentNode::StyledText { value, style_id } => {
                 let style = style_id
                     .as_deref()
                     .map(|id| rt.style(id))
                     .unwrap_or_default();
-                write_run(buf, rt, value, fmt.with(&style))?
+                f(Some((value, fmt.with(&style))))?
             }
-            ContentNode::LineBreak {} => {
-                buf.push_str("<a:br/>");
-                true
-            }
-            ContentNode::FootnoteMark { mark_text, .. } => write_run(
-                buf,
-                rt,
+            ContentNode::LineBreak {} => f(None)?,
+            ContentNode::FootnoteMark { mark_text, .. } => f(Some((
                 mark_text,
                 Fmt {
                     superscript: true,
                     ..fmt
                 },
-            )?,
-            ContentNode::Image { alt, .. } => match alt {
-                Some(alt) => write_run(buf, rt, alt, fmt)?,
-                None => false,
-            },
-            ContentNode::Raw { .. } | ContentNode::Unknown => false,
-        };
+            )))?,
+            ContentNode::Image { alt, .. } => {
+                if let Some(alt) = alt {
+                    f(Some((alt, fmt)))?
+                }
+            }
+            ContentNode::Raw { .. } | ContentNode::Unknown => {}
+        }
     }
-    Ok(wrote)
+    Ok(())
 }
 
 /// One `<a:r>`, in the table's language (`en-US` unless it has one).
@@ -606,12 +641,7 @@ fn write_group_label_row(
     buf.push('>');
     buf.push_str("<a:txBody><a:bodyPr/><a:lstStyle/>");
     open_paragraph(buf, rt, None);
-    let fmt = Fmt {
-        bold: true,
-        ..Fmt::default()
-    }
-    .with(&label.style);
-    if !write_content(buf, rt, &label.content, fmt)? {
+    if !write_content(buf, rt, &label.content, label_fmt(label))? {
         buf.push_str("<a:endParaRPr/>");
     }
     buf.push_str("</a:p></a:txBody>");
@@ -637,14 +667,11 @@ fn write_group_label_row(
     Ok(())
 }
 
-/// Column widths in EMU: absolute lengths convert exactly, `%` and `fr` resolve
-/// against the table's width (else the slide's text width, as the text boxes),
-/// `auto` gets the default, and `em` is the table text's size (see
-/// [`ResolvedTable::column_widths_pt`]). They add up to at most `i32::MAX` EMU
-/// (about 60m), so the frame's width holds them.
-fn compute_col_widths(rt: &ResolvedTable) -> Vec<u32> {
-    const EMU_PER_PT: f64 = 12700.0;
-    let line_pt = f64::from(TEXT_W) / EMU_PER_PT;
-    let auto_pt = f64::from(xml::DEFAULT_COL_WIDTH_EMU) / EMU_PER_PT;
-    rt.column_widths_in(line_pt, auto_pt, BASE_PT, EMU_PER_PT, i32::MAX as u32)
+/// A group label's run format: bold.
+fn label_fmt<'s>(label: &'s gridwell_layout::Line) -> Fmt<'s> {
+    Fmt {
+        bold: true,
+        ..Fmt::default()
+    }
+    .with(&label.style)
 }
