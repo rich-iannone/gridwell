@@ -18,6 +18,8 @@
 //! `tests/calibration.rs` checks the widths against real rendering with
 //! `rsvg-convert` in Roboto.
 
+use std::sync::Arc;
+
 use unicode_width::UnicodeWidthChar;
 
 /// Bold text is wider; DejaVu Sans Bold runs about 8–11% wider than regular. Used
@@ -170,6 +172,19 @@ pub struct RunStyle {
     pub strike: bool,
     /// The run's own font size in px (`None`: the block's size).
     pub size: Option<f64>,
+    /// The picture the run is (its text is U+FFFC OBJECT REPLACEMENT CHARACTER).
+    pub image: Option<Arc<Pic>>,
+}
+
+/// A picture in a line of text: an image embedded as a `data:` URI, drawn
+/// `width` × `height` px with its bottom on the baseline, as in HTML.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Pic {
+    /// The `data:` URI.
+    pub href: String,
+    pub width: f64,
+    pub height: f64,
+    pub alt: Option<String>,
 }
 
 /// Footnote marks (superscripts) are drawn at this fraction of the surrounding
@@ -191,8 +206,11 @@ impl Run {
         }
     }
 
-    /// The room the run needs ([`text_width`]).
+    /// The room the run needs ([`text_width`]; a picture's width).
     pub fn width(&self, font_size: f64) -> f64 {
+        if let Some(pic) = &self.style.image {
+            return pic.width;
+        }
         let size = self.drawn_size(font_size);
         text_width(&self.text, size, self.style.bold, self.style.italic)
     }
@@ -200,7 +218,7 @@ impl Run {
     /// The width the run is drawn at ([`draw_width`]).
     /// The overhang room an italic run needs at the end of a line, in px.
     pub fn overhang(&self, font_size: f64) -> f64 {
-        if self.style.italic && !self.text.is_empty() {
+        if self.style.italic && !self.text.is_empty() && self.style.image.is_none() {
             self.drawn_size(font_size) * ITALIC_OVERHANG_EM
         } else {
             0.0
@@ -208,6 +226,9 @@ impl Run {
     }
 
     pub fn draw_width(&self, font_size: f64) -> f64 {
+        if let Some(pic) = &self.style.image {
+            return pic.width;
+        }
         let size = self.drawn_size(font_size);
         draw_width(&self.text, size, self.style.bold, self.style.italic)
     }
@@ -240,6 +261,12 @@ impl Line {
     pub fn size(&self, font_size: f64) -> f64 {
         let sizes = self.runs.iter().map(|r| r.size(font_size));
         sizes.reduce(f64::max).unwrap_or(font_size)
+    }
+
+    /// The height of the tallest picture on the line, in px (0 without one).
+    pub fn pic_height(&self) -> f64 {
+        let pics = self.runs.iter().filter_map(|r| r.style.image.as_ref());
+        pics.map(|p| p.height).fold(0.0, f64::max)
     }
 
     /// Concatenated text of all runs.
@@ -298,7 +325,10 @@ pub fn wrap(runs: &[Run], font_size: f64, max_width: f64) -> Vec<Line> {
         line.overhang += oh;
         line.draw_width += piece.draw_width(font_size);
         match line.runs.last_mut() {
-            Some(last) if last.style == piece.style => last.text.push_str(&piece.text),
+            // Pictures stay one to a run.
+            Some(last) if last.style == piece.style && piece.style.image.is_none() => {
+                last.text.push_str(&piece.text)
+            }
             _ => line.runs.push(piece),
         }
     };
@@ -312,6 +342,7 @@ pub fn wrap(runs: &[Run], font_size: f64, max_width: f64) -> Vec<Line> {
                 sup: false,
                 underline: false,
                 strike: false,
+                image: None,
                 ..last.style.clone()
             },
         })
