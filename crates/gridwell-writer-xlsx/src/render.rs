@@ -1,4 +1,4 @@
-use gridwell_core::Color;
+use gridwell_core::{Color, ImageFormat};
 use gridwell_ir::cell::TypedValue;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table, ValueType};
@@ -38,6 +38,12 @@ pub fn render_sheet_xml(table: &Table) -> Result<String, RenderError> {
 /// Render only the styles part (for testing): the cell formats the sheet uses.
 pub fn render_styles_xml(table: &Table) -> Result<String, RenderError> {
     package_part(table, "xl/styles.xml")
+}
+
+/// Render only the drawing part (for testing): the images drawn over cells;
+/// empty when there are none (the package then has no such part).
+pub fn render_drawing_xml(table: &Table) -> Result<String, RenderError> {
+    package_part(table, "xl/drawings/drawing1.xml")
 }
 
 /// Render only the shared-string table (for testing): the sheet's strings; empty
@@ -457,8 +463,10 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
         ws.set_right_to_left(true);
     }
 
-    // Column widths, in characters of the default font (7px each).
-    let col_chars: Vec<f64> = rt
+    // Column widths, in characters of the default font (7px each): a column's
+    // own, or 12 (`None`) and room for the widest image drawn alone in one of
+    // its cells, as HTML's auto widths grow to fit an image.
+    let fixed: Vec<Option<f64>> = rt
         .columns
         .iter()
         .map(|col| {
@@ -467,12 +475,28 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
                 .and_then(|w| w.to_pt(12.0, 12.0))
                 .map(|pt| pt / 0.75 / 7.0)
                 .filter(|w| w.is_finite() && *w > 0.0 && *w <= 255.0)
-                .unwrap_or(12.0)
         })
         .collect();
+    let mut col_chars: Vec<f64> = fixed.iter().map(|w| w.unwrap_or(12.0)).collect();
+    let sections =
+        std::iter::once(&rt.head).chain(rt.groups.iter().flat_map(|g| [&g.rows, &g.summary_rows]));
+    for row in sections.flat_map(|s| &s.rows) {
+        for cell in row.cells() {
+            if cell.colspan > 1 || fixed[cell.col].is_some() {
+                continue;
+            }
+            if let Some(pic) = picture(&cell.content, font_pt(&cell.style)) {
+                let chars = f64::from(pic.px.0 + 2 * PAD_PX) / 7.0;
+                col_chars[cell.col] = col_chars[cell.col].max(chars.min(255.0));
+            }
+        }
+    }
+    let mut col_px = Vec::with_capacity(col_chars.len());
     for (i, chars) in col_chars.iter().enumerate() {
         // A width of 0 hides a column: the narrowest drawn is 1px.
-        ws.set_column_width_pixels(col_num(i)?, ((chars * 7.0).round() as u32).max(1))?;
+        let px = ((chars * 7.0).round() as u32).max(1);
+        ws.set_column_width_pixels(col_num(i)?, px)?;
+        col_px.push(px);
     }
 
     let mut sheet = Sheet {
@@ -481,6 +505,8 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
         run_formats: HashMap::new(),
         row: 0,
         col_chars,
+        col_px,
+        rtl: rt.is_rtl(),
         losses: Losses::default(),
     };
 
@@ -490,6 +516,7 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
         let f = Format::new(&title.style, true, &HAlign::Left);
         sheet.text_row(
             rich(rt, &title.content, FontKey::of(&f)),
+            picture(&title.content, font_pt(&title.style)),
             f,
             false,
             Place::Title,
@@ -499,6 +526,7 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
         let f = Format::new(&line.style, false, &HAlign::Left);
         sheet.text_row(
             rich(rt, &line.content, FontKey::of(&f)),
+            picture(&line.content, font_pt(&line.style)),
             f,
             false,
             Place::Subtitle,
@@ -508,6 +536,7 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
         let f = Format::new(&line.style, false, &HAlign::Left);
         sheet.text_row(
             rich(rt, &line.content, FontKey::of(&f)),
+            picture(&line.content, font_pt(&line.style)),
             f,
             false,
             Place::HeaderLine(i),
@@ -522,6 +551,7 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
                 let f = Format::new(&label.style, true, &HAlign::Left);
                 sheet.text_row(
                     rich(rt, &label.content, FontKey::of(&f)),
+                    picture(&label.content, font_pt(&label.style)),
                     f,
                     rt.columns.len() > 1,
                     Place::GroupLabel(g),
@@ -552,7 +582,8 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
                 },
             ];
             runs.extend(rich(rt, &note.content, font));
-            sheet.text_row(runs, f, false, Place::Footnote(i))?;
+            // The mark goes with the note's text: an image here shows its alt.
+            sheet.text_row(runs, None, f, false, Place::Footnote(i))?;
         }
     }
     if !footer.source_notes.is_empty() {
@@ -561,6 +592,7 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
             let f = Format::new(&note.style, false, &HAlign::Left);
             sheet.text_row(
                 rich(rt, &note.content, FontKey::of(&f)),
+                picture(&note.content, font_pt(&note.style)),
                 f,
                 false,
                 Place::SourceNote(i),
@@ -590,6 +622,9 @@ struct Sheet<'w> {
     row: usize,
     /// Column widths in characters, for estimating where wrapped text breaks.
     col_chars: Vec<f64>,
+    /// Column widths as set, in pixels, for placing images.
+    col_px: Vec<u32>,
+    rtl: bool,
     losses: Losses,
 }
 
@@ -601,24 +636,36 @@ impl Sheet<'_> {
             .clone()
     }
 
-    /// A row with one text cell in column A (`merged`: across every column).
+    /// A row with one text cell in column A (`merged`: across every column), or
+    /// with `pic` drawn over it.
     fn text_row(
         &mut self,
         mut runs: Vec<RichRun>,
+        pic: Option<Picture>,
         mut f: Format,
         merged: bool,
         place: Place,
     ) -> Result<(), RenderError> {
         let row = self.row;
+        if pic.is_some() {
+            runs.clear();
+        }
         f.wrap = has_breaks(&runs);
         let width = if merged {
             self.col_chars.iter().sum()
         } else {
             self.col_chars.first().copied().unwrap_or(12.0)
         };
-        self.set_height(row, text_height(&runs, f.wrap.then_some(width)))?;
+        let mut height = text_height(&runs, f.wrap.then_some(width));
+        if let Some(pic) = &pic {
+            height = height.max(pic.row_pt());
+        }
+        self.set_height(row, height)?;
         let last = if merged { self.col_chars.len() - 1 } else { 0 };
         self.write_text(row, 0, row, last, &mut runs, &f, place)?;
+        if let Some(pic) = &pic {
+            self.draw(row, 0, last, Some(height), pic, &f)?;
+        }
         self.row += 1;
         Ok(())
     }
@@ -635,9 +682,17 @@ impl Sheet<'_> {
         for (i, r) in section.rows.iter().enumerate() {
             let row = self.row;
             let mut height = 0.0f64;
+            let mut pics = Vec::new();
             for cell in r.cells() {
                 let mut format = Format::cell(&cell.style, strong, &cell.align, rt.is_rtl());
                 let mut runs = rich(rt, &cell.content, FontKey::of(&format));
+                let pic = picture(&cell.content, font_pt(&cell.style));
+                if let Some(pic) = &pic {
+                    runs.clear();
+                    if cell.rowspan == 1 {
+                        height = height.max(pic.row_pt());
+                    }
+                }
                 format.wrap = has_breaks(&runs);
                 // A spanned cell's text spreads over its rows: leave them be.
                 if cell.rowspan == 1 {
@@ -671,8 +726,17 @@ impl Sheet<'_> {
                     col: cell.grid_col,
                 };
                 self.write_text(row, cell.col, last_row, last_col, &mut runs, &format, place)?;
+                if let Some(pic) = pic {
+                    // A spanned cell's height isn't known yet: its image sits
+                    // at the top.
+                    pics.push((cell.col, last_col, cell.rowspan == 1, pic, format));
+                }
             }
             self.set_height(row, height)?;
+            for (col, last_col, one_row, pic, format) in pics {
+                let height = one_row.then_some(height);
+                self.draw(row, col, last_col, height, &pic, &format)?;
+            }
             self.row += 1;
         }
         Ok(())
@@ -764,11 +828,201 @@ impl Sheet<'_> {
     /// Set a row's height when its text needs more than the default.
     fn set_height(&mut self, row: usize, pt: f64) -> Result<(), RenderError> {
         if pt > DEFAULT_ROW_PT + 0.01 {
-            // Excel's maximum row height is 409pt.
-            self.ws.set_row_height(row_num(row)?, pt.min(409.0))?;
+            self.ws.set_row_height(row_num(row)?, pt.min(MAX_ROW_PT))?;
         }
         Ok(())
     }
+
+    /// Draw `pic` over the cell at `row` spanning columns `col..=last_col`,
+    /// placed as the cell's text would be: by its alignment across the cell,
+    /// and down a row `height` points tall (as asked of [`Self::set_height`];
+    /// `None`: a spanned cell, whose image sits at the top). A zero-sized image
+    /// draws nothing.
+    fn draw(
+        &mut self,
+        row: usize,
+        col: usize,
+        last_col: usize,
+        height: Option<f64>,
+        pic: &Picture,
+        f: &Format,
+    ) -> Result<(), RenderError> {
+        let (w, h) = pic.px;
+        if w == 0 || h == 0 {
+            return Ok(());
+        }
+        let free = self.col_px[col..=last_col]
+            .iter()
+            .sum::<u32>()
+            .saturating_sub(w);
+        let pad = PAD_PX.min(free);
+        let from_left = match f.align {
+            Some(FormatAlign::Right) => free - pad,
+            Some(FormatAlign::Center) => free / 2,
+            _ => pad,
+        };
+        // A right-to-left sheet is drawn mirrored, offsets too: they're
+        // measured from the cell's right edge.
+        let x = if self.rtl {
+            free - from_left
+        } else {
+            from_left
+        };
+        let y = match height {
+            Some(pt) => {
+                let row_px = (pt.clamp(DEFAULT_ROW_PT, MAX_ROW_PT) / 0.75).round() as u32;
+                let free = row_px.saturating_sub(h);
+                let pad = PAD_PX.min(free);
+                match f.valign {
+                    Some(FormatAlign::Top) => pad,
+                    Some(FormatAlign::VerticalCenter) => free / 2,
+                    _ => free - pad,
+                }
+            }
+            None => PAD_PX,
+        };
+        self.ws
+            .insert_image_with_offset(row_num(row)?, col_num(col)?, &pic.image, x, y)?;
+        Ok(())
+    }
+}
+
+/// An image drawn over a cell, `px` (width, height) in pixels.
+pub(crate) struct Picture {
+    image: rust_xlsxwriter::Image,
+    px: (u32, u32),
+}
+
+impl Picture {
+    /// The row height that holds the image, with room around it.
+    fn row_pt(&self) -> f64 {
+        f64::from(self.px.1 + 2 * PAD_PX) * 0.75
+    }
+}
+
+/// The room left between an image and its cell's edges, in pixels.
+const PAD_PX: u32 = 2;
+
+/// Excel's maximum row height.
+const MAX_ROW_PT: f64 = 409.0;
+
+/// The image content draws, if it is one image (blank text aside) embedded as
+/// a PNG, JPEG or GIF `data:` URI, at its size in the content's font
+/// (`font_pt`, for `em` sizes). A cell can't hold an image beside text, so
+/// any other content shows its images' alt text.
+pub(crate) fn picture(nodes: &[ContentNode], font_pt: f64) -> Option<Picture> {
+    let mut found = None;
+    for node in nodes {
+        match node {
+            ContentNode::Text { value } | ContentNode::StyledText { value, .. }
+                if value.trim().is_empty() => {}
+            ContentNode::Image {
+                src,
+                alt,
+                width,
+                height,
+            } if found.is_none() => found = Some((src, alt, width, height)),
+            _ => return None,
+        }
+    }
+    let (src, alt, width, height) = found?;
+    let img = gridwell_core::Image::from_src(src).filter(|i| i.format != ImageFormat::Svg)?;
+    let (w, h) = img.size_pt(width.as_deref(), height.as_deref(), font_pt);
+    let px = ((w / 0.75).round() as u32, (h / 0.75).round() as u32);
+    if !reads_safely(&img.data) {
+        return None;
+    }
+    let mut image = rust_xlsxwriter::Image::new_from_buffer(&img.data).ok()?;
+    if image.width() <= 0.0 || image.height() <= 0.0 {
+        return None;
+    }
+    // Excel sizes an image by its pixels at its DPI (96 unless the file says).
+    let (sx, sy) = (
+        f64::from(px.0) * image.width_dpi() / 96.0 / image.width(),
+        f64::from(px.1) * image.height_dpi() / 96.0 / image.height(),
+    );
+    image = image.set_scale_width(sx).set_scale_height(sy);
+    if let Some(alt) = alt.as_deref().filter(|a| !a.is_empty()) {
+        image = image.set_alt_text(alt);
+    }
+    Some(Picture { image, px })
+}
+
+/// Whether `rust_xlsxwriter::Image::new_from_buffer` (0.96) can read `data`
+/// without indexing past its end. It walks a file's headers without checking
+/// their lengths, so a damaged or truncated image (from an untrusted table)
+/// would panic. This follows the same walk, checking each read; review it on
+/// upgrading rust_xlsxwriter.
+fn reads_safely(data: &[u8]) -> bool {
+    // It sniffs bytes 0..4 whatever the format.
+    if data.len() < 4 {
+        return false;
+    }
+    let u16_at = |i: usize| u16::from_be_bytes([data[i], data[i + 1]]);
+    let u32_at = |i: usize| u32::from_be_bytes([data[i], data[i + 1], data[i + 2], data[i + 3]]);
+    if &data[1..4] == b"PNG" {
+        // Chunks from byte 8 to IEND: the length and type, IHDR's size, and
+        // pHYs's density and unit.
+        let mut at = 8usize;
+        while at < data.len() {
+            if at + 8 > data.len() {
+                return false;
+            }
+            let kind = &data[at + 4..at + 8];
+            let needs = match kind {
+                b"IHDR" => 16,
+                b"pHYs" => 17,
+                _ => 8,
+            };
+            if at + needs > data.len() {
+                return false;
+            }
+            if kind == b"IEND" {
+                return true;
+            }
+            at = match (at + 12).checked_add(u32_at(at) as usize) {
+                Some(next) => next,
+                None => return false,
+            };
+        }
+        true
+    } else if u16_at(0) == 0xFFD8 {
+        // Segments from byte 2 to the scan: the marker and length, a frame
+        // header's size, and JFIF's density and unit.
+        let mut at = 2usize;
+        while at < data.len() {
+            if at + 2 > data.len() {
+                return false;
+            }
+            let marker = u16_at(at);
+            let frame = marker & 0xFFF0 == 0xFFC0 && ![0xFFC4, 0xFFC8, 0xFFCC].contains(&marker);
+            let needs = match marker {
+                _ if frame => 9,
+                0xFFE0 => 16,
+                _ => 4,
+            };
+            if at + needs > data.len() {
+                return false;
+            }
+            if marker == 0xFFDA {
+                return true;
+            }
+            at += 2 + usize::from(u16_at(at + 2));
+        }
+        true
+    } else if &data[..2] == b"BM" {
+        data.len() >= 26
+    } else if &data[..4] == b"GIF8" {
+        data.len() >= 10
+    } else {
+        // Unknown: an error, not a panic.
+        true
+    }
+}
+
+/// The font size content is set in: its style's, or Excel's default 11pt.
+pub(crate) fn font_pt(style: &ResolvedStyle) -> f64 {
+    style.size_pt(11.0).unwrap_or(11.0)
 }
 
 /// Cut `runs` to at most `max` characters, dropping empty runs (a rich string
@@ -922,4 +1176,47 @@ fn rich(rt: &ResolvedTable, nodes: &[ContentNode], font: FontKey) -> Vec<RichRun
 /// A line break is a newline inside the cell (shown when wrapping is on).
 fn content_to_text(nodes: &[ContentNode]) -> String {
     gridwell_layout::plain_text(nodes, "\n")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use gridwell_testkit::images::{LOGO_GIF, LOGO_PNG, WIDE_JPEG};
+
+    /// Whether rust_xlsxwriter panics reading `data`.
+    fn panics(data: &[u8]) -> bool {
+        let data = data.to_vec();
+        std::panic::catch_unwind(|| rust_xlsxwriter::Image::new_from_buffer(&data)).is_err()
+    }
+
+    #[test]
+    fn reads_safely_is_whether_rust_xlsxwriter_can_read_an_image() {
+        // A BMP header, cut at every byte.
+        let bmp = [&b"BM"[..], &[1; 24]].concat();
+        let mut inputs: Vec<Vec<u8>> = (0..=bmp.len()).map(|n| bmp[..n].to_vec()).collect();
+        for src in [LOGO_PNG, WIDE_JPEG, LOGO_GIF] {
+            let data = gridwell_core::Image::from_src(src).unwrap().data;
+            assert!(reads_safely(&data));
+            inputs.extend((0..=data.len()).map(|n| data[..n].to_vec()));
+            // A byte changed, in the headers.
+            for i in 0..data.len().min(64) {
+                for b in [0x00, 0xFF, 0x10] {
+                    let mut d = data.clone();
+                    d[i] = b;
+                    inputs.push(d);
+                }
+            }
+        }
+        // A pHYs chunk cut short, and a second IHDR.
+        let png = gridwell_core::Image::from_src(LOGO_PNG).unwrap().data;
+        inputs.push([&png[..33], &[0, 0, 0, 9], b"pHYs", &[0; 8]].concat());
+        inputs.push([&png[..33], &[0, 0, 0, 13], b"IHDR", &[0, 0, 0, 1]].concat());
+        let mut unsafe_inputs = 0;
+        for d in &inputs {
+            let safe = reads_safely(d);
+            assert_eq!(safe, !panics(d), "{d:?}");
+            unsafe_inputs += usize::from(!safe);
+        }
+        assert!(unsafe_inputs > 100, "{unsafe_inputs}");
+    }
 }
