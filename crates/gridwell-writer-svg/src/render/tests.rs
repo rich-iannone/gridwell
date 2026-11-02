@@ -17,8 +17,9 @@ fn check(name: &str, table: &Table) -> Vec<String> {
     let mut fail = |msg: String| problems.push(format!("{name}: {msg}"));
 
     let check_block = |b: &TextBlock, what: &str, fail: &mut dyn FnMut(String)| {
-        // Each line is as tall as its largest text (computed here, independently
-        // of the layout's own height function).
+        // Each line is as tall as its largest text, with room above the
+        // baseline for its tallest picture (computed here, independently of the
+        // layout's own height function).
         let need: f64 = b
             .lines
             .iter()
@@ -28,7 +29,14 @@ fn check(name: &str, table: &Table) -> Vec<String> {
                     .iter()
                     .map(|r| r.style.size.unwrap_or(b.font_size))
                     .fold(f64::NAN, f64::max);
-                (if size.is_nan() { b.font_size } else { size }) * LINE_HEIGHT
+                let size = if size.is_nan() { b.font_size } else { size };
+                let pic = line
+                    .runs
+                    .iter()
+                    .filter_map(|r| r.style.image.as_ref())
+                    .map(|p| p.height)
+                    .fold(0.0, f64::max);
+                size * LINE_HEIGHT + (pic - size * ASCENT).max(0.0)
             })
             .sum();
         for line in &b.lines {
