@@ -135,12 +135,14 @@ fn batched<T: Send>(
 // ─── Typst ───
 
 /// Plain text of cell content, and the metadata rule. A line (a spanner's rule)
-/// has no text. Unknown elements show up as `⟨name⟩` so a mismatch names them.
+/// and hidden content (the padding aligning a cell on a character) have no text.
+/// Unknown elements show up as `⟨name⟩` so a mismatch names them.
 const TYPST_PRELUDE: &str = r#"#set page(width: 100cm, height: auto, margin: 1cm)
 #let gw-plain(c) = {
   if c == none { "" }
   else if type(c) == str { c }
   else if repr(c.func()) in ("linebreak", "parbreak", "space") { " " }
+  else if c.func() == hide { "" }
   else if c.func() == smartquote { if c.double { "\"" } else { "'" } }
   else if c.has("text") { c.text }
   else if c.has("children") { c.children.map(gw-plain).fold("", (a, b) => a + b) }
@@ -361,6 +363,45 @@ pub fn latex_tables(tabulars: &[String]) -> Vec<Result<TexTable, String>> {
         assert_eq!(pages.len(), tabulars.len(), "one page per table");
         Ok(pages.iter().map(|words| tex_table(words)).collect())
     })
+}
+
+/// The words of `tabular` as LuaLaTeX sets it on a page of its own: text and
+/// left and right edges, in PDF points.
+pub fn latex_words(tabular: &str) -> Result<Vec<(String, f64, f64)>, String> {
+    let dir = work_dir("latex-words");
+    let doc = format!("{LATEX_PREAMBLE}{tabular}\\end{{document}}\n");
+    let pages = compile(&dir, &doc)?;
+    let _ = std::fs::remove_dir_all(&dir);
+    let words = pages.into_iter().flatten().filter(|w| !w.is_marker());
+    Ok(words.map(|w| (w.text, w.x0, w.x1)).collect())
+}
+
+/// The words of Typst `src` as `typst compile` sets it: text and left and right
+/// edges, in PDF points.
+pub fn typst_words(src: &str) -> Result<Vec<(String, f64, f64)>, String> {
+    let dir = work_dir("typst-words");
+    std::fs::write(dir.join("table.typ"), src).unwrap();
+    let out = Command::new("typst")
+        .args(["compile", "table.typ", "table.pdf"])
+        .current_dir(&dir)
+        .output()
+        .unwrap();
+    if !out.status.success() {
+        return Err(format!(
+            "typst compile failed:\n{}",
+            String::from_utf8_lossy(&out.stderr)
+        ));
+    }
+    let out = Command::new("pdftotext")
+        .args(["-bbox", "table.pdf", "-"])
+        .current_dir(&dir)
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "pdftotext failed");
+    let _ = std::fs::remove_dir_all(&dir);
+    let pages = parse_bbox(&String::from_utf8_lossy(&out.stdout));
+    let words = pages.into_iter().flatten();
+    Ok(words.map(|w| (w.text, w.x0, w.x1)).collect())
 }
 
 /// Compile with LuaLaTeX (again while longtable asks for it: its column widths
