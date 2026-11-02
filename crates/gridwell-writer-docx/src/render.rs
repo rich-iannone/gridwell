@@ -1,5 +1,5 @@
 use gridwell_core::xml::escape as escape_xml;
-use gridwell_core::{Color, LanguageTag};
+use gridwell_core::{Color, Image, ImageFormat, LanguageTag};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table, VMerge};
 use gridwell_layout::{
@@ -21,14 +21,76 @@ pub enum RenderError {
 
 /// Render the full .docx ZIP file as bytes.
 pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
-    let document_xml = render_document_xml(table)?;
-    Ok(package(&[
-        Part::new("[Content_Types].xml", xml::CONTENT_TYPES),
+    let rt = resolve(table);
+    let mut buf = String::with_capacity(8192);
+    let mut media = Media::default();
+    write_document_xml(&mut buf, &rt, &mut media)?;
+    let names: Vec<String> = media.images.iter().map(|m| m.target()).collect();
+    let formats: Vec<ImageFormat> = media.images.iter().map(|m| m.format).collect();
+    let rels: Vec<(String, &str)> = media
+        .images
+        .iter()
+        .zip(&names)
+        .map(|(m, name)| (m.rel_id(), name.as_str()))
+        .collect();
+    let content_types = xml::content_types(&formats);
+    let document_rels = xml::document_rels(&rels);
+    let styles_xml = render_styles_xml(table);
+    let paths: Vec<String> = names.iter().map(|n| format!("word/{n}")).collect();
+    let mut parts = vec![
+        Part::new("[Content_Types].xml", content_types.as_str()),
         Part::new("_rels/.rels", xml::RELS),
-        Part::new("word/_rels/document.xml.rels", xml::DOCUMENT_RELS),
-        Part::new("word/document.xml", document_xml.as_str()),
-        Part::new("word/styles.xml", render_styles_xml(table).as_str()),
-    ])?)
+        Part::new("word/_rels/document.xml.rels", document_rels.as_str()),
+        Part::new("word/document.xml", buf.as_str()),
+        Part::new("word/styles.xml", styles_xml.as_str()),
+    ];
+    for (m, path) in media.images.iter().zip(&paths) {
+        parts.push(Part::new(path, &m.data));
+    }
+    Ok(package(&parts)?)
+}
+
+/// The images the document embeds, each once (`word/media/imageN.ext`), and how
+/// many drawings show them.
+#[derive(Default)]
+struct Media {
+    images: Vec<MediaImage>,
+    drawings: u32,
+}
+
+struct MediaImage {
+    /// 1-based.
+    n: usize,
+    format: ImageFormat,
+    data: Vec<u8>,
+}
+
+impl MediaImage {
+    fn rel_id(&self) -> String {
+        format!("rIdImage{}", self.n)
+    }
+
+    /// The part's name, relative to `word/`.
+    fn target(&self) -> String {
+        format!("media/image{}.{}", self.n, self.format.extension())
+    }
+}
+
+impl Media {
+    /// The relationship id of `image`, adding it if new.
+    fn add(&mut self, image: Image) -> String {
+        if let Some(m) = self.images.iter().find(|m| m.data == image.data) {
+            return m.rel_id();
+        }
+        let m = MediaImage {
+            n: self.images.len() + 1,
+            format: image.format,
+            data: image.data,
+        };
+        let id = m.rel_id();
+        self.images.push(m);
+        id
+    }
 }
 
 /// The `word/styles.xml` content: the paragraph styles, and the table's
@@ -46,11 +108,15 @@ pub fn render_styles_xml(table: &Table) -> String {
 pub fn render_document_xml(table: &Table) -> Result<String, RenderError> {
     let rt = resolve(table);
     let mut buf = String::with_capacity(8192);
-    write_document_xml(&mut buf, &rt)?;
+    write_document_xml(&mut buf, &rt, &mut Media::default())?;
     Ok(buf)
 }
 
-fn write_document_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> {
+fn write_document_xml(
+    buf: &mut String,
+    rt: &ResolvedTable,
+    media: &mut Media,
+) -> Result<(), RenderError> {
     buf.push_str(r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>"#);
     buf.push('\n');
     buf.push_str(
@@ -62,13 +128,13 @@ fn write_document_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), Render
     buf.push('\n');
     buf.push_str("<w:body>\n");
 
-    write_title(buf, rt)?;
+    write_title(buf, rt, media)?;
     // A table with no grid columns is invalid OOXML: with every column hidden,
     // only the title and notes remain.
     if !rt.is_empty() {
-        write_table(buf, rt)?;
+        write_table(buf, rt, media)?;
     }
-    write_footnotes(buf, rt)?;
+    write_footnotes(buf, rt, media)?;
 
     buf.push_str("</w:body>\n");
     buf.push_str("</w:document>\n");
@@ -132,7 +198,7 @@ impl<'s> Fmt<'s> {
     }
 }
 
-fn write_title(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> {
+fn write_title(buf: &mut String, rt: &ResolvedTable, media: &mut Media) -> Result<(), RenderError> {
     let header = &rt.header;
     if let Some(title) = &header.title {
         open_paragraph(buf, rt, Some("Title"), None);
@@ -141,7 +207,7 @@ fn write_title(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> 
             inherited: Some(xml::TITLE_HALF_POINTS),
             ..Fmt::default()
         };
-        write_content(buf, rt, &title.content, fmt.with(&title.style))?;
+        write_content(buf, rt, media, &title.content, fmt.with(&title.style))?;
         buf.push_str("</w:p>\n");
     }
     for line in header.subtitle.iter().chain(&header.extra_lines) {
@@ -150,13 +216,13 @@ fn write_title(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> 
             inherited: Some(xml::SUBTITLE_HALF_POINTS),
             ..Fmt::default()
         };
-        write_content(buf, rt, &line.content, fmt.with(&line.style))?;
+        write_content(buf, rt, media, &line.content, fmt.with(&line.style))?;
         buf.push_str("</w:p>\n");
     }
     Ok(())
 }
 
-fn write_table(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> {
+fn write_table(buf: &mut String, rt: &ResolvedTable, media: &mut Media) -> Result<(), RenderError> {
     let col_widths = compute_col_widths(rt);
 
     buf.push_str("<w:tbl>\n");
@@ -186,13 +252,13 @@ fn write_table(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> 
     }
     buf.push_str("</w:tblGrid>\n");
 
-    write_section(buf, rt, &rt.head, &col_widths, true)?;
+    write_section(buf, rt, media, &rt.head, &col_widths, true)?;
     for group in &rt.groups {
         if let Some(label) = &group.label {
-            write_group_label_row(buf, rt, label, &col_widths)?;
+            write_group_label_row(buf, rt, media, label, &col_widths)?;
         }
-        write_section(buf, rt, &group.rows, &col_widths, false)?;
-        write_section(buf, rt, &group.summary_rows, &col_widths, false)?;
+        write_section(buf, rt, media, &group.rows, &col_widths, false)?;
+        write_section(buf, rt, media, &group.summary_rows, &col_widths, false)?;
     }
 
     buf.push_str("</w:tbl>\n");
@@ -204,12 +270,13 @@ fn write_table(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> 
 fn write_section(
     buf: &mut String,
     rt: &ResolvedTable,
+    media: &mut Media,
     section: &Section,
     col_widths: &[u32],
     is_header: bool,
 ) -> Result<(), RenderError> {
     for cells in section.continuation_rows() {
-        write_row(buf, rt, &cells, col_widths, is_header)?;
+        write_row(buf, rt, media, &cells, col_widths, is_header)?;
     }
     Ok(())
 }
@@ -220,6 +287,7 @@ fn write_section(
 fn write_row(
     buf: &mut String,
     rt: &ResolvedTable,
+    media: &mut Media,
     cells: &[MergeCell<'_, '_>],
     col_widths: &[u32],
     is_header: bool,
@@ -285,7 +353,7 @@ fn write_row(
             bold: is_header,
             ..Fmt::default()
         };
-        write_content(buf, rt, &cell.content, fmt.with(&cell.style))?;
+        write_content(buf, rt, media, &cell.content, fmt.with(&cell.style))?;
         buf.push_str("</w:p>");
         buf.push_str("</w:tc>");
     }
@@ -297,6 +365,7 @@ fn write_row(
 fn write_group_label_row(
     buf: &mut String,
     rt: &ResolvedTable,
+    media: &mut Media,
     label: &gridwell_layout::Line,
     col_widths: &[u32],
 ) -> Result<(), RenderError> {
@@ -323,7 +392,7 @@ fn write_group_label_row(
         bold: true,
         ..Fmt::default()
     };
-    write_content(buf, rt, &label.content, fmt.with(&label.style))?;
+    write_content(buf, rt, media, &label.content, fmt.with(&label.style))?;
     buf.push_str("</w:p>");
     buf.push_str("</w:tc>");
     buf.push_str("</w:tr>\n");
@@ -406,10 +475,12 @@ fn write_borders(buf: &mut String, strokes: &Sides<Option<Stroke>>) -> Result<()
 }
 
 /// Content as runs: styled text gets its own formatting, line breaks become
-/// `<w:br/>`, footnote marks are superscript, images show their alt text.
+/// `<w:br/>`, footnote marks are superscript, images are inline drawings (or
+/// their alt text, if they can't be embedded).
 fn write_content(
     buf: &mut String,
     rt: &ResolvedTable,
+    media: &mut Media,
     nodes: &[ContentNode],
     fmt: Fmt,
 ) -> Result<(), RenderError> {
@@ -431,14 +502,65 @@ fn write_content(
                 };
                 write_run(buf, mark_text, sup)?;
             }
-            ContentNode::Image { alt, .. } => {
-                if let Some(alt) = alt {
-                    write_run(buf, alt, fmt)?;
+            ContentNode::Image {
+                src,
+                alt,
+                width,
+                height,
+            } => match embeddable(src) {
+                Some(image) => {
+                    let size = image.size_pt(width.as_deref(), height.as_deref(), BASE_PT);
+                    let rel = media.add(image);
+                    media.drawings += 1;
+                    write_drawing(buf, &rel, media.drawings, size, alt.as_deref())?;
                 }
-            }
+                None => {
+                    if let Some(alt) = alt {
+                        write_run(buf, alt, fmt)?;
+                    }
+                }
+            },
             ContentNode::Raw { .. } | ContentNode::Unknown => {}
         }
     }
+    Ok(())
+}
+
+/// An image Word can embed: a PNG, JPEG or GIF `data:` URI (an SVG needs a
+/// bitmap fallback the writer can't make).
+pub(crate) fn embeddable(src: &str) -> Option<Image> {
+    Image::from_src(src).filter(|i| i.format != ImageFormat::Svg)
+}
+
+/// A run holding an inline picture (`wp:inline`, on the baseline as in HTML)
+/// of `size` points, stretched to it; drawing `id` is unique in the document.
+/// The drawing namespaces are declared where they're used.
+fn write_drawing(
+    buf: &mut String,
+    rel: &str,
+    id: u32,
+    (w, h): (f64, f64),
+    alt: Option<&str>,
+) -> Result<(), RenderError> {
+    let (cx, cy) = ((w * 12700.0).round() as i64, (h * 12700.0).round() as i64);
+    let descr = alt
+        .map(|a| format!(" descr=\"{}\"", escape_xml(a)))
+        .unwrap_or_default();
+    write!(
+        buf,
+        "<w:r><w:drawing><wp:inline distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\" \
+         xmlns:wp=\"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing\">\
+         <wp:extent cx=\"{cx}\" cy=\"{cy}\"/>\
+         <wp:docPr id=\"{id}\" name=\"Picture {id}\"{descr}/>\
+         <a:graphic xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\">\
+         <a:graphicData uri=\"http://schemas.openxmlformats.org/drawingml/2006/picture\">\
+         <pic:pic xmlns:pic=\"http://schemas.openxmlformats.org/drawingml/2006/picture\">\
+         <pic:nvPicPr><pic:cNvPr id=\"{id}\" name=\"Picture {id}\"{descr}/><pic:cNvPicPr/></pic:nvPicPr>\
+         <pic:blipFill><a:blip r:embed=\"{rel}\"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>\
+         <pic:spPr><a:xfrm><a:off x=\"0\" y=\"0\"/><a:ext cx=\"{cx}\" cy=\"{cy}\"/></a:xfrm>\
+         <a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></pic:spPr>\
+         </pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>"
+    )?;
     Ok(())
 }
 
@@ -490,7 +612,11 @@ fn write_run(buf: &mut String, text: &str, fmt: Fmt) -> Result<(), RenderError> 
     Ok(())
 }
 
-fn write_footnotes(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> {
+fn write_footnotes(
+    buf: &mut String,
+    rt: &ResolvedTable,
+    media: &mut Media,
+) -> Result<(), RenderError> {
     let footer = &rt.footer;
     if !footer.footnotes.is_empty() {
         buf.push_str("<w:p/>\n"); // spacer
@@ -510,7 +636,7 @@ fn write_footnotes(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
                 },
             )?;
             write_run(buf, " ", fmt)?;
-            write_content(buf, rt, &note.content, fmt)?;
+            write_content(buf, rt, media, &note.content, fmt)?;
             buf.push_str("</w:p>\n");
         }
     }
@@ -523,7 +649,7 @@ fn write_footnotes(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
                 inherited: Some(xml::NOTE_HALF_POINTS),
                 ..Fmt::default()
             };
-            write_content(buf, rt, &note.content, fmt.with(&note.style))?;
+            write_content(buf, rt, media, &note.content, fmt.with(&note.style))?;
             buf.push_str("</w:p>\n");
         }
     }
