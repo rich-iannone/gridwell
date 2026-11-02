@@ -22,6 +22,10 @@
 //! - **Text transforms.** `text_transform` is applied to the content of cells,
 //!   lines and notes (see [`text::transform_case`]), unless the writer's format
 //!   has one of its own ([`ResolveOptions::transform_text`]).
+//! - **Alignment on a character.** A cell aligned on `align_char` (`align:
+//!   char`) is right-aligned, with the invisible padding that lines its
+//!   character up with the column's others ([`ResolvedCell::align_pad`]; see
+//!   [`decimal`]).
 //! - **Widths.** Each column's declared width, and the widths in points for a
 //!   format that gives every column one ([`ResolvedTable::column_widths`],
 //!   [`ResolvedTable::column_widths_pt`]; see [`widths`]).
@@ -30,6 +34,7 @@
 //! visible columns exactly; on invalid IR, positions no cell can claim are
 //! [`Slot::Empty`].
 
+pub mod decimal;
 pub mod html;
 pub mod look;
 pub mod style;
@@ -39,6 +44,7 @@ pub mod widths;
 
 use std::borrow::Cow;
 
+pub use decimal::AlignPad;
 use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{
@@ -162,8 +168,12 @@ pub struct ResolvedColumn<'a> {
     /// Index of this column in `column_spec` (the IR grid).
     pub grid_index: usize,
     pub spec: &'a ColumnSpec,
-    /// Alignment; an unknown value falls back to left.
+    /// Alignment; an unknown value falls back to left, and `char` is right
+    /// (see `align_char`).
     pub align: HAlign,
+    /// For a column aligned on a character (`align: char`): the character
+    /// (`align_char`, else [`decimal::DEFAULT_CHAR`]).
+    pub align_char: Option<&'a str>,
     /// Declared width; `None` for `auto` or an unparseable value.
     pub width: Option<Length>,
     pub min_width: Option<Length>,
@@ -321,8 +331,17 @@ pub struct ResolvedCell<'a> {
     /// The cascaded style.
     pub style: ResolvedStyle,
     /// Horizontal alignment: the style's; else centered for a header cell spanning
-    /// several columns (a spanner label); else the column's.
+    /// several columns (a spanner label); else the column's. Never `char`: a cell
+    /// aligned on a character is right-aligned (see `align_char`).
     pub align: HAlign,
+    /// The character a body or summary cell spanning one column aligns on: the
+    /// column's, for a cell taking the column's alignment, or a style's
+    /// `text_align: char` (the column's `align_char`, else
+    /// [`decimal::DEFAULT_CHAR`]).
+    pub align_char: Option<&'a str>,
+    /// The invisible padding the cell ends with to line its `align_char` up
+    /// with the column's (see [`decimal`]); `None` when it needs none.
+    pub align_pad: Option<AlignPad<'a>>,
     /// In the head section.
     pub is_header: bool,
     /// In a stub column, or flagged `is_stub`.
@@ -487,14 +506,16 @@ pub fn resolve_with(table: &Table, opts: ResolveOptions) -> ResolvedTable<'_> {
         .visible_columns()
         .map(|i| {
             let spec = &table.column_spec[i];
+            let align_char = (spec.align == HAlign::Char).then(|| decimal::char_of(spec));
             ResolvedColumn {
                 grid_index: i,
                 spec,
-                align: if spec.align.is_known() {
-                    spec.align.clone()
-                } else {
-                    HAlign::Left
+                align: match &spec.align {
+                    HAlign::Char => HAlign::Right,
+                    a if a.is_known() => a.clone(),
+                    _ => HAlign::Left,
                 },
+                align_char,
                 width: spec
                     .width
                     .parse()
@@ -602,6 +623,7 @@ pub fn resolve_with(table: &Table, opts: ResolveOptions) -> ResolvedTable<'_> {
         rtl: false,
     };
     rt.rtl = rt.resolve_rtl();
+    decimal::pad(&mut rt);
     rt
 }
 
@@ -756,12 +778,24 @@ impl<'a> Ctx<'_, 'a> {
             // A header cell spanning several columns (a spanner label) is centered
             // over them, as in gt; any other cell takes its column's alignment.
             // An explicit style alignment wins over both.
-            let default_align = if kind == SectionKind::Head && colspan > 1 {
+            let spanner = kind == SectionKind::Head && colspan > 1;
+            let default_align = if spanner {
                 HAlign::Center
             } else {
                 column.align.clone()
             };
-            let align = style.text_align.clone().unwrap_or(default_align);
+            let align_char = match &style.text_align {
+                Some(HAlign::Char) => Some(decimal::char_of(column.spec)),
+                Some(_) => None,
+                None if spanner => None,
+                None => column.align_char,
+            }
+            .filter(|_| kind != SectionKind::Head && colspan == 1);
+            let align = match style.text_align.clone() {
+                Some(HAlign::Char) => HAlign::Right,
+                Some(a) => a,
+                None => default_align,
+            };
             slots[r][vc] = Slot::Origin(Box::new(ResolvedCell {
                 cell,
                 content: transformed(self.table, self.opts, &cell.content, &style),
@@ -770,6 +804,8 @@ impl<'a> Ctx<'_, 'a> {
                 colspan,
                 rowspan,
                 align,
+                align_char,
+                align_pad: None,
                 is_header: kind == SectionKind::Head,
                 is_stub: cell.is_stub || grid_col < self.table.config.stub_cols as usize,
                 scope: cell.scope.clone().filter(|s| s.is_known()),
