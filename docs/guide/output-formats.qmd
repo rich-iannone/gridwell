@@ -397,9 +397,16 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Column widths in EMU, the table centered on the slide. `%` and `fr` columns divide
   the table's width: `table_width`, else the slide's text width (9in, as the title
   and notes). When `table_width` is set and no column is `fr`, the columns without a
-  width share what the others leave; otherwise each is 1in, as is an `fr` column the
-  others leave no room for. `em` is 18pt, PowerPoint's table text size. Widths that
-  would add up to more than the table's frame can hold (about 60m) are scaled down
-  to fit, in proportion
+  width share what the others leave. Otherwise each column without a width is sized
+  for its content, since PowerPoint, Keynote and Impress take column widths as
+  written. It is as wide as its widest line (with the cell's 0.1in insets), within
+  its `min_width` and `max_width`. Spanners and group labels widen the columns they
+  span. The text is measured with estimated widths, which run wider than Calibri and
+  than the fonts substituted for it, so columns are a little loose rather than
+  wrapping. When the columns would be wider than what the others leave of the
+  table's width, they narrow in proportion, down to their widest word. An `fr`
+  column the others leave no room for is 1in. `em` is 18pt, PowerPoint's table text
+  size. Widths that would add up to more than the table's frame can hold (about 60m)
+  are scaled down to fit, in proportion
 - A complete package (theme, master color map, notes size), so PowerPoint and Keynote
   open it
