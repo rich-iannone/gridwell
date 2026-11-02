@@ -19,9 +19,10 @@ mod support;
 use gridwell_ir::style::{BorderSet, ConditionalSelector, StyleDef};
 use gridwell_ir::{Table, TextDirection};
 use gridwell_render::{Place, SectionKind};
+use gridwell_testkit::images::LOGO_PNG;
 use gridwell_testkit::{
-    border, cell, cell_content, column, examples, footnote_mark, labeled_group, row, styled, text,
-    CellExt, ColumnExt, RowExt, TableBuilder,
+    border, cell, cell_content, column, examples, footnote_mark, labeled_group, row, sized_image,
+    styled, text, CellExt, ColumnExt, RowExt, TableBuilder,
 };
 use support::look::{self, Align, Doc, Line, Look, Rgb, VAlign};
 use support::typeset;
@@ -51,6 +52,7 @@ fn read_one(format: &str, t: &Table) -> Option<Doc> {
                 &w.render_sheet_xml(t).unwrap(),
                 &w.render_styles_xml(t).unwrap(),
                 &w.render_shared_strings_xml(t).unwrap(),
+                &w.render_drawing_xml(t).unwrap(),
             )
         }
         _ => return None,
@@ -585,6 +587,23 @@ fn features() -> Vec<Feature> {
             },
         },
         Feature {
+            id: "image",
+            what: "an image (a PNG `data:` URI, 32×16px = 24×12pt)",
+            // Alone in its cell, as a spreadsheet draws only such an image; its
+            // alt text names the cell.
+            table: || {
+                let mut t = probe(StyleDef::default());
+                t.table.tbody[0].rows[0].cells[0].content =
+                    vec![sized_image(LOGO_PNG, "TARGET", Some("32px"), Some("16px"))];
+                t
+            },
+            check: |d| {
+                target_only(d, "a 24×12pt picture", |l| {
+                    matches!(l.pictures[..], [(w, h)] if near(Some(w), 24.0) && near(Some(h), 12.0))
+                })
+            },
+        },
+        Feature {
             id: "lang",
             what: "`config.lang`, the table's language",
             table: || {
@@ -792,6 +811,7 @@ fn gap(feature: &str, format: &str) -> Option<Gap> {
         ("font-family", "latex") => Limit,
         ("vertical-align", "latex") => Limit,
         ("border-double", "typst") => Limit,
+        ("image", "latex" | "pptx") => Limit,
         ("lang", "latex" | "xlsx") => Limit,
         ("lang", "rtf") => Todo,
         ("rtl", "latex") => Limit,
@@ -1007,7 +1027,7 @@ fn writers_warn_of_their_gaps() {
         }
     }
     assert!(wrong.is_empty(), "{}", wrong.join("\n"));
-    assert_eq!(warned, 7);
+    assert_eq!(warned, 9);
 }
 
 /// The probes' columns have no width; a column with one (fixed, `%`, `fr`) must
