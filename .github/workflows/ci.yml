@@ -132,9 +132,10 @@ jobs:
       - name: LaTeX compile oracle
         run: cargo test --locked -p gridwell-writer-latex --test compile
       # LuaLaTeX → PDF → cells and words by position: the corpus/span grid
-      # invariant and the property test for LaTeX (the Typst ones run in `test`).
+      # invariant, the property test and the alignment on a character for LaTeX
+      # (the Typst ones run in `test`).
       - name: LaTeX grid read-back
-        run: cargo test --locked -p gridwell-render --test grid_invariant --test properties latex
+        run: cargo test --locked -p gridwell-render --test grid_invariant --test properties --test char_alignment latex
 
   msrv:
     name: MSRV (Rust 1.85)
