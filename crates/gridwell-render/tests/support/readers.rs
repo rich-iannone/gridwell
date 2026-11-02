@@ -40,10 +40,20 @@ fn place(rows: Vec<Vec<(String, usize, usize)>>) -> Grid {
 
 // ─── HTML ───
 
-/// Text of an element: text nodes and image alt text, in document order.
+/// Text of an element: text nodes and image alt text, in document order. What
+/// is hidden from readers (`aria-hidden`: the padding aligning a cell on a
+/// character) has none.
 fn element_text(e: ElementRef) -> String {
     let mut out = String::new();
     for node in e.descendants() {
+        let hidden = node.ancestors().take_while(|a| a.id() != e.id()).any(|a| {
+            a.value()
+                .as_element()
+                .is_some_and(|el| el.attr("aria-hidden") == Some("true"))
+        });
+        if hidden {
+            continue;
+        }
         match node.value() {
             Node::Text(t) => out.push_str(t),
             Node::Element(el) if el.name() == "img" => {
