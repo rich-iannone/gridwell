@@ -14,9 +14,10 @@
 //! inner boundary's rule (all of an outer one), so cells still tile the table.
 
 use std::fmt::Write;
+use std::sync::Arc;
 
 use gridwell_core::xml::escape as escape_xml;
-use gridwell_core::Length;
+use gridwell_core::{Image, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, RowRole, Table};
 use gridwell_layout::look::{Pad, Rule as LookRule, LOOK};
@@ -25,7 +26,7 @@ use gridwell_layout::{
 };
 use thiserror::Error;
 
-use crate::measure::{max_width, wrap, Line, Run, RunStyle, SUP_SCALE};
+use crate::measure::{max_width, wrap, Line, Pic, Run, RunStyle, SUP_SCALE};
 use crate::SvgConfig;
 
 #[derive(Debug, Error)]
@@ -985,14 +986,40 @@ fn content_runs(
                     ..base.clone()
                 },
             }),
-            ContentNode::Image { alt, .. } => {
-                if let Some(alt) = alt {
+            // An image embedded as a `data:` URI is drawn; any other (one
+            // linked by URL or path, which a standalone SVG shouldn't load) shows
+            // its alt text.
+            ContentNode::Image {
+                src,
+                alt,
+                width,
+                height,
+            } => match Image::from_src(src) {
+                Some(img) => {
+                    let font_pt = base.size.unwrap_or(block_px) * 0.75;
+                    let (w, h) = img.size_pt(width.as_deref(), height.as_deref(), font_pt);
                     current.push(Run {
-                        text: alt.clone(),
-                        style: base.clone(),
+                        text: "\u{FFFC}".into(),
+                        style: RunStyle {
+                            image: Some(Arc::new(Pic {
+                                href: img.data_uri(),
+                                width: w / 0.75,
+                                height: h / 0.75,
+                                alt: alt.clone(),
+                            })),
+                            ..base.clone()
+                        },
                     });
                 }
-            }
+                None => {
+                    if let Some(alt) = alt {
+                        current.push(Run {
+                            text: alt.clone(),
+                            style: base.clone(),
+                        });
+                    }
+                }
+            },
             ContentNode::Raw { .. } | ContentNode::Unknown => {}
         }
     }
@@ -1154,9 +1181,18 @@ fn rule_line(buf: &mut String, r: &RuleLine) -> Result<(), RenderError> {
     Ok(())
 }
 
-/// The height of laid-out lines: each is as tall as its largest text.
+/// The height of laid-out lines.
 fn block_height(lines: &[Line], font_size: f64) -> f64 {
-    lines.iter().map(|l| l.size(font_size) * LINE_HEIGHT).sum()
+    lines.iter().map(|l| line_metrics(l, font_size).1).sum()
+}
+
+/// A line's ascent (the baseline's distance below its top) and height: those of
+/// its largest text, with room above the baseline for the tallest picture
+/// standing on it (as HTML's line box holds an inline image).
+fn line_metrics(line: &Line, font_size: f64) -> (f64, f64) {
+    let size = line.size(font_size);
+    let ascent = (size * ASCENT).max(line.pic_height());
+    (ascent, ascent + size * (LINE_HEIGHT - ASCENT))
 }
 
 /// y of the top of a block's first line.
@@ -1185,15 +1221,16 @@ fn text_block(buf: &mut String, b: &TextBlock, rtl: bool) -> Result<(), RenderEr
         (Align::Right, true) => (b.x + b.width, " direction=\"rtl\""),
     };
     for line in &b.lines {
-        let size = line.size(b.font_size);
-        let line_h = size * LINE_HEIGHT;
-        let line_top = top;
+        let (ascent, line_h) = line_metrics(line, b.font_size);
+        let baseline = top + ascent;
         top += line_h;
         if line.runs.is_empty() {
             continue;
         }
-        // Baseline: the line box holds the font's ascent and descent exactly.
-        let baseline = line_top + (line_h - size * LINE_HEIGHT) / 2.0 + size * ASCENT;
+        if line.runs.iter().any(|r| r.style.image.is_some()) {
+            pictured_line(buf, b, line, baseline, rtl)?;
+            continue;
+        }
         // `textLength`: draw the line exactly as wide as the layout measured it,
         // whatever font the viewer substitutes, by adjusting the letter spacing (the
         // default `lengthAdjust`), which leaves the glyph shapes undistorted.
@@ -1207,43 +1244,115 @@ fn text_block(buf: &mut String, b: &TextBlock, rtl: bool) -> Result<(), RenderEr
             num(line.draw_width)
         )?;
         for run in &line.runs {
-            let s = &run.style;
-            let mut attrs = String::new();
-            if s.bold {
-                attrs.push_str(" font-weight=\"bold\"");
-            }
-            if s.italic {
-                attrs.push_str(" font-style=\"italic\"");
-            }
-            if let Some(c) = &s.color {
-                write!(attrs, " fill=\"{c}\"")?;
-            }
-            match (s.underline, s.strike) {
-                (true, true) => attrs.push_str(" text-decoration=\"underline line-through\""),
-                (true, false) => attrs.push_str(" text-decoration=\"underline\""),
-                (false, true) => attrs.push_str(" text-decoration=\"line-through\""),
-                (false, false) => {}
-            }
-            if s.sup {
-                // Small and raised by a fraction of the surrounding text's size (as
-                // HTML's `vertical-align`), not a full superscript.
-                let around = run.size(b.font_size);
-                write!(
-                    attrs,
-                    " font-size=\"{}px\" baseline-shift=\"{}px\"",
-                    num(around * SUP_SCALE),
-                    num(around * LOOK.mark_raise_em * SUP_SCALE)
-                )?;
-            } else if let Some(size) = s.size {
-                write!(attrs, " font-size=\"{}px\"", num(size))?;
-            }
-            if attrs.is_empty() {
-                buf.push_str(&escape_xml(&run.text));
-            } else {
-                write!(buf, "<tspan{attrs}>{}</tspan>", escape_xml(&run.text))?;
-            }
+            write_run(buf, run, b.font_size)?;
         }
         buf.push_str("</text>\n");
+    }
+    Ok(())
+}
+
+/// A line with pictures: its runs placed one after another (right to left with
+/// `rtl`) across the room the layout measured, each stretch of text a `<text>`
+/// of its measured width, each picture an `<image>` standing on the baseline.
+fn pictured_line(
+    buf: &mut String,
+    b: &TextBlock,
+    line: &Line,
+    baseline: f64,
+    rtl: bool,
+) -> Result<(), RenderError> {
+    let left = match b.align {
+        Align::Left => b.x,
+        Align::Center => b.x + (b.width - line.draw_width) / 2.0,
+        Align::Right => b.x + b.width - line.draw_width,
+    };
+    // The edge the next run starts from: its left (its right with `rtl`).
+    let mut at = if rtl { left + line.draw_width } else { left };
+    let mut runs = line.runs.iter().peekable();
+    while let Some(run) = runs.next() {
+        if let Some(pic) = &run.style.image {
+            let x = if rtl { at - pic.width } else { at };
+            at += if rtl { -pic.width } else { pic.width };
+            if pic.width <= 0.0 || pic.height <= 0.0 {
+                continue;
+            }
+            write!(
+                buf,
+                "<image x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" \
+                 preserveAspectRatio=\"none\" href=\"{}\"",
+                num(x),
+                num(baseline - pic.height),
+                num(pic.width),
+                num(pic.height),
+                escape_xml(&pic.href)
+            )?;
+            match pic.alt.as_deref().filter(|a| !a.is_empty()) {
+                Some(alt) => writeln!(buf, "><title>{}</title></image>", escape_xml(alt))?,
+                None => buf.push_str("/>\n"),
+            }
+            continue;
+        }
+        // The text up to the next picture.
+        let mut text = vec![run];
+        while let Some(next) = runs.next_if(|r| r.style.image.is_none()) {
+            text.push(next);
+        }
+        let width: f64 = text.iter().map(|r| r.draw_width(b.font_size)).sum();
+        let direction = if rtl { " direction=\"rtl\"" } else { "" };
+        write!(
+            buf,
+            "<text x=\"{}\" y=\"{}\" font-size=\"{}px\"{direction} textLength=\"{}\" \
+             xml:space=\"preserve\">",
+            num(at),
+            num(baseline),
+            num(b.font_size),
+            num(width)
+        )?;
+        for run in text {
+            write_run(buf, run, b.font_size)?;
+        }
+        buf.push_str("</text>\n");
+        at += if rtl { -width } else { width };
+    }
+    Ok(())
+}
+
+/// One run of a line's `<text>`: its text, in a `<tspan>` if it is styled.
+fn write_run(buf: &mut String, run: &Run, font_size: f64) -> Result<(), RenderError> {
+    let s = &run.style;
+    let mut attrs = String::new();
+    if s.bold {
+        attrs.push_str(" font-weight=\"bold\"");
+    }
+    if s.italic {
+        attrs.push_str(" font-style=\"italic\"");
+    }
+    if let Some(c) = &s.color {
+        write!(attrs, " fill=\"{c}\"")?;
+    }
+    match (s.underline, s.strike) {
+        (true, true) => attrs.push_str(" text-decoration=\"underline line-through\""),
+        (true, false) => attrs.push_str(" text-decoration=\"underline\""),
+        (false, true) => attrs.push_str(" text-decoration=\"line-through\""),
+        (false, false) => {}
+    }
+    if s.sup {
+        // Small and raised by a fraction of the surrounding text's size (as
+        // HTML's `vertical-align`), not a full superscript.
+        let around = run.size(font_size);
+        write!(
+            attrs,
+            " font-size=\"{}px\" baseline-shift=\"{}px\"",
+            num(around * SUP_SCALE),
+            num(around * LOOK.mark_raise_em * SUP_SCALE)
+        )?;
+    } else if let Some(size) = s.size {
+        write!(attrs, " font-size=\"{}px\"", num(size))?;
+    }
+    if attrs.is_empty() {
+        buf.push_str(&escape_xml(&run.text));
+    } else {
+        write!(buf, "<tspan{attrs}>{}</tspan>", escape_xml(&run.text))?;
     }
     Ok(())
 }
