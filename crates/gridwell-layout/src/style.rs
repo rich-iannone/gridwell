@@ -474,10 +474,14 @@ pub(crate) fn overlay(base: &mut StyleDef, top: &StyleDef) {
     }
 }
 
-/// Look up a style id: a definition, or a composition (its base definition with the
+/// Look up a style id: a run's lowered from raw HTML ([`crate::html::style_def`]),
+/// a definition, or a composition (its base definition with the
 /// overrides laid over it). Unknown ids, and compositions whose base is missing,
 /// resolve to `None`.
 pub(crate) fn lookup(table: &Table, id: &str) -> Option<StyleDef> {
+    if let Some(def) = crate::html::style_def(id) {
+        return Some(def);
+    }
     let palette = &table.styles;
     if let Some(def) = palette.defs.get(id) {
         return Some(def.clone());
