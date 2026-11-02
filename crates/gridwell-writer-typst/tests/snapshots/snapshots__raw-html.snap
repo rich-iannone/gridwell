@@ -12,5 +12,5 @@ expression: out
     table.hline(stroke: 0.5pt),
   ),
   [bold\+italic],
-  [],
+  [#text(weight: "bold", style: "italic")[rich]],
 )

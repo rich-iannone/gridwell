@@ -5,5 +5,5 @@ expression: out
 ┌─────────────┬────────────┐
 │[1m Kind        [0m│[1m Rendered   [0m│
 ├─────────────┼────────────┤
-│ bold+italic │            │
+│ bold+italic │ rich       │
 └─────────────┴────────────┘

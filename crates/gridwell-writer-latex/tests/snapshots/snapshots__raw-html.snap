@@ -6,6 +6,6 @@ expression: out
 \toprule
 Kind & Rendered \\
 \midrule
-bold+italic &  \\
+bold+italic & \textit{\textbf{rich}} \\
 \bottomrule
 \end{tabular}

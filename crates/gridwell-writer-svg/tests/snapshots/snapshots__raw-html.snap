@@ -13,4 +13,5 @@ expression: out
 <text x="5" y="21.84" font-size="16px" textLength="31.79" xml:space="preserve">Kind</text>
 <text x="89.55" y="21.84" font-size="16px" textLength="67.62" xml:space="preserve">Rendered</text>
 <text x="5" y="56.59" font-size="16px" textLength="74.09" xml:space="preserve">bold+italic</text>
+<text x="89.55" y="56.59" font-size="16px" textLength="26.56" xml:space="preserve"><tspan font-weight="bold" font-style="italic">rich</tspan></text>
 </svg>
