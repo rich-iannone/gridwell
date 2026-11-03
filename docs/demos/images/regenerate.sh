@@ -19,7 +19,7 @@ gt = (
     .tab_header(title='Exibble Sample', subtitle='First 4 rows')
     .tab_source_note(source_note='Source: great_tables package')
 )
-table = gridwell.parse_ir(gridwell.gt_to_ir(gt))
+table = gridwell.Table(gt)
 print(table.render_typst())
 " > /tmp/gridwell_demo.typ
 
@@ -36,7 +36,7 @@ gt = (
     .tab_header(title='Exibble Sample', subtitle='First 4 rows')
     .tab_source_note(source_note='Source: great_tables package')
 )
-table = gridwell.parse_ir(gridwell.gt_to_ir(gt))
+table = gridwell.Table(gt)
 latex = table.render_latex()
 
 with open('/tmp/gridwell_demo.tex', 'w') as f:
