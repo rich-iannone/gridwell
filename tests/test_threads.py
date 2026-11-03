@@ -69,19 +69,42 @@ OPERATIONS = {
 }
 
 
+def result_share(result, seconds_per_call):
+    """The share of a call that holds the GIL whatever the binding does: making the
+    Python `str` or `bytes` of a result (a copy out of Rust) and freeing it. Small
+    beside the work for most calls, but `to_json`'s result is 157 MB, and where each
+    copy faults in fresh pages (CI's Linux runners) it takes about a third of the
+    call. At most a half, so a call that held the GIL throughout still fails."""
+    if isinstance(result, str):
+        raw, make = result.encode(), bytes.decode
+    elif isinstance(result, bytes):
+        raw, make = result, bytearray
+    else:
+        return 0.0
+    times = []
+    for _ in range(3):
+        start = time.perf_counter()
+        make(raw)
+        times.append(time.perf_counter() - start)
+    return min(0.5, sorted(times)[1] / seconds_per_call)
+
+
 @pytest.mark.parametrize("name", sorted(OPERATIONS))
 def test_other_threads_run_meanwhile(big, tmp_path, name):
     source, table = big
     operation = OPERATIONS[name]
     done = threading.Event()
+    calls = []
 
     def work():
         # Repeat for long enough that a stray scheduling delay doesn't count.
         start = time.perf_counter()
         while True:
             operation(source, table, tmp_path)
-            if time.perf_counter() - start > 0.25:
+            calls.append(time.perf_counter())
+            if calls[-1] - start > 0.25:
                 break
+        calls.insert(0, start)
         done.set()
 
     interval = sys.getswitchinterval()
@@ -100,8 +123,13 @@ def test_other_threads_run_meanwhile(big, tmp_path, name):
         worker.join()
     finally:
         sys.setswitchinterval(interval)
+    per_call = (calls[-1] - calls[0]) / (len(calls) - 1)
+    share = result_share(operation(source, table, tmp_path), per_call)
     # With the GIL held, the main thread would wait out nearly every call.
-    assert stalled / elapsed < 0.3, f"{name}: stalled {stalled:.3f}s of {elapsed:.3f}s"
+    assert stalled / elapsed < 0.3 + share, (
+        f"{name}: stalled {stalled:.3f}s of {elapsed:.3f}s "
+        f"({share:.2f} of each call goes to its result)"
+    )
 
 
 def test_one_table_renders_alike_on_many_threads():
