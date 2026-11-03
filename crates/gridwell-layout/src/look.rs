@@ -16,9 +16,16 @@
 //!   edges, where the spanner also has no outer padding.
 //! - [`Look::grand_summary_rule`]: above the first grand summary row.
 //!
+//! A cell's own border replaces the rule on its edge. On the table's top and
+//! bottom and under the head, once a cell sets its own border, the edge is drawn by
+//! its cells ([`EdgeRules`]).
+//!
 //! Column labels are normal weight (not bold), heading lines are centered, and the
 //! table is as wide as its widest heading or footer line.
 
+pub mod edges;
+
+pub use edges::{EdgePart, EdgeRules};
 use gridwell_core::Color;
 
 /// A horizontal or vertical line.
