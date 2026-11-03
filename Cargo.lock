@@ -486,6 +486,7 @@ dependencies = [
  "gridwell-ir",
  "gridwell-render",
  "pyo3",
+ "serde_json",
 ]
 
 [[package]]
