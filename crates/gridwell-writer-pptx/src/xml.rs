@@ -118,6 +118,3 @@ pub const THEME: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"
 
 /// Default column width in EMU (1 inch).
 pub const DEFAULT_COL_WIDTH_EMU: u32 = 914400;
-
-/// Default row height in EMU (0.35 inches).
-pub const DEFAULT_ROW_HEIGHT_EMU: u32 = 320040;
