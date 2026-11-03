@@ -12,7 +12,7 @@ create_exception!(
     gridwell,
     InvalidTableError,
     PyValueError,
-    "Raised when rendering a table whose IR fails validation. Subclass of ValueError; \
+    "Raised when rendering a table whose IR fails validation. Subclass of ValueError;\n\
      the message lists the validation errors."
 );
 
@@ -20,7 +20,7 @@ create_exception!(
     gridwell,
     InvalidOptionsError,
     PyValueError,
-    "Raised when writer options are not valid for the format (unknown option, wrong \
+    "Raised when writer options are not valid for the format (unknown option, wrong\n\
      type, value out of range). Subclass of ValueError."
 );
 
@@ -75,12 +75,24 @@ fn is_gt(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<bool> {
 /// Create with `Table(source)` from IR as a JSON string or a dict, or from a Great
 /// Tables `GT`; or with `Table.from_json`, `Table.from_dict` or `Table.from_gt`.
 /// In a notebook it displays as HTML, and `print()` draws it as text.
-#[pyclass(name = "Table", module = "gridwell")]
+///
+/// A table can't be changed once made, and the work done in Rust (parsing,
+/// validating, rendering, saving) runs with the GIL released, so other Python
+/// threads run meanwhile and one table can be rendered on several threads at once.
+#[pyclass(name = "Table", module = "gridwell", frozen)]
 struct PyTable {
     inner: Table,
 }
 
 impl PyTable {
+    /// Parse IR JSON, with the GIL released.
+    fn parse(py: Python<'_>, json: &str) -> PyResult<Self> {
+        let table = py
+            .allow_threads(|| Table::from_json(json))
+            .map_err(|e| PyValueError::new_err(format!("{e}")))?;
+        Ok(PyTable { inner: table })
+    }
+
     fn text(
         &self,
         py: Python<'_>,
@@ -88,7 +100,8 @@ impl PyTable {
         options: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<String> {
         let options = options_json(py, options)?;
-        gridwell_render::render_text(&self.inner, format, options.as_deref()).map_err(to_py_err)
+        py.allow_threads(|| gridwell_render::render_text(&self.inner, format, options.as_deref()))
+            .map_err(to_py_err)
     }
 
     fn binary<'py>(
@@ -98,9 +111,27 @@ impl PyTable {
         options: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<Bound<'py, PyBytes>> {
         let options = options_json(py, options)?;
-        let bytes = gridwell_render::render_binary(&self.inner, format, options.as_deref())
+        let bytes = py
+            .allow_threads(|| {
+                gridwell_render::render_binary(&self.inner, format, options.as_deref())
+            })
             .map_err(to_py_err)?;
         Ok(PyBytes::new(py, &bytes))
+    }
+
+    fn errors(&self) -> Vec<String> {
+        self.inner
+            .validate()
+            .into_iter()
+            .map(|e| e.to_string())
+            .collect()
+    }
+
+    fn description(&self) -> String {
+        format!(
+            "<gridwell.Table: {}>",
+            gridwell_render::describe(&self.inner)
+        )
     }
 }
 
@@ -115,12 +146,13 @@ impl PyTable {
     #[new]
     fn new(py: Python<'_>, source: &Bound<'_, PyAny>) -> PyResult<Self> {
         if source.is_instance_of::<PyString>() {
-            Self::from_json(&source.extract::<String>()?)
+            Self::parse(py, source.extract::<&str>()?)
         } else if source.is_instance_of::<PyDict>() {
             Self::from_dict(py, source)
         } else if let Ok(table) = source.downcast::<PyTable>() {
+            let original = &table.get().inner;
             Ok(PyTable {
-                inner: table.borrow().inner.clone(),
+                inner: py.allow_threads(|| original.clone()),
             })
         } else if is_gt(py, source)? {
             Self::from_gt(py, source)
@@ -143,32 +175,27 @@ impl PyTable {
             )));
         }
         let json = py.import("gridwell")?.getattr("gt_to_ir")?.call1((gt,))?;
-        Self::from_json(&json.extract::<String>()?)
+        Self::parse(py, json.extract::<&str>()?)
     }
 
     /// Parse a table from a JSON string.
     #[staticmethod]
-    fn from_json(json: &str) -> PyResult<Self> {
-        let table = Table::from_json(json).map_err(|e| PyValueError::new_err(format!("{e}")))?;
-        Ok(PyTable { inner: table })
+    fn from_json(py: Python<'_>, json: &str) -> PyResult<Self> {
+        Self::parse(py, json)
     }
 
     /// Parse a table from a Python dict (serialized to JSON internally).
     #[staticmethod]
     fn from_dict(py: Python<'_>, dict: &Bound<'_, PyAny>) -> PyResult<Self> {
         let json_mod = py.import("json")?;
-        let json_str: String = json_mod.call_method1("dumps", (dict,))?.extract()?;
-        Self::from_json(&json_str)
+        let json_str = json_mod.call_method1("dumps", (dict,))?;
+        Self::parse(py, json_str.extract::<&str>()?)
     }
 
     /// Validate the table IR, returning a list of error messages.
     /// Returns an empty list if the table is valid.
-    fn validate(&self) -> Vec<String> {
-        self.inner
-            .validate()
-            .into_iter()
-            .map(|e| e.to_string())
-            .collect()
+    fn validate(&self, py: Python<'_>) -> Vec<String> {
+        py.allow_threads(|| self.errors())
     }
 
     /// Features of the table a format can't express, and where, as messages:
@@ -178,15 +205,17 @@ impl PyTable {
     /// Raises `InvalidTableError` for invalid IR, and `ValueError` for an
     /// unknown format.
     #[pyo3(signature = (format=None))]
-    fn warnings(&self, format: Option<&str>) -> PyResult<Vec<String>> {
-        let found = gridwell_render::warnings(&self.inner, format).map_err(to_py_err)?;
-        Ok(found.iter().map(|w| w.to_string()).collect())
+    fn warnings(&self, py: Python<'_>, format: Option<&str>) -> PyResult<Vec<String>> {
+        py.allow_threads(|| {
+            let found = gridwell_render::warnings(&self.inner, format)?;
+            Ok(found.iter().map(|w| w.to_string()).collect())
+        })
+        .map_err(to_py_err)
     }
 
     /// Serialize the table back to a JSON string.
-    fn to_json(&self) -> PyResult<String> {
-        self.inner
-            .to_json()
+    fn to_json(&self, py: Python<'_>) -> PyResult<String> {
+        py.allow_threads(|| self.inner.to_json())
             .map_err(|e| PyValueError::new_err(format!("{e}")))
     }
 
@@ -237,8 +266,10 @@ impl PyTable {
     ) -> PyResult<Bound<'py, PyAny>> {
         let target: PathBuf = path.extract()?;
         let options = options_json(py, options.map(|d| d.as_any()))?;
-        gridwell_render::save(&self.inner, &target, format, options.as_deref())
-            .map_err(to_py_err)?;
+        py.allow_threads(|| {
+            gridwell_render::save(&self.inner, &target, format, options.as_deref())
+        })
+        .map_err(to_py_err)?;
         Ok(path)
     }
 
@@ -278,7 +309,7 @@ impl PyTable {
     }
 
     /// Render the table to SVG. Options: font_family, font_size, row_height,
-    /// cell_padding_x, cell_padding_y, default_col_width.
+    /// cell_padding_x, cell_padding_y, default_col_width, base_styles.
     #[pyo3(signature = (**options))]
     fn render_svg(&self, py: Python<'_>, options: Option<&Bound<'_, PyDict>>) -> PyResult<String> {
         self.text(py, "svg", options.map(|d| d.as_any()))
@@ -349,36 +380,35 @@ impl PyTable {
 
     /// What the table is: its size, row groups, summary rows and title, and
     /// whether it's invalid.
-    fn __repr__(&self) -> String {
-        format!(
-            "<gridwell.Table: {}>",
-            gridwell_render::describe(&self.inner)
-        )
+    fn __repr__(&self, py: Python<'_>) -> String {
+        py.allow_threads(|| self.description())
     }
 
     /// The table drawn as plain text (ANSI without color), for `print()`; an invalid
     /// table gives its description and errors instead. Never raises.
-    fn __str__(&self) -> String {
-        let plain = serde_json::json!({ "color": false });
-        match gridwell_render::render(&self.inner, "ansi", Some(&plain)) {
-            Ok(out) => {
-                // `print()` adds the line's end.
-                let text = out.as_text().unwrap_or_default();
-                text.strip_suffix('\n').unwrap_or(text).to_string()
+    fn __str__(&self, py: Python<'_>) -> String {
+        py.allow_threads(|| {
+            let plain = serde_json::json!({ "color": false });
+            match gridwell_render::render(&self.inner, "ansi", Some(&plain)) {
+                Ok(out) => {
+                    // `print()` adds the line's end.
+                    let text = out.as_text().unwrap_or_default();
+                    text.strip_suffix('\n').unwrap_or(text).to_string()
+                }
+                Err(_) => {
+                    let mut lines = vec![self.description()];
+                    lines.extend(self.errors().into_iter().map(|e| format!("  {e}")));
+                    lines.join("\n")
+                }
             }
-            Err(_) => {
-                let mut lines = vec![self.__repr__()];
-                lines.extend(self.validate().into_iter().map(|e| format!("  {e}")));
-                lines.join("\n")
-            }
-        }
+        })
     }
 
     /// The table as HTML for a notebook (Jupyter, VS Code, Quarto), with a fresh
     /// `table_id` so its styles apply to it alone, marked so Quarto doesn't restyle
     /// it. `None` for an invalid table, so the notebook shows the `repr()` instead.
-    fn _repr_html_(&self) -> Option<String> {
-        gridwell_render::display_html(&self.inner).ok()
+    fn _repr_html_(&self, py: Python<'_>) -> Option<String> {
+        py.allow_threads(|| gridwell_render::display_html(&self.inner).ok())
     }
 }
 
@@ -386,8 +416,8 @@ impl PyTable {
 ///
 /// Shorthand for `Table.from_json(json_str)`.
 #[pyfunction]
-fn parse_ir(json: &str) -> PyResult<PyTable> {
-    PyTable::from_json(json)
+fn parse_ir(py: Python<'_>, json: &str) -> PyResult<PyTable> {
+    PyTable::parse(py, json)
 }
 
 /// Every supported format: a list of dicts with name, description, kind ("text" or
