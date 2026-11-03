@@ -4,19 +4,98 @@
 #' Parse a gridwell table from a JSON string.
 #'
 #' @param json A JSON string containing the table IR.
-#' @return An external pointer to the parsed table.
+#' @return A `gw_table`: the parsed table. It prints as text in the console and
+#'   renders as the document's format in R Markdown and Quarto, and every
+#'   `gw_*()` function takes it. It keeps its IR, so it survives `saveRDS()` and
+#'   `readRDS()` (and knitr's cache).
+#' @examples
+#' \dontrun{
+#' tbl <- gw_parse_ir(json)
+#' tbl
+#' gw_render_html(tbl)
+#' }
 #' @export
 gw_parse_ir <- function(json) {
-    rs_parse_ir(json)
+    if (inherits(json, "json")) {
+        json <- as.character(json)
+    }
+    if (!is.character(json) || length(json) != 1 || is.na(json)) {
+        stop("`json` must be a single string of table IR.", call. = FALSE)
+    }
+    json <- enc2utf8(json)
+    new_gw_table(rs_parse_ir(json), json)
+}
+
+new_gw_table <- function(ptr, json) {
+    x <- new.env(parent = emptyenv())
+    x$ptr <- ptr
+    x$json <- json
+    class(x) <- "gw_table"
+    x
+}
+
+#' Make a gridwell table.
+#'
+#' Every `gw_*()` function calls this on its table argument, so each takes any
+#' of these.
+#'
+#' @param x A `gw_table` (from [gw_parse_ir()]), returned as it is; a gt table
+#'   (a `gt_tbl`, converted with [gt_to_ir()]); or table IR as a JSON string.
+#' @param ... Unused.
+#' @return A `gw_table`.
+#' @examples
+#' \dontrun{
+#' as_gw_table(gt::gt(head(mtcars)))
+#' }
+#' @export
+as_gw_table <- function(x, ...) {
+    UseMethod("as_gw_table")
+}
+
+#' @rdname as_gw_table
+#' @export
+as_gw_table.gw_table <- function(x, ...) x
+
+#' @rdname as_gw_table
+#' @export
+as_gw_table.gt_tbl <- function(x, ...) gw_parse_ir(gt_to_ir(x))
+
+#' @rdname as_gw_table
+#' @export
+as_gw_table.character <- function(x, ...) gw_parse_ir(x)
+
+#' @rdname as_gw_table
+#' @export
+as_gw_table.json <- function(x, ...) gw_parse_ir(x)
+
+#' @rdname as_gw_table
+#' @export
+as_gw_table.default <- function(x, ...) {
+    stop(
+        "Expected a gridwell table: a `gw_table` from gw_parse_ir(), a gt table, ",
+        "or table IR as a JSON string; got <", paste(class(x), collapse = "/"), ">.",
+        call. = FALSE
+    )
+}
+
+# The table's pointer, for the Rust functions: parsed again from its IR when
+# `readRDS()` gave back a pointer to nothing.
+gw_ptr <- function(x) {
+    x <- as_gw_table(x)
+    if (!rs_is_table(x$ptr)) {
+        x$ptr <- rs_parse_ir(x$json)
+    }
+    x$ptr
 }
 
 #' Validate a parsed table.
 #'
-#' @param table_ptr An external pointer to a parsed table (from `gw_parse_ir()`).
+#' @param x A table: a `gw_table` from [gw_parse_ir()], a gt table, or table IR
+#'   as a JSON string (see [as_gw_table()]).
 #' @return A character vector of validation errors (empty if valid).
 #' @export
-gw_validate <- function(table_ptr) {
-    rs_validate(table_ptr)
+gw_validate <- function(x) {
+    rs_validate(gw_ptr(x))
 }
 
 #' Find what output formats can't express of a parsed table.
@@ -26,22 +105,24 @@ gw_validate <- function(table_ptr) {
 #' something close. Each warning names the format, the feature, where the
 #' table uses it, and what's drawn instead. A warning doesn't stop rendering.
 #'
-#' @param table_ptr An external pointer to a parsed table (from `gw_parse_ir()`).
+#' @param x A table: a `gw_table` from [gw_parse_ir()], a gt table, or table IR
+#'   as a JSON string (see [as_gw_table()]).
 #' @param format A format name (see [gw_formats()]), or `NULL` for every format.
 #' @return A character vector of warnings (empty if every feature the table
 #'   uses is expressed). Invalid IR, and an unknown format, are errors.
 #' @export
-gw_warnings <- function(table_ptr, format = NULL) {
-    rs_warnings(table_ptr, format)
+gw_warnings <- function(x, format = NULL) {
+    rs_warnings(gw_ptr(x), format)
 }
 
 #' Serialize a parsed table back to JSON.
 #'
-#' @param table_ptr An external pointer to a parsed table.
+#' @param x A table: a `gw_table` from [gw_parse_ir()], a gt table, or table IR
+#'   as a JSON string (see [as_gw_table()]).
 #' @return A JSON string.
 #' @export
-gw_to_json <- function(table_ptr) {
-    rs_to_json(table_ptr)
+gw_to_json <- function(x) {
+    rs_to_json(gw_ptr(x))
 }
 
 #' List the supported output formats.
@@ -83,7 +164,8 @@ gw_options_json <- function(options) {
 #'
 #' The table is validated first; invalid IR is an error listing every problem.
 #'
-#' @param table_ptr An external pointer to a parsed table.
+#' @param x A table: a `gw_table` from [gw_parse_ir()], a gt table, or table IR
+#'   as a JSON string (see [as_gw_table()]).
 #' @param format A text format name (see [gw_formats()]): "html", "latex",
 #'   "typst", "rtf", "svg", "ansi", "pandoc" or "quarto".
 #' @param options Writer options: `NULL` for the defaults, a named list, or a JSON
@@ -91,8 +173,8 @@ gw_options_json <- function(options) {
 #'   options.
 #' @return The rendered string.
 #' @export
-gw_render <- function(table_ptr, format, options = NULL) {
-    rs_render_text(table_ptr, format, gw_options_json(options))
+gw_render <- function(x, format, options = NULL) {
+    rs_render_text(gw_ptr(x), format, gw_options_json(options))
 }
 
 #' Render a table to a binary format.
@@ -101,8 +183,8 @@ gw_render <- function(table_ptr, format, options = NULL) {
 #' @param format A binary format name: "docx", "xlsx" or "pptx".
 #' @return A raw vector containing the file bytes.
 #' @export
-gw_render_binary <- function(table_ptr, format, options = NULL) {
-    rs_render_binary(table_ptr, format, gw_options_json(options))
+gw_render_binary <- function(x, format, options = NULL) {
+    rs_render_binary(gw_ptr(x), format, gw_options_json(options))
 }
 
 #' Render a table and write it to a file.
@@ -118,8 +200,8 @@ gw_render_binary <- function(table_ptr, format, options = NULL) {
 #' ANSI escape codes) unless you pass `color = TRUE`. Nothing is written if the
 #' table, format or options are invalid.
 #'
-#' @param x A gt table (a `gt_tbl`, converted with [gt_to_ir()]) or a parsed
-#'   table from [gw_parse_ir()].
+#' @param x A table: a `gw_table` from [gw_parse_ir()], a gt table, or table IR
+#'   as a JSON string (see [as_gw_table()]).
 #' @param path The file to write.
 #' @param format A format name (see [gw_formats()]) to use instead of the one the
 #'   extension implies, or `NULL` to infer it.
@@ -142,10 +224,7 @@ gw_save <- function(x, path, format = NULL, ...) {
     if (!is.null(format) && (!is.character(format) || length(format) != 1 || is.na(format))) {
         stop("`format` must be NULL or a single format name.", call. = FALSE)
     }
-    if (inherits(x, "gt_tbl")) {
-        x <- gw_parse_ir(gt_to_ir(x))
-    }
-    rs_save(x, enc2utf8(path.expand(path)), format, gw_options_json(list(...)))
+    rs_save(gw_ptr(x), enc2utf8(path.expand(path)), format, gw_options_json(list(...)))
     invisible(path)
 }
 
@@ -154,7 +233,8 @@ gw_save <- function(x, path, format = NULL, ...) {
 #' Shorthands for [gw_render()] and [gw_render_binary()]; writer options are
 #' passed as named arguments, e.g. `gw_render_html(tbl, inline_styles = TRUE)`.
 #'
-#' @param table_ptr An external pointer to a parsed table.
+#' @param x A table: a `gw_table` from [gw_parse_ir()], a gt table, or table IR
+#'   as a JSON string (see [as_gw_table()]).
 #' @param ... Writer options as named arguments (see [gw_formats()]).
 #' @return A string for text formats, a raw vector for binary formats.
 #' @name gw_render_format
@@ -162,44 +242,44 @@ NULL
 
 #' @rdname gw_render_format
 #' @export
-gw_render_html <- function(table_ptr, ...) gw_render(table_ptr, "html", list(...))
+gw_render_html <- function(x, ...) gw_render(x, "html", list(...))
 
 #' @rdname gw_render_format
 #' @export
-gw_render_latex <- function(table_ptr, ...) gw_render(table_ptr, "latex", list(...))
+gw_render_latex <- function(x, ...) gw_render(x, "latex", list(...))
 
 #' @rdname gw_render_format
 #' @export
-gw_render_typst <- function(table_ptr, ...) gw_render(table_ptr, "typst", list(...))
+gw_render_typst <- function(x, ...) gw_render(x, "typst", list(...))
 
 #' @rdname gw_render_format
 #' @export
-gw_render_rtf <- function(table_ptr, ...) gw_render(table_ptr, "rtf", list(...))
+gw_render_rtf <- function(x, ...) gw_render(x, "rtf", list(...))
 
 #' @rdname gw_render_format
 #' @export
-gw_render_svg <- function(table_ptr, ...) gw_render(table_ptr, "svg", list(...))
+gw_render_svg <- function(x, ...) gw_render(x, "svg", list(...))
 
 #' @rdname gw_render_format
 #' @export
-gw_render_ansi <- function(table_ptr, ...) gw_render(table_ptr, "ansi", list(...))
+gw_render_ansi <- function(x, ...) gw_render(x, "ansi", list(...))
 
 #' @rdname gw_render_format
 #' @export
-gw_render_pandoc <- function(table_ptr, ...) gw_render(table_ptr, "pandoc", list(...))
+gw_render_pandoc <- function(x, ...) gw_render(x, "pandoc", list(...))
 
 #' @rdname gw_render_format
 #' @export
-gw_render_quarto <- function(table_ptr, ...) gw_render(table_ptr, "quarto", list(...))
+gw_render_quarto <- function(x, ...) gw_render(x, "quarto", list(...))
 
 #' @rdname gw_render_format
 #' @export
-gw_render_docx <- function(table_ptr, ...) gw_render_binary(table_ptr, "docx", list(...))
+gw_render_docx <- function(x, ...) gw_render_binary(x, "docx", list(...))
 
 #' @rdname gw_render_format
 #' @export
-gw_render_xlsx <- function(table_ptr, ...) gw_render_binary(table_ptr, "xlsx", list(...))
+gw_render_xlsx <- function(x, ...) gw_render_binary(x, "xlsx", list(...))
 
 #' @rdname gw_render_format
 #' @export
-gw_render_pptx <- function(table_ptr, ...) gw_render_binary(table_ptr, "pptx", list(...))
+gw_render_pptx <- function(x, ...) gw_render_binary(x, "pptx", list(...))
