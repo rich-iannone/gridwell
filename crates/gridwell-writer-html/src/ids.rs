@@ -50,6 +50,28 @@ impl IdRegistry {
     }
 }
 
+/// The CSS selector for the element with id `id` (any text): `#` and the id,
+/// escaped as `CSS.escape` does, except that every ASCII character other than
+/// letters, digits, `_` and `-` is a hex escape, so the selector can't close the
+/// `<style>` element it's written into.
+pub fn id_selector(id: &str) -> String {
+    let mut out = String::with_capacity(id.len() + 1);
+    out.push('#');
+    for (i, c) in id.chars().enumerate() {
+        // An ident can't start with a digit, or `-` and a digit, or be just `-`.
+        let leading_digit = c.is_ascii_digit() && (i == 0 || (i == 1 && id.starts_with('-')));
+        let plain = c.is_ascii_alphanumeric() || c == '_' || c == '-' || !c.is_ascii();
+        if c == '\0' {
+            out.push('\u{FFFD}');
+        } else if leading_digit || id == "-" || !plain {
+            out.push_str(&format!("\\{:x} ", c as u32));
+        } else {
+            out.push(c);
+        }
+    }
+    out
+}
+
 /// Text as an id: each run of characters other than word characters (letters,
 /// digits, `_`), `.`, `:` and `-` becomes one `-`, and leading and trailing `-`
 /// go. The result needs no escaping in an attribute.
@@ -295,6 +317,20 @@ mod tests {
         let mut r = IdRegistry::new(Some("!"), []);
         assert_eq!(r.prefix, "");
         assert_eq!(r.make("a", "column"), "a");
+    }
+
+    #[test]
+    fn id_selectors_escape_what_an_ident_cannot_hold() {
+        assert_eq!(id_selector("sales-2024"), "#sales-2024");
+        assert_eq!(id_selector("1a"), "#\\31 a");
+        assert_eq!(id_selector("-1"), "#-\\31 ");
+        assert_eq!(id_selector("a1"), "#a1");
+        assert_eq!(id_selector("-"), "#\\2d ");
+        assert_eq!(id_selector("--x"), "#--x");
+        assert_eq!(id_selector("a.b:c"), "#a\\2e b\\3a c");
+        assert_eq!(id_selector("é€"), "#é€");
+        assert_eq!(id_selector("a\0b"), "#a\u{FFFD}b");
+        assert_eq!(id_selector("</style>"), "#\\3c \\2f style\\3e ");
     }
 
     #[test]
