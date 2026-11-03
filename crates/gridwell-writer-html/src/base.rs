@@ -125,6 +125,10 @@ pub fn rules(p: &str, rtl: bool) -> Vec<String> {
                  border-top: {section}; border-bottom: {section}"
             ),
         ),
+        // An edge drawn by its cells ([`gridwell_layout::look::EdgeRules`]): the
+        // table's own rule is off, and the cells carrying it draw it instead.
+        w(&format!(".{p}_cells_top"), "border-top: none"),
+        w(&format!(".{p}_cells_bottom"), "border-bottom: none"),
         w(
             &format!(".{p}_table td, .{p}_table th"),
             &format!(
@@ -145,6 +149,18 @@ pub fn rules(p: &str, rtl: bool) -> Vec<String> {
         w(&format!(".{p}_table thead tr"), "vertical-align: bottom"),
         w(
             &format!(".{p}_table thead"),
+            &format!("border-bottom: {section}"),
+        ),
+        w(&format!(".{p}_cells_head thead"), "border-bottom: none"),
+        // Under such a head, the first row has no hairline (it would beat a thinner
+        // border of the cell above).
+        w(
+            &format!(".{p}_cells_head thead + tbody > tr:first-child > *"),
+            "border-top: none",
+        ),
+        w(&format!(".{p}_rule_top"), &format!("border-top: {section}")),
+        w(
+            &format!(".{p}_rule_bottom"),
             &format!("border-bottom: {section}"),
         ),
         // A spanner's rule is inset at each end, so neighboring spanners' rules
@@ -277,6 +293,33 @@ mod tests {
             rtl.iter().any(|r| r.contains("_stub) { border-left:")),
             "{rtl:?}"
         );
+    }
+
+    #[test]
+    fn edge_rules_come_after_the_rules_they_override() {
+        // Every rule has zero specificity: the later of two wins.
+        let rules = rules("gw", false);
+        let at = |selector: &str| {
+            rules
+                .iter()
+                .position(|r| r.starts_with(&format!(":where({selector})")))
+                .unwrap_or_else(|| panic!("no {selector}"))
+        };
+        assert!(at(".gw_cells_top") > at(".gw_table"));
+        assert!(at(".gw_cells_bottom") > at(".gw_table"));
+        assert!(at(".gw_cells_head thead") > at(".gw_table thead"));
+        let first_row = at(".gw_cells_head thead + tbody > tr:first-child > *");
+        assert!(first_row > at(".gw_table td, .gw_table th"));
+        for carried in [at(".gw_rule_top"), at(".gw_rule_bottom")] {
+            assert!(carried > at(".gw_table thead th") && carried > first_row);
+            // Group labels' and summaries' own rules still win.
+            assert!(carried < at(".gw_group_label"));
+            assert!(
+                carried
+                    < at("tbody > tr.gw_summary:first-child > *, \
+                          tr:not(.gw_summary) + tr.gw_summary > *")
+            );
+        }
     }
 
     #[test]
