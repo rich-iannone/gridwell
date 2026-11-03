@@ -17,15 +17,33 @@ platform serves every supported Python version.
 ```python
 import gridwell
 
-# From JSON string
+# From IR as a JSON string, a dict, or a Great Tables GT
+table = gridwell.Table(json_str)
+table = gridwell.Table({"ir_version": "1.0", ...})
+table = gridwell.Table(gt)
+
+# The same, one kind each
 table = gridwell.Table.from_json(json_str)
-
-# From dict
 table = gridwell.Table.from_dict({"ir_version": "1.0", ...})
-
-# Shorthand
+table = gridwell.Table.from_gt(gt)
 table = gridwell.parse_ir(json_str)
 ```
+
+Anything else is a `TypeError`.
+
+## Showing a Table
+
+```python
+>>> table
+<gridwell.Table: 3 columns, 12 rows in 2 groups, titled "Sales">
+>>> print(table)    # the table drawn as plain text, as render_ansi(color=False)
+```
+
+`repr()` describes the table: its size, row groups, summary rows and title, and
+whether it's invalid. In a notebook (Jupyter, VS Code, Quarto) a table shows as HTML.
+Each display gets an id of its own (`table_id`), so the styles of several tables in
+one notebook stay apart, and is marked so Quarto doesn't add Bootstrap's table
+styling. An invalid table shows its repr, and `print()` lists its validation errors.
 
 ## Validation
 
@@ -77,7 +95,7 @@ docx_bytes = table.render_docx()    # returns bytes
 xlsx_bytes = table.render_xlsx()
 pptx_bytes = table.render_pptx()
 
-# Generic by name (binary formats take no options yet)
+# Generic by name
 data = table.render_binary("docx")
 ```
 
@@ -112,14 +130,18 @@ from great_tables import GT, exibble
 import gridwell
 
 gt = GT(exibble.head(5))
-ir_json = gridwell.gt_to_ir(gt)
-table = gridwell.parse_ir(ir_json)
+table = gridwell.Table(gt)
 html = table.render_html()
+
+ir_json = gridwell.gt_to_ir(gt)  # the IR itself
 ```
+
+See [Great Tables Integration](../guide/integration-great-tables.qmd).
 
 ## Error Handling
 
-`ValueError` is raised for parse errors, unknown format names, and render failures.
+`ValueError` is raised for parse errors (and `TypeError` for something `Table()`
+can't take), unknown format names, and render failures.
 `render()` takes text formats and `render_binary()` binary ones; the other kind is a
 `ValueError`. Invalid writer options raise `gridwell.InvalidOptionsError` (a subclass
 of `ValueError`) naming the problem, e.g. an unknown option. `save()` raises
