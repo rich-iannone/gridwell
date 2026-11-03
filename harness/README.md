@@ -269,6 +269,8 @@ its GHCR settings.
   - `python-wheel` builds one abi3 wheel. `python-test` installs it on Python
     3.10–3.14, both bare (`core`, which must lack pandas) and with `[gt]`, and runs
     pytest outside the checkout so the installed wheel is what's tested.
+    `GRIDWELL_REQUIRE_MYPY` makes the type-stub checks (stubtest, mypy on usage)
+    mandatory.
   - `r` runs `R CMD INSTALL` plus the testthat suite. A full `R CMD check` waits on
     vendoring (roadmap M6).
   - `fuzz` runs a 60 s smoke per cargo-fuzz target, seeded from the fixtures and
