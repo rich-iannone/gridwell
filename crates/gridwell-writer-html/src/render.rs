@@ -411,10 +411,23 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         self.write_line("<style>");
         self.push_indent();
 
+        // With a table id, every rule is scoped to the table's container, as gt
+        // scopes its rules: tables on one page can't restyle each other. The id
+        // adds the same specificity to every rule but the base look's, so the
+        // rules' order of precedence stays.
+        let p = self.config.class_prefix.clone();
+        let scope = self
+            .config
+            .table_id
+            .as_deref()
+            .map(crate::ids::id_selector)
+            .unwrap_or_default();
+        let scoped = |selector: &str| crate::base::scoped(&scope, &p, selector);
+
         // The base look first: zero specificity, so everything below wins.
         if self.config.base_styles {
             let rtl = self.table.config.dir == Some(TextDirection::Rtl);
-            for line in crate::base::rules(&self.config.class_prefix, rtl) {
+            for line in crate::base::rules(&p, rtl, &scope) {
                 self.write_line(&line);
             }
         }
@@ -424,15 +437,15 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         // rules a host page commonly has, which a bare class would lose to. A
         // cell's alignment already reflects any style that sets one, so this
         // can't contradict a named style class.
-        let p = &self.config.class_prefix;
         let mut alignments = self.alignments.clone();
         alignments.sort_unstable();
         for a in alignments {
-            let line = format!(".{p}_table .{p}__al_{a} {{ text-align: {a} }}");
-            self.write_line(&line);
+            let selector = scoped(&format!(".{p}_table .{p}__al_{a}"));
+            self.write_line(&format!("{selector} {{ text-align: {a} }}"));
         }
         if self.pads {
-            self.write_line(&format!(".{p}_table .{p}__pad {{ visibility: hidden }}"));
+            let selector = scoped(&format!(".{p}_table .{p}__pad"));
+            self.write_line(&format!("{selector} {{ visibility: hidden }}"));
         }
 
         // Emit style definitions as CSS classes
@@ -441,7 +454,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         for id in style_ids {
             let css = style_css(&self.rt.style(id));
             if let (Some(class), false) = (self.style_class(id), css.is_empty()) {
-                self.write_line(&format!(".{class} {{ {css} }}"));
+                self.write_line(&format!("{} {{ {css} }}", scoped(&format!(".{class}"))));
             }
         }
 
@@ -453,7 +466,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             // base is missing).
             let css = style_css(&self.rt.style(id));
             if let (Some(class), false) = (self.style_class(id), css.is_empty()) {
-                self.write_line(&format!(".{class} {{ {css} }}"));
+                self.write_line(&format!("{} {{ {css} }}", scoped(&format!(".{class}"))));
             }
         }
 
@@ -464,8 +477,8 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             .iter()
             .enumerate()
             .map(|(n, style)| {
-                let p = &self.config.class_prefix;
-                format!(".{p}_table .{p}__c{n} {{ {} }}", style_css(style))
+                let selector = scoped(&format!(".{p}_table .{p}__c{n}"));
+                format!("{selector} {{ {} }}", style_css(style))
             })
             .collect();
         for line in generated {
@@ -538,6 +551,9 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             }
         }
         attrs.push(format!("class=\"{}\"", classes.join(" ")));
+        if self.config.quarto_disable_processing {
+            attrs.push("data-quarto-disable-processing=\"true\"".to_string());
+        }
 
         // The title names the table and the subtitle describes it, unless the
         // config names it (`aria_label`, or a caption from `summary`) or says what
