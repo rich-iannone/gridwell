@@ -219,9 +219,10 @@ jobs:
   r:
     name: R package (install + testthat)
     runs-on: ubuntu-latest
-    # Full `R CMD check` needs a self-contained package (vendored crates instead of
-    # path deps into ../../../crates); that is roadmap item M6. Until then this
-    # builds and installs the package and runs its testthat suite.
+    # The package as it is in the repository, with path dependencies on the
+    # workspace crates: install it and run the testthat suite (including the check
+    # of harness/gt-reference, which needs the checkout). `r-check` checks the
+    # self-contained source package.
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -245,6 +246,77 @@ jobs:
         run: |
           Rscript -e 'testthat::test_dir("r-package/tests/testthat", package = "gridwell",
                                          load_package = "installed", stop_on_failure = TRUE)'
+
+  # The R package as CRAN and r-universe get it: `cargo xtask r-source` bundles the
+  # workspace crates and vendors the crates.io ones, `R CMD build` makes the
+  # tarball, and `R CMD check --as-cran` checks it. NOT_CRAN is unset, so it builds
+  # as on CRAN: offline, from the vendored crates, with an empty CARGO_HOME. Rust
+  # 1.85 checks DESCRIPTION's `rustc (>= 1.85)`. Errors and warnings fail the job;
+  # notes go in the run summary.
+  r-check:
+    name: R CMD check (source package, Rust 1.85)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # xtask needs a newer Rust than the package does.
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Write the source package
+        run: cargo xtask r-source --out "$RUNNER_TEMP/r-source/gridwell"
+      # Now the default toolchain, which the package's build uses.
+      - uses: dtolnay/rust-toolchain@1.85
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          working-directory: ${{ runner.temp }}/r-source/gridwell
+      # checkbashisms: --as-cran checks configure and cleanup with it, as CRAN does.
+      - name: Install checkbashisms
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends devscripts
+      - name: R CMD build
+        working-directory: ${{ runner.temp }}
+        run: R CMD build r-source/gridwell
+      - name: R CMD check --as-cran
+        working-directory: ${{ runner.temp }}
+        env:
+          _R_CHECK_CRAN_INCOMING_: "false"
+        run: |
+          unset NOT_CRAN
+          R CMD check --as-cran --no-manual gridwell_*.tar.gz || true
+          log=gridwell.Rcheck/00check.log
+          install=gridwell.Rcheck/00install.out
+          {
+            echo "### R CMD check (source package)"
+            echo '```'
+            grep -v ' \.\.\. OK$' "$log" || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          status=$(grep '^Status:' "$log" || echo "Status: none (the check stopped)")
+          echo "$status"
+          case "$status" in
+            *ERROR*|*WARNING*|*none*) cat "$install"; exit 1 ;;
+          esac
+          # CRAN asks about every NOTE. The size one is expected: the Rust library is big.
+          notes=$(grep ' \.\.\. NOTE$' "$log" | grep -v 'checking installed package size' || true)
+          if [ -n "$notes" ]; then
+            echo "Unexpected NOTEs:"; echo "$notes"; exit 1
+          fi
+          # Built as on CRAN: from the vendored crates, offline, with Rust 1.85.
+          grep -q "Using offline vendor tarball" "$install"
+          grep -q -- "cargo build -j 2 --offline" "$install"
+          grep -q "^Using rustc 1\.85\." "$install"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r-source-package
+          path: |
+            ${{ runner.temp }}/gridwell_*.tar.gz
+            ${{ runner.temp }}/gridwell.Rcheck/00*
+          if-no-files-found: ignore
+          retention-days: 14
 
   fuzz:
     name: Fuzz smoke (60s/target)
