@@ -15,6 +15,8 @@
 //!   too)
 //! - `cargo xtask determinism` — after `gallery`: rasterize the ungated formats
 //!   again and report whether the images come out the same (see `determinism`)
+//! - `cargo xtask r-source` — write the R package as a self-contained source package
+//!   (bundled crates, vendored dependencies) for `R CMD build` (see `r_source`)
 
 mod compare;
 mod determinism;
@@ -22,6 +24,7 @@ mod diff;
 mod formats;
 mod gallery;
 mod gt_compare;
+mod r_source;
 mod raster;
 mod svg_compare;
 
@@ -58,6 +61,13 @@ enum Command {
     /// After `gallery`: rasterize every ungated format again and report whether
     /// the images match the gallery's (and propose them as goldens)
     Determinism,
+    /// Write the R package as a self-contained source package (default
+    /// target/r-source/gridwell), ready for `R CMD build`
+    RSource {
+        /// Output directory (replaced if it is an earlier r-source output)
+        #[arg(long)]
+        out: Option<PathBuf>,
+    },
 }
 
 fn workspace_root() -> PathBuf {
@@ -119,6 +129,16 @@ fn main() {
             Ok(report) => {
                 eprint!("{report}");
                 gallery::write_gh_summary(&report);
+                0
+            }
+            Err(e) => {
+                eprintln!("error: {e}");
+                1
+            }
+        },
+        Command::RSource { out } => match r_source::run(&root, out) {
+            Ok(summary) => {
+                eprint!("{summary}");
                 0
             }
             Err(e) => {
