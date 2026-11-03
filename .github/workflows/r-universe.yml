@@ -1,0 +1,52 @@
+name: R source branch
+
+# r-universe builds R packages from git, but the package in r-package/ isn't
+# self-contained: its Rust code depends on the workspace crates by path. This
+# writes the self-contained source package (`cargo xtask r-source`, the same one
+# CI's `r-check` job checks) and commits it to the `r-universe` branch, which the
+# registry entry in <owner>.r-universe.dev names. Run it by hand, after CI passes
+# on the commit: Actions → R source branch → Run workflow.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: r-universe-branch
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Commit the source package to the r-universe branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Write the source package
+        run: cargo xtask r-source --out "$RUNNER_TEMP/r-source/gridwell"
+      - name: Commit and push
+        run: |
+          set -euo pipefail
+          src="$RUNNER_TEMP/r-source/gridwell"
+          tree="$RUNNER_TEMP/r-universe"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch --depth 1 origin r-universe; then
+            git worktree add -B r-universe "$tree" FETCH_HEAD
+          else
+            git worktree add --orphan -b r-universe "$tree"
+          fi
+          cd "$tree"
+          git rm -rq --ignore-unmatch .
+          cp -R "$src"/. .
+          git add -A
+          if git diff --cached --quiet; then
+            echo "The source package is unchanged."
+            exit 0
+          fi
+          git commit -q -m "Source package from ${GITHUB_SHA::12}"
+          git push origin r-universe
+          echo "Committed $(git rev-parse --short HEAD) (from ${GITHUB_SHA::12}) to r-universe." >> "$GITHUB_STEP_SUMMARY"
