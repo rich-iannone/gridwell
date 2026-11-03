@@ -1,13 +1,3 @@
-fixtures_dir <- normalizePath(
-    file.path(testthat::test_path(), "..", "..", "..", "fixtures"),
-    mustWork = TRUE
-)
-
-load_fixture <- function(rel_path) {
-    readLines(file.path(fixtures_dir, rel_path), warn = FALSE) |>
-        paste(collapse = "\n")
-}
-
 # ─── Parse tests ───
 
 test_that("gw_parse_ir works with valid JSON", {
