@@ -18,6 +18,38 @@ json <- paste(readLines("table.json", warn = FALSE), collapse = "\n")
 tbl <- gw_parse_ir(json)
 ```
 
+`gw_parse_ir()` gives a `gw_table`. Every function takes a `gw_table`, a gt table
+(converted on the way in) or IR as a JSON string; `as_gw_table()` turns any of them
+into a `gw_table`, and anything else is an error. A `gw_table` can be saved with
+`saveRDS()` and read back, and knitr's cache keeps it too.
+
+## Showing a Table
+
+```r
+tbl
+#> <gw_table: 3 columns, 12 rows in 2 groups, titled "Sales">
+#>
+#> (the table drawn as text)
+format(tbl, width = 60)   # the same as lines, the drawing at most 60 wide
+```
+
+A table prints as a description (its size, row groups, summary rows and title) and
+the table drawn as text, as `gw_render_ansi()` draws it, fitted to the console. The
+console gets colors unless it can't show them or `NO_COLOR` is set;
+`options(gridwell.color = TRUE)` or `FALSE` decides. An invalid table prints its
+validation errors.
+
+In R Markdown and Quarto, a table a chunk returns is shown in the document's format:
+
+| Output | Shown as |
+|---|---|
+| HTML | HTML, with an id of its own so its styles apply to it alone, marked so Quarto doesn't add Bootstrap's table styling |
+| PDF (LaTeX, Beamer) | LaTeX, adding the packages it uses (booktabs, multirow, longtable, tabularx, xcolor, ulem) to the document, with rmarkdown installed |
+| Typst | Typst |
+| Word, PowerPoint, RTF, others | the table drawn as text; `gw_save()` writes a real one |
+
+`.Rnw` and `.Rhtml` files get LaTeX and HTML, unfenced.
+
 ## Validation
 
 ```r
@@ -78,7 +110,7 @@ docx_raw <- gw_render_binary(tbl, "docx")
 `gw_save()` renders and writes in one call, for every format: the format comes from
 the file extension and the bytes are written unchanged (UTF-8 text, no re-encoding,
 no added newline), so there is no `writeLines()` versus `writeBin()` to choose. It
-takes a gt table directly, or a parsed table, and returns `path` invisibly.
+takes any table the other functions take, and returns `path` invisibly.
 
 ```r
 gt(exibble) |> gw_save("table.rtf")
@@ -121,11 +153,14 @@ json_out <- gw_to_json(tbl)
 library(gt)
 library(gridwell)
 
-tbl <- gt(exibble, rowname_col = "row", groupname_col = "group")
-ir_json <- gt_to_ir(tbl)
-table_ptr <- gw_parse_ir(ir_json)
-html <- gw_render_html(table_ptr)
+gt_tbl <- gt(exibble, rowname_col = "row", groupname_col = "group")
+html <- gw_render_html(gt_tbl)
+tbl <- as_gw_table(gt_tbl)
+
+ir_json <- gt_to_ir(gt_tbl)  # the IR itself
 ```
+
+See [gt Integration](../guide/integration-gt.qmd).
 
 ## Error Handling
 
