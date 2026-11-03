@@ -135,6 +135,13 @@ italic cell as regular, upright text.
   `:where()`, which has zero specificity, so the table's styles and the host page's
   CSS always override them. `base_styles: false` leaves only the table's own styles.
   With `inline_styles` there is no `<style>` block, so no base look either.
+- A cell's own border replaces the base rule on its edge. In a collapsed table the
+  wider of two borders wins, so on the table's top and bottom and under the column
+  labels, once a cell sets its own border there, the edge is drawn by its cells: the
+  table gets a `{prefix}_cells_top`, `_cells_head` or `_cells_bottom` class turning its
+  rule off, and the other cells on that edge (`{prefix}_rule_top`, `_rule_bottom`)
+  draw the rule themselves. A thin cell border then shows as drawn, not under a wider
+  rule
 - `standalone: true` wraps the fragment in a complete UTF-8 document (doctype, charset,
   viewport, a `<title>` from the table's title), for a file opened directly in a
   browser. Saved `.html` files are fragments unless you pass it.
@@ -296,7 +303,8 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Standalone SVG image, self-contained (no external dependencies)
 - The same default look as HTML (gt's rules, padding, sizes and text color, from one
   shared spec), drawn by gridwell's own layout: the table's styles (fills, bold,
-  colors, cell borders and padding) still win
+  colors, cell borders and padding) still win, and an edge is drawn the way HTML draws
+  it (a cell's own border replaces the rule there)
 - Text laid out with Roboto's real widths (cells leave room for Arial-compatible
   fallbacks), and every line drawn with `textLength`, so viewers that substitute
   another font keep the layout. librsvg ignores `textLength`, so rsvg-based tools
