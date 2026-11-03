@@ -4,10 +4,11 @@
 \alias{gw_render}
 \title{Render a table to a text format.}
 \usage{
-gw_render(table_ptr, format, options = NULL)
+gw_render(x, format, options = NULL)
 }
 \arguments{
-\item{table_ptr}{An external pointer to a parsed table.}
+\item{x}{A table: a \code{gw_table} from \code{\link[=gw_parse_ir]{gw_parse_ir()}}, a gt table, or table IR
+as a JSON string (see \code{\link[=as_gw_table]{as_gw_table()}}).}
 
 \item{format}{A text format name (see \code{\link[=gw_formats]{gw_formats()}}): "html", "latex",
 "typst", "rtf", "svg", "ansi", "pandoc" or "quarto".}

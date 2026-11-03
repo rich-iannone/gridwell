@@ -7,8 +7,8 @@
 gw_save(x, path, format = NULL, ...)
 }
 \arguments{
-\item{x}{A gt table (a \code{gt_tbl}, converted with \code{\link[=gt_to_ir]{gt_to_ir()}}) or a parsed
-table from \code{\link[=gw_parse_ir]{gw_parse_ir()}}.}
+\item{x}{A table: a \code{gw_table} from \code{\link[=gw_parse_ir]{gw_parse_ir()}}, a gt table, or table IR
+as a JSON string (see \code{\link[=as_gw_table]{as_gw_table()}}).}
 
 \item{path}{The file to write.}
 

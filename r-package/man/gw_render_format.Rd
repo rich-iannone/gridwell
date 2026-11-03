@@ -15,30 +15,31 @@
 \alias{gw_render_pptx}
 \title{Render a table to a specific format.}
 \usage{
-gw_render_html(table_ptr, ...)
+gw_render_html(x, ...)
 
-gw_render_latex(table_ptr, ...)
+gw_render_latex(x, ...)
 
-gw_render_typst(table_ptr, ...)
+gw_render_typst(x, ...)
 
-gw_render_rtf(table_ptr, ...)
+gw_render_rtf(x, ...)
 
-gw_render_svg(table_ptr, ...)
+gw_render_svg(x, ...)
 
-gw_render_ansi(table_ptr, ...)
+gw_render_ansi(x, ...)
 
-gw_render_pandoc(table_ptr, ...)
+gw_render_pandoc(x, ...)
 
-gw_render_quarto(table_ptr, ...)
+gw_render_quarto(x, ...)
 
-gw_render_docx(table_ptr, ...)
+gw_render_docx(x, ...)
 
-gw_render_xlsx(table_ptr, ...)
+gw_render_xlsx(x, ...)
 
-gw_render_pptx(table_ptr, ...)
+gw_render_pptx(x, ...)
 }
 \arguments{
-\item{table_ptr}{An external pointer to a parsed table.}
+\item{x}{A table: a \code{gw_table} from \code{\link[=gw_parse_ir]{gw_parse_ir()}}, a gt table, or table IR
+as a JSON string (see \code{\link[=as_gw_table]{as_gw_table()}}).}
 
 \item{...}{Writer options as named arguments (see \code{\link[=gw_formats]{gw_formats()}}).}
 }

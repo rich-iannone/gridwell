@@ -4,10 +4,11 @@
 \alias{gw_render_binary}
 \title{Render a table to a binary format.}
 \usage{
-gw_render_binary(table_ptr, format, options = NULL)
+gw_render_binary(x, format, options = NULL)
 }
 \arguments{
-\item{table_ptr}{An external pointer to a parsed table.}
+\item{x}{A table: a \code{gw_table} from \code{\link[=gw_parse_ir]{gw_parse_ir()}}, a gt table, or table IR
+as a JSON string (see \code{\link[=as_gw_table]{as_gw_table()}}).}
 
 \item{format}{A binary format name: "docx", "xlsx" or "pptx".}
 

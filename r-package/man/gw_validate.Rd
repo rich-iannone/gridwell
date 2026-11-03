@@ -4,10 +4,11 @@
 \alias{gw_validate}
 \title{Validate a parsed table.}
 \usage{
-gw_validate(table_ptr)
+gw_validate(x)
 }
 \arguments{
-\item{table_ptr}{An external pointer to a parsed table (from \code{gw_parse_ir()}).}
+\item{x}{A table: a \code{gw_table} from \code{\link[=gw_parse_ir]{gw_parse_ir()}}, a gt table, or table IR
+as a JSON string (see \code{\link[=as_gw_table]{as_gw_table()}}).}
 }
 \value{
 A character vector of validation errors (empty if valid).

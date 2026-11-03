@@ -4,10 +4,11 @@
 \alias{gw_warnings}
 \title{Find what output formats can't express of a parsed table.}
 \usage{
-gw_warnings(table_ptr, format = NULL)
+gw_warnings(x, format = NULL)
 }
 \arguments{
-\item{table_ptr}{An external pointer to a parsed table (from \code{gw_parse_ir()}).}
+\item{x}{A table: a \code{gw_table} from \code{\link[=gw_parse_ir]{gw_parse_ir()}}, a gt table, or table IR
+as a JSON string (see \code{\link[=as_gw_table]{as_gw_table()}}).}
 
 \item{format}{A format name (see \code{\link[=gw_formats]{gw_formats()}}), or \code{NULL} for every format.}
 }

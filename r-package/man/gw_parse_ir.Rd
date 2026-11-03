@@ -10,8 +10,18 @@ gw_parse_ir(json)
 \item{json}{A JSON string containing the table IR.}
 }
 \value{
-An external pointer to the parsed table.
+A \code{gw_table}: the parsed table. It prints as text in the console and
+renders as the document's format in R Markdown and Quarto, and every
+\verb{gw_*()} function takes it. It keeps its IR, so it survives \code{saveRDS()} and
+\code{readRDS()} (and knitr's cache).
 }
 \description{
 Parse a gridwell table from a JSON string.
+}
+\examples{
+\dontrun{
+tbl <- gw_parse_ir(json)
+tbl
+gw_render_html(tbl)
+}
 }
