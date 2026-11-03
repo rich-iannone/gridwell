@@ -1,13 +1,3 @@
-fixtures_dir <- normalizePath(
-    file.path(testthat::test_path(), "..", "..", "..", "fixtures"),
-    mustWork = TRUE
-)
-
-load_fixture <- function(rel_path) {
-    readLines(file.path(fixtures_dir, rel_path), warn = FALSE) |>
-        paste(collapse = "\n")
-}
-
 # Set knitr's output format for one block, as rmarkdown and Quarto do.
 with_knit_format <- function(pandoc_to, code, out_format = "markdown") {
     old <- knitr::opts_knit$get(c("rmarkdown.pandoc.to", "out.format"))
