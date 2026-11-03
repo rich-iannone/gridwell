@@ -392,8 +392,30 @@ fn svg(bin: &str, svg_in: &Path, png: &Path) -> RasterOutcome {
             .arg(png)
             .output()
     };
+    // The drawing fills its canvas: give it the margin the other formats' pages
+    // have, so the crop leaves the same whitespace around every preview.
+    if matches!(&out, Ok(o) if o.status.success()) {
+        add_margin(png, MARGIN);
+    }
     finish(out, png)
 }
+
+/// Surround a PNG with `margin` white pixels on every side. Best-effort, as
+/// [`crop_to_content`].
+fn add_margin(png: &Path, margin: u32) {
+    let Ok(img) = image::open(png) else {
+        return;
+    };
+    let img = img.to_rgba8();
+    let (w, h) = img.dimensions();
+    let white = image::Rgba([255, 255, 255, 255]);
+    let mut out = image::RgbaImage::from_pixel(w + 2 * margin, h + 2 * margin, white);
+    image::imageops::overlay(&mut out, &img, margin.into(), margin.into());
+    let _ = out.save(png);
+}
+
+/// The whitespace [`crop_to_content`] keeps around a preview, in pixels.
+const MARGIN: u32 = 10;
 
 /// Turn a command result + expected PNG into an outcome.
 fn finish(out: std::io::Result<std::process::Output>, png: &Path) -> RasterOutcome {
@@ -413,7 +435,7 @@ fn finish(out: std::io::Result<std::process::Output>, png: &Path) -> RasterOutco
 /// goldens crop identically) — on any error the original is left untouched.
 fn crop_to_content(png: &Path) {
     const TOL: u8 = 10;
-    const PAD: u32 = 10;
+    const PAD: u32 = MARGIN;
 
     let img = match image::open(png) {
         Ok(i) => i.to_rgba8(),
@@ -566,6 +588,54 @@ mod tests {
             std::env::temp_dir().join(format!("gridwell-raster-{}-{name}.png", std::process::id()));
         img.save(&path).unwrap();
         path
+    }
+
+    #[test]
+    fn a_margin_survives_the_crop() {
+        // Ink in two opposite corners: the crop keeps all of the added margin.
+        let png = write_png("margin", 10, 8, &[(0, 0), (9, 7)]);
+        add_margin(&png, MARGIN);
+        crop_to_content(&png);
+        let img = image::open(&png).unwrap().to_rgba8();
+        assert_eq!(img.dimensions(), (10 + 2 * MARGIN, 8 + 2 * MARGIN));
+        let black = image::Rgba([0, 0, 0, 255]);
+        assert_eq!(*img.get_pixel(MARGIN, MARGIN), black);
+        assert_eq!(*img.get_pixel(MARGIN + 9, MARGIN + 7), black);
+        assert_eq!(*img.get_pixel(0, 0), image::Rgba([255, 255, 255, 255]));
+        // A page with a wider margin is cropped down to the same one.
+        let png = write_png("page", 60, 60, &[(25, 30), (34, 30)]);
+        crop_to_content(&png);
+        let img = image::open(&png).unwrap().to_rgba8();
+        assert_eq!(img.dimensions(), (10 + 2 * MARGIN, 1 + 2 * MARGIN));
+    }
+
+    #[test]
+    fn an_svg_preview_gets_the_margin() {
+        let Some(bin) = Tools::detect().rsvg else {
+            if std::env::var_os("GRIDWELL_REQUIRE_RSVG").is_some_and(|v| !v.is_empty()) {
+                panic!("rsvg-convert not found but GRIDWELL_REQUIRE_RSVG is set");
+            }
+            eprintln!("skipping: rsvg-convert not found");
+            return;
+        };
+        // A drawing that fills its canvas, drawn at twice its size.
+        let dir = std::env::temp_dir();
+        let svg_in = dir.join(format!("gridwell-xtask-{}-fill.svg", std::process::id()));
+        std::fs::write(
+            &svg_in,
+            r#"<svg xmlns="http://www.w3.org/2000/svg" width="20" height="10"><rect width="20" height="10"/></svg>"#,
+        )
+        .unwrap();
+        let png = svg_in.with_extension("png");
+        match svg(&bin, &svg_in, &png) {
+            RasterOutcome::Png(_) => {}
+            RasterOutcome::Failed(e) => panic!("{e}"),
+            RasterOutcome::Unavailable(t) => panic!("{t} unavailable"),
+        }
+        let img = image::open(&png).unwrap().to_rgba8();
+        assert_eq!(img.dimensions(), (40 + 2 * MARGIN, 20 + 2 * MARGIN));
+        assert_eq!(*img.get_pixel(0, 0), image::Rgba([255, 255, 255, 255]));
+        assert_eq!(*img.get_pixel(MARGIN, MARGIN), image::Rgba([0, 0, 0, 255]));
     }
 
     #[test]
