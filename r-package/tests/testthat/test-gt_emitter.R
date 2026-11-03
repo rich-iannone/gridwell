@@ -157,7 +157,7 @@ test_that("the gt reference IR in harness/gt-reference is up to date", {
 # ---- Summary rows, table options, missing values ----
 
 test_that("group and grand summary rows are emitted as gt formats them", {
-    tbl <- exibble[, c("row", "group", "num")] |>
+    tbl <- gt::exibble[, c("row", "group", "num")] |>
         gt::gt(rowname_col = "row", groupname_col = "group") |>
         gt::summary_rows(
             columns = num, fns = list(Total = ~ sum(., na.rm = TRUE)),
@@ -189,7 +189,7 @@ test_that("group and grand summary rows are emitted as gt formats them", {
 })
 
 test_that("a grand summary without a stub gets one, empty in the data rows", {
-    tbl <- exibble[1:3, c("char", "num")] |>
+    tbl <- gt::exibble[1:3, c("char", "num")] |>
         gt::gt() |>
         gt::grand_summary_rows(columns = num, fns = list(Sum = ~ sum(.)))
     ir <- gt_to_ir_list(tbl)
@@ -204,19 +204,19 @@ test_that("a grand summary without a stub gets one, empty in the data rows", {
 })
 
 test_that("tables without summaries are unchanged by the summary support", {
-    ir <- gt_to_ir_list(gt::gt(exibble[1:2, c("char", "num")]))
+    ir <- gt_to_ir_list(gt::gt(gt::exibble[1:2, c("char", "num")]))
     expect_identical(ir$config$stub_cols, 0L)
     expect_length(ir$table$tbody, 1)
     expect_length(ir$table$tbody[[1]]$summary_rows, 0)
 })
 
 test_that("changed table options become IR styles; defaults add nothing", {
-    plain <- gt_to_ir_list(gt::gt(exibble[1:4, c("char", "num")]))
+    plain <- gt_to_ir_list(gt::gt(gt::exibble[1:4, c("char", "num")]))
     expect_length(plain$styles$defs, 0)
     expect_false(plain$config$row_striping)
     expect_length(plain$styles$conditionals, 0)
 
-    tbl <- exibble[1:4, c("row", "char", "num")] |>
+    tbl <- gt::exibble[1:4, c("row", "char", "num")] |>
         gt::gt(rowname_col = "row") |>
         gt::tab_options(
             column_labels.background.color = "#0076BA",
@@ -239,7 +239,7 @@ test_that("changed table options become IR styles; defaults add nothing", {
 })
 
 test_that("tab_style() on a stub cell overrides the stub option", {
-    tbl <- exibble[1:2, c("row", "num")] |>
+    tbl <- gt::exibble[1:2, c("row", "num")] |>
         gt::gt(rowname_col = "row") |>
         gt::tab_options(stub.background.color = "#89D3FE") |>
         gt::tab_style(gt::cell_fill("#FF0000"), gt::cells_stub(rows = 1))
@@ -251,12 +251,12 @@ test_that("tab_style() on a stub cell overrides the stub option", {
 })
 
 test_that("row striping: gt's default color is the IR's; a custom one is conditional", {
-    default <- gt_to_ir_list(gt::opt_row_striping(gt::gt(exibble[1:4, c("char", "num")])))
+    default <- gt_to_ir_list(gt::opt_row_striping(gt::gt(gt::exibble[1:4, c("char", "num")])))
     expect_true(default$config$row_striping)
     expect_true(default$config$row_striping_include_body)
     expect_length(default$styles$conditionals, 0)
 
-    custom <- exibble[1:4, c("row", "num")] |>
+    custom <- gt::exibble[1:4, c("row", "num")] |>
         gt::gt(rowname_col = "row") |>
         gt::opt_row_striping() |>
         gt::tab_options(row.striping.background_color = "#EDF7FC")
@@ -272,7 +272,7 @@ test_that("row striping: gt's default color is the IR's; a custom one is conditi
 })
 
 test_that("missing values show as gt shows them and sort as missing", {
-    ir <- gt_to_ir_list(gt::gt(exibble[5:6, c("char", "num")]))
+    ir <- gt_to_ir_list(gt::gt(gt::exibble[5:6, c("char", "num")]))
     rows <- ir$table$tbody[[1]]$rows
     na_char <- rows[[1]]$cells[[1]]
     expect_identical(na_char$content[[1]]$value, "NA")
