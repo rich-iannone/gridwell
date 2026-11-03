@@ -8,16 +8,16 @@ expression: xml
 <p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/>
 <p:graphicFrame>
 <p:nvGraphicFramePr><p:cNvPr id="2" name="Table"/><p:cNvGraphicFramePr><a:graphicFrameLocks noGrp="1"/></p:cNvGraphicFramePr><p:nvPr/></p:nvGraphicFramePr>
-<p:xfrm><a:off x="3356212" y="2628900"/><a:ext cx="2431575" cy="1600200"/></p:xfrm>
+<p:xfrm><a:off x="3356212" y="2503170"/><a:ext cx="2431575" cy="1851660"/></p:xfrm>
 <a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/table">
 <a:tbl>
 <a:tblPr firstRow="1" bandRow="1"/>
 <a:tblGrid><a:gridCol w="1165576"/><a:gridCol w="1265999"/></a:tblGrid>
-<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Item</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Amount</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
-<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Alpha</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>10</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
-<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Beta</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>20</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
-<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Gamma</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>30</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
-<a:tr h="320040"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Total</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>60</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="370332"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Item</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Amount</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="370332"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Alpha</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>10</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="370332"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Beta</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>20</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="370332"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Gamma</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>30</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="370332"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Total</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>60</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
 </a:tbl>
 </a:graphicData></a:graphic>
 </p:graphicFrame>
