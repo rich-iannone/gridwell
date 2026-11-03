@@ -11,14 +11,14 @@ use gridwell_core::Length;
 use gridwell_layout::measure::{char_em, BOLD_FACTOR};
 use gridwell_layout::{ColumnWidth, ContentWidth, ResolvedCell, ResolvedTable, Slot};
 
-use super::{cell_fmt, for_each_run, label_fmt, pad_fmt, Run, BASE_PT, TEXT_W};
+use super::{cell_fmt, for_each_run, label_fmt, pad_fmt, Fmt, Para, Run, BASE_PT, TEXT_W};
 use crate::xml;
 
-const EMU_PER_PT: f64 = 12700.0;
+pub(super) const EMU_PER_PT: f64 = 12700.0;
 
-/// A cell's text inset on each side: DrawingML's default (`marL`, `marR`:
-/// 91440 EMU, 0.1in).
-const INSET_PT: f64 = 7.2;
+/// A cell's and a text box's inset left and right of its text: DrawingML's
+/// default (`marL`, `marR`, `lIns`, `rIns`: 91440 EMU, 0.1in).
+pub(super) const INSET_PT: f64 = 7.2;
 
 /// Room beyond the estimate: in proportion, for the letters DejaVu Sans Bold
 /// draws wider than the bold estimate (`i`, `l`, `t`: a few percent), and a
@@ -138,6 +138,21 @@ fn content_widths(rt: &ResolvedTable, line_pt: f64, auto_pt: f64) -> Vec<Content
     cols
 }
 
+/// The room the widest line of text box paragraphs asks for, in points.
+pub(super) fn text_room<'a>(
+    rt: &ResolvedTable,
+    paras: impl IntoIterator<Item = &'a Para<'a>>,
+) -> f64 {
+    paras
+        .into_iter()
+        .map(|p| {
+            let mut m = Measure::default();
+            let _ = p.for_each_run(rt, &mut |r| m.add(r));
+            m.room().max
+        })
+        .fold(0.0, f64::max)
+}
+
 /// A cell's room: its content, then its alignment padding, as written.
 fn cell_room(rt: &ResolvedTable, cell: &ResolvedCell, strong: bool) -> ContentWidth {
     let fmt = cell_fmt(cell, strong);
@@ -171,8 +186,7 @@ impl Measure {
             self.word = 0.0;
             return Ok(());
         };
-        let size = fmt.size.map_or(BASE_PT, |s| f64::from(s) / 100.0);
-        let pt = if fmt.bold { size * BOLD_FACTOR } else { size };
+        let (_, pt) = run_size(&fmt);
         for c in text.chars() {
             let w = char_em(c) * pt;
             self.line += w;
@@ -196,8 +210,15 @@ impl Measure {
     }
 }
 
+/// A run's size, and the size its characters are measured at (wider when
+/// bold), in points.
+pub(super) fn run_size(fmt: &Fmt) -> (f64, f64) {
+    let size = fmt.size.map_or(BASE_PT, |s| f64::from(s) / 100.0);
+    (size, if fmt.bold { size * BOLD_FACTOR } else { size })
+}
+
 /// A line may break at `c`: whitespace but the no-break spaces.
-fn breaks(c: char) -> bool {
+pub(super) fn breaks(c: char) -> bool {
     c.is_whitespace() && !matches!(c, '\u{A0}' | '\u{2007}' | '\u{202F}')
 }
 
