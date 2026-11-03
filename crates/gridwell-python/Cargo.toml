@@ -14,5 +14,6 @@ crate-type = ["cdylib"]
 [dependencies]
 gridwell-ir = { path = "../gridwell-ir" }
 gridwell-render = { path = "../gridwell-render" }
+serde_json = { workspace = true }
 # abi3: one wheel per platform covers every CPython >= 3.10 (requires-python).
 pyo3 = { workspace = true, features = ["abi3-py310"] }
