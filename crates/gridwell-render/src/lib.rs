@@ -18,6 +18,7 @@
 //!
 //! [`save`] renders straight to a file, inferring the format from the extension.
 
+mod display;
 mod formats;
 
 use std::path::{Path, PathBuf};
@@ -27,6 +28,7 @@ use serde::de::DeserializeOwned;
 use serde_json::Value;
 use thiserror::Error;
 
+pub use display::{describe, display_html, display_id};
 pub use formats::REGISTRY;
 pub use gridwell_layout::unsupported::{Place, Unsupported};
 pub use gridwell_layout::SectionKind;
