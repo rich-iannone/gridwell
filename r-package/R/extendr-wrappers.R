@@ -9,6 +9,20 @@ NULL
 #' @noRd
 rs_parse_ir <- function(json) .Call(wrap__rs_parse_ir, json)
 
+#' Whether `ptr` points to a table: not after `saveRDS()` and `readRDS()`, which
+#' keep an external pointer but not what it points to.
+#' @noRd
+rs_is_table <- function(ptr) .Call(wrap__rs_is_table, ptr)
+
+#' A one-line description of the table (size, groups, title, validity).
+#' @noRd
+rs_describe <- function(table_ptr) .Call(wrap__rs_describe, table_ptr)
+
+#' The HTML an HTML document shows a table as: with a fresh id (leaving R's
+#' random seed alone), and left alone by Quarto.
+#' @noRd
+rs_display_html <- function(table_ptr) .Call(wrap__rs_display_html, table_ptr)
+
 #' Validation errors (empty if valid).
 #' @noRd
 rs_validate <- function(table_ptr) .Call(wrap__rs_validate, table_ptr)
