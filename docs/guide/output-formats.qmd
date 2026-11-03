@@ -145,7 +145,15 @@ italic cell as regular, upright text.
 - `standalone: true` wraps the fragment in a complete UTF-8 document (doctype, charset,
   viewport, a `<title>` from the table's title), for a file opened directly in a
   browser. Saved `.html` files are fragments unless you pass it.
-- Scoped `<style>` block with generated class names
+- A `<style>` block with generated class names. With the `table_id` option every
+  rule is scoped to the table's container (`#sales .gw_table …`), as gt scopes its
+  rules, so several tables on one page can't restyle each other; without it the
+  rules apply to the whole page. The Python and R notebook and knitr displays give
+  each table a random id for this
+- Quarto reads an HTML table in a document and writes it again with Bootstrap's table
+  classes, whose padding, rules and striping restyle it. `quarto_disable_processing:
+  true` marks the table so Quarto leaves it as written; the R and Python displays turn
+  it on
 - Optional inline-style mode for email/embedded contexts
 - Footnote marks as `<sup>` linked to footer
 - Accessibility: the stub is a row header (`<th scope="row">`, or `rowgroup` for a
