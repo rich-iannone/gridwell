@@ -77,7 +77,7 @@ def test_gt_to_ir_parses_in_gridwell(name, factory):
     gt_obj = factory()
     ir_json = gridwell.gt_to_ir(gt_obj)
     table = gridwell.Table.from_json(ir_json)
-    assert repr(table).startswith("Table(")
+    assert repr(table).startswith("<gridwell.Table: ")
 
 
 @pytest.mark.parametrize("name,factory", GT_EXAMPLES)
@@ -433,3 +433,20 @@ def test_md_notes_are_their_text_not_the_objects_repr():
     gt_obj = GT(exibble[["num"]].head(1)).tab_source_note(md("Source *two*."))
     note = gridwell.gt_to_dict(gt_obj)["footer"]["source_notes"][0]["content"][0]["value"]
     assert "two" in note and "Md(" not in note and "Text(" not in note
+
+
+def test_table_takes_a_gt_directly():
+    for make in (make_simple_gt, make_grouped_gt, make_styled_gt):
+        gt = make()
+        # (Style order in the JSON varies from parse to parse.)
+        expected = json.loads(gridwell.parse_ir(gridwell.gt_to_ir(gt)).to_json())
+        assert json.loads(gridwell.Table(gt).to_json()) == expected
+        assert json.loads(gridwell.Table.from_gt(gt).to_json()) == expected
+    r = repr(gridwell.Table(make_grouped_gt()))
+    assert 'titled "Example Table"' in r, r
+    assert " groups" in r, r
+
+
+def test_a_gt_displays_in_a_notebook_once_converted():
+    html = gridwell.Table(make_grouped_gt())._repr_html_()
+    assert html is not None and "Example Table" in html
