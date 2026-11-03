@@ -39,6 +39,16 @@ WITHOUT_OPTIONAL_DEPS = textwrap.dedent(
     assert table.validate() == []
     assert "<table" in table.render_html()
     assert table.render_docx()[:2] == b"PK"
+    assert gridwell.Table(json_str).validate() == []
+    assert table._repr_html_() and str(table) and repr(table)
+    # Telling a GT apart imports nothing: without great_tables, nothing is one.
+    for other in (7, object()):
+        try:
+            gridwell.Table(other)
+        except TypeError:
+            pass
+        else:
+            raise AssertionError("Table(other) should have raised TypeError")
 
     # Nothing optional was imported along the way.
     leaked = [m for m in sys.modules if m.split(".")[0] in BLOCKED]
