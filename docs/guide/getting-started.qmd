@@ -25,9 +25,13 @@ pip install 'gridwell[gt]'    # include the Great Tables integration
 ### R
 
 ```r
-# From source (requires Rust toolchain):
-install.packages("gridwell", repos = NULL, type = "source")
+# From a source package (needs Rust 1.85 or later):
+install.packages("gridwell_0.1.0.tar.gz", repos = NULL, type = "source")
 ```
+
+The source package carries the Rust crates it needs, so it builds offline. In a
+checkout of the repository, make it with `cargo xtask r-source` and then
+`R CMD build target/r-source/gridwell`.
 
 ### CLI Tool
 
