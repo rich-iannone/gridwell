@@ -11,6 +11,7 @@ use thiserror::Error;
 
 use crate::xml;
 
+mod heights;
 mod widths;
 
 #[derive(Debug, Error)]
@@ -72,86 +73,83 @@ fn write_slide_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
 
     // Title lines above the table and notes below it, stacked as one block
     // centered vertically on the 4:3 slide (9144000 × 6858000 EMU).
-    let header: Vec<(&gridwell_layout::Line, Fmt, u32)> = {
-        let h = &rt.header;
-        let title = h.title.iter().map(|l| {
-            let f = Fmt {
-                bold: true,
-                size: Some(2400),
-                ..Fmt::default()
-            };
-            (l, f, TITLE_LINE_EMU)
-        });
-        let rest = h.subtitle.iter().chain(&h.extra_lines).map(|l| {
-            let f = Fmt {
-                size: Some(1400),
-                ..Fmt::default()
-            };
-            (l, f, LINE_EMU)
-        });
-        title.chain(rest).collect()
+    let h = &rt.header;
+    let title = Fmt {
+        bold: true,
+        size: Some(2400),
+        ..Fmt::default()
     };
-    let note_count = rt.footer.footnotes.len() + rt.footer.source_notes.len();
-    let header_h: u32 = header.iter().map(|(_, _, h)| h).sum();
-    let notes_h = note_count as u32 * NOTE_LINE_EMU;
+    let line = Fmt {
+        size: Some(1400),
+        ..Fmt::default()
+    };
+    let heading: Vec<Para> = h
+        .title
+        .iter()
+        .map(|l| Para::line(l, title))
+        .chain(
+            h.subtitle
+                .iter()
+                .chain(&h.extra_lines)
+                .map(|l| Para::line(l, line)),
+        )
+        .collect();
+    let note = Fmt {
+        size: Some(1000),
+        ..Fmt::default()
+    };
+    let notes: Vec<Para> = rt
+        .footer
+        .footnotes
+        .iter()
+        .map(|n| Para {
+            mark: Some(n.mark),
+            content: &n.content,
+            fmt: note.with(&n.style),
+        })
+        .chain(rt.footer.source_notes.iter().map(|l| Para::line(l, note)))
+        .collect();
     // A table with no grid columns is invalid DrawingML: with every column hidden
     // only the text boxes remain.
-    let col_widths = if rt.is_empty() {
-        Vec::new()
+    let (col_widths, row_heights) = if rt.is_empty() {
+        (Vec::new(), Vec::new())
     } else {
-        widths::column_widths(rt)
+        let w = widths::column_widths(rt);
+        let h = heights::row_heights(rt, &w);
+        (w, h)
     };
-    let (table_w, table_h) = if rt.is_empty() {
-        (0, 0)
-    } else {
-        table_size(rt, &col_widths)
-    };
+    let table_w: u32 = col_widths.iter().sum();
+    let table_h = row_heights.iter().fold(0u32, |a, h| a.saturating_add(*h));
+    let table_x = SLIDE_W.saturating_sub(table_w) / 2;
+    let (box_x, box_w) = text_span(rt, heading.iter().chain(&notes), table_x, table_w);
+    let header_h = heights::box_height(rt, &heading, box_w);
+    let notes_h = heights::box_height(rt, &notes, box_w);
     let gap = |a: u32, b: u32| if a > 0 && b > 0 { GAP_EMU } else { 0 };
-    let total =
-        header_h + gap(header_h, table_h) + table_h + gap(table_h + header_h, notes_h) + notes_h;
+    let total = [
+        header_h,
+        gap(header_h, table_h),
+        table_h,
+        gap(table_h.saturating_add(header_h), notes_h),
+        notes_h,
+    ]
+    .into_iter()
+    .fold(0u32, u32::saturating_add);
     let mut y = (SLIDE_H.saturating_sub(total) / 2).max(MARGIN_EMU);
 
-    if !header.is_empty() {
-        write_text_box(buf, 3, "Title", y, header_h, |buf| {
-            for (line, fmt, _) in &header {
-                write_paragraph(buf, rt, &line.content, fmt.with(&line.style))?;
-            }
-            Ok(())
-        })?;
-        y += header_h + gap(header_h, table_h + notes_h);
+    if !heading.is_empty() {
+        write_text_box(buf, rt, 3, "Title", (box_x, box_w), y, header_h, &heading)?;
+        y = y
+            .saturating_add(header_h)
+            .saturating_add(gap(header_h, table_h.saturating_add(notes_h)));
     }
     if !rt.is_empty() {
-        let x = SLIDE_W.saturating_sub(table_w) / 2;
-        write_table_frame(buf, rt, &col_widths, x, y)?;
-        y += table_h + gap(table_h, notes_h);
+        write_table_frame(buf, rt, &col_widths, &row_heights, table_x, y)?;
+        y = y
+            .saturating_add(table_h)
+            .saturating_add(gap(table_h, notes_h));
     }
-    if note_count > 0 {
-        write_text_box(buf, 4, "Notes", y, notes_h, |buf| {
-            let base = Fmt {
-                size: Some(1000),
-                ..Fmt::default()
-            };
-            for n in &rt.footer.footnotes {
-                let fmt = base.with(&n.style);
-                open_paragraph(buf, rt, None);
-                write_run(
-                    buf,
-                    rt,
-                    n.mark,
-                    Fmt {
-                        superscript: true,
-                        ..fmt
-                    },
-                )?;
-                write_run(buf, rt, " ", fmt)?;
-                write_content(buf, rt, &n.content, fmt)?;
-                buf.push_str("</a:p>");
-            }
-            for n in &rt.footer.source_notes {
-                write_paragraph(buf, rt, &n.content, base.with(&n.style))?;
-            }
-            Ok(())
-        })?;
+    if !notes.is_empty() {
+        write_text_box(buf, rt, 4, "Notes", (box_x, box_w), y, notes_h, &notes)?;
     }
 
     buf.push_str("</p:spTree></p:cSld>\n");
@@ -166,44 +164,98 @@ const SLIDE_H: u32 = 6_858_000;
 const MARGIN_EMU: u32 = 228_600;
 /// Space between the title box, the table and the notes box.
 const GAP_EMU: u32 = 91_440;
-const TITLE_LINE_EMU: u32 = 457_200;
-const LINE_EMU: u32 = 274_320;
-const NOTE_LINE_EMU: u32 = 228_600;
-/// Text boxes span the slide less half-inch margins.
+/// The slide less half-inch margins: what the text boxes may span.
 const TEXT_X: u32 = 457_200;
 const TEXT_W: u32 = 8_229_600;
 
-/// The table's width (its columns', `col_widths`) and height in EMU.
-fn table_size(rt: &ResolvedTable, col_widths: &[u32]) -> (u32, u32) {
-    let width: u32 = col_widths.iter().sum();
-    let rows = rt.head.rows.len()
-        + rt.groups
-            .iter()
-            .map(|g| usize::from(g.label.is_some()) + g.rows.rows.len() + g.summary_rows.rows.len())
-            .sum::<usize>();
-    (
-        width,
-        (rows as u32).saturating_mul(xml::DEFAULT_ROW_HEIGHT_EMU),
-    )
+/// A paragraph of a text box: a footnote's mark and a space, then content.
+struct Para<'a> {
+    mark: Option<&'a str>,
+    content: &'a [ContentNode],
+    fmt: Fmt<'a>,
 }
 
-/// A text box shape spanning the slide's text width.
+impl<'a> Para<'a> {
+    /// A heading line or source note, its style over `fmt`.
+    fn line(line: &'a gridwell_layout::Line, fmt: Fmt<'a>) -> Self {
+        Self {
+            mark: None,
+            content: &line.content,
+            fmt: fmt.with(&line.style),
+        }
+    }
+
+    /// The paragraph as it is written: each run, in order.
+    fn for_each_run<E>(
+        &self,
+        rt: &ResolvedTable,
+        f: &mut dyn FnMut(Run) -> Result<(), E>,
+    ) -> Result<(), E> {
+        if let Some(mark) = self.mark {
+            let sup = Fmt {
+                superscript: true,
+                ..self.fmt
+            };
+            f(Some((mark, sup)))?;
+            f(Some((" ", self.fmt)))?;
+        }
+        for_each_run(rt, self.content, self.fmt, f)
+    }
+}
+
+/// Where the title and notes boxes go, `(x, width)` in EMU: from the table's
+/// start edge (its right when right to left) to the far margin, so their text
+/// lines up with the table, moved toward the near margin as far as their widest
+/// line needs.
+fn text_span<'a>(
+    rt: &ResolvedTable,
+    paras: impl IntoIterator<Item = &'a Para<'a>>,
+    table_x: u32,
+    table_w: u32,
+) -> (u32, u32) {
+    let (lo, hi) = (TEXT_X, TEXT_X + TEXT_W);
+    if rt.is_empty() {
+        return (lo, TEXT_W);
+    }
+    let need = (widths::text_room(rt, paras) * widths::EMU_PER_PT)
+        .ceil()
+        .min(f64::from(TEXT_W)) as u32;
+    if rt.is_rtl() {
+        let end = table_x.saturating_add(table_w).clamp(lo, hi);
+        let end = end.max(lo + need);
+        (lo, end - lo)
+    } else {
+        let start = table_x.clamp(lo, hi).min(hi - need);
+        (start, hi - start)
+    }
+}
+
+/// A text box shape: `paras` at `(x, width)`.
+#[allow(clippy::too_many_arguments)]
 fn write_text_box(
     buf: &mut String,
+    rt: &ResolvedTable,
     id: u32,
     name: &str,
+    (x, width): (u32, u32),
     y: u32,
     height: u32,
-    body: impl FnOnce(&mut String) -> Result<(), RenderError>,
+    paras: &[Para],
 ) -> Result<(), RenderError> {
     write!(
         buf,
         "<p:sp><p:nvSpPr><p:cNvPr id=\"{id}\" name=\"{name}\"/><p:cNvSpPr txBox=\"1\"/><p:nvPr/></p:nvSpPr>\
-         <p:spPr><a:xfrm><a:off x=\"{TEXT_X}\" y=\"{y}\"/><a:ext cx=\"{TEXT_W}\" cy=\"{height}\"/></a:xfrm>\
+         <p:spPr><a:xfrm><a:off x=\"{x}\" y=\"{y}\"/><a:ext cx=\"{width}\" cy=\"{height}\"/></a:xfrm>\
          <a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:noFill/></p:spPr>\
          <p:txBody><a:bodyPr wrap=\"square\"/><a:lstStyle/>"
     )?;
-    body(buf)?;
+    for para in paras {
+        open_paragraph(buf, rt, None);
+        if !write_runs(buf, rt, |f| para.for_each_run(rt, f))? {
+            buf.push_str("<a:endParaRPr/>");
+        }
+        buf.push_str("</a:p>");
+    }
     buf.push_str("</p:txBody></p:sp>\n");
     Ok(())
 }
@@ -222,29 +274,17 @@ fn open_paragraph(buf: &mut String, rt: &ResolvedTable, algn: Option<&str>) {
     }
 }
 
-/// One `<a:p>` of content (an empty paragraph if the content is empty).
-fn write_paragraph(
-    buf: &mut String,
-    rt: &ResolvedTable,
-    nodes: &[ContentNode],
-    fmt: Fmt,
-) -> Result<(), RenderError> {
-    open_paragraph(buf, rt, None);
-    if !write_content(buf, rt, nodes, fmt)? {
-        buf.push_str("<a:endParaRPr/>");
-    }
-    buf.push_str("</a:p>");
-    Ok(())
-}
-
+/// The table's graphic frame, as wide as its columns and as tall as its rows.
 fn write_table_frame(
     buf: &mut String,
     rt: &ResolvedTable,
     col_widths: &[u32],
+    row_heights: &[u32],
     offset_x: u32,
     offset_y: u32,
 ) -> Result<(), RenderError> {
-    let (total_width, total_height) = table_size(rt, col_widths);
+    let total_width: u32 = col_widths.iter().sum();
+    let total_height = row_heights.iter().fold(0u32, |a, h| a.saturating_add(*h));
 
     buf.push_str("<p:graphicFrame>\n");
     buf.push_str("<p:nvGraphicFramePr><p:cNvPr id=\"2\" name=\"Table\"/>");
@@ -267,13 +307,16 @@ fn write_table_frame(
     }
     buf.push_str("</a:tblGrid>\n");
 
-    write_section(buf, rt, &rt.head, true)?;
+    // In the order `heights::row_heights` gives them, one for each row.
+    let mut heights = row_heights.iter().copied();
+    let mut h = || heights.next().unwrap_or(1);
+    write_section(buf, rt, &rt.head, true, &mut h)?;
     for group in &rt.groups {
         if let Some(label) = &group.label {
-            write_group_label_row(buf, rt, label, col_widths.len())?;
+            write_group_label_row(buf, rt, label, col_widths.len(), h())?;
         }
-        write_section(buf, rt, &group.rows, false)?;
-        write_section(buf, rt, &group.summary_rows, true)?;
+        write_section(buf, rt, &group.rows, false, &mut h)?;
+        write_section(buf, rt, &group.summary_rows, true, &mut h)?;
     }
 
     buf.push_str("</a:tbl>\n");
@@ -289,9 +332,10 @@ fn write_section(
     rt: &ResolvedTable,
     section: &Section,
     strong: bool,
+    height: &mut dyn FnMut() -> u32,
 ) -> Result<(), RenderError> {
     for (r, row) in section.rows.iter().enumerate() {
-        write!(buf, "<a:tr h=\"{}\">", xml::DEFAULT_ROW_HEIGHT_EMU)?;
+        write!(buf, "<a:tr h=\"{}\">", height())?;
         for (col, slot) in row.slots.iter().enumerate() {
             // Each position draws the borders of the cell covering it on the
             // sides that lie on that cell's outline. In a right-to-left table
@@ -488,8 +532,18 @@ fn write_content(
     nodes: &[ContentNode],
     fmt: Fmt,
 ) -> Result<bool, RenderError> {
+    write_runs(buf, rt, |f| for_each_run(rt, nodes, fmt, f))
+}
+
+/// The runs `runs` gives, as `<a:r>`s and `<a:br/>`s. Returns whether anything
+/// was written.
+fn write_runs(
+    buf: &mut String,
+    rt: &ResolvedTable,
+    runs: impl FnOnce(&mut dyn FnMut(Run) -> Result<(), RenderError>) -> Result<(), RenderError>,
+) -> Result<bool, RenderError> {
     let mut wrote = false;
-    for_each_run::<RenderError>(rt, nodes, fmt, &mut |run| {
+    runs(&mut |run| {
         wrote |= match run {
             Some((text, fmt)) => write_run(buf, rt, text, fmt)?,
             None => {
@@ -630,8 +684,9 @@ fn write_group_label_row(
     rt: &ResolvedTable,
     label: &gridwell_layout::Line,
     num_cols: usize,
+    height: u32,
 ) -> Result<(), RenderError> {
-    write!(buf, "<a:tr h=\"{}\">", xml::DEFAULT_ROW_HEIGHT_EMU)?;
+    write!(buf, "<a:tr h=\"{height}\">")?;
 
     // One cell spanning every column, then `hMerge` placeholders.
     buf.push_str("<a:tc");
