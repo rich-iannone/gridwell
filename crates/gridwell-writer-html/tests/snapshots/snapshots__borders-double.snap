@@ -7,7 +7,7 @@ expression: out
     .gw_table .gw__al_left { text-align: left }
     .gw_style-bordered { padding: 4px; border-top: 1px double #333333; border-right: 1px double #333333; border-bottom: 1px double #333333; border-left: 1px double #333333 }
   </style>
-  <table class="gw_table">
+  <table class="gw_table gw_cells_top gw_cells_head gw_cells_bottom">
     <thead>
       <tr class="gw_col_labels">
         <th class="gw_col_label gw__al_left gw_style-bordered" id="col_0">A</th>

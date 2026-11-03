@@ -10,11 +10,17 @@ expression: render_html(&ex.table()).unwrap()
     :where(.gw_subtitle) { font-size: 85%; text-align: center; padding: 3px 5px 5px }
     :where(.gw_header_line) { font-size: 85%; text-align: center; padding: 0 5px 5px }
     :where(.gw_table) { border-collapse: collapse; margin: 0; width: 100%; border-top: 2px solid #D3D3D3; border-bottom: 2px solid #D3D3D3 }
+    :where(.gw_cells_top) { border-top: none }
+    :where(.gw_cells_bottom) { border-bottom: none }
     :where(.gw_table td, .gw_table th) { padding: 8px 5px; border-top: 1px solid #D3D3D3 }
     :where(.gw_table th) { font-weight: inherit }
     :where(.gw_table thead th) { border-top: none; padding: 5px 5px 6px }
     :where(.gw_table thead tr) { vertical-align: bottom }
     :where(.gw_table thead) { border-bottom: 2px solid #D3D3D3 }
+    :where(.gw_cells_head thead) { border-bottom: none }
+    :where(.gw_cells_head thead + tbody > tr:first-child > *) { border-top: none }
+    :where(.gw_rule_top) { border-top: 2px solid #D3D3D3 }
+    :where(.gw_rule_bottom) { border-bottom: 2px solid #D3D3D3 }
     :where(.gw_spanner) { padding: 5px 4px 7px; background-image: linear-gradient(#D3D3D3, #D3D3D3); background-size: calc(100% - 8px) 2px; background-position: bottom center; background-repeat: no-repeat }
     :where(.gw_spanner:first-child) { padding-left: 0; background-size: calc(100% - 4px) 2px; background-position: bottom left }
     :where(.gw_spanner:last-child) { padding-right: 0; background-size: calc(100% - 4px) 2px; background-position: bottom right }
