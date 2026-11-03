@@ -164,3 +164,37 @@ try:
 except gridwell.InvalidTableError as e:
     print(f"Invalid IR: {e}")
 ```
+
+## Type Checking
+
+The package ships type stubs (`py.typed`), so mypy, pyright and editors know every
+signature. Each per-format method takes its options as typed keyword arguments, so a
+misspelled option or a value of the wrong type is caught before the code runs:
+
+```python
+table.render_html(inline_styles=True)   # ok
+table.render_html(inline_style=True)    # error: unexpected keyword argument
+table.render_latex(longtable="yes")     # error: expected "bool"
+```
+
+`render()` and `save()` take options of any format, so their options aren't checked.
+A path given to `save()` comes back as the same type (`Path` in, `Path` out). For
+annotations, `gridwell._native.FormatInfo` is the type of each entry `formats()`
+returns; it exists only for type checkers, so import it under `TYPE_CHECKING`.
+
+## Threads
+
+A `Table` can't be changed once made, and the work done in Rust runs with the GIL
+released: parsing JSON, validating, rendering, saving, and `repr()`, `print()` and
+notebook display. Other Python threads run meanwhile, and one table can be rendered
+on several threads at once, e.g. with `concurrent.futures.ThreadPoolExecutor`.
+Serializing a dict to JSON for `Table(dict)`, and converting a Great Tables `GT`, are
+Python work and hold it.
+
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+jobs = [table.render_html, table.render_latex, table.render_docx]
+with ThreadPoolExecutor() as pool:
+    html, latex, docx = pool.map(lambda render: render(), jobs)
+```
