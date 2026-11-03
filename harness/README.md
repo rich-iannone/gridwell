@@ -271,10 +271,32 @@ its GHCR settings.
     pytest outside the checkout so the installed wheel is what's tested.
     `GRIDWELL_REQUIRE_MYPY` makes the type-stub checks (stubtest, mypy on usage)
     mandatory.
-  - `r` runs `R CMD INSTALL` plus the testthat suite. A full `R CMD check` waits on
-    vendoring (roadmap M6).
+  - `r` runs `R CMD INSTALL` of `r-package` plus the testthat suite.
+  - `r-check` checks the R package as CRAN and r-universe get it. `cargo xtask
+    r-source` writes a self-contained source package to a scratch directory (it
+    defaults to `target/r-source/gridwell`). It holds the workspace crates in
+    `src/rust/crates`, the crates.io crates vendored into `src/rust/vendor.tar.xz`,
+    `inst/AUTHORS` for them, and the test fixtures. `R CMD build` and `R CMD check
+    --as-cran` then run on it, with `NOT_CRAN` unset and Rust 1.85. The job fails
+    on an error, a warning or any NOTE but the installed size one (CRAN asks
+    about each), or if the package wasn't built offline from the vendored crates. It uploads the tarball.
   - `fuzz` runs a 60 s smoke per cargo-fuzz target, seeded from the fixtures and
     the example corpus, and uploads any crash.
+- **`wheels.yml`** builds the Python wheels: Linux x86_64 and aarch64
+  (manylinux2014), macOS universal2 and Windows x86_64, one abi3 wheel each, plus
+  the sdist. It tests each wheel on its platform with Python 3.10 (bare) and 3.14
+  (`[gt]`). The universal2 wheel is tested on both an arm64 and an Intel Mac, and
+  the sdist is installed from source and tested. It runs by hand, on `v*` tags,
+  and on pull requests that change it or `pyproject.toml`. It publishes nothing;
+  the wheels are the run's artifacts.
+- **`r-universe.yml`** (by hand only) commits the same source package `r-check`
+  checks to the `r-universe` branch, for r-universe to build from (the package in
+  `r-package/` can't be built on its own). The registry entry, in the
+  `packages.json` of the `<owner>.r-universe.dev` repository, is:
+
+  ```json
+  {"package": "gridwell", "url": "https://github.com/rich-iannone/gridwell", "branch": "r-universe"}
+  ```
 - **`harness-image.yml`** builds + pushes the pinned image to GHCR when the
   Dockerfile changes, so contributors can `docker pull` it for local
   golden-seeding instead of building it themselves.
