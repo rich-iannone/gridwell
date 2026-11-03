@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -18,20 +19,20 @@ def load_fixture(rel_path: str) -> str:
 def test_parse_from_json():
     json_str = load_fixture("minimal/minimal_1x1.json")
     table = gridwell.Table.from_json(json_str)
-    assert repr(table) == "Table(ir_version='1.0')"
+    assert repr(table) == "<gridwell.Table: 1 column, 1 row>"
 
 
 def test_parse_from_dict():
     json_str = load_fixture("minimal/minimal_1x1.json")
     d = json.loads(json_str)
     table = gridwell.Table.from_dict(d)
-    assert repr(table) == "Table(ir_version='1.0')"
+    assert repr(table) == "<gridwell.Table: 1 column, 1 row>"
 
 
 def test_parse_ir_function():
     json_str = load_fixture("minimal/minimal_1x1.json")
     table = gridwell.parse_ir(json_str)
-    assert repr(table) == "Table(ir_version='1.0')"
+    assert repr(table) == "<gridwell.Table: 1 column, 1 row>"
 
 
 def test_parse_invalid_json():
@@ -463,3 +464,94 @@ def test_save_html_is_a_fragment_unless_standalone(tmp_path):
     assert '<meta charset="utf-8">' in doc
     assert fragment in doc
     assert doc == table.render_html(standalone=True)
+
+
+# ─── The Table object ───
+
+
+def test_table_takes_ir_as_json_a_dict_or_a_table():
+    json_str = load_fixture("minimal/colspan_basic.json")
+    a = gridwell.Table(json_str)
+    b = gridwell.Table(json.loads(json_str))
+    c = gridwell.Table(a)
+    # (Style order in the JSON varies from parse to parse.)
+    assert json.loads(a.to_json()) == json.loads(b.to_json()) == json.loads(c.to_json())
+    assert c is not a
+    assert type(a) is gridwell.Table
+    assert type(a).__module__ == "gridwell"
+
+
+def test_table_rejects_anything_else():
+    for bad in (7, None, b"{}", [1], Path("table.json"), object()):
+        with pytest.raises(TypeError, match="JSON string or a dict, or a great_tables.GT"):
+            gridwell.Table(bad)
+    with pytest.raises(ValueError):
+        gridwell.Table("{ not valid }")
+    with pytest.raises(TypeError, match="takes a great_tables.GT; got str"):
+        gridwell.Table.from_gt("{}")
+
+
+def test_repr_describes_the_table():
+    cases = {
+        "minimal/minimal_1x1.json": "1 column, 1 row",
+        "minimal/row_group_multiple.json": None,
+        "minimal/summary_rows.json": None,
+    }
+    for fixture, expected in cases.items():
+        table = gridwell.parse_ir(load_fixture(fixture))
+        r = repr(table)
+        assert r.startswith("<gridwell.Table: ") and r.endswith(">"), r
+        assert "invalid" not in r, r
+        if expected:
+            assert r == f"<gridwell.Table: {expected}>"
+    r = repr(gridwell.parse_ir(load_fixture("minimal/row_group_multiple.json")))
+    assert " in " in r and " groups" in r, r
+    r = repr(gridwell.parse_ir(load_fixture("minimal/summary_rows.json")))
+    assert "summary row" in r, r
+    r = repr(gridwell.parse_ir(load_fixture("invalid/col_count_mismatch.json")))
+    assert "; invalid (" in r, r
+
+
+def test_str_draws_the_table_as_plain_text():
+    table = gridwell.parse_ir(load_fixture("minimal/colspan_basic.json"))
+    text = str(table)
+    assert text + "\n" == table.render_ansi(color=False)
+    assert "\x1b" not in text
+    assert "─" in text
+    # An invalid table gives its errors, and never raises.
+    bad = gridwell.parse_ir(load_fixture("invalid/col_count_mismatch.json"))
+    text = str(bad)
+    assert text.startswith(repr(bad) + "\n  "), text
+    for error in bad.validate():
+        assert error in text
+
+
+def test_repr_html_gives_each_display_its_own_scope_left_alone_by_quarto():
+    table = gridwell.parse_ir(load_fixture("minimal/colspan_basic.json"))
+    a, b = table._repr_html_(), table._repr_html_()
+    ids = []
+    for html in (a, b):
+        m = re.search(r'<div id="(gw-[0-9a-f]{10})" class="gw_container"', html)
+        assert m, html[:200]
+        ids.append(m.group(1))
+        assert f":where(#{ids[-1]}.gw_container)" in html
+        assert f"#{ids[-1]} .gw_table" in html
+    assert ids[0] != ids[1]
+    assert a.replace(ids[0], "X") == b.replace(ids[1], "X")
+    assert a.replace(ids[0], "X") == table.render_html(
+        table_id="X", quarto_disable_processing=True
+    )
+    # Marked so Quarto doesn't restyle it with Bootstrap's table classes.
+    assert '<table class="gw_table" data-quarto-disable-processing="true">' in a
+    # Invalid: nothing, so the notebook falls back to the repr.
+    bad = gridwell.parse_ir(load_fixture("invalid/col_count_mismatch.json"))
+    assert bad._repr_html_() is None
+
+
+@pytest.mark.parametrize("method", BINARY_RENDERERS)
+def test_binary_renderers_take_options(method):
+    table = gridwell.parse_ir(load_fixture("minimal/minimal_1x1.json"))
+    assert getattr(table, method)()[:2] == b"PK"
+    assert getattr(table, method)(**{}) == getattr(table, method)()
+    with pytest.raises(gridwell.InvalidOptionsError, match="bogus"):
+        getattr(table, method)(bogus=1)
