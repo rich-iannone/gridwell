@@ -662,3 +662,105 @@ fn styles_place_text_vertically_in_a_taller_row() {
     assert_eq!(find("I").text.valign, VAlign::Bottom);
     assert_ok(check("vertical alignment", &t));
 }
+
+#[test]
+fn edges_with_cell_borders_are_drawn_by_the_cells() {
+    let t = examples()
+        .into_iter()
+        .find(|e| e.name == "borders-solid")
+        .unwrap()
+        .table();
+    let l = layout(&t, &SvgConfig::default());
+    // Every cell has its own 1px border: no section rule or hairline is drawn.
+    assert!(l.rules.iter().all(|r| r.color != LIGHT), "{:?}", l.rules);
+    // No line pokes out of the table, and its top and bottom lines are flush
+    // with it.
+    let (top, bottom) = (l.table_y, l.table_y + l.table_height);
+    let extent = |r: &RuleLine| {
+        if r.y1 == r.y2 {
+            (r.y1 - r.width / 2.0, r.y1 + r.width / 2.0)
+        } else {
+            (r.y1.min(r.y2), r.y1.max(r.y2))
+        }
+    };
+    for r in &l.rules {
+        let (a, b) = extent(r);
+        assert!(
+            a >= top - EPS && b <= bottom + EPS,
+            "{r:?} outside {top}..{bottom}"
+        );
+    }
+    let lo = l.rules.iter().map(|r| extent(r).0).fold(f64::MAX, f64::min);
+    let hi = l.rules.iter().map(|r| extent(r).1).fold(f64::MIN, f64::max);
+    assert!(
+        (lo - top).abs() < EPS && (hi - bottom).abs() < EPS,
+        "{lo} {hi}"
+    );
+    // The edges are as thick as the borders on them (not the 2px rules): the
+    // first row's text starts under its 1px top and its 4px padding.
+    let first = &l.cells[0];
+    assert!(
+        (first.text.y - (first.y + 1.0 + 4.0)).abs() < EPS,
+        "{first:?}"
+    );
+    assert_ok(check("borders-solid", &t));
+}
+
+#[test]
+fn under_the_head_the_other_cells_carry_the_rule() {
+    use gridwell_testkit::CellExt;
+    let side = |s: &str| -> gridwell_ir::style::StyleDef {
+        serde_json::from_value(serde_json::json!({
+            "border": { s: { "style": "solid", "width": "1px", "color": "#333333" } }
+        }))
+        .unwrap()
+    };
+    let t = TableBuilder::new(3)
+        .stub_cols(1)
+        .style_def("b", side("bottom"))
+        .style_def("r", side("right"))
+        .head(row(vec![cell(""), cell("A").style("b"), cell("B")]))
+        .body(vec![row(vec![
+            cell("s").stub().style("r"),
+            cell("1"),
+            cell("2"),
+        ])])
+        .build();
+    let l = layout(&t, &SvgConfig::default());
+    let find = |text: &str| {
+        l.cells
+            .iter()
+            .find(|c| c.text.lines.first().is_some_and(|x| x.text() == text))
+            .unwrap()
+    };
+    let (a, b) = (find("A"), find("B"));
+    let edge = a.y + a.height;
+    let rules_at = |color: &str, width: f64| -> Vec<(f64, f64)> {
+        hrules(&l, color, width)
+            .into_iter()
+            .filter(|r| (r.y1 - edge).abs() < EPS)
+            .map(|r| (r.x1, r.x2))
+            .collect()
+    };
+    // "A"'s own border; the section rule under the stub head and "B" only.
+    assert_eq!(rules_at("#333333", 1.0), [(a.x, a.x + a.width)]);
+    let light = rules_at(LIGHT, 2.0);
+    assert!(!light.is_empty());
+    for (x1, x2) in light {
+        assert!(x2 <= a.x + EPS || x1 >= b.x - EPS, "over A: {x1}..{x2}");
+    }
+    // The table's top and bottom are the section rule's, across the table.
+    for y in [l.table_y + 1.0, l.table_y + l.table_height - 1.0] {
+        let w: f64 = hrules(&l, LIGHT, 2.0)
+            .iter()
+            .filter(|r| (r.y1 - y).abs() < EPS)
+            .map(|r| r.x2 - r.x1)
+            .sum();
+        assert!((w - l.table_width).abs() < EPS, "{y}: {w}");
+    }
+    // The stub's own 1px right border replaces its 2px rule, room and all.
+    let one = find("1");
+    assert!((one.text.x - (one.x + 0.5 + 5.0)).abs() < EPS, "{one:?}");
+    assert!(l.rules.iter().all(|r| r.x1 != r.x2 || r.color != LIGHT));
+    assert_ok(check("head edge", &t));
+}
