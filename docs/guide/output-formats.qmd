@@ -408,5 +408,15 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   column the others leave no room for is 1in. `em` is 18pt, PowerPoint's table text
   size. Widths that would add up to more than the table's frame can hold (about 60m)
   are scaled down to fit, in proportion
+- Row heights fit the content. Viewers grow a row to fit its text but never draw it
+  shorter than asked, so each row is estimated: its lines wrapped at the column's
+  width, at spaces and after hyphens, slashes, `?` and `!`, each line as tall as its
+  largest text (1.22em, Calibri's line height), plus the cell's 0.05in insets above
+  and below. A cell spanning rows asks them for what they lack, in equal shares. The
+  table's frame is as tall as its rows, so the notes start below the table
+- The title and notes are placed and sized the same way, stacked with the table and
+  centered on the slide. Their boxes start at the table's edge, so their text lines
+  up with the cells' (right to left, they end there). Each box runs to the slide's
+  far margin, and starts nearer the near margin when its widest line needs more room
 - A complete package (theme, master color map, notes size), so PowerPoint and Keynote
   open it
