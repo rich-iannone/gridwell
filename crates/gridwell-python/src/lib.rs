@@ -1,9 +1,9 @@
 use pyo3::create_exception;
 use std::path::PathBuf;
 
-use pyo3::exceptions::{PyOSError, PyValueError};
+use pyo3::exceptions::{PyOSError, PyTypeError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::types::{PyBytes, PyDict};
+use pyo3::types::{PyBytes, PyDict, PyString};
 
 use gridwell_ir::Table;
 use gridwell_render::{RenderError, REGISTRY};
@@ -57,10 +57,25 @@ fn options_json(py: Python<'_>, options: Option<&Bound<'_, PyAny>>) -> PyResult<
     }
 }
 
+/// Whether `obj` is a Great Tables `GT`. Without importing great_tables: if it
+/// isn't imported, nothing is a `GT`.
+fn is_gt(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<bool> {
+    let modules = py.import("sys")?.getattr("modules")?;
+    match modules.call_method1("get", ("great_tables",))? {
+        m if m.is_none() => Ok(false),
+        m => match m.getattr("GT") {
+            Ok(gt) => obj.is_instance(&gt),
+            Err(_) => Ok(false),
+        },
+    }
+}
+
 /// A parsed gridwell table IR.
 ///
-/// Create via `Table.from_json(json_str)` or `Table.from_dict(dict)`.
-#[pyclass(name = "Table")]
+/// Create with `Table(source)` from IR as a JSON string or a dict, or from a Great
+/// Tables `GT`; or with `Table.from_json`, `Table.from_dict` or `Table.from_gt`.
+/// In a notebook it displays as HTML, and `print()` draws it as text.
+#[pyclass(name = "Table", module = "gridwell")]
 struct PyTable {
     inner: Table,
 }
@@ -91,6 +106,46 @@ impl PyTable {
 
 #[pymethods]
 impl PyTable {
+    /// A table from IR as a JSON string or a dict, or from a Great Tables `GT`
+    /// (converted with `gridwell.gt_to_ir`, which needs the `gt` extra). A
+    /// `Table` gives a copy.
+    ///
+    /// Raises `ValueError` for IR that doesn't parse, and `TypeError` for anything
+    /// else.
+    #[new]
+    fn new(py: Python<'_>, source: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if source.is_instance_of::<PyString>() {
+            Self::from_json(&source.extract::<String>()?)
+        } else if source.is_instance_of::<PyDict>() {
+            Self::from_dict(py, source)
+        } else if let Ok(table) = source.downcast::<PyTable>() {
+            Ok(PyTable {
+                inner: table.borrow().inner.clone(),
+            })
+        } else if is_gt(py, source)? {
+            Self::from_gt(py, source)
+        } else {
+            Err(PyTypeError::new_err(format!(
+                "Table() takes IR as a JSON string or a dict, or a great_tables.GT; got {}",
+                source.get_type().name()?
+            )))
+        }
+    }
+
+    /// Convert a Great Tables `GT` (with `gridwell.gt_to_ir`, which needs the `gt`
+    /// extra). Raises `TypeError` for anything else.
+    #[staticmethod]
+    fn from_gt(py: Python<'_>, gt: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if !is_gt(py, gt)? {
+            return Err(PyTypeError::new_err(format!(
+                "Table.from_gt() takes a great_tables.GT; got {}",
+                gt.get_type().name()?
+            )));
+        }
+        let json = py.import("gridwell")?.getattr("gt_to_ir")?.call1((gt,))?;
+        Self::from_json(&json.extract::<String>()?)
+    }
+
     /// Parse a table from a JSON string.
     #[staticmethod]
     fn from_json(json: &str) -> PyResult<Self> {
@@ -190,7 +245,7 @@ impl PyTable {
     // ─── Per-format shorthands: options as keyword arguments ───
 
     /// Render the table to HTML. Options: inline_styles, pretty_print, class_prefix,
-    /// base_styles, table_id, standalone.
+    /// base_styles, table_id, standalone, quarto_disable_processing.
     #[pyo3(signature = (**options))]
     fn render_html(&self, py: Python<'_>, options: Option<&Bound<'_, PyDict>>) -> PyResult<String> {
         self.text(py, "html", options.map(|d| d.as_any()))
@@ -257,23 +312,73 @@ impl PyTable {
         self.text(py, "quarto", options.map(|d| d.as_any()))
     }
 
-    /// Render the table to a DOCX file (returns bytes).
-    fn render_docx<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
-        self.binary(py, "docx", None)
+    /// Render the table to a DOCX file (returns bytes). The format has no options
+    /// yet; any given raise `InvalidOptionsError`.
+    #[pyo3(signature = (**options))]
+    fn render_docx<'py>(
+        &self,
+        py: Python<'py>,
+        options: Option<&Bound<'_, PyDict>>,
+    ) -> PyResult<Bound<'py, PyBytes>> {
+        self.binary(py, "docx", options.map(|d| d.as_any()))
     }
 
-    /// Render the table to an XLSX file (returns bytes).
-    fn render_xlsx<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
-        self.binary(py, "xlsx", None)
+    /// Render the table to an XLSX file (returns bytes). The format has no options
+    /// yet; any given raise `InvalidOptionsError`.
+    #[pyo3(signature = (**options))]
+    fn render_xlsx<'py>(
+        &self,
+        py: Python<'py>,
+        options: Option<&Bound<'_, PyDict>>,
+    ) -> PyResult<Bound<'py, PyBytes>> {
+        self.binary(py, "xlsx", options.map(|d| d.as_any()))
     }
 
-    /// Render the table to a PPTX file (returns bytes).
-    fn render_pptx<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
-        self.binary(py, "pptx", None)
+    /// Render the table to a PPTX file (returns bytes). The format has no options
+    /// yet; any given raise `InvalidOptionsError`.
+    #[pyo3(signature = (**options))]
+    fn render_pptx<'py>(
+        &self,
+        py: Python<'py>,
+        options: Option<&Bound<'_, PyDict>>,
+    ) -> PyResult<Bound<'py, PyBytes>> {
+        self.binary(py, "pptx", options.map(|d| d.as_any()))
     }
 
+    // ─── Display ───
+
+    /// What the table is: its size, row groups, summary rows and title, and
+    /// whether it's invalid.
     fn __repr__(&self) -> String {
-        format!("Table(ir_version='{}')", self.inner.ir_version)
+        format!(
+            "<gridwell.Table: {}>",
+            gridwell_render::describe(&self.inner)
+        )
+    }
+
+    /// The table drawn as plain text (ANSI without color), for `print()`; an invalid
+    /// table gives its description and errors instead. Never raises.
+    fn __str__(&self) -> String {
+        let plain = serde_json::json!({ "color": false });
+        match gridwell_render::render(&self.inner, "ansi", Some(&plain)) {
+            Ok(out) => {
+                // `print()` adds the line's end.
+                let text = out.as_text().unwrap_or_default();
+                text.strip_suffix('\n').unwrap_or(text).to_string()
+            }
+            Err(_) => {
+                let mut lines = vec![self.__repr__()];
+                lines.extend(self.validate().into_iter().map(|e| format!("  {e}")));
+                lines.join("\n")
+            }
+        }
+    }
+
+    /// The table as HTML for a notebook (Jupyter, VS Code, Quarto), with a fresh
+    /// `table_id` so its styles apply to it alone, marked so Quarto doesn't restyle
+    /// it. `None` for an invalid table, so the notebook shows the `repr()` instead.
+    fn _repr_html_(&self) -> Option<String> {
+        gridwell_render::display_html(&self.inner).ok()
     }
 }
 
