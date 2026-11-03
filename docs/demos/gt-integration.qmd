@@ -20,7 +20,7 @@ gt = (
 )
 
 # Convert to gridwell IR
-table = gridwell.parse_ir(gridwell.gt_to_ir(gt))
+table = gridwell.Table(gt)
 
 # Validate
 errors = table.validate()
