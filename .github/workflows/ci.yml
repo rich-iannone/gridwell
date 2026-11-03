@@ -201,9 +201,9 @@ jobs:
           python -m pip install --upgrade pip
           whl=$(ls dist/*.whl)
           if [ "${{ matrix.variant }}" = gt ]; then
-            python -m pip install "gridwell[gt] @ file://$PWD/$whl" pytest
+            python -m pip install "gridwell[gt] @ file://$PWD/$whl" pytest mypy
           else
-            python -m pip install "$whl" pytest
+            python -m pip install "$whl" pytest mypy
             # The core variant must really lack the optional dependencies.
             python -c "import importlib.util as u, sys; sys.exit(any(u.find_spec(m) for m in ('pandas', 'great_tables')))"
           fi
@@ -211,6 +211,9 @@ jobs:
       # wheel, not the python/ source tree.
       - name: Test installed wheel
         working-directory: ${{ runner.temp }}
+        env:
+          # The stub checks (stubtest, mypy on usage) must run, not skip.
+          GRIDWELL_REQUIRE_MYPY: "1"
         run: python -m pytest -p no:cacheprovider -rs "$GITHUB_WORKSPACE/tests"
 
   r:
