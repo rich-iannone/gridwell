@@ -5,13 +5,16 @@ from __future__ import annotations
 import datetime as dt
 import json
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pandas as pd
 
+if TYPE_CHECKING:
+    from great_tables import GT
 
-def gt_to_ir(gt_obj: Any) -> str:
+
+def gt_to_ir(gt_obj: GT) -> str:
     """Convert a Great Tables GT object to gridwell IR JSON.
 
     Parameters
@@ -27,7 +30,7 @@ def gt_to_ir(gt_obj: Any) -> str:
     return json.dumps(_gt_to_dict(gt_obj), indent=2)
 
 
-def gt_to_dict(gt_obj: Any) -> dict:
+def gt_to_dict(gt_obj: GT) -> dict[str, Any]:
     """Convert a Great Tables GT object to gridwell IR dict.
 
     Parameters
