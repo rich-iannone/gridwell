@@ -13,7 +13,7 @@ load_fixture <- function(rel_path) {
 test_that("gw_parse_ir works with valid JSON", {
     json <- load_fixture("minimal/minimal_1x1.json")
     tbl <- gw_parse_ir(json)
-    expect_true(is(tbl, "externalptr"))
+    expect_s3_class(tbl, "gw_table")
 })
 
 test_that("gw_parse_ir errors on invalid JSON", {
@@ -386,7 +386,8 @@ test_that("gw_save errors say what is wrong and write nothing", {
     expect_error(gw_save(tbl, c("a.html", "b.html")), "single file path")
     expect_error(gw_save(tbl, NA_character_), "single file path")
     expect_error(gw_save(tbl, p("t.html"), format = 1), "single format name")
-    expect_error(gw_save("not a table", p("t.html")), "gw_parse_ir")
+    expect_error(gw_save(42, p("t.html")), "gw_parse_ir")
+    expect_error(gw_save("not a table", p("t.html")), "Failed to parse IR")
     expect_length(list.files(dir), 0)
 })
 
