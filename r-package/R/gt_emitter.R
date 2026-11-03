@@ -190,7 +190,7 @@ gt_to_ir_list <- function(gt_obj) {
         config = config,
         styles = list(
             defs = styles$defs(),
-            compositions = setNames(list(), character(0)),
+            compositions = stats::setNames(list(), character(0)),
             conditionals = opts$striping$conditionals
         ),
         header = header,
@@ -200,7 +200,7 @@ gt_to_ir_list <- function(gt_obj) {
             tbody = tbody
         ),
         footer = footer,
-        extensions = setNames(list(), character(0))
+        extensions = stats::setNames(list(), character(0))
     )
 }
 
@@ -727,7 +727,7 @@ gt_to_ir_list <- function(gt_obj) {
             id
         },
         get = function(id) defs[[id]],
-        defs = function() if (length(defs) == 0) setNames(list(), character(0)) else defs
+        defs = function() if (length(defs) == 0) stats::setNames(list(), character(0)) else defs
     )
 }
 
