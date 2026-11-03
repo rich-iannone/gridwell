@@ -1,6 +1,7 @@
 use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{is_valid_style_id, CellScope, HAlign, Keyword, RowRole, Table, TextDirection};
+use gridwell_layout::look::{EdgePart, EdgeRules};
 use gridwell_layout::{
     resolve_with, AlignPad, ResolveOptions, ResolvedBorder, ResolvedCell, ResolvedRow,
     ResolvedStyle, ResolvedTable, Section, SectionKind, Sides, Slot,
@@ -51,6 +52,9 @@ struct HtmlRenderer<'r, 'a> {
     svg_prefix: Option<String>,
     /// Summary rows written so far, which number their cells' SVG ids.
     summary_rows: usize,
+    /// The table's edges its cells draw (classes `{prefix}_cells_*` on the
+    /// table, `{prefix}_rule_*` on the cells carrying the rule).
+    edges: EdgeRules,
 }
 
 /// The ids made before the body (in this order, as Great Tables makes them): the
@@ -176,6 +180,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             head_ids: HeadIds::default(),
             svg_prefix: None,
             summary_rows: 0,
+            edges: EdgeRules::new(rt),
         };
         r.head_ids = HeadIds::new(rt, &mut r.ids);
         if !config.inline_styles {
@@ -521,7 +526,18 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 
     fn render_table(&mut self) {
         let mut attrs = Vec::new();
-        attrs.push(format!("class=\"{}_table\"", self.config.class_prefix));
+        let p = &self.config.class_prefix;
+        let mut classes = vec![format!("{p}_table")];
+        // Edges drawn by the cells: the table's and the head's rules are off there.
+        if !self.config.inline_styles {
+            let e = &self.edges;
+            for (on, edge) in [(e.top, "top"), (e.head, "head"), (e.bottom, "bottom")] {
+                if on {
+                    classes.push(format!("{p}_cells_{edge}"));
+                }
+            }
+        }
+        attrs.push(format!("class=\"{}\"", classes.join(" ")));
 
         // The title names the table and the subtitle describes it, unless the
         // config names it (`aria_label`, or a caption from `summary`) or says what
@@ -599,7 +615,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         self.write_line("<thead>");
         self.push_indent();
         for (r, row) in rt.head.rows.iter().enumerate() {
-            self.render_row(row, SectionKind::Head, RowIds::Head(r));
+            self.render_row(row, SectionKind::Head, EdgePart::Head, RowIds::Head(r));
         }
         self.pop_indent();
         self.write_line("</thead>");
@@ -607,7 +623,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
 
     fn render_tbody(&mut self) {
         let rt = self.rt;
-        for group in &rt.groups {
+        for (g, group) in rt.groups.iter().enumerate() {
             self.write_line("<tbody>");
             self.push_indent();
 
@@ -641,8 +657,9 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                 group_id = Some(id);
             }
 
-            self.render_section(&group.rows, group_id.as_deref(), &key);
-            self.render_section(&group.summary_rows, group_id.as_deref(), &key);
+            let id = group_id.as_deref();
+            self.render_section(&group.rows, EdgePart::Rows(g), id, &key);
+            self.render_section(&group.summary_rows, EdgePart::Summary(g), id, &key);
 
             self.pop_indent();
             self.write_line("</tbody>");
@@ -680,7 +697,13 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
     /// `summary-{group}-{label}`, or `grand-summary-{label}`), and each other cell
     /// lists its headers: the group's label (`group_id`; not for a grand summary),
     /// the stub cells covering its row, and the spanners and column labels over it.
-    fn render_section(&mut self, section: &Section, group_id: Option<&str>, key: &str) {
+    fn render_section(
+        &mut self,
+        section: &Section,
+        part: EdgePart,
+        group_id: Option<&str>,
+        key: &str,
+    ) {
         let mut stubs: HashMap<(usize, usize), String> = HashMap::new();
         for (r, row) in section.rows.iter().enumerate() {
             let grand = row.role == Some(RowRole::GrandSummary);
@@ -737,11 +760,11 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                 headers: &headers,
                 svg_row,
             };
-            self.render_row(row, section.kind, ids);
+            self.render_row(row, section.kind, part, ids);
         }
     }
 
-    fn render_row(&mut self, row: &ResolvedRow, kind: SectionKind, ids: RowIds) {
+    fn render_row(&mut self, row: &ResolvedRow, kind: SectionKind, part: EdgePart, ids: RowIds) {
         let row_class = match row_part(row, kind) {
             Some(part) => self.part_attrs(part, &row.row.style_id),
             None => self.style_class_attr(&row.row.style_id),
@@ -750,7 +773,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         self.push_indent();
         // Covered positions are implied by the origins' spans.
         for cell in row.cells() {
-            self.render_cell(row, cell, kind, &ids);
+            self.render_cell(row, cell, kind, part, &ids);
         }
         self.pop_indent();
         self.write_line("</tr>");
@@ -761,6 +784,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         row: &ResolvedRow,
         cell: &ResolvedCell,
         kind: SectionKind,
+        edge_part: EdgePart,
         ids: &RowIds,
     ) {
         let is_header = is_header_cell(cell, kind);
@@ -794,6 +818,16 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             }
         } else {
             let mut classes: Vec<String> = part.into_iter().collect();
+            let r = match ids {
+                RowIds::Head(r) | RowIds::Body { r, .. } => *r,
+            };
+            let p = &self.config.class_prefix;
+            if self.edges.carries_top(edge_part, r, cell.col) {
+                classes.push(format!("{p}_rule_top"));
+            }
+            if self.edges.carries_bottom(edge_part, r, cell.col) {
+                classes.push(format!("{p}_rule_bottom"));
+            }
             if let Some(a) = align {
                 classes.push(format!("{}__al_{a}", self.config.class_prefix));
             }
