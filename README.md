@@ -169,8 +169,8 @@ other target uses the pre-formatted text.
 |---|---|
 | **Rust** | `gridwell_ir::Table::{from_json, to_json, validate}` + the `gridwell-writer-*` crates |
 | **CLI** | `gridwell convert -t <format> [input] [-o out]`, `gridwell validate`, `gridwell formats` |
-| **Python** | PyO3 module built with maturin (e.g. `gridwell.parse_ir(...)`) |
-| **R** | extendr wrapper |
+| **Python** | PyO3 module built with maturin: `gridwell.Table(ir_or_gt)`, shown as HTML in notebooks |
+| **R** | extendr wrapper: `gw_*` functions taking a `gw_table`, gt table or IR JSON; prints in the console, knits into R Markdown and Quarto |
 
 ```bash
 # Render an IR JSON file to each format
