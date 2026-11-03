@@ -14,11 +14,29 @@ library(gridwell)
 tbl <- gt(exibble, rowname_col = "row", groupname_col = "group") |>
   tab_header(title = "Example", subtitle = "From exibble")
 
-table_ptr <- gw_parse_ir(gt_to_ir(tbl))
-html <- gw_render_html(table_ptr)
+html <- gw_render_html(tbl)
 ```
 
+Every gridwell function takes a gt table and converts it on the way in. To convert
+once, use `as_gw_table()`, which gives a `gw_table`:
+
+```r
+gw <- as_gw_table(tbl)
+gw                    # <gw_table: 8 columns, 8 rows in 2 groups, titled "Example">
+                      # and the table drawn as text
+```
+
+In R Markdown and Quarto, a `gw_table` a chunk returns is shown as the document's
+format: HTML (with styles scoped to that table, and marked so Quarto doesn't add
+Bootstrap's table styling), LaTeX for PDF (asking for the LaTeX packages it uses), or
+Typst. Word and PowerPoint documents get the table drawn as text; to put a real table
+in one, save it with `gw_save(tbl, "table.docx")`.
+
 ## Functions
+
+### `as_gw_table(x)`
+
+A `gw_table` from a gt table, IR as a JSON string, or a `gw_table` (returned as is).
 
 ### `gt_to_ir(gt_tbl)`
 
@@ -59,21 +77,21 @@ tbl <- gt(exibble, rowname_col = "row", groupname_col = "group") |>
   tab_header(title = "Example", subtitle = "Demo") |>
   tab_source_note(source_note = "Source: gt package")
 
-table_ptr <- gw_parse_ir(gt_to_ir(tbl))
+gw <- as_gw_table(tbl)
 
 # Validate
-errors <- gw_validate(table_ptr)
+errors <- gw_validate(gw)
 stopifnot(length(errors) == 0)
 
 # Text formats
 for (fmt in c("html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto")) {
-  result <- gw_render(table_ptr, fmt)
+  result <- gw_render(gw, fmt)
   cat(sprintf("  %s: %d chars\n", fmt, nchar(result)))
 }
 
 # Binary formats
 for (fmt in c("docx", "xlsx", "pptx")) {
-  data <- gw_render_binary(table_ptr, fmt)
+  data <- gw_render_binary(gw, fmt)
   cat(sprintf("  %s: %d bytes\n", fmt, length(data)))
 }
 ```
