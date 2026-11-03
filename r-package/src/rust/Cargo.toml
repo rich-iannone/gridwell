@@ -14,7 +14,7 @@ name = "document"
 path = "document.rs"
 
 [dependencies]
-extendr-api = "*"
+extendr-api = "0.9"
 gridwell-ir = { path = "../../../crates/gridwell-ir" }
 gridwell-render = { path = "../../../crates/gridwell-render" }
 
