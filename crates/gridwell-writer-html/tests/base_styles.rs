@@ -216,3 +216,70 @@ fn a_drawn_row_border_is_carried_by_its_cells() {
         "{html}"
     );
 }
+
+/// Two columns; head cell "A" (and, with `body_top`, body cell "1") sets its
+/// own 1px border on the head's edge.
+fn head_edge_table(body_top: bool) -> Table {
+    use gridwell_testkit::{cell, row, CellExt, TableBuilder};
+    let side = |s: &str| -> gridwell_ir::style::StyleDef {
+        serde_json::from_value(serde_json::json!({
+            "border": { s: { "style": "solid", "width": "1px", "color": "#333333" } }
+        }))
+        .unwrap()
+    };
+    let one = if body_top {
+        cell("1").style("t")
+    } else {
+        cell("1")
+    };
+    TableBuilder::new(2)
+        .style_def("b", side("bottom"))
+        .style_def("t", side("top"))
+        .head(row(vec![cell("A").style("b"), cell("B")]))
+        .body(vec![row(vec![one, cell("2")])])
+        .build()
+}
+
+#[test]
+fn an_edge_with_a_cell_border_is_drawn_by_its_cells() {
+    // In the collapsed-border model the thead's 2px rule would beat "A"'s 1px
+    // border: the edge is the cells', and the others carry the rule.
+    let html = render(&head_edge_table(false), true, false, "gw");
+    assert!(
+        html.contains("<table class=\"gw_table gw_cells_head\">"),
+        "{html}"
+    );
+    let line = |text: &str| {
+        html.lines()
+            .find(|l| l.contains(&format!(">{text}</")))
+            .unwrap_or_else(|| panic!("no {text}:\n{html}"))
+    };
+    assert!(!line("A").contains("_rule_"), "{}", line("A"));
+    assert!(line("B").contains("gw_rule_bottom"), "{}", line("B"));
+    // "1" faces "A"'s border; "2" carries the rule too.
+    assert!(!line("1").contains("_rule_"), "{}", line("1"));
+    assert!(line("2").contains("class=\"gw_rule_top\""), "{}", line("2"));
+    // The markup doesn't depend on the base stylesheet.
+    let bare = render(&head_edge_table(false), false, false, "gw");
+    assert!(bare.contains("gw_cells_head") && bare.contains("gw_rule_top"));
+
+    let html = without_base(&render(&head_edge_table(true), true, false, "zz"));
+    assert!(html.contains("zz_cells_head") && html.contains("zz_rule_bottom"));
+    assert!(html.contains("<td class=\"zz_style-t\" headers=\"col_0\">1</td>"));
+
+    // Inline styles have no base stylesheet to switch off.
+    let html = render(&head_edge_table(false), false, true, "gw");
+    assert!(
+        !html.contains("_cells_") && !html.contains("_rule_"),
+        "{html}"
+    );
+
+    // Without cell borders, no edge is the cells'.
+    for ex in examples()
+        .iter()
+        .filter(|e| !e.name.starts_with("borders-"))
+    {
+        let html = without_base(&render(&ex.table(), true, false, "gw"));
+        assert!(!html.contains("gw_cells_"), "{}", ex.name);
+    }
+}
