@@ -7,9 +7,7 @@ use gridwell_render::{RenderError, REGISTRY};
 
 fn table_from(ptr: &Robj) -> ExternalPtr<Table> {
     ptr.try_into().unwrap_or_else(|_| {
-        throw_r_error(
-            "Expected a gridwell table pointer. Did you pass the result of gw_parse_ir()?",
-        )
+        throw_r_error("Expected a gridwell table. Did you pass the result of gw_parse_ir()?")
     })
 }
 
@@ -48,6 +46,30 @@ fn rs_parse_ir(json: &str) -> Robj {
         Ok(table) => ExternalPtr::new(table).into(),
         Err(e) => throw_r_error(&format!("Failed to parse IR: {e}")),
     }
+}
+
+/// Whether `ptr` points to a table: not after `saveRDS()` and `readRDS()`, which
+/// keep an external pointer but not what it points to.
+/// @noRd
+#[extendr]
+fn rs_is_table(ptr: Robj) -> bool {
+    <&Robj as TryInto<ExternalPtr<Table>>>::try_into(&ptr).is_ok()
+}
+
+/// A one-line description of the table (size, groups, title, validity).
+/// @noRd
+#[extendr]
+fn rs_describe(table_ptr: Robj) -> String {
+    gridwell_render::describe(&table_from(&table_ptr))
+}
+
+/// The HTML an HTML document shows a table as: with a fresh id (leaving R's
+/// random seed alone), and left alone by Quarto.
+/// @noRd
+#[extendr]
+fn rs_display_html(table_ptr: Robj) -> String {
+    let table = table_from(&table_ptr);
+    gridwell_render::display_html(&table).unwrap_or_else(|e| throw_r_error(&e.to_string()))
 }
 
 /// Validation errors (empty if valid).
@@ -146,6 +168,9 @@ fn rs_formats() -> List {
 extendr_module! {
     mod gridwell;
     fn rs_parse_ir;
+    fn rs_is_table;
+    fn rs_describe;
+    fn rs_display_html;
     fn rs_validate;
     fn rs_warnings;
     fn rs_to_json;
