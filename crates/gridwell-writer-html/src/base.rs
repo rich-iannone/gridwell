@@ -56,8 +56,30 @@ fn rule(r: &Rule) -> String {
     format!("{} {style} {}", px(r.width_px), r.color.to_css())
 }
 
-/// The base rules for class prefix `p`, one per line, in order; `rtl` mirrors them.
-pub fn rules(p: &str, rtl: bool) -> Vec<String> {
+/// Selector list `selector` scoped to the table's container `scope` (its id
+/// selector, or nothing): each selector then matches only within it, and the
+/// container's own only it.
+pub fn scoped(scope: &str, p: &str, selector: &str) -> String {
+    if scope.is_empty() {
+        return selector.to_string();
+    }
+    let container = format!(".{p}_container");
+    selector
+        .split(", ")
+        .map(|s| {
+            if s == container {
+                format!("{scope}{s}")
+            } else {
+                format!("{scope} {s}")
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(", ")
+}
+
+/// The base rules for class prefix `p`, one per line, in order, scoped to the
+/// container `scope` (see [`scoped`]); `rtl` mirrors them.
+pub fn rules(p: &str, rtl: bool, scope: &str) -> Vec<String> {
     // The table's start and end sides.
     let (start, end) = if rtl {
         ("right", "left")
@@ -65,7 +87,9 @@ pub fn rules(p: &str, rtl: bool) -> Vec<String> {
         ("left", "right")
     };
     let l = &LOOK;
-    let w = |selector: &str, decls: &str| format!(":where({selector}) {{ {decls} }}");
+    let w = |selector: &str, decls: &str| {
+        format!(":where({}) {{ {decls} }}", scoped(scope, p, selector))
+    };
     let outer = rule(&l.outer_rule);
     let section = rule(&l.section_rule);
     let spanner_color = l.spanner_rule.color.to_css();
@@ -273,7 +297,7 @@ mod tests {
 
     #[test]
     fn rtl_mirrors_exactly_the_one_sided_rules() {
-        let (ltr, rtl) = (rules("gw", false), rules("gw", true));
+        let (ltr, rtl) = (rules("gw", false, ""), rules("gw", true, ""));
         assert_eq!(ltr.len(), rtl.len());
         let mirror = |s: &str| {
             s.replace("left", "\0")
@@ -298,7 +322,7 @@ mod tests {
     #[test]
     fn edge_rules_come_after_the_rules_they_override() {
         // Every rule has zero specificity: the later of two wins.
-        let rules = rules("gw", false);
+        let rules = rules("gw", false, "");
         let at = |selector: &str| {
             rules
                 .iter()
@@ -323,9 +347,39 @@ mod tests {
     }
 
     #[test]
+    fn a_scope_prefixes_every_selector() {
+        let (bare, scoped) = (rules("gw", false, ""), rules("gw", false, "#t"));
+        assert_eq!(bare.len(), scoped.len());
+        for (b, s) in bare.iter().zip(&scoped) {
+            let selectors = |r: &str| {
+                let inner = r.strip_prefix(":where(").unwrap().split(") {").next();
+                inner
+                    .unwrap()
+                    .split(", ")
+                    .map(str::to_string)
+                    .collect::<Vec<_>>()
+            };
+            let (b, s) = (selectors(b), selectors(s));
+            assert_eq!(b.len(), s.len());
+            for (b, s) in b.iter().zip(&s) {
+                if b == ".gw_container" {
+                    assert_eq!(s, "#t.gw_container");
+                } else {
+                    assert_eq!(s, &format!("#t {b}"));
+                }
+            }
+        }
+        assert!(scoped[0].starts_with(":where(#t.gw_container) {"));
+        assert!(scoped[1].starts_with(
+            ":where(#t .gw_title:first-of-type, #t .gw_subtitle:first-of-type, \
+             #t .gw_header_line:first-of-type) {"
+        ));
+    }
+
+    #[test]
     fn no_rule_misses_the_row_headers() {
         // A stub is a `<th>` in the body: a rule naming `td` must name `th` too.
-        for line in rules("gw", false) {
+        for line in rules("gw", false, "") {
             let selector = line.split('{').next().unwrap();
             let names = |tag: &str| {
                 selector
