@@ -24,9 +24,18 @@ import gridwell
 
 gt = GT(exibble.head(5), rowname_col="row", groupname_col="group")
 
-# Convert to IR and render
-table = gridwell.parse_ir(gridwell.gt_to_ir(gt))
+table = gridwell.Table(gt)  # converts the GT to gridwell's IR
 html = table.render_html()
+```
+
+`gridwell.Table()` (or `gridwell.Table.from_gt()`, which takes only a GT) converts the
+table to IR. In a notebook (Jupyter, VS Code, Quarto) a `Table` shows as HTML, with
+styles scoped to that one table and marked so Quarto doesn't add Bootstrap's table
+styling; `print(table)` draws it as text, and `repr(table)` describes it:
+
+```python
+>>> table
+<gridwell.Table: 8 columns, 5 rows in 2 groups>
 ```
 
 ## Functions
@@ -96,7 +105,7 @@ pass it to the writer as `table_id`:
 
 ```python
 gt = GT(df, rowname_col="name", groupname_col="grp", id="sales")
-html = gridwell.parse_ir(gridwell.gt_to_ir(gt)).render_html(table_id="sales")
+html = gridwell.Table(gt).render_html(table_id="sales")
 ```
 
 ## Full Pipeline Example
@@ -112,7 +121,7 @@ gt = (
 )
 
 # Convert and validate
-table = gridwell.parse_ir(gridwell.gt_to_ir(gt))
+table = gridwell.Table(gt)
 errors = table.validate()
 assert errors == []
 
