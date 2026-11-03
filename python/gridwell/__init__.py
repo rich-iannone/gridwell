@@ -1,6 +1,13 @@
 """gridwell: Fast multi-format table rendering from a declarative IR."""
 
+from typing import TYPE_CHECKING, Any
+
 from gridwell._native import InvalidOptionsError, InvalidTableError, Table, formats, parse_ir
+
+if TYPE_CHECKING:
+    # Loaded lazily at runtime (see `__getattr__`); imported here so type checkers
+    # know them.
+    from gridwell._gt_emitter import gt_to_dict, gt_to_ir
 
 __all__ = [
     "InvalidOptionsError",
@@ -18,7 +25,7 @@ __version__ = "0.1.0"
 _GT_EMITTER_NAMES = frozenset({"gt_to_ir", "gt_to_dict"})
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     if name in _GT_EMITTER_NAMES:
         try:
             from gridwell import _gt_emitter
@@ -31,5 +38,5 @@ def __getattr__(name: str):
     raise AttributeError(f"module 'gridwell' has no attribute {name!r}")
 
 
-def __dir__():
+def __dir__() -> list[str]:
     return sorted(set(globals()) | _GT_EMITTER_NAMES)
