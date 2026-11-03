@@ -29,8 +29,15 @@ pub struct HtmlWriterConfig {
     /// The table's id, as Great Tables' `GT(id=)`: the container's `id`, and the
     /// prefix (`{table_id}-`) of every id the writer makes (header cells, the
     /// title and subtitle), so they stay unique on a page holding several tables.
-    /// Without one, those ids are unprefixed.
+    /// The style block's rules are scoped to the container (`#{table_id} …`), so
+    /// such tables can't restyle each other either. Without one, the ids are
+    /// unprefixed and the rules apply page-wide.
     pub table_id: Option<String>,
+    /// Mark the table `data-quarto-disable-processing="true"`, as gt's
+    /// `quarto.disable_processing`, so Quarto leaves it as written. Otherwise
+    /// Quarto reads an HTML table in a document and writes it again with
+    /// Bootstrap's table classes, whose padding, rules and striping restyle it.
+    pub quarto_disable_processing: bool,
 }
 
 impl Default for HtmlWriterConfig {
@@ -42,6 +49,7 @@ impl Default for HtmlWriterConfig {
             base_styles: true,
             standalone: false,
             table_id: None,
+            quarto_disable_processing: false,
         }
     }
 }
