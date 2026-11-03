@@ -28,8 +28,9 @@ classifiers = [
 gt = ["great-tables>=0.17", "pandas>=2"]
 
 [dependency-groups]
-test = ["pytest>=8"]
-test-gt = ["pytest>=8", "great-tables>=0.17", "pandas>=2"]
+# mypy runs the stub checks in tests/test_typing.py.
+test = ["pytest>=8", "mypy>=1.13"]
+test-gt = ["pytest>=8", "mypy>=1.13", "great-tables>=0.17", "pandas>=2"]
 
 [tool.maturin]
 manifest-path = "crates/gridwell-python/Cargo.toml"
