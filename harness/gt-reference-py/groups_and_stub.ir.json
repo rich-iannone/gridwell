@@ -84,12 +84,7 @@
           "style_id": null,
           "cells": [
             {
-              "content": [
-                {
-                  "type": "text",
-                  "value": ""
-                }
-              ],
+              "content": [],
               "colspan": 1,
               "rowspan": 1,
               "style_id": null,

@@ -2,7 +2,7 @@
   "ir_version": "1.0",
   "config": {
     "table_cols": 4,
-    "header_rows": 1,
+    "header_rows": 2,
     "body_rows": 2,
     "stub_cols": 0,
     "row_striping": false,
@@ -79,6 +79,66 @@
   "table": {
     "thead": {
       "rows": [
+        {
+          "role": "spanner_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Group A"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "colgroup",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Group B"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "colgroup",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        },
         {
           "role": "column_label",
           "style_id": null,

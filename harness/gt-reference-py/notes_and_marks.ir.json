@@ -20,7 +20,14 @@
     "summary": null
   },
   "styles": {
-    "defs": {},
+    "defs": {
+      "gw_1": {
+        "font_weight": "bold"
+      },
+      "gw_2": {
+        "font_style": "italic"
+      }
+    },
     "compositions": {},
     "conditionals": []
   },
@@ -28,8 +35,13 @@
     "title": {
       "content": [
         {
+          "type": "styled_text",
+          "value": "Notes",
+          "style_id": "gw_1"
+        },
+        {
           "type": "text",
-          "value": "Md(text='**Notes** and marks')"
+          "value": " and marks"
         }
       ]
     },
@@ -446,7 +458,16 @@
         "content": [
           {
             "type": "text",
-            "value": "Source note <em>two</em>."
+            "value": "Source note "
+          },
+          {
+            "type": "styled_text",
+            "value": "two",
+            "style_id": "gw_2"
+          },
+          {
+            "type": "text",
+            "value": "."
           }
         ]
       }
