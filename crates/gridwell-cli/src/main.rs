@@ -5,6 +5,7 @@ use std::process;
 
 use clap::{Parser, Subcommand};
 use gridwell_ir::Table;
+use gridwell_render::conformance::{self, Tier};
 use gridwell_render::{find, format_for_path, OutputKind, RenderError, Writer, REGISTRY};
 
 #[derive(Parser)]
@@ -67,12 +68,55 @@ enum Command {
         format: Option<&'static dyn Writer>,
     },
 
+    /// Normalize a table IR to a conformance grid, or check one against an
+    /// expected grid
+    #[command(subcommand)]
+    Conformance(ConformanceCommand),
+
     /// List supported output formats
     Formats {
         /// Print machine-readable JSON, including each format's options and defaults
         #[arg(long)]
         json: bool,
     },
+}
+
+#[derive(Subcommand)]
+enum ConformanceCommand {
+    /// Print a table IR's normalized grid (JSON): what an expected grid is made of
+    Normalize {
+        /// Input file (use "-" or omit for stdin)
+        #[arg(value_name = "INPUT")]
+        input: Option<PathBuf>,
+
+        /// The tier to write the grid to: L1 structure, L2 content, L3 styling
+        #[arg(long, value_name = "TIER", default_value = "L3", value_parser = parse_tier)]
+        tier: Tier,
+    },
+
+    /// Check a table IR against an expected grid (exit 1 when it doesn't conform)
+    Check {
+        /// The table IR (use "-" for stdin)
+        #[arg(value_name = "INPUT")]
+        input: PathBuf,
+
+        /// The expected grid
+        #[arg(value_name = "EXPECTED")]
+        expected: PathBuf,
+
+        /// The tier to check to (default: the expected grid's)
+        #[arg(long, value_name = "TIER", value_parser = parse_tier)]
+        tier: Option<Tier>,
+
+        /// Print the report as JSON
+        #[arg(long)]
+        json: bool,
+    },
+}
+
+fn parse_tier(name: &str) -> Result<Tier, String> {
+    name.parse()
+        .map_err(|e: conformance::ConformanceError| e.to_string())
 }
 
 fn parse_format(name: &str) -> Result<&'static dyn Writer, String> {
@@ -91,6 +135,15 @@ fn main() {
             options_file,
         } => cmd_convert(input, format, output, options, options_file),
         Command::Validate { input, format } => cmd_validate(input, format),
+        Command::Conformance(ConformanceCommand::Normalize { input, tier }) => {
+            cmd_normalize(input, tier)
+        }
+        Command::Conformance(ConformanceCommand::Check {
+            input,
+            expected,
+            tier,
+            json,
+        }) => cmd_check(input, expected, tier, json),
         Command::Formats { json } => cmd_formats(json),
     }
 }
@@ -184,6 +237,32 @@ fn cmd_validate(input: Option<PathBuf>, format: Option<&'static dyn Writer>) {
         for err in &errors {
             eprintln!("  - {err}");
         }
+        process::exit(1);
+    }
+}
+
+fn cmd_normalize(input: Option<PathBuf>, tier: Tier) {
+    let json = read_input(input.as_deref());
+    let table = parse_table(&json);
+    let validated = table.validated().unwrap_or_else(|e| fail(e));
+    let grid = conformance::normalize(&validated, tier);
+    println!("{}", serde_json::to_string_pretty(&grid).unwrap());
+}
+
+fn cmd_check(input: PathBuf, expected: PathBuf, tier: Option<Tier>, json: bool) {
+    let ir = read_input(Some(&input));
+    let grid = fs::read_to_string(&expected)
+        .unwrap_or_else(|e| fail(format_args!("reading {}: {e}", expected.display())));
+    let report = conformance::check_json(&ir, &grid, tier).unwrap_or_else(|e| fail(e));
+    if json {
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&report.to_json()).unwrap()
+        );
+    } else {
+        print!("{report}");
+    }
+    if !report.passed() {
         process::exit(1);
     }
 }
