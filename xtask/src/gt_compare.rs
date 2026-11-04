@@ -52,6 +52,8 @@ pub const GT: Source = Source {
         ("R", "r_version"),
         ("gt", "gt_version"),
         ("gridwell", "gridwell_version"),
+        // gt's own emitter (`gt::as_ir()`) or gridwell's copy.
+        ("IR by", "ir_emitter"),
     ],
 };
 
@@ -69,6 +71,8 @@ pub const GREAT_TABLES: Source = Source {
         ("Python", "python_version"),
         ("Great Tables", "great_tables_version"),
         ("gridwell", "gridwell_version"),
+        // Great Tables' own emitter (`GT.as_ir()`) or gridwell's copy.
+        ("IR by", "ir_emitter"),
     ],
 };
 
@@ -402,7 +406,7 @@ mod tests {
                 .unwrap();
             format!("{label} {v}")
         };
-        for label in ["Python", "Great Tables", "gridwell"] {
+        for label in ["Python", "Great Tables", "gridwell", "IR by"] {
             assert!(
                 page.meta_html.contains(&version(label)),
                 "{}",
@@ -426,7 +430,7 @@ mod tests {
         let d = temp_dir("bad");
         fs::write(
             d.join("manifest.json"),
-            r#"{"r_version":"4","gt_version":"1","gridwell_version":"0",
+            r#"{"r_version":"4","gt_version":"1","gridwell_version":"0","ir_emitter":"gridwell",
                 "cases":[{"name":"ghost","description":"x"}]}"#,
         )
         .unwrap();
@@ -439,7 +443,8 @@ mod tests {
         let d = temp_dir("versions");
         fs::write(
             d.join("manifest.json"),
-            r#"{"r_version":"4","gt_version":"1","gridwell_version":"0","cases":[]}"#,
+            r#"{"r_version":"4","gt_version":"1","gridwell_version":"0","ir_emitter":"gt",
+                "cases":[]}"#,
         )
         .unwrap();
         assert!(load(&d, &GT).unwrap().is_some());
