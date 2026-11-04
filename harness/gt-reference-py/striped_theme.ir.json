@@ -20,9 +20,37 @@
     "summary": null
   },
   "styles": {
-    "defs": {},
+    "defs": {
+      "gw_1": {
+        "background_color": "#0076BA",
+        "color": "#FFFFFF"
+      },
+      "gw_2": {
+        "border": {
+          "top": {
+            "style": "none"
+          }
+        }
+      },
+      "gw_3": {
+        "background_color": "#D5D5D5",
+        "color": "#333333"
+      }
+    },
     "compositions": {},
-    "conditionals": []
+    "conditionals": [
+      {
+        "id": "row_striping",
+        "selector": {
+          "row_parity": "even",
+          "scope": "tbody"
+        },
+        "style": {
+          "background_color": "#EDF7FC",
+          "color": "#333333"
+        }
+      }
+    ]
   },
   "header": {
     "title": {
@@ -31,7 +59,8 @@
           "type": "text",
           "value": "A stylized table"
         }
-      ]
+      ],
+      "style_id": null
     },
     "subtitle": null,
     "extra_lines": [],
@@ -88,7 +117,7 @@
       "rows": [
         {
           "role": "column_label",
-          "style_id": null,
+          "style_id": "gw_1",
           "cells": [
             {
               "content": [
@@ -165,7 +194,7 @@
         "rows": [
           {
             "role": null,
-            "style_id": null,
+            "style_id": "gw_2",
             "cells": [
               {
                 "content": [
@@ -247,7 +276,7 @@
           },
           {
             "role": null,
-            "style_id": null,
+            "style_id": "gw_2",
             "cells": [
               {
                 "content": [
@@ -329,7 +358,7 @@
           },
           {
             "role": null,
-            "style_id": null,
+            "style_id": "gw_2",
             "cells": [
               {
                 "content": [
@@ -411,7 +440,7 @@
           },
           {
             "role": null,
-            "style_id": null,
+            "style_id": "gw_2",
             "cells": [
               {
                 "content": [
@@ -493,7 +522,7 @@
           },
           {
             "role": null,
-            "style_id": null,
+            "style_id": "gw_2",
             "cells": [
               {
                 "content": [
@@ -571,7 +600,7 @@
           },
           {
             "role": null,
-            "style_id": null,
+            "style_id": "gw_2",
             "cells": [
               {
                 "content": [

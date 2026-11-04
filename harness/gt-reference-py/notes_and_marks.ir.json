@@ -42,8 +42,14 @@
         {
           "type": "text",
           "value": " and marks"
+        },
+        {
+          "type": "footnote_mark",
+          "ref": "fn1",
+          "mark_text": "1"
         }
-      ]
+      ],
+      "style_id": null
     },
     "subtitle": {
       "content": [
@@ -51,7 +57,8 @@
           "type": "text",
           "value": "Subtitle text"
         }
-      ]
+      ],
+      "style_id": null
     },
     "extra_lines": [],
     "preheader_content": null
@@ -119,6 +126,11 @@
                 {
                   "type": "text",
                   "value": "num"
+                },
+                {
+                  "type": "footnote_mark",
+                  "ref": "fn2",
+                  "mark_text": "2"
                 }
               ],
               "colspan": 1,
@@ -227,6 +239,11 @@
                   {
                     "type": "text",
                     "value": "banana"
+                  },
+                  {
+                    "type": "footnote_mark",
+                    "ref": "fn3",
+                    "mark_text": "3"
                   }
                 ],
                 "colspan": 1,
@@ -422,7 +439,8 @@
             "type": "text",
             "value": "A title note."
           }
-        ]
+        ],
+        "style_id": null
       },
       {
         "id": "fn2",
@@ -432,7 +450,8 @@
             "type": "text",
             "value": "A column label note."
           }
-        ]
+        ],
+        "style_id": null
       },
       {
         "id": "fn3",
@@ -442,7 +461,8 @@
             "type": "text",
             "value": "A body cell note."
           }
-        ]
+        ],
+        "style_id": null
       }
     ],
     "source_notes": [
@@ -452,7 +472,8 @@
             "type": "text",
             "value": "Source note one."
           }
-        ]
+        ],
+        "style_id": null
       },
       {
         "content": [
@@ -469,7 +490,8 @@
             "type": "text",
             "value": "."
           }
-        ]
+        ],
+        "style_id": null
       }
     ]
   },

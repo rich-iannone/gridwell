@@ -21,50 +21,16 @@
   },
   "styles": {
     "defs": {
-      "style_0": {
-        "color": "#E8F0FE",
+      "gw_1": {
+        "background_color": "#F2F4F7"
+      },
+      "gw_2": {
+        "color": "#B42318",
+        "font_style": "italic"
+      },
+      "gw_3": {
+        "background_color": "#E8F0FE",
         "font_weight": "bold"
-      },
-      "style_1": {
-        "color": "#E8F0FE",
-        "font_weight": "bold"
-      },
-      "style_2": {
-        "color": "#E8F0FE",
-        "font_weight": "bold"
-      },
-      "style_3": {
-        "color": "#E8F0FE",
-        "font_weight": "bold"
-      },
-      "style_4": {
-        "color": "#B42318",
-        "font_style": "italic"
-      },
-      "style_5": {
-        "color": "#B42318",
-        "font_style": "italic"
-      },
-      "style_6": {
-        "color": "#B42318",
-        "font_style": "italic"
-      },
-      "style_7": {
-        "color": "#B42318",
-        "font_style": "italic"
-      },
-      "style_8": {
-        "color": "#B42318",
-        "font_style": "italic"
-      },
-      "style_9": {
-        "color": "#F2F4F7"
-      },
-      "style_10": {
-        "color": "#F2F4F7"
-      },
-      "style_11": {
-        "color": "#F2F4F7"
       }
     },
     "compositions": {},
@@ -127,7 +93,7 @@
               ],
               "colspan": 1,
               "rowspan": 1,
-              "style_id": null,
+              "style_id": "gw_1",
               "is_stub": false,
               "is_placeholder": false,
               "scope": "col",
@@ -143,7 +109,7 @@
               ],
               "colspan": 1,
               "rowspan": 1,
-              "style_id": null,
+              "style_id": "gw_1",
               "is_stub": false,
               "is_placeholder": false,
               "scope": "col",
@@ -159,7 +125,7 @@
               ],
               "colspan": 1,
               "rowspan": 1,
-              "style_id": null,
+              "style_id": "gw_1",
               "is_stub": false,
               "is_placeholder": false,
               "scope": "col",
@@ -188,7 +154,7 @@
                 ],
                 "colspan": 1,
                 "rowspan": 1,
-                "style_id": null,
+                "style_id": "gw_2",
                 "is_stub": false,
                 "is_placeholder": false,
                 "data_type": "string",
@@ -251,7 +217,7 @@
                 ],
                 "colspan": 1,
                 "rowspan": 1,
-                "style_id": null,
+                "style_id": "gw_2",
                 "is_stub": false,
                 "is_placeholder": false,
                 "data_type": "string",
@@ -270,7 +236,7 @@
                 ],
                 "colspan": 1,
                 "rowspan": 1,
-                "style_id": null,
+                "style_id": "gw_3",
                 "is_stub": false,
                 "is_placeholder": false,
                 "data_type": "number",
@@ -314,7 +280,7 @@
                 ],
                 "colspan": 1,
                 "rowspan": 1,
-                "style_id": null,
+                "style_id": "gw_2",
                 "is_stub": false,
                 "is_placeholder": false,
                 "data_type": "string",
@@ -333,7 +299,7 @@
                 ],
                 "colspan": 1,
                 "rowspan": 1,
-                "style_id": null,
+                "style_id": "gw_3",
                 "is_stub": false,
                 "is_placeholder": false,
                 "data_type": "number",
@@ -377,7 +343,7 @@
                 ],
                 "colspan": 1,
                 "rowspan": 1,
-                "style_id": null,
+                "style_id": "gw_2",
                 "is_stub": false,
                 "is_placeholder": false,
                 "data_type": "string",
@@ -396,7 +362,7 @@
                 ],
                 "colspan": 1,
                 "rowspan": 1,
-                "style_id": null,
+                "style_id": "gw_3",
                 "is_stub": false,
                 "is_placeholder": false,
                 "data_type": "number",
@@ -440,7 +406,7 @@
                 ],
                 "colspan": 1,
                 "rowspan": 1,
-                "style_id": null,
+                "style_id": "gw_2",
                 "is_stub": false,
                 "is_placeholder": false,
                 "data_type": null,
@@ -455,7 +421,7 @@
                 ],
                 "colspan": 1,
                 "rowspan": 1,
-                "style_id": null,
+                "style_id": "gw_3",
                 "is_stub": false,
                 "is_placeholder": false,
                 "data_type": "number",

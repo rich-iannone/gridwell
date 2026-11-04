@@ -31,7 +31,8 @@
           "type": "text",
           "value": "Table 14.1.1 Summary of Demographic Characteristics"
         }
-      ]
+      ],
+      "style_id": null
     },
     "subtitle": {
       "content": [
@@ -39,7 +40,8 @@
           "type": "text",
           "value": "Safety Population"
         }
-      ]
+      ],
+      "style_id": null
     },
     "extra_lines": [],
     "preheader_content": null
@@ -473,6 +475,11 @@
             {
               "type": "text",
               "value": "Sex, n (%)"
+            },
+            {
+              "type": "footnote_mark",
+              "ref": "fn1",
+              "mark_text": "1"
             }
           ],
           "style_id": null,
@@ -900,7 +907,8 @@
             "type": "text",
             "value": "Percentages are based on the number of subjects in each arm."
           }
-        ]
+        ],
+        "style_id": null
       }
     ],
     "source_notes": [
@@ -910,7 +918,8 @@
             "type": "text",
             "value": "Source: ADSL (CDISC pilot study)"
           }
-        ]
+        ],
+        "style_id": null
       }
     ]
   },
