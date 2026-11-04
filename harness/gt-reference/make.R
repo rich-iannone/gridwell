@@ -1,6 +1,6 @@
 # Build the gt reference set for the "gt vs gridwell" gallery page.
 #
-# For each case in cases.R this writes, into this directory:
+# For each case in conformance/cases.R this writes, into this directory:
 #   <name>.gt.html   gt's own HTML (`as_raw_html(inline_css = FALSE)`), the look
 #                    gridwell's HTML is measured against
 #   <name>.ir.json   the same table as gridwell IR (`gridwell::gt_to_ir()`: gt's own
@@ -15,7 +15,8 @@
 #   R CMD INSTALL r-package
 #   Rscript harness/gt-reference/make.R
 #
-# Then run `cargo xtask gallery` and open harness/gallery/gt.html.
+# Then run `python conformance/make.py`, and `cargo xtask gallery` and open
+# harness/gallery/gt.html.
 
 suppressPackageStartupMessages({
     library(gt)
@@ -26,7 +27,7 @@ args <- commandArgs(trailingOnly = FALSE)
 script <- sub("^--file=", "", args[grepl("^--file=", args)])
 out_dir <- if (length(script) == 1) dirname(normalizePath(script)) else "harness/gt-reference"
 
-source(file.path(out_dir, "cases.R"))
+source(file.path(out_dir, "..", "..", "conformance", "cases.R"))
 
 # ─── Write ───
 
