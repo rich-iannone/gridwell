@@ -77,12 +77,15 @@ today `"auto"` always uses gridwell's.
 | GT Feature | IR Mapping |
 |------------|-----------|
 | Column labels | `thead` rows |
+| Spanners (`tab_spanner()`, any number of levels) | `spanner_label` rows above the column labels, drawn as Great Tables draws them |
 | Row groups | `tbody` array with group labels |
 | Stub column | Cells with `is_stub: true` |
 | Stubhead label (`tab_stubhead()`) | The stub column's head cell (blank without one) |
+| Summary rows (`summary_rows()`, `grand_summary_rows()`) | A group's `summary_rows`, and a last group without a label for the grand summary; a table without a stub gets an empty one for their labels, as in Great Tables. Summary rows on a group's top side are listed after its rows |
 | Title/subtitle | `header` block |
 | Source notes | `footer.source_notes` |
 | Footnotes (`tab_footnote()`) | `footer.footnotes`, the ones Great Tables lists, in its order and with its marks (not yet placed on the cells they annotate) |
+| `md()` and `html()` labels | Text with bold, italic, underline, strike-through and code runs and line breaks, from the HTML Great Tables makes of them (other markup is dropped and its text kept) |
 | Column alignment | `column_spec[].align` |
 | Column widths | `column_spec[].width` |
 | Formatted values | Cell `content` (display text) |
