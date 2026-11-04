@@ -18,6 +18,7 @@
 //!
 //! [`save`] renders straight to a file, inferring the format from the extension.
 
+pub mod conformance;
 mod display;
 mod formats;
 
