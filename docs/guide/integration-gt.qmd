@@ -38,7 +38,7 @@ in one, save it with `gw_save(tbl, "table.docx")`.
 
 A `gw_table` from a gt table, IR as a JSON string, or a `gw_table` (returned as is).
 
-### `gt_to_ir(gt_tbl)`
+### `gt_to_ir(gt_tbl, emitter = "auto")`
 
 Converts a `gt_tbl` object to gridwell IR JSON string.
 
@@ -46,13 +46,27 @@ Converts a `gt_tbl` object to gridwell IR JSON string.
 ir_json <- gt_to_ir(tbl)
 ```
 
-### `gt_to_ir_list(gt_tbl)`
+### `gt_to_ir_list(gt_tbl, emitter = "auto")`
 
 Converts a `gt_tbl` object to an R list (IR structure).
 
 ```r
 ir_list <- gt_to_ir_list(tbl)
 ```
+
+### Which converter
+
+The converter is moving into gt, as `gt::as_ir()`, since it reads gt's internals and
+gt can keep it in step with them. Until every gt has it, gridwell keeps its own copy.
+`emitter` picks one:
+
+- `"auto"` (the default): gt's when the installed gt has `as_ir()`, and gridwell's
+  otherwise. If gt's fails, or gives an IR major version this gridwell can't read,
+  gridwell's is used with a warning saying why.
+- `"upstream"`: gt's, with an error if there is none or it can't be used.
+- `"gridwell"`: gridwell's.
+
+No released gt has `as_ir()` yet, so today `"auto"` always uses gridwell's.
 
 ## What Gets Converted
 
