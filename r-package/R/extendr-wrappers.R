@@ -53,4 +53,16 @@ rs_save <- function(table_ptr, path, format, options) .Call(wrap__rs_save, table
 #' @noRd
 rs_formats <- function() .Call(wrap__rs_formats)
 
+#' The table's normalized conformance grid, as pretty JSON. A table that doesn't
+#' validate is an error.
+#' @noRd
+rs_conformance_normalize <- function(table_ptr, tier) .Call(wrap__rs_conformance_normalize, table_ptr, tier)
+
+#' Check IR (JSON text) against an expected grid (JSON text): a list of passed,
+#' tier, tiers (each tier's status, L0 to L3), errors, the differences as columns
+#' (diff_tier, diff_path, and diff_expected and diff_actual as JSON, NA when not
+#' there) and the report as text.
+#' @noRd
+rs_conformance_check <- function(ir, expected, tier) .Call(wrap__rs_conformance_check, ir, expected, tier)
+
 # nolint end
