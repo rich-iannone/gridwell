@@ -4,6 +4,7 @@ While another thread parses, validates, renders or saves a large table, the main
 thread must keep running. Holding the GIL would stall it for the whole call.
 """
 
+import functools
 import json
 import sys
 import threading
@@ -71,20 +72,25 @@ OPERATIONS = {
 
 def result_share(result, seconds_per_call):
     """The share of a call that holds the GIL whatever the binding does: making the
-    Python `str` or `bytes` of a result (a copy out of Rust) and freeing it. Small
-    beside the work for most calls, but `to_json`'s result is 157 MB, and where each
-    copy faults in fresh pages (CI's Linux runners) it takes about a third of the
-    call. At most a half, so a call that held the GIL throughout still fails."""
+    Python `str` or `bytes` of a result (a copy out of Rust) and freeing it, or
+    freeing a `Table` result (its Rust drop runs in the deallocator). Small beside
+    the work for most calls, but `to_json`'s result is 157 MB, and where each copy
+    faults in fresh pages (CI's Linux runners) it takes about a third of the call,
+    and freeing the table takes about a fifth of a `Table(table)` call. At most a
+    half, so a call that held the GIL throughout still fails."""
     if isinstance(result, str):
-        raw, make = result.encode(), bytes.decode
+        step = result.encode().decode
     elif isinstance(result, bytes):
-        raw, make = result, bytearray
+        step = functools.partial(bytearray, result)
+    elif isinstance(result, gridwell.Table):
+        copies = [gridwell.Table(result) for _ in range(3)]
+        step = copies.pop  # the popped copy is freed as soon as it's returned
     else:
         return 0.0
     times = []
     for _ in range(3):
         start = time.perf_counter()
-        make(raw)
+        step()
         times.append(time.perf_counter() - start)
     return min(0.5, sorted(times)[1] / seconds_per_call)
 
