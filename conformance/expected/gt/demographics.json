@@ -1,0 +1,726 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L3",
+  "case": "demographics",
+  "producer": {
+    "package": "gt",
+    "version": "1.4.0"
+  },
+  "source": {
+    "L1": "harness/gt-reference/demographics.gt.html (gt's HTML)",
+    "L2, L3": "harness/gt-reference/demographics.ir.json (gridwell's emitter, reviewed)"
+  },
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "label",
+        "stub": true
+      },
+      {
+        "align": "right",
+        "id": "placebo"
+      },
+      {
+        "align": "right",
+        "id": "low"
+      },
+      {
+        "align": "right",
+        "id": "high"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [
+      {
+        "mark": "1",
+        "runs": [
+          {
+            "text": "Percentages are based on the number of subjects in each arm."
+          }
+        ],
+        "text": "Percentages are based on the number of subjects in each arm."
+      }
+    ],
+    "groups": [
+      {
+        "group_id": "Age (years)",
+        "label": {
+          "runs": [
+            {
+              "text": "Age (years)"
+            }
+          ],
+          "text": "Age (years)"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "n"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "n",
+                "stub": true,
+                "text": "n"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "86"
+                  }
+                ],
+                "sort_key": "86",
+                "text": "86",
+                "typed_value": {
+                  "type": "string",
+                  "value": "86"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "84"
+                  }
+                ],
+                "sort_key": "84",
+                "text": "84",
+                "typed_value": {
+                  "type": "string",
+                  "value": "84"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "84"
+                  }
+                ],
+                "sort_key": "84",
+                "text": "84",
+                "typed_value": {
+                  "type": "string",
+                  "value": "84"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "Mean (SD)"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "mean (sd)",
+                "stub": true,
+                "text": "Mean (SD)"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "75.2 (8.59)"
+                  }
+                ],
+                "sort_key": "75.2 (8.59)",
+                "text": "75.2 (8.59)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "75.2 (8.59)"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "75.7 (8.29)"
+                  }
+                ],
+                "sort_key": "75.7 (8.29)",
+                "text": "75.7 (8.29)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "75.7 (8.29)"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "74.4 (7.89)"
+                  }
+                ],
+                "sort_key": "74.4 (7.89)",
+                "text": "74.4 (7.89)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "74.4 (7.89)"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "Median (Min, Max)"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "median (min, max)",
+                "stub": true,
+                "text": "Median (Min, Max)"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "76.0 (52, 89)"
+                  }
+                ],
+                "sort_key": "76.0 (52, 89)",
+                "text": "76.0 (52, 89)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "76.0 (52, 89)"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "77.5 (51, 88)"
+                  }
+                ],
+                "sort_key": "77.5 (51, 88)",
+                "text": "77.5 (51, 88)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "77.5 (51, 88)"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "76.0 (56, 88)"
+                  }
+                ],
+                "sort_key": "76.0 (56, 88)",
+                "text": "76.0 (56, 88)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "76.0 (56, 88)"
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "Sex, n (%)",
+        "label": {
+          "runs": [
+            {
+              "text": "Sex, n (%)"
+            },
+            {
+              "footnote": 1,
+              "mark_text": "1"
+            }
+          ],
+          "text": "Sex, n (%)"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "Female"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "female",
+                "stub": true,
+                "text": "Female"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "53 (61.6)"
+                  }
+                ],
+                "sort_key": "53 (61.6)",
+                "text": "53 (61.6)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "53 (61.6)"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "50 (59.5)"
+                  }
+                ],
+                "sort_key": "50 (59.5)",
+                "text": "50 (59.5)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "50 (59.5)"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "40 (47.6)"
+                  }
+                ],
+                "sort_key": "40 (47.6)",
+                "text": "40 (47.6)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "40 (47.6)"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "Male"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "male",
+                "stub": true,
+                "text": "Male"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "33 (38.4)"
+                  }
+                ],
+                "sort_key": "33 (38.4)",
+                "text": "33 (38.4)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "33 (38.4)"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "34 (40.5)"
+                  }
+                ],
+                "sort_key": "34 (40.5)",
+                "text": "34 (40.5)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "34 (40.5)"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "44 (52.4)"
+                  }
+                ],
+                "sort_key": "44 (52.4)",
+                "text": "44 (52.4)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "44 (52.4)"
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "Race, n (%)",
+        "label": {
+          "runs": [
+            {
+              "text": "Race, n (%)"
+            }
+          ],
+          "text": "Race, n (%)"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "White"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "white",
+                "stub": true,
+                "text": "White"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "78 (90.7)"
+                  }
+                ],
+                "sort_key": "78 (90.7)",
+                "text": "78 (90.7)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "78 (90.7)"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "78 (92.9)"
+                  }
+                ],
+                "sort_key": "78 (92.9)",
+                "text": "78 (92.9)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "78 (92.9)"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "74 (88.1)"
+                  }
+                ],
+                "sort_key": "74 (88.1)",
+                "text": "74 (88.1)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "74 (88.1)"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "Black or African American"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "black or african american",
+                "stub": true,
+                "text": "Black or African American"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "8 (9.3)"
+                  }
+                ],
+                "sort_key": "8 (9.3)",
+                "text": "8 (9.3)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "8 (9.3)"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "6 (7.1)"
+                  }
+                ],
+                "sort_key": "6 (7.1)",
+                "text": "6 (7.1)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "6 (7.1)"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "9 (10.7)"
+                  }
+                ],
+                "sort_key": "9 (10.7)",
+                "text": "9 (10.7)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "9 (10.7)"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "Other"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "other",
+                "stub": true,
+                "text": "Other"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "0"
+                  }
+                ],
+                "sort_key": "0",
+                "text": "0",
+                "typed_value": {
+                  "type": "string",
+                  "value": "0"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "0"
+                  }
+                ],
+                "sort_key": "0",
+                "text": "0",
+                "typed_value": {
+                  "type": "string",
+                  "value": "0"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "1 (1.2)"
+                  }
+                ],
+                "sort_key": "1 (1.2)",
+                "text": "1 (1.2)",
+                "typed_value": {
+                  "type": "string",
+                  "value": "1 (1.2)"
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [],
+            "scope": "col",
+            "text": ""
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [],
+            "scope": "col",
+            "text": ""
+          },
+          {
+            "align": "center",
+            "col": 2,
+            "colspan": 2,
+            "runs": [
+              {
+                "text": "Xanomeline"
+              }
+            ],
+            "scope": "colgroup",
+            "text": "Xanomeline"
+          }
+        ],
+        "role": "spanner_label"
+      },
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [],
+            "scope": "col",
+            "text": ""
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Placebo"
+              }
+            ],
+            "scope": "col",
+            "text": "Placebo"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Low Dose"
+              }
+            ],
+            "scope": "col",
+            "text": "Low Dose"
+          },
+          {
+            "align": "right",
+            "col": 3,
+            "runs": [
+              {
+                "text": "High Dose"
+              }
+            ],
+            "scope": "col",
+            "text": "High Dose"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [
+      {
+        "runs": [
+          {
+            "text": "Source: ADSL (CDISC pilot study)"
+          }
+        ],
+        "text": "Source: ADSL (CDISC pilot study)"
+      }
+    ],
+    "subtitle": {
+      "runs": [
+        {
+          "text": "Safety Population"
+        }
+      ],
+      "text": "Safety Population"
+    },
+    "title": {
+      "runs": [
+        {
+          "text": "Table 14.1.1 Summary of Demographic Characteristics"
+        }
+      ],
+      "text": "Table 14.1.1 Summary of Demographic Characteristics"
+    }
+  }
+}

@@ -1,0 +1,401 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L1",
+  "case": "exibble_basic",
+  "producer": {
+    "package": "great_tables",
+    "version": "1.1.0"
+  },
+  "source": {
+    "L1": "harness/gt-reference-py/exibble_basic.gt.html (Great Tables' HTML)"
+  },
+  "grid": {
+    "columns": [
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {}
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "0.1111"
+              },
+              {
+                "col": 1,
+                "text": "apricot"
+              },
+              {
+                "col": 2,
+                "text": "one"
+              },
+              {
+                "col": 3,
+                "text": "2015-01-15"
+              },
+              {
+                "col": 4,
+                "text": "13:35"
+              },
+              {
+                "col": 5,
+                "text": "2018-01-01 02:22"
+              },
+              {
+                "col": 6,
+                "text": "49.95"
+              },
+              {
+                "col": 7,
+                "text": "row_1"
+              },
+              {
+                "col": 8,
+                "text": "grp_a"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "2.222"
+              },
+              {
+                "col": 1,
+                "text": "banana"
+              },
+              {
+                "col": 2,
+                "text": "two"
+              },
+              {
+                "col": 3,
+                "text": "2015-02-15"
+              },
+              {
+                "col": 4,
+                "text": "14:40"
+              },
+              {
+                "col": 5,
+                "text": "2018-02-02 14:33"
+              },
+              {
+                "col": 6,
+                "text": "17.95"
+              },
+              {
+                "col": 7,
+                "text": "row_2"
+              },
+              {
+                "col": 8,
+                "text": "grp_a"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "33.33"
+              },
+              {
+                "col": 1,
+                "text": "coconut"
+              },
+              {
+                "col": 2,
+                "text": "three"
+              },
+              {
+                "col": 3,
+                "text": "2015-03-15"
+              },
+              {
+                "col": 4,
+                "text": "15:45"
+              },
+              {
+                "col": 5,
+                "text": "2018-03-03 03:44"
+              },
+              {
+                "col": 6,
+                "text": "1.39"
+              },
+              {
+                "col": 7,
+                "text": "row_3"
+              },
+              {
+                "col": 8,
+                "text": "grp_a"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "444.4"
+              },
+              {
+                "col": 1,
+                "text": "durian"
+              },
+              {
+                "col": 2,
+                "text": "four"
+              },
+              {
+                "col": 3,
+                "text": "2015-04-15"
+              },
+              {
+                "col": 4,
+                "text": "16:50"
+              },
+              {
+                "col": 5,
+                "text": "2018-04-04 15:55"
+              },
+              {
+                "col": 6,
+                "text": "65100.0"
+              },
+              {
+                "col": 7,
+                "text": "row_4"
+              },
+              {
+                "col": 8,
+                "text": "grp_a"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "5550.0"
+              },
+              {
+                "col": 1,
+                "text": "None"
+              },
+              {
+                "col": 2,
+                "text": "five"
+              },
+              {
+                "col": 3,
+                "text": "2015-05-15"
+              },
+              {
+                "col": 4,
+                "text": "17:55"
+              },
+              {
+                "col": 5,
+                "text": "2018-05-05 04:00"
+              },
+              {
+                "col": 6,
+                "text": "1325.81"
+              },
+              {
+                "col": 7,
+                "text": "row_5"
+              },
+              {
+                "col": 8,
+                "text": "grp_b"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "None"
+              },
+              {
+                "col": 1,
+                "text": "fig"
+              },
+              {
+                "col": 2,
+                "text": "six"
+              },
+              {
+                "col": 3,
+                "text": "2015-06-15"
+              },
+              {
+                "col": 4,
+                "text": "None"
+              },
+              {
+                "col": 5,
+                "text": "2018-06-06 16:11"
+              },
+              {
+                "col": 6,
+                "text": "13.255"
+              },
+              {
+                "col": 7,
+                "text": "row_6"
+              },
+              {
+                "col": 8,
+                "text": "grp_b"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "777000.0"
+              },
+              {
+                "col": 1,
+                "text": "grapefruit"
+              },
+              {
+                "col": 2,
+                "text": "seven"
+              },
+              {
+                "col": 3,
+                "text": "None"
+              },
+              {
+                "col": 4,
+                "text": "19:10"
+              },
+              {
+                "col": 5,
+                "text": "2018-07-07 05:22"
+              },
+              {
+                "col": 6,
+                "text": "None"
+              },
+              {
+                "col": 7,
+                "text": "row_7"
+              },
+              {
+                "col": 8,
+                "text": "grp_b"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "8880000.0"
+              },
+              {
+                "col": 1,
+                "text": "honeydew"
+              },
+              {
+                "col": 2,
+                "text": "eight"
+              },
+              {
+                "col": 3,
+                "text": "2015-08-15"
+              },
+              {
+                "col": 4,
+                "text": "20:20"
+              },
+              {
+                "col": 5,
+                "text": "None"
+              },
+              {
+                "col": 6,
+                "text": "0.44"
+              },
+              {
+                "col": 7,
+                "text": "row_8"
+              },
+              {
+                "col": 8,
+                "text": "grp_b"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "col": 0,
+            "text": "num"
+          },
+          {
+            "col": 1,
+            "text": "char"
+          },
+          {
+            "col": 2,
+            "text": "fctr"
+          },
+          {
+            "col": 3,
+            "text": "date"
+          },
+          {
+            "col": 4,
+            "text": "time"
+          },
+          {
+            "col": 5,
+            "text": "datetime"
+          },
+          {
+            "col": 6,
+            "text": "currency"
+          },
+          {
+            "col": 7,
+            "text": "row"
+          },
+          {
+            "col": 8,
+            "text": "group"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  }
+}

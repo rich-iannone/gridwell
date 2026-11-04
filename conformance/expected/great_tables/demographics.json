@@ -1,0 +1,274 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L1",
+  "case": "demographics",
+  "producer": {
+    "package": "great_tables",
+    "version": "1.1.0"
+  },
+  "source": {
+    "L1": "harness/gt-reference-py/demographics.gt.html (Great Tables' HTML)"
+  },
+  "grid": {
+    "columns": [
+      {
+        "stub": true
+      },
+      {},
+      {},
+      {}
+    ],
+    "extra_lines": [],
+    "footnotes": [
+      {
+        "text": "Percentages are based on the number of subjects in each arm."
+      }
+    ],
+    "groups": [
+      {
+        "label": {
+          "text": "Age (years)"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "n"
+              },
+              {
+                "col": 1,
+                "text": "86"
+              },
+              {
+                "col": 2,
+                "text": "84"
+              },
+              {
+                "col": 3,
+                "text": "84"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Mean (SD)"
+              },
+              {
+                "col": 1,
+                "text": "75.2 (8.59)"
+              },
+              {
+                "col": 2,
+                "text": "75.7 (8.29)"
+              },
+              {
+                "col": 3,
+                "text": "74.4 (7.89)"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Median (Min, Max)"
+              },
+              {
+                "col": 1,
+                "text": "76.0 (52, 89)"
+              },
+              {
+                "col": 2,
+                "text": "77.5 (51, 88)"
+              },
+              {
+                "col": 3,
+                "text": "76.0 (56, 88)"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "label": {
+          "text": "Sex, n (%)"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Female"
+              },
+              {
+                "col": 1,
+                "text": "53 (61.6)"
+              },
+              {
+                "col": 2,
+                "text": "50 (59.5)"
+              },
+              {
+                "col": 3,
+                "text": "40 (47.6)"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Male"
+              },
+              {
+                "col": 1,
+                "text": "33 (38.4)"
+              },
+              {
+                "col": 2,
+                "text": "34 (40.5)"
+              },
+              {
+                "col": 3,
+                "text": "44 (52.4)"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "label": {
+          "text": "Race, n (%)"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "White"
+              },
+              {
+                "col": 1,
+                "text": "78 (90.7)"
+              },
+              {
+                "col": 2,
+                "text": "78 (92.9)"
+              },
+              {
+                "col": 3,
+                "text": "74 (88.1)"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Black or African American"
+              },
+              {
+                "col": 1,
+                "text": "8 (9.3)"
+              },
+              {
+                "col": 2,
+                "text": "6 (7.1)"
+              },
+              {
+                "col": 3,
+                "text": "9 (10.7)"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Other"
+              },
+              {
+                "col": 1,
+                "text": "0"
+              },
+              {
+                "col": 2,
+                "text": "0"
+              },
+              {
+                "col": 3,
+                "text": "1 (1.2)"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "col": 0,
+            "text": ""
+          },
+          {
+            "col": 1,
+            "text": ""
+          },
+          {
+            "col": 2,
+            "colspan": 2,
+            "text": "Xanomeline"
+          }
+        ],
+        "role": "spanner_label"
+      },
+      {
+        "cells": [
+          {
+            "col": 0,
+            "text": ""
+          },
+          {
+            "col": 1,
+            "text": "Placebo"
+          },
+          {
+            "col": 2,
+            "text": "Low Dose"
+          },
+          {
+            "col": 3,
+            "text": "High Dose"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [
+      {
+        "text": "Source: ADSL (CDISC pilot study)"
+      }
+    ],
+    "subtitle": {
+      "text": "Safety Population"
+    },
+    "title": {
+      "text": "Table 14.1.1 Summary of Demographic Characteristics"
+    }
+  }
+}

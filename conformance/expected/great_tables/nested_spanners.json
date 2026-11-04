@@ -1,0 +1,354 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L1",
+  "case": "nested_spanners",
+  "producer": {
+    "package": "great_tables",
+    "version": "1.1.0"
+  },
+  "source": {
+    "L1": "harness/gt-reference-py/nested_spanners.gt.html (Great Tables' HTML)"
+  },
+  "grid": {
+    "columns": [
+      {
+        "stub": true
+      },
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {}
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Mazda RX4"
+              },
+              {
+                "col": 1,
+                "text": "21.0"
+              },
+              {
+                "col": 2,
+                "text": "6"
+              },
+              {
+                "col": 3,
+                "text": "160.0"
+              },
+              {
+                "col": 4,
+                "text": "110"
+              },
+              {
+                "col": 5,
+                "text": "16.5"
+              },
+              {
+                "col": 6,
+                "text": "1"
+              },
+              {
+                "col": 7,
+                "text": "4"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Mazda RX4 Wag"
+              },
+              {
+                "col": 1,
+                "text": "21.0"
+              },
+              {
+                "col": 2,
+                "text": "6"
+              },
+              {
+                "col": 3,
+                "text": "160.0"
+              },
+              {
+                "col": 4,
+                "text": "110"
+              },
+              {
+                "col": 5,
+                "text": "17.0"
+              },
+              {
+                "col": 6,
+                "text": "1"
+              },
+              {
+                "col": 7,
+                "text": "4"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Datsun 710"
+              },
+              {
+                "col": 1,
+                "text": "22.8"
+              },
+              {
+                "col": 2,
+                "text": "4"
+              },
+              {
+                "col": 3,
+                "text": "108.0"
+              },
+              {
+                "col": 4,
+                "text": "93"
+              },
+              {
+                "col": 5,
+                "text": "18.6"
+              },
+              {
+                "col": 6,
+                "text": "1"
+              },
+              {
+                "col": 7,
+                "text": "4"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Hornet 4 Drive"
+              },
+              {
+                "col": 1,
+                "text": "21.4"
+              },
+              {
+                "col": 2,
+                "text": "6"
+              },
+              {
+                "col": 3,
+                "text": "258.0"
+              },
+              {
+                "col": 4,
+                "text": "110"
+              },
+              {
+                "col": 5,
+                "text": "19.4"
+              },
+              {
+                "col": 6,
+                "text": "0"
+              },
+              {
+                "col": 7,
+                "text": "3"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Hornet Sportabout"
+              },
+              {
+                "col": 1,
+                "text": "18.7"
+              },
+              {
+                "col": 2,
+                "text": "8"
+              },
+              {
+                "col": 3,
+                "text": "360.0"
+              },
+              {
+                "col": 4,
+                "text": "175"
+              },
+              {
+                "col": 5,
+                "text": "17.0"
+              },
+              {
+                "col": 6,
+                "text": "0"
+              },
+              {
+                "col": 7,
+                "text": "3"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Valiant"
+              },
+              {
+                "col": 1,
+                "text": "18.1"
+              },
+              {
+                "col": 2,
+                "text": "6"
+              },
+              {
+                "col": 3,
+                "text": "225.0"
+              },
+              {
+                "col": 4,
+                "text": "105"
+              },
+              {
+                "col": 5,
+                "text": "20.2"
+              },
+              {
+                "col": 6,
+                "text": "0"
+              },
+              {
+                "col": 7,
+                "text": "3"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "col": 0,
+            "text": ""
+          },
+          {
+            "col": 1,
+            "text": ""
+          },
+          {
+            "col": 2,
+            "colspan": 3,
+            "text": "Specifications"
+          },
+          {
+            "col": 5,
+            "text": ""
+          },
+          {
+            "col": 6,
+            "colspan": 2,
+            "text": "Specifications"
+          }
+        ],
+        "role": "spanner_label"
+      },
+      {
+        "cells": [
+          {
+            "col": 0,
+            "text": ""
+          },
+          {
+            "col": 1,
+            "text": ""
+          },
+          {
+            "col": 2,
+            "colspan": 3,
+            "text": "Engine"
+          },
+          {
+            "col": 5,
+            "text": ""
+          },
+          {
+            "col": 6,
+            "colspan": 2,
+            "text": "Drivetrain"
+          }
+        ],
+        "role": "spanner_label"
+      },
+      {
+        "cells": [
+          {
+            "col": 0,
+            "text": ""
+          },
+          {
+            "col": 1,
+            "text": "mpg"
+          },
+          {
+            "col": 2,
+            "text": "cyl"
+          },
+          {
+            "col": 3,
+            "text": "disp"
+          },
+          {
+            "col": 4,
+            "text": "hp"
+          },
+          {
+            "col": 5,
+            "text": "qsec"
+          },
+          {
+            "col": 6,
+            "text": "am"
+          },
+          {
+            "col": 7,
+            "text": "gear"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  }
+}

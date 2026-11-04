@@ -1,0 +1,136 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L1",
+  "case": "notes_and_marks",
+  "producer": {
+    "package": "great_tables",
+    "version": "1.1.0"
+  },
+  "source": {
+    "L1": "harness/gt-reference-py/notes_and_marks.gt.html (Great Tables' HTML)"
+  },
+  "grid": {
+    "columns": [
+      {},
+      {},
+      {}
+    ],
+    "extra_lines": [],
+    "footnotes": [
+      {
+        "text": "A title note."
+      },
+      {
+        "text": "A column label note."
+      },
+      {
+        "text": "A body cell note."
+      }
+    ],
+    "groups": [
+      {
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "apricot"
+              },
+              {
+                "col": 1,
+                "text": "0.1111"
+              },
+              {
+                "col": 2,
+                "text": "2015-01-15"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "banana"
+              },
+              {
+                "col": 1,
+                "text": "2.222"
+              },
+              {
+                "col": 2,
+                "text": "2015-02-15"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "coconut"
+              },
+              {
+                "col": 1,
+                "text": "33.33"
+              },
+              {
+                "col": 2,
+                "text": "2015-03-15"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "durian"
+              },
+              {
+                "col": 1,
+                "text": "444.4"
+              },
+              {
+                "col": 2,
+                "text": "2015-04-15"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "col": 0,
+            "text": "char"
+          },
+          {
+            "col": 1,
+            "text": "num"
+          },
+          {
+            "col": 2,
+            "text": "date"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [
+      {
+        "text": "Source note one."
+      },
+      {
+        "text": "Source note two."
+      }
+    ],
+    "subtitle": {
+      "text": "Subtitle text"
+    },
+    "title": {
+      "text": "Notes and marks"
+    }
+  }
+}

@@ -1,0 +1,261 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L1",
+  "case": "summary_rows",
+  "producer": {
+    "package": "great_tables",
+    "version": "1.1.0"
+  },
+  "source": {
+    "L1": "harness/gt-reference-py/summary_rows.gt.html (Great Tables' HTML)"
+  },
+  "grid": {
+    "columns": [
+      {
+        "stub": true
+      },
+      {},
+      {}
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "label": {
+          "text": "grp_a"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_1"
+              },
+              {
+                "col": 1,
+                "text": "0.1"
+              },
+              {
+                "col": 2,
+                "text": "49.95"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_2"
+              },
+              {
+                "col": 1,
+                "text": "2.2"
+              },
+              {
+                "col": 2,
+                "text": "17.95"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_3"
+              },
+              {
+                "col": 1,
+                "text": "33.3"
+              },
+              {
+                "col": 2,
+                "text": "1.39"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_4"
+              },
+              {
+                "col": 1,
+                "text": "444.4"
+              },
+              {
+                "col": 2,
+                "text": "65100.0"
+              }
+            ]
+          }
+        ],
+        "summary_rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Total"
+              },
+              {
+                "col": 1,
+                "text": "480.1"
+              },
+              {
+                "col": 2,
+                "text": "65,169.3"
+              }
+            ],
+            "role": "summary_row"
+          }
+        ]
+      },
+      {
+        "label": {
+          "text": "grp_b"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_5"
+              },
+              {
+                "col": 1,
+                "text": "5,550.0"
+              },
+              {
+                "col": 2,
+                "text": "1325.81"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_6"
+              },
+              {
+                "col": 1,
+                "text": "None"
+              },
+              {
+                "col": 2,
+                "text": "13.255"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_7"
+              },
+              {
+                "col": 1,
+                "text": "777,000.0"
+              },
+              {
+                "col": 2,
+                "text": "None"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_8"
+              },
+              {
+                "col": 1,
+                "text": "8,880,000.0"
+              },
+              {
+                "col": 2,
+                "text": "0.44"
+              }
+            ]
+          }
+        ],
+        "summary_rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Total"
+              },
+              {
+                "col": 1,
+                "text": "9,662,550.0"
+              },
+              {
+                "col": 2,
+                "text": "1,339.5"
+              }
+            ],
+            "role": "summary_row"
+          }
+        ]
+      },
+      {
+        "label": null,
+        "rows": [],
+        "summary_rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "Grand total"
+              },
+              {
+                "col": 1,
+                "text": "9,663,030.1"
+              },
+              {
+                "col": 2,
+                "text": "66,508.8"
+              }
+            ],
+            "role": "grand_summary_row"
+          }
+        ]
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "col": 0,
+            "text": ""
+          },
+          {
+            "col": 1,
+            "text": "num"
+          },
+          {
+            "col": 2,
+            "text": "currency"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  }
+}

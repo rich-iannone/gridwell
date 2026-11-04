@@ -1,0 +1,111 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L1",
+  "case": "adjacent_spanners",
+  "producer": {
+    "package": "great_tables",
+    "version": "1.1.0"
+  },
+  "source": {
+    "L1": "harness/gt-reference-py/adjacent_spanners.gt.html (Great Tables' HTML)"
+  },
+  "grid": {
+    "columns": [
+      {},
+      {},
+      {},
+      {}
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "1"
+              },
+              {
+                "col": 1,
+                "text": "3"
+              },
+              {
+                "col": 2,
+                "text": "5"
+              },
+              {
+                "col": 3,
+                "text": "7"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "text": "2"
+              },
+              {
+                "col": 1,
+                "text": "4"
+              },
+              {
+                "col": 2,
+                "text": "6"
+              },
+              {
+                "col": 3,
+                "text": "8"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "col": 0,
+            "colspan": 2,
+            "text": "Group A"
+          },
+          {
+            "col": 2,
+            "colspan": 2,
+            "text": "Group B"
+          }
+        ],
+        "role": "spanner_label"
+      },
+      {
+        "cells": [
+          {
+            "col": 0,
+            "text": "a1"
+          },
+          {
+            "col": 1,
+            "text": "a2"
+          },
+          {
+            "col": 2,
+            "text": "b1"
+          },
+          {
+            "col": 3,
+            "text": "b2"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  }
+}

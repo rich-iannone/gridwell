@@ -1,0 +1,236 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L1",
+  "case": "groups_and_stub",
+  "producer": {
+    "package": "great_tables",
+    "version": "1.1.0"
+  },
+  "source": {
+    "L1": "harness/gt-reference-py/groups_and_stub.gt.html (Great Tables' HTML)"
+  },
+  "grid": {
+    "columns": [
+      {
+        "stub": true
+      },
+      {},
+      {},
+      {}
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "label": {
+          "text": "grp_a"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_1"
+              },
+              {
+                "col": 1,
+                "text": "apricot"
+              },
+              {
+                "col": 2,
+                "text": "0.11"
+              },
+              {
+                "col": 3,
+                "text": "$49.95"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_2"
+              },
+              {
+                "col": 1,
+                "text": "banana"
+              },
+              {
+                "col": 2,
+                "text": "2.22"
+              },
+              {
+                "col": 3,
+                "text": "$17.95"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_3"
+              },
+              {
+                "col": 1,
+                "text": "coconut"
+              },
+              {
+                "col": 2,
+                "text": "33.33"
+              },
+              {
+                "col": 3,
+                "text": "$1.39"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_4"
+              },
+              {
+                "col": 1,
+                "text": "durian"
+              },
+              {
+                "col": 2,
+                "text": "444.40"
+              },
+              {
+                "col": 3,
+                "text": "$65,100.00"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "label": {
+          "text": "grp_b"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_5"
+              },
+              {
+                "col": 1,
+                "text": "None"
+              },
+              {
+                "col": 2,
+                "text": "5,550.00"
+              },
+              {
+                "col": 3,
+                "text": "$1,325.81"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_6"
+              },
+              {
+                "col": 1,
+                "text": "fig"
+              },
+              {
+                "col": 2,
+                "text": "None"
+              },
+              {
+                "col": 3,
+                "text": "$13.26"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_7"
+              },
+              {
+                "col": 1,
+                "text": "grapefruit"
+              },
+              {
+                "col": 2,
+                "text": "777,000.00"
+              },
+              {
+                "col": 3,
+                "text": "None"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "col": 0,
+                "stub": true,
+                "text": "row_8"
+              },
+              {
+                "col": 1,
+                "text": "honeydew"
+              },
+              {
+                "col": 2,
+                "text": "8,880,000.00"
+              },
+              {
+                "col": 3,
+                "text": "$0.44"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "col": 0,
+            "text": ""
+          },
+          {
+            "col": 1,
+            "text": "char"
+          },
+          {
+            "col": 2,
+            "text": "num"
+          },
+          {
+            "col": 3,
+            "text": "currency"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  }
+}
