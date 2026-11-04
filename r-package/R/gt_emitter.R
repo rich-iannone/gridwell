@@ -5,11 +5,22 @@
 #' runs, spanners become spanner rows, footnote marks are placed in the cells
 #' they annotate, and `tab_style()` styles become IR styles.
 #'
+#' The converter is moving into gt, as `gt::as_ir()`. With `emitter = "auto"`
+#' it is used when the installed gt has it, and gridwell's own copy otherwise,
+#' or when gt's fails or gives an IR version this gridwell can't read (with a
+#' warning saying why).
+#'
 #' @param gt_obj A `gt_tbl` object from the gt package.
+#' @param emitter Which converter to use: `"auto"` (the default), `"upstream"`
+#'   (gt's own, an error if it can't be used) or `"gridwell"` (gridwell's).
 #' @return A JSON string in gridwell IR format.
 #' @export
-gt_to_ir <- function(gt_obj) {
-    ir <- gt_to_ir_list(gt_obj)
+gt_to_ir <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
+    upstream <- .gw_upstream_ir(gt_obj, match.arg(emitter))
+    if (!is.null(upstream)) {
+        return(structure(upstream$json, class = "json"))
+    }
+    ir <- .gw_build_ir(gt_obj)
     jsonlite::toJSON(ir, auto_unbox = TRUE, null = "null", pretty = TRUE, digits = NA)
 }
 
@@ -18,14 +29,96 @@ gt_to_ir <- function(gt_obj) {
 #' @inheritParams gt_to_ir
 #' @return A list representing the gridwell IR.
 #' @export
-gt_to_ir_list <- function(gt_obj) {
+gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
+    upstream <- .gw_upstream_ir(gt_obj, match.arg(emitter))
+    if (!is.null(upstream)) {
+        return(upstream$ir)
+    }
+    .gw_build_ir(gt_obj)
+}
+
+# The IR major version this gridwell reads.
+.gw_ir_major <- "1"
+
+# gt's own IR for `gt_obj`, as `list(json, ir)`, or NULL to use gridwell's own.
+.gw_upstream_ir <- function(gt_obj, emitter) {
     if (!inherits(gt_obj, "gt_tbl")) {
         stop("`gt_obj` must be a gt table (a `gt_tbl` object).", call. = FALSE)
     }
     if (!requireNamespace("gt", quietly = TRUE)) {
         stop("Converting a gt table needs the gt package.", call. = FALSE)
     }
+    if (emitter == "gridwell") {
+        return(NULL)
+    }
+    as_ir <- .gw_upstream_emitter()
+    if (is.null(as_ir)) {
+        if (emitter == "upstream") {
+            stop("gt ", utils::packageVersion("gt"), " has no `as_ir()`; use ",
+                 "`emitter = \"gridwell\"`.", call. = FALSE)
+        }
+        return(NULL)
+    }
+    if (emitter == "upstream") {
+        return(.gw_checked_ir(as_ir(gt_obj)))
+    }
+    tryCatch(.gw_checked_ir(as_ir(gt_obj)), error = function(e) {
+        warning(conditionMessage(e), "; converted with gridwell's own emitter instead",
+                call. = FALSE)
+        NULL
+    })
+}
 
+# gt's `as_ir()`, or NULL if the installed gt has none.
+.gw_upstream_emitter <- function(pkg = "gt", name = "as_ir") {
+    if (!requireNamespace(pkg, quietly = TRUE) || !name %in% getNamespaceExports(pkg)) {
+        return(NULL)
+    }
+    f <- getExportedValue(pkg, name)
+    if (is.function(f)) f else NULL
+}
+
+# `list(json, ir)` for what `gt::as_ir()` gave, if it's IR this gridwell reads.
+.gw_checked_ir <- function(json) {
+    if (!is.character(json) || length(json) != 1L || is.na(json)) {
+        stop("gt::as_ir() gave ", .gw_show(json), ", not a JSON string", call. = FALSE)
+    }
+    # parse_json(), not fromJSON(): it never reads a file or URL the string names.
+    ir <- tryCatch(
+        jsonlite::parse_json(json, simplifyVector = FALSE),
+        error = function(e) {
+            stop("gt::as_ir() gave JSON that doesn't parse (", trimws(conditionMessage(e)), ")",
+                 call. = FALSE)
+        }
+    )
+    version <- if (is.list(ir)) ir[["ir_version"]]
+    if (!is.character(version) || length(version) != 1L ||
+        !grepl("^[0-9]+\\.[0-9]+\\z", version, perl = TRUE)) {
+        stop("gt::as_ir() gave an ir_version of ", .gw_show(version), ", not MAJOR.MINOR",
+             call. = FALSE)
+    }
+    major <- sub("^0*([0-9]+)\\..*", "\\1", version)
+    if (major != .gw_ir_major) {
+        stop("gt::as_ir() gives IR ", version, ", and this gridwell reads IR ", .gw_ir_major,
+             ".x (a newer gridwell may read it)", call. = FALSE)
+    }
+    list(json = json, ir = ir)
+}
+
+.gw_show <- function(x) {
+    if (is.null(x)) {
+        "null"
+    } else if (is.character(x) && length(x) == 1L && !is.na(x)) {
+        encodeString(x, quote = "\"")
+    } else if (length(x) == 1L && is.atomic(x)) {
+        paste0("a ", class(x)[1], " (", format(x), ")")
+    } else {
+        paste0("a ", class(x)[1], " of length ", length(x))
+    }
+}
+
+# gridwell's own emitter: the IR of `gt_obj`, as a list.
+.gw_build_ir <- function(gt_obj) {
     built <- .gw_build_gt(gt_obj)
     styles <- .gw_style_registry()
 
