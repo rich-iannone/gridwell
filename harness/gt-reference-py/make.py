@@ -1,6 +1,6 @@
 """Build the Great Tables reference set for the "Great Tables vs gridwell" gallery page.
 
-For each case in cases.py this writes, into this directory:
+For each case in conformance/cases.py this writes, into this directory:
 
     <name>.gt.html   Great Tables' own HTML (`as_raw_html()`), the look gridwell's
                      HTML is measured against
@@ -19,7 +19,8 @@ environment that has great_tables and pandas:
     maturin develop --release        # or install a freshly built wheel
     python harness/gt-reference-py/make.py
 
-Then run `cargo xtask gt` and open harness/gallery/great-tables.html.
+Then run `python conformance/make.py`, and `cargo xtask gt` and open
+harness/gallery/great-tables.html.
 """
 
 from __future__ import annotations
@@ -35,12 +36,13 @@ import gridwell
 from gridwell._gt import has_upstream
 
 OUT_DIR = Path(__file__).resolve().parent
+CASES = OUT_DIR.parent.parent / "conformance" / "cases.py"
 
 
 def load_cases() -> dict:
-    """The cases in cases.py, imported by path (this directory isn't a package)."""
+    """The cases in conformance/cases.py, imported by path (it isn't a package)."""
     sys.dont_write_bytecode = True  # no __pycache__ in the source tree
-    spec = importlib.util.spec_from_file_location("gt_reference_cases", OUT_DIR / "cases.py")
+    spec = importlib.util.spec_from_file_location("gt_reference_cases", CASES)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module.cases
