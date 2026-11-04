@@ -437,10 +437,12 @@ def test_md_notes_are_their_text_not_the_objects_repr():
 
 
 def runs(ir, content):
-    """Content nodes as (text, style definition) pairs; a line break is ("\\n", None)."""
+    """Content nodes as (text, style definition) pairs; a line break is ("\\n", None)
+    and a footnote mark ("^" + its text, its footnote's id)."""
     defs = ir["styles"]["defs"]
     return [
         ("\n", None) if n["type"] == "line_break"
+        else ("^" + n["mark_text"], n["ref"]) if n["type"] == "footnote_mark"
         else (n["value"], defs[n["style_id"]] if n["type"] == "styled_text" else None)
         for n in content
     ]
@@ -464,7 +466,8 @@ def test_labels_are_styled_runs_as_great_tables_draws_them():
     bold, italic = {"font_weight": "bold"}, {"font_style": "italic"}
     both = {"font_style": "italic", "font_weight": "bold"}
     assert runs(ir, ir["header"]["title"]["content"]) == [
-        ("A ", None), ("b", italic), (" ", None), ("c", bold), (" ", None), ("d", both)
+        ("A ", None), ("b", italic), (" ", None), ("c", bold), (" ", None), ("d", both),
+        ("^1", "fn1"),
     ]
     assert runs(ir, ir["header"]["subtitle"]["content"]) == [
         ("x", None), ("\n", None), ("y ", None), ("z", {"font_family": "monospace"})
