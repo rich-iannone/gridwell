@@ -141,6 +141,34 @@ the installed Great Tables has one, and gridwell's copy until then; pass
 `emitter="upstream"` or `emitter="gridwell"` to choose. See [Great Tables
 Integration](../guide/integration-great-tables.qmd).
 
+## Conformance
+
+`gridwell.conformance` checks a table's IR against an expected table, for an
+emitter's tests. Tables are compared as normalized grids, so style ids, key order
+and how styles are written don't matter; the check goes by tiers (L0 valid, L1
+structure, L2 content, L3 styling), each including the ones before. The expected
+grids for the conformance cases are in the repository's `conformance/` directory
+(see its README).
+
+```python
+from gridwell.conformance import assert_conforms, check, normalize
+
+grid = normalize(gt, "L1")         # a table's grid, as a dict
+report = check(gt, grid)           # or the path of a grid file, or JSON
+report.passed                      # True
+report.tiers                       # {"L0": "pass", "L1": "pass", "L2": "not checked", ...}
+report.differences                 # (Difference(tier, path, expected, actual), ...)
+print(report)
+
+assert_conforms(gt, "conformance/expected/great_tables/exibble_basic.json")
+```
+
+`check()` takes IR as a JSON string or a dict, a `Table`, or a `GT`; IR that doesn't
+parse or validate fails L0. Where a grid has nothing at all, a difference's
+`expected` or `actual` is `MISSING` (not `None`, which is a null there).
+`assert_conforms()` raises `AssertionError` with the report when the table doesn't
+pass.
+
 ## Error Handling
 
 `ValueError` is raised for parse errors (and `TypeError` for something `Table()`
