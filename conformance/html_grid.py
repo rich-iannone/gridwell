@@ -1,0 +1,270 @@
+"""The L1 grid of a table as gt or Great Tables draws it, read from its own HTML.
+
+`gridwell conformance normalize --tier L1` writes the grid an emitter's IR gives;
+this writes the grid the package's `as_raw_html()` shows, so the two can be
+compared without trusting either emitter. The expected L1 grids in `expected/`
+come from here (see make.py).
+
+It reads the HTML gt and Great Tables write (their `gt_*` classes), not HTML in
+general, and only what L1 checks: the stub, the header lines, the head rows and
+their spans, the groups and their labels, the data and summary rows and the text
+of every cell, footnote and source note. Footnote marks aren't text, so they're
+left out.
+
+The head is written as the IR's rule 4 has it: a label spanning several head rows
+in the HTML (a column without a spanner above it) is the bottom row's, with empty
+cells above it.
+
+Run it on a file to print the grid:
+
+    python conformance/html_grid.py harness/gt-reference/demographics.gt.html
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import sys
+from html.parser import HTMLParser
+
+FORMAT = "gridwell-conformance-grid/1"
+
+VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "wbr"}
+
+
+class Element:
+    def __init__(self, tag: str, attrs: dict[str, str]):
+        self.tag = tag
+        self.attrs = attrs
+        self.children: list[Element | str] = []
+
+    @property
+    def classes(self) -> set[str]:
+        return set(self.attrs.get("class", "").split())
+
+    def elements(self, *tags: str):
+        """Child elements (with one of `tags`, if given), in document order."""
+        return [c for c in self.children if isinstance(c, Element) and (not tags or c.tag in tags)]
+
+    def find_all(self, pred):
+        """Descendant elements matching `pred`, in document order."""
+        for c in self.children:
+            if isinstance(c, Element):
+                if pred(c):
+                    yield c
+                yield from c.find_all(pred)
+
+
+class TreeBuilder(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.root = Element("#root", {})
+        self.stack = [self.root]
+
+    def handle_starttag(self, tag, attrs):
+        el = Element(tag, {k: v or "" for k, v in attrs})
+        self.stack[-1].children.append(el)
+        if tag not in VOID:
+            self.stack.append(el)
+
+    def handle_startendtag(self, tag, attrs):
+        self.stack[-1].children.append(Element(tag, {k: v or "" for k, v in attrs}))
+
+    def handle_endtag(self, tag):
+        # Close up to the matching element; a stray end tag closes nothing.
+        for i in range(len(self.stack) - 1, 0, -1):
+            if self.stack[i].tag == tag:
+                del self.stack[i:]
+                return
+
+    def handle_data(self, data):
+        self.stack[-1].children.append(data)
+
+
+def parse(html: str) -> Element:
+    builder = TreeBuilder()
+    builder.feed(html)
+    builder.close()
+    return builder.root
+
+
+def text(el: Element) -> str:
+    """What a reader sees, as the normalizer writes L1 text: footnote marks left
+    out, `<br>` a line break, white space runs one space, lines and the whole
+    trimmed."""
+    out: list[str] = []
+
+    def walk(node):
+        for c in node.children:
+            if isinstance(c, str):
+                # Line breaks in the source are spaces; only <br> breaks a line.
+                out.append(re.sub(r"\s+", " ", c))
+            elif c.tag == "br":
+                out.append("\n")
+            elif c.tag not in ("style", "script") and "gt_footnote_marks" not in c.classes:
+                walk(c)
+
+    walk(el)
+    lines = "".join(out).split("\n")
+    return "\n".join(" ".join(line.split()) for line in lines).strip()
+
+
+def span(el: Element, name: str) -> int:
+    try:
+        return max(1, int(el.attrs.get(name, "1")))
+    except ValueError:
+        return 1
+
+
+def place(rows: list[list[Element]]) -> list[list[tuple[int, Element]]]:
+    """Each row's cells with the grid column they start in (HTML's table model:
+    a cell takes the first column no cell from above still covers)."""
+    covered: dict[tuple[int, int], bool] = {}
+    placed = []
+    for r, cells in enumerate(rows):
+        col = 0
+        out = []
+        for cell in cells:
+            while covered.get((r, col)):
+                col += 1
+            cs, rs = span(cell, "colspan"), span(cell, "rowspan")
+            for dr in range(rs):
+                for dc in range(cs):
+                    covered[(r + dr, col + dc)] = True
+            out.append((col, cell))
+            col += cs
+        placed.append(out)
+    return placed
+
+
+def cell_entry(col: int, cell: Element, *, stub: bool = False, rowspan: int = 1) -> dict:
+    entry: dict = {"col": col}
+    cs = span(cell, "colspan")
+    if cs > 1:
+        entry["colspan"] = cs
+    if rowspan > 1:
+        entry["rowspan"] = rowspan
+    if stub:
+        entry["stub"] = True
+    entry["text"] = text(cell)
+    return entry
+
+
+def head_rows(rows: list[Element]) -> list[dict]:
+    """The column-label rows in rule 4's shape: spanner rows top level first, then
+    the column labels, every position filled, no label spanning rows."""
+    cells = [r.elements("th", "td") for r in rows]
+    placed = place(cells)
+    n = len(rows)
+    grid: list[list[dict]] = [[] for _ in range(n)]
+    for r, row in enumerate(placed):
+        for col, cell in row:
+            rs = min(span(cell, "rowspan"), n - r)
+            # A label spanning rows sits in the last; the rows above are empty there.
+            for above in range(r, r + rs - 1):
+                for dc in range(span(cell, "colspan")):
+                    grid[above].append({"col": col + dc, "text": ""})
+            grid[r + rs - 1].append(cell_entry(col, cell))
+    out = []
+    for r, row in enumerate(rows):
+        role = "spanner_label" if "gt_spanner_row" in row.classes else "column_label"
+        out.append({"cells": sorted(grid[r], key=lambda c: c["col"]), "role": role})
+    return out
+
+
+def body_groups(tbody: Element) -> list[dict]:
+    groups: list[dict] = []
+    grand: dict | None = None
+    # Rows of cells, with the group (and list) each belongs to, so spans are placed
+    # over the whole body as the HTML does.
+    rows: list[tuple[list, list[Element], str | None]] = []
+    for tr in tbody.elements("tr"):
+        cells = tr.elements("th", "td")
+        if "gt_group_heading_row" in tr.classes:
+            label = text(cells[0]) if cells else ""
+            groups.append({"label": {"text": label}, "rows": [], "summary_rows": []})
+            continue
+        classes = set().union(*(c.classes for c in cells)) | tr.classes
+        if "gt_grand_summary_row" in classes:
+            if grand is None:
+                grand = {"label": None, "rows": [], "summary_rows": []}
+            rows.append((grand["summary_rows"], cells, "grand_summary_row"))
+            continue
+        if not groups:
+            groups.append({"label": None, "rows": [], "summary_rows": []})
+        if "gt_summary_row" in classes:
+            rows.append((groups[-1]["summary_rows"], cells, "summary_row"))
+        else:
+            rows.append((groups[-1]["rows"], cells, None))
+    for (target, _, role), placed in zip(rows, place([c for _, c, _ in rows])):
+        entries = [
+            cell_entry(col, cell, stub="gt_stub" in cell.classes, rowspan=span(cell, "rowspan"))
+            for col, cell in placed
+        ]
+        row: dict = {"cells": entries}
+        if role:
+            row["role"] = role
+        target.append(row)
+    if grand is not None:
+        groups.append(grand)
+    return groups
+
+
+def grid(html: str) -> dict:
+    """The L1 grid of the gt or Great Tables table in `html`."""
+    root = parse(html)
+    tables = list(root.find_all(lambda e: e.tag == "table" and "gt_table" in e.classes))
+    if len(tables) != 1:
+        raise ValueError(f"expected one gt table (table.gt_table), found {len(tables)}")
+    table = tables[0]
+
+    def first(cls):
+        return next(table.find_all(lambda e: cls in e.classes), None)
+
+    def line(cls):
+        el = first(cls)
+        return None if el is None else {"text": text(el)}
+
+    thead = next(iter(table.elements("thead")), None)
+    head = []
+    if thead is not None:
+        head = head_rows([tr for tr in thead.elements("tr") if "gt_col_headings" in tr.classes])
+    groups = []
+    for tbody in table.elements("tbody"):
+        groups.extend(body_groups(tbody))
+    if not groups:
+        groups = [{"label": None, "rows": [], "summary_rows": []}]
+
+    ncols = max(
+        [sum(span(c, "colspan") for c in tr.elements("th", "td"))
+         for tr in table.find_all(lambda e: e.tag == "tr" and "gt_col_headings" in e.classes)]
+        or [0]
+    )
+    stub = set()
+    for g in groups:
+        for row in g["rows"] + g["summary_rows"]:
+            ncols = max(ncols, max([c["col"] + c.get("colspan", 1) for c in row["cells"]] or [0]))
+            stub.update(c["col"] for c in row["cells"] if c.get("stub"))
+    columns = [{"stub": True} if i in stub else {} for i in range(ncols)]
+
+    footnotes = [{"text": text(el)} for el in table.find_all(lambda e: "gt_footnote" in e.classes)]
+    notes = [{"text": text(el)} for el in table.find_all(lambda e: "gt_sourcenote" in e.classes)]
+    return {
+        "format": FORMAT,
+        "tier": "L1",
+        "grid": {
+            "columns": columns,
+            "extra_lines": [],
+            "footnotes": footnotes,
+            "groups": groups,
+            "head": head,
+            "source_notes": notes,
+            "subtitle": line("gt_subtitle"),
+            "title": line("gt_title"),
+        },
+    }
+
+
+if __name__ == "__main__":
+    with open(sys.argv[1], encoding="utf-8") as f:
+        print(json.dumps(grid(f.read()), indent=2, ensure_ascii=False, sort_keys=True))
