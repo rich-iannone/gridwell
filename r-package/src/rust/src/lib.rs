@@ -3,6 +3,7 @@
 
 use extendr_api::prelude::*;
 use gridwell_ir::Table;
+use gridwell_render::conformance::{self, Tier};
 use gridwell_render::{RenderError, REGISTRY};
 
 fn table_from(ptr: &Robj) -> ExternalPtr<Table> {
@@ -165,6 +166,67 @@ fn rs_formats() -> List {
     )
 }
 
+fn tier_from(tier: &str) -> Tier {
+    tier.parse()
+        .unwrap_or_else(|e: conformance::ConformanceError| throw_r_error(&e.to_string()))
+}
+
+/// The table's normalized conformance grid, as pretty JSON. A table that doesn't
+/// validate is an error.
+/// @noRd
+#[extendr]
+fn rs_conformance_normalize(table_ptr: Robj, tier: &str) -> String {
+    let tier = tier_from(tier);
+    let table = table_from(&table_ptr);
+    let validated = table
+        .validated()
+        .unwrap_or_else(|e| throw_r_error(&RenderError::InvalidTable(e).to_string()));
+    format!("{:#}", conformance::normalize(&validated, tier))
+}
+
+/// Check IR (JSON text) against an expected grid (JSON text): a list of passed,
+/// tier, tiers (each tier's status, L0 to L3), errors, the differences as columns
+/// (diff_tier, diff_path, and diff_expected and diff_actual as JSON, NA when not
+/// there) and the report as text.
+/// @noRd
+#[extendr]
+fn rs_conformance_check(ir: &str, expected: &str, tier: Robj) -> List {
+    let tier = if tier.is_null() {
+        None
+    } else {
+        match tier.as_str() {
+            Some(t) => Some(tier_from(t)),
+            None => throw_r_error("`tier` must be NULL or a single string"),
+        }
+    };
+    let report = conformance::check_json(ir, expected, tier)
+        .unwrap_or_else(|e| throw_r_error(&e.to_string()));
+    let d = &report.differences;
+    list!(
+        passed = report.passed(),
+        tier = report.tier.as_str(),
+        tiers = Strings::from_values(Tier::ALL.map(|t| report.status(t).as_str())),
+        errors = Strings::from_values(&report.errors),
+        diff_tier = Strings::from_values(d.iter().map(|d| d.tier.as_str())),
+        diff_path = Strings::from_values(d.iter().map(|d| d.path.as_str())),
+        diff_expected = d
+            .iter()
+            .map(|d| d
+                .expected
+                .as_ref()
+                .map_or(Rstr::na(), |v| v.to_string().into()))
+            .collect::<Strings>(),
+        diff_actual = d
+            .iter()
+            .map(|d| d
+                .actual
+                .as_ref()
+                .map_or(Rstr::na(), |v| v.to_string().into()))
+            .collect::<Strings>(),
+        text = report.to_string()
+    )
+}
+
 extendr_module! {
     mod gridwell;
     fn rs_parse_ir;
@@ -178,4 +240,6 @@ extendr_module! {
     fn rs_render_binary;
     fn rs_save;
     fn rs_formats;
+    fn rs_conformance_normalize;
+    fn rs_conformance_check;
 }
