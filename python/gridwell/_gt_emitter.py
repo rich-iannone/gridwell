@@ -1,9 +1,12 @@
-"""Convert a Great Tables GT object to gridwell IR JSON."""
+"""gridwell's own copy of the Great Tables emitter: a GT object to gridwell IR.
+
+Used when the installed Great Tables has no `GT.as_ir()` (see `_gt`). It reads
+Great Tables internals, which is why Great Tables is taking it over.
+"""
 
 from __future__ import annotations
 
 import datetime as dt
-import json
 import re
 from typing import TYPE_CHECKING, Any
 
@@ -14,40 +17,8 @@ if TYPE_CHECKING:
     from great_tables import GT
 
 
-def gt_to_ir(gt_obj: GT) -> str:
-    """Convert a Great Tables GT object to gridwell IR JSON.
-
-    Parameters
-    ----------
-    gt_obj : great_tables.GT
-        A Great Tables GT object.
-
-    Returns
-    -------
-    str
-        JSON string in gridwell IR format.
-    """
-    return json.dumps(_gt_to_dict(gt_obj), indent=2)
-
-
-def gt_to_dict(gt_obj: GT) -> dict[str, Any]:
-    """Convert a Great Tables GT object to gridwell IR dict.
-
-    Parameters
-    ----------
-    gt_obj : great_tables.GT
-        A Great Tables GT object.
-
-    Returns
-    -------
-    dict
-        Dictionary in gridwell IR format.
-    """
-    return _gt_to_dict(gt_obj)
-
-
-def _gt_to_dict(gt_obj: Any) -> dict:
-    """Internal: build the IR dictionary from a GT object."""
+def build_ir(gt_obj: GT) -> dict[str, Any]:
+    """The IR of a GT object, as a dict."""
     from great_tables._utils_render_html import cast_frame_to_string, replace_null_frame
 
     # Build the GT to resolve formats
