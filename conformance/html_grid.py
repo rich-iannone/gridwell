@@ -30,6 +30,13 @@ from html.parser import HTMLParser
 FORMAT = "gridwell-conformance-grid/1"
 
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "wbr"}
+# Elements a browser starts a line for (the ones a label's HTML might hold).
+BLOCKS = set(
+    "address article aside blockquote dd div dl dt figcaption figure footer h1 h2 h3 h4 h5 h6 "
+    "header hr li main nav ol p pre section table tr ul".split()
+)
+# Where a block starts or ends, in text() (a line break if text comes before and after).
+BLOCK_EDGE = "\x00"
 
 
 class Element:
@@ -90,22 +97,43 @@ def parse(html: str) -> Element:
 
 def text(el: Element) -> str:
     """What a reader sees, as the normalizer writes L1 text: footnote marks left
-    out, `<br>` a line break, white space runs one space, lines and the whole
-    trimmed."""
+    out, `<br>` a line break, a block (`<p>`, `<div>`, ...) on lines of its own,
+    white space runs one space, lines and the whole trimmed."""
     out: list[str] = []
 
     def walk(node):
         for c in node.children:
             if isinstance(c, str):
-                # Line breaks in the source are spaces; only <br> breaks a line.
-                out.append(re.sub(r"\s+", " ", c))
+                # Line breaks in the source are spaces; only <br> and blocks break a line.
+                out.append(re.sub(r"[\s\x00]+", " ", c))
             elif c.tag == "br":
                 out.append("\n")
             elif c.tag not in ("style", "script") and "gt_footnote_marks" not in c.classes:
+                edge = [BLOCK_EDGE] if c.tag in BLOCKS else []
+                out.extend(edge)
                 walk(c)
+                out.extend(edge)
 
     walk(el)
-    lines = "".join(out).split("\n")
+    # A block edge breaks the line when the line has text and more text or a <br>
+    # follows (so `<p>a</p><p>b</p>` is two lines, and an empty block is nothing).
+    joined, pending, has_text = [], False, False
+    for piece in re.split(f"(\n|{BLOCK_EDGE})", "".join(out)):
+        if piece == "\n":
+            # After a block, a <br> is a line of its own.
+            joined.append("\n\n" if pending else piece)
+            pending = has_text = False
+        elif piece == BLOCK_EDGE:
+            pending = pending or has_text
+        elif piece.strip():
+            if pending:
+                joined.append("\n")
+                pending = False
+            joined.append(piece)
+            has_text = True
+        else:
+            joined.append(piece)
+    lines = "".join(joined).split("\n")
     return "\n".join(" ".join(line.split()) for line in lines).strip()
 
 
