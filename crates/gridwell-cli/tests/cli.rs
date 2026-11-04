@@ -600,3 +600,183 @@ fn convert_needs_to_or_output() {
     assert!(o.stdout.is_empty());
     assert!(stderr(&o).contains("--to"), "{}", stderr(&o));
 }
+
+// ─── conformance ───
+
+fn repo(rel: &str) -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../..")
+        .join(rel)
+}
+
+fn json_out(o: &Output) -> serde_json::Value {
+    serde_json::from_slice(&o.stdout).unwrap_or_else(|e| panic!("{e}: {}", stdout(o)))
+}
+
+#[test]
+fn conformance_normalize_writes_the_expected_grid() {
+    let o = bin()
+        .args(["conformance", "normalize"])
+        .arg(repo("harness/gt-reference/demographics.ir.json"))
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    let grid = json_out(&o);
+    let expected: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(repo("conformance/expected/gt/demographics.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(grid["format"], "gridwell-conformance-grid/1");
+    assert_eq!(grid["tier"], "L3");
+    assert_eq!(grid["grid"], expected["grid"]);
+}
+
+#[test]
+fn conformance_normalize_to_a_tier_and_from_stdin() {
+    let ir = std::fs::read_to_string(fixture("minimal/minimal_1x1.json")).unwrap();
+    let mut child = bin()
+        .args(["conformance", "normalize", "--tier", "l1"])
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+    use std::io::Write;
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(ir.as_bytes())
+        .unwrap();
+    let o = child.wait_with_output().unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    let grid = json_out(&o);
+    assert_eq!(grid["tier"], "L1");
+    assert_eq!(
+        grid["grid"]["groups"][0]["rows"][0]["cells"],
+        serde_json::json!([{"col": 0, "text": "Hello"}])
+    );
+    assert!(!stdout(&o).contains("\"runs\""));
+}
+
+#[test]
+fn conformance_normalize_refuses_what_it_cant_normalize() {
+    let o = bin()
+        .args(["conformance", "normalize"])
+        .arg(fixture("invalid/col_count_mismatch.json"))
+        .output()
+        .unwrap();
+    assert_clean_failure(&o);
+    assert!(stderr(&o).contains("validation"), "{}", stderr(&o));
+    let path = scratch_dir("normalize-malformed").join("in.json");
+    std::fs::write(&path, "{not json").unwrap();
+    let o = bin()
+        .args(["conformance", "normalize"])
+        .arg(&path)
+        .output()
+        .unwrap();
+    assert_clean_failure(&o);
+    assert!(stderr(&o).contains("Error parsing IR"), "{}", stderr(&o));
+    let o = bin()
+        .args(["conformance", "normalize", "--tier", "L4"])
+        .arg(fixture("minimal/minimal_1x1.json"))
+        .output()
+        .unwrap();
+    assert_eq!(o.status.code(), Some(2), "{}", stderr(&o));
+    assert!(stderr(&o).contains("unknown tier \"L4\""), "{}", stderr(&o));
+}
+
+#[test]
+fn conformance_check_passes_and_fails() {
+    let o = bin()
+        .args(["conformance", "check"])
+        .arg(repo("harness/gt-reference/tab_style.ir.json"))
+        .arg(repo("conformance/expected/gt/tab_style.json"))
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}{}", stdout(&o), stderr(&o));
+    assert!(stdout(&o).starts_with("passes L3\n"), "{}", stdout(&o));
+    // Another case's IR.
+    let o = bin()
+        .args(["conformance", "check"])
+        .arg(repo("harness/gt-reference/exibble_basic.ir.json"))
+        .arg(repo("conformance/expected/gt/tab_style.json"))
+        .output()
+        .unwrap();
+    assert_clean_failure(&o);
+    assert!(
+        stdout(&o).starts_with("fails L1 (checked to L3)\n"),
+        "{}",
+        stdout(&o)
+    );
+    assert!(stdout(&o).contains(" differences:\n  L"), "{}", stdout(&o));
+    // To a lower tier, and as JSON.
+    let o = bin()
+        .args(["conformance", "check", "--json", "--tier", "L0"])
+        .arg(repo("harness/gt-reference/exibble_basic.ir.json"))
+        .arg(repo("conformance/expected/gt/tab_style.json"))
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    let report = json_out(&o);
+    assert_eq!(report["passed"], true);
+    assert_eq!(report["tiers"]["L1"], "not checked");
+    assert_eq!(report["differences"], serde_json::json!([]));
+}
+
+#[test]
+fn conformance_check_of_ir_that_isnt_valid_fails_l0() {
+    let path = scratch_dir("check-malformed").join("in.json");
+    std::fs::write(&path, "{not json").unwrap();
+    for ir in [path, fixture("invalid/col_count_mismatch.json")] {
+        let o = bin()
+            .args(["conformance", "check", "--json"])
+            .arg(&ir)
+            .arg(repo("conformance/expected/gt/tab_style.json"))
+            .output()
+            .unwrap();
+        assert_clean_failure(&o);
+        let report = json_out(&o);
+        assert_eq!(report["tiers"]["L0"], "fail", "{}", ir.display());
+        assert!(!report["errors"].as_array().unwrap().is_empty());
+    }
+}
+
+#[test]
+fn conformance_check_refuses_what_it_cant_check() {
+    let tab_style = repo("harness/gt-reference/tab_style.ir.json");
+    // A tier the expected grid doesn't go to.
+    let o = bin()
+        .args(["conformance", "check", "--tier", "L2"])
+        .arg(&tab_style)
+        .arg(repo("conformance/expected/great_tables/tab_style.json"))
+        .output()
+        .unwrap();
+    assert_clean_failure(&o);
+    assert!(
+        stderr(&o).contains("goes to L1, so it can't be checked to L2"),
+        "{}",
+        stderr(&o)
+    );
+    // Not a grid: an IR file.
+    let o = bin()
+        .args(["conformance", "check"])
+        .arg(&tab_style)
+        .arg(&tab_style)
+        .output()
+        .unwrap();
+    assert_clean_failure(&o);
+    assert!(
+        stderr(&o).contains("the expected grid has no format"),
+        "{}",
+        stderr(&o)
+    );
+    // No such file.
+    let o = bin()
+        .args(["conformance", "check"])
+        .arg(&tab_style)
+        .arg(scratch_dir("check-missing").join("nope.json"))
+        .output()
+        .unwrap();
+    assert_clean_failure(&o);
+    assert!(stderr(&o).contains("reading "), "{}", stderr(&o));
+}
