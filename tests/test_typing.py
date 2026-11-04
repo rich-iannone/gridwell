@@ -376,6 +376,9 @@ GOOD_GT = """
         assert_type(Table.from_gt(gt), Table)
         assert_type(gridwell.gt_to_ir(gt), str)
         assert_type(gridwell.gt_to_dict(gt), dict[str, Any])
+        for emitter in ("auto", "upstream", "gridwell"):
+            assert_type(gridwell.gt_to_ir(gt, emitter=emitter), str)
+            assert_type(gridwell.gt_to_dict(gt, emitter), dict[str, Any])
 """
 
 BAD = """
@@ -412,12 +415,18 @@ BAD = """
 
 # Without great_tables, `GT` is unknown (so anything could be one) and these pass.
 BAD_GT = """
+    from great_tables import GT
+
     import gridwell
     from gridwell import Table
 
     Table(42)  # E
     Table.from_gt("gt")  # E
     gridwell.gt_to_ir("gt")  # E
+
+    def convert(gt: GT) -> None:
+        gridwell.gt_to_ir(gt, emitter="great_tables")  # E
+        gridwell.gt_to_dict(gt, emitter=None)  # E
 """
 
 

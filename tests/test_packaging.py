@@ -82,6 +82,61 @@ def test_import_and_render_without_optional_dependencies():
     assert result.stdout.strip() == "ok"
 
 
+# With great_tables but not pandas (Great Tables can work on polars alone): Great
+# Tables' own emitter needs neither, and gridwell's says what to install.
+WITHOUT_PANDAS = textwrap.dedent(
+    """
+    import json, sys, importlib.abc
+
+    BLOCKED = ("pandas", "numpy", "polars")
+
+    class Blocker(importlib.abc.MetaPathFinder):
+        def find_spec(self, name, path=None, target=None):
+            if name.split(".")[0] in BLOCKED:
+                raise ModuleNotFoundError(f"No module named {name!r} (blocked by test)")
+            return None
+
+    sys.meta_path.insert(0, Blocker())
+    for mod in list(sys.modules):
+        if mod.split(".")[0] in BLOCKED:
+            del sys.modules[mod]
+
+    import gridwell
+    from great_tables import GT
+
+    table = object.__new__(GT)  # no data frame library to make a real one with
+    try:
+        gridwell.gt_to_ir(table)
+    except ImportError as e:
+        assert "pip install 'gridwell[gt]'" in str(e), str(e)
+        assert isinstance(e.__cause__, ImportError)
+    else:
+        raise AssertionError("gt_to_ir() should have raised ImportError")
+
+    ir = open(sys.argv[1]).read()
+    GT.as_ir = lambda self: ir
+    assert gridwell.gt_to_ir(table) == ir
+    assert gridwell.gt_to_dict(table) == json.loads(ir)
+    assert gridwell.Table(table).validate() == []
+
+    leaked = [m for m in sys.modules if m.split(".")[0] in BLOCKED]
+    assert not leaked, leaked
+    print("ok")
+    """
+)
+
+
+def test_great_tables_own_emitter_needs_no_pandas():
+    pytest.importorskip("great_tables")
+    result = subprocess.run(
+        [sys.executable, "-c", WITHOUT_PANDAS, str(FIXTURES / "minimal/minimal_1x1.json")],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "ok"
+
+
 def test_unknown_attribute_is_attribute_error():
     with pytest.raises(AttributeError, match="no attribute 'nope'"):
         gridwell.nope  # noqa: B018

@@ -17,6 +17,7 @@ pytest.importorskip("pandas")
 pytest.importorskip("great_tables")
 
 import gridwell
+from gridwell._gt import has_upstream
 
 REF_DIR = Path(__file__).resolve().parent.parent / "harness" / "gt-reference-py"
 
@@ -35,6 +36,8 @@ def _cases() -> dict:
 MANIFEST = json.loads((REF_DIR / "manifest.json").read_text(encoding="utf-8"))
 CASES = _cases()
 SAME_GT = importlib.metadata.version("great_tables") == MANIFEST["great_tables_version"]
+# The emitter that wrote the reference IR: Great Tables' own or gridwell's copy.
+EMITTER = {"great_tables": "upstream", "gridwell": "gridwell"}[MANIFEST["ir_emitter"]]
 
 
 def test_the_manifest_lists_the_cases():
@@ -50,10 +53,17 @@ same_gt = pytest.mark.skipif(
 )
 
 
+def test_the_references_use_great_tables_own_emitter_once_there_is_one():
+    # make.py uses it when there is one; references made before need regenerating
+    # (with any Great Tables version: the first with `as_ir()` is a newer one).
+    upstream = has_upstream(next(iter(CASES.values()))["build"]())
+    assert EMITTER == ("upstream" if upstream else "gridwell"), "regenerate with make.py"
+
+
 @same_gt
 @pytest.mark.parametrize("name", list(CASES))
 def test_the_reference_ir_is_up_to_date(name):
-    ir = gridwell.gt_to_ir(CASES[name]["build"]())
+    ir = gridwell.gt_to_ir(CASES[name]["build"](), emitter=EMITTER)
     stored = (REF_DIR / f"{name}.ir.json").read_text(encoding="utf-8")
     assert ir + "\n" == stored, f"{name} IR (regenerate with make.py)"
 
