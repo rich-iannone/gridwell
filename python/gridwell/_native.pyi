@@ -11,7 +11,15 @@ from typing import Any, Literal, TypeAlias, TypedDict, TypeVar, final, type_chec
 from great_tables import GT
 from typing_extensions import Self
 
-__all__ = ["Table", "InvalidTableError", "InvalidOptionsError", "parse_ir", "formats"]
+__all__ = [
+    "Table",
+    "InvalidTableError",
+    "InvalidOptionsError",
+    "parse_ir",
+    "formats",
+    "_conformance_normalize",
+    "_conformance_check",
+]
 
 _PathT = TypeVar("_PathT", bound=str | os.PathLike[str])
 
@@ -197,3 +205,13 @@ def parse_ir(json: str) -> Table:
 def formats() -> list[FormatInfo]:
     """Every supported format: a list of dicts with name, description, kind ("text" or
     "binary"), extension, media_type, and options (each option's default value)."""
+
+def _conformance_normalize(table: Table, tier: str) -> str:
+    """The normalized conformance grid of a table, as JSON (`gridwell.conformance`
+    wraps it). Raises `InvalidTableError` for a table that doesn't validate."""
+
+def _conformance_check(ir: str, expected: str, tier: str | None = None) -> str:
+    """Check IR (JSON text) against an expected grid (JSON text), giving the report
+    as JSON (`gridwell.conformance` wraps it). IR that doesn't parse or validate
+    fails L0; an expected grid that isn't one, or a tier it doesn't go to, raises
+    `ValueError`."""
