@@ -144,7 +144,7 @@ test_that("the gt reference IR in harness/gt-reference is up to date", {
     )
     env <- new.env()
     suppressPackageStartupMessages(library(gt))
-    sys.source(file.path(ref_dir, "cases.R"), envir = env)
+    sys.source(file.path(ref_dir, "..", "..", "conformance", "cases.R"), envir = env)
     expect_setequal(names(env$cases), vapply(manifest$cases, `[[`, "", "name"))
     # The emitter that wrote the reference IR: gt's own or gridwell's copy.
     emitter <- c(gt = "upstream", gridwell = "gridwell")[[manifest$ir_emitter]]
