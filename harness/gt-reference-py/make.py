@@ -4,10 +4,12 @@ For each case in cases.py this writes, into this directory:
 
     <name>.gt.html   Great Tables' own HTML (`as_raw_html()`), the look gridwell's
                      HTML is measured against
-    <name>.ir.json   the same table as gridwell IR (`gridwell.gt_to_ir()`)
+    <name>.ir.json   the same table as gridwell IR (`gridwell.gt_to_ir()`: Great
+                     Tables' own `GT.as_ir()` when the installed Great Tables has
+                     it, else gridwell's copy)
 
-and manifest.json (case descriptions plus the Python, Great Tables and gridwell
-versions used).
+and manifest.json (case descriptions, the Python, Great Tables and gridwell versions
+used, and which emitter wrote the IR).
 
 The files are checked in so the visual harness (which has no Python) can
 rasterize both sides. Regenerate after changing the Great Tables emitter or
@@ -30,6 +32,7 @@ import sys
 from pathlib import Path
 
 import gridwell
+from gridwell._gt import has_upstream
 
 OUT_DIR = Path(__file__).resolve().parent
 
@@ -51,10 +54,14 @@ def write(path: Path, text: str) -> None:
 def main() -> None:
     cases = load_cases()
     manifest_cases = []
+    emitters = set()
     for name, case in cases.items():
         tbl = case["build"]()
+        # Great Tables' own emitter when there is one, so the references follow it.
+        emitter = "upstream" if has_upstream(tbl) else "gridwell"
+        emitters.add("great_tables" if emitter == "upstream" else "gridwell")
         write(OUT_DIR / f"{name}.gt.html", tbl.as_raw_html())
-        write(OUT_DIR / f"{name}.ir.json", gridwell.gt_to_ir(tbl))
+        write(OUT_DIR / f"{name}.ir.json", gridwell.gt_to_ir(tbl, emitter=emitter))
         manifest_cases.append({"name": name, "description": case["description"]})
         print(f"wrote {name}")
 
@@ -63,6 +70,7 @@ def main() -> None:
         "python_version": platform.python_version(),
         "great_tables_version": importlib.metadata.version("great_tables"),
         "gridwell_version": importlib.metadata.version("gridwell"),
+        "ir_emitter": emitters.pop(),
         "cases": manifest_cases,
     }
     write(OUT_DIR / "manifest.json", json.dumps(manifest, indent=2, ensure_ascii=False))
