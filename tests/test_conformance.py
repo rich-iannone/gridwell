@@ -331,6 +331,26 @@ def test_html_grid_places_cells_below_one_spanning_rows():
 
 
 @in_checkout
+@pytest.mark.parametrize(
+    "markup,shown",
+    [
+        ("<p>one</p><p>two</p>", "one\ntwo"),
+        ("<p>one</p>\n  <p> two </p>\n", "one\ntwo"),
+        ("<div>a<div>b</div>c</div>", "a\nb\nc"),
+        ("a<p></p>b", "a\nb"),
+        ("<p></p><p>a</p><p> </p>", "a"),
+        ("x<br><p>y</p>", "x\ny"),
+        ("<p>x</p><br>y", "x\n\ny"),
+        ("<b>bold</b> <i>it</i>", "bold it"),
+        ("a\x00b", "a b"),
+    ],
+)
+def test_html_grid_puts_a_block_on_lines_of_its_own(markup, shown):
+    # As a browser does; as gridwell's Great Tables emitter does too.
+    assert html_grid().text(html_grid().parse(markup)) == shown
+
+
+@in_checkout
 def test_html_grid_wants_one_gt_table():
     hg = html_grid()
     with pytest.raises(ValueError, match="found 0"):
@@ -418,23 +438,108 @@ def test_the_gt_reference_has_what_gts_html_shows(name):
     assert_conforms((GT_REF / f"{name}.ir.json").read_text(encoding="utf-8"), seen)
 
 
-# The cases whose Great Tables reference IR (gridwell's Python emitter) has what
-# Great Tables' HTML shows. The others are emitter gaps, each a follow-up; when one
-# is fixed, add it here.
-PYTHON_EMITTER_CONFORMS = {"exibble_basic", "groups_and_stub", "striped_theme", "tab_style"}
+@in_checkout
+@pytest.mark.parametrize("name", cases() if EXPECTED.is_dir() else [])
+def test_the_great_tables_reference_conforms(name):
+    assert_conforms(
+        (PY_REF / f"{name}.ir.json").read_text(encoding="utf-8"),
+        EXPECTED / "great_tables" / f"{name}.json",
+    )
+
+
+def great_tables_cases() -> dict:
+    """`conformance/cases.py`'s tables (needs Great Tables and pandas)."""
+    pytest.importorskip("great_tables")
+    pytest.importorskip("pandas")
+    sys.dont_write_bytecode = True
+    spec = importlib.util.spec_from_file_location("conformance_cases", KIT / "cases.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.cases
 
 
 @in_checkout
-def test_the_python_emitter_ratchet():
-    passing = {
-        name
-        for name in cases()
-        if check(
-            (PY_REF / f"{name}.ir.json").read_text(encoding="utf-8"),
-            EXPECTED / "great_tables" / f"{name}.json",
-        ).passed
+def test_each_cases_great_tables_table_conforms():
+    # gt_to_ir() of the cases, live; only with the Great Tables version the expected
+    # grids were made with (another can format values differently).
+    built = great_tables_cases()
+    import great_tables
+
+    manifest = load(PY_REF / "manifest.json")
+    if great_tables.__version__ != manifest["great_tables_version"]:
+        pytest.skip(f"expected grids made with Great Tables {manifest['great_tables_version']}")
+    assert sorted(built) == sorted(cases())
+    emitter = {"great_tables": "upstream", "gridwell": "gridwell"}[manifest["ir_emitter"]]
+    for name, case in built.items():
+        ir = gridwell.gt_to_ir(case["build"](), emitter=emitter)
+        assert_conforms(ir, EXPECTED / "great_tables" / f"{name}.json")
+
+
+def edge_tables() -> dict:
+    """Great Tables tables beyond the kit's cases, for what the emitter does with
+    labels, spanners and summary rows."""
+    from great_tables import GT, html, loc, md
+    import pandas as pd
+
+    df = pd.DataFrame({
+        "a": [1, 2, 3], "b": [4.5, 5.5, 6.5], "c": ["x", "y", "z"], "d": [7, 8, 9],
+        "g": ["G1", "G1", "G2"], "r": ["r1", "r2", "r3"],
+    })
+    return {
+        "grand summary, no stub": GT(df[["a", "b", "d"]]).grand_summary_rows(
+            fns={"Sum": lambda x: x[["a", "d"]].sum(), "**Mean**": lambda x: x.mean(numeric_only=True)}
+        ),
+        # Summary values are put in Great Tables' HTML as they are.
+        "summary values as HTML": GT(df[["a", "b"]]).grand_summary_rows(
+            fns={"Sum": lambda x: x.sum()}, fmt=lambda x: [f"<b>{v:.1f}</b>&nbsp;&amp;" for v in x]
+        ),
+        "summaries on top": GT(df[["a", "b", "g", "r"]], rowname_col="r", groupname_col="g")
+        .summary_rows(fns={"Max": lambda x: x[["a", "b"]].max()}, side="top")
+        .grand_summary_rows(fns={"Min": lambda x: x[["a"]].min()}, side="top"),
+        "group summaries, no stub": GT(df[["a", "b", "g"]], groupname_col="g").summary_rows(
+            fns={"Max <1>": lambda x: x[["a", "b"]].max()}
+        ),
+        "unspanned columns under a higher level": GT(df[["a", "b", "c", "d"]])
+        .tab_spanner("Low", ["c", "d"])
+        .tab_spanner("High", spanners=["Low"]),
+        "spanner levels apart": GT(df[["a", "b", "c", "d"]])
+        .tab_spanner("Low", ["a", "b"])
+        .tab_spanner("High", ["a", "b", "d"]),
+        "hidden column under a spanner": GT(df[["a", "b", "c", "d"]])
+        .tab_spanner("S", ["b", "c", "d"])
+        .cols_hide("c"),
+        "stub under spanners": GT(df[["r", "a", "b", "d"]], rowname_col="r")
+        .tab_spanner("S", ["a", "b"])
+        .tab_spanner("T", ["a", "b", "d"])
+        .tab_stubhead("Rows"),
+        "markup in labels": GT(df, rowname_col="r", groupname_col="g")
+        .tab_header(title=md("A *b* **c**"), subtitle=html("x<br>y <code>z</code>"))
+        .cols_label(a=md("**A**"), b=html("B<sub>2</sub>"), c="c < d & e")
+        .tab_spanner(md("*Span*"), ["c", "d"])
+        .tab_stubhead(md("**Stub**"))
+        .tab_footnote(md("Note *one*"), locations=loc.column_labels(columns="a"))
+        .tab_footnote("Plain <two> & more", locations=loc.title())
+        .tab_source_note(html("<p>Para one</p><p>Para <b>two</b></p>"))
+        .tab_source_note("a < b"),
+        "plain strings stay text": GT(df[["a", "b"]])
+        .cols_label(a="*not md* <b>", b="x\ny")
+        .tab_header(title="Tom & Jerry's <script>")
+        .tab_source_note("  spaced   out  "),
+        "entities and paragraphs": GT(df[["a"]])
+        .tab_header(title=html("A&nbsp;B &amp; C&#x2014;D"))
+        .tab_source_note(md("line one\n\nline two"))
+        .tab_source_note(html("<p>x</p><br>y<br><br><div>z</div><p></p>")),
     }
-    assert passing == PYTHON_EMITTER_CONFORMS
+
+
+@in_checkout
+def test_the_great_tables_emitter_has_what_great_tables_html_shows():
+    pytest.importorskip("great_tables")
+    pytest.importorskip("pandas")
+    for name, gt_obj in edge_tables().items():
+        seen = html_grid().grid(gt_obj.as_raw_html())
+        report = check(gridwell.gt_to_ir(gt_obj, emitter="gridwell"), seen)
+        assert report.passed, f"{name}:\n{report}"
 
 
 @in_checkout
