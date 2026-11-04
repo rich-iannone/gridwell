@@ -136,7 +136,10 @@ html = table.render_html()
 ir_json = gridwell.gt_to_ir(gt)  # the IR itself
 ```
 
-See [Great Tables Integration](../guide/integration-great-tables.qmd).
+`gt_to_ir()` and `gt_to_dict()` use Great Tables' own converter, `GT.as_ir()`, once
+the installed Great Tables has one, and gridwell's copy until then; pass
+`emitter="upstream"` or `emitter="gridwell"` to choose. See [Great Tables
+Integration](../guide/integration-great-tables.qmd).
 
 ## Error Handling
 

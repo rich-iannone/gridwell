@@ -164,7 +164,9 @@ tbl <- as_gw_table(gt_tbl)
 ir_json <- gt_to_ir(gt_tbl)  # the IR itself
 ```
 
-See [gt Integration](../guide/integration-gt.qmd).
+`gt_to_ir()` and `gt_to_ir_list()` use gt's own converter, `gt::as_ir()`, once the
+installed gt has one, and gridwell's copy until then; pass `emitter = "upstream"` or
+`emitter = "gridwell"` to choose. See [gt Integration](../guide/integration-gt.qmd).
 
 ## Error Handling
 
