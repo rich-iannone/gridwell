@@ -168,6 +168,31 @@ ir_json <- gt_to_ir(gt_tbl)  # the IR itself
 installed gt has one, and gridwell's copy until then; pass `emitter = "upstream"` or
 `emitter = "gridwell"` to choose. See [gt Integration](../guide/integration-gt.qmd).
 
+## Conformance
+
+`gw_conformance_check()` checks a table's IR against an expected table, for an
+emitter's tests. Tables are compared as normalized grids, so style ids, key order
+and how styles are written don't matter; the check goes by tiers (L0 valid, L1
+structure, L2 content, L3 styling), each including the ones before. The expected
+grids for the conformance cases are in the repository's `conformance/` directory
+(see its README).
+
+```r
+grid <- gw_conformance_normalize(gt_tbl, tier = "L1")  # a table's grid, as JSON
+report <- gw_conformance_check(gt_tbl, grid)           # or the path of a grid file
+report$passed       # TRUE
+report$tiers        # c(L0 = "pass", L1 = "pass", L2 = "not checked", L3 = "not checked")
+report$differences  # a data frame: tier, path, expected, actual
+report
+
+testthat::expect_true(
+    gw_conformance_check(gt_tbl, "conformance/expected/gt/exibble_basic.json")$passed
+)
+```
+
+IR that doesn't parse or validate fails L0. In `differences`, `expected` and
+`actual` are JSON, and `NA` where that grid has nothing at all.
+
 ## Error Handling
 
 Every `gw_render*()` function validates the table first and signals an R error
