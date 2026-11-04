@@ -6,6 +6,7 @@ use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PyDict, PyString};
 
 use gridwell_ir::Table;
+use gridwell_render::conformance::{self, Tier};
 use gridwell_render::{RenderError, REGISTRY};
 
 create_exception!(
@@ -441,6 +442,44 @@ fn formats(py: Python<'_>) -> PyResult<Vec<Bound<'_, PyDict>>> {
         .collect()
 }
 
+fn parse_tier(tier: &str) -> PyResult<Tier> {
+    tier.parse()
+        .map_err(|e: conformance::ConformanceError| PyValueError::new_err(e.to_string()))
+}
+
+/// The normalized conformance grid of a table, as JSON (`gridwell.conformance`
+/// wraps it). Raises `InvalidTableError` for a table that doesn't validate.
+#[pyfunction]
+fn _conformance_normalize(py: Python<'_>, table: &PyTable, tier: &str) -> PyResult<String> {
+    let tier = parse_tier(tier)?;
+    py.allow_threads(|| -> Result<String, String> {
+        let validated = table
+            .inner
+            .validated()
+            .map_err(|e| RenderError::InvalidTable(e).to_string())?;
+        Ok(conformance::normalize(&validated, tier).to_string())
+    })
+    .map_err(InvalidTableError::new_err)
+}
+
+/// Check IR (JSON text) against an expected grid (JSON text), giving the report
+/// as JSON (`gridwell.conformance` wraps it). IR that doesn't parse or validate
+/// fails L0; an expected grid that isn't one, or a tier it doesn't go to, raises
+/// `ValueError`.
+#[pyfunction]
+#[pyo3(signature = (ir, expected, tier=None))]
+fn _conformance_check(
+    py: Python<'_>,
+    ir: &str,
+    expected: &str,
+    tier: Option<&str>,
+) -> PyResult<String> {
+    let tier = tier.map(parse_tier).transpose()?;
+    py.allow_threads(|| conformance::check_json(ir, expected, tier))
+        .map(|r| r.to_json().to_string())
+        .map_err(|e| PyValueError::new_err(e.to_string()))
+}
+
 /// The gridwell Python module: fast multi-format table rendering.
 #[pymodule]
 #[pyo3(name = "_native")]
@@ -453,5 +492,7 @@ fn gridwell(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?;
     m.add_function(wrap_pyfunction!(parse_ir, m)?)?;
     m.add_function(wrap_pyfunction!(formats, m)?)?;
+    m.add_function(wrap_pyfunction!(_conformance_normalize, m)?)?;
+    m.add_function(wrap_pyfunction!(_conformance_check, m)?)?;
     Ok(())
 }
