@@ -110,13 +110,13 @@ another version can format values differently.
 
 - **gt** (gridwell's emitter): every case passes `expected/gt` to L3, by
   construction (the R tests check that it stays so, live from `cases.R`).
-- **Great Tables** (gridwell's emitter): `exibble_basic`, `groups_and_stub`,
-  `striped_theme` and `tab_style` pass `expected/great_tables` (L1). The others
-  are emitter gaps: the spanner cases (`demographics`, `nested_spanners`,
-  `adjacent_spanners`), `summary_rows`, and `notes_and_marks` (the title is
-  written as the `Md(...)` repr and the source note has a literal `<em>`).
-  `tests/test_conformance.py` holds the list; add a case to it when its gap is
-  fixed.
+- **Great Tables** (gridwell's emitter): every case passes `expected/great_tables`
+  (L1); the Python tests check the reference IR and, with the Great Tables
+  version in the manifest, the cases live from `cases.py`. They also check more
+  tables (markup in labels, spanner levels, summary rows without a stub) against
+  what `html_grid.py` reads off Great Tables' HTML. L2 and L3 wait on emitter
+  gaps (footnote marks in cells, `tab_style()` per cell): grids made from the
+  emitter now would say those gaps are right.
 
 ## Regenerating
 
