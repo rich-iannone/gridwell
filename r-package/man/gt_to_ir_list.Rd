@@ -4,10 +4,13 @@
 \alias{gt_to_ir_list}
 \title{Convert a gt table object to a gridwell IR list}
 \usage{
-gt_to_ir_list(gt_obj)
+gt_to_ir_list(gt_obj, emitter = c("auto", "upstream", "gridwell"))
 }
 \arguments{
 \item{gt_obj}{A \code{gt_tbl} object from the gt package.}
+
+\item{emitter}{Which converter to use: \code{"auto"} (the default), \code{"upstream"}
+(gt's own, an error if it can't be used) or \code{"gridwell"} (gridwell's).}
 }
 \value{
 A list representing the gridwell IR.

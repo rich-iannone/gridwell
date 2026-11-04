@@ -4,10 +4,13 @@
 \alias{gt_to_ir}
 \title{Convert a gt table object to gridwell IR JSON}
 \usage{
-gt_to_ir(gt_obj)
+gt_to_ir(gt_obj, emitter = c("auto", "upstream", "gridwell"))
 }
 \arguments{
 \item{gt_obj}{A \code{gt_tbl} object from the gt package.}
+
+\item{emitter}{Which converter to use: \code{"auto"} (the default), \code{"upstream"}
+(gt's own, an error if it can't be used) or \code{"gridwell"} (gridwell's).}
 }
 \value{
 A JSON string in gridwell IR format.
@@ -17,4 +20,10 @@ Cell values come from gt's own formatting step (as they appear in gt's
 rendered output, not the raw data). \code{md()} text becomes bold and italic
 runs, spanners become spanner rows, footnote marks are placed in the cells
 they annotate, and \code{tab_style()} styles become IR styles.
+}
+\details{
+The converter is moving into gt, as \code{gt::as_ir()}. With \code{emitter = "auto"}
+it is used when the installed gt has it, and gridwell's own copy otherwise,
+or when gt's fails or gives an IR version this gridwell can't read (with a
+warning saying why).
 }
