@@ -84,7 +84,9 @@ today `"auto"` always uses gridwell's.
 | Summary rows (`summary_rows()`, `grand_summary_rows()`) | A group's `summary_rows`, and a last group without a label for the grand summary; a table without a stub gets an empty one for their labels, as in Great Tables. Summary rows on a group's top side are listed after its rows |
 | Title/subtitle | `header` block |
 | Source notes | `footer.source_notes` |
-| Footnotes (`tab_footnote()`) | `footer.footnotes`, the ones Great Tables lists, in its order and with its marks (not yet placed on the cells they annotate) |
+| Footnotes (`tab_footnote()`) | `footer.footnotes`, the ones Great Tables lists, in its order and with its marks; each mark is also on the cell or label it annotates, where Great Tables puts it (with `placement="auto"`, before a number and after anything else) |
+| Styles (`tab_style()`) | Each styled cell's or label's own style (`style_id`), as the CSS Great Tables writes for it, later declarations winning: text, fill, borders and the `style.css()` declarations the IR has. A font size without a unit (`style.text(size=12)`) is in pixels; properties the IR has no equivalent for (`font-stretch`, `letter-spacing`) are dropped |
+| Table options (`tab_options()`, `opt_stylize()`, `opt_row_striping()`) | The options the IR can express, where changed from Great Tables' defaults: the fills (with the text color Great Tables gives them) and font weights of the column labels, row group labels and stub, the summary rows' fills, no lines between body rows, and striping (a conditional style on even rows, of the stub, the body or both). Other options (fonts, sizes, padding, the table's borders) aren't converted yet |
 | `md()` and `html()` labels | Text with bold, italic, underline, strike-through and code runs and line breaks, from the HTML Great Tables makes of them (other markup is dropped and its text kept) |
 | Column alignment | `column_spec[].align` |
 | Column widths | `column_spec[].width` |
