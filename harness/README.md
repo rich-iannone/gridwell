@@ -94,8 +94,8 @@ for gridwell's default HTML; this page measures how close it is.
   table), plus `manifest.json` (case descriptions, the R, gt and gridwell versions
   used, and `ir_emitter`: `"gt"` when the IR came from gt's own `as_ir()`,
   `"gridwell"` from gridwell's copy; `make.R` uses gt's when there is one). The
-  cases are defined in `cases.R`; `make.R` writes the files. Checking them in means
-  the harness image needs no R.
+  cases are the conformance kit's, defined in `conformance/cases.R`; `make.R` writes
+  the files. Checking them in means the harness image needs no R.
 - **Rendering**: both sides are screenshotted in the same Chromium as **bare
   pages**: a UTF-8 doctype wrapper and a page margin, with no harness styling (the
   gallery's HTML previews are rendered the same way). So the gridwell side is what
@@ -123,8 +123,11 @@ R CMD INSTALL r-package
 Rscript harness/gt-reference/make.R
 ```
 
-Add a case by adding an entry to `cases.R` and regenerating. The xtask tests
-check that the manifest and files agree and that gt's HTML is self-contained.
+Then run `python conformance/make.py`: the conformance kit's expected grids are
+made from these files (see `conformance/README.md`). Add a case by adding it to
+`conformance/cases.R` and `conformance/cases.py` and regenerating both reference
+sets. The xtask tests check that the manifest and files agree and that gt's HTML
+is self-contained.
 
 ## Great Tables vs gridwell HTML (report only)
 
@@ -137,9 +140,10 @@ built and scored the same way.
   `as_raw_html()`), `<name>.ir.json` and `manifest.json` (with the Python, Great
   Tables and gridwell versions used, and `ir_emitter`: `"great_tables"` for Great
   Tables' own `GT.as_ir()`, which `make.py` uses when there is one, or
-  `"gridwell"`). The cases in `cases.py` mirror `cases.R`:
-  the same names and tables, so the two pages can be read side by side (an xtask
-  test checks that the names agree). `make.py` writes the files.
+  `"gridwell"`). The cases are in `conformance/cases.py`, which mirrors
+  `conformance/cases.R`: the same names and tables, so the two pages can be read
+  side by side (an xtask test checks that the names agree). `make.py` writes the
+  files.
 - `cargo xtask gt` builds both pages.
 
 Regenerate the references after changing the Great Tables emitter or upgrading
@@ -152,6 +156,7 @@ still come from gridwell's copy):
 ```bash
 maturin develop --release
 python harness/gt-reference-py/make.py
+python conformance/make.py
 ```
 
 ## gridwell HTML vs SVG (report only)
