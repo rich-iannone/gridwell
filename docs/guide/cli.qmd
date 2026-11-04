@@ -127,6 +127,37 @@ Pass writer options with --options '<JSON>'; see `gridwell formats --json`.
 `gridwell formats --json` prints the same list as JSON, including each format's
 extension, media type, and [options](writer-options.qmd) with their defaults.
 
+### `gridwell conformance`
+
+Check a table IR against an expected table, for an emitter's tests (the
+conformance kit is in the repository's `conformance/` directory; see its README).
+Tables are compared as normalized grids, by tiers: L0 valid, L1 structure, L2
+content, L3 styling, each including the ones before.
+
+```bash
+gridwell conformance normalize [--tier <TIER>] [INPUT]
+gridwell conformance check [--tier <TIER>] [--json] <INPUT> <EXPECTED>
+```
+
+`normalize` prints a table's grid (to L3 unless `--tier` says otherwise); an
+invalid table is an error. `check` compares the table's grid with an expected one,
+to the expected grid's tier unless `--tier` asks for less, and exits with code 1
+when it doesn't conform (IR that doesn't parse or validate fails L0). `--json`
+prints the report as JSON.
+
+```{.bash filename="Example output"}
+$ gridwell conformance check table.json conformance/expected/gt/exibble_basic.json
+fails L1 (checked to L3)
+  L0 valid: pass
+  L1 structure: fail (1 difference)
+  L2 content: fail (2 differences)
+  L3 styling: fail
+3 differences:
+  L2 groups[0].rows[0].cells[0].runs[0].text: expected "1.111e-01", got "0.1111"
+  L2 groups[0].rows[0].cells[0].sort_key: expected "1.111e-01", got "0.1111"
+  L1 groups[0].rows[0].cells[0].text: expected "1.111e-01", got "0.1111"
+```
+
 ## Format Values
 
 Format names are case-insensitive. An unknown name is an error that lists the
