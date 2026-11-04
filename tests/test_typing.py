@@ -100,9 +100,12 @@ def test_the_stub_has_the_modules_names():
         for name, node in STUB_TOP.items()
         if not name.startswith("_") and not type_check_only(node)
     }
-    assert public == set(native.__all__)
+    assert public == {n for n in native.__all__ if not n.startswith("_")}
     runtime = {n for n in dir(native) if not n.startswith("_")}
     assert public == runtime
+    # The private functions gridwell.conformance calls.
+    private = {name for name in STUB_TOP if name.startswith("_conformance_")}
+    assert private == {n for n in native.__all__ if n.startswith("_")}
     declared = next(
         n.value for n in STUB.body if isinstance(n, ast.Assign) and n.targets[0].id == "__all__"
     )
@@ -129,7 +132,8 @@ def test_the_exceptions_are_value_errors_in_both():
 
 @pytest.mark.parametrize(
     "path",
-    ["parse_ir", "formats", "Table", "Table.from_gt", "Table.from_json", "Table.from_dict"]
+    ["parse_ir", "formats", "_conformance_normalize", "_conformance_check"]
+    + ["Table", "Table.from_gt", "Table.from_json", "Table.from_dict"]
     + [
         f"Table.{name}"
         for name in ("validate", "warnings", "to_json", "render", "render_binary", "save")
@@ -217,6 +221,9 @@ def test_format_info_describes_formats():
 def docstring_targets():
     yield "module", native, STUB
     for name in ("parse_ir", "formats", "InvalidTableError", "InvalidOptionsError", "Table"):
+        yield name, getattr(native, name), STUB_TOP[name]
+    # Private, for gridwell.conformance; their stubs still say what they are.
+    for name in ("_conformance_normalize", "_conformance_check"):
         yield name, getattr(native, name), STUB_TOP[name]
     for name in sorted(runtime_table_members()):
         yield f"Table.{name}", getattr(native.Table, name), STUB_TABLE.get(name)
@@ -360,6 +367,21 @@ GOOD = """
     assert_type(info["extension"], str)
     problem: ValueError = InvalidTableError("x")
     problem = InvalidOptionsError("x")
+
+    from gridwell.conformance import MISSING, Difference, Report, assert_conforms, check, normalize
+
+    assert_type(normalize(t), dict[str, Any])
+    assert_type(normalize("{}", "L1"), dict[str, Any])
+    report = check({}, Path("grid.json"), "L2")
+    assert_type(report, Report)
+    assert_type(check(t, {"format": "x"}), Report)
+    assert_type(assert_conforms(t, "grid.json", None), Report)
+    assert_type(report.passed, bool)
+    assert_type(report.tier, Literal["L0", "L1", "L2", "L3"])
+    assert_type(report.tiers["L0"], Literal["pass", "fail", "not checked"])
+    assert_type(report.errors, tuple[str, ...])
+    assert_type(report.differences, tuple[Difference, ...])
+    gone = report.differences[0].expected is MISSING
 """
 
 GOOD_GT = """
@@ -370,12 +392,15 @@ GOOD_GT = """
 
     import gridwell
     from gridwell import Table
+    from gridwell.conformance import Report, check, normalize
 
     def convert(gt: GT) -> None:
         assert_type(Table(gt), Table)
         assert_type(Table.from_gt(gt), Table)
         assert_type(gridwell.gt_to_ir(gt), str)
         assert_type(gridwell.gt_to_dict(gt), dict[str, Any])
+        assert_type(normalize(gt), dict[str, Any])
+        assert_type(check(gt, "grid.json"), Report)
         for emitter in ("auto", "upstream", "gridwell"):
             assert_type(gridwell.gt_to_ir(gt, emitter=emitter), str)
             assert_type(gridwell.gt_to_dict(gt, emitter), dict[str, Any])
@@ -411,6 +436,16 @@ BAD = """
     gridwell.parse_ir({})  # E
     Table.from_json({})  # E
     t.nope  # E
+
+    from gridwell.conformance import check, normalize
+
+    normalize(t, "L4")  # E
+    check(t, "grid.json", "l1")  # E
+    check(t, 7)  # E
+    check(t, b"{}")  # E
+    report = check(t, "grid.json")
+    report.passed = False  # E
+    flag: str = report.passed  # E
 """
 
 # Without great_tables, `GT` is unknown (so anything could be one) and these pass.
@@ -419,10 +454,13 @@ BAD_GT = """
 
     import gridwell
     from gridwell import Table
+    from gridwell.conformance import check, normalize
 
     Table(42)  # E
     Table.from_gt("gt")  # E
     gridwell.gt_to_ir("gt")  # E
+    check(42, "grid.json")  # E
+    normalize(b"{}")  # E
 
     def convert(gt: GT) -> None:
         gridwell.gt_to_ir(gt, emitter="great_tables")  # E
