@@ -146,12 +146,25 @@ test_that("the gt reference IR in harness/gt-reference is up to date", {
     suppressPackageStartupMessages(library(gt))
     sys.source(file.path(ref_dir, "cases.R"), envir = env)
     expect_setequal(names(env$cases), vapply(manifest$cases, `[[`, "", "name"))
+    # The emitter that wrote the reference IR: gt's own or gridwell's copy.
+    emitter <- c(gt = "upstream", gridwell = "gridwell")[[manifest$ir_emitter]]
     for (name in names(env$cases)) {
-        ir <- as.character(gt_to_ir(env$cases[[name]]$build()))
+        ir <- as.character(gt_to_ir(env$cases[[name]]$build(), emitter = emitter))
         stored <- paste(readLines(file.path(ref_dir, paste0(name, ".ir.json")), encoding = "UTF-8"),
                         collapse = "\n")
         expect_identical(ir, stored, label = paste(name, "IR (regenerate with make.R)"))
     }
+})
+
+test_that("the gt reference IR uses gt's own emitter once there is one", {
+    # make.R uses it when there is one; references made before need regenerating
+    # (with any gt version: the first with `as_ir()` is a newer one).
+    ref_dir <- file.path(testthat::test_path(), "..", "..", "..", "harness", "gt-reference")
+    skip_if_not(dir.exists(ref_dir), "not in a source checkout")
+    manifest <- jsonlite::fromJSON(file.path(ref_dir, "manifest.json"), simplifyVector = FALSE)
+    upstream <- !is.null(gridwell:::.gw_upstream_emitter())
+    expect_identical(manifest$ir_emitter, if (upstream) "gt" else "gridwell",
+                     label = "the emitter in manifest.json (regenerate with make.R)")
 })
 
 # ---- Summary rows, table options, missing values ----
