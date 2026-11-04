@@ -19,7 +19,8 @@ pytest.importorskip("great_tables")
 import gridwell
 from gridwell._gt import has_upstream
 
-REF_DIR = Path(__file__).resolve().parent.parent / "harness" / "gt-reference-py"
+ROOT = Path(__file__).resolve().parent.parent
+REF_DIR = ROOT / "harness" / "gt-reference-py"
 
 if not (REF_DIR / "manifest.json").exists():
     pytest.skip("not in a source checkout", allow_module_level=True)
@@ -27,7 +28,7 @@ if not (REF_DIR / "manifest.json").exists():
 
 def _cases() -> dict:
     sys.dont_write_bytecode = True  # no __pycache__ in the source tree
-    spec = importlib.util.spec_from_file_location("gt_reference_cases", REF_DIR / "cases.py")
+    spec = importlib.util.spec_from_file_location("gt_reference_cases", ROOT / "conformance" / "cases.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module.cases
