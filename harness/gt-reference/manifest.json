@@ -3,6 +3,7 @@
   "r_version": "4.2.3",
   "gt_version": "1.4.0",
   "gridwell_version": "0.1.0",
+  "ir_emitter": "gridwell",
   "cases": [
     {
       "name": "demographics",
