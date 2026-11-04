@@ -431,8 +431,92 @@ def test_md_notes_are_their_text_not_the_objects_repr():
     from great_tables import md
 
     gt_obj = GT(exibble[["num"]].head(1)).tab_source_note(md("Source *two*."))
-    note = gridwell.gt_to_dict(gt_obj)["footer"]["source_notes"][0]["content"][0]["value"]
-    assert "two" in note and "Md(" not in note and "Text(" not in note
+    content = gridwell.gt_to_dict(gt_obj)["footer"]["source_notes"][0]["content"]
+    note = "".join(node["value"] for node in content)
+    assert note == "Source two." and "Md(" not in note and "Text(" not in note
+
+
+def runs(ir, content):
+    """Content nodes as (text, style definition) pairs; a line break is ("\\n", None)."""
+    defs = ir["styles"]["defs"]
+    return [
+        ("\n", None) if n["type"] == "line_break"
+        else (n["value"], defs[n["style_id"]] if n["type"] == "styled_text" else None)
+        for n in content
+    ]
+
+
+def test_labels_are_styled_runs_as_great_tables_draws_them():
+    from great_tables import html, loc, md
+
+    gt_obj = (
+        GT(exibble[["num", "char", "group"]].head(2), groupname_col="group")
+        .tab_header(title=md("A *b* **c** ***d***"), subtitle=html("x<br>y <code>z</code>"))
+        .cols_label(num=md("**Num**"), char="<b>not bold</b> & *not md*")
+        .tab_spanner(html("<i>Span</i>"), ["num", "char"])
+        .tab_footnote(md("Note *one*"), locations=loc.title())
+        .tab_source_note(html("<p>Para one</p>\n<p>Para <b><i>two</i></b></p><script>x()</script>"))
+        .tab_source_note(html("A&nbsp;B &amp; C&#x2014;D <u>u</u> <del>d</del>"))
+        # A stray end tag closes nothing; runs of one style are one run.
+        .tab_source_note(html("<br> <b>a</i>b</b>c<span>d</span> <br>"))
+    )
+    ir = gridwell.gt_to_dict(gt_obj)
+    bold, italic = {"font_weight": "bold"}, {"font_style": "italic"}
+    both = {"font_style": "italic", "font_weight": "bold"}
+    assert runs(ir, ir["header"]["title"]["content"]) == [
+        ("A ", None), ("b", italic), (" ", None), ("c", bold), (" ", None), ("d", both)
+    ]
+    assert runs(ir, ir["header"]["subtitle"]["content"]) == [
+        ("x", None), ("\n", None), ("y ", None), ("z", {"font_family": "monospace"})
+    ]
+    head = ir["table"]["thead"]["rows"]
+    assert runs(ir, head[0]["cells"][0]["content"]) == [("Span", italic)]
+    assert (head[0]["cells"][0]["colspan"], head[0]["cells"][0]["scope"]) == (2, "colgroup")
+    labels = [runs(ir, c["content"]) for c in head[1]["cells"]]
+    # A plain string is text as it is, not markup.
+    assert labels == [[("Num", bold)], [("<b>not bold</b> & *not md*", None)]]
+    assert ir["column_spec"][0]["label"] == "Num"
+    footer = ir["footer"]
+    assert runs(ir, footer["footnotes"][0]["content"]) == [("Note ", None), ("one", italic)]
+    notes = [runs(ir, n["content"]) for n in footer["source_notes"]]
+    assert notes == [
+        [("Para one", None), ("\n", None), ("Para ", None), ("two", both)],
+        [("A\xa0B & C—D ", None), ("u", {"text_decoration": "underline"}), (" ", None),
+         ("d", {"text_decoration": "line-through"})],
+        [("ab", bold), ("cd", None)],
+    ]
+    # One definition per distinct style, numbered as the R emitter's.
+    ids = [n["style_id"] for part in (ir["header"]["title"], *footer["source_notes"])
+           for n in part["content"] if n["type"] == "styled_text"]
+    assert ids[:3] == ["gw_1", "gw_2", "gw_3"] and ids[3] == "gw_3"
+    gw = {k: v for k, v in ir["styles"]["defs"].items() if k.startswith("gw_")}
+    assert len(gw) == len({json.dumps(v, sort_keys=True) for v in gw.values()}) == 6
+    table = gridwell.Table(json.dumps(ir))
+    assert table.validate() == []
+    for fmt in TEXT_FORMATS:
+        # (Pandoc's AST, which Quarto's is too, has a node per word.)
+        assert ('"one"' if fmt in ("pandoc", "quarto") else "Para one") in table.render(fmt), fmt
+
+
+def test_summary_rows_get_a_stub_when_the_table_has_none():
+    gt_obj = GT(exibble[["num", "currency"]].head(3)).grand_summary_rows(
+        fns={"Sum": lambda x: x.sum(numeric_only=True)}
+    )
+    ir = gridwell.gt_to_dict(gt_obj)
+    assert ir["config"]["stub_cols"] == 1
+    assert [c["label"] for c in ir["column_spec"]] == ["", "num", "currency"]
+    groups = ir["table"]["tbody"]
+    data = groups[0]["rows"][0]["cells"]
+    assert (data[0]["content"], data[0]["is_stub"]) == ([], True)
+    assert groups[-1]["group_id"] is None and groups[-1]["rows"] == []
+    (grand,) = groups[-1]["summary_rows"]
+    assert grand["role"] == "grand_summary_row"
+    stub, *values = grand["cells"]
+    assert runs(ir, stub["content"]) == [("Sum", None)]
+    assert (stub["is_stub"], stub["scope"]) == (True, "row")
+    assert [c["is_stub"] for c in values] == [False, False]
+    assert all(c["content"] for c in values)
+    assert gridwell.Table(json.dumps(ir)).validate() == []
 
 
 def test_table_takes_a_gt_directly():
