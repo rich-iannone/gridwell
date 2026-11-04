@@ -114,9 +114,13 @@ another version can format values differently.
   (L1); the Python tests check the reference IR and, with the Great Tables
   version in the manifest, the cases live from `cases.py`. They also check more
   tables (markup in labels, spanner levels, summary rows without a stub) against
-  what `html_grid.py` reads off Great Tables' HTML. L2 and L3 wait on emitter
-  gaps (footnote marks in cells, `tab_style()` per cell): grids made from the
-  emitter now would say those gaps are right.
+  what `html_grid.py` reads off Great Tables' HTML. The emitter now places
+  footnote marks in cells and styles each cell as `tab_style()` and the table
+  options say, as the gt emitter does (the Python tests check both against
+  Great Tables' HTML). L2 and L3 grids still wait on two gaps: stub cells in data
+  rows have no `scope` (Great Tables writes `scope="row"`), and `fmt_*()` output
+  that is HTML (`fmt_markdown()`, `fmt_image()`, nanoplots) is put in a cell as
+  text. Grids made from the emitter now would say those gaps are right.
 
 ## Regenerating
 
