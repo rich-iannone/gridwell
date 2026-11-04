@@ -91,9 +91,11 @@ for gridwell's default HTML; this page measures how close it is.
 
 - **Inputs** (committed): `harness/gt-reference/<name>.gt.html` (gt's
   `as_raw_html(inline_css = FALSE)`) and `<name>.ir.json` (`gt_to_ir()` of the same
-  table), plus `manifest.json` (case descriptions and the R, gt and gridwell
-  versions used). The cases are defined in `cases.R`; `make.R` writes the files.
-  Checking them in means the harness image needs no R.
+  table), plus `manifest.json` (case descriptions, the R, gt and gridwell versions
+  used, and `ir_emitter`: `"gt"` when the IR came from gt's own `as_ir()`,
+  `"gridwell"` from gridwell's copy; `make.R` uses gt's when there is one). The
+  cases are defined in `cases.R`; `make.R` writes the files. Checking them in means
+  the harness image needs no R.
 - **Rendering**: both sides are screenshotted in the same Chromium as **bare
   pages**: a UTF-8 doctype wrapper and a page margin, with no harness styling (the
   gallery's HTML previews are rendered the same way). So the gridwell side is what
@@ -112,7 +114,9 @@ open harness/gallery/gt.html
 
 Regenerate the references after changing the gt emitter or upgrading gt, from
 the repository root (the R tests fail if the checked-in IR no longer matches
-`gt_to_ir()`, when run with the gt version in the manifest):
+`gt_to_ir()` with the manifest's emitter, when run with the gt version in the
+manifest; they also fail once gt has `as_ir()` while the references still come from
+gridwell's copy):
 
 ```bash
 R CMD INSTALL r-package
@@ -131,7 +135,9 @@ built and scored the same way.
 
 - **Inputs** (committed): `harness/gt-reference-py/<name>.gt.html` (Great Tables'
   `as_raw_html()`), `<name>.ir.json` and `manifest.json` (with the Python, Great
-  Tables and gridwell versions used). The cases in `cases.py` mirror `cases.R`:
+  Tables and gridwell versions used, and `ir_emitter`: `"great_tables"` for Great
+  Tables' own `GT.as_ir()`, which `make.py` uses when there is one, or
+  `"gridwell"`). The cases in `cases.py` mirror `cases.R`:
   the same names and tables, so the two pages can be read side by side (an xtask
   test checks that the names agree). `make.py` writes the files.
 - `cargo xtask gt` builds both pages.
@@ -139,7 +145,9 @@ built and scored the same way.
 Regenerate the references after changing the Great Tables emitter or upgrading
 Great Tables, in an environment with the development gridwell, `great_tables` and
 `pandas` installed (the Python tests fail if the checked-in IR no longer matches
-`gt_to_ir()`, when run with the Great Tables version in the manifest):
+`gt_to_ir()` with the manifest's emitter, when run with the Great Tables version in
+the manifest; they also fail once Great Tables has `GT.as_ir()` while the references
+still come from gridwell's copy):
 
 ```bash
 maturin develop --release
