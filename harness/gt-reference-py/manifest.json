@@ -3,6 +3,7 @@
   "python_version": "3.13.12",
   "great_tables_version": "1.1.0",
   "gridwell_version": "0.1.0",
+  "ir_emitter": "gridwell",
   "cases": [
     {
       "name": "demographics",
