@@ -8,11 +8,17 @@ Every error carries a rule id, a location (section, row group, row, column), and
 message. Rule ids are the strings below, both in `Display` output (`[COL_COUNT] …`)
 and when errors are serialized.
 
+## Version
+
+| Rule | Description |
+|------|-------------|
+| `IR_VERSION` | `ir_version` isn't `MAJOR.MINOR` (ASCII digits, as in `"1.0"`), or its major version isn't 1, the one this gridwell reads. Checked first. A newer minor version (`"1.3"`) is valid, with a [warning](#a-newer-minor-version); see [Versions](index.qmd#versions) |
+
 ## Limits
 
 | Rule | Description |
 |------|-------------|
-| `LIMIT_EXCEEDED` | `config.table_cols` > 16,384, a section has more than 1,048,576 rows, or the table has more than 50 million cells. Checked first; the other checks are skipped when a limit is exceeded. Limits are configurable from Rust (`validate_with_limits`). |
+| `LIMIT_EXCEEDED` | `config.table_cols` > 16,384, a section has more than 1,048,576 rows, or the table has more than 50 million cells. Checked after the version; the other checks are skipped when a limit is exceeded. Limits are configurable from Rust (`validate_with_limits`). |
 
 ## Structural Rules
 
@@ -136,6 +142,15 @@ Each error includes the rule name, location, and a human-readable message:
 [SPAN_PLACEHOLDER_HAS_CONTENT] placeholder cell at (row=2, col=1) has non-empty content
 [INVALID_LENGTH] column_spec[1].width is "-5px", which is not valid here: it is negative (expected a non-negative length (px, pt, em, rem, in, cm, mm), or a percentage, or a fraction (fr), or auto)
 [INVALID_LANG] config.lang is "fr_CA", which is not a language tag: subtags are separated by `-`, not `_` (fr-CA, not fr_CA)
+[IR_VERSION] ir_version is "2.0", IR 2, and this gridwell reads only IR 1.x (a newer gridwell may read it)
+```
+
+When the table is of a newer minor version, the errors end with a note: an error may
+be something that version added (a keyword value this gridwell doesn't know is
+`UNKNOWN_VALUE`).
+
+```text
+(the table is IR 1.3, newer than the IR 1.0 this gridwell reads: an error may be something a newer IR version added)
 ```
 
 ## Warnings
@@ -145,7 +160,7 @@ align one cell to the bottom of its row, and Typst has no double borders. The wr
 then draws something close, and you can ask for a **warning** first. A warning
 doesn't fail validation or stop rendering.
 
-Each warning has the rule id `UNSUPPORTED_FEATURE`, the format, the feature (named as
+Each warning for a feature has the rule id `UNSUPPORTED_FEATURE`, the format, the feature (named as
 in the [feature matrix](../guide/feature-matrix.qmd), or for a format's own limits, as
 below), where the table uses it (the first place, and how many others), and what the
 writer draws instead:
@@ -180,6 +195,19 @@ Places count from 1: `the title`, `the subtitle`, `header line 1`,
 the IR (the head, or a group's rows or summary rows), and a column within
 `column_spec`, hidden columns included. A cell in a hidden column isn't drawn, so it
 isn't warned for.
+
+### A newer minor version
+
+A table of a newer minor IR version than this gridwell reads renders, leaving out what
+that version added. It is warned for first, for any format, with the rule id
+`NEWER_IR_VERSION`:
+
+```text
+[NEWER_IR_VERSION] the table is IR 1.3, newer than the IR 1.0 this gridwell reads: anything a newer IR version added is left out (a newer gridwell may render it)
+```
+
+Python and R also warn when they parse such a table (a `UserWarning`, an R
+`warning()`).
 
 Warnings are for a valid table: asking for them for an invalid one is the same error
 rendering it would be.
