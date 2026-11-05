@@ -40,32 +40,17 @@ def build_ir(gt_obj: GT) -> dict[str, Any]:
     str_orig = cast_frame_to_string(built._tbl_data)
     tbl_data = replace_null_frame(built._body.body, str_orig)
 
-    # Column info
-    visible_cols = built._boxhead._get_default_columns()
-    stub_col_info = built._boxhead._get_stub_column()
-    has_stub = stub_col_info is not None
-
-    # Summary rows need a stub for their labels: Great Tables adds one when the
-    # table has none (empty in the data rows), and so does the IR.
-    summaries = _has_summaries(built)
-    if not has_stub and summaries:
-        stub_col_info = SimpleNamespace(
-            var=_SUMMARY_STUB, column_label="", column_align="left", column_width=None
-        )
-        has_stub = True
-
-    # All display columns (stub first if present, then data columns)
-    all_cols = []
-    if has_stub:
-        all_cols.append(stub_col_info)
-    all_cols.extend(visible_cols)
-
-    n_cols = len(all_cols)
-    stub_cols = 1 if has_stub else 0
-
     # Row grouping
     group_rows = built._stub.group_rows if hasattr(built._stub, "group_rows") else None
     has_groups = group_rows is not None and len(group_rows) > 0
+
+    # Column info: the stub columns (`_Stub`), then the data columns
+    visible_cols = built._boxhead._get_default_columns()
+    stub = _stub_layout(built, has_groups)
+    all_cols = stub.cols + list(visible_cols)
+
+    n_cols = len(all_cols)
+    stub_cols = len(stub.cols)
 
     # Styled text runs (from markdown or HTML labels), `tab_style()` styles and
     # table options register their styles here.
@@ -74,20 +59,20 @@ def build_ir(gt_obj: GT) -> dict[str, Any]:
     decor = _Decor(built, shown_footnotes, registry)
 
     # Build column_spec
-    column_spec = _build_column_spec(all_cols, has_stub)
+    column_spec = _build_column_spec(all_cols, stub_cols)
 
     # Build header
     header = _build_header(built._heading, decor)
 
     # Build thead
-    thead = _build_thead(all_cols, has_stub, built, decor)
+    thead = _build_thead(all_cols, stub, built, decor)
 
     # Build config
     n_body_rows = len(tbl_data)
     config = _build_config(n_cols, len(thead["rows"]), n_body_rows, stub_cols, built)
 
     # Build tbody (with row groups)
-    tbody = _build_tbody(tbl_data, all_cols, built, has_stub, has_groups, group_rows, decor)
+    tbody = _build_tbody(tbl_data, all_cols, built, stub, has_groups, group_rows, decor)
 
     # Build footer
     footer = _build_footer(built, shown_footnotes, decor)
@@ -166,14 +151,75 @@ def _is_rtl(lang: str) -> bool:
     return subtags[0].lower() in _RTL_LANGUAGES
 
 
-def _build_column_spec(all_cols: list, has_stub: bool) -> list[dict]:
-    """Build column_spec array from ColInfo objects."""
+class _Stub:
+    """The table's stub columns, as Great Tables lays them out: the row group
+    column (`row_group_as_column=True`), then the stub columns, outermost first
+    (a hierarchical stub, `rowname_col=[...]`, has several), the primary last."""
+
+    def __init__(self, group: Any, rows: list[Any]):
+        self.group = group
+        self.rows = rows
+
+    @property
+    def cols(self) -> list[Any]:
+        return ([self.group] if self.group is not None else []) + self.rows
+
+    @property
+    def primary(self) -> Any:
+        return self.rows[-1] if self.rows else None
+
+
+def _stub_layout(built: Any, has_groups: bool) -> _Stub:
+    """The stub columns Great Tables draws (its `_get_stub_layout()`).
+
+    Summary rows need a stub for their labels: Great Tables adds one when the
+    table has none (empty in the data rows), and so does the IR. With a row group
+    column and no stub, it adds none: the summary labels are in the group column
+    (Great Tables puts a group's there too, a cell more than the table has)."""
+    boxhead = built._boxhead
+    get_stub_columns = getattr(boxhead, "_get_stub_columns", None)
+    if callable(get_stub_columns):
+        rows = list(get_stub_columns())
+    else:
+        rows = [c for c in [boxhead._get_stub_column()] if c is not None]
+    summaries = _has_summaries(built)
+    try:
+        layout = built._stub._get_stub_layout(
+            has_summary_rows=summaries, options=built._options, boxhead=boxhead
+        )
+    except (AttributeError, TypeError):
+        layout = ["rowname"] if rows or summaries else []
+
+    group = None
+    if "group_label" in layout and has_groups:
+        get_group = getattr(boxhead, "_get_row_group_column", None)
+        found = get_group() if callable(get_group) else None
+        group = SimpleNamespace(
+            var=getattr(found, "var", None) or _GROUP_STUB,
+            column_label=getattr(found, "column_label", None),
+            column_align="left",
+            column_width=getattr(found, "column_width", None),
+        )
+    if not rows and "rowname" in layout:
+        rows = [
+            SimpleNamespace(var=_SUMMARY_STUB, column_label="", column_align="left", column_width=None)
+        ]
+    return _Stub(group, rows)
+
+
+# The group column's id when Great Tables has no column for the groups.
+_GROUP_STUB = "::group::"
+
+
+def _build_column_spec(all_cols: list, n_stub: int) -> list[dict]:
+    """Build column_spec array from ColInfo objects. The stub columns are
+    left-aligned, as Great Tables draws them whatever their data."""
     specs = []
     for i, col in enumerate(all_cols):
         label = _plain(col.column_label) if col.column_label else ""
         specs.append({
             "id": col.var,
-            "align": col.column_align or "left",
+            "align": "left" if i < n_stub else col.column_align or "left",
             "align_char": None,
             "width": col.column_width or "auto",
             "min_width": None,
@@ -226,28 +272,46 @@ def _head_cell(
     }
 
 
-def _build_thead(all_cols: list, has_stub: bool, built: Any, decor: _Decor) -> dict:
+def _build_thead(all_cols: list, stub: _Stub, built: Any, decor: _Decor) -> dict:
     """Build the thead section: spanner rows (the top level first), then the column labels.
 
-    The stub column's label is the stubhead's (`tab_stubhead()`), blank without
-    one, as Great Tables shows it. The table options for the column labels (fill,
+    The stub columns' label is the stubhead's (`tab_stubhead()`), blank without
+    one, across all of them and left-aligned, as Great Tables shows it; given a label for each
+    stub column, each has its own (and a row group column a blank one), the
+    first with the footnote marks. The table options for the column labels (fill,
     weight) style every head row, under any `tab_style()` on the cells.
     """
+    n_stub = len(stub.cols)
     cells = []
-    for i, col in enumerate(all_cols):
-        if has_stub and i == 0:
-            label = _stubhead_label(built._stubhead)
-            notes = decor.notes("LocStubhead")
-            styles = decor.styles("LocStubhead")
-        else:
-            label = col.column_label if col.column_label else col.var
-            notes = decor.notes("LocColumnLabels", lambda x, var=col.var: x.colname == var)
-            styles = decor.styles("LocColumnHeader") + decor.styles(
-                "LocColumnLabels", lambda x, var=col.var: x.colname == var
+    if n_stub:
+        labels = _stubhead_labels(built._stubhead, len(stub.rows))
+        notes = decor.notes("LocStubhead")
+        style_id = decor.style_id(decor.styles("LocStubhead"))
+        if len(labels) == 1:
+            # Left-aligned across the stub, where a cell across columns is centered.
+            across = decor.style_id(
+                decor.styles("LocStubhead"), {"text_align": "left"} if n_stub > 1 else {}
             )
+            cells.append(
+                _head_cell(decor.with_marks(labels[0], notes), colspan=n_stub, style_id=across)
+            )
+            cells.extend(_head_cell([], is_placeholder=True) for _ in range(n_stub - 1))
+        else:
+            if stub.group is not None:
+                cells.append(_head_cell([], style_id=style_id))
+            for k, label in enumerate(labels):
+                cells.append(
+                    _head_cell(decor.with_marks(label, notes if k == 0 else []), style_id=style_id)
+                )
+    for col in all_cols[n_stub:]:
+        label = col.column_label if col.column_label else col.var
+        notes = decor.notes("LocColumnLabels", lambda x, var=col.var: x.colname == var)
+        styles = decor.styles("LocColumnHeader") + decor.styles(
+            "LocColumnLabels", lambda x, var=col.var: x.colname == var
+        )
         cells.append(_head_cell(decor.with_marks(label, notes), style_id=decor.style_id(styles)))
 
-    rows = _spanner_rows(all_cols, has_stub, built, decor, cells)
+    rows = _spanner_rows(all_cols, n_stub, built, decor, cells)
     rows.append({
         "role": "column_label",
         "style_id": None,
@@ -258,22 +322,25 @@ def _build_thead(all_cols: list, has_stub: bool, built: Any, decor: _Decor) -> d
     return {"rows": rows}
 
 
-def _stubhead_label(stubhead: Any) -> Any:
-    """The stubhead's label, or "" when there is none."""
+def _stubhead_labels(stubhead: Any, n_rows: int) -> list[Any]:
+    """The stubhead's labels: one across the stub ("" when there is none), or one
+    per stub column when `tab_stubhead()` was given a label for each."""
     if isinstance(stubhead, list):
+        if 1 < len(stubhead) == n_rows:
+            return list(stubhead)
         stubhead = stubhead[0] if stubhead else None
-    return "" if stubhead is None else stubhead
+    return ["" if stubhead is None else stubhead]
 
 
 def _spanner_rows(
-    all_cols: list, has_stub: bool, built: Any, decor: _Decor, label_cells: list[dict]
+    all_cols: list, n_stub: int, built: Any, decor: _Decor, label_cells: list[dict]
 ) -> list:
     """One spanner row per spanner level, the top level first, as Great Tables
     draws them: a spanner covers a run of adjacent columns with the same label,
     followed by placeholder cells. In the lowest spanner row each column without
     a spanner is a blank cell of its own (the label row's cell reaches up to it in
-    Great Tables' HTML); in the rows above, adjacent columns without a spanner
-    share one blank cell.
+    Great Tables' HTML), and so is each stub column; in the rows above, adjacent
+    columns without a spanner share one blank cell, and the stub columns do.
 
     A spanner's styles and footnotes are found by its id. A blank cell has the
     column headings' styles (`loc.column_header()`), as Great Tables' blank cells
@@ -288,7 +355,7 @@ def _spanner_rows(
     id_levels, _ = spanners_print_matrix(
         spanners=built._spanners, boxhead=built._boxhead, ids=True, omit_columns_row=True
     )
-    offset = 1 if has_stub else 0
+    offset = n_stub
     data_vars = [col.var for col in all_cols[offset:]]
     header_styles = decor.styles("LocColumnHeader")
 
@@ -296,15 +363,23 @@ def _spanner_rows(
         fill = decor.registry.get(cell["style_id"]).get("background_color")
         return decor.style_id([], {"background_color": fill} if fill else {})
 
+    # The stubhead cell above each stub column (a placeholder's is the one across the stub).
+    stubhead = [
+        label_cells[0] if label_cells[k]["is_placeholder"] else label_cells[k]
+        for k in range(n_stub)
+    ]
+
     rows = []
     for level, (by_var, ids_by_var) in enumerate(zip(levels, id_levels)):
         lowest = level == len(levels) - 1
         labels = [by_var.get(var) for var in data_vars]
         ids = [ids_by_var.get(var) for var in data_vars]
         cells = []
-        if has_stub:
-            stub_style = reached(label_cells[0]) if lowest else decor.style_id(header_styles)
-            cells.append(_head_cell([], style_id=stub_style))
+        if n_stub and lowest:
+            cells.extend(_head_cell([], style_id=reached(cell)) for cell in stubhead)
+        elif n_stub:
+            cells.append(_head_cell([], colspan=n_stub, style_id=decor.style_id(header_styles)))
+            cells.extend(_head_cell([], is_placeholder=True) for _ in range(n_stub - 1))
         j = 0
         while j < len(labels):
             label, span_id = labels[j], ids[j]
@@ -344,62 +419,122 @@ def _build_tbody(
     tbl_data: pd.DataFrame,
     all_cols: list,
     built: Any,
-    has_stub: bool,
+    stub: _Stub,
     has_groups: bool,
     group_rows: Any,
     decor: _Decor,
 ) -> list[dict]:
     """Build the tbody section with row groups, then the grand summary (as a group
     of summary rows alone). Data rows are counted across groups, for striping, as
-    Great Tables counts them."""
-    grand = _summary_rows(built._summary_rows_grand, None, all_cols, "grand_summary_row", decor)
+    Great Tables counts them.
+
+    With a row group column, a group's label is the cell in that column of its
+    first row, spanning its data rows (the IR has no span from a group's rows
+    into its summary rows), and the group has no label of its own."""
+    grand = _summary_rows(
+        built._summary_rows_grand, None, all_cols, stub, "grand_summary_row", decor
+    )
     grand_group = (
         [{"group_id": None, "label": None, "rows": [], "summary_rows": grand}] if grand else []
     )
     if has_groups and group_rows:
-        groups = []
-        shown = 0
-        for grp in group_rows:
-            rows = []
-            for idx in grp.indices:
-                row = _build_row(tbl_data, int(idx), shown, all_cols, built, has_stub, decor)
-                rows.append(row)
-                shown += 1
-
-            groups.append({
-                "group_id": grp.group_id,
-                "label": _group_label(grp, decor),
-                "rows": rows,
-                "summary_rows": _summary_rows(
-                    built._summary_rows, grp.group_id, all_cols, "summary_row", decor
-                ),
-            })
-        return groups + grand_group
+        listed = [(grp, [int(idx) for idx in grp.indices]) for grp in group_rows]
     else:
-        # Single group with all rows
+        listed = [(None, list(range(len(tbl_data))))]
+    spans = _stub_spans(tbl_data, stub, listed)
+
+    groups = []
+    shown = 0
+    for grp, indices in listed:
+        group_cell = None
+        if grp is not None and stub.group is not None:
+            group_cell = _group_cell(grp, len(indices), shown, decor)
         rows = []
-        for idx in range(len(tbl_data)):
-            row = _build_row(tbl_data, idx, idx, all_cols, built, has_stub, decor)
-            rows.append(row)
-        return [{
-            "group_id": None,
-            "label": None,
+        for k, idx in enumerate(indices):
+            lead = None
+            if group_cell is not None:
+                lead = group_cell if k == 0 else _body_placeholder(is_stub=True)
+            rows.append(
+                _build_row(tbl_data, idx, shown, all_cols, built, stub, decor, spans[shown], lead)
+            )
+            shown += 1
+        if grp is None:
+            groups.append({"group_id": None, "label": None, "rows": rows, "summary_rows": []})
+            continue
+        groups.append({
+            "group_id": grp.group_id,
+            "label": None if group_cell is not None else _group_label(grp, decor),
             "rows": rows,
-            "summary_rows": [],
-        }] + grand_group
+            "summary_rows": _summary_rows(
+                built._summary_rows, grp.group_id, all_cols, stub, "summary_row", decor,
+                group_style=None if group_cell is None else group_cell["style_id"],
+            ),
+        })
+    return groups + grand_group
+
+
+def _stub_spans(
+    tbl_data: pd.DataFrame, stub: _Stub, listed: list[tuple[Any, list[int]]]
+) -> list[list[tuple[int, list[int]]]]:
+    """For each data row as shown, each stub column's (rowspan, rows covered): a
+    rowspan of 0 for a cell covered by one above.
+
+    In a hierarchical stub, as Great Tables merges it: an outer column's cells
+    merge across adjacent rows of a group with the same text in that column and
+    every column to its left. The primary column's never do."""
+    order = [(idx, k) for k, (_, indices) in enumerate(listed) for idx in indices]
+    names = [col.var for col in stub.rows]
+    spans = [[(1, [idx]) for _ in names] for idx, _ in order]
+    if len(names) < 2:
+        return spans
+    values = [[str(tbl_data[var].iloc[idx]) for var in names] for idx, _ in order]
+    for level in range(len(names) - 1):
+        start = 0
+        for j in range(1, len(order) + 1):
+            if (
+                j < len(order)
+                and order[j][1] == order[start][1]
+                and values[j][: level + 1] == values[start][: level + 1]
+            ):
+                continue
+            spans[start][level] = (j - start, [order[t][0] for t in range(start, j)])
+            for t in range(start + 1, j):
+                spans[t][level] = (0, [])
+            start = j
+    return spans
+
+
+def _body_placeholder(is_stub: bool) -> dict:
+    """A body cell covered by a span."""
+    return {
+        "content": [],
+        "colspan": 1,
+        "rowspan": 1,
+        "style_id": None,
+        "is_stub": is_stub,
+        "is_placeholder": True,
+        "scope": None,
+        "data_type": None,
+        "sort_key": None,
+    }
+
+
+def _group_label_of(grp: Any) -> Any:
+    """A row group's label as Great Tables shows it: HTML when a `groupname_col`
+    formatter made it, else its id."""
+    label = grp.group_label
+    if label is None:
+        return grp.group_id
+    return _HtmlLabel(label) if isinstance(label, str) else label
 
 
 def _group_label(grp: Any, decor: _Decor) -> dict | None:
-    """A row group's label: its label as Great Tables shows it (HTML when a
-    `groupname_col` formatter made it), else its id. The table options for group
+    """A row group's label (`_group_label_of`). The table options for group
     labels (fill, weight) are under any `tab_style()` on it."""
-    label = grp.group_label
-    if label is None:
-        label = grp.group_id
-    elif isinstance(label, str):
-        label = _HtmlLabel(label)
     gid = grp.group_id
-    content = decor.with_marks(label, decor.notes("LocRowGroups", lambda x: x.grpname == gid))
+    content = decor.with_marks(
+        _group_label_of(grp), decor.notes("LocRowGroups", lambda x: x.grpname == gid)
+    )
     if not content:
         return None
     styles = decor.styles("LocRowGroups", lambda x: x.grpname is not None and gid in x.grpname)
@@ -407,6 +542,29 @@ def _group_label(grp: Any, decor: _Decor) -> dict | None:
         "content": content,
         "style_id": decor.style_id(styles, decor.options.group_label),
         "colspan": None,
+    }
+
+
+def _group_cell(grp: Any, n_rows: int, shown: int, decor: _Decor) -> dict:
+    """A row group's label in the row group column, the cell of its first data
+    row (the `shown`-th shown) spanning its `n_rows` rows. Its styles are the
+    group label's, under the table options for the row group column (not the
+    group labels' or the stub's), and it isn't striped, as Great Tables draws it."""
+    gid = grp.group_id
+    content = decor.with_marks(
+        _group_label_of(grp), decor.notes("LocRowGroups", lambda x: x.grpname == gid)
+    )
+    styles = decor.styles("LocRowGroups", lambda x: x.grpname is not None and gid in x.grpname)
+    return {
+        "content": content,
+        "colspan": 1,
+        "rowspan": n_rows,
+        "style_id": decor.style_id(styles, decor.options.group_cell(shown)),
+        "is_stub": True,
+        "is_placeholder": False,
+        "scope": "rowgroup",
+        "data_type": None,
+        "sort_key": None,
     }
 
 
@@ -421,17 +579,29 @@ def _has_summaries(built: Any) -> bool:
 
 
 def _summary_rows(
-    summaries: Any, group_id: str | None, all_cols: list, role: str, decor: _Decor
+    summaries: Any,
+    group_id: str | None,
+    all_cols: list,
+    stub: _Stub,
+    role: str,
+    decor: _Decor,
+    group_style: str | None = None,
 ) -> list[dict]:
     """A group's summary rows (the grand summary's for `group_id=None`): the label
-    in the stub, then the text Great Tables shows for each column. Summary rows
-    on a group's top side (`side="top"`) are listed with the others: the IR has
-    summary rows only after a group's data rows.
+    across the stub, then the text Great Tables shows for each column. Summary
+    rows on a group's top side (`side="top"`) are listed with the others: the IR
+    has summary rows only after a group's data rows.
+
+    With a row group column, a group's summary label is across the other stub
+    columns, as Great Tables draws it under the group's label; the group column
+    is an empty cell there, styled as the group's label (`group_style`), since
+    the IR has no span from a group's rows into its summary rows. A grand
+    summary label is across the whole stub, the group column too.
 
     Styles and footnotes are found as Great Tables finds them: by the row's index
     among its group's rows on the same side (a grand summary row's among all of
     them, the top ones first), and a footnote also by its group (a style isn't).
-    The stub cell has the stub's table options under the row's, as Great Tables
+    The label has the stub's table options under the row's, as Great Tables
     draws it."""
     if not summaries:
         return []
@@ -442,6 +612,10 @@ def _summary_rows(
     )
     row_style = decor.options.grand_summary_row if grand else decor.options.summary_row
     n_top = sum(getattr(s, "side", "bottom") == "top" for s in found)
+    # The table has a stub (one is added for summary rows when it has none).
+    n_stub = len(stub.cols)
+    first = 1 if stub.group is not None and stub.rows and not grand else 0
+    label_var = all_cols[first].var
     rows = []
     for k, summary in enumerate(found):
         index = k if grand or k < n_top else k - n_top
@@ -450,35 +624,60 @@ def _summary_rows(
             return grand or x.grpname == group_id
 
         cells = []
-        for i, col in enumerate(all_cols):
-            # The table has a stub (one is added for summary rows when it has none).
-            is_stub = i == 0
-            var = col.var
-            styles = decor.styles(cell_loc, lambda x: x.rownum == index and x.colname == var)
-            if is_stub:
-                label: Any = summary.id
-                notes = decor.notes(stub_loc, lambda x: x.rownum == index and in_group(x))
-                styles += decor.styles(
-                    stub_loc,
-                    lambda x: (x.colname is None or x.colname == var) and x.rownum == index,
-                )
-                stub_opts = decor.options.stub
-                under = [stub_opts, decor.registry.get(row_style)] if stub_opts else []
-            else:
-                # Formatted text, which Great Tables puts in its HTML as it is.
-                label = _HtmlLabel(str(summary.values.get(var)))
-                notes = decor.notes(
-                    cell_loc, lambda x: x.colname == var and x.rownum == index and in_group(x)
-                )
-                under = []
+        if first:
             cells.append({
-                "content": decor.with_marks(label, notes),
+                "content": [],
                 "colspan": 1,
                 "rowspan": 1,
-                "style_id": decor.style_id(styles, *under),
-                "is_stub": is_stub,
+                "style_id": group_style,
+                "is_stub": True,
                 "is_placeholder": False,
-                "scope": "row" if is_stub else None,
+                "scope": None,
+                "sort_key": None,
+                "data_type": None,
+            })
+        if stub.group is not None:
+            styles = decor.styles(stub_loc, lambda x: x.rownum == index)
+        else:
+            styles = decor.styles(
+                cell_loc, lambda x: x.rownum == index and x.colname == label_var
+            ) + decor.styles(
+                stub_loc,
+                lambda x: (x.colname is None or x.colname == label_var) and x.rownum == index,
+            )
+        stub_opts = decor.options.stub
+        under = [stub_opts, decor.registry.get(row_style)] if stub_opts else []
+        span = n_stub - first
+        cells.append({
+            "content": decor.with_marks(
+                summary.id, decor.notes(stub_loc, lambda x: x.rownum == index and in_group(x))
+            ),
+            "colspan": span,
+            "rowspan": 1,
+            "style_id": decor.style_id(styles, *under),
+            "is_stub": True,
+            "is_placeholder": False,
+            "scope": "row",
+            "sort_key": None,
+            "data_type": None,
+        })
+        cells.extend(_body_placeholder(is_stub=True) for _ in range(span - 1))
+        for col in all_cols[n_stub:]:
+            var = col.var
+            # Formatted text, which Great Tables puts in its HTML as it is.
+            notes = decor.notes(
+                cell_loc, lambda x: x.colname == var and x.rownum == index and in_group(x)
+            )
+            cells.append({
+                "content": decor.with_marks(_HtmlLabel(str(summary.values.get(var))), notes),
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": decor.style_id(
+                    decor.styles(cell_loc, lambda x: x.rownum == index and x.colname == var)
+                ),
+                "is_stub": False,
+                "is_placeholder": False,
+                "scope": None,
                 "sort_key": None,
                 "data_type": None,
             })
@@ -492,27 +691,47 @@ def _build_row(
     shown: int,
     all_cols: list,
     built: Any,
-    has_stub: bool,
+    stub: _Stub,
     decor: _Decor,
+    spans: list[tuple[int, list[int]]],
+    lead: dict | None = None,
 ) -> dict:
-    """Build a single row: data row `row_idx`, the `shown`-th shown (from 0).
+    """Build a single row: data row `row_idx`, the `shown`-th shown (from 0),
+    its stub columns' `spans` (`_stub_spans`), and `lead`, its cell in the row
+    group column (if any).
 
     Styles and footnotes are found by the row's index in the data, as Great
-    Tables finds them."""
-    cells = []
+    Tables finds them. A stub cell spanning rows has the stub's (`loc.stub()`)
+    for its column in any of them (a style once), and those for no column in
+    its first; footnotes for no column are on the primary column."""
+    cells = [] if lead is None else [lead]
+    n_stub = len(stub.cols)
     for i, col in enumerate(all_cols):
-        is_stub = has_stub and i == 0
+        if lead is not None and i == 0:
+            continue
+        is_stub = i < n_stub
         var = col.var
         styles = decor.styles("LocBody", lambda x: x.rownum == row_idx and x.colname == var)
+        rowspan = 1
         if is_stub:
+            rowspan, covered = spans[i - (n_stub - len(stub.rows))]
+            if rowspan == 0:
+                cells.append(_body_placeholder(is_stub=True))
+                continue
+            primary = col is stub.primary
             notes = decor.notes(
                 "LocStub",
-                lambda x: (x.colname is None or x.colname == var) and x.rownum == row_idx,
+                lambda x: (x.colname is None and primary and x.rownum == row_idx)
+                or (x.colname == var and x.rownum in covered),
             )
-            styles += decor.styles(
+            labels = decor.styles(
                 "LocStub",
-                lambda x: (x.colname is None or x.colname == var) and x.rownum == row_idx,
+                lambda x: (x.colname is None and x.rownum == row_idx)
+                or (x.colname == var and x.rownum in covered),
             )
+            if len(covered) > 1:
+                labels = list({id(x.styles): x for x in labels}.values())
+            styles += labels
         else:
             notes = decor.notes("LocBody", lambda x: x.colname == var and x.rownum == row_idx)
         style_id = decor.style_id(styles, decor.options.data_cell(is_stub, shown))
@@ -545,7 +764,7 @@ def _build_row(
         cell = {
             "content": decor.with_marks(label, notes),
             "colspan": 1,
-            "rowspan": 1,
+            "rowspan": rowspan,
             "style_id": style_id,
             "is_stub": is_stub,
             "is_placeholder": False,
@@ -556,7 +775,8 @@ def _build_row(
         }
 
         if is_stub:
-            cell["scope"] = "row"
+            # A stub cell heads its row, or the rows it spans (as Great Tables has it).
+            cell["scope"] = "rowgroup" if rowspan > 1 else "row"
         if not is_stub and text and not missing and not pd.isna(orig_val):
             typed = _typed_value(orig_val, text, data_type)
             if typed is not None:
@@ -1124,8 +1344,9 @@ class _Decor:
 class _OptionStyles:
     """The table options a user changed (`tab_options()`, `opt_stylize()`,
     `opt_row_striping()`) that the IR can express, as the R emitter's: style ids
-    for the head rows, data rows and summary rows, definitions for group labels
-    and stub cells (under any `tab_style()` on them), and the striping. Options at
+    for the head rows, data rows and summary rows, definitions for group labels,
+    the row group column and stub cells (under any `tab_style()` on them), and
+    the striping. Options at
     Great Tables' defaults are left out: gridwell's writers supply their own
     default look. A fill comes with the text color Great Tables gives it.
 
@@ -1173,6 +1394,10 @@ class _OptionStyles:
         )
         self.group_label = {**fill("row_group_background_color"), **weight("row_group_font_weight")}
         self.stub = {**fill("stub_background_color"), **weight("stub_font_weight")}
+        self._stub_group = {
+            **fill("stub_row_group_background_color"),
+            **weight("stub_row_group_font_weight"),
+        }
         self.body_row = id_of(
             {"border": {"top": {"style": "none"}}}
             if value("table_body_hlines_style") == "none"
@@ -1221,6 +1446,13 @@ class _OptionStyles:
             else:
                 base = _merge_style(self._unstriped, base)
         return base
+
+    def group_cell(self, shown: int) -> dict[str, Any]:
+        """The options' definition for a row group column's cell, starting in the
+        `shown`-th row shown (never striped)."""
+        if self._stripe and shown % 2 == 1:
+            return _merge_style(self._unstriped, self._stub_group)
+        return self._stub_group
 
 
 def _merge_style(base: dict[str, Any], over: dict[str, Any]) -> dict[str, Any]:
