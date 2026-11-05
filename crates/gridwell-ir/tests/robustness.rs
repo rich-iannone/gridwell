@@ -291,6 +291,7 @@ fn limit_exceeded_serializes_screaming_snake() {
 fn every_rule_displays_as_its_serialized_id() {
     use ValidationRule::*;
     for rule in [
+        IrVersion,
         ColCount,
         RowCount,
         ColspecLength,
@@ -314,7 +315,8 @@ fn every_rule_displays_as_its_serialized_id() {
     ] {
         // Exhaustive: a new rule fails to compile here until it's added above.
         match rule {
-            ColCount
+            IrVersion
+            | ColCount
             | RowCount
             | ColspecLength
             | StubContiguous
