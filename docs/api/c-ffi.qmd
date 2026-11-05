@@ -67,9 +67,10 @@ GridwellBinaryResult gridwell_render_binary_with_options(
     const GridwellTable *table, const char *format, const char *options,
     GridwellError **err);
 
-// Warnings: what the format can't express, one "[UNSUPPORTED_FEATURE] …" message
-// per line ("\n"-separated, no trailing newline); an empty string if none. A null
-// format means every format. Validates first, as rendering does. Free the result
+// Warnings, one message per line ("\n"-separated, no trailing newline): first
+// "[NEWER_IR_VERSION] …" for a table of a newer minor IR version, then what the
+// format can't express, one "[UNSUPPORTED_FEATURE] …" each; an empty string if
+// none. A null format means every format. Validates first, as rendering does. Free the result
 // with gridwell_free_text_result.
 GridwellTextResult gridwell_warnings(
     const GridwellTable *table, const char *format, GridwellError **err);
