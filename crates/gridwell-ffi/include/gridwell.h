@@ -140,12 +140,14 @@ struct GridwellBinaryResult gridwell_render_binary_with_options(const struct Gri
                                                                 const char *options,
                                                                 struct GridwellError **err);
 
-// The features of a table that a format can't express, and where: one
-// `[UNSUPPORTED_FEATURE]` message per line (separated by "\n", no trailing
-// newline), for the named format, or for every format in the order of
-// `gridwell_format_names()` when `format` is null. An empty string (`len` 0,
-// `text` non-null) when the table is expressed whole. A warning doesn't stop
-// the table rendering. Free the result with `gridwell_free_text_result`.
+// What a table's output will lack, one message per line (separated by "\n",
+// no trailing newline): first a `[NEWER_IR_VERSION]` message if the table is a
+// newer minor IR version than this gridwell reads, then an
+// `[UNSUPPORTED_FEATURE]` message for each feature the named format can't
+// express, or every format's in the order of `gridwell_format_names()` when
+// `format` is null. An empty string (`len` 0, `text` non-null) when the table
+// is expressed whole. A warning doesn't stop the table rendering. Free the
+// result with `gridwell_free_text_result`.
 //
 // The table is validated first; invalid IR fails with `GRIDWELL_ERR_VALIDATE`
 // and an unknown format with `GRIDWELL_ERR_RENDER`.
