@@ -661,3 +661,144 @@ def test_superscripts_are_the_characters_gridwells_writers_draw():
         assert _gt_emitter._lower_html(f"<{tag}>{source}</{tag}>") == [
             [("".join(chars.values()), {})]
         ]
+
+
+def stub_data():
+    return pd.DataFrame({
+        "g": ["G1", "G1", "G1", "G2", "G2"], "o": ["x", "x", "y", "x", "x"],
+        "i": ["p", "q", "r", "s", "t"], "v": [1, 2, 3, 4, 5], "w": [6, 7, 8, 9, 10],
+    })
+
+
+def shape(row):
+    """A row's cells as (text, rowspan, colspan, scope, is_stub); a placeholder is "·"."""
+    out = []
+    for c in row["cells"]:
+        if c["is_placeholder"]:
+            assert c["content"] == [] and c["rowspan"] == c["colspan"] == 1
+            out.append("·")
+        else:
+            text = "".join(n.get("value", "") for n in c["content"])
+            out.append((text, c["rowspan"], c["colspan"], c.get("scope"), c["is_stub"]))
+    return out
+
+
+def test_a_stub_of_several_columns_merges_its_outer_cells():
+    ir = gridwell.gt_to_dict(
+        GT(stub_data(), rowname_col=["o", "i"], groupname_col="g").tab_stubhead("Rows")
+    )
+    assert ir["config"]["stub_cols"] == 2
+    assert [c["align"] for c in ir["column_spec"]] == ["left", "left", "right", "right"]
+    (head,) = ir["table"]["thead"]["rows"]
+    assert shape(head) == [
+        ("Rows", 1, 2, "colgroup", False), "·", ("v", 1, 1, "col", False), ("w", 1, 1, "col", False)
+    ]
+    # A label over several stub columns is at their left, as Great Tables draws it.
+    assert ir["styles"]["defs"][head["cells"][0]["style_id"]] == {"text_align": "left"}
+    g1, g2 = ir["table"]["tbody"]
+    assert [shape(r) for r in g1["rows"]] == [
+        [("x", 2, 1, "rowgroup", True), ("p", 1, 1, "row", True), ("1", 1, 1, None, False),
+         ("6", 1, 1, None, False)],
+        ["·", ("q", 1, 1, "row", True), ("2", 1, 1, None, False), ("7", 1, 1, None, False)],
+        [("y", 1, 1, "row", True), ("r", 1, 1, "row", True), ("3", 1, 1, None, False),
+         ("8", 1, 1, None, False)],
+    ]
+    # A cell isn't merged across groups.
+    assert [shape(r)[:2] for r in g2["rows"]] == [
+        [("x", 2, 1, "rowgroup", True), ("s", 1, 1, "row", True)], ["·", ("t", 1, 1, "row", True)]
+    ]
+    assert gridwell.Table(json.dumps(ir)).validate() == []
+
+
+def test_stub_cells_are_merged_in_the_order_shown():
+    # Grouping moves row 2 up beside row 0: the two are merged, row 1 isn't.
+    df = pd.DataFrame({"g": ["G1", "G2", "G1"], "o": ["x", "x", "x"], "i": ["p", "q", "r"], "v": [1, 2, 3]})
+    ir = gridwell.gt_to_dict(GT(df, rowname_col=["o", "i"], groupname_col="g"))
+    g1, g2 = ir["table"]["tbody"]
+    assert [shape(r)[:2] for r in g1["rows"]] == [
+        [("x", 2, 1, "rowgroup", True), ("p", 1, 1, "row", True)], ["·", ("r", 1, 1, "row", True)]
+    ]
+    assert [shape(r)[:2] for r in g2["rows"]] == [[("x", 1, 1, "row", True), ("q", 1, 1, "row", True)]]
+
+
+def test_a_row_group_column_is_the_first_stub_column():
+    ir = gridwell.gt_to_dict(
+        GT(stub_data(), rowname_col=["o", "i"], groupname_col="g")
+        .tab_options(row_group_as_column=True)
+        .tab_stubhead("Rows")
+        .tab_spanner("S1", ["v", "w"])
+        .tab_spanner("S2", ["v", "w"], level=2)
+        .summary_rows(fns={"Sum": lambda d: d[["v", "w"]].sum()})
+        .grand_summary_rows(fns={"Tot": lambda d: d[["v", "w"]].sum()})
+    )
+    assert ir["config"]["stub_cols"] == 3
+    assert [c["align"] for c in ir["column_spec"]] == ["left"] * 3 + ["right"] * 2
+    top, low, labels = ir["table"]["thead"]["rows"]
+    # The top spanner row has one blank over the stub; the lowest one per column.
+    assert shape(top) == [("", 1, 3, "colgroup", False), "·", "·", ("S2", 1, 2, "colgroup", False), "·"]
+    assert shape(low)[:3] == [("", 1, 1, "col", False)] * 3
+    assert shape(labels)[:3] == [("Rows", 1, 3, "colgroup", False), "·", "·"]
+    g1, g2, grand = ir["table"]["tbody"]
+    # The group's label is its first stub cell, spanning its rows; it has no label row.
+    assert (g1["label"], g2["label"]) == (None, None)
+    assert [shape(r)[:3] for r in g1["rows"]] == [
+        [("G1", 3, 1, "rowgroup", True), ("x", 2, 1, "rowgroup", True), ("p", 1, 1, "row", True)],
+        ["·", "·", ("q", 1, 1, "row", True)],
+        ["·", ("y", 1, 1, "row", True), ("r", 1, 1, "row", True)],
+    ]
+    assert shape(g2["rows"][0])[0] == ("G2", 2, 1, "rowgroup", True)
+    # A group's summary: an empty cell under the group's, the label over the row stub.
+    assert [shape(r) for r in g1["summary_rows"]] == [
+        [("", 1, 1, None, True), ("Sum", 1, 2, "row", True), "·", ("6", 1, 1, None, False),
+         ("21", 1, 1, None, False)]
+    ]
+    # The grand summary's label spans the whole stub.
+    assert shape(grand["summary_rows"][0])[:3] == [("Tot", 1, 3, "row", True), "·", "·"]
+    assert gridwell.Table(json.dumps(ir)).validate() == []
+
+
+def test_a_row_group_column_without_a_stub():
+    ir = gridwell.gt_to_dict(
+        GT(stub_data()[["g", "i", "v"]], groupname_col="g")
+        .tab_options(row_group_as_column=True)
+        .grand_summary_rows(fns={"Tot": lambda d: d[["v"]].sum()})
+    )
+    assert ir["config"]["stub_cols"] == 1
+    g1, _, grand = ir["table"]["tbody"]
+    assert [shape(r)[0] for r in g1["rows"]] == [("G1", 3, 1, "rowgroup", True), "·", "·"]
+    assert shape(grand["summary_rows"][0])[0] == ("Tot", 1, 1, "row", True)
+    assert gridwell.Table(json.dumps(ir)).validate() == []
+
+
+@pytest.mark.parametrize("as_column", [False, True])
+def test_a_stubhead_label_for_each_stub_column(as_column):
+    ir = gridwell.gt_to_dict(
+        GT(stub_data(), rowname_col=["o", "i"], groupname_col="g")
+        .tab_options(row_group_as_column=as_column)
+        .tab_stubhead(["A", "B"])
+    )
+    blank = [("", 1, 1, "col", False)] if as_column else []
+    (head,) = ir["table"]["thead"]["rows"]
+    assert shape(head) == blank + [
+        ("A", 1, 1, "col", False), ("B", 1, 1, "col", False), ("v", 1, 1, "col", False),
+        ("w", 1, 1, "col", False),
+    ]
+
+
+def test_a_single_stub_column_is_at_the_left():
+    df = pd.DataFrame({"r": [1, 2], "v": [3, 4]})
+    ir = gridwell.gt_to_dict(GT(df, rowname_col="r"))
+    assert [c["align"] for c in ir["column_spec"]] == ["left", "right"]
+
+
+@pytest.mark.parametrize("fmt", TEXT_FORMATS + BINARY_FORMATS)
+def test_a_row_group_column_renders_in_every_format(fmt):
+    table = gridwell.Table(gridwell.gt_to_ir(
+        GT(stub_data(), rowname_col=["o", "i"], groupname_col="g")
+        .tab_options(row_group_as_column=True)
+        .summary_rows(fns={"Sum": lambda d: d[["v", "w"]].sum()})
+    ))
+    if fmt in BINARY_FORMATS:
+        assert table.render_binary(fmt)[:4] == b"PK\x03\x04"
+    else:
+        assert "G1" in table.render(fmt)
