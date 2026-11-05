@@ -40,6 +40,14 @@
     {
       "name": "notes_and_marks",
       "description": "Title, subtitle, footnotes on several locations, and source notes"
+    },
+    {
+      "name": "hierarchical_stub",
+      "description": "A stub of two columns (rowname_col = c(...)), its repeats merged, in row groups"
+    },
+    {
+      "name": "row_group_column",
+      "description": "Row groups as a stub column (row_group_as_column = TRUE), their labels bold"
     }
   ]
 }
