@@ -237,6 +237,9 @@ fn cmd_validate(input: Option<PathBuf>, format: Option<&'static dyn Writer>) {
         for err in &errors {
             eprintln!("  - {err}");
         }
+        if let Some(note) = table.ensure_valid().err().and_then(|e| e.version_note()) {
+            eprintln!("{note}");
+        }
         process::exit(1);
     }
 }
