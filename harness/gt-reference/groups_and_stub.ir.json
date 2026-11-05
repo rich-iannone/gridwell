@@ -234,7 +234,11 @@
                 "is_placeholder": false,
                 "scope": null,
                 "sort_key": "$49.95",
-                "data_type": "number"
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 49.95
+                }
               }
             ]
           },
@@ -312,7 +316,11 @@
                 "is_placeholder": false,
                 "scope": null,
                 "sort_key": "$17.95",
-                "data_type": "number"
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 17.95
+                }
               }
             ]
           },
@@ -390,7 +398,11 @@
                 "is_placeholder": false,
                 "scope": null,
                 "sort_key": "$1.39",
-                "data_type": "number"
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1.39
+                }
               }
             ]
           },
@@ -468,7 +480,11 @@
                 "is_placeholder": false,
                 "scope": null,
                 "sort_key": "$65,100.00",
-                "data_type": "number"
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 65100
+                }
               }
             ]
           }
@@ -558,7 +574,11 @@
                 "is_placeholder": false,
                 "scope": null,
                 "sort_key": "$1,325.81",
-                "data_type": "number"
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1325.81
+                }
               }
             ]
           },
@@ -632,7 +652,11 @@
                 "is_placeholder": false,
                 "scope": null,
                 "sort_key": "$13.26",
-                "data_type": "number"
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 13.26
+                }
               }
             ]
           },
@@ -788,7 +812,11 @@
                 "is_placeholder": false,
                 "scope": null,
                 "sort_key": "$0.44",
-                "data_type": "number"
+                "data_type": "number",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0.44
+                }
               }
             ]
           }
