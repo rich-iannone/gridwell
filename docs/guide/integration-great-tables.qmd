@@ -100,8 +100,16 @@ holds, so XLSX keeps numbers, booleans, dates and times as values, each shown as
 table shows it:
 
 - A number is the number displayed (`0.11` for `0.1111` formatted to two decimals),
-  as the R package does for gt tables. A display that isn't a plain number
-  (`$49.95`, `<0.001`) has none, so the cell stays text.
+  as the R package does for gt tables: in any locale's marks (`1234.5` for
+  `1.234,50` and `1 234,50`), with its currency or unit left out (`49.95` for
+  `$49.95`, `1234.5` for `1,234.50 kg`), a sign or accounting parentheses (`-5` for
+  `($5.00)`), as a fraction for a percentage or per mille (`0.451` for `45.1%`), and
+  scaled for scientific and compact notation (`0.000123` for `1.23 × 10⁻⁴`,
+  `1230000` for `1.23M`). A display with one mark (`1,234`) is read as the data's
+  value rounds to it (a thousand and more, or a little more than one); one read
+  only one way is read so even when the value doesn't round to it (a value scaled
+  with `scale_by=`). A display that isn't one number (`<0.001`, `46 (37, 60)`,
+  `4/9`) has none, so the cell stays text.
 - Booleans, and `datetime.date`, `datetime.datetime` (or pandas `Timestamp`) and
   `datetime.time` values are typed; a date or time is written without its time
   zone, as the wall-clock time the table shows. Dates held as strings stay strings.
