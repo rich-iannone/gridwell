@@ -49,6 +49,20 @@ fn rs_parse_ir(json: &str) -> Robj {
     }
 }
 
+/// The warning a table of a newer minor IR version gets when parsed (empty for
+/// any other table).
+/// @noRd
+#[extendr]
+fn rs_version_warning(table_ptr: Robj) -> Strings {
+    let table = table_from(&table_ptr);
+    let warning = table
+        .is_newer_minor()
+        .then(|| gridwell_render::Warning::NewerIrVersion {
+            version: table.ir_version.clone(),
+        });
+    Strings::from_values(warning.iter().map(|w| w.to_string()))
+}
+
 /// Whether `ptr` points to a table: not after `saveRDS()` and `readRDS()`, which
 /// keep an external pointer but not what it points to.
 /// @noRd
@@ -230,6 +244,7 @@ fn rs_conformance_check(ir: &str, expected: &str, tier: Robj) -> List {
 extendr_module! {
     mod gridwell;
     fn rs_parse_ir;
+    fn rs_version_warning;
     fn rs_is_table;
     fn rs_describe;
     fn rs_display_html;
