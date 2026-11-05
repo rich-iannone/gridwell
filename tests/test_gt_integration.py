@@ -147,6 +147,11 @@ def test_grouped_gt_has_stub():
     # First cell of first row should be stub
     first_row = ir["table"]["tbody"][0]["rows"][0]
     assert first_row["cells"][0]["is_stub"] is True
+    # A row header, as Great Tables writes it (`<th scope="row">`); other cells
+    # have no scope.
+    for row in ir["table"]["tbody"][0]["rows"]:
+        assert row["cells"][0]["scope"] == "row"
+        assert all("scope" not in c for c in row["cells"][1:])
 
 
 def test_styled_gt_preserves_labels():
@@ -510,7 +515,7 @@ def test_summary_rows_get_a_stub_when_the_table_has_none():
     assert [c["label"] for c in ir["column_spec"]] == ["", "num", "currency"]
     groups = ir["table"]["tbody"]
     data = groups[0]["rows"][0]["cells"]
-    assert (data[0]["content"], data[0]["is_stub"]) == ([], True)
+    assert (data[0]["content"], data[0]["is_stub"], data[0]["scope"]) == ([], True, "row")
     assert groups[-1]["group_id"] is None and groups[-1]["rows"] == []
     (grand,) = groups[-1]["summary_rows"]
     assert grand["role"] == "grand_summary_row"
@@ -537,3 +542,122 @@ def test_table_takes_a_gt_directly():
 def test_a_gt_displays_in_a_notebook_once_converted():
     html = gridwell.Table(make_grouped_gt())._repr_html_()
     assert html is not None and "Example Table" in html
+
+
+# ─── Body cells ───
+
+
+def make_html_body_gt():
+    """`fmt_*()` output that is HTML, and HTML of other kinds, in body cells."""
+    from great_tables import loc
+
+    df = pd.DataFrame({
+        "s": ["a < b & c", "<b>not bold</b>"],
+        "m": ["**md** *it*\n\npara `two`", "x"],
+        "sci": [0.000123, 12345.6],
+        "u": ["{{m^2 s_1}}", "kg"],
+        "img": ["a.png", "b.png"],
+        "h": [
+            # An SVG as written, the text around it kept; one never closed runs on.
+            "<svg width='8'><svg/><text>T</text></svg> &amp; <i>x</i><svg/>",
+            "<sup>2q</sup> 10<sup>2<br>3</sup> <sub>a1</sub><svg><text>open",
+        ],
+        "i": [
+            # Sizes: a number is pixels, `style` beats the attribute, ones the
+            # IR can't take are dropped; `src` is only copied.
+            '<img src=" /no/such/file.png " alt="A" width="12" height="9" style="height: 2em !important">',
+            '<img src="x.png" width="calc(1px)" style="width: -3px; height: auto">x',
+        ],
+    })
+    return (
+        GT(df, rowname_col="s")
+        .fmt_markdown("m")
+        .fmt_scientific("sci")
+        .fmt_units("u")
+        # (A URL: Great Tables reads a local path itself to embed it.)
+        .fmt_image("img", path="https://example.invalid", height=20)
+        .fmt(lambda x: x, columns=["h", "i"])
+        .tab_footnote("Note.", locations=loc.body(columns="sci", rows=[0]))
+    )
+
+
+def test_body_cells_are_the_html_great_tables_draws():
+    ir = gridwell.gt_to_dict(make_html_body_gt())
+    rows = [r["cells"] for r in ir["table"]["tbody"][0]["rows"]]
+    bold, italic, mono = {"font_weight": "bold"}, {"font_style": "italic"}, {"font_family": "monospace"}
+    # A string is escaped: its text as it is.
+    assert [runs(ir, r[0]["content"]) for r in rows] == [
+        [("a < b & c", None)], [("<b>not bold</b>", None)]
+    ]
+    assert runs(ir, rows[0][1]["content"]) == [
+        ("md", bold), (" ", None), ("it", italic), ("\n", None), ("para ", None), ("two", mono)
+    ]
+    # Superscripts in Unicode characters; the mark after the text, as Great Tables
+    # places it (the HTML isn't a number).
+    assert runs(ir, rows[0][2]["content"]) == [("1.23 × 10⁻⁴", None), ("^1", "fn1")]
+    assert runs(ir, rows[1][2]["content"]) == [("1.23 × 10⁴", None)]
+    assert runs(ir, rows[0][3]["content"]) == [("m² s₁", None)]
+    assert [r[4]["content"] for r in rows] == [
+        [{"type": "image", "src": f"https://example.invalid/{f}.png", "alt": "", "height": "20px"}]
+        for f in "ab"
+    ]
+    assert rows[0][5]["content"] == [
+        {"type": "raw", "format": "html", "value": "<svg width='8'><svg/><text>T</text></svg>"},
+        {"type": "text", "value": " & "},
+        {"type": "styled_text", "value": "x", "style_id": rows[0][5]["content"][2]["style_id"]},
+        {"type": "raw", "format": "html", "value": "<svg/>"},
+    ]
+    assert runs(ir, rows[0][5]["content"][1:3]) == [(" & ", None), ("x", italic)]
+    # A character without a superscript form, or a line break: as written.
+    assert rows[1][5]["content"] == [
+        {"type": "text", "value": "2q 102"},
+        {"type": "line_break"},
+        {"type": "text", "value": "3 ₐ₁"},
+        {"type": "raw", "format": "html", "value": "<svg><text>open"},
+    ]
+    assert [r[6]["content"] for r in rows] == [
+        [{"type": "image", "src": "/no/such/file.png", "alt": "A", "width": "12px", "height": "2em"}],
+        [{"type": "image", "src": "x.png", "height": "auto"}, {"type": "text", "value": "x"}],
+    ]
+    # The stub is a row header; nothing else has a scope.
+    assert [r[0]["scope"] for r in rows] == ["row", "row"]
+    assert not any("scope" in c for r in rows for c in r[1:])
+    # The text shown sorts and is the typed value, not the markup.
+    assert [c["sort_key"] for c in rows[0]] == [
+        "a < b & c", "md it para two", "1.23 × 10⁻⁴", "m² s₁", None, "& x", None
+    ]
+    assert rows[0][1]["typed_value"] == {"type": "string", "value": "md it para two"}
+    assert rows[0][3]["typed_value"] == {"type": "string", "value": "m² s₁"}
+    assert "typed_value" not in rows[0][2] and "typed_value" not in rows[0][4]
+
+
+def test_body_html_is_valid_ir_every_format_draws():
+    table = gridwell.Table(make_html_body_gt())
+    assert table.validate() == []
+    for fmt in TEXT_FORMATS:
+        assert table.render(fmt), fmt
+    html = table.render("html")
+    assert "<svg width='8'><svg/><text>T</text></svg>" in html
+    assert "1.23 × 10⁻⁴" in html and "&lt;b&gt;not bold&lt;/b&gt;" in html
+    ansi = table.render("ansi")
+    assert "m² s₁" in ansi and "a < b & c" in ansi
+    for fmt in BINARY_FORMATS:
+        assert table.render_binary(fmt)[:4] == b"PK\x03\x04", fmt
+
+
+def test_superscripts_are_the_characters_gridwells_writers_draw():
+    # gridwell lowers raw HTML itself for formats other than HTML; the emitter's
+    # superscripts and subscripts are the same characters.
+    from gridwell import _gt_emitter
+
+    for tag, chars in _gt_emitter._SCRIPTS.items():
+        source = "".join(chars)
+        ir = gridwell.gt_to_dict(GT(pd.DataFrame({"x": [1]})))
+        ir["table"]["tbody"][0]["rows"][0]["cells"][0]["content"] = [
+            {"type": "raw", "format": "html", "value": f"<{tag}>{source}</{tag}>"}
+        ]
+        drawn = gridwell.Table(json.dumps(ir)).render("ansi")
+        assert "".join(chars.values()) in drawn, tag
+        assert _gt_emitter._lower_html(f"<{tag}>{source}</{tag}>") == [
+            [("".join(chars.values()), {})]
+        ]
