@@ -60,6 +60,7 @@ Each must trigger a specific validation error.
 | `col_count_mismatch.json` | `COL_COUNT` — row has more cells than config.table_cols |
 | `placeholder_has_content.json` | `SPAN_PLACEHOLDER_HAS_CONTENT` — placeholder cell not empty |
 | `summary_no_stub.json` | `SUMMARY_REQUIRES_STUB` — summary row with stub_cols=0 |
+| `ir_version_unknown_major.json` | `IR_VERSION` — `ir_version` is `"2.0"`, a major version gridwell doesn't read |
 
 ## Adding New Fixtures
 
