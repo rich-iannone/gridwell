@@ -6,6 +6,7 @@ pub mod span;
 pub mod style;
 pub mod validation;
 mod value_checks;
+pub mod version;
 pub mod visibility;
 
 use serde::{Deserialize, Serialize};
@@ -24,6 +25,7 @@ pub use style::{StyleDef, StylePalette};
 pub use validation::{
     is_valid_style_id, validate, InvalidTable, Limits, ValidationError, ValidationRule,
 };
+pub use version::{IrVersion, IR_VERSION};
 pub use visibility::ColumnVisibility;
 
 /// Parse error for IR JSON.
@@ -31,6 +33,15 @@ pub use visibility::ColumnVisibility;
 pub enum ParseError {
     #[error("JSON parse error: {0}")]
     Json(#[from] serde_json::Error),
+    /// The JSON doesn't parse as this gridwell's IR, and its `ir_version` is a
+    /// major version this gridwell doesn't read: the version, not the shape, is
+    /// what's wrong.
+    #[error("{message}")]
+    UnknownMajorVersion {
+        /// The table's `ir_version`.
+        version: String,
+        message: String,
+    },
 }
 
 /// The top-level table IR structure.
@@ -51,9 +62,23 @@ pub struct Table {
 
 impl Table {
     /// Parse a table from a JSON string.
+    ///
+    /// A table of another major IR version that still parses is reported by
+    /// [`validate`](Self::validate) (`IR_VERSION`); one that doesn't is
+    /// [`ParseError::UnknownMajorVersion`], not a complaint about its shape.
     pub fn from_json(json: &str) -> Result<Self, ParseError> {
-        let table: Table = serde_json::from_str(json)?;
-        Ok(table)
+        serde_json::from_str(json).map_err(|e| unknown_major(json).unwrap_or(ParseError::Json(e)))
+    }
+
+    /// The table's IR version, if `ir_version` is well formed.
+    pub fn version(&self) -> Option<IrVersion> {
+        IrVersion::parse(&self.ir_version)
+    }
+
+    /// Whether the table is a newer minor IR version than this gridwell reads:
+    /// it renders, without what the newer minors added.
+    pub fn is_newer_minor(&self) -> bool {
+        self.version().is_some_and(IrVersion::is_newer_minor)
     }
 
     /// Serialize the table to a JSON string.
@@ -82,9 +107,26 @@ impl Table {
         if errors.is_empty() {
             Ok(())
         } else {
-            Err(InvalidTable { errors })
+            Err(InvalidTable {
+                errors,
+                newer_ir_version: self.is_newer_minor().then(|| self.ir_version.clone()),
+            })
         }
     }
+}
+
+/// For JSON that doesn't parse as a table: the error, if its `ir_version` is a
+/// major version this gridwell doesn't read. Only on failure, so a table that
+/// parses is read once.
+fn unknown_major(json: &str) -> Option<ParseError> {
+    #[derive(Deserialize)]
+    struct Versioned {
+        ir_version: String,
+    }
+    let version = serde_json::from_str::<Versioned>(json).ok()?.ir_version;
+    let v = IrVersion::parse(&version).filter(|v| !v.is_read())?;
+    let message = version::unknown_major(&serde_json::Value::from(version.as_str()).to_string(), v);
+    Some(ParseError::UnknownMajorVersion { version, message })
 }
 
 /// A table that has passed validation (with the default [`Limits`]).
