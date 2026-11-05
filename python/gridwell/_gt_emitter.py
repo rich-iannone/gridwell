@@ -18,6 +18,7 @@ import datetime as dt
 import html
 import json
 import re
+import unicodedata
 from html.parser import HTMLParser
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any
@@ -825,27 +826,176 @@ def _infer_data_type(value: Any, col_name: str, dtypes: Any) -> str | None:
     return "string"
 
 
-# A number as displayed: an optional minus, digits, an optional fraction and
-# exponent (thousands separators and U+2212 MINUS SIGN removed first).
-_PLAIN_NUMBER = re.compile(r"-?[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?")
+# Characters a display may separate thousands with ("." and "," also mark
+# decimals).
+_GROUP_MARKS = ".,'\u2019 \u00a0\u202f\u2009"
+_SUPERSCRIPTS = str.maketrans("\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079\u207b\u207a", "0123456789-+")
+# A number as displayed: text before it (a sign, a currency), digits and marks,
+# an exponent (`× 10^-4`, `× 10⁻⁴`, `e-04`), and text after it (a unit, a `%`).
+_NUMBER = re.compile(
+    r"(?P<before>[^0-9]*?)"
+    rf"(?P<digits>[0-9](?:[0-9{_GROUP_MARKS}]*[0-9])?)"
+    r"(?:\s*\u00d7\s*10(?:\^(?P<exp>[-\u2212+]?[0-9]+)"
+    r"|(?P<sup>[\u207b\u207a]?[\u2070\u00b9\u00b2\u00b3\u2074-\u2079]+))"
+    r"|[eE](?P<e>[-\u2212+]?[0-9]+))?"
+    r"(?P<after>[^0-9]*)"
+)
+_SIGNS = "-\u2212+"
+# What a mark after the number scales it by (a power of ten).
+_PER = {"%": -2, "\u2030": -3, "\u2031": -4}
+_COMPACT = {"K": 3, "M": 6, "B": 9, "T": 12}
+
+
+def _grouped(int_part: str, mark: str) -> str | None:
+    """The digits of an integer written with `mark` between groups of three (or,
+    as India writes them, of two then a last three), if it is."""
+    groups = int_part.split(mark)
+    first, rest = groups[0], groups[1:]
+    if not rest or not all(g.isascii() and g.isdigit() for g in groups):
+        return None
+    if len(first) > 3 or first == "0":
+        return None
+    threes = all(len(g) == 3 for g in rest)
+    indian = len(first) <= 2 and len(rest[-1]) == 3 and all(len(g) == 2 for g in rest[:-1])
+    return "".join(groups) if threes or indian else None
+
+
+def _readings(core: str) -> list[tuple[str, int]]:
+    """The ways to read a display's digits and marks as a number, each its digits
+    and how many of them are decimals: with no marks, with one mark as either the
+    decimal mark or the thousands separator, or with two, the last the decimal
+    mark. An integer part has no leading zeros (`007`)."""
+    marks = list(dict.fromkeys(c for c in core if not c.isdigit()))
+
+    def digits(s: str) -> bool:
+        return s.isascii() and s.isdigit()
+
+    def plain(int_part: str) -> bool:
+        return not (len(int_part) > 1 and int_part.startswith("0"))
+
+    def decimal(mark: str, group: str | None) -> tuple[str, int] | None:
+        int_part, _, frac = core.rpartition(mark)
+        if mark not in ".," or not digits(frac):
+            return None
+        whole = _grouped(int_part, group) if group else (int_part if digits(int_part) else None)
+        return (whole + frac, len(frac)) if whole is not None and plain(whole) else None
+
+    if not marks:
+        return [(core, 0)] if plain(core) else []
+    if len(marks) == 1:
+        mark = marks[0]
+        found = [decimal(mark, None)]
+        whole = _grouped(core, mark)
+        if whole is not None and plain(whole):
+            found.append((whole, 0))
+        return [r for r in found if r is not None]
+    if len(marks) == 2:
+        # The decimal mark is the last mark, and comes once.
+        last = next(c for c in reversed(core) if not c.isdigit())
+        group = marks[0] if marks[1] == last else marks[1]
+        found_two = decimal(last, group)
+        return [found_two] if found_two else []
+    return []
+
+
+def _affix(s: str, after: bool) -> bool:
+    """Text that can stand beside a number in its display: letters (a unit, a
+    currency code), a currency symbol, spaces, `'`, `’`, `°`, a `.` beside
+    letters (`kr.`), and after the number one `%`, `‰` or `‱`. Not `<`, `~`,
+    `±`, `/`, brackets or other digits: those say something else about the
+    number."""
+    letters = any(c.isalpha() for c in s)
+    per = sum(s.count(c) for c in _PER)
+    return per <= (1 if after else 0) and all(
+        c.isalpha()
+        or c.isspace()
+        or unicodedata.category(c) == "Sc"
+        or c in "'\u2019\u00b0"
+        or (c == "." and letters)
+        or c in _PER
+        for c in s
+    )
+
+
+def _shown_number(text: str, raw: Any) -> tuple[str, int, bool] | None:
+    """The number a cell's display shows, as the digits and power of ten of its
+    value, and whether it's a plain integer (no decimals, exponent or scale).
+
+    The display is read in any marks (a locale's `1.234,50`, `1 234,5`), with a
+    sign or parentheses, a currency or unit around it, `%` (a hundredth), `‰`,
+    an exponent (`1.23 × 10⁻⁴`) or a `K`, `M`, `B` or `T` (thousands, millions,
+    …); the reading the data's value `raw` rounds to wins (so `1,234` is a
+    thousand and more, or a little more than one). With none, a display only
+    one reading fits is still read as it shows (a value scaled before being
+    shown: `scale_by=`), and one that fits several isn't.
+    """
+    shown = text.strip()
+    parens = shown.startswith("(") and shown.endswith(")")
+    if parens:
+        shown = shown[1:-1]
+    m = _NUMBER.fullmatch(shown)
+    if m is None:
+        return None
+    before, after = m["before"], m["after"]
+    signs = [c for c in before if c in _SIGNS]
+    if len(signs) > 1 or (parens and signs):
+        return None
+    if not _affix("".join(c for c in before if c not in _SIGNS), False) or not _affix(after, True):
+        return None
+    negative = parens or signs in (["-"], ["\u2212"])
+    exp_text = m["exp"] or (m["sup"] or "").translate(_SUPERSCRIPTS) or m["e"] or "0"
+    exp = int(exp_text.replace("\u2212", "-"))
+    scales = [0]
+    for mark, power in _PER.items():
+        if mark in after:
+            scales = [power]
+    if after in _COMPACT:
+        scales = [_COMPACT[after], 0]
+
+    readings = []
+    for digits, decimals in _readings(m["digits"]):
+        for scale in scales:
+            power = exp - decimals + scale
+            value = float(f"{'-' if negative else ''}{digits}e{power}")
+            # The display shows the value to its last digit that isn't zero.
+            zeros = len(digits) - len(digits.rstrip("0")) if digits.strip("0") else 0
+            unit = 10.0 ** (power + zeros)
+            plain_int = decimals == 0 and exp == 0 and scale == 0
+            readings.append((digits, power, plain_int, value, unit))
+    try:
+        number = float(raw)
+    except (TypeError, ValueError):
+        number = float("nan")
+    fits = [
+        r for r in readings
+        if abs(number - r[3]) <= 0.5 * r[4] * (1 + 1e-9) + abs(number) * 1e-12
+    ]
+    chosen = fits or readings
+    if not chosen or len({r[3] for r in chosen}) > 1:
+        return None
+    digits, power, plain_int, value, _ = chosen[0]
+    return (("-" if negative else "") + digits, power, plain_int)
 
 
 def _typed_value(value: Any, text: str, data_type: str | None) -> dict | None:
     """The cell's typed value, as the R emitter gives it.
 
     A number is the number displayed, so a spreadsheet holds what the table
-    states (0.11, not 0.1111); a display that isn't a plain number (`$49.95`,
-    `<0.001`) has none. Dates and times are ISO 8601 strings, without an offset
+    states (0.11, not 0.1111; 0.451 for `45.1%`; 1234.5 for `1.234,50`), read
+    by `_shown_number`; a display that isn't one number (`<0.001`, `46 (37, 60)`)
+    has none. Dates and times are ISO 8601 strings, without an offset
     (a spreadsheet has no time zone: the value is the wall-clock time).
     Anything else is a string, the text shown.
     """
     if data_type in ("number", "integer"):
-        shown = text.replace("\u2212", "-").replace(",", "")
-        if not _PLAIN_NUMBER.fullmatch(shown):
+        found = _shown_number(text, value)
+        if found is None:
             return None
-        if data_type == "integer" and not re.search(r"[.eE]", shown):
-            return {"type": "integer", "value": int(shown)}
-        return {"type": "number", "value": float(shown)}
+        digits, power, plain_int = found
+        if data_type == "integer" and plain_int:
+            return {"type": "integer", "value": int(digits)}
+        # (`+ 0.0`: a `-0` is zero.)
+        return {"type": "number", "value": float(f"{digits}e{power}") + 0.0}
     if data_type == "boolean":
         return {"type": "boolean", "value": bool(value)}
     if data_type == "datetime":
