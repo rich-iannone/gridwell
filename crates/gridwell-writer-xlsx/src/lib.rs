@@ -1,5 +1,6 @@
 mod date;
 mod limits;
+mod number;
 mod render;
 
 use gridwell_ir::Table;
