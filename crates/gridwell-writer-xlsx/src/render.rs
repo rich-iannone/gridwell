@@ -13,6 +13,7 @@ use std::io::{Cursor, Read};
 use thiserror::Error;
 
 use crate::date::Moment;
+use crate::number::NumFmt;
 
 #[derive(Debug, Error)]
 pub enum RenderError {
@@ -118,106 +119,6 @@ struct Format {
 enum ValueFmt {
     Number(NumFmt),
     Date(String),
-}
-
-/// A number format that shows a value as the table displays it: `0.0` for
-/// `76.0`, `#,##0` for `1,250`. The IR carries the display text and the value,
-/// not a format pattern, so the format is read off the display.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-struct NumFmt {
-    decimals: u8,
-    /// Thousands separators.
-    grouping: bool,
-    /// Negatives show U+2212 MINUS SIGN (as gt writes them), not `-`.
-    unicode_minus: bool,
-    /// Room after the number (`_0` a digit's, `_.` a period's), aligning it on
-    /// a character: [`pad_code`].
-    pad: String,
-}
-
-impl NumFmt {
-    /// The format that shows `value` as `shown`, if `shown` is a plain number
-    /// (optional `-` or `−`, digits with optional `,` grouping, optional
-    /// decimals) that rounds from `value`. Anything else has none: such a cell
-    /// keeps its text.
-    fn infer(shown: &str, value: f64) -> Option<Self> {
-        let (negative, unicode_minus, body) = if let Some(b) = shown.strip_prefix('-') {
-            (true, false, b)
-        } else if let Some(b) = shown.strip_prefix('\u{2212}') {
-            (true, true, b)
-        } else {
-            (false, false, shown)
-        };
-        if negative != (value < 0.0) {
-            return None;
-        }
-        let (int, frac) = match body.split_once('.') {
-            Some((i, f)) => (i, Some(f)),
-            None => (body, None),
-        };
-        let digits = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
-        let mut groups = int.split(',');
-        let first = groups.next().unwrap_or_default();
-        let grouping = int.contains(',');
-        let int_ok = if grouping {
-            digits(first) && first.len() <= 3 && groups.all(|g| g.len() == 3 && digits(g))
-        } else {
-            digits(int)
-        };
-        // A format shows no leading zeros (`007`), nor a leading 0 group (`0,123`).
-        if !int_ok || (first.len() > 1 && first.starts_with('0')) || (grouping && first == "0") {
-            return None;
-        }
-        let decimals = match frac {
-            Some(f) if digits(f) && f.len() <= 30 => f.len(),
-            Some(_) => return None,
-            None => 0,
-        };
-        let shown_value: f64 = format!("{}.{}", int.replace(',', ""), frac.unwrap_or("0"))
-            .parse()
-            .ok()?;
-        // The display is the value rounded to its decimals (with slack for
-        // binary floating point).
-        let half = 0.5 * 10f64.powi(-(decimals as i32));
-        if (value.abs() - shown_value).abs() > half * (1.0 + 1e-9) + value.abs() * 1e-15 {
-            return None;
-        }
-        Some(Self {
-            decimals: decimals as u8,
-            grouping,
-            unicode_minus,
-            pad: String::new(),
-        })
-    }
-
-    /// The built-in `numFmtId` with this pattern, if there is one.
-    fn builtin(&self) -> Option<u8> {
-        if !self.pad.is_empty() {
-            return None;
-        }
-        match (self.decimals, self.grouping, self.unicode_minus) {
-            (0, false, false) => Some(1),
-            (2, false, false) => Some(2),
-            (0, true, false) => Some(3),
-            (2, true, false) => Some(4),
-            _ => None,
-        }
-    }
-
-    /// The format code: a second section writes negatives with `−`.
-    fn code(&self) -> String {
-        let mut pattern = String::from(if self.grouping { "#,##0" } else { "0" });
-        if self.decimals > 0 {
-            pattern.push('.');
-            pattern.push_str(&"0".repeat(self.decimals.into()));
-        }
-        pattern.push_str(&self.pad);
-        if self.unicode_minus {
-            format!("{pattern};\"\u{2212}\"{pattern}")
-        } else {
-            pattern
-        }
-    }
 }
 
 /// The format code that leaves the room of a cell's padding: `_` and the
