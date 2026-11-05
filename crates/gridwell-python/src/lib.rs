@@ -1,7 +1,8 @@
 use pyo3::create_exception;
+use std::ffi::CString;
 use std::path::PathBuf;
 
-use pyo3::exceptions::{PyOSError, PyTypeError, PyValueError};
+use pyo3::exceptions::{PyOSError, PyTypeError, PyUserWarning, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PyDict, PyString};
 
@@ -76,6 +77,8 @@ fn is_gt(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<bool> {
 /// Create with `Table(source)` from IR as a JSON string or a dict, or from a Great
 /// Tables `GT`; or with `Table.from_json`, `Table.from_dict` or `Table.from_gt`.
 /// In a notebook it displays as HTML, and `print()` draws it as text.
+/// IR of a newer minor version than this gridwell reads is read with a
+/// `UserWarning`; another major version is refused.
 ///
 /// A table can't be changed once made, and the work done in Rust (parsing,
 /// validating, rendering, saving) runs with the GIL released, so other Python
@@ -86,11 +89,20 @@ struct PyTable {
 }
 
 impl PyTable {
-    /// Parse IR JSON, with the GIL released.
+    /// Parse IR JSON, with the GIL released. A table of a newer minor IR
+    /// version warns (a `UserWarning`, as `warnings()` words it).
     fn parse(py: Python<'_>, json: &str) -> PyResult<Self> {
         let table = py
             .allow_threads(|| Table::from_json(json))
             .map_err(|e| PyValueError::new_err(format!("{e}")))?;
+        if table.is_newer_minor() {
+            let warning = gridwell_render::Warning::NewerIrVersion {
+                version: table.ir_version.clone(),
+            };
+            let message = CString::new(warning.to_string())
+                .map_err(|e| PyValueError::new_err(e.to_string()))?;
+            PyErr::warn(py, &py.get_type::<PyUserWarning>(), &message, 1)?;
+        }
         Ok(PyTable { inner: table })
     }
 
@@ -199,9 +211,11 @@ impl PyTable {
         py.allow_threads(|| self.errors())
     }
 
-    /// Features of the table a format can't express, and where, as messages:
-    /// for one format by name, or every format (`None`). Empty if each is
-    /// expressed whole. A warning doesn't stop the table rendering.
+    /// What the table's output will lack, as messages: first that the table is
+    /// a newer minor IR version than this gridwell reads, if it is; then the
+    /// features a format can't express, and where, for one format by name, or
+    /// every format (`None`). Empty if the table is expressed whole. A warning
+    /// doesn't stop the table rendering.
     ///
     /// Raises `InvalidTableError` for invalid IR, and `ValueError` for an
     /// unknown format.
