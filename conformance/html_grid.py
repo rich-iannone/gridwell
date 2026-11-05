@@ -9,7 +9,8 @@ It reads the HTML gt and Great Tables write (their `gt_*` classes), not HTML in
 general, and only what L1 checks: the stub, the header lines, the head rows and
 their spans, the groups and their labels, the data and summary rows and the text
 of every cell, footnote and source note. Footnote marks aren't text, so they're
-left out.
+left out. A group whose label is in a row group column (`row_group_as_column`)
+starts at that stub cell, and has no label.
 
 The head is written as the IR's rule 4 has it: a label spanning several head rows
 in the HTML (a column without a spanner above it) is the bottom row's, with empty
@@ -37,6 +38,9 @@ BLOCKS = set(
 )
 # Where a block starts or ends, in text() (a line break if text comes before and after).
 BLOCK_EDGE = "\x00"
+# A row group's label in the stub (`row_group_as_column`): a stub cell, spanning
+# the group's rows, that starts the group (which has no label row then).
+STUB_GROUP = "gt_stub_row_group"
 # The Unicode superscript and subscript characters, as gridwell's writers draw
 # `<sup>` and `<sub>` (`gridwell_layout::text`).
 SCRIPTS = {
@@ -243,7 +247,8 @@ def body_groups(tbody: Element) -> list[dict]:
                 grand = {"label": None, "rows": [], "summary_rows": []}
             rows.append((grand["summary_rows"], cells, "grand_summary_row"))
             continue
-        if not groups:
+        # A group's label in a row group column (`row_group_as_column`) starts it.
+        if not groups or any(STUB_GROUP in c.classes for c in cells):
             groups.append({"label": None, "rows": [], "summary_rows": []})
         if "gt_summary_row" in classes:
             rows.append((groups[-1]["summary_rows"], cells, "summary_row"))
@@ -251,7 +256,12 @@ def body_groups(tbody: Element) -> list[dict]:
             rows.append((groups[-1]["rows"], cells, None))
     for (target, _, role), placed in zip(rows, place([c for _, c, _ in rows])):
         entries = [
-            cell_entry(col, cell, stub="gt_stub" in cell.classes, rowspan=span(cell, "rowspan"))
+            cell_entry(
+                col,
+                cell,
+                stub=bool({"gt_stub", STUB_GROUP} & cell.classes),
+                rowspan=span(cell, "rowspan"),
+            )
             for col, cell in placed
         ]
         row: dict = {"cells": entries}
