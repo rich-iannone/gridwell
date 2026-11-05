@@ -746,9 +746,17 @@ fn conformance_check_refuses_what_it_cant_check() {
     let tab_style = repo("harness/gt-reference/tab_style.ir.json");
     // A tier the expected grid doesn't go to.
     let o = bin()
+        .args(["conformance", "normalize", "--tier", "L1"])
+        .arg(&tab_style)
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    let l1 = scratch_dir("check-tier").join("l1.json");
+    std::fs::write(&l1, &o.stdout).unwrap();
+    let o = bin()
         .args(["conformance", "check", "--tier", "L2"])
         .arg(&tab_style)
-        .arg(repo("conformance/expected/great_tables/tab_style.json"))
+        .arg(&l1)
         .output()
         .unwrap();
     assert_clean_failure(&o);
