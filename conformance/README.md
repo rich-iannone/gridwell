@@ -113,7 +113,12 @@ another version can format values differently.
   to L3, by construction; the Python tests check the reference IR and, with the
   Great Tables version in the manifest, the cases live from `cases.py`. They also
   check more tables (markup in labels and body cells, spanner levels, summary rows
-  without a stub) against what `html_grid.py` reads off Great Tables' HTML. The
+  without a stub, stubs of two and three columns, row group columns) against what
+  `html_grid.py` reads off Great Tables' HTML. One difference is known and checked
+  as such: with a row group column, the group's cell in Great Tables' HTML spans
+  its summary rows too, where the IR's spans the group's rows and each summary row
+  has an empty stub cell under it (the IR has no span from a group's rows into its
+  summary rows). The
   two packages' grids differ where the packages do, for example in how numbers
   are formatted (`0.1111` or `1.111e-01`), how a missing value is shown and
   typed, the alignment of a date column, and the stripe text color in
