@@ -177,7 +177,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "row_1"
+                "sort_key": "row_1",
+                "scope": "row"
               },
               {
                 "content": [
@@ -251,7 +252,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "row_2"
+                "sort_key": "row_2",
+                "scope": "row"
               },
               {
                 "content": [
@@ -325,7 +327,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "row_3"
+                "sort_key": "row_3",
+                "scope": "row"
               },
               {
                 "content": [
@@ -399,7 +402,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "row_4"
+                "sort_key": "row_4",
+                "scope": "row"
               },
               {
                 "content": [
@@ -489,7 +493,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "row_5"
+                "sort_key": "row_5",
+                "scope": "row"
               },
               {
                 "content": [
@@ -559,7 +564,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "row_6"
+                "sort_key": "row_6",
+                "scope": "row"
               },
               {
                 "content": [
@@ -629,7 +635,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "row_7"
+                "sort_key": "row_7",
+                "scope": "row"
               },
               {
                 "content": [
@@ -703,7 +710,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "row_8"
+                "sort_key": "row_8",
+                "scope": "row"
               },
               {
                 "content": [

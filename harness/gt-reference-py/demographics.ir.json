@@ -248,7 +248,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "n"
+                "sort_key": "n",
+                "scope": "row"
               },
               {
                 "content": [
@@ -326,7 +327,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "mean (sd)"
+                "sort_key": "mean (sd)",
+                "scope": "row"
               },
               {
                 "content": [
@@ -404,7 +406,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "median (min, max)"
+                "sort_key": "median (min, max)",
+                "scope": "row"
               },
               {
                 "content": [
@@ -503,7 +506,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "female"
+                "sort_key": "female",
+                "scope": "row"
               },
               {
                 "content": [
@@ -581,7 +585,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "male"
+                "sort_key": "male",
+                "scope": "row"
               },
               {
                 "content": [
@@ -675,7 +680,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "white"
+                "sort_key": "white",
+                "scope": "row"
               },
               {
                 "content": [
@@ -753,7 +759,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "black or african american"
+                "sort_key": "black or african american",
+                "scope": "row"
               },
               {
                 "content": [
@@ -831,7 +838,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "other"
+                "sort_key": "other",
+                "scope": "row"
               },
               {
                 "content": [

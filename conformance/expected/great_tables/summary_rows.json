@@ -1,95 +1,242 @@
 {
   "format": "gridwell-conformance-grid/1",
-  "tier": "L1",
+  "tier": "L3",
   "case": "summary_rows",
   "producer": {
     "package": "great_tables",
     "version": "1.1.0"
   },
   "source": {
-    "L1": "harness/gt-reference-py/summary_rows.gt.html (Great Tables' HTML)"
+    "L1": "harness/gt-reference-py/summary_rows.gt.html (Great Tables' HTML)",
+    "L2, L3": "harness/gt-reference-py/summary_rows.ir.json (gridwell's emitter, reviewed)"
   },
   "grid": {
     "columns": [
       {
+        "align": "left",
+        "id": "row",
         "stub": true
       },
-      {},
-      {}
+      {
+        "align": "right",
+        "id": "num"
+      },
+      {
+        "align": "right",
+        "id": "currency"
+      }
     ],
     "extra_lines": [],
     "footnotes": [],
     "groups": [
       {
+        "group_id": "grp_a",
         "label": {
+          "runs": [
+            {
+              "text": "grp_a"
+            }
+          ],
           "text": "grp_a"
         },
         "rows": [
           {
             "cells": [
               {
+                "align": "left",
                 "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "row_1"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "row_1",
                 "stub": true,
                 "text": "row_1"
               },
               {
+                "align": "right",
                 "col": 1,
-                "text": "0.1"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "0.1"
+                  }
+                ],
+                "sort_key": "0.1",
+                "text": "0.1",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0.1
+                }
               },
               {
+                "align": "right",
                 "col": 2,
-                "text": "49.95"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "49.95"
+                  }
+                ],
+                "sort_key": "49.95",
+                "text": "49.95",
+                "typed_value": {
+                  "type": "number",
+                  "value": 49.95
+                }
               }
             ]
           },
           {
             "cells": [
               {
+                "align": "left",
                 "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "row_2"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "row_2",
                 "stub": true,
                 "text": "row_2"
               },
               {
+                "align": "right",
                 "col": 1,
-                "text": "2.2"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "2.2"
+                  }
+                ],
+                "sort_key": "2.2",
+                "text": "2.2",
+                "typed_value": {
+                  "type": "number",
+                  "value": 2.2
+                }
               },
               {
+                "align": "right",
                 "col": 2,
-                "text": "17.95"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "17.95"
+                  }
+                ],
+                "sort_key": "17.95",
+                "text": "17.95",
+                "typed_value": {
+                  "type": "number",
+                  "value": 17.95
+                }
               }
             ]
           },
           {
             "cells": [
               {
+                "align": "left",
                 "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "row_3"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "row_3",
                 "stub": true,
                 "text": "row_3"
               },
               {
+                "align": "right",
                 "col": 1,
-                "text": "33.3"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "33.3"
+                  }
+                ],
+                "sort_key": "33.3",
+                "text": "33.3",
+                "typed_value": {
+                  "type": "number",
+                  "value": 33.3
+                }
               },
               {
+                "align": "right",
                 "col": 2,
-                "text": "1.39"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "1.39"
+                  }
+                ],
+                "sort_key": "1.39",
+                "text": "1.39",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1.39
+                }
               }
             ]
           },
           {
             "cells": [
               {
+                "align": "left",
                 "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "row_4"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "row_4",
                 "stub": true,
                 "text": "row_4"
               },
               {
+                "align": "right",
                 "col": 1,
-                "text": "444.4"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "444.4"
+                  }
+                ],
+                "sort_key": "444.4",
+                "text": "444.4",
+                "typed_value": {
+                  "type": "number",
+                  "value": 444.4
+                }
               },
               {
+                "align": "right",
                 "col": 2,
-                "text": "65100.0"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "65100.0"
+                  }
+                ],
+                "sort_key": "65100.0",
+                "text": "65100.0",
+                "typed_value": {
+                  "type": "number",
+                  "value": 65100
+                }
               }
             ]
           }
@@ -98,16 +245,35 @@
           {
             "cells": [
               {
+                "align": "left",
                 "col": 0,
+                "runs": [
+                  {
+                    "text": "Total"
+                  }
+                ],
+                "scope": "row",
                 "stub": true,
                 "text": "Total"
               },
               {
+                "align": "right",
                 "col": 1,
+                "runs": [
+                  {
+                    "text": "480.1"
+                  }
+                ],
                 "text": "480.1"
               },
               {
+                "align": "right",
                 "col": 2,
+                "runs": [
+                  {
+                    "text": "65,169.3"
+                  }
+                ],
                 "text": "65,169.3"
               }
             ],
@@ -116,57 +282,150 @@
         ]
       },
       {
+        "group_id": "grp_b",
         "label": {
+          "runs": [
+            {
+              "text": "grp_b"
+            }
+          ],
           "text": "grp_b"
         },
         "rows": [
           {
             "cells": [
               {
+                "align": "left",
                 "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "row_5"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "row_5",
                 "stub": true,
                 "text": "row_5"
               },
               {
+                "align": "right",
                 "col": 1,
-                "text": "5,550.0"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "5,550.0"
+                  }
+                ],
+                "sort_key": "5,550.0",
+                "text": "5,550.0",
+                "typed_value": {
+                  "type": "number",
+                  "value": 5550
+                }
               },
               {
+                "align": "right",
                 "col": 2,
-                "text": "1325.81"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "1325.81"
+                  }
+                ],
+                "sort_key": "1325.81",
+                "text": "1325.81",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1325.81
+                }
               }
             ]
           },
           {
             "cells": [
               {
+                "align": "left",
                 "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "row_6"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "row_6",
                 "stub": true,
                 "text": "row_6"
               },
               {
+                "align": "right",
                 "col": 1,
+                "runs": [
+                  {
+                    "text": "None"
+                  }
+                ],
                 "text": "None"
               },
               {
+                "align": "right",
                 "col": 2,
-                "text": "13.255"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "13.255"
+                  }
+                ],
+                "sort_key": "13.255",
+                "text": "13.255",
+                "typed_value": {
+                  "type": "number",
+                  "value": 13.255
+                }
               }
             ]
           },
           {
             "cells": [
               {
+                "align": "left",
                 "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "row_7"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "row_7",
                 "stub": true,
                 "text": "row_7"
               },
               {
+                "align": "right",
                 "col": 1,
-                "text": "777,000.0"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "777,000.0"
+                  }
+                ],
+                "sort_key": "777,000.0",
+                "text": "777,000.0",
+                "typed_value": {
+                  "type": "number",
+                  "value": 777000
+                }
               },
               {
+                "align": "right",
                 "col": 2,
+                "runs": [
+                  {
+                    "text": "None"
+                  }
+                ],
                 "text": "None"
               }
             ]
@@ -174,17 +433,50 @@
           {
             "cells": [
               {
+                "align": "left",
                 "col": 0,
+                "data_type": "string",
+                "runs": [
+                  {
+                    "text": "row_8"
+                  }
+                ],
+                "scope": "row",
+                "sort_key": "row_8",
                 "stub": true,
                 "text": "row_8"
               },
               {
+                "align": "right",
                 "col": 1,
-                "text": "8,880,000.0"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "8,880,000.0"
+                  }
+                ],
+                "sort_key": "8,880,000.0",
+                "text": "8,880,000.0",
+                "typed_value": {
+                  "type": "number",
+                  "value": 8880000
+                }
               },
               {
+                "align": "right",
                 "col": 2,
-                "text": "0.44"
+                "data_type": "number",
+                "runs": [
+                  {
+                    "text": "0.44"
+                  }
+                ],
+                "sort_key": "0.44",
+                "text": "0.44",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0.44
+                }
               }
             ]
           }
@@ -193,16 +485,35 @@
           {
             "cells": [
               {
+                "align": "left",
                 "col": 0,
+                "runs": [
+                  {
+                    "text": "Total"
+                  }
+                ],
+                "scope": "row",
                 "stub": true,
                 "text": "Total"
               },
               {
+                "align": "right",
                 "col": 1,
+                "runs": [
+                  {
+                    "text": "9,662,550.0"
+                  }
+                ],
                 "text": "9,662,550.0"
               },
               {
+                "align": "right",
                 "col": 2,
+                "runs": [
+                  {
+                    "text": "1,339.5"
+                  }
+                ],
                 "text": "1,339.5"
               }
             ],
@@ -211,22 +522,42 @@
         ]
       },
       {
+        "group_id": null,
         "label": null,
         "rows": [],
         "summary_rows": [
           {
             "cells": [
               {
+                "align": "left",
                 "col": 0,
+                "runs": [
+                  {
+                    "text": "Grand total"
+                  }
+                ],
+                "scope": "row",
                 "stub": true,
                 "text": "Grand total"
               },
               {
+                "align": "right",
                 "col": 1,
+                "runs": [
+                  {
+                    "text": "9,663,030.1"
+                  }
+                ],
                 "text": "9,663,030.1"
               },
               {
+                "align": "right",
                 "col": 2,
+                "runs": [
+                  {
+                    "text": "66,508.8"
+                  }
+                ],
                 "text": "66,508.8"
               }
             ],
@@ -239,15 +570,32 @@
       {
         "cells": [
           {
+            "align": "left",
             "col": 0,
+            "runs": [],
+            "scope": "col",
             "text": ""
           },
           {
+            "align": "right",
             "col": 1,
+            "runs": [
+              {
+                "text": "num"
+              }
+            ],
+            "scope": "col",
             "text": "num"
           },
           {
+            "align": "right",
             "col": 2,
+            "runs": [
+              {
+                "text": "currency"
+              }
+            ],
+            "scope": "col",
             "text": "currency"
           }
         ],

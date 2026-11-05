@@ -484,7 +484,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "mazda rx4"
+                "sort_key": "mazda rx4",
+                "scope": "row"
               },
               {
                 "content": [
@@ -638,7 +639,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "mazda rx4 wag"
+                "sort_key": "mazda rx4 wag",
+                "scope": "row"
               },
               {
                 "content": [
@@ -792,7 +794,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "datsun 710"
+                "sort_key": "datsun 710",
+                "scope": "row"
               },
               {
                 "content": [
@@ -946,7 +949,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "hornet 4 drive"
+                "sort_key": "hornet 4 drive",
+                "scope": "row"
               },
               {
                 "content": [
@@ -1100,7 +1104,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "hornet sportabout"
+                "sort_key": "hornet sportabout",
+                "scope": "row"
               },
               {
                 "content": [
@@ -1254,7 +1259,8 @@
                 "is_stub": true,
                 "is_placeholder": false,
                 "data_type": "string",
-                "sort_key": "valiant"
+                "sort_key": "valiant",
+                "scope": "row"
               },
               {
                 "content": [

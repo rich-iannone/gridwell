@@ -1,64 +1,174 @@
 {
   "format": "gridwell-conformance-grid/1",
-  "tier": "L1",
+  "tier": "L3",
   "case": "adjacent_spanners",
   "producer": {
     "package": "great_tables",
     "version": "1.1.0"
   },
   "source": {
-    "L1": "harness/gt-reference-py/adjacent_spanners.gt.html (Great Tables' HTML)"
+    "L1": "harness/gt-reference-py/adjacent_spanners.gt.html (Great Tables' HTML)",
+    "L2, L3": "harness/gt-reference-py/adjacent_spanners.ir.json (gridwell's emitter, reviewed)"
   },
   "grid": {
     "columns": [
-      {},
-      {},
-      {},
-      {}
+      {
+        "align": "right",
+        "id": "a1"
+      },
+      {
+        "align": "right",
+        "id": "a2"
+      },
+      {
+        "align": "right",
+        "id": "b1"
+      },
+      {
+        "align": "right",
+        "id": "b2"
+      }
     ],
     "extra_lines": [],
     "footnotes": [],
     "groups": [
       {
+        "group_id": null,
         "label": null,
         "rows": [
           {
             "cells": [
               {
+                "align": "right",
                 "col": 0,
-                "text": "1"
+                "data_type": "integer",
+                "runs": [
+                  {
+                    "text": "1"
+                  }
+                ],
+                "sort_key": "1",
+                "text": "1",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 1
+                }
               },
               {
+                "align": "right",
                 "col": 1,
-                "text": "3"
+                "data_type": "integer",
+                "runs": [
+                  {
+                    "text": "3"
+                  }
+                ],
+                "sort_key": "3",
+                "text": "3",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 3
+                }
               },
               {
+                "align": "right",
                 "col": 2,
-                "text": "5"
+                "data_type": "integer",
+                "runs": [
+                  {
+                    "text": "5"
+                  }
+                ],
+                "sort_key": "5",
+                "text": "5",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 5
+                }
               },
               {
+                "align": "right",
                 "col": 3,
-                "text": "7"
+                "data_type": "integer",
+                "runs": [
+                  {
+                    "text": "7"
+                  }
+                ],
+                "sort_key": "7",
+                "text": "7",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 7
+                }
               }
             ]
           },
           {
             "cells": [
               {
+                "align": "right",
                 "col": 0,
-                "text": "2"
+                "data_type": "integer",
+                "runs": [
+                  {
+                    "text": "2"
+                  }
+                ],
+                "sort_key": "2",
+                "text": "2",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 2
+                }
               },
               {
+                "align": "right",
                 "col": 1,
-                "text": "4"
+                "data_type": "integer",
+                "runs": [
+                  {
+                    "text": "4"
+                  }
+                ],
+                "sort_key": "4",
+                "text": "4",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 4
+                }
               },
               {
+                "align": "right",
                 "col": 2,
-                "text": "6"
+                "data_type": "integer",
+                "runs": [
+                  {
+                    "text": "6"
+                  }
+                ],
+                "sort_key": "6",
+                "text": "6",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 6
+                }
               },
               {
+                "align": "right",
                 "col": 3,
-                "text": "8"
+                "data_type": "integer",
+                "runs": [
+                  {
+                    "text": "8"
+                  }
+                ],
+                "sort_key": "8",
+                "text": "8",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 8
+                }
               }
             ]
           }
@@ -70,13 +180,27 @@
       {
         "cells": [
           {
+            "align": "center",
             "col": 0,
             "colspan": 2,
+            "runs": [
+              {
+                "text": "Group A"
+              }
+            ],
+            "scope": "colgroup",
             "text": "Group A"
           },
           {
+            "align": "center",
             "col": 2,
             "colspan": 2,
+            "runs": [
+              {
+                "text": "Group B"
+              }
+            ],
+            "scope": "colgroup",
             "text": "Group B"
           }
         ],
@@ -85,19 +209,47 @@
       {
         "cells": [
           {
+            "align": "right",
             "col": 0,
+            "runs": [
+              {
+                "text": "a1"
+              }
+            ],
+            "scope": "col",
             "text": "a1"
           },
           {
+            "align": "right",
             "col": 1,
+            "runs": [
+              {
+                "text": "a2"
+              }
+            ],
+            "scope": "col",
             "text": "a2"
           },
           {
+            "align": "right",
             "col": 2,
+            "runs": [
+              {
+                "text": "b1"
+              }
+            ],
+            "scope": "col",
             "text": "b1"
           },
           {
+            "align": "right",
             "col": 3,
+            "runs": [
+              {
+                "text": "b2"
+              }
+            ],
+            "scope": "col",
             "text": "b2"
           }
         ],
