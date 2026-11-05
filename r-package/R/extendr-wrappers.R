@@ -9,6 +9,11 @@ NULL
 #' @noRd
 rs_parse_ir <- function(json) .Call(wrap__rs_parse_ir, json)
 
+#' The warning a table of a newer minor IR version gets when parsed (empty for
+#' any other table).
+#' @noRd
+rs_version_warning <- function(table_ptr) .Call(wrap__rs_version_warning, table_ptr)
+
 #' Whether `ptr` points to a table: not after `saveRDS()` and `readRDS()`, which
 #' keep an external pointer but not what it points to.
 #' @noRd
