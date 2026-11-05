@@ -1,5 +1,6 @@
 import json
 import re
+import warnings
 from pathlib import Path
 
 import pytest
@@ -555,3 +556,81 @@ def test_binary_renderers_take_options(method):
     assert getattr(table, method)(**{}) == getattr(table, method)()
     with pytest.raises(gridwell.InvalidOptionsError, match="bogus"):
         getattr(table, method)(bogus=1)
+
+
+def _versioned(version, **changes):
+    ir = json.loads(load_fixture("minimal/styles_borders.json"))
+    ir["ir_version"] = version
+    ir.update(changes)
+    return ir
+
+
+NEWER = (
+    "[NEWER_IR_VERSION] the table is IR 1.3, newer than the IR 1.0 this gridwell reads: "
+    "anything a newer IR version added is left out (a newer gridwell may render it)"
+)
+
+
+@pytest.mark.parametrize(
+    "make",
+    [
+        lambda ir: gridwell.Table(ir),
+        lambda ir: gridwell.Table(json.dumps(ir)),
+        lambda ir: gridwell.Table.from_dict(ir),
+        lambda ir: gridwell.Table.from_json(json.dumps(ir)),
+        lambda ir: gridwell.parse_ir(json.dumps(ir)),
+    ],
+    ids=["Table(dict)", "Table(str)", "from_dict", "from_json", "parse_ir"],
+)
+def test_a_newer_minor_version_warns_once_where_it_is_parsed(make):
+    with pytest.warns(UserWarning) as record:
+        table = make(_versioned("1.3"))
+    assert [str(w.message) for w in record] == [NEWER]
+    # At the caller's line.
+    assert record[0].filename == __file__
+    assert record[0].lineno == make.__code__.co_firstlineno
+    # And renders, as a warning, first.
+    assert table.warnings()[0] == NEWER
+    assert table.warnings("html") == [NEWER]
+    assert table.warnings("latex")[1:] == gridwell.Table(_versioned("1.0")).warnings("latex")
+    assert "<table" in table.render_html()
+    # A copy isn't parsed again.
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        gridwell.Table(table)
+
+
+def test_this_minor_version_does_not_warn():
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        for version in ("1.0", "01.00"):
+            assert gridwell.Table(_versioned(version)).warnings("html") == []
+
+
+def test_an_invalid_newer_minor_version_says_its_version():
+    with pytest.warns(UserWarning, match="NEWER_IR_VERSION"):
+        table = gridwell.Table(_versioned("1.3", config={"table_cols": 9}))
+    with pytest.raises(
+        gridwell.InvalidTableError,
+        match=r"\(the table is IR 1\.3, newer than the IR 1\.0 this gridwell reads: "
+        r"an error may be something a newer IR version added\)$",
+    ):
+        table.render_html()
+
+
+def test_another_major_version_is_refused():
+    # It parses as IR 1: invalid.
+    table = gridwell.Table(_versioned("2.0"))
+    message = (
+        'ir_version is "2.0", IR 2, and this gridwell reads only IR 1.x '
+        "(a newer gridwell may read it)"
+    )
+    assert table.validate() == [f"[IR_VERSION] {message}"]
+    with pytest.raises(gridwell.InvalidTableError, match=re.escape(message)):
+        table.render_html()
+    for version in ("0.9", "1", "1.0.0", " 1.0"):
+        errors = gridwell.Table(_versioned(version)).validate()
+        assert [e.split()[0] for e in errors] == ["[IR_VERSION]"], (version, errors)
+    # It doesn't: a ValueError that says why, not what IR 1 lacks.
+    with pytest.raises(ValueError, match=f"^{re.escape(message)}$"):
+        gridwell.Table(_versioned("2.0", table={"sections": []}))
