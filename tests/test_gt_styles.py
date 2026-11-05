@@ -109,7 +109,7 @@ def emitted(gt_obj):
         if group.get("label"):
             parts["body"].append(entry(group["label"]))
         for row in group["rows"] + group["summary_rows"]:
-            parts["body"].extend(entry(c) for c in row["cells"])
+            parts["body"].extend(entry(c) for c in row["cells"] if not c["is_placeholder"])
     return ir, parts
 
 
@@ -465,3 +465,66 @@ def test_options_style_fonts_and_group_labels():
         "background_color": "#000000", "color": "red", "font_weight": "bold"
     }
     assert gridwell.Table(json.dumps(ir)).validate() == []
+
+
+def stub_tables():
+    df = pd.DataFrame({
+        "g": ["G1", "G1", "G1", "G2", "G2"], "o": ["x", "x", "y", "x", "x"],
+        "i": ["p", "q", "r", "s", "t"], "v": [1, 2, 3, 4, 5], "w": [6, 7, 8, 9, 10],
+    })
+    return GT(df, rowname_col=["o", "i"], groupname_col="g")
+
+
+@pytest.mark.parametrize("as_column", [False, True])
+def test_merged_stub_cells_are_styled_and_marked_as_great_tables_draws_them(as_column):
+    gt_obj = (
+        stub_tables()
+        .tab_options(row_group_as_column=as_column)
+        .tab_stubhead(["A", "B"])
+        .tab_style(style.fill("#FF0000"), loc.stub(rows=[1], columns="o"))
+        .tab_style(style.text(color="#000001"), loc.stub(rows=[2]))
+        .tab_style(style.text(color="#000002"), loc.row_groups(rows=[1]))
+        .tab_footnote("Outer.", loc.stub(rows=[1], columns="o"))
+        .tab_footnote("Inner.", loc.stub(rows=[0]))
+        .tab_footnote("Group.", loc.row_groups(rows=[0]))
+        .tab_footnote("Stubhead.", loc.stubhead())
+    )
+    ir, ours = emitted(gt_obj)
+    theirs = drawn(gt_obj)
+    assert ours == theirs
+    # Not vacuous: a style and a mark on a merged cell, as given for a row it covers.
+    body = [b for b in theirs["body"] if b[0][0] in ("x", "y")]
+    assert body[0] == (["x", "^4"], {"background_color": "#FF0000"})
+    assert body[1:] == [(["y"], {"color": "#000001"}), (["x"], {})]
+    assert gridwell.Table(json.dumps(ir)).validate() == []
+
+
+def test_a_row_group_columns_cells_take_the_options():
+    gt_obj = (
+        stub_tables()
+        .tab_options(
+            row_group_as_column=True,
+            stub_row_group_font_weight="bold",
+            row_striping_include_stub=True,
+        )
+        .opt_row_striping()
+        .tab_style(style.text(color="blue"), loc.row_groups(rows=[1]))
+        .summary_rows(fns={"Sum": lambda x: x[["v"]].sum()})
+    )
+    ir = gridwell.gt_to_dict(gt_obj)
+    g1, g2 = ir["table"]["tbody"]
+    # The empty cell under a group's cell in its summary rows is styled as it.
+    for g in (g1, g2):
+        under = g["summary_rows"][0]["cells"][0]
+        assert under["content"] == [] and under["style_id"] == g["rows"][0]["cells"][0]["style_id"]
+    first = [defs_of(ir, g["rows"][0]["cells"][0]["style_id"]) for g in (g1, g2)]
+    # Great Tables doesn't stripe the group's cell: on a striped row (G2 starts on
+    # the fourth) it keeps the table's background over the stripe.
+    assert first == [
+        {"color": "blue", "font_weight": "bold"},
+        {"background_color": "#FFFFFF", "color": "#333333", "font_weight": "bold"},
+    ]
+    assert ir["styles"]["conditionals"][0]["id"] == "row_striping"
+    # Without striping, no background of its own.
+    ir = gridwell.gt_to_dict(stub_tables().tab_options(row_group_as_column=True))
+    assert [r["cells"][0]["style_id"] for g in ir["table"]["tbody"] for r in g["rows"][:1]] == [None, None]
