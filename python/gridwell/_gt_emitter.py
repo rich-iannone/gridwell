@@ -6,7 +6,9 @@ Great Tables internals, which is why Great Tables is taking it over.
 Styles and footnote marks follow Great Tables' HTML (`_utils_render_html`): each
 part of the table gets the `tab_style()` styles and the marks Great Tables draws
 on it, and the table options' styles (`_OptionStyles`), as the R emitter does
-for gt.
+for gt. Labels and body cells are the content nodes of the HTML Great Tables puts
+in them (`_lower_html`), so `fmt_*()` output that is HTML (`fmt_markdown()`,
+`fmt_units()`, `fmt_image()`, ...) is drawn as it is formatted.
 """
 
 from __future__ import annotations
@@ -523,36 +525,38 @@ def _build_row(
                 "style_id": style_id,
                 "is_stub": True,
                 "is_placeholder": False,
+                "scope": "row",
                 "data_type": None,
                 "sort_key": None,
             })
             continue
         value = tbl_data[col.var].iloc[row_idx]
-        # The text Great Tables renders (`str()` of the built body), missing values
-        # included: GT shows those as text too ("None", "nan").
+        # The HTML Great Tables puts in the cell (`str()` of the built body: a
+        # formatted value, or the data escaped), missing values included: GT shows
+        # those as text too ("None", "nan").
         missing = bool(pd.isna(value))
-        text = str(value)
+        label = _HtmlLabel(str(value))
+        text = _plain(label)
 
         # Determine data type from the original data
         orig_val = built._tbl_data[col.var].iloc[row_idx]
         data_type = _infer_data_type(orig_val, col.var, built._tbl_data.dtypes)
 
         cell = {
-            # The text as it is (Great Tables puts the body's text in its HTML as
-            # it is, but the IR doesn't read cell HTML yet).
-            "content": decor.with_marks(
-                _HtmlLabel(text), notes, nodes=[{"type": "text", "value": text}]
-            ),
+            "content": decor.with_marks(label, notes),
             "colspan": 1,
             "rowspan": 1,
             "style_id": style_id,
             "is_stub": is_stub,
             "is_placeholder": False,
             "data_type": data_type,
-            # A missing value sorts as missing, not as its text.
+            # A missing value sorts as missing, not as its text; the text shown
+            # sorts, not its markup.
             "sort_key": text.lower() if text and not missing else None,
         }
 
+        if is_stub:
+            cell["scope"] = "row"
         if not is_stub and text and not missing and not pd.isna(orig_val):
             typed = _typed_value(orig_val, text, data_type)
             if typed is not None:
@@ -685,12 +689,14 @@ def _build_footer(built: Any, shown: list[dict[str, Any]], decor: _Decor) -> dic
     }
 
 
-# ─── Labels as content nodes ───
+# ─── Labels and cells as content nodes ───
 #
 # A label (title, column label, spanner, group, footnote, source note) is what
 # Great Tables puts in its HTML: a string escaped, `md()` rendered to HTML, `html()`
-# as is. That HTML is lowered to the content nodes the IR draws: text, styled text
-# runs and line breaks.
+# as is. So is a body cell's text: `fmt_*()` output in the html context
+# (`fmt_markdown()`, `fmt_units()`, `fmt_image()`, ...), anything else escaped.
+# That HTML is lowered to the content nodes the IR draws: text, styled text runs,
+# line breaks, images, and raw HTML for an SVG (an icon, a flag, a nanoplot).
 
 
 class _HtmlLabel:
@@ -744,7 +750,11 @@ def _label_nodes(label: Any, styles: _StyleRegistry) -> list[dict]:
     for k, line in enumerate(lines):
         if k > 0:
             nodes.append({"type": "line_break"})
-        for text, style in line:
+        for run in line:
+            if isinstance(run, dict):
+                nodes.append(run)
+                continue
+            text, style = run
             if style:
                 nodes.append({"type": "styled_text", "value": text, "style_id": styles.id(style)})
             else:
@@ -753,8 +763,12 @@ def _label_nodes(label: Any, styles: _StyleRegistry) -> list[dict]:
 
 
 def _plain(label: Any) -> str:
-    """A label's plain text (for `column_spec` labels): its lines joined by spaces."""
-    return " ".join("".join(text for text, _ in line) for line in _lower_html(_label_html(label)))
+    """A label's plain text (for `column_spec` labels, a cell's sort key): its
+    lines joined by spaces, without its images and SVGs."""
+    return " ".join(
+        "".join(run[0] for run in line if isinstance(run, tuple)).strip(" ")
+        for line in _lower_html(_label_html(label))
+    ).strip(" ")
 
 
 # Tags that style the text inside them, and how.
@@ -776,21 +790,52 @@ _VOID = frozenset(
 )
 # White space a browser collapses (not U+00A0 NO-BREAK SPACE).
 _SPACES = re.compile(r"[ \t\n\r\f]+")
+# The Unicode superscript and subscript characters, as gridwell's writers draw
+# `<sup>` and `<sub>` (`gridwell_layout::text`): digits, `+ - − = ( )`, and the
+# lowercase letters that have one.
+_SCRIPTS = {
+    "sup": dict(zip(
+        "0123456789+-−=()abcdefghijklmnoprstuvwxyz",
+        "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁻⁼⁽⁾ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ",
+    )),
+    "sub": dict(zip(
+        "0123456789+-−=()aehijklmnoprstuvx",
+        "₀₁₂₃₄₅₆₇₈₉₊₋₋₌₍₎ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓ",
+    )),
+}
+# An image size the IR takes: a non-negative length, a percentage or `auto`.
+_IMAGE_SIZE = re.compile(r"auto|0|\+?(\d+\.?\d*|\.\d+)(px|pt|rem|em|in|cm|mm|%)", re.I)
+
+# A line of lowered HTML: (text, style) runs and content nodes (images, raw SVG).
+_Line = list[Any]
 
 
 class _Lowerer(HTMLParser):
-    """HTML as lines of (text, style) runs, white space collapsed as a browser does."""
+    """HTML as lines of runs, white space collapsed as a browser does. A run is
+    (text, style), or a content node: an image for an `<img>`, raw HTML for an
+    `<svg>` (its markup as written)."""
 
-    def __init__(self) -> None:
+    def __init__(self, markup: str) -> None:
         super().__init__(convert_charrefs=True)
-        self.lines: list[list[tuple[str, dict[str, str]]]] = [[]]
-        self.open: list[str] = []
+        self.markup = markup
+        # Where each line of `markup` starts (`getpos()` is a line and column).
+        self.line_starts = [0] + [m.end() for m in re.finditer("\n", markup)]
+        self.lines: list[_Line] = [[]]
+        # Open tags, each with where a `<sup>`/`<sub>`'s runs start (line, run).
+        self.open: list[tuple[str, tuple[int, int] | None]] = []
         self.hidden = 0
         self.block_break = False
+        # Where an `<svg>` being skipped starts in `markup`, and how deep it is.
+        self.svg_start: int | None = None
+        self.svg_depth = 0
+
+    def _offset(self) -> int:
+        line, col = self.getpos()
+        return self.line_starts[line - 1] + col
 
     def _style(self) -> dict[str, str]:
         style: dict[str, str] = {}
-        for tag in self.open:
+        for tag, _ in self.open:
             if tag in _TAG_STYLES:
                 prop, value = _TAG_STYLES[tag]
                 style[prop] = value
@@ -800,9 +845,28 @@ class _Lowerer(HTMLParser):
         self.lines.append([])
 
     def _has_text(self) -> bool:
-        return any(_SPACES.sub("", t) for t, _ in self.lines[-1])
+        return any(
+            isinstance(run, dict) or _SPACES.sub("", run[0]) for run in self.lines[-1]
+        )
+
+    def _add(self, run: Any) -> None:
+        if self.block_break:
+            # A block starts a line, unless the line is empty so far.
+            if self._has_text():
+                self._break()
+            self.block_break = False
+        self.lines[-1].append(run)
+
+    def _raw(self, markup: str) -> None:
+        self._add({"type": "raw", "format": "html", "value": markup})
 
     def handle_starttag(self, tag: str, attrs: Any) -> None:
+        if self.svg_start is not None:
+            self.svg_depth += tag == "svg"
+            return
+        if tag == "svg" and not self.hidden:
+            self.svg_start, self.svg_depth = self._offset(), 1
+            return
         if tag == "br":
             # After a block, a <br> is a line of its own.
             if self.block_break and self._has_text():
@@ -812,65 +876,134 @@ class _Lowerer(HTMLParser):
             return
         if tag in _BLOCKS:
             self.block_break = True
+        if tag == "img" and not self.hidden:
+            self._add(_image(attrs))
         if tag in _VOID:
             return
-        self.open.append(tag)
+        start = (len(self.lines) - 1, len(self.lines[-1])) if tag in _SCRIPTS else None
+        self.open.append((tag, start))
         if tag in _HIDDEN:
             self.hidden += 1
 
     def handle_startendtag(self, tag: str, attrs: Any) -> None:
+        if tag == "svg" and self.svg_start is None and not self.hidden:
+            self._raw(self.get_starttag_text() or "")
+            return
         self.handle_starttag(tag, attrs)
         if tag not in _VOID:
             self.handle_endtag(tag)
 
     def handle_endtag(self, tag: str) -> None:
+        if self.svg_start is not None:
+            if tag == "svg":
+                self.svg_depth -= 1
+                if not self.svg_depth:
+                    end = self.markup.find(">", self._offset())
+                    end = len(self.markup) if end < 0 else end + 1
+                    self._raw(self.markup[self.svg_start:end])
+                    self.svg_start = None
+            return
         if tag in _BLOCKS:
             self.block_break = True
         # Close up to the matching tag; a stray end tag closes nothing.
         for i in range(len(self.open) - 1, -1, -1):
-            if self.open[i] == tag:
-                self.hidden -= sum(t in _HIDDEN for t in self.open[i:])
-                del self.open[i:]
+            if self.open[i][0] == tag:
+                self._close(i)
                 return
 
-    def handle_data(self, data: str) -> None:
-        if self.hidden or not data:
+    def _close(self, at: int) -> None:
+        """Close the open tags from `at` up, innermost first."""
+        while len(self.open) > at:
+            tag, start = self.open.pop()
+            self.hidden -= tag in _HIDDEN
+            if start is not None:
+                self._script(_SCRIPTS[tag], *start)
+
+    def _script(self, chars: dict[str, str], line: int, first: int) -> None:
+        """Redraw the runs from `first` in superscript or subscript characters, if
+        they're all on one line, all text, and every character has one (white
+        space stays); leave them as written otherwise."""
+        if line != len(self.lines) - 1:
             return
-        if self.block_break:
-            # A block starts a line, unless the line is empty so far.
-            if self._has_text():
-                self._break()
-            self.block_break = False
-        self.lines[-1].append((data, self._style()))
+        runs = self.lines[line][first:]
+        if any(isinstance(run, dict) for run in runs):
+            return
+        drawn = []
+        for text, style in runs:
+            if any(c not in chars and not _SPACES.match(c) for c in text):
+                return
+            drawn.append(("".join(chars.get(c, c) for c in text), style))
+        self.lines[line][first:] = drawn
+
+    def handle_data(self, data: str) -> None:
+        if self.hidden or self.svg_start is not None or not data:
+            return
+        self._add((data, self._style()))
+
+    def close(self) -> None:
+        super().close()
+        if self.svg_start is not None:
+            # An `<svg>` never closed runs to the end.
+            self._raw(self.markup[self.svg_start:])
+            self.svg_start = None
+        self._close(0)
 
 
-def _lower_html(markup: str) -> list[list[tuple[str, dict[str, str]]]]:
-    """HTML as lines of merged (text, style) runs: white space runs one space,
-    each line trimmed, empty lines at the start and end dropped."""
-    lowerer = _Lowerer()
+def _image(attrs: Any) -> dict[str, str]:
+    """An `<img>`'s image node: its `src` and `alt`, and its `width` and `height`
+    (a `style` attribute's over the attributes, as a browser sizes it; a number is
+    pixels), those the IR can take. Only what the tag says: nothing is read."""
+    given: dict[str, str] = {}
+    for name, value in attrs:
+        given.setdefault(name, value or "")
+    node = {"type": "image", "src": given.get("src", "").strip()}
+    if "alt" in given:
+        node["alt"] = given["alt"]
+    sizes = {}
+    for side in ("width", "height"):
+        value = given.get(side, "").strip()
+        sizes[side] = value + "px" if _BARE_NUMBER.fullmatch(value) else value
+    for prop, value in _DECLARATION.findall(given.get("style", "")):
+        prop = prop.lower()
+        if prop in sizes:
+            sizes[prop] = re.sub(r"\s*!important$", "", value.strip(), flags=re.I)
+    for side, value in sizes.items():
+        if _IMAGE_SIZE.fullmatch(value):
+            node[side] = value
+    return node
+
+
+def _lower_html(markup: str) -> list[_Line]:
+    """HTML as lines of merged runs: white space runs one space, each line
+    trimmed, empty lines at the start and end dropped. A content node keeps the
+    spaces around it, as an inline image does."""
+    lowerer = _Lowerer(markup)
     lowerer.feed(markup)
     lowerer.close()
     lines = []
     for raw in lowerer.lines:
-        runs: list[tuple[str, dict[str, str]]] = []
-        for text, style in raw:
+        runs: _Line = []
+        for run in raw:
+            if isinstance(run, dict):
+                runs.append(run)
+                continue
+            text, style = run
             text = _SPACES.sub(" ", text)
-            # One space between runs: the first one's.
-            if runs and runs[-1][0].endswith(" ") and text.startswith(" "):
-                text = text[1:]
-            if not runs and text.startswith(" "):
+            last = runs[-1] if runs else None
+            # One space between runs (the first one's), none at the start.
+            if text.startswith(" ") and (last is None or (isinstance(last, tuple) and last[0].endswith(" "))):
                 text = text[1:]
             if not text:
                 continue
-            if runs and runs[-1][1] == style:
-                runs[-1] = (runs[-1][0] + text, style)
+            if isinstance(last, tuple) and last[1] == style:
+                runs[-1] = (last[0] + text, style)
             else:
                 runs.append((text, style))
-        if runs:
-            last, style = runs[-1]
-            last = last.rstrip(" ")
-            if last:
-                runs[-1] = (last, style)
+        if runs and isinstance(runs[-1], tuple):
+            text, style = runs[-1]
+            text = text.rstrip(" ")
+            if text:
+                runs[-1] = (text, style)
             else:
                 runs.pop()
         lines.append(runs)
