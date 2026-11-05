@@ -788,3 +788,92 @@ fn conformance_check_refuses_what_it_cant_check() {
     assert_clean_failure(&o);
     assert!(stderr(&o).contains("reading "), "{}", stderr(&o));
 }
+
+fn versioned(name: &str, version: &str) -> PathBuf {
+    let mut ir = one_row_table(vec![txt("a", 1)]);
+    ir["ir_version"] = serde_json::json!(version);
+    write_json(name, &ir)
+}
+
+const NEWER: &str = "[NEWER_IR_VERSION] the table is IR 1.3, newer than the IR 1.0 this \
+                     gridwell reads";
+
+#[test]
+fn a_newer_minor_version_converts_and_validates_with_a_warning() {
+    let path = versioned("newer-minor", "1.3");
+    let o = bin()
+        .args(["convert", "-t", "html"])
+        .arg(&path)
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    assert!(stdout(&o).contains("<table"));
+    let err = stderr(&o);
+    assert!(err.starts_with(&format!("Warning: {NEWER}")), "{err}");
+    assert_eq!(err.lines().count(), 1, "{err}");
+
+    let o = bin().arg("validate").arg(&path).output().unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    let err = stderr(&o);
+    assert!(
+        err.starts_with(&format!(
+            "Valid: no errors found.\n1 warning(s):\n  - {NEWER}"
+        )),
+        "{err}"
+    );
+}
+
+#[test]
+fn an_invalid_newer_minor_version_says_its_version() {
+    let mut ir = one_row_table(vec![txt("a", 1)]);
+    ir["ir_version"] = serde_json::json!("1.3");
+    ir["config"]["table_cols"] = serde_json::json!(2);
+    let path = write_json("newer-minor-invalid", &ir);
+    let note = "(the table is IR 1.3, newer than the IR 1.0 this gridwell reads: an error \
+                may be something a newer IR version added)";
+    for args in [vec!["validate"], vec!["convert", "-t", "html"]] {
+        let o = bin().args(&args).arg(&path).output().unwrap();
+        assert_clean_failure(&o);
+        let err = stderr(&o);
+        assert!(err.contains("[COL_COUNT]"), "{args:?}: {err}");
+        assert!(err.trim_end().ends_with(note), "{args:?}: {err}");
+    }
+    // Not for this version.
+    let o = bin()
+        .arg("validate")
+        .arg(fixture("invalid/span_overlap.json"))
+        .output()
+        .unwrap();
+    assert!(!stderr(&o).contains("newer"), "{}", stderr(&o));
+}
+
+#[test]
+fn another_major_version_is_refused() {
+    // It parses as IR 1: a validation error.
+    let path = versioned("unknown-major", "2.0");
+    for args in [vec!["validate"], vec!["convert", "-t", "html"]] {
+        let o = bin().args(&args).arg(&path).output().unwrap();
+        assert_clean_failure(&o);
+        assert!(
+            stderr(&o).contains(
+                "[IR_VERSION] ir_version is \"2.0\", IR 2, and this gridwell reads only IR \
+                 1.x (a newer gridwell may read it)"
+            ),
+            "{args:?}: {}",
+            stderr(&o)
+        );
+        assert!(o.stdout.is_empty());
+    }
+    // It doesn't: the version is what's wrong, not the shape.
+    let mut ir = one_row_table(vec![txt("a", 1)]);
+    ir["ir_version"] = serde_json::json!("2.0");
+    ir["table"] = serde_json::json!({ "sections": [] });
+    let path = write_json("unknown-major-shape", &ir);
+    let o = bin().arg("validate").arg(&path).output().unwrap();
+    assert_clean_failure(&o);
+    assert_eq!(
+        stderr(&o),
+        "Error parsing IR: ir_version is \"2.0\", IR 2, and this gridwell reads only IR 1.x \
+         (a newer gridwell may read it)\n"
+    );
+}
