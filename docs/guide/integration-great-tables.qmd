@@ -79,9 +79,11 @@ today `"auto"` always uses gridwell's.
 | Column labels | `thead` rows |
 | Spanners (`tab_spanner()`, any number of levels) | `spanner_label` rows above the column labels, drawn as Great Tables draws them |
 | Row groups | `tbody` array with group labels |
-| Stub column | Cells with `is_stub: true` and `scope: "row"` (row headers, as in Great Tables' HTML) |
-| Stubhead label (`tab_stubhead()`) | The stub column's head cell (blank without one) |
-| Summary rows (`summary_rows()`, `grand_summary_rows()`) | A group's `summary_rows`, and a last group without a label for the grand summary; a table without a stub gets an empty one for their labels, as in Great Tables. Summary rows on a group's top side are listed after its rows |
+| Stub column | Cells with `is_stub: true` and `scope: "row"` (row headers, as in Great Tables' HTML), always aligned left |
+| A stub of several columns (`rowname_col=["region", "city"]`) | One stub column each, outermost first. Where an outer column's value is the same in consecutive rows of a group (and so are the columns to its left), the rows share one cell spanning them (`rowspan`, `scope: "rowgroup"`), merged in the order the rows are shown |
+| Row group column (`tab_options(row_group_as_column=True)`) | The first stub column: each group's label is a stub cell spanning its rows (`scope: "rowgroup"`), and the group has no label row |
+| Stubhead label (`tab_stubhead()`) | One head cell spanning the stub columns (blank without one); a list of labels (`tab_stubhead(["A", "B"])`) gives each row stub column its own, with a blank one above a row group column |
+| Summary rows (`summary_rows()`, `grand_summary_rows()`) | A group's `summary_rows`, and a last group without a label for the grand summary; a table without a stub gets an empty one for their labels, as in Great Tables. Summary rows on a group's top side are listed after its rows. With a row group column, a summary row's label spans the other stub columns, beside an empty cell under the group's label (Great Tables' HTML has the group's cell span its summary rows instead) |
 | Title/subtitle | `header` block |
 | Source notes | `footer.source_notes` |
 | Footnotes (`tab_footnote()`) | `footer.footnotes`, the ones Great Tables lists, in its order and with its marks; each mark is also on the cell or label it annotates, where Great Tables puts it (with `placement="auto"`, before a number and after anything else) |
