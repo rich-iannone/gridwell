@@ -49,6 +49,8 @@ A valid table can still use a feature a format can't express.
 `gridwell_render::warnings` lists those [warnings](../schema/validation.qmd#warnings)
 for one format, or every format with `None`, each with the format, the feature, its
 places and the reason; like `render`, it fails for invalid IR or an unknown format.
+A table of a newer minor IR version (`Table::is_newer_minor`) gets a
+`Warning::NewerIrVersion` first.
 A writer reports its own through `Writer::unsupported`.
 
 ```rust
