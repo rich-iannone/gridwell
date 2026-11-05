@@ -79,7 +79,7 @@ today `"auto"` always uses gridwell's.
 | Column labels | `thead` rows |
 | Spanners (`tab_spanner()`, any number of levels) | `spanner_label` rows above the column labels, drawn as Great Tables draws them |
 | Row groups | `tbody` array with group labels |
-| Stub column | Cells with `is_stub: true` |
+| Stub column | Cells with `is_stub: true` and `scope: "row"` (row headers, as in Great Tables' HTML) |
 | Stubhead label (`tab_stubhead()`) | The stub column's head cell (blank without one) |
 | Summary rows (`summary_rows()`, `grand_summary_rows()`) | A group's `summary_rows`, and a last group without a label for the grand summary; a table without a stub gets an empty one for their labels, as in Great Tables. Summary rows on a group's top side are listed after its rows |
 | Title/subtitle | `header` block |
@@ -87,10 +87,10 @@ today `"auto"` always uses gridwell's.
 | Footnotes (`tab_footnote()`) | `footer.footnotes`, the ones Great Tables lists, in its order and with its marks; each mark is also on the cell or label it annotates, where Great Tables puts it (with `placement="auto"`, before a number and after anything else) |
 | Styles (`tab_style()`) | Each styled cell's or label's own style (`style_id`), as the CSS Great Tables writes for it, later declarations winning: text, fill, borders and the `style.css()` declarations the IR has. A font size without a unit (`style.text(size=12)`) is in pixels; properties the IR has no equivalent for (`font-stretch`, `letter-spacing`) are dropped |
 | Table options (`tab_options()`, `opt_stylize()`, `opt_row_striping()`) | The options the IR can express, where changed from Great Tables' defaults: the fills (with the text color Great Tables gives them) and font weights of the column labels, row group labels and stub, the summary rows' fills, no lines between body rows, and striping (a conditional style on even rows, of the stub, the body or both). Other options (fonts, sizes, padding, the table's borders) aren't converted yet |
-| `md()` and `html()` labels | Text with bold, italic, underline, strike-through and code runs and line breaks, from the HTML Great Tables makes of them (other markup is dropped and its text kept) |
+| `md()` and `html()` labels | The content of the HTML Great Tables makes of them: text with bold, italic, underline, strike-through and code runs, line breaks, superscripts and subscripts in Unicode characters where every character has one (`m²`), images (`<img>`, their `src` copied, never read) and SVG as raw HTML (other markup is dropped and its text kept) |
 | Column alignment | `column_spec[].align` |
 | Column widths | `column_spec[].width` |
-| Formatted values | Cell `content` (display text) |
+| Formatted values | Cell `content`: the content of the HTML Great Tables puts in the cell, read as labels are, so `fmt_*()` output that is HTML (`fmt_markdown()`, `fmt_units()`, `fmt_scientific()`, `fmt_image()`, nanoplots) is drawn as formatted, and other values are their text. A cell's `sort_key` is the text shown, not its markup |
 | Typed values | Cell `typed_value` (below) |
 
 A cell's [typed value](../schema/table-data.qmd#typed-values) is what a spreadsheet
