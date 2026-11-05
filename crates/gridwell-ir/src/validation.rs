@@ -1,5 +1,6 @@
 use crate::content::ContentNode;
 use crate::span::OccupancyGrid;
+use crate::version::{version_problem, IR_VERSION};
 use crate::Table;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -8,6 +9,9 @@ use std::fmt;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ValidationRule {
+    /// `ir_version` is not `MAJOR.MINOR`, or is a major version this gridwell
+    /// doesn't read (see [`crate::version`]).
+    IrVersion,
     ColCount,
     RowCount,
     ColspecLength,
@@ -48,6 +52,7 @@ impl ValidationRule {
     /// it serializes to).
     pub fn id(self) -> &'static str {
         match self {
+            ValidationRule::IrVersion => "IR_VERSION",
             ValidationRule::ColCount => "COL_COUNT",
             ValidationRule::RowCount => "ROW_COUNT",
             ValidationRule::ColspecLength => "COLSPEC_LENGTH",
@@ -84,11 +89,26 @@ impl fmt::Display for ValidationRule {
 #[derive(Debug, Clone)]
 pub struct InvalidTable {
     pub errors: Vec<ValidationError>,
+    /// The table's `ir_version` when it is a newer minor version than this
+    /// gridwell reads ([`IrVersion::is_newer_minor`](crate::IrVersion::is_newer_minor)): an error may be something
+    /// the newer minors added.
+    pub newer_ir_version: Option<String>,
 }
 
 impl InvalidTable {
     /// How many errors `Display` lists before summarizing the rest.
     pub const DISPLAY_LIMIT: usize = 10;
+
+    /// For a table of a newer minor IR version, a note saying so, which
+    /// `Display` ends with.
+    pub fn version_note(&self) -> Option<String> {
+        self.newer_ir_version.as_ref().map(|version| {
+            format!(
+                "(the table is IR {version}, newer than the IR {IR_VERSION} this gridwell \
+                 reads: an error may be something a newer IR version added)"
+            )
+        })
+    }
 }
 
 impl fmt::Display for InvalidTable {
@@ -104,6 +124,9 @@ impl fmt::Display for InvalidTable {
         }
         if n > Self::DISPLAY_LIMIT {
             write!(f, "\n  … and {} more", n - Self::DISPLAY_LIMIT)?;
+        }
+        if let Some(note) = self.version_note() {
+            write!(f, "\n{note}")?;
         }
         Ok(())
     }
@@ -162,12 +185,15 @@ pub fn validate(table: &Table) -> Vec<ValidationError> {
 
 /// Validate a table IR with explicit [`Limits`], returning all errors found.
 ///
-/// If any limit is exceeded, only the `LIMIT_EXCEEDED` errors are returned.
+/// If any limit is exceeded, only the `IR_VERSION` and `LIMIT_EXCEEDED` errors
+/// are returned.
 pub fn validate_with_limits(table: &Table, limits: &Limits) -> Vec<ValidationError> {
     let mut errors = Vec::new();
 
+    validate_ir_version(table, &mut errors);
+    let before_limits = errors.len();
     validate_limits(table, limits, &mut errors);
-    if !errors.is_empty() {
+    if errors.len() > before_limits {
         return errors;
     }
 
@@ -186,6 +212,21 @@ pub fn validate_with_limits(table: &Table, limits: &Limits) -> Vec<ValidationErr
     crate::value_checks::validate_values(table, &mut errors);
 
     errors
+}
+
+/// IR_VERSION: `ir_version` is `MAJOR.MINOR`, of the major version this gridwell
+/// reads.
+fn validate_ir_version(table: &Table, errors: &mut Vec<ValidationError>) {
+    if let Some(message) = version_problem(&table.ir_version) {
+        errors.push(ValidationError {
+            rule: ValidationRule::IrVersion,
+            section: "ir_version".to_string(),
+            row_group: None,
+            row: None,
+            col: None,
+            message,
+        });
+    }
 }
 
 /// LIMIT_EXCEEDED: declared and actual dimensions within [`Limits`].
