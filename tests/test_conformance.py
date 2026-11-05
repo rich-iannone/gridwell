@@ -418,7 +418,7 @@ def test_every_case_has_its_expected_grids():
     assert sorted(p.stem for p in (EXPECTED / "great_tables").glob("*.json")) == sorted(cases())
     for name in cases():
         gt, great_tables = load(EXPECTED / "gt" / f"{name}.json"), load(EXPECTED / "great_tables" / f"{name}.json")
-        assert (gt["tier"], great_tables["tier"]) == ("L3", "L1")
+        assert (gt["tier"], great_tables["tier"]) == ("L3", "L3")
         assert gt["case"] == great_tables["case"] == name
         assert gt["producer"]["package"] == "gt"
         assert great_tables["producer"]["package"] == "great_tables"
@@ -445,6 +445,14 @@ def test_the_great_tables_reference_conforms(name):
         (PY_REF / f"{name}.ir.json").read_text(encoding="utf-8"),
         EXPECTED / "great_tables" / f"{name}.json",
     )
+
+
+@in_checkout
+@pytest.mark.parametrize("name", cases() if EXPECTED.is_dir() else [])
+def test_the_great_tables_reference_has_what_great_tables_html_shows(name):
+    # make.py refuses to write otherwise; this checks the reader on its own.
+    seen = html_grid().grid((PY_REF / f"{name}.gt.html").read_text(encoding="utf-8"))
+    assert_conforms((PY_REF / f"{name}.ir.json").read_text(encoding="utf-8"), seen)
 
 
 def great_tables_cases() -> dict:
@@ -525,6 +533,22 @@ def edge_tables() -> dict:
         .cols_label(a="*not md* <b>", b="x\ny")
         .tab_header(title="Tom & Jerry's <script>")
         .tab_source_note("  spaced   out  "),
+        # Body cells are the HTML Great Tables puts in them: `fmt_*()` output, or
+        # the data escaped.
+        "HTML in body cells": GT(
+            pd.DataFrame({
+                "r": ["a < b & c", "<b>not bold</b>"],
+                "m": ["**md** *it*\n\npara `two`", "- x\n- y"],
+                "sci": [0.000123, 12345.6],
+                "u": ["{{m^2 s_1}}", "{{kg m^-1}}"],
+                "h": ["<svg><text>T</text></svg> &amp; <i>x</i>", "<sup>2q</sup> 10<sup>2<br>3</sup>"],
+            }),
+            rowname_col="r",
+        )
+        .fmt_markdown("m")
+        .fmt_scientific("sci")
+        .fmt_units("u")
+        .fmt(lambda x: x, columns="h"),
         "entities and paragraphs": GT(df[["a"]])
         .tab_header(title=html("A&nbsp;B &amp; C&#x2014;D"))
         .tab_source_note(md("line one\n\nline two"))
