@@ -5,12 +5,12 @@ For each case (in the gt reference set's manifest) this writes:
     expected/gt/<name>.json            to L3: the normalized grid of the gt
                                        reference IR (harness/gt-reference), after
                                        checking its L1 against gt's own HTML
-    expected/great_tables/<name>.json  to L1: the grid of Great Tables' own HTML
-                                       (harness/gt-reference-py), by html_grid.py
+    expected/great_tables/<name>.json  to L3: the same, from the Great Tables
+                                       reference set (harness/gt-reference-py)
 
-The L1 of both comes from the package's own HTML, so it doesn't rest on trusting
-either emitter. L2 and L3 can't be read off HTML: expected/gt's are those of the
-reviewed reference IR, and Great Tables has none yet.
+The L1 of both is checked against the package's own HTML (read by html_grid.py),
+so it doesn't rest on trusting either emitter. L2 and L3 can't be read off HTML:
+they are those of the reviewed reference IR.
 
 It reads only checked-in files, so it needs neither R nor Great Tables: only a
 gridwell with `gridwell.conformance`. Run it from anywhere after regenerating a
@@ -38,6 +38,8 @@ ROOT = HERE.parent
 EXPECTED = HERE / "expected"
 GT_REF = ROOT / "harness" / "gt-reference"
 PY_REF = ROOT / "harness" / "gt-reference-py"
+# Each package's possessive, for messages.
+PACKAGES = {"gt": "gt's", "great_tables": "Great Tables'"}
 
 
 def manifest(ref: Path) -> dict:
@@ -52,40 +54,29 @@ def dump(obj: dict) -> str:
     return json.dumps(obj, indent=2, ensure_ascii=False) + "\n"
 
 
-def expected_gt(name: str, m: dict) -> dict:
-    ir = GT_REF / f"{name}.ir.json"
-    html = GT_REF / f"{name}.gt.html"
+def expected_grid(name: str, ref: Path, package: str, version: str, m: dict) -> dict:
+    """A case's grid to L3 from a reference set's IR, after checking that its L1
+    is what the package's HTML shows."""
+    ir = ref / f"{name}.ir.json"
+    html = ref / f"{name}.gt.html"
     grid = normalize(ir.read_text(encoding="utf-8"), "L3")
     seen = html_grid.grid(html.read_text(encoding="utf-8"))["grid"]
     l1 = normalize(ir.read_text(encoding="utf-8"), "L1")["grid"]
     if l1 != seen:
         raise SystemExit(
-            f"{name}: the reference IR's L1 grid isn't what gt's HTML shows; "
-            f"compare `gridwell conformance normalize --tier L1 {rel(ir)}` with "
+            f"{name}: the reference IR's L1 grid isn't what {PACKAGES[package]} HTML "
+            f"shows; compare `gridwell conformance normalize --tier L1 {rel(ir)}` with "
             f"`python conformance/html_grid.py {rel(html)}`"
         )
     return {
         "format": grid["format"],
         "tier": grid["tier"],
         "case": name,
-        "producer": {"package": "gt", "version": m["gt_version"]},
+        "producer": {"package": package, "version": version},
         "source": {
-            "L1": f"{rel(html)} (gt's HTML)",
+            "L1": f"{rel(html)} ({PACKAGES[package]} HTML)",
             "L2, L3": f"{rel(ir)} ({m['ir_emitter']}'s emitter, reviewed)",
         },
-        "grid": grid["grid"],
-    }
-
-
-def expected_great_tables(name: str, m: dict) -> dict:
-    html = PY_REF / f"{name}.gt.html"
-    grid = html_grid.grid(html.read_text(encoding="utf-8"))
-    return {
-        "format": grid["format"],
-        "tier": grid["tier"],
-        "case": name,
-        "producer": {"package": "great_tables", "version": m["great_tables_version"]},
-        "source": {"L1": f"{rel(html)} (Great Tables' HTML)"},
         "grid": grid["grid"],
     }
 
@@ -98,8 +89,12 @@ def build() -> dict[Path, str]:
         raise SystemExit("the gt and Great Tables reference sets have different cases")
     files = {}
     for name in names:
-        files[EXPECTED / "gt" / f"{name}.json"] = dump(expected_gt(name, gt))
-        files[EXPECTED / "great_tables" / f"{name}.json"] = dump(expected_great_tables(name, py))
+        files[EXPECTED / "gt" / f"{name}.json"] = dump(
+            expected_grid(name, GT_REF, "gt", gt["gt_version"], gt)
+        )
+        files[EXPECTED / "great_tables" / f"{name}.json"] = dump(
+            expected_grid(name, PY_REF, "great_tables", py["great_tables_version"], py)
+        )
     return files
 
 
