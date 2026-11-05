@@ -1,0 +1,543 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 4,
+    "header_rows": 1,
+    "body_rows": 5,
+    "stub_cols": 2,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null
+  },
+  "styles": {
+    "defs": {
+      "gw_1": {
+        "text_align": "left"
+      },
+      "gw_2": {
+        "font_weight": "bold"
+      }
+    },
+    "compositions": {},
+    "conditionals": []
+  },
+  "header": {
+    "title": null,
+    "subtitle": null,
+    "extra_lines": [],
+    "preheader_content": null
+  },
+  "column_spec": [
+    {
+      "id": "region",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "region"
+    },
+    {
+      "id": "city",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "city"
+    },
+    {
+      "id": "stores",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "Stores"
+    },
+    {
+      "id": "staff",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "Staff"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "City"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "style_id": "gw_1",
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "colgroup",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null,
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Stores"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Staff"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": null,
+              "data_type": null
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "group_id": "Europe",
+        "label": null,
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Europe"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 3,
+                "style_id": "gw_2",
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "rowgroup",
+                "data_type": null,
+                "sort_key": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Paris"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "data_type": "string",
+                "sort_key": "paris",
+                "scope": "row"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "12"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": "12",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 12
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "140"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": "140",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 140
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": true,
+                "scope": null,
+                "data_type": null,
+                "sort_key": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Lyon"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "data_type": "string",
+                "sort_key": "lyon",
+                "scope": "row"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "4"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": "4",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 4
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "38"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": "38",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 38
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": true,
+                "scope": null,
+                "data_type": null,
+                "sort_key": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Berlin"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "data_type": "string",
+                "sort_key": "berlin",
+                "scope": "row"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "9"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": "9",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 9
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "95"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": "95",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 95
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "Asia",
+        "label": null,
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Asia"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 2,
+                "style_id": "gw_2",
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "rowgroup",
+                "data_type": null,
+                "sort_key": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Tokyo"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "data_type": "string",
+                "sort_key": "tokyo",
+                "scope": "row"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "20"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": "20",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 20
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "260"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": "260",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 260
+                }
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": true,
+                "scope": null,
+                "data_type": null,
+                "sort_key": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Osaka"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "data_type": "string",
+                "sort_key": "osaka",
+                "scope": "row"
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "7"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": "7",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 7
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "81"
+                  }
+                ],
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "data_type": "integer",
+                "sort_key": "81",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 81
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ]
+  },
+  "footer": {
+    "footnotes": [],
+    "source_notes": []
+  },
+  "extensions": {}
+}
