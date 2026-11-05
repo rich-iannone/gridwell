@@ -37,6 +37,18 @@ BLOCKS = set(
 )
 # Where a block starts or ends, in text() (a line break if text comes before and after).
 BLOCK_EDGE = "\x00"
+# The Unicode superscript and subscript characters, as gridwell's writers draw
+# `<sup>` and `<sub>` (`gridwell_layout::text`).
+SCRIPTS = {
+    "sup": dict(zip(
+        "0123456789+-−=()abcdefghijklmnoprstuvwxyz",
+        "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁻⁼⁽⁾ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ",
+    )),
+    "sub": dict(zip(
+        "0123456789+-−=()aehijklmnoprstuvx",
+        "₀₁₂₃₄₅₆₇₈₉₊₋₋₌₍₎ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓ",
+    )),
+}
 
 
 class Element:
@@ -98,23 +110,36 @@ def parse(html: str) -> Element:
 def text(el: Element) -> str:
     """What a reader sees, as the normalizer writes L1 text: footnote marks left
     out, `<br>` a line break, a block (`<p>`, `<div>`, ...) on lines of its own,
-    white space runs one space, lines and the whole trimmed."""
+    a superscript or subscript in Unicode characters when every character has one
+    (`m<sup>2</sup>` is `m²`), an SVG not text, white space runs one space, lines
+    and the whole trimmed."""
     out: list[str] = []
 
-    def walk(node):
+    def walk(node, out):
         for c in node.children:
             if isinstance(c, str):
                 # Line breaks in the source are spaces; only <br> and blocks break a line.
                 out.append(re.sub(r"[\s\x00]+", " ", c))
             elif c.tag == "br":
                 out.append("\n")
-            elif c.tag not in ("style", "script") and "gt_footnote_marks" not in c.classes:
+            elif c.tag in SCRIPTS:
+                inner: list[str] = []
+                walk(c, inner)
+                s = "".join(inner)
+                chars = SCRIPTS[c.tag]
+                if all(ch in chars or ch == " " for ch in s):
+                    s = "".join(chars.get(ch, ch) for ch in s)
+                out.append(s)
+            elif (
+                c.tag not in ("style", "script", "svg")
+                and "gt_footnote_marks" not in c.classes
+            ):
                 edge = [BLOCK_EDGE] if c.tag in BLOCKS else []
                 out.extend(edge)
-                walk(c)
+                walk(c, out)
                 out.extend(edge)
 
-    walk(el)
+    walk(el, out)
     # A block edge breaks the line when the line has text and more text or a <br>
     # follows (so `<p>a</p><p>b</p>` is two lines, and an empty block is nothing).
     joined, pending, has_text = [], False, False
