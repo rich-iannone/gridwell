@@ -92,6 +92,18 @@ def mtcars_head() -> pd.DataFrame:
     )
 
 
+def stores_data() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "region": ["Europe", "Europe", "Europe", "Asia", "Asia"],
+            "country": ["France", "France", "Germany", "Japan", "Japan"],
+            "city": ["Paris", "Lyon", "Berlin", "Tokyo", "Osaka"],
+            "stores": [12, 4, 9, 20, 7],
+            "staff": [140, 38, 95, 260, 81],
+        }
+    )
+
+
 def _demographics() -> GT:
     return (
         GT(demographics_data(), rowname_col="label", groupname_col="group", id="demographics")
@@ -201,6 +213,35 @@ def _notes_and_marks() -> GT:
     )
 
 
+def _hierarchical_stub() -> GT:
+    return (
+        GT(
+            stores_data(),
+            rowname_col=["country", "city"],
+            groupname_col="region",
+            id="hierarchical_stub",
+        )
+        .tab_stubhead("Location")
+        .tab_spanner(label="Network", columns=["stores", "staff"])
+        .cols_label(stores="Stores", staff="Staff")
+    )
+
+
+def _row_group_column() -> GT:
+    return (
+        GT(
+            stores_data()[["region", "city", "stores", "staff"]],
+            rowname_col="city",
+            groupname_col="region",
+            id="row_group_column",
+        )
+        .tab_options(row_group_as_column=True)
+        .tab_stubhead("City")
+        .tab_style(style=style.text(weight="bold"), locations=loc.row_groups())
+        .cols_label(stores="Stores", staff="Staff")
+    )
+
+
 cases = {
     "demographics": {
         "description": (
@@ -243,5 +284,17 @@ cases = {
     "notes_and_marks": {
         "description": "Title, subtitle, footnotes on several locations, and source notes",
         "build": _notes_and_marks,
+    },
+    "hierarchical_stub": {
+        "description": (
+            "A stub of two columns (rowname_col=[...]), its repeats merged, in row groups"
+        ),
+        "build": _hierarchical_stub,
+    },
+    "row_group_column": {
+        "description": (
+            "Row groups as a stub column (row_group_as_column=True), their labels bold"
+        ),
+        "build": _row_group_column,
     },
 }
