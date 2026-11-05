@@ -114,6 +114,17 @@ test_that("any IR 1 minor version is used", {
     }
 })
 
+test_that("a newer minor version is used, and its table warns", {
+    give_as_ir(upstream_ir("1.4"))
+    expect_no_warning(ir <- gt_to_ir(the_table()))
+    expect_warning(
+        tbl <- as_gw_table(the_table()),
+        "the table is IR 1.4, newer than the IR 1.0 this gridwell reads",
+        fixed = TRUE
+    )
+    expect_match(gw_render_html(tbl), "From gt")
+})
+
 ir_file <- tempfile(fileext = ".json")
 writeLines(upstream_ir(), ir_file)
 

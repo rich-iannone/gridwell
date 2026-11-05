@@ -208,6 +208,82 @@ test_that("gw_warnings checks the format and the table", {
     expect_error(gw_warnings(invalid), "[SPAN_OVERLAP]", fixed = TRUE)
 })
 
+# A fixture at another IR version.
+versioned <- function(version, fixture = "minimal/minimal_1x1.json") {
+    sub('"ir_version": "1.0"', sprintf('"ir_version": "%s"', version), load_fixture(fixture),
+        fixed = TRUE)
+}
+
+newer <- paste0(
+    "[NEWER_IR_VERSION] the table is IR 1.3, newer than the IR 1.0 this gridwell reads: ",
+    "anything a newer IR version added is left out (a newer gridwell may render it)"
+)
+
+test_that("a newer minor IR version is read, with a warning", {
+    expect_warning(tbl <- gw_parse_ir(versioned("1.3")), newer, fixed = TRUE)
+    expect_identical(gw_validate(tbl), character(0))
+    expect_true(nzchar(gw_render_html(tbl)))
+    # First of the table's warnings, for any format.
+    expect_identical(gw_warnings(tbl), newer)
+    expect_identical(gw_warnings(tbl, "html"), newer)
+    borders <- versioned("1.3", "minimal/styles_borders.json")
+    expect_warning(tbl <- gw_parse_ir(borders), newer, fixed = TRUE)
+    w <- gw_warnings(tbl, "latex")
+    expect_length(w, 2)
+    expect_identical(w[1], newer)
+    expect_true(startsWith(w[2], "[UNSUPPORTED_FEATURE] latex"))
+    # Once per parse: a table given as IR is parsed, and warns.
+    expect_warning(as_gw_table(versioned("1.3")), newer, fixed = TRUE)
+    expect_warning(gw_render_html(versioned("1.3")), newer, fixed = TRUE)
+    # Not again when a table read back with readRDS() is parsed again.
+    path <- tempfile(fileext = ".rds")
+    saveRDS(suppressWarnings(gw_parse_ir(versioned("1.3"))), path)
+    expect_no_warning(gw_render_html(readRDS(path)))
+    for (version in c("1.0", "01.00", "2.0")) {
+        expect_no_warning(gw_parse_ir(versioned(version)))
+    }
+})
+
+test_that("an invalid newer minor IR version table says its version", {
+    json <- sub('"table_cols": 1', '"table_cols": 2', versioned("1.3"), fixed = TRUE)
+    tbl <- suppressWarnings(gw_parse_ir(json))
+    expect_error(gw_render_html(tbl), "[COL_COUNT]", fixed = TRUE)
+    expect_error(
+        gw_render_html(tbl),
+        paste0(
+            "(the table is IR 1.3, newer than the IR 1.0 this gridwell reads: ",
+            "an error may be something a newer IR version added)"
+        ),
+        fixed = TRUE
+    )
+})
+
+test_that("another major IR version is refused", {
+    tbl <- gw_parse_ir(load_fixture("invalid/ir_version_unknown_major.json"))
+    expect_identical(
+        gw_validate(tbl),
+        paste0(
+            "[IR_VERSION] ir_version is \"2.0\", IR 2, and this gridwell ",
+            "reads only IR 1.x (a newer gridwell may read it)"
+        )
+    )
+    expect_error(gw_render_html(tbl), "[IR_VERSION]", fixed = TRUE)
+    expect_match(gw_validate(gw_parse_ir(versioned("1"))), "not MAJOR.MINOR", fixed = TRUE)
+    # IR 2 that doesn't parse as IR 1: the version is why.
+    ir2 <- sub('"column_spec"', '"columns"', versioned("2.0"), fixed = TRUE)
+    expect_error(
+        gw_parse_ir(ir2),
+        "Failed to parse IR: ir_version is \"2.0\", IR 2, and this gridwell reads only IR 1.x",
+        fixed = TRUE
+    )
+    expect_error(
+        gw_parse_ir(sub('"column_spec"', '"columns"', load_fixture("minimal/minimal_1x1.json"),
+                        fixed = TRUE)),
+        "missing field `column_spec`",
+        fixed = TRUE
+    )
+})
+
 test_that("adjacent colspans render in every format (regression)", {
     # Valid IR that used to panic the RTF/SVG writers and drop cells elsewhere.
     cell <- function(text, colspan = 1) {
