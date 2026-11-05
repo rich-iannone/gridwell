@@ -18,7 +18,7 @@ mod support;
 
 use gridwell_ir::style::{BorderSet, ConditionalSelector, StyleDef};
 use gridwell_ir::{Table, TextDirection};
-use gridwell_render::{Place, SectionKind};
+use gridwell_render::{Place, SectionKind, Warning};
 use gridwell_testkit::images::LOGO_PNG;
 use gridwell_testkit::{
     border, cell, cell_content, column, examples, footnote_mark, labeled_group, raw, row,
@@ -841,7 +841,8 @@ fn gap(feature: &str, format: &str) -> Option<Gap> {
 fn reason(f: &Feature, format: &str) -> Option<&'static str> {
     gridwell_render::warnings(&(f.table)(), Some(format))
         .unwrap()
-        .into_iter()
+        .iter()
+        .filter_map(Warning::as_unsupported)
         .find(|w| w.feature == f.id)
         .map(|w| w.reason)
 }
@@ -1020,7 +1021,11 @@ fn writers_warn_of_their_gaps() {
         let table = (f.table)();
         for format in FORMATS {
             let warnings = gridwell_render::warnings(&table, Some(format)).unwrap();
-            let named: Vec<_> = warnings.iter().filter(|w| w.feature == f.id).collect();
+            let named: Vec<_> = warnings
+                .iter()
+                .filter_map(Warning::as_unsupported)
+                .filter(|w| w.feature == f.id)
+                .collect();
             match (gap(f.id, format), named.as_slice()) {
                 (Some(_), [w]) => {
                     warned += 1;
