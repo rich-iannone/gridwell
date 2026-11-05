@@ -172,10 +172,64 @@ pub trait Writer: Send + Sync {
     }
 }
 
-/// A feature of a table that a format can't express: the output drops or
-/// approximates it. A warning, not an error: the table is valid, and renders.
+/// Something a valid table's output will lack. A warning, not an error: the
+/// table renders.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Warning {
+#[non_exhaustive]
+pub enum Warning {
+    /// The table is a newer minor IR version than this gridwell reads
+    /// ([`Table::is_newer_minor`]): what the newer minors added is ignored.
+    NewerIrVersion {
+        /// The table's `ir_version`.
+        version: String,
+    },
+    /// A feature a format can't express.
+    Unsupported(UnsupportedFeature),
+}
+
+impl Warning {
+    /// The rule a newer minor version reports under.
+    pub const NEWER_IR_VERSION: &'static str = "NEWER_IR_VERSION";
+
+    /// The rule the warning reports under, as validation errors report theirs.
+    pub fn rule(&self) -> &'static str {
+        match self {
+            Warning::NewerIrVersion { .. } => Self::NEWER_IR_VERSION,
+            Warning::Unsupported(_) => UnsupportedFeature::RULE,
+        }
+    }
+
+    /// The unsupported feature, for that kind of warning.
+    pub fn as_unsupported(&self) -> Option<&UnsupportedFeature> {
+        match self {
+            Warning::Unsupported(u) => Some(u),
+            Warning::NewerIrVersion { .. } => None,
+        }
+    }
+}
+
+impl std::fmt::Display for Warning {
+    /// `[NEWER_IR_VERSION] the table is IR 1.2, newer than the IR 1.0 this
+    /// gridwell reads: …`, or an [`UnsupportedFeature`]'s message.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Warning::NewerIrVersion { version } => write!(
+                f,
+                "[{}] the table is IR {version}, newer than the IR {} this gridwell \
+                 reads: anything a newer IR version added is left out (a newer gridwell \
+                 may render it)",
+                Self::NEWER_IR_VERSION,
+                gridwell_ir::IR_VERSION
+            ),
+            Warning::Unsupported(u) => u.fmt(f),
+        }
+    }
+}
+
+/// A feature of a table that a format can't express: the output drops or
+/// approximates it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnsupportedFeature {
     /// The format, by name (`"latex"`).
     pub format: &'static str,
     /// The feature, as the feature matrix names it (`"vertical-align"`).
@@ -186,12 +240,12 @@ pub struct Warning {
     pub places: Vec<Place>,
 }
 
-impl Warning {
-    /// The rule every warning reports under, as validation errors report theirs.
+impl UnsupportedFeature {
+    /// The rule every unsupported feature reports under.
     pub const RULE: &'static str = "UNSUPPORTED_FEATURE";
 }
 
-impl std::fmt::Display for Warning {
+impl std::fmt::Display for UnsupportedFeature {
     /// `[UNSUPPORTED_FEATURE] latex can't express vertical-align (group 1 row 1,
     /// column 2 and 1 other place): a tabular row …`
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -214,25 +268,31 @@ impl std::fmt::Display for Warning {
     }
 }
 
-/// Validate `table`, then list the features it uses that `format` can't
-/// express (every format's, in registry order, for `None`). A valid table with
-/// warnings still renders: they say what the output will lack.
+/// Validate `table`, then list what its output will lack: first that the table
+/// is a newer minor IR version, if it is; then the features it uses that
+/// `format` can't express (every format's, in registry order, for `None`). A
+/// valid table with warnings still renders.
 pub fn warnings(table: &Table, format: Option<&str>) -> Result<Vec<Warning>, RenderError> {
     let writers = match format {
         Some(name) => vec![find(name)?],
         None => REGISTRY.to_vec(),
     };
     let validated = table.validated()?;
-    Ok(writers
+    let version = table.is_newer_minor().then(|| Warning::NewerIrVersion {
+        version: table.ir_version.clone(),
+    });
+    Ok(version
         .into_iter()
-        .flat_map(|w| {
-            w.unsupported(&validated).into_iter().map(move |u| Warning {
-                format: w.name(),
-                feature: u.feature,
-                reason: u.reason,
-                places: u.places,
+        .chain(writers.into_iter().flat_map(|w| {
+            w.unsupported(&validated).into_iter().map(move |u| {
+                Warning::Unsupported(UnsupportedFeature {
+                    format: w.name(),
+                    feature: u.feature,
+                    reason: u.reason,
+                    places: u.places,
+                })
             })
-        })
+        }))
         .collect())
 }
 
