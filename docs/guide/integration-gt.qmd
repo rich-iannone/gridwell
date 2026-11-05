@@ -74,7 +74,10 @@ No released gt has `as_ir()` yet, so today `"auto"` always uses gridwell's.
 |------------|-----------|
 | Column labels (`_boxhead`) | `thead` rows |
 | Row groups (`_row_groups`) | `tbody` array with group labels |
-| Stub column (`rowname_col`) | Cells with `is_stub: true` |
+| Stub column (`rowname_col`) | Cells with `is_stub: true`, always aligned left |
+| A stub of several columns (`rowname_col = c("region", "city")`) | One stub column each, outermost first; consecutive rows of a group with the same outer value (and the same values to its left) share one cell spanning them, merged in the order the rows are shown |
+| Row group column (`row_group_as_column = TRUE`) | The first stub column: each group's label is a stub cell spanning its rows, and the group has no label row. A summary row's label spans the other stub columns, beside an empty cell under the group's label (gt's HTML has the group's cell span its summary rows instead) |
+| Stubhead label (`tab_stubhead()`) | One head cell spanning the stub columns; a vector of labels gives each row stub column its own, with a blank one above a row group column |
 | Title/subtitle (`_heading`) | `header` block |
 | Source notes (`_source_notes`) | `footer.source_notes` |
 | Column alignment | `column_spec[].align` |
