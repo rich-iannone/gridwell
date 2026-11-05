@@ -18,7 +18,8 @@ Convert a table IR JSON file to an output format. The input is validated first; 
 is invalid, the validation errors are printed to stderr, nothing is written, and the
 exit code is 1. If the table uses a feature the format can't express, a
 [warning](../schema/validation.qmd#warnings) saying where is printed to stderr after
-the output is written; it doesn't change the exit code.
+the output is written, as is one for a table of a newer minor IR version; neither
+changes the exit code.
 
 ```bash
 gridwell convert [OPTIONS] --to <FORMAT> [INPUT]
