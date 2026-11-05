@@ -13,12 +13,17 @@ as a JSON string (see \code{\link[=as_gw_table]{as_gw_table()}}).}
 \item{format}{A format name (see \code{\link[=gw_formats]{gw_formats()}}), or \code{NULL} for every format.}
 }
 \value{
-A character vector of warnings (empty if every feature the table
-uses is expressed). Invalid IR, and an unknown format, are errors.
+A character vector of warnings (empty if the table is IR of this
+gridwell's version and every feature it uses is expressed). Invalid IR,
+and an unknown format, are errors.
 }
 \description{
 Some formats lack a feature the IR has (LaTeX can't align a single cell to
 the bottom of its row, Typst has no double borders); the writer then draws
 something close. Each warning names the format, the feature, where the
 table uses it, and what's drawn instead. A warning doesn't stop rendering.
+}
+\details{
+A table of a newer minor IR version than this gridwell reads gets a warning
+first, for any format: what that version added is left out.
 }
