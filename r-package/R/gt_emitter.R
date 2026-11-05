@@ -1121,22 +1121,54 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
 
 # ---- Values ---------------------------------------------------------------------
 
-# A numeric cell's value as displayed: the number gt shows, so a spreadsheet
-# holds what the table states (0.7, not 0.718317...). Cells whose display isn't
-# a plain number (`<0.001`, `46 (37, 60)`) have no typed value.
+# A cell's typed value. A number is the number displayed, so a spreadsheet holds
+# what the table states (0.7, not 0.718317...; 0.451 for `45.1%`; 1234.5 for
+# `1.234,50`), read by `.gw_shown_number()`; a display that isn't one number
+# (`<0.001`, `46 (37, 60)`) has none. Dates and times are ISO 8601 strings,
+# without an offset (a spreadsheet has no time zone: the value is the wall-clock
+# time gt shows). Anything else is a string, the text shown.
 .gw_typed_value <- function(raw, text) {
     if (is.null(raw) || length(raw) == 0 || is.na(raw) || !nzchar(text)) return(NULL)
     if (is.numeric(raw)) {
-        # U+2212 MINUS SIGN, matched as UTF-8 bytes so the locale does not matter.
-        shown <- gsub("\xe2\x88\x92", "-", text, fixed = TRUE, useBytes = TRUE)
-        shown <- gsub(",", "", shown, fixed = TRUE)
-        if (!grepl("^-?[0-9]+(\\.[0-9]+)?([eE][-+]?[0-9]+)?$", shown)) return(NULL)
-        type <- if (is.integer(raw) && !grepl("[.eE]", shown)) "integer" else "number"
-        return(list(type = type, value = as.numeric(shown)))
+        found <- .gw_shown_number(text, raw)
+        if (is.null(found)) return(NULL)
+        type <- if (is.integer(raw) && found$plain_int) "integer" else "number"
+        # (`+ 0`: a `-0` is zero.)
+        return(list(type = type, value = as.numeric(paste0(found$digits, "e", found$power)) + 0))
     }
     if (is.logical(raw)) return(list(type = "boolean", value = raw))
     if (inherits(raw, "Date")) return(list(type = "date", value = format(raw, "%Y-%m-%d")))
+    if (inherits(raw, "POSIXt")) {
+        raw <- as.POSIXct(raw)
+        tz <- attr(raw, "tzone")
+        tz <- if (is.null(tz)) "" else tz[1]
+        return(list(type = "datetime", value = .gw_clock(raw, "%Y-%m-%dT%H:%M:%S", function(s) {
+            .POSIXct(s, tz = tz)
+        })))
+    }
+    if (.gw_is_clock_time(raw)) {
+        return(list(type = "time", value = .gw_clock(raw, "%H:%M:%S", function(s) {
+            .POSIXct(s, tz = "UTC")
+        })))
+    }
     list(type = "string", value = text)
+}
+
+# A time of day or date-time as `format` writes it (in its own time zone), with
+# its fraction of a second to the microsecond, if it has one (as Python's
+# `isoformat()` writes it). `as_time` makes a time of whole seconds.
+.gw_clock <- function(x, format, as_time) {
+    secs <- as.numeric(x)
+    whole <- floor(round(secs, 6))
+    micro <- min(max(round((secs - whole) * 1e6), 0), 999999)
+    stamp <- format(as_time(whole), format)
+    if (micro > 0) stamp <- sprintf("%s.%06d", stamp, as.integer(micro))
+    stamp
+}
+
+# An `hms` time that is a time of day (not a duration of a day or more).
+.gw_is_clock_time <- function(raw) {
+    inherits(raw, "hms") && as.numeric(raw) >= 0 && as.numeric(raw) < 86400
 }
 
 .gw_dtype <- function(raw) {
@@ -1146,5 +1178,168 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
     if (is.logical(raw)) return("boolean")
     if (inherits(raw, "Date")) return("date")
     if (inherits(raw, "POSIXt")) return("datetime")
+    if (!is.na(raw) && .gw_is_clock_time(raw)) return("time")
     "string"
+}
+
+# Characters a display may separate thousands with ("." and "," also mark
+# decimals).
+.gw_group_marks <- c(".", ",", "'", "\u2019", " ", "\u00a0", "\u202f", "\u2009")
+# A number as displayed: text before it (a sign, a currency), digits and marks,
+# an exponent (`x 10^-4`, superscripts, `e-04`), and text after it (a unit, a `%`).
+.gw_number_pattern <- paste0(
+    "^([^0-9]*?)",
+    "([0-9](?:[0-9", paste(.gw_group_marks, collapse = ""), "]*[0-9])?)",
+    "(?:[\\s\u00a0\u202f\u2009]*\u00d7[\\s\u00a0\u202f\u2009]*10",
+    "(?:\\^([-\u2212+]?[0-9]+)|([\u207b\u207a]?[\u2070\u00b9\u00b2\u00b3\u2074-\u2079]+))",
+    "|[eE]([-\u2212+]?[0-9]+))?",
+    "([^0-9]*)$"
+)
+.gw_signs <- c("-", "\u2212", "+")
+# What a mark after the number scales it by (a power of ten).
+.gw_per <- c(-2, -3, -4)
+names(.gw_per) <- c("%", "\u2030", "\u2031")
+.gw_compact <- c(K = 3, M = 6, B = 9, T = 12)
+
+# The characters of `s`.
+.gw_chars <- function(s) strsplit(s, "", fixed = TRUE)[[1]]
+
+.gw_all_digits <- function(s) grepl("^[0-9]+$", s)
+
+# An integer part with no leading zeros (`007`).
+.gw_plain_int <- function(int) !(nchar(int) > 1 && startsWith(int, "0"))
+
+# The digits of an integer written with `mark` between groups of three (or, as
+# India writes them, of two then a last three), if it is.
+.gw_grouped <- function(int, mark) {
+    if (!nzchar(int) || endsWith(int, mark)) return(NULL)
+    groups <- strsplit(int, mark, fixed = TRUE)[[1]]
+    first <- groups[1]
+    rest <- groups[-1]
+    if (length(rest) == 0 || !all(.gw_all_digits(groups))) return(NULL)
+    if (nchar(first) > 3 || first == "0") return(NULL)
+    n <- nchar(rest)
+    threes <- all(n == 3)
+    indian <- nchar(first) <= 2 && n[length(n)] == 3 && all(n[-length(n)] == 2)
+    if (threes || indian) paste(groups, collapse = "") else NULL
+}
+
+# The ways to read a display's digits and marks as a number, each its digits and
+# how many of them are decimals: with no marks, with one mark as either the
+# decimal mark or the thousands separator, or with two, the last the decimal
+# mark. An integer part has no leading zeros (`007`).
+.gw_readings <- function(core) {
+    chars <- .gw_chars(core)
+    is_mark <- !grepl("[0-9]", chars)
+    marks <- unique(chars[is_mark])
+    decimal <- function(mark, group) {
+        if (!mark %in% c(".", ",")) return(NULL)
+        at <- max(gregexpr(mark, core, fixed = TRUE)[[1]])
+        if (at < 1) return(NULL)
+        int <- substr(core, 1, at - 1)
+        frac <- substr(core, at + 1, nchar(core))
+        if (!.gw_all_digits(frac)) return(NULL)
+        whole <- if (is.null(group)) (if (.gw_all_digits(int)) int) else .gw_grouped(int, group)
+        if (is.null(whole) || !.gw_plain_int(whole)) return(NULL)
+        list(digits = paste0(whole, frac), decimals = nchar(frac))
+    }
+    if (length(marks) == 0) {
+        return(if (.gw_plain_int(core)) list(list(digits = core, decimals = 0)) else list())
+    }
+    if (length(marks) == 1) {
+        whole <- .gw_grouped(core, marks)
+        found <- list(
+            decimal(marks, NULL),
+            if (!is.null(whole) && .gw_plain_int(whole)) list(digits = whole, decimals = 0)
+        )
+        return(Filter(Negate(is.null), found))
+    }
+    if (length(marks) == 2) {
+        # The decimal mark is the last mark, and comes once.
+        last <- utils::tail(chars[is_mark], 1)
+        found <- decimal(last, setdiff(marks, last))
+        return(if (is.null(found)) list() else list(found))
+    }
+    list()
+}
+
+# Text that can stand beside a number in its display: letters (a unit, a
+# currency code), a currency symbol, spaces, `'`, U+2019, a degree sign, a `.`
+# beside letters (`kr.`), and after the number one `%`, U+2030 or U+2031. Not `<`,
+# `~`, a plus-minus sign, `/`, brackets or other digits: those say something else
+# about the number.
+.gw_affix <- function(s, after) {
+    if (!nzchar(s)) return(TRUE)
+    per <- sum(.gw_chars(s) %in% names(.gw_per))
+    letters <- grepl("\\p{L}", s, perl = TRUE)
+    grepl("^[\\p{L}\\p{Z}\\s\\p{Sc}'\u2019\u00b0.%\u2030\u2031]*$", s, perl = TRUE) &&
+        per <= (if (after) 1 else 0) &&
+        (letters || !grepl(".", s, fixed = TRUE))
+}
+
+# The number a cell's display shows, as the digits (signed) and power of ten of
+# its value, and whether it's a plain integer (no decimals, exponent or scale).
+#
+# The display is read in any marks (a locale's `1.234,50`, `1 234,5`), with a
+# sign or parentheses, a currency or unit around it, `%` (a hundredth), U+2030,
+# an exponent (`1.23 x 10^-4`) or a `K`, `M`, `B` or `T` (thousands, millions,
+# ...); the reading the data's value `raw` rounds to wins (so `1,234` is a
+# thousand and more, or a little more than one). With none, a display only one
+# reading fits is still read as it shows (a value scaled before being shown:
+# `scale_by =`), and one that fits several isn't. As the Python emitter reads it.
+.gw_shown_number <- function(text, raw) {
+    shown <- trimws(enc2utf8(text))
+    parens <- startsWith(shown, "(") && endsWith(shown, ")")
+    if (parens) shown <- substr(shown, 2, nchar(shown) - 1)
+    m <- regmatches(shown, regexec(.gw_number_pattern, shown, perl = TRUE))[[1]]
+    if (length(m) == 0) return(NULL)
+    before <- m[2]
+    after <- m[7]
+    before_chars <- .gw_chars(before)
+    signs <- before_chars[before_chars %in% .gw_signs]
+    if (length(signs) > 1 || (parens && length(signs) > 0)) return(NULL)
+    unsigned <- paste(before_chars[!before_chars %in% .gw_signs], collapse = "")
+    if (!.gw_affix(unsigned, FALSE) || !.gw_affix(after, TRUE)) return(NULL)
+    negative <- parens || (length(signs) == 1 && signs != "+")
+    # (A `-` in chartr() is a range, so the signs are replaced on their own.)
+    sup <- chartr(
+        "\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079", "0123456789", m[5]
+    )
+    sup <- sub("^\u207a", "+", sub("^\u207b", "-", sup))
+    exp_text <- c(m[4], sup, m[6], "0")
+    exp <- as.integer(gsub("\u2212", "-", exp_text[nzchar(exp_text)][1], fixed = TRUE))
+    scales <- 0
+    for (mark in names(.gw_per)) {
+        if (grepl(mark, after, fixed = TRUE)) scales <- .gw_per[[mark]]
+    }
+    if (after %in% names(.gw_compact)) scales <- c(.gw_compact[[after]], 0)
+
+    sign <- if (negative) "-" else ""
+    readings <- list()
+    for (r in .gw_readings(m[3])) {
+        for (scale in scales) {
+            power <- exp - r$decimals + scale
+            # The display shows the value to its last digit that isn't zero.
+            zeros <- if (grepl("[1-9]", r$digits)) {
+                nchar(r$digits) - nchar(sub("0+$", "", r$digits))
+            } else {
+                0
+            }
+            readings[[length(readings) + 1]] <- list(
+                digits = paste0(sign, r$digits),
+                power = power,
+                plain_int = r$decimals == 0 && exp == 0 && scale == 0,
+                value = as.numeric(paste0(sign, r$digits, "e", power)),
+                unit = 10^(power + zeros)
+            )
+        }
+    }
+    number <- suppressWarnings(as.numeric(raw))
+    fits <- Filter(function(r) {
+        isTRUE(abs(number - r$value) <= 0.5 * r$unit * (1 + 1e-9) + abs(number) * 1e-12)
+    }, readings)
+    chosen <- if (length(fits) > 0) fits else readings
+    if (length(chosen) == 0) return(NULL)
+    if (length(unique(vapply(chosen, function(r) r$value, numeric(1)))) > 1) return(NULL)
+    chosen[[1]][c("digits", "power", "plain_int")]
 }
