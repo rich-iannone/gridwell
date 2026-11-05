@@ -44,6 +44,16 @@ demographics_data <- function() {
     )
 }
 
+stores_data <- function() {
+    data.frame(
+        region = c("Europe", "Europe", "Europe", "Asia", "Asia"),
+        country = c("France", "France", "Germany", "Japan", "Japan"),
+        city = c("Paris", "Lyon", "Berlin", "Tokyo", "Osaka"),
+        stores = c(12L, 4L, 9L, 20L, 7L),
+        staff = c(140L, 38L, 95L, 260L, 81L)
+    )
+}
+
 cases <- list(
     demographics = list(
         description = paste(
@@ -161,6 +171,33 @@ cases <- list(
                 tab_footnote("A title note.", locations = cells_title(groups = "title")) |>
                 tab_source_note("Source note one.") |>
                 tab_source_note(md("Source note *two*."))
+        }
+    ),
+    hierarchical_stub = list(
+        description = "A stub of two columns (rowname_col = c(...)), its repeats merged, in row groups",
+        build = function() {
+            stores_data() |>
+                gt(
+                    rowname_col = c("country", "city"), groupname_col = "region",
+                    id = "hierarchical_stub"
+                ) |>
+                tab_stubhead("Location") |>
+                tab_spanner(label = "Network", columns = c(stores, staff)) |>
+                cols_label(stores = "Stores", staff = "Staff")
+        }
+    ),
+    row_group_column = list(
+        description = "Row groups as a stub column (row_group_as_column = TRUE), their labels bold",
+        build = function() {
+            stores_data() |>
+                dplyr_free_select(c("region", "city", "stores", "staff")) |>
+                gt(
+                    rowname_col = "city", groupname_col = "region", row_group_as_column = TRUE,
+                    id = "row_group_column"
+                ) |>
+                tab_stubhead("City") |>
+                tab_style(style = cell_text(weight = "bold"), locations = cells_row_groups()) |>
+                cols_label(stores = "Stores", staff = "Staff")
         }
     )
 )
