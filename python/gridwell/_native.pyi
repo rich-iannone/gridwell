@@ -50,6 +50,8 @@ class Table:
     Create with `Table(source)` from IR as a JSON string or a dict, or from a Great
     Tables `GT`; or with `Table.from_json`, `Table.from_dict` or `Table.from_gt`.
     In a notebook it displays as HTML, and `print()` draws it as text.
+    IR of a newer minor version than this gridwell reads is read with a
+    `UserWarning`; another major version is refused.
 
     A table can't be changed once made, and the work done in Rust (parsing,
     validating, rendering, saving) runs with the GIL released, so other Python
@@ -75,9 +77,11 @@ class Table:
         Returns an empty list if the table is valid."""
 
     def warnings(self, format: str | None = None) -> list[str]:
-        """Features of the table a format can't express, and where, as messages:
-        for one format by name, or every format (`None`). Empty if each is
-        expressed whole. A warning doesn't stop the table rendering.
+        """What the table's output will lack, as messages: first that the table is
+        a newer minor IR version than this gridwell reads, if it is; then the
+        features a format can't express, and where, for one format by name, or
+        every format (`None`). Empty if the table is expressed whole. A warning
+        doesn't stop the table rendering.
 
         Raises `InvalidTableError` for invalid IR, and `ValueError` for an
         unknown format."""
