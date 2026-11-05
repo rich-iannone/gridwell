@@ -151,3 +151,58 @@ fn warnings_check_the_table_and_the_format() {
     assert!(r.text.is_null());
     unsafe { gridwell_free_table(table) };
 }
+
+#[test]
+fn a_newer_minor_version_is_the_first_warning() {
+    let mut ir: serde_json::Value =
+        serde_json::from_str(&fixture("minimal/styles_borders.json")).unwrap();
+    ir["ir_version"] = serde_json::json!("1.2");
+    let json = ir.to_string();
+    let table = parse(&json);
+    let every = warnings(table, None).unwrap();
+    assert_eq!(every, expected(&json, None));
+    let lines: Vec<&str> = every.split('\n').collect();
+    assert_eq!(lines.len(), 3, "{every}");
+    assert!(
+        lines[0].starts_with("[NEWER_IR_VERSION] the table is IR 1.2, newer than"),
+        "{every}"
+    );
+    assert!(
+        lines[1].starts_with("[UNSUPPORTED_FEATURE] latex "),
+        "{every}"
+    );
+    assert_eq!(warnings(table, Some("html")).unwrap(), lines[0]);
+    unsafe { gridwell_free_table(table) };
+}
+
+#[test]
+fn another_major_version_fails_to_parse_or_validate() {
+    let mut ir: serde_json::Value =
+        serde_json::from_str(&fixture("minimal/minimal_1x1.json")).unwrap();
+    ir["ir_version"] = serde_json::json!("2.0");
+    // Parses as IR 1: invalid.
+    let table = parse(&ir.to_string());
+    let (code, msg) = warnings(table, None).unwrap_err();
+    assert_eq!(code, GRIDWELL_ERR_VALIDATE, "{msg}");
+    assert!(
+        msg.contains("[IR_VERSION] ir_version is \"2.0\", IR 2"),
+        "{msg}"
+    );
+    unsafe { gridwell_free_table(table) };
+    // Doesn't: a parse error that says why.
+    ir["table"] = serde_json::json!({ "sections": [] });
+    let json = ir.to_string();
+    let mut err = ptr::null_mut();
+    let table = unsafe { gridwell_parse_ir(json.as_ptr() as *const c_char, json.len(), &mut err) };
+    assert!(table.is_null() && !err.is_null());
+    assert_eq!(unsafe { gridwell_error_code(err) }, GRIDWELL_ERR_PARSE);
+    let msg = unsafe { CStr::from_ptr(gridwell_error_message(err)) }
+        .to_string_lossy()
+        .into_owned();
+    assert_eq!(
+        msg,
+        "ir_version is \"2.0\", IR 2, and this gridwell reads only IR 1.x (a newer gridwell \
+         may read it)"
+    );
+    unsafe { gridwell_free_error(err) };
+}
