@@ -23,6 +23,124 @@ test_that("cell values are gt's formatted values, with typed values as shown", {
     expect_equal(body_cell(out$ir, 1, 1)$typed_value$type, "string")
 })
 
+test_that("typed values are the numbers any display shows", {
+    df <- data.frame(
+        de = c(1234.5, -98765.4321), fr = c(1234.5, 0.25), pct = c(0.4512, -0.0123),
+        cur = c(49.95, -5), acc = c(49.95, -5), eur = c(49.95, -5), sci = c(0.000123, 123456),
+        cmp = c(1234567, 0.5), sgn = c(1234.5, -2), kg = c(1234.5, 2), i = c(1234L, -5L),
+        big = c(1234, 1.234)
+    )
+    tbl <- gt::gt(df) |>
+        gt::fmt_number(de, decimals = 2, locale = "de") |>
+        gt::fmt_number(fr, decimals = 2, locale = "fr") |>
+        gt::fmt_percent(pct, decimals = 1) |>
+        gt::fmt_currency(cur) |>
+        gt::fmt_currency(acc, accounting = TRUE) |>
+        gt::fmt_currency(eur, currency = "EUR", locale = "de") |>
+        gt::fmt_scientific(sci) |>
+        gt::fmt_number(cmp, suffixing = TRUE) |>
+        gt::fmt_number(sgn, decimals = 2, force_sign = TRUE) |>
+        gt::fmt_number(kg, decimals = 2, pattern = "{x} kg") |>
+        gt::fmt_integer(i) |>
+        gt::fmt_number(big, decimals = 3)
+    ir <- ir_of(tbl)$ir
+    shown <- function(row) {
+        vapply(seq_along(df), function(j) paste(texts(body_cell(ir, row, j)$content), collapse = ""), "")
+    }
+    expect_equal(shown(1), c(
+        "1.234,50", "1 234,50", "45.1%", "$49.95", "$49.95", "€49,95",
+        "1.23 × 10^-4", "1.23M", "+1,234.50", "1,234.50 kg", "1,234", "1,234.000"
+    ))
+    expect_equal(shown(2), c(
+        "-98.765,43", "0,25", "-1.2%", "-$5.00", "($5.00)", "-€5,00",
+        "1.23 × 10^5", "0.50", "-2.00", "2.00 kg", "-5", "1.234"
+    ))
+    typed <- function(row) lapply(seq_along(df), function(j) body_cell(ir, row, j)$typed_value)
+    number <- function(v) list(type = "number", value = v)
+    # In the locale's marks (once read as 1.2345: the `,` dropped as a separator).
+    expect_equal(typed(1), list(
+        number(1234.5), number(1234.5), number(0.451), number(49.95), number(49.95),
+        number(49.95), number(0.000123), number(1230000), number(1234.5), number(1234.5),
+        list(type = "integer", value = 1234), number(1234)
+    ))
+    # `1.234` is a little more than one here, a thousand and more above.
+    expect_equal(typed(2), list(
+        number(-98765.43), number(0.25), number(-0.012), number(-5), number(-5), number(-5),
+        number(123000), number(0.5), number(-2), number(2), list(type = "integer", value = -5),
+        number(1.234)
+    ))
+    # Exactly: written as JSON with every digit.
+    json <- as.character(gt_to_ir(tbl))
+    expect_match(json, '"value": 0.000123[,\n ]', perl = TRUE)
+    expect_match(json, '"value": 1230000[,\n ]', perl = TRUE)
+})
+
+test_that("typed numbers are read off their display, as the Python emitter reads them", {
+    read <- function(shown, raw) {
+        typed <- .gw_typed_value(raw, shown)
+        if (is.null(typed)) NULL else typed$value
+    }
+    # Rounded displays: the number shown, not the data's.
+    expect_equal(read("1,230", 1234.5678), 1230)
+    expect_equal(read("0", 0.4), 0)
+    expect_identical(1 / read("-0", -0.2), Inf)
+    # A display only one reading fits is read as shown (`scale_by =`), even when
+    # the value doesn't round to it.
+    expect_equal(read("1.2", 1234.5678), 1.2)
+    expect_equal(read("1.2 MB", 1234567), 1.2)
+    expect_equal(read("45.1%", 45.1), 0.451)
+    expect_equal(read("1.000", 1), 1)
+    expect_equal(read("1.000", 1000), 1000)
+    expect_equal(read("12,34,567", 1234567), 1234567)
+    expect_equal(read("1.5K", 1.5), 1.5)
+    expect_equal(read("1.5K", 1500), 1500)
+    expect_equal(read("451.20‰", 0.4512), 0.4512)
+    expect_equal(read("1.23 × 10⁻⁴", 0.000123), 0.000123)
+    expect_equal(read("1.23e-04", 0.000123), 0.000123)
+    expect_equal(read("−1.2%", -0.012), -0.012)
+    expect_equal(read("(10%)", -0.1), -0.1)
+    expect_equal(read("CA$1,250", 1250), 1250)
+    expect_equal(read("5,00 kr.", 5), 5)
+    expect_equal(read("1’234.50", 1234.5), 1234.5)
+    # Not one number: no typed value.
+    for (shown in c(
+        "<0.001", "46 (37, 60)", "~5", "±5", "5/8", "1.2 m2", "[5]", "(-5)", "--5", "5-",
+        "5%%", "%5", "007", "1.234.5", "1;234", "-(10)", "1,234.5,6", "1,234,.5", ". 5",
+        "5 ."
+    )) {
+        expect_null(read(shown, 5), label = shown)
+    }
+    expect_null(read("1,234", 5))
+    expect_null(read("1.23M", 1.24))
+    # An integer is one when it's shown as a plain integer.
+    expect_equal(.gw_typed_value(1234L, "1.234"), list(type = "integer", value = 1234))
+    expect_equal(.gw_typed_value(1234567L, "1.23M"), list(type = "number", value = 1230000))
+    expect_equal(.gw_typed_value(5L, "5.00"), list(type = "number", value = 5))
+})
+
+test_that("date-times and times of day are typed as their wall-clock time", {
+    df <- data.frame(
+        t = as.POSIXct(c("2024-03-15 14:30:00", "2024-12-01 08:00:05.25"), tz = "America/Toronto")
+    )
+    ir <- ir_of(gt::gt(df) |> gt::fmt_datetime(t, date_style = "yMMMd", time_style = "Hm"))$ir
+    expect_equal(body_cell(ir, 1, 1)$data_type, "datetime")
+    expect_equal(body_cell(ir, 1, 1)$typed_value, list(type = "datetime", value = "2024-03-15T14:30:00"))
+    expect_equal(
+        body_cell(ir, 2, 1)$typed_value,
+        list(type = "datetime", value = "2024-12-01T08:00:05.250000")
+    )
+    # `hms` times (made as the hms package makes them, without needing it).
+    hms <- structure(c(52200.5, 3600, 90000), units = "secs", class = c("hms", "difftime"))
+    df <- data.frame(h = hms)
+    ir <- ir_of(gt::gt(df))$ir
+    expect_equal(body_cell(ir, 1, 1)$data_type, "time")
+    expect_equal(body_cell(ir, 1, 1)$typed_value, list(type = "time", value = "14:30:00.500000"))
+    expect_equal(body_cell(ir, 2, 1)$typed_value, list(type = "time", value = "01:00:00"))
+    # A duration of a day or more isn't a time of day.
+    expect_equal(body_cell(ir, 3, 1)$data_type, "string")
+    expect_equal(body_cell(ir, 3, 1)$typed_value$type, "string")
+})
+
 test_that("md() labels become bold and italic runs", {
     df <- data.frame(a = 1, b = 2)
     tbl <- gt::gt(df) |>
