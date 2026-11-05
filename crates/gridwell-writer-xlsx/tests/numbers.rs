@@ -27,6 +27,44 @@ fn typed_numbers_get_the_format_of_their_display() {
         // gt writes negatives with U+2212 MINUS SIGN.
         ("\u{2212}1.5", json!(-1.5), "0.0;\"\u{2212}\"0.0"),
         ("\u{2212}1,234", json!(-1234), "#,##0;\"\u{2212}\"#,##0"),
+        // Other marks (a locale's) are the reader's in Excel.
+        ("1.234,50", json!(1234.5), "#,##0.00"),
+        (
+            "\u{2212}98.765,43",
+            json!(-98765.43),
+            "#,##0.00;\"\u{2212}\"#,##0.00",
+        ),
+        ("1\u{202f}234,5", json!(1234.5), "#,##0.0"),
+        ("1\u{2019}234.50", json!(1234.5), "#,##0.00"),
+        ("12,34,567", json!(1234567), "#,##0"),
+        ("0,125", json!(0.125), "0.000"),
+        ("1.234", json!(1234), "#,##0"),
+        // A currency, a unit, a sign of its own, parentheses.
+        ("$49.95", json!(49.95), "\"$\"0.00"),
+        ("-$5.00", json!(-5), "\"$\"0.00"),
+        ("\u{2212}$5.00", json!(-5), "\"$\"0.00;\"\u{2212}$\"0.00"),
+        ("$-5.00", json!(-5), "\"$\"0.00;\"$-\"0.00"),
+        ("($5.00)", json!(-5), "\"$\"0.00;\"($\"0.00\")\""),
+        ("\u{20ac}49,95", json!(49.95), "\"\u{20ac}\"0.00"),
+        (
+            "49,95\u{a0}\u{20ac}",
+            json!(49.95),
+            "0.00\"\u{a0}\u{20ac}\"",
+        ),
+        ("CA$1,250", json!(1250), "\"CA$\"#,##0"),
+        ("1,234.50 kg", json!(1234.5), "#,##0.00\" kg\""),
+        ("5,00 kr.", json!(5), "0.00\" kr.\""),
+        ("+1,234.50", json!(1234.5), "\"+\"#,##0.00"),
+        // A percentage is the value scaled by 100.
+        ("45.1%", json!(0.451), "0.0%"),
+        ("\u{2212}1.2%", json!(-0.0123), "0.0%;\"\u{2212}\"0.0%"),
+        ("45,1\u{a0}%", json!(0.451), "0.0\"\u{a0}\"%"),
+        ("45.1% up", json!(0.451), "0.0%\" up\""),
+        // Thousands, millions, … (or a unit, as the value says).
+        ("1.23M", json!(1230000), "0.00,,\"M\""),
+        ("12.3K", json!(12300), "0.0,\"K\""),
+        ("1.5K", json!(1.5), "0.0\"K\""),
+        ("2B", json!(2e9), "0,,,\"B\""),
     ];
     for (shown, value, want) in cases {
         let t = one_row(vec![cell(shown).typed("number", value.clone())]);
@@ -63,6 +101,37 @@ fn a_display_no_format_reproduces_stays_text() {
         ("46 (37, 60)", json!(46)),
         ("1.2e5", json!(120000)),
         (".5", json!(0.5)),
+        // Text that says more about the number, or other numbers.
+        ("~5", json!(5)),
+        ("\u{b1}5", json!(5)),
+        ("5/8", json!(5)),
+        ("1.23 \u{d7} 10^5", json!(123000)),
+        ("1.23 \u{d7} 10\u{2075}", json!(123000)),
+        ("451.2\u{2030}", json!(0.4512)),
+        ("1.2 m2", json!(1.2)),
+        ("[5]", json!(5)),
+        ("5)", json!(-5)),
+        ("(-5)", json!(-5)),
+        ("--5", json!(-5)),
+        ("5-", json!(-5)),
+        ("5%%", json!(0.05)),
+        ("%5", json!(0.05)),
+        // (A `%` before the number would scale it in the format: 500.)
+        ("%5", json!(5)),
+        (". 5", json!(5)),
+        // Marks that aren't a number's.
+        ("1,23", json!(123)),
+        ("1.234.5", json!(1234.5)),
+        ("1.234,567,8", json!(1234.5678)),
+        ("0,123", json!(123)),
+        ("007", json!(7)),
+        ("1;234", json!(1234)),
+        ("1_234", json!(1234)),
+        // A scale the value doesn't have.
+        ("45.1%", json!(45.1)),
+        ("1.23M", json!(1.24)),
+        ("$5.00", json!(-5)),
+        ("($5.00)", json!(5)),
     ] {
         let t = one_row(vec![cell(shown).typed("number", value)]);
         let (sheet, _, sst) = render(&t);
@@ -140,4 +209,33 @@ fn identical_rich_strings_are_shared_once() {
     assert!(cell_xml(&sheet, "B1").contains("<v>0</v>"), "{sheet}");
     // Two references to the shared one, one to the footer's.
     assert!(sst.contains("count=\"3\" uniqueCount=\"2\""), "{sst}");
+}
+
+#[test]
+fn built_in_formats_serve_where_they_can() {
+    for (shown, value, id) in [
+        ("53", json!(53), Some("1")),
+        ("3.50", json!(3.5), Some("2")),
+        ("1,250", json!(1250), Some("3")),
+        ("1,250.30", json!(1250.3), Some("4")),
+        ("45%", json!(0.45), Some("9")),
+        ("45.12%", json!(0.4512), Some("10")),
+        ("$5", json!(5), None),
+        ("1,250.3", json!(1250.3), None),
+    ] {
+        let t = one_row(vec![cell(shown).typed("number", value)]);
+        let (_, styles, _) = render(&t);
+        let used = styles
+            .split("<cellXfs")
+            .nth(1)
+            .and_then(|x| x.split("numFmtId=\"").nth(2))
+            .and_then(|x| x.split('"').next());
+        match id {
+            Some(id) => {
+                assert_eq!(used, Some(id), "{shown}\n{styles}");
+                assert!(!styles.contains("<numFmt "), "{shown}\n{styles}");
+            }
+            None => assert!(styles.contains("<numFmt "), "{shown}\n{styles}"),
+        }
+    }
 }
