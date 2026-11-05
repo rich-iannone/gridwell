@@ -239,8 +239,8 @@ def test_typed_values_are_json_values_as_displayed():
         {"type": "time", "value": "14:30:00"},
         # The number shown (U+2212 MINUS SIGN read as a minus), not the data's.
         {"type": "number", "value": -1.5},
-        # A display that isn't a plain number has no typed value, as in R.
-        None,
+        # A currency is the number it shows.
+        {"type": "number", "value": 49.95},
         {"type": "string", "value": "x"},
         {"type": "boolean", "value": True},
         {"type": "datetime", "value": "2024-03-15T14:30:00"},
@@ -281,10 +281,222 @@ def test_typed_values_are_typed_xlsx_cells():
         "E": ("n", "45366.604166666664"),  # 14:30
         "F": ("n", "0.6041666666666666"),
         "G": ("n", "-1.5"),
-        "H": "text",  # $49.95
+        "H": ("n", "49.95"),  # $49.95
         "I": "text",  # "x"
         "J": ("b", "1"),
         "K": ("n", "45366.604166666664"),
+    }
+
+
+def make_shown_numbers_gt():
+    """GT with numbers displayed in other locales' marks, as currencies,
+    percentages, in scientific and compact notation, and with signs and units."""
+    df = pd.DataFrame({
+        "de": [1234.5, -98765.4321],
+        "fr": [1234.5, 0.25],
+        "pct": [0.4512, -0.0123],
+        "cur": [49.95, -5.0],
+        "acc": [49.95, -5.0],
+        "eur": [49.95, -5.0],
+        "sci": [0.000123, 123456.0],
+        "cmp": [1234567.0, 0.5],
+        "sgn": [1234.5, -2.0],
+        "kg": [1234.5, 2.0],
+        "i": [1234, -5],
+        "big": [1234.0, 1.234],
+    })
+    return (
+        GT(df)
+        .fmt_number("de", decimals=2, locale="de")
+        .fmt_number("fr", decimals=2, locale="fr")
+        .fmt_percent("pct", decimals=1)
+        .fmt_currency("cur")
+        .fmt_currency("acc", accounting=True)
+        .fmt_currency("eur", currency="EUR", locale="de")
+        .fmt_scientific("sci")
+        .fmt_number("cmp", compact=True)
+        .fmt_number("sgn", decimals=2, force_sign=True)
+        .fmt_number("kg", decimals=2, pattern="{x} kg")
+        .fmt_integer("i")
+        .fmt_number("big", decimals=3)
+    )
+
+
+def test_typed_values_are_the_numbers_any_display_shows():
+    ir = gridwell.gt_to_dict(make_shown_numbers_gt())
+    rows = ir["table"]["tbody"][0]["rows"]
+    shown = [["".join(n["value"] for n in c["content"]) for c in r["cells"]] for r in rows]
+    typed = [[c.get("typed_value") for c in r["cells"]] for r in rows]
+    assert shown == [
+        ["1.234,50", "1\u202f234,50", "45.1%", "$49.95", "$49.95", "€49,95", "1.23 × 10⁻⁴",
+         "1.23M", "+1,234.50", "1,234.50 kg", "1,234", "1,234.000"],
+        ["−98.765,43", "0,25", "−1.2%", "−$5.00", "($5.00)", "−€5,00", "1.23 × 10⁵",
+         "0.50", "−2.00", "2.00 kg", "−5", "1.234"],
+    ]
+    number = lambda v: {"type": "number", "value": v}  # noqa: E731
+    assert typed[0] == [
+        # In the locale's marks (once read as 1.2345: the `,` dropped as a separator).
+        number(1234.5),
+        number(1234.5),
+        number(0.451),
+        number(49.95),
+        number(49.95),
+        number(49.95),
+        number(0.000123),
+        number(1230000.0),
+        number(1234.5),
+        number(1234.5),
+        {"type": "integer", "value": 1234},
+        number(1234.0),
+    ]
+    assert typed[1] == [
+        number(-98765.43),
+        number(0.25),
+        number(-0.012),
+        number(-5.0),
+        number(-5.0),
+        number(-5.0),
+        number(123000.0),
+        number(0.5),
+        number(-2.0),
+        number(2.0),
+        {"type": "integer", "value": -5},
+        # `1.234` is a little more than one here, a thousand and more above.
+        number(1.234),
+    ]
+
+
+@pytest.mark.parametrize(
+    "shown,raw,value",
+    [
+        # Rounded displays: the number shown, not the data's.
+        ("1,230", 1234.5678, 1230.0),
+        ("0", 0.4, 0.0),
+        ("-0", -0.2, 0.0),
+        # A display only one reading fits is read as shown (`scale_by=`), even
+        # when the value doesn't round to it.
+        ("1.2", 1234.5678, 1.2),
+        ("1.2 MB", 1234567, 1.2),
+        ("45.1%", 45.1, 0.451),
+        ("1.000", 1, 1.0),
+        ("1.000", 1000, 1000.0),
+        ("12,34,567", 1234567, 1234567.0),
+        ("1.5K", 1.5, 1.5),
+        ("1.5K", 1500, 1500.0),
+        ("451.20‰", 0.4512, 0.4512),
+        ("1.23 × 10^-4", 0.000123, 0.000123),
+        ("1.23e-04", 0.000123, 0.000123),
+        ("(10%)", -0.1, -0.1),
+        ("CA$1,250", 1250, 1250.0),
+        ("5,00 kr.", 5, 5.0),
+        # Not one number: no typed value.
+        ("1,234", 5, None),
+        ("<0.001", 0.0001, None),
+        ("46 (37, 60)", 46, None),
+        ("~5", 5, None),
+        ("±5", 5, None),
+        ("5/8", 0.625, None),
+        ("1.2 m2", 1.2, None),
+        ("[5]", 5, None),
+        ("(-5)", -5, None),
+        ("--5", -5, None),
+        ("5-", 5, None),
+        ("5%%", 0.05, None),
+        ("%5", 0.05, None),
+        ("007", 7, None),
+        ("1.234.5", 1234.5, None),
+        ("1;234", 1234, None),
+        ("-(10)", -10, None),
+        ("1,234,.5", 1234.5, None),
+        (". 5", 5, None),
+        ("5 .", 5, None),
+        ("1.23M", 1.24, None),
+    ],
+)
+def test_typed_numbers_are_read_off_their_display(shown, raw, value):
+    from gridwell._gt_emitter import _typed_value
+
+    typed = _typed_value(raw, shown, "number")
+    if value is None:
+        assert typed is None
+    else:
+        assert typed == {"type": "number", "value": value}
+        # (`-0` is 0.0, not -0.0.)
+        assert str(typed["value"]) == str(value)
+
+
+def test_typed_integers_are_plain_integers_shown():
+    from gridwell._gt_emitter import _typed_value
+
+    assert _typed_value(1234, "1,234", "integer") == {"type": "integer", "value": 1234}
+    assert _typed_value(1234, "1.234", "integer") == {"type": "integer", "value": 1234}
+    assert _typed_value(-5, "−5", "integer") == {"type": "integer", "value": -5}
+    # Shown scaled or with decimals, an integer is a number.
+    assert _typed_value(1234567, "1.23M", "integer") == {"type": "number", "value": 1230000.0}
+    assert _typed_value(5, "5.00", "integer") == {"type": "number", "value": 5.0}
+    assert _typed_value(1, "100%", "integer") == {"type": "number", "value": 1.0}
+
+
+def _xlsx_number_formats(data, row):
+    """Each typed number cell's value and format code in sheet row `row`."""
+    import io
+    import re
+    import zipfile
+
+    z = zipfile.ZipFile(io.BytesIO(data))
+    styles = z.read("xl/styles.xml").decode()
+    codes = {
+        int(i): c.replace("&quot;", '"')
+        for i, c in re.findall(r'<numFmt numFmtId="(\d+)" formatCode="([^"]*)"', styles)
+    }
+    codes.update({0: "General", 1: "0", 2: "0.00", 3: "#,##0", 4: "#,##0.00", 9: "0%", 10: "0.00%"})
+    xfs = re.search(r"<cellXfs[^>]*>(.*?)</cellXfs>", styles, re.S).group(1)
+    fmt_ids = [int(re.search(r'numFmtId="(\d+)"', x).group(1)) for x in re.findall(r"<xf [^>]*>", xfs)]
+    sheet = z.read("xl/worksheets/sheet1.xml").decode()
+    cells = re.findall(rf'<c r="([A-Z]+){row}"([^>]*)>(.*?)</c>', sheet)
+    out = {}
+    for col, attrs, body in cells:
+        if " t=" in attrs:
+            out[col] = "text"
+            continue
+        s = re.search(r' s="(\d+)"', attrs)
+        fmt = codes[fmt_ids[int(s.group(1))]] if s else "General"
+        out[col] = (re.search(r"<v>(.*?)</v>", body).group(1), fmt)
+    return out
+
+
+def test_shown_numbers_are_xlsx_numbers_formatted_as_shown():
+    table = gridwell.Table.from_json(gridwell.gt_to_ir(make_shown_numbers_gt()))
+    data = table.render_binary("xlsx")
+    # Other marks are the reader's (Excel shows a number in its own locale's).
+    assert _xlsx_number_formats(data, 2) == {
+        "A": ("1234.5", "#,##0.00"),
+        "B": ("1234.5", "#,##0.00"),
+        "C": ("0.451", "0.0%"),
+        "D": ("49.95", '"$"0.00'),
+        "E": ("49.95", '"$"0.00'),
+        "F": ("49.95", '"€"0.00'),
+        # Scientific notation stays as shown.
+        "G": "text",
+        "H": ("1230000", '0.00,,"M"'),
+        "I": ("1234.5", '"+"#,##0.00'),
+        "J": ("1234.5", '#,##0.00" kg"'),
+        "K": ("1234", "#,##0"),
+        "L": ("1234", "#,##0.000"),
+    }
+    assert _xlsx_number_formats(data, 3) == {
+        "A": ("-98765.43", '#,##0.00;"−"#,##0.00'),
+        "B": ("0.25", "0.00"),
+        "C": ("-0.012", '0.0%;"−"0.0%'),
+        "D": ("-5", '"$"0.00;"−$"0.00'),
+        "E": ("-5", '"$"0.00;"($"0.00")"'),
+        "F": ("-5", '"€"0.00;"−€"0.00'),
+        "G": "text",
+        "H": ("0.5", "0.00"),
+        "I": ("-2", '0.00;"−"0.00'),
+        "J": ("2", '0.00" kg"'),
+        "K": ("-5", '0;"−"0'),
+        "L": ("1.234", "0.000"),
     }
 
 
@@ -628,7 +840,10 @@ def test_body_cells_are_the_html_great_tables_draws():
     ]
     assert rows[0][1]["typed_value"] == {"type": "string", "value": "md it para two"}
     assert rows[0][3]["typed_value"] == {"type": "string", "value": "m² s₁"}
-    assert "typed_value" not in rows[0][2] and "typed_value" not in rows[0][4]
+    # A number in scientific notation is the number (its superscripts read).
+    assert rows[0][2]["typed_value"] == {"type": "number", "value": 0.000123}
+    assert rows[1][2]["typed_value"] == {"type": "number", "value": 12300.0}
+    assert "typed_value" not in rows[0][4]
 
 
 def test_body_html_is_valid_ir_every_format_draws():
