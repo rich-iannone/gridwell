@@ -35,7 +35,7 @@ conformance/
   cases.R, cases.py      the tables, in gt and in Great Tables (the same names
                          and tables; each mirrors the other)
   expected/gt/           a grid per case, to L3, for gt
-  expected/great_tables/ a grid per case, to L1, for Great Tables
+  expected/great_tables/ a grid per case, to L3, for Great Tables
   html_grid.py           the L1 grid of a table as gt or Great Tables draws it,
                          read from its own HTML
   make.py                writes expected/ from the reference sets
@@ -48,13 +48,12 @@ package and its IR.
 Where each tier's expectation comes from (each file's `source` says it too):
 
 - **L1** is read off the package's own HTML (`as_raw_html()`) by `html_grid.py`,
-  so it doesn't rest on trusting any emitter. For gt, `make.py` also checks that
-  the reference IR's L1 is the same and refuses to write if it isn't.
-- **L2 and L3** can't be read off HTML. For gt they are the normalized grid of
-  the reference IR, which comes from gridwell's emitter (`ir_emitter` in
-  `harness/gt-reference/manifest.json`) and has been reviewed; they say what that
-  emitter does, for example that a date column is `data_type: "string"`. Great
-  Tables has none yet.
+  so it doesn't rest on trusting any emitter. `make.py` also checks that the
+  reference IR's L1 is the same and refuses to write if it isn't.
+- **L2 and L3** can't be read off HTML. They are the normalized grid of the
+  reference IR, which comes from gridwell's emitter (`ir_emitter` in each
+  reference set's `manifest.json`) and has been reviewed; they say what that
+  emitter does, for example that a date column is `data_type: "string"`.
 
 ## Checking an emitter
 
@@ -111,16 +110,14 @@ another version can format values differently.
 - **gt** (gridwell's emitter): every case passes `expected/gt` to L3, by
   construction (the R tests check that it stays so, live from `cases.R`).
 - **Great Tables** (gridwell's emitter): every case passes `expected/great_tables`
-  (L1); the Python tests check the reference IR and, with the Great Tables
-  version in the manifest, the cases live from `cases.py`. They also check more
-  tables (markup in labels, spanner levels, summary rows without a stub) against
-  what `html_grid.py` reads off Great Tables' HTML. The emitter now places
-  footnote marks in cells and styles each cell as `tab_style()` and the table
-  options say, as the gt emitter does (the Python tests check both against
-  Great Tables' HTML). L2 and L3 grids still wait on two gaps: stub cells in data
-  rows have no `scope` (Great Tables writes `scope="row"`), and `fmt_*()` output
-  that is HTML (`fmt_markdown()`, `fmt_image()`, nanoplots) is put in a cell as
-  text. Grids made from the emitter now would say those gaps are right.
+  to L3, by construction; the Python tests check the reference IR and, with the
+  Great Tables version in the manifest, the cases live from `cases.py`. They also
+  check more tables (markup in labels and body cells, spanner levels, summary rows
+  without a stub) against what `html_grid.py` reads off Great Tables' HTML. The
+  two packages' grids differ where the packages do, for example in how numbers
+  are formatted (`0.1111` or `1.111e-01`), how a missing value is shown and
+  typed, the alignment of a date column, and the stripe text color in
+  `striped_theme`.
 
 ## Regenerating
 
