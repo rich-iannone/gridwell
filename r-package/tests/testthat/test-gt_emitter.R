@@ -317,3 +317,185 @@ test_that("without a locale the language is unset", {
     expect_null(out$ir$config$dir)
     expect_false(grepl("lang=", gw_render(out$tbl, "html"), fixed = TRUE))
 })
+
+# A row's cells as "text|rowspan|colspan|scope|S" (S a stub cell); "." a placeholder.
+shape <- function(row) {
+    vapply(row$cells, function(c) {
+        if (isTRUE(c$is_placeholder)) {
+            return(".")
+        }
+        text <- paste(vapply(c$content, function(n) n$value %||% paste0("^", n$mark_text), ""), collapse = "")
+        paste(text, c$rowspan, c$colspan, c$scope %||% "-", if (isTRUE(c$is_stub)) "S" else "", sep = "|")
+    }, "")
+}
+
+stub_df <- data.frame(
+    g = c("G1", "G1", "G1", "G2", "G2"), o = c("x", "x", "y", "x", "x"),
+    i = c("p", "q", "r", "s", "t"), v = 1:5, w = 6:10
+)
+
+test_that("a stub of several columns merges its outer cells within each group", {
+    tbl <- gt::gt(stub_df, rowname_col = c("o", "i"), groupname_col = "g") |>
+        gt::tab_stubhead("Rows")
+    ir <- ir_of(tbl)$ir
+    expect_identical(ir$config$stub_cols, 2L)
+    expect_identical(vapply(ir$column_spec, `[[`, "", "align"), c("left", "left", "right", "right"))
+    head <- ir$table$thead$rows[[1]]
+    expect_identical(shape(head), c("Rows|1|2|colgroup|", ".", "v|1|1|col|", "w|1|1|col|"))
+    # A label over several stub columns is at their left, as gt draws it.
+    expect_identical(ir$styles$defs[[head$cells[[1]]$style_id]], list(text_align = "left"))
+    g1 <- lapply(ir$table$tbody[[1]]$rows, shape)
+    expect_identical(g1[[1]], c("x|2|1|rowgroup|S", "p|1|1|row|S", "1|1|1|-|", "6|1|1|-|"))
+    expect_identical(g1[[2]], c(".", "q|1|1|row|S", "2|1|1|-|", "7|1|1|-|"))
+    expect_identical(g1[[3]][1:2], c("y|1|1|row|S", "r|1|1|row|S"))
+    # Not merged across groups.
+    g2 <- lapply(ir$table$tbody[[2]]$rows, shape)
+    expect_identical(lapply(g2, `[`, 1:2), list(c("x|2|1|rowgroup|S", "s|1|1|row|S"), c(".", "t|1|1|row|S")))
+})
+
+test_that("stub cells are merged in the order shown, not the data's", {
+    # Grouping moves row 3 up beside row 1: the two are merged, row 2 isn't (gt's
+    # HTML merges by the data's order here).
+    df <- data.frame(g = c("G1", "G2", "G1"), o = "x", i = c("p", "q", "r"), v = 1:3)
+    ir <- ir_of(gt::gt(df, rowname_col = c("o", "i"), groupname_col = "g"))$ir
+    rows <- lapply(ir$table$tbody, function(g) lapply(g$rows, function(r) shape(r)[1:2]))
+    expect_identical(rows, list(
+        list(c("x|2|1|rowgroup|S", "p|1|1|row|S"), c(".", "r|1|1|row|S")),
+        list(c("x|1|1|row|S", "q|1|1|row|S"))
+    ))
+    # A style and a note on a merged cell's second row are the merged cell's. (gt
+    # gives a row picked by an expression as its place in the display, which the
+    # merged cell covers; one picked by number it moves to where it would merge
+    # the data's rows.)
+    df <- data.frame(g = c("G1", "G2", "G1", "G1"), o = c("y", "x", "x", "x"), i = c("p", "q", "r", "s"), v = 1:4)
+    tbl <- gt::gt(df, rowname_col = c("o", "i"), groupname_col = "g") |>
+        gt::tab_style(gt::cell_fill("#FF0000"), gt::cells_stub(rows = i == "s", columns = "o")) |>
+        gt::tab_style(gt::cell_text(color = "#0000FF"), gt::cells_stub(rows = i == "r", columns = "o")) |>
+        gt::tab_footnote("Second.", gt::cells_stub(rows = i == "s", columns = "o")) |>
+        gt::tab_footnote("First.", gt::cells_stub(rows = i == "r", columns = "o"))
+    ir <- ir_of(tbl)$ir
+    merged <- ir$table$tbody[[1]]$rows[[2]]$cells[[1]]
+    expect_identical(shape(list(cells = list(merged))), "x^1,^2|2|1|rowgroup|S")
+    expect_identical(ir$styles$defs[[merged$style_id]], list(background_color = "#FF0000", color = "#0000FF"))
+    expect_null(ir$table$tbody[[2]]$rows[[1]]$cells[[1]]$style_id)
+
+    # Every column to the left counts: the outer "x"s under another "g" aren't merged.
+    df <- data.frame(g = c("G1", "G2"), o = "x", i = c("p", "q"), v = 1:2)
+    ir <- ir_of(gt::gt(df, rowname_col = c("g", "o", "i")))$ir
+    expect_identical(lapply(ir$table$tbody[[1]]$rows, function(r) shape(r)[1:2]), list(
+        c("G1|1|1|row|S", "x|1|1|row|S"), c("G2|1|1|row|S", "x|1|1|row|S")
+    ))
+})
+
+test_that("a row group column is the first stub column, its summaries under it", {
+    tbl <- gt::gt(stub_df, rowname_col = c("o", "i"), groupname_col = "g", row_group_as_column = TRUE) |>
+        gt::tab_stubhead("Rows") |>
+        gt::tab_spanner("S1", c(v, w)) |>
+        gt::tab_spanner("S2", c(v, w), level = 2) |>
+        gt::summary_rows(columns = c(v, w), fns = list(Sum = "sum")) |>
+        gt::grand_summary_rows(columns = c(v, w), fns = list(Tot = "sum"))
+    ir <- ir_of(tbl)$ir
+    expect_identical(ir$config$stub_cols, 3L)
+    expect_identical(vapply(ir$column_spec, `[[`, "", "align"), c(rep("left", 3), "right", "right"))
+    head <- lapply(ir$table$thead$rows, shape)
+    # The top spanner row has one blank over the stub; the lowest one per column.
+    expect_identical(head[[1]], c("|1|3|colgroup|", ".", ".", "S2|1|2|colgroup|", "."))
+    expect_identical(head[[2]][1:3], rep("|1|1|col|", 3))
+    expect_identical(head[[3]][1:3], c("Rows|1|3|colgroup|", ".", "."))
+    groups <- ir$table$tbody
+    # The group's label is its first stub cell, spanning its rows; no label row.
+    expect_null(groups[[1]]$label)
+    expect_null(groups[[2]]$label)
+    expect_identical(
+        lapply(groups[[1]]$rows, function(r) shape(r)[1:3]),
+        list(
+            c("G1|3|1|rowgroup|S", "x|2|1|rowgroup|S", "p|1|1|row|S"),
+            c(".", ".", "q|1|1|row|S"),
+            c(".", "y|1|1|row|S", "r|1|1|row|S")
+        )
+    )
+    expect_identical(shape(groups[[2]]$rows[[1]])[1], "G2|2|1|rowgroup|S")
+    # A group's summary: an empty cell under the group's, the label over the row stub.
+    expect_identical(
+        shape(groups[[1]]$summary_rows[[1]]),
+        c("|1|1|-|S", "sum|1|2|row|S", ".", "6|1|1|-|", "21|1|1|-|")
+    )
+    # The grand summary's label spans the whole stub.
+    expect_identical(shape(groups[[3]]$summary_rows[[1]])[1:3], c("sum|1|3|row|S", ".", "."))
+})
+
+test_that("a row group column without a stub has the summary labels", {
+    tbl <- gt::gt(stub_df[c("g", "i", "v")], groupname_col = "g", row_group_as_column = TRUE) |>
+        gt::summary_rows(columns = v, fns = list(Sum = "sum")) |>
+        gt::grand_summary_rows(columns = v, fns = list(Tot = "sum"))
+    ir <- ir_of(tbl)$ir
+    expect_identical(ir$config$stub_cols, 1L)
+    expect_identical(vapply(ir$column_spec, `[[`, "", "id"), c("g", "i", "v"))
+    groups <- ir$table$tbody
+    expect_identical(vapply(groups[[1]]$rows, function(r) shape(r)[1], ""), c("G1|3|1|rowgroup|S", ".", "."))
+    expect_identical(shape(groups[[1]]$rows[[1]])[2], "p|1|1|-|")
+    expect_identical(shape(groups[[1]]$summary_rows[[1]])[c(1, 3)], c("sum|1|1|row|S", "6|1|1|-|"))
+    expect_identical(shape(groups[[3]]$summary_rows[[1]])[c(1, 3)], c("sum|1|1|row|S", "15|1|1|-|"))
+})
+
+test_that("a stubhead label for each stub column, each with the stubhead's marks", {
+    one <- function(as_column) {
+        gt::gt(stub_df, rowname_col = c("o", "i"), groupname_col = "g", row_group_as_column = as_column) |>
+            gt::tab_stubhead(c("A", "B")) |>
+            gt::tab_footnote("Stubhead.", gt::cells_stubhead())
+    }
+    labels <- c("A^1|1|1|col|", "B^1|1|1|col|", "v|1|1|col|", "w|1|1|col|")
+    expect_identical(shape(ir_of(one(FALSE))$ir$table$thead$rows[[1]]), labels)
+    # A blank above the group column.
+    ir <- ir_of(one(TRUE))$ir
+    expect_identical(shape(ir$table$thead$rows[[1]]), c("|1|1|col|", labels))
+    expect_identical(vapply(ir$column_spec, `[[`, "", "label"), c("g", "A", "B", "v", "w"))
+})
+
+test_that("styles and marks on a stub column's cells are the merged cell's", {
+    tbl <- gt::gt(stub_df, rowname_col = c("o", "i"), groupname_col = "g") |>
+        gt::tab_footnote("Outer.", gt::cells_stub(rows = 2, columns = "o")) |>
+        gt::tab_footnote("Rows.", gt::cells_stub(rows = 1)) |>
+        gt::tab_style(gt::cell_fill("#FF0000"), gt::cells_stub(rows = 2, columns = "o")) |>
+        gt::tab_style(gt::cell_text(color = "#0000FF"), gt::cells_stub(rows = c(1, 2)))
+    ir <- ir_of(tbl)$ir
+    rows <- ir$table$tbody[[1]]$rows
+    # As gt draws them: the merged cell has both notes, the row's stub its own.
+    expect_identical(shape(rows[[1]])[1:2], c("x^1,^2|2|1|rowgroup|S", "p^2|1|1|row|S"))
+    expect_identical(shape(rows[[2]])[2], "q|1|1|row|S")
+    defs <- ir$styles$defs
+    style_of <- function(r, j) defs[[rows[[r]]$cells[[j]]$style_id]]
+    expect_identical(style_of(1, 1), list(background_color = "#FF0000", color = "#0000FF"))
+    expect_identical(style_of(1, 2), list(color = "#0000FF"))
+    expect_identical(style_of(2, 2), list(color = "#0000FF"))
+    expect_null(rows[[3]]$cells[[1]]$style_id)
+})
+
+test_that("a row group column's cells take the options; gt doesn't stripe them", {
+    tbl <- gt::gt(stub_df[c("g", "i", "v")], rowname_col = "i", groupname_col = "g", row_group_as_column = TRUE) |>
+        gt::opt_row_striping() |>
+        gt::tab_options(row.striping.include_stub = TRUE, stub_row_group.font.weight = "bold") |>
+        gt::tab_style(gt::cell_text(color = "#0000FF"), gt::cells_row_groups("G1")) |>
+        gt::summary_rows(columns = v, fns = list(Sum = "sum"))
+    ir <- ir_of(tbl)$ir
+    groups <- ir$table$tbody[1:2]
+    first <- lapply(groups, function(g) ir$styles$defs[[g$rows[[1]]$cells[[1]]$style_id]])
+    # The empty cell under a group's cell in its summary rows is styled as it.
+    for (g in groups) {
+        under <- g$summary_rows[[1]]$cells[[1]]
+        expect_length(under$content, 0)
+        expect_identical(under$style_id, g$rows[[1]]$cells[[1]]$style_id)
+    }
+    # G2 starts on the fourth row, a striped one: the table's background over it.
+    expect_identical(first, list(
+        list(color = "#0000FF", font_weight = "bold"),
+        list(background_color = "#FFFFFF", font_weight = "bold")
+    ))
+    plain <- gt_to_ir_list(gt::gt(stub_df[c("g", "i", "v")], groupname_col = "g", row_group_as_column = TRUE))
+    expect_null(plain$table$tbody[[2]]$rows[[1]]$cells[[1]]$style_id)
+})
+
+test_that("a stub column is at the left, whatever its data", {
+    ir <- ir_of(gt::gt(data.frame(r = 1:2, v = 3:4), rowname_col = "r"))$ir
+    expect_identical(vapply(ir$column_spec, `[[`, "", "align"), c("left", "right"))
+})
