@@ -254,6 +254,7 @@ fn every_rule_has_an_invalid_fixture() {
     // Exhaustive: a new rule fails to compile here until it is listed (and then
     // fails at run time until a fixture produces it).
     let all = [
+        IrVersion,
         ColCount,
         RowCount,
         ColspecLength,
@@ -277,7 +278,8 @@ fn every_rule_has_an_invalid_fixture() {
     ];
     for rule in all {
         match rule {
-            ColCount
+            IrVersion
+            | ColCount
             | RowCount
             | ColspecLength
             | StubContiguous
