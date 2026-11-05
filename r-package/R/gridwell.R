@@ -8,6 +8,10 @@
 #'   renders as the document's format in R Markdown and Quarto, and every
 #'   `gw_*()` function takes it. It keeps its IR, so it survives `saveRDS()` and
 #'   `readRDS()` (and knitr's cache).
+#'
+#'   IR of a newer minor version than this gridwell reads (`"1.3"`, say) is
+#'   read with a warning, leaving out what the newer version added; IR of
+#'   another major version is refused.
 #' @examples
 #' \dontrun{
 #' tbl <- gw_parse_ir(json)
@@ -23,7 +27,11 @@ gw_parse_ir <- function(json) {
         stop("`json` must be a single string of table IR.", call. = FALSE)
     }
     json <- enc2utf8(json)
-    new_gw_table(rs_parse_ir(json), json)
+    ptr <- rs_parse_ir(json)
+    for (w in rs_version_warning(ptr)) {
+        warning(w, call. = FALSE)
+    }
+    new_gw_table(ptr, json)
 }
 
 new_gw_table <- function(ptr, json) {
@@ -105,11 +113,15 @@ gw_validate <- function(x) {
 #' something close. Each warning names the format, the feature, where the
 #' table uses it, and what's drawn instead. A warning doesn't stop rendering.
 #'
+#' A table of a newer minor IR version than this gridwell reads gets a warning
+#' first, for any format: what that version added is left out.
+#'
 #' @param x A table: a `gw_table` from [gw_parse_ir()], a gt table, or table IR
 #'   as a JSON string (see [as_gw_table()]).
 #' @param format A format name (see [gw_formats()]), or `NULL` for every format.
-#' @return A character vector of warnings (empty if every feature the table
-#'   uses is expressed). Invalid IR, and an unknown format, are errors.
+#' @return A character vector of warnings (empty if the table is IR of this
+#'   gridwell's version and every feature it uses is expressed). Invalid IR,
+#'   and an unknown format, are errors.
 #' @export
 gw_warnings <- function(x, format = NULL) {
     rs_warnings(gw_ptr(x), format)
