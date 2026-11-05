@@ -405,7 +405,7 @@ def test_make_writes_what_is_out_of_date(tmp_path, monkeypatch, capsys):
     ]
     assert changed.read_text(encoding="utf-8") == "{}"
     assert make.main([]) == 0
-    assert "18 expected grids, 3 changed" in capsys.readouterr().out
+    assert "22 expected grids, 3 changed" in capsys.readouterr().out
     assert not (out / "gt" / "gone.json").exists()
     assert changed.read_bytes() == (EXPECTED / "gt" / "exibble_basic.json").read_bytes()
     assert make.main(["--check"]) == 0
@@ -553,6 +553,56 @@ def edge_tables() -> dict:
         .tab_header(title=html("A&nbsp;B &amp; C&#x2014;D"))
         .tab_source_note(md("line one\n\nline two"))
         .tab_source_note(html("<p>x</p><br>y<br><br><div>z</div><p></p>")),
+        **stub_tables(),
+    }
+
+
+def stub_data():
+    import pandas as pd
+
+    return pd.DataFrame({
+        "g": ["G1", "G1", "G1", "G2", "G2"], "o": ["x", "x", "y", "x", "x"],
+        "i": ["p", "q", "r", "s", "t"], "v": [1, 2, 3, 4, 5], "w": [6, 7, 8, 9, 10],
+    })
+
+
+def stub_tables() -> dict:
+    """Great Tables tables with a stub of several columns or a row group column."""
+    from great_tables import GT, loc, style
+
+    st = stub_data()
+    total = {"Total": lambda x: x[["v", "w"]].sum()}
+
+    def multi(**kw):
+        return GT(st, rowname_col=["o", "i"], groupname_col="g", **kw)
+
+    def as_column(gt_obj):
+        return gt_obj.tab_options(row_group_as_column=True)
+
+    return {
+        "stub of two columns, in groups": multi().tab_spanner("S", ["v", "w"]).tab_stubhead("Rows"),
+        "stub of two columns, no groups": GT(st.iloc[[0, 1, 3, 4]], rowname_col=["o", "i"]),
+        # (Row 3's "x" is beside row 4's, under another "g": not merged.)
+        "stub of three columns": GT(st.iloc[[2, 0, 1, 3, 4]], rowname_col=["g", "o", "i"]),
+        "spanner levels over a stub of two columns": GT(st, rowname_col=["o", "i"])
+        .tab_spanner("S1", ["v", "w"])
+        .tab_spanner("S0", ["w"])
+        .tab_spanner("Top", ["v", "w"], level=2),
+        "a stubhead label for each stub column": multi().tab_stubhead(["A", "B"]),
+        "notes on merged stub cells": multi()
+        .tab_footnote("outer", locations=loc.stub(rows=[1], columns="o"))
+        .tab_footnote("plain", locations=loc.stub(rows=[0])),
+        "row group column": as_column(GT(st[["g", "i", "v"]], rowname_col="i", groupname_col="g")),
+        "row group column, no stub": as_column(GT(st[["g", "i", "v"]], groupname_col="g")),
+        "row group column and a stub of two columns": as_column(multi())
+        .tab_spanner("S1", ["v", "w"])
+        .tab_spanner("S2", ["v"], level=0),
+        "row group column, a stubhead label for each stub column": as_column(multi().tab_stubhead(["A", "B"])),
+        "row group column, striped": as_column(multi().opt_row_striping())
+        .tab_options(row_striping_include_stub=True),
+        "row group column, styled": as_column(multi())
+        .tab_style(style.text(weight="bold"), loc.row_groups()),
+        "row group column, grand summary": as_column(multi()).grand_summary_rows(fns=total),
     }
 
 
@@ -564,6 +614,33 @@ def test_the_great_tables_emitter_has_what_great_tables_html_shows():
         seen = html_grid().grid(gt_obj.as_raw_html())
         report = check(gridwell.gt_to_ir(gt_obj, emitter="gridwell"), seen)
         assert report.passed, f"{name}:\n{report}"
+
+
+@in_checkout
+@pytest.mark.parametrize("stub", [["i"], ["o", "i"]])
+def test_a_row_group_columns_summaries_differ_from_great_tables_html_as_known(stub):
+    # Great Tables' group cell spans the group's summary rows too; the IR's can't
+    # (a rowspan stays in its group's rows), so its summary rows start with an
+    # empty stub cell under it instead.
+    pytest.importorskip("great_tables")
+    pytest.importorskip("pandas")
+    from great_tables import GT
+
+    gt_obj = (
+        GT(stub_data()[["g", *stub, "v", "w"]], rowname_col=stub, groupname_col="g")
+        .tab_options(row_group_as_column=True)
+        .summary_rows(fns={"Sum": lambda x: x[["v", "w"]].sum()})
+    )
+    ir = gridwell.gt_to_ir(gt_obj, emitter="gridwell")
+    seen = html_grid().grid(gt_obj.as_raw_html())
+    assert not check(ir, seen, tier="L1").passed
+    for group in seen["grid"]["groups"]:
+        assert group["rows"][0]["cells"][0]["rowspan"] == len(group["rows"]) + 1
+        group["rows"][0]["cells"][0]["rowspan"] = len(group["rows"])
+        for row in group["summary_rows"]:
+            row["cells"].insert(0, {"col": 0, "stub": True, "text": ""})
+    report = check(ir, seen, tier="L1")
+    assert report.passed, str(report)
 
 
 @in_checkout
