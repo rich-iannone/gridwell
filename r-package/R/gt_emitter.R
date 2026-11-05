@@ -130,21 +130,18 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
     # the unbuilt table still has their markdown.
     heading <- gt_obj[["_heading"]]
 
-    # Visible columns: the stub (if any) first, then the default columns.
-    stub_var <- boxhead$var[boxhead$type == "stub"]
-    stub_var <- if (length(stub_var) > 0) stub_var[1] else NULL
-    # Summary rows need a stub for their labels: gt adds one when the table has
-    # none (empty in the data rows), and so does the IR.
+    # Visible columns: the stub columns (if any) first, then the default columns.
     summaries <- .gw_summaries(built)
-    if (is.null(stub_var) && length(summaries) > 0) stub_var <- .gw_summary_stub
-    has_stub <- !is.null(stub_var)
-    all_vars <- c(stub_var, boxhead$var[boxhead$type == "default"])
+    stub <- .gw_stub_layout(built, summaries)
+    n_stub <- length(stub$vars)
+    all_vars <- c(stub$vars, boxhead$var[boxhead$type == "default"])
     opts <- .gw_option_styles(built, styles)
 
     marks <- .gw_footnote_marks(built, styles)
     cell_styles <- .gw_cell_styles(built, styles)
 
-    column_spec <- lapply(all_vars, function(var) {
+    column_spec <- lapply(seq_along(all_vars), function(j) {
+        var <- all_vars[j]
         idx <- which(boxhead$var == var)
         width <- if (length(idx) > 0) boxhead$column_width[[idx]] else NULL
         width <- if (is.null(width) || !nzchar(width[1])) "auto" else as.character(width[1])
@@ -152,7 +149,7 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
             id = var,
             align = .gw_align(
                 if (length(idx) > 0) boxhead$column_align[idx] else "left",
-                is_stub = identical(var, stub_var)
+                is_stub = j <= n_stub
             ),
             align_char = NULL,
             width = width,
@@ -160,7 +157,9 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
             max_width = NULL,
             style_id = NULL,
             hidden = FALSE,
-            label = .gw_plain(.gw_column_label(gt_obj, var, stub_var))
+            label = .gw_plain(
+                if (j <= n_stub) .gw_stub_label(gt_obj, var, stub) else .gw_column_label(gt_obj, var)
+            )
         )
     })
 
@@ -180,20 +179,23 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
     label_row <- list(
         role = "column_label",
         style_id = NULL,
-        cells = lapply(all_vars, function(var) {
-            key <- if (identical(var, stub_var)) "stubhead" else paste0("columns_columns:", var)
-            .gw_cell(
-                .gw_with_marks(
-                    .gw_nodes(.gw_column_label(gt_obj, var, stub_var), styles),
-                    marks$lookup(key)
-                ),
-                style_id = cell_styles$lookup(key),
-                scope = "col"
-            )
-        })
+        cells = c(
+            .gw_stubhead_cells(gt_obj, stub, styles, marks, cell_styles),
+            lapply(all_vars[seq_along(all_vars) > n_stub], function(var) {
+                key <- paste0("columns_columns:", var)
+                .gw_cell(
+                    .gw_with_marks(
+                        .gw_nodes(.gw_column_label(gt_obj, var), styles),
+                        marks$lookup(key)
+                    ),
+                    style_id = cell_styles$lookup(key),
+                    scope = "col"
+                )
+            })
+        )
     )
     thead_rows <- c(
-        .gw_spanner_rows(built, all_vars, has_stub, styles, marks, cell_styles),
+        .gw_spanner_rows(built, all_vars, n_stub, styles, marks, cell_styles),
         list(label_row)
     )
     # Table options for the column labels (fill, weight) apply to every head row,
@@ -205,25 +207,51 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
         })
     }
 
-    # Body rows, in gt's display order.
+    # Body rows, in gt's display order. With a row group column, a group's label is
+    # the cell in that column of its first row, spanning its data rows (the IR has
+    # no span from a group's rows into its summary rows).
+    group_cells <- .gw_group_cells(stub_df, stub, styles, marks, cell_styles, opts)
+    spans <- .gw_stub_spans(data, stub_df, stub$rows)
+    n_group <- length(stub$group)
     rows <- lapply(seq_len(nrow(body)), function(i) {
         orig <- stub_df$rownum_i[i]
-        cells <- lapply(all_vars, function(var) {
-            is_stub_cell <- identical(var, stub_var)
-            key <- if (is_stub_cell) paste0("stub:", i) else paste0("data:", i, ":", var)
+        lead <- if (n_group > 0) {
+            cell <- group_cells$at[[as.character(i)]]
+            list(if (is.null(cell)) .gw_cell(list(), is_stub = TRUE, is_placeholder = TRUE) else cell)
+        }
+        cells <- lapply(seq(n_group + 1L, length.out = length(all_vars) - n_group), function(j) {
+            var <- all_vars[j]
+            is_stub_cell <- j <= n_stub
+            rowspan <- 1L
+            if (is_stub_cell) {
+                rowspan <- spans[i, j - n_group]
+                if (rowspan == 0L) {
+                    return(.gw_cell(list(), is_stub = TRUE, is_placeholder = TRUE))
+                }
+                # A stub cell has the styles and footnotes for its column in any row
+                # it spans, and (the primary column's) those for no column in its row.
+                keys <- c(
+                    if (identical(var, stub$primary)) paste0("stub:", i),
+                    paste0("stub:", seq(i, length.out = rowspan), ":", var)
+                )
+            } else {
+                keys <- paste0("data:", i, ":", var)
+            }
             right <- !is_stub_cell &&
                 identical(boxhead$column_align[boxhead$var == var], "right")
             shown <- body[[var]][i]
             missing <- length(shown) == 1 && is.na(shown)
             text <- .gw_body_text(shown)
             raw <- if (var %in% names(data)) data[[var]][orig] else NULL
-            cell_style <- cell_styles$lookup(key)
+            cell_style <- cell_styles$lookup(keys)
             if (is_stub_cell) cell_style <- .gw_merge_style(styles, opts$stub, cell_style)
             cell <- .gw_cell(
-                .gw_with_marks(.gw_text_nodes(text), marks$lookup(key), right_aligned = right),
+                .gw_with_marks(.gw_text_nodes(text), marks$lookup(keys), right_aligned = right),
+                rowspan = rowspan,
                 style_id = cell_style,
                 is_stub = is_stub_cell,
-                scope = if (is_stub_cell) "row" else NULL,
+                # A stub cell heads its row, or the rows it spans (as gt has it).
+                scope = if (is_stub_cell) (if (rowspan > 1L) "rowgroup" else "row"),
                 data_type = .gw_dtype(raw),
                 # A missing value sorts as missing, not as the text "NA".
                 sort_key = if (nzchar(text) && !missing) tolower(text) else NULL
@@ -232,12 +260,13 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
             if (!is.null(typed)) cell$typed_value <- typed
             cell
         })
-        list(role = NULL, style_id = opts$body_row, cells = cells)
+        list(role = NULL, style_id = opts$body_row, cells = c(lead, cells))
     })
 
     # Before the styles are listed below: the body registers styles too.
     tbody <- .gw_tbody(
-        built, rows, styles, marks, cell_styles, summaries, all_vars, stub_var, opts
+        built, rows, styles, marks, cell_styles, summaries, all_vars, stub, opts,
+        group_cells$style
     )
 
     # Footer: footnotes (in mark order) and source notes.
@@ -253,7 +282,7 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
         table_cols = length(all_vars),
         header_rows = length(thead_rows),
         body_rows = length(rows),
-        stub_cols = if (has_stub) 1L else 0L,
+        stub_cols = n_stub,
         row_striping = opts$striping$row_striping,
         row_striping_include_stub = opts$striping$include_stub,
         row_striping_include_body = opts$striping$include_body,
@@ -478,20 +507,183 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
 
 # ---- Labels, spanners and row groups ----------------------------------------------
 
-# A column's label (or the stubhead label for the stub), from the unbuilt table.
-.gw_column_label <- function(gt_obj, var, stub_var) {
-    if (identical(var, stub_var)) {
-        label <- gt_obj[["_stubhead"]]$label
-        return(if (is.null(label) || length(label) == 0) "" else label)
-    }
+# A column's label, from the unbuilt table.
+.gw_column_label <- function(gt_obj, var) {
     boxhead <- gt_obj[["_boxhead"]]
     label <- boxhead$column_label[[which(boxhead$var == var)]]
     if (is.null(label)) var else label
 }
 
-# One spanner row per spanner level, the top level first. A spanner covers a run
-# of adjacent columns, followed by placeholder cells.
-.gw_spanner_rows <- function(built, all_vars, has_stub, styles, marks, cell_styles) {
+# The stub columns, as gt lays them out (its `get_stub_layout()`): the row group
+# column (`row_group_as_column = TRUE`), then the stub columns, outermost first (a
+# hierarchical stub, `rowname_col = c(...)`, has several), the primary last; as
+# `list(group, rows, vars, primary)`, `vars` all of them.
+#
+# Summary rows need a stub for their labels: gt adds one when the table has none
+# (empty in the data rows), and so does the IR. With a row group column and no
+# stub, it adds none: the summary labels are in the group column.
+.gw_stub_layout <- function(built, summaries) {
+    boxhead <- built[["_boxhead"]]
+    stub_df <- built[["_stub_df"]]
+    layout <- utils::getFromNamespace("get_stub_layout", "gt")(data = built)
+    has_groups <- length(built[["_row_groups"]]) > 0 && !all(is.na(stub_df$group_id))
+    group <- NULL
+    if ("group_label" %in% layout && has_groups) {
+        group <- boxhead$var[boxhead$type == "row_group"]
+        group <- if (length(group) > 0) group[1] else .gw_group_stub
+    }
+    # (gt's build lists the stub it adds for summary rows in the boxhead, even when
+    # the layout has no place for it.)
+    rows <- if ("rowname" %in% layout) boxhead$var[boxhead$type == "stub"] else character(0)
+    if (length(rows) == 0 && ("rowname" %in% layout || (is.null(group) && length(summaries) > 0))) {
+        rows <- .gw_summary_stub
+    }
+    list(
+        group = group,
+        rows = rows,
+        vars = c(group, rows),
+        primary = if (length(rows) > 0) rows[length(rows)]
+    )
+}
+
+# The row group column's id when gt has no column for the groups.
+.gw_group_stub <- "::group::"
+
+# The stubhead's labels: one across the stub ("" when there is none), or one per
+# stub column when `tab_stubhead()` was given a label for each.
+.gw_stubhead_labels <- function(gt_obj, n_rows) {
+    label <- gt_obj[["_stubhead"]]$label
+    if (is.null(label) || length(label) == 0) return(list(""))
+    # Each label keeps the class (`md()`, `html()`) of the vector.
+    one <- if (is.list(label)) {
+        function(k) label[[k]]
+    } else {
+        function(k) {
+            x <- label[k]
+            oldClass(x) <- oldClass(label)
+            x
+        }
+    }
+    if (length(label) > 1 && length(label) == n_rows) return(lapply(seq_along(label), one))
+    list(one(1L))
+}
+
+# A stub column's label: the stubhead's for the primary column (or a column's own,
+# given one for each), else the column's.
+.gw_stub_label <- function(gt_obj, var, stub) {
+    labels <- .gw_stubhead_labels(gt_obj, length(stub$rows))
+    k <- match(var, stub$rows)
+    if (length(labels) > 1 && !is.na(k)) return(labels[[k]])
+    if (identical(var, stub$primary)) return(labels[[1]])
+    if (var %in% gt_obj[["_boxhead"]]$var) .gw_column_label(gt_obj, var) else ""
+}
+
+# The column label row's cells for the stub: the stubhead label across the stub
+# columns and left-aligned, as gt shows it; given a label for each stub column,
+# each has its own (and a row group column a blank one), all with the footnote
+# marks, as gt draws them.
+.gw_stubhead_cells <- function(gt_obj, stub, styles, marks, cell_styles) {
+    n_stub <- length(stub$vars)
+    if (n_stub == 0) return(list())
+    labels <- .gw_stubhead_labels(gt_obj, length(stub$rows))
+    style_id <- cell_styles$lookup("stubhead")
+    label_cell <- function(label, ...) {
+        .gw_cell(.gw_with_marks(.gw_nodes(label, styles), marks$lookup("stubhead")), ...)
+    }
+    if (length(labels) == 1) {
+        # Left-aligned across the stub, where a cell across columns is centered.
+        across <- if (n_stub > 1) .gw_merge_style(styles, list(text_align = "left"), style_id)
+        return(c(
+            list(label_cell(
+                labels[[1]],
+                colspan = n_stub,
+                style_id = if (n_stub > 1) across else style_id,
+                scope = if (n_stub > 1) "colgroup" else "col"
+            )),
+            .gw_placeholders(n_stub - 1L)
+        ))
+    }
+    c(
+        if (!is.null(stub$group)) list(.gw_cell(list(), style_id = style_id, scope = "col")),
+        lapply(labels, label_cell, style_id = style_id, scope = "col")
+    )
+}
+
+# `n` cells covered by a span.
+.gw_placeholders <- function(n, is_stub = FALSE) {
+    lapply(seq_len(n), function(k) .gw_cell(list(), is_stub = is_stub, is_placeholder = TRUE))
+}
+
+# For each data row as shown, each of the stub columns `vars`' rowspan: 0 for a
+# cell covered by one above. In a hierarchical stub, as gt merges it: an outer
+# column's cells merge across adjacent rows of a group with the same value in
+# that column and every column to its left. The primary column's never do.
+.gw_stub_spans <- function(data, stub_df, vars) {
+    n <- nrow(stub_df)
+    spans <- matrix(1L, nrow = n, ncol = length(vars))
+    if (length(vars) < 2 || n == 0) return(spans)
+    group <- stub_df$group_id
+    # The rows' values as shown (gt compares the data's rows by their place in the
+    # display, wrongly when groups reorder them).
+    values <- lapply(vars, function(var) data[[var]][stub_df$rownum_i])
+    same <- function(a, b, level) {
+        identical(group[a], group[b]) &&
+            all(vapply(seq_len(level), function(l) identical(values[[l]][a], values[[l]][b]),
+                       logical(1)))
+    }
+    for (level in seq_len(length(vars) - 1L)) {
+        start <- 1L
+        for (j in seq(2L, n + 1L)) {
+            if (j <= n && same(j, start, level)) next
+            spans[start, level] <- j - start
+            if (j - start > 1L) spans[seq(start + 1L, j - 1L), level] <- 0L
+            start <- j
+        }
+    }
+    spans
+}
+
+# A row group's label as gt shows it.
+.gw_group_label <- function(stub_df, grp_id) {
+    idx <- which(stub_df$group_id == grp_id)
+    label <- if (length(idx) > 0) stub_df$group_label[[idx[1]]]
+    if (is.null(label)) grp_id else label
+}
+
+# With a row group column, each group's label cell, by the data row (as shown) it
+# starts in (`at`), and its style id by group id (`style`). It spans the group's
+# data rows; its styles are the group label's, under the table options for the
+# row group column (not the group labels' or the stub's), and it isn't striped,
+# as gt draws it.
+.gw_group_cells <- function(stub_df, stub, styles, marks, cell_styles, opts) {
+    out <- list(at = list(), style = list())
+    if (is.null(stub$group) || nrow(stub_df) == 0) return(out)
+    ids <- stub_df$group_id
+    runs <- rle(ifelse(is.na(ids), "\001", ids))
+    starts <- cumsum(c(1L, runs$lengths))[seq_along(runs$lengths)]
+    for (k in seq_along(starts)) {
+        i <- starts[k]
+        grp_id <- ids[i]
+        if (is.na(grp_id)) next
+        key <- paste0("row_groups:", grp_id)
+        style_id <- .gw_merge_style(styles, opts$group_cell(i), cell_styles$lookup(key))
+        out$at[[as.character(i)]] <- .gw_cell(
+            .gw_with_marks(.gw_nodes(.gw_group_label(stub_df, grp_id), styles), marks$lookup(key)),
+            rowspan = runs$lengths[k],
+            style_id = style_id,
+            is_stub = TRUE,
+            scope = "rowgroup"
+        )
+        if (is.null(out$style[[grp_id]])) out$style[grp_id] <- list(style_id)
+    }
+    out
+}
+
+# One spanner row per spanner level, the top level first, as gt draws them. A
+# spanner covers a run of adjacent columns, followed by placeholder cells. In the
+# lowest spanner row each stub column is a blank cell of its own (the stubhead
+# reaches up to it in gt's HTML); in the rows above, the stub columns share one.
+.gw_spanner_rows <- function(built, all_vars, n_stub, styles, marks, cell_styles) {
     spanners <- built[["_spanners"]]
     if (is.null(spanners) || nrow(spanners) == 0) return(list())
     levels <- sort(unique(spanners$spanner_level), decreasing = TRUE)
@@ -501,9 +693,16 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
             hit <- which(vapply(at_level$vars, function(v) var %in% v, logical(1)))
             if (length(hit) > 0) at_level$spanner_id[hit[1]] else NA_character_
         }, character(1))
-        if (has_stub) owner[1] <- NA_character_
         cells <- list()
-        j <- 1L
+        if (n_stub > 0 && level == min(levels)) {
+            cells <- lapply(seq_len(n_stub), function(k) .gw_cell(list(), scope = "col"))
+        } else if (n_stub > 0) {
+            cells <- c(
+                list(.gw_cell(list(), colspan = n_stub, scope = if (n_stub > 1) "colgroup" else "col")),
+                .gw_placeholders(n_stub - 1L)
+            )
+        }
+        j <- n_stub + 1L
         while (j <= length(all_vars)) {
             id <- owner[[j]]
             span <- 1L
@@ -532,23 +731,39 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
     })
 }
 
-.gw_tbody <- function(built, rows, styles, marks, cell_styles, summaries, all_vars, stub_var,
-                      opts) {
+# The body's row groups, then the grand summary (as a group of summary rows alone).
+# With a row group column (its cells' style ids by group id in `group_styles`),
+# the groups have no labels of their own.
+.gw_tbody <- function(built, rows, styles, marks, cell_styles, summaries, all_vars, stub,
+                      opts, group_styles) {
     stub_df <- built[["_stub_df"]]
     row_groups <- built[["_row_groups"]]
-    summary_rows <- function(id, role, row_style) {
+    n_stub <- length(stub$vars)
+    data_vars <- all_vars[seq_along(all_vars) > n_stub]
+    # The label across the stub. With a row group column, a group's summary label
+    # is across the other stub columns, as gt draws it under the group's label;
+    # the group column is an empty cell there, styled as the group's label
+    # (`group_style`), since the IR has no span from a group's rows into its
+    # summary rows. A grand summary label is across the whole stub.
+    summary_rows <- function(id, role, row_style, group_style = NULL) {
         df <- summaries[[id]]
         if (is.null(df)) return(list())
+        first <- !is.null(stub$group) && length(stub$rows) > 0 && id != .gw_grand_summary_id
+        span <- n_stub - first
         lapply(seq_len(nrow(df)), function(i) {
-            cells <- lapply(all_vars, function(var) {
-                is_stub_cell <- identical(var, stub_var)
-                text <- if (is_stub_cell) df[["::rowname::"]][i] else df[[var]][i]
-                .gw_cell(
-                    .gw_text_nodes(.gw_summary_text(text)),
-                    is_stub = is_stub_cell,
-                    scope = if (is_stub_cell) "row" else NULL
-                )
-            })
+            cells <- c(
+                if (first) list(.gw_cell(list(), style_id = group_style, is_stub = TRUE)),
+                list(.gw_cell(
+                    .gw_text_nodes(.gw_summary_text(df[["::rowname::"]][i])),
+                    colspan = span,
+                    is_stub = TRUE,
+                    scope = "row"
+                )),
+                .gw_placeholders(span - 1L, is_stub = TRUE),
+                lapply(data_vars, function(var) {
+                    .gw_cell(.gw_text_nodes(.gw_summary_text(df[[var]][i])))
+                })
+            )
             list(role = role, style_id = row_style, cells = cells)
         })
     }
@@ -564,18 +779,23 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
     }
     groups <- lapply(row_groups, function(grp_id) {
         idx <- which(stub_df$group_id == grp_id)
-        label <- stub_df$group_label[[idx[1]]]
-        if (is.null(label)) label <- grp_id
         key <- paste0("row_groups:", grp_id)
-        list(
-            group_id = grp_id,
-            label = list(
-                content = .gw_with_marks(.gw_nodes(label, styles), marks$lookup(key)),
+        label <- if (is.null(stub$group)) {
+            list(
+                content = .gw_with_marks(
+                    .gw_nodes(.gw_group_label(stub_df, grp_id), styles), marks$lookup(key)
+                ),
                 style_id = .gw_merge_style(styles, opts$group_label, cell_styles$lookup(key)),
                 colspan = NULL
-            ),
+            )
+        }
+        list(
+            group_id = grp_id,
+            label = label,
             rows = rows[idx],
-            summary_rows = summary_rows(grp_id, "summary_row", opts$summary_row)
+            summary_rows = summary_rows(
+                grp_id, "summary_row", opts$summary_row, group_styles[[grp_id]]
+            )
         )
     })
     c(groups, grand_group)
@@ -675,10 +895,24 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
         }
     }
 
+    # The row group column's cells (`row_group_as_column`), which gt never stripes:
+    # one starting in a striped row (the `i`-th shown) is given the table's background.
+    stub_group <- c(
+        fill("stub_row_group_background_color"), weight("stub_row_group_font_weight")
+    )
+    stub_striped <- striping$include_stub || length(striping$conditionals) > 0
+    group_cell <- function(i) {
+        if (stub_striped && i %% 2 == 0 && is.null(stub_group$background_color)) {
+            return(c(list(background_color = as.character(raw("table_background_color"))), stub_group))
+        }
+        stub_group
+    }
+
     list(
         head_row = id_of(head_row),
         group_label = group_label,
         stub = stub,
+        group_cell = group_cell,
         body_row = id_of(body_row),
         summary_row = id_of(fill("summary_row_background_color")),
         grand_summary_row = id_of(fill("grand_summary_row_background_color")),
@@ -696,11 +930,11 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
 
 .gw_cell <- function(content, colspan = 1L, style_id = NULL, is_stub = FALSE,
                      is_placeholder = FALSE, scope = NULL, data_type = NULL,
-                     sort_key = NULL) {
+                     sort_key = NULL, rowspan = 1L) {
     list(
         content = content,
         colspan = as.integer(colspan),
-        rowspan = 1L,
+        rowspan = as.integer(rowspan),
         style_id = style_id,
         is_stub = is_stub,
         is_placeholder = is_placeholder,
@@ -722,9 +956,13 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
 
 # Location keys for footnotes and styles: "title", "subtitle", "stubhead",
 # "columns_columns:<var>", "columns_groups:<spanner id>", "row_groups:<group id>",
-# "stub:<row>", "data:<row>:<var>" (rows in display order), "source_notes" and
-# "footnotes".
+# "stub:<row>" (a stub's, for no column), "stub:<row>:<var>" (a stub column's, in
+# a hierarchical stub), "data:<row>:<var>" (rows in display order), "source_notes"
+# and "footnotes".
 .gw_location_key <- function(locname, grpname, colname, rownum) {
+    stub <- paste0(
+        "stub:", rownum, if (length(colname) == 1 && !is.na(colname)) paste0(":", colname)
+    )
     switch(locname,
         title = "title",
         subtitle = "subtitle",
@@ -732,7 +970,8 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
         columns_columns = paste0("columns_columns:", colname),
         columns_groups = paste0("columns_groups:", grpname),
         row_groups = paste0("row_groups:", grpname),
-        stub = paste0("stub:", rownum),
+        stub = stub,
+        stub_column = stub,
         data = paste0("data:", rownum, ":", colname),
         source_notes = "source_notes",
         footnotes = "footnotes",
@@ -771,7 +1010,10 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
         placement <- if (is.null(fns$placement)) "auto" else fns$placement[i]
         by_key[[key]] <- c(by_key[[key]], list(list(id = fs_id[i], placement = placement)))
     }
-    by_key <- lapply(by_key, function(entries) {
+    # The marks of one or more locations (`key`, a vector of keys), together.
+    lookup <- function(key) {
+        entries <- unlist(unname(by_key[intersect(key, names(by_key))]), recursive = FALSE)
+        if (length(entries) == 0) return(NULL)
         ids <- vapply(entries, function(e) e$id, integer(1))
         keep <- !duplicated(ids)
         entries <- entries[keep][order(ids[keep])]
@@ -779,8 +1021,8 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
             marks = lapply(entries, function(e) list(id = e$id, mark = mark_of(e$id))),
             placement = entries[[1]]$placement
         )
-    })
-    list(footnotes = footnotes, lookup = function(key) by_key[[key]])
+    }
+    list(footnotes = footnotes, lookup = lookup)
 }
 
 # Content with footnote marks: after the text, or before it for "left" placement
@@ -839,7 +1081,14 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
         }
     }
     ids <- lapply(by_key, styles$id)
-    list(lookup = function(key) ids[[key]])
+    # The style of one or more locations (`key`, a vector of keys), merged in order.
+    lookup <- function(key) {
+        key <- intersect(key, names(by_key))
+        if (length(key) == 0) return(NULL)
+        if (length(key) == 1) return(ids[[key]])
+        styles$id(Reduce(utils::modifyList, by_key[key]))
+    }
+    list(lookup = lookup)
 }
 
 # A gt `cell_styles` list as an IR style definition.
