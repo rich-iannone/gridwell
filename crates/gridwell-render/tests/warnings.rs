@@ -1,10 +1,10 @@
 //! Warnings: what a format can't express of a valid table, for one format or
-//! every format, as each format's writer reports it; formats and tables are
-//! checked as `render` checks them.
+//! every format, as each format's writer reports it, and a newer minor IR
+//! version; formats and tables are checked as `render` checks them.
 
 use gridwell_ir::style::{BorderSet, StyleDef};
 use gridwell_ir::Table;
-use gridwell_render::{warnings, Place, RenderError, SectionKind, Warning};
+use gridwell_render::{warnings, Place, RenderError, SectionKind, UnsupportedFeature, Warning};
 use gridwell_testkit::{
     border, cell, cell_content, examples, line_break, row, text, CellExt, TableBuilder,
 };
@@ -53,8 +53,17 @@ fn body(c: usize) -> Place {
     }
 }
 
-fn summary(w: &[Warning]) -> Vec<(&str, &str, Vec<Place>)> {
+/// The unsupported features warned of: every warning, for a table of this
+/// IR version.
+fn features(w: &[Warning]) -> Vec<&UnsupportedFeature> {
     w.iter()
+        .map(|w| w.as_unsupported().expect("an unsupported feature"))
+        .collect()
+}
+
+fn summary(w: &[Warning]) -> Vec<(&str, &str, Vec<Place>)> {
+    features(w)
+        .into_iter()
         .map(|w| (w.format, w.feature, w.places.clone()))
         .collect()
 }
@@ -99,14 +108,20 @@ fn a_warning_reads_as_a_sentence() {
              column 2): Typst strokes have no double line; a double border is drawn solid",
         ]
     );
-    let mut w = warnings(&table(), Some("typst")).unwrap().remove(0);
+    let Warning::Unsupported(mut w) = warnings(&table(), Some("typst")).unwrap().remove(0) else {
+        panic!("not an unsupported feature");
+    };
     w.places = vec![Place::Title, Place::GroupLabel(1), Place::SourceNote(0)];
     assert!(
         w.to_string()
             .contains("(the title and 2 other places): Typst"),
         "{w}"
     );
-    assert_eq!(Warning::RULE, "UNSUPPORTED_FEATURE");
+    assert_eq!(UnsupportedFeature::RULE, "UNSUPPORTED_FEATURE");
+    assert!(warnings(&table(), None)
+        .unwrap()
+        .iter()
+        .all(|w| w.rule() == "UNSUPPORTED_FEATURE"));
 }
 
 #[test]
@@ -124,9 +139,9 @@ fn formats_and_tables_are_checked() {
 #[test]
 fn the_corpus_warns_only_of_its_borders_its_rtl_table_and_its_image() {
     for ex in examples() {
-        let found: Vec<_> = warnings(&ex.table(), None)
-            .unwrap()
-            .iter()
+        let all = warnings(&ex.table(), None).unwrap();
+        let found: Vec<_> = features(&all)
+            .into_iter()
             .map(|w| (w.format, w.feature))
             .collect();
         let want: &[(&str, &str)] = match ex.name {
@@ -152,7 +167,8 @@ fn a_language_or_a_right_to_left_table_is_warned_of_once_for_the_table() {
     use gridwell_ir::TextDirection;
     use gridwell_testkit::examples::directed;
     let found = |t: &Table| -> Vec<(&str, &str)> {
-        let w = warnings(t, None).unwrap();
+        let all = warnings(t, None).unwrap();
+        let w = features(&all);
         assert!(w.iter().all(|w| w.places == [Place::Table]), "{w:?}");
         w.iter().map(|w| (w.format, w.feature)).collect()
     };
@@ -193,4 +209,76 @@ fn a_language_or_a_right_to_left_table_is_warned_of_once_for_the_table() {
         "[UNSUPPORTED_FEATURE] ansi can't express rtl (the table): a terminal shows columns \
          left to right, and whether it reorders right-to-left text is up to the terminal"
     );
+}
+
+fn versioned(version: &str) -> Table {
+    let mut t = table();
+    t.ir_version = version.to_string();
+    t
+}
+
+#[test]
+fn a_newer_minor_version_is_warned_of_first_for_any_format() {
+    let newer = "[NEWER_IR_VERSION] the table is IR 1.4, newer than the IR 1.0 this \
+                 gridwell reads: anything a newer IR version added is left out (a newer \
+                 gridwell may render it)";
+    for format in [None, Some("latex"), Some("html")] {
+        let found = warnings(&versioned("1.4"), format).unwrap();
+        assert_eq!(
+            found[0],
+            Warning::NewerIrVersion {
+                version: "1.4".into()
+            }
+        );
+        assert_eq!(found[0].rule(), "NEWER_IR_VERSION");
+        assert_eq!(found[0].as_unsupported(), None);
+        assert_eq!(found[0].to_string(), newer);
+        // Then what the format can't express, as for IR 1.0.
+        assert_eq!(
+            found[1..],
+            warnings(&table(), format).unwrap()[..],
+            "{format:?}"
+        );
+    }
+    // As the table has it.
+    let found = warnings(&versioned("01.04"), Some("html")).unwrap();
+    assert!(
+        found[0].to_string().contains(" is IR 01.04, newer "),
+        "{}",
+        found[0]
+    );
+}
+
+#[test]
+fn this_minor_version_and_other_majors_are_not_newer_minors() {
+    for version in ["1.0", "01.00"] {
+        assert_eq!(
+            warnings(&versioned(version), Some("html")).unwrap(),
+            [],
+            "{version}"
+        );
+    }
+    // Another major version is invalid: no warnings, an error.
+    for version in ["2.0", "2.1", "0.1", "1"] {
+        let err = warnings(&versioned(version), None).unwrap_err();
+        assert!(
+            matches!(err, RenderError::InvalidTable(_)),
+            "{version}: {err}"
+        );
+        assert!(err.to_string().contains("[IR_VERSION]"), "{version}: {err}");
+    }
+}
+
+#[test]
+fn rendering_an_invalid_newer_minor_version_says_its_version() {
+    let mut t = versioned("1.2");
+    t.config.table_cols = 4;
+    let err = gridwell_render::render(&t, "html", None).unwrap_err();
+    assert!(
+        err.to_string()
+            .contains("(the table is IR 1.2, newer than the IR 1.0 this gridwell reads"),
+        "{err}"
+    );
+    // A valid one renders.
+    assert!(gridwell_render::render(&versioned("1.2"), "html", None).is_ok());
 }
