@@ -1,0 +1,47 @@
+{
+  "_comment": "INVALID: ir_version is IR 2, a major version this gridwell doesn't read (the table is otherwise IR 1.0).",
+  "_expect": [
+    "IR_VERSION"
+  ],
+  "ir_version": "2.0",
+  "config": {
+    "table_cols": 1,
+    "header_rows": 0,
+    "body_rows": 1,
+    "stub_cols": 0
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "column_spec": [
+    {
+      "id": "a",
+      "label": "A"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": []
+    },
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
