@@ -129,6 +129,17 @@ def test_any_ir_1_minor_is_used(table, give_as_ir, no_warnings, version):
     assert json.loads(gridwell.gt_to_ir(table))["ir_version"] == version
 
 
+def test_a_newer_minor_is_used_and_its_table_warns(table, give_as_ir):
+    give_as_ir(upstream_ir("1.4"))
+    with pytest.warns(UserWarning) as record:
+        made = gridwell.Table(table)
+    assert [str(w.message) for w in record] == [
+        "[NEWER_IR_VERSION] the table is IR 1.4, newer than the IR 1.0 this gridwell "
+        "reads: anything a newer IR version added is left out (a newer gridwell may render it)"
+    ]
+    assert "From Great Tables" in made.render_html()
+
+
 # Each bad result, and the reason given for not using it.
 BAD = {
     "IR 2": (upstream_ir("2.0"), r"gives IR 2\.0, and this gridwell reads IR 1\.x"),
