@@ -83,6 +83,7 @@ No released gt has `as_ir()` yet, so today `"auto"` always uses gridwell's.
 | Column alignment | `column_spec[].align` |
 | Column widths | `column_spec[].width` |
 | Data values | Cell `content` and `typed_value` |
+| Typed values | The number displayed, read as the Python package reads it (in any locale's marks; without its currency or unit; `0.451` for `45.1%`; scaled for scientific and compact notation; none for a display that isn't one number, such as `<0.001`). `POSIXct` date-times are typed as their wall-clock time in their own time zone, and `hms` times of day as times |
 
 ## Full Pipeline Example
 
