@@ -6,14 +6,16 @@ title: "Getting Started"
 
 ### Rust (as a library)
 
-Add gridwell crates to your `Cargo.toml`:
+Add the `gridwell` crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-gridwell-ir = "0.1"
-gridwell-writer-html = "0.1"
-# ... add other writers as needed
+gridwell = "0.1"
+# or only the formats you need:
+# gridwell = { version = "0.1", default-features = false, features = ["html", "latex"] }
 ```
+
+Each format is a [cargo feature](../api/rust.qmd#features), all on by default.
 
 ### Python
 
