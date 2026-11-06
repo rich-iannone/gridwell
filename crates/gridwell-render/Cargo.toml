@@ -4,31 +4,51 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 description = "The gridwell format registry: one Writer trait, every output format, options as JSON"
 
 [dependencies]
-gridwell-core = { path = "../gridwell-core" }
-gridwell-ir = { path = "../gridwell-ir" }
-gridwell-layout = { path = "../gridwell-layout" }
-gridwell-writer-html = { path = "../gridwell-writer-html" }
-gridwell-writer-latex = { path = "../gridwell-writer-latex" }
-gridwell-writer-typst = { path = "../gridwell-writer-typst" }
-gridwell-writer-rtf = { path = "../gridwell-writer-rtf" }
-gridwell-writer-svg = { path = "../gridwell-writer-svg" }
-gridwell-writer-ansi = { path = "../gridwell-writer-ansi" }
-gridwell-writer-pandoc = { path = "../gridwell-writer-pandoc" }
-gridwell-writer-quarto = { path = "../gridwell-writer-quarto" }
-gridwell-writer-docx = { path = "../gridwell-writer-docx" }
-gridwell-writer-xlsx = { path = "../gridwell-writer-xlsx" }
-gridwell-writer-pptx = { path = "../gridwell-writer-pptx" }
+gridwell-core = { workspace = true }
+gridwell-ir = { workspace = true }
+gridwell-layout = { workspace = true }
+gridwell-writer-html = { workspace = true, optional = true }
+gridwell-writer-latex = { workspace = true, optional = true }
+gridwell-writer-typst = { workspace = true, optional = true }
+gridwell-writer-rtf = { workspace = true, optional = true }
+gridwell-writer-svg = { workspace = true, optional = true }
+gridwell-writer-ansi = { workspace = true, optional = true }
+gridwell-writer-pandoc = { workspace = true, optional = true }
+gridwell-writer-quarto = { workspace = true, optional = true }
+gridwell-writer-docx = { workspace = true, optional = true }
+gridwell-writer-xlsx = { workspace = true, optional = true }
+gridwell-writer-pptx = { workspace = true, optional = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 
+[features]
+# One feature per format, named as the format is; a format that is off isn't in
+# the registry. Every format is on by default.
+default = ["html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto", "docx", "xlsx", "pptx"]
+html = ["dep:gridwell-writer-html"]
+latex = ["dep:gridwell-writer-latex"]
+typst = ["dep:gridwell-writer-typst"]
+rtf = ["dep:gridwell-writer-rtf"]
+svg = ["dep:gridwell-writer-svg"]
+ansi = ["dep:gridwell-writer-ansi"]
+pandoc = ["dep:gridwell-writer-pandoc"]
+quarto = ["dep:gridwell-writer-quarto"]
+docx = ["dep:gridwell-writer-docx"]
+xlsx = ["dep:gridwell-writer-xlsx"]
+pptx = ["dep:gridwell-writer-pptx"]
+
 [dev-dependencies]
-gridwell-ooxml = { path = "../gridwell-ooxml" }
+gridwell-ooxml = { workspace = true }
 proptest = "1.11"
 calamine = "0.35"
 scraper = "0.27"
-gridwell-testkit = { path = "../gridwell-testkit" }
+gridwell-testkit = { workspace = true }
 quick-xml = { workspace = true }
