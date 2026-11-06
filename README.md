@@ -41,8 +41,8 @@ that makes the output binary.)
 | **Text** | HTML · LaTeX · Typst · RTF · SVG · ANSI (terminal) · Pandoc AST · Quarto |
 | **Packaged (OOXML)** | Word `.docx` · Excel `.xlsx` · PowerPoint `.pptx` |
 
-Each format is an independent `gridwell-writer-*` crate, so consumers can choose to
-depend only on what they need.
+Each format is an independent `gridwell-writer-*` crate and a cargo feature of the
+`gridwell` crate, so Rust users can build only the formats they need.
 
 ## The IR
 
@@ -121,8 +121,11 @@ The workspace is a set of small, focused crates:
 
 ```
 crates/
-  gridwell-ir/           IR types, serde (de)serialization, and the validator
+  gridwell/               the crate to depend on: all below, a feature per format
+  gridwell-ir/            IR types, serde (de)serialization, and the validator
   gridwell-core/          shared primitives (length units, colors)
+  gridwell-layout/        the resolved grid, spans and styles every writer renders
+  gridwell-render/        the format registry: every format by name, options as JSON
   gridwell-writer-html/    ─┐
   gridwell-writer-latex/    │
   gridwell-writer-typst/    │
@@ -167,7 +170,7 @@ other target uses the pre-formatted text.
 
 | Surface | How |
 |---|---|
-| **Rust** | `gridwell_ir::Table::{from_json, to_json, validate}` + the `gridwell-writer-*` crates |
+| **Rust** | the `gridwell` crate: `gridwell::Table::from_json`, then `gridwell::render(&table, "html", None)` or `gridwell::save`; one cargo feature per format |
 | **CLI** | `gridwell convert -t <format> [input] [-o out]`, `gridwell validate`, `gridwell formats` |
 | **Python** | PyO3 module built with maturin: `gridwell.Table(ir_or_gt)`, shown as HTML in notebooks |
 | **R** | extendr wrapper: `gw_*` functions taking a `gw_table`, gt table or IR JSON; prints in the console, knits into R Markdown and Quarto |
