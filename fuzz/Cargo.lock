@@ -142,6 +142,7 @@ dependencies = [
 name = "gridwell-render"
 version = "0.1.0"
 dependencies = [
+ "gridwell-core",
  "gridwell-ir",
  "gridwell-layout",
  "gridwell-writer-ansi",
