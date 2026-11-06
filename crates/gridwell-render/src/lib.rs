@@ -5,6 +5,10 @@
 //! the Python and R bindings all render through [`render`] (or [`find`]), so they
 //! accept the same format names and options and report the same errors.
 //!
+//! Each format is a cargo feature named as the format is (`html`, `latex`, …,
+//! `pptx`), and every one is on by default. A format whose feature is off isn't
+//! in [`REGISTRY`]: asking for it is a [`RenderError::UnknownFormat`].
+//!
 //! ```
 //! # let json = r#"{"ir_version":"1.0","config":{"table_cols":1,"body_rows":1},
 //! #   "styles":{"defs":{},"compositions":{},"conditionals":[]},
@@ -25,11 +29,12 @@ mod formats;
 use std::path::{Path, PathBuf};
 
 use gridwell_ir::{InvalidTable, Table, ValidatedTable};
-use serde::de::DeserializeOwned;
 use serde_json::Value;
 use thiserror::Error;
 
-pub use display::{describe, display_html, display_id};
+#[cfg(feature = "html")]
+pub use display::display_html;
+pub use display::{describe, display_id};
 pub use formats::REGISTRY;
 pub use gridwell_layout::unsupported::{Place, Unsupported};
 pub use gridwell_layout::SectionKind;
@@ -477,22 +482,5 @@ fn expect_kind(format: &str, expected: OutputKind) -> Result<(), RenderError> {
             expected,
             actual: writer.kind(),
         })
-    }
-}
-
-/// Deserialize a format's options: `None`/`null` gives the defaults; anything else
-/// must be a JSON object whose fields the format knows.
-pub(crate) fn parse_options<T: DeserializeOwned + Default>(
-    format: &str,
-    options: Option<&Value>,
-) -> Result<T, RenderError> {
-    let invalid = |message: String| RenderError::InvalidOptions {
-        format: format.to_string(),
-        message,
-    };
-    match options {
-        None | Some(Value::Null) => Ok(T::default()),
-        Some(v @ Value::Object(_)) => T::deserialize(v).map_err(|e| invalid(e.to_string())),
-        Some(other) => Err(invalid(format!("expected a JSON object, got {other}"))),
     }
 }
