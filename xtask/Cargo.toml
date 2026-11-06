@@ -3,13 +3,14 @@ name = "xtask"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
 publish = false
 description = "Gridwell visual test harness: corpus generation, render gallery, and image diffing"
 
 [dependencies]
-gridwell-render = { path = "../crates/gridwell-render" }
-gridwell-ir = { path = "../crates/gridwell-ir" }
-gridwell-testkit = { path = "../crates/gridwell-testkit" }
+gridwell-render = { workspace = true }
+gridwell-ir = { workspace = true }
+gridwell-testkit = { workspace = true }
 clap = { workspace = true }
 serde_json = { workspace = true }
 image = { version = "0.25", default-features = false, features = ["png"] }

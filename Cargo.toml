@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "crates/gridwell",
     "crates/gridwell-ir",
     "crates/gridwell-core",
     "crates/gridwell-testkit",
@@ -29,6 +30,7 @@ members = [
 # The R binding lives in r-package/src/rust (excluded below) and is built by R's
 # own tooling.
 default-members = [
+    "crates/gridwell",
     "crates/gridwell-ir",
     "crates/gridwell-core",
     "crates/gridwell-testkit",
@@ -60,12 +62,37 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/rich-iannone/gridwell"
+homepage = "https://rich-iannone.github.io/gridwell/"
+keywords = ["table", "rendering", "html", "latex", "typst"]
+categories = ["rendering", "text-processing"]
 # Effective floor of the locked dependency tree (clap 4.6, indexmap 2.14 via zip);
 # CI's `msrv` job enforces it. Raise deliberately, never by accident.
 rust-version = "1.85"
 
 [workspace.dependencies]
-serde = { version = "1", features = ["derive"] }
+# The workspace crates, by path here and by version on crates.io (a path alone
+# can't be published). They are released together, at the workspace version.
+gridwell-ir = { path = "crates/gridwell-ir", version = "0.1.0" }
+gridwell-core = { path = "crates/gridwell-core", version = "0.1.0" }
+gridwell-layout = { path = "crates/gridwell-layout", version = "0.1.0" }
+gridwell-ooxml = { path = "crates/gridwell-ooxml", version = "0.1.0" }
+gridwell-render = { path = "crates/gridwell-render", version = "0.1.0" }
+gridwell-writer-html = { path = "crates/gridwell-writer-html", version = "0.1.0" }
+gridwell-writer-latex = { path = "crates/gridwell-writer-latex", version = "0.1.0" }
+gridwell-writer-typst = { path = "crates/gridwell-writer-typst", version = "0.1.0" }
+gridwell-writer-rtf = { path = "crates/gridwell-writer-rtf", version = "0.1.0" }
+gridwell-writer-svg = { path = "crates/gridwell-writer-svg", version = "0.1.0" }
+gridwell-writer-ansi = { path = "crates/gridwell-writer-ansi", version = "0.1.0" }
+gridwell-writer-pandoc = { path = "crates/gridwell-writer-pandoc", version = "0.1.0" }
+gridwell-writer-quarto = { path = "crates/gridwell-writer-quarto", version = "0.1.0" }
+gridwell-writer-docx = { path = "crates/gridwell-writer-docx", version = "0.1.0" }
+gridwell-writer-xlsx = { path = "crates/gridwell-writer-xlsx", version = "0.1.0" }
+gridwell-writer-pptx = { path = "crates/gridwell-writer-pptx", version = "0.1.0" }
+# Not published: a path alone, so cargo drops it from the packaged manifests of
+# the crates that test with it.
+gridwell-testkit = { path = "crates/gridwell-testkit" }
+
+serde ={ version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
 insta = "1"

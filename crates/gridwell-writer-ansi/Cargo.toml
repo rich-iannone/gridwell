@@ -4,17 +4,21 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 description = "ANSI terminal writer for gridwell: IR → Rich terminal output with box-drawing"
 
 [dependencies]
 serde = { workspace = true }
-gridwell-ir = { path = "../gridwell-ir" }
-gridwell-layout = { path = "../gridwell-layout" }
+gridwell-ir = { workspace = true }
+gridwell-layout = { workspace = true }
 thiserror = { workspace = true }
 unicode-width = "0.2"
 
 [dev-dependencies]
-gridwell-testkit = { path = "../gridwell-testkit" }
+gridwell-testkit = { workspace = true }
 insta = { workspace = true }
 serde_json = { workspace = true }
 unicode-width = "0.2"

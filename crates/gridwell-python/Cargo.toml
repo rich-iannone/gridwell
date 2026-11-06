@@ -5,6 +5,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
+publish = false
 description = "Python bindings for gridwell table rendering"
 
 [lib]
@@ -12,8 +13,8 @@ name = "gridwell"
 crate-type = ["cdylib"]
 
 [dependencies]
-gridwell-ir = { path = "../gridwell-ir" }
-gridwell-render = { path = "../gridwell-render" }
+gridwell-ir = { workspace = true }
+gridwell-render = { workspace = true }
 serde_json = { workspace = true }
 # abi3: one wheel per platform covers every CPython >= 3.10 (requires-python).
 pyo3 = { workspace = true, features = ["abi3-py310"] }

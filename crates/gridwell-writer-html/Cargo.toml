@@ -4,17 +4,21 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 description = "HTML writer for gridwell: IR → semantic HTML5 with scoped CSS"
 
 [dependencies]
 serde = { workspace = true }
-gridwell-ir = { path = "../gridwell-ir" }
-gridwell-core = { path = "../gridwell-core" }
-gridwell-layout = { path = "../gridwell-layout" }
+gridwell-ir = { workspace = true }
+gridwell-core = { workspace = true }
+gridwell-layout = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
-gridwell-testkit = { path = "../gridwell-testkit" }
+gridwell-testkit = { workspace = true }
 insta = "1"
 proptest = "1.11"
 scraper = "0.27"

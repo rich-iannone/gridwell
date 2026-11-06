@@ -4,16 +4,18 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
+repository.workspace = true
+publish = false
 description = "C FFI surface for gridwell: parse IR, validate, render to all formats"
 
 [lib]
 crate-type = ["cdylib", "staticlib", "rlib"]
 
 [dependencies]
-gridwell-ir = { path = "../gridwell-ir" }
-gridwell-render = { path = "../gridwell-render" }
+gridwell-ir = { workspace = true }
+gridwell-render = { workspace = true }
 
 [dev-dependencies]
 serde_json = { workspace = true }
-gridwell-testkit = { path = "../gridwell-testkit" }
+gridwell-testkit = { workspace = true }
 cbindgen = "0.29.4"

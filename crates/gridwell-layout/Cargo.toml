@@ -5,12 +5,16 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 
 [dependencies]
-gridwell-ir = { path = "../gridwell-ir" }
-gridwell-core = { path = "../gridwell-core" }
+gridwell-ir = { workspace = true }
+gridwell-core = { workspace = true }
 unicode-width = "0.2"
 
 [dev-dependencies]
-gridwell-testkit = { path = "../gridwell-testkit" }
+gridwell-testkit = { workspace = true }
 serde_json = { workspace = true }
