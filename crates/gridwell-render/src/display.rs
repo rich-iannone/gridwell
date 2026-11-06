@@ -8,6 +8,7 @@ use std::hash::{BuildHasher, Hasher};
 use gridwell_ir::Table;
 use gridwell_layout::text::plain_text;
 
+#[cfg(feature = "html")]
 use crate::RenderError;
 
 /// The longest title a description quotes, in characters.
@@ -72,7 +73,8 @@ pub fn display_id() -> String {
 
 /// The HTML a notebook or an HTML document shows a table as: scoped to a fresh
 /// [`display_id`], and marked so Quarto doesn't rewrite it with Bootstrap's table
-/// classes.
+/// classes. Only with the `html` feature.
+#[cfg(feature = "html")]
 pub fn display_html(table: &Table) -> Result<String, RenderError> {
     let options = serde_json::json!({
         "table_id": display_id(),
