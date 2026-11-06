@@ -1,16 +1,75 @@
 //! The registered formats. Adding a format means adding an entry to [`REGISTRY`]
-//! and nowhere else.
+//! and a cargo feature named as the format is, here and in the `gridwell` crate.
+
+// With some formats off, what only the others use goes unused. Every format is
+// on by default, and that build is linted in full.
+#![cfg_attr(
+    not(all(
+        feature = "html",
+        feature = "latex",
+        feature = "typst",
+        feature = "rtf",
+        feature = "svg",
+        feature = "ansi",
+        feature = "pandoc",
+        feature = "quarto",
+        feature = "docx",
+        feature = "xlsx",
+        feature = "pptx"
+    )),
+    allow(dead_code, unused_imports, unused_macros)
+)]
 
 use gridwell_ir::ValidatedTable;
+use serde::de::DeserializeOwned;
 use serde::Serialize;
 use serde_json::Value;
 
-use crate::{parse_options, Output, OutputKind, RenderError, Unsupported, Writer};
+use crate::{Output, OutputKind, RenderError, Unsupported, Writer};
 
-/// Every format gridwell can write, text formats first.
+/// Every format gridwell can write, text formats first: those whose cargo
+/// features are on (every one, by default).
 pub static REGISTRY: &[&dyn Writer] = &[
-    &Html, &Latex, &Typst, &Rtf, &Svg, &Ansi, &Pandoc, &Quarto, &Docx, &Xlsx, &Pptx,
+    #[cfg(feature = "html")]
+    &Html,
+    #[cfg(feature = "latex")]
+    &Latex,
+    #[cfg(feature = "typst")]
+    &Typst,
+    #[cfg(feature = "rtf")]
+    &Rtf,
+    #[cfg(feature = "svg")]
+    &Svg,
+    #[cfg(feature = "ansi")]
+    &Ansi,
+    #[cfg(feature = "pandoc")]
+    &Pandoc,
+    #[cfg(feature = "quarto")]
+    &Quarto,
+    #[cfg(feature = "docx")]
+    &Docx,
+    #[cfg(feature = "xlsx")]
+    &Xlsx,
+    #[cfg(feature = "pptx")]
+    &Pptx,
 ];
+
+/// Deserialize a format's options: `None`/`null` gives the defaults; anything else
+/// must be a JSON object whose fields the format knows.
+fn parse_options<T: DeserializeOwned + Default>(
+    format: &str,
+    options: Option<&Value>,
+) -> Result<T, RenderError> {
+    let invalid = |message: String| RenderError::InvalidOptions {
+        format: format.to_string(),
+        message,
+    };
+    match options {
+        None | Some(Value::Null) => Ok(T::default()),
+        Some(v @ Value::Object(_)) => T::deserialize(v).map_err(|e| invalid(e.to_string())),
+        Some(other) => Err(invalid(format!("expected a JSON object, got {other}"))),
+    }
+}
 
 /// A writer error, labeled with the format.
 fn failed(format: &'static str, e: impl std::fmt::Display) -> RenderError {
@@ -108,12 +167,14 @@ fn ok<T>(_: &T) -> Result<(), String> {
     Ok(())
 }
 
+#[cfg(feature = "html")]
 define_format!(
     Html, "html", "HTML5 table", Text, "html", "text/html",
     options: gridwell_writer_html::HtmlWriterConfig,
     check: gridwell_writer_html::check_config,
     render: |t, o| gridwell_writer_html::HtmlWriter::with_config(o).render(t),
 );
+#[cfg(feature = "latex")]
 define_format!(
     Latex, "latex", "LaTeX tabular / longtable (booktabs)", Text, "tex", "application/x-latex",
     options: gridwell_writer_latex::LatexWriterConfig,
@@ -121,6 +182,7 @@ define_format!(
     render: |t, o| gridwell_writer_latex::LatexWriter::with_config(o).render(t),
     unsupported: gridwell_writer_latex::unsupported,
 );
+#[cfg(feature = "typst")]
 define_format!(
     Typst, "typst", "Typst table markup", Text, "typ", "text/x-typst",
     options: gridwell_writer_typst::TypstWriterConfig,
@@ -128,6 +190,7 @@ define_format!(
     render: |t, o| gridwell_writer_typst::TypstWriter::with_config(o).render(t),
     unsupported: gridwell_writer_typst::unsupported,
 );
+#[cfg(feature = "rtf")]
 define_format!(
     Rtf, "rtf", "Rich Text Format", Text, "rtf", "application/rtf",
     options: NoOptions,
@@ -135,6 +198,7 @@ define_format!(
     render: |t, _| gridwell_writer_rtf::render_rtf(t),
     unsupported: gridwell_writer_rtf::unsupported,
 );
+#[cfg(feature = "svg")]
 define_format!(
     Svg, "svg", "SVG image (standalone, measured layout)", Text, "svg", "image/svg+xml",
     options: gridwell_writer_svg::SvgConfig,
@@ -142,6 +206,7 @@ define_format!(
     render: |t, o| gridwell_writer_svg::SvgWriter::with_config(o).render(t),
     unsupported: gridwell_writer_svg::unsupported,
 );
+#[cfg(feature = "ansi")]
 define_format!(
     Ansi, "ansi", "Terminal output with box drawing and ANSI colors", Text, "txt", "text/plain",
     options: gridwell_writer_ansi::AnsiConfig,
@@ -149,12 +214,14 @@ define_format!(
     render: |t, o| gridwell_writer_ansi::AnsiWriter::with_config(o).render(t),
     unsupported: gridwell_writer_ansi::unsupported,
 );
+#[cfg(feature = "pandoc")]
 define_format!(
     Pandoc, "pandoc", "Pandoc JSON AST (Table block)", Text, "json", "application/json",
     options: NoOptions,
     check: ok,
     render: |t, _| gridwell_writer_pandoc::render_pandoc(t),
 );
+#[cfg(feature = "quarto")]
 define_format!(
     Quarto, "quarto", "Quarto-flavored Pandoc JSON AST (cross-referenceable Div)", Text, "json",
     "application/json",
@@ -162,6 +229,7 @@ define_format!(
     check: ok,
     render: |t, o| gridwell_writer_quarto::QuartoWriter::with_config(o).render(t),
 );
+#[cfg(feature = "docx")]
 define_format!(
     Docx, "docx", "Microsoft Word document", Binary, "docx",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -170,6 +238,7 @@ define_format!(
     render: |t, _| gridwell_writer_docx::render_docx(t),
     unsupported: gridwell_writer_docx::unsupported,
 );
+#[cfg(feature = "xlsx")]
 define_format!(
     Xlsx, "xlsx", "Microsoft Excel workbook", Binary, "xlsx",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -178,6 +247,7 @@ define_format!(
     render: |t, _| gridwell_writer_xlsx::render_xlsx(t),
     unsupported: gridwell_writer_xlsx::unsupported,
 );
+#[cfg(feature = "pptx")]
 define_format!(
     Pptx, "pptx", "Microsoft PowerPoint slide", Binary, "pptx",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
@@ -190,6 +260,7 @@ define_format!(
 /// SVG sizes must be finite and positive (padding may be zero), and the font
 /// family is written into a `<style>` block, so it is limited to the characters a
 /// font list needs.
+#[cfg(feature = "svg")]
 fn check_svg(o: &gridwell_writer_svg::SvgConfig) -> Result<(), String> {
     for (field, v, zero_ok) in [
         ("font_size", o.font_size, false),
