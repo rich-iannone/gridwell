@@ -1,0 +1,52 @@
+[package]
+name = "gridwell"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Render one table IR to HTML, LaTeX, Typst, RTF, SVG, the terminal, Pandoc, Quarto, Word, Excel and PowerPoint"
+readme = "README.md"
+
+[dependencies]
+gridwell-ir = { workspace = true }
+gridwell-layout = { workspace = true }
+# Not inherited from the workspace, whose entry has every format on: this
+# crate's features choose them.
+gridwell-render = { path = "../gridwell-render", version = "0.1.0", default-features = false }
+gridwell-writer-html = { workspace = true, optional = true }
+gridwell-writer-latex = { workspace = true, optional = true }
+gridwell-writer-typst = { workspace = true, optional = true }
+gridwell-writer-rtf = { workspace = true, optional = true }
+gridwell-writer-svg = { workspace = true, optional = true }
+gridwell-writer-ansi = { workspace = true, optional = true }
+gridwell-writer-pandoc = { workspace = true, optional = true }
+gridwell-writer-quarto = { workspace = true, optional = true }
+gridwell-writer-docx = { workspace = true, optional = true }
+gridwell-writer-xlsx = { workspace = true, optional = true }
+gridwell-writer-pptx = { workspace = true, optional = true }
+
+[features]
+# One feature per format, as in gridwell-render: each puts the format in the
+# registry and its writer crate here. Every format is on by default.
+default = ["html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto", "docx", "xlsx", "pptx"]
+html = ["gridwell-render/html", "dep:gridwell-writer-html"]
+latex = ["gridwell-render/latex", "dep:gridwell-writer-latex"]
+typst = ["gridwell-render/typst", "dep:gridwell-writer-typst"]
+rtf = ["gridwell-render/rtf", "dep:gridwell-writer-rtf"]
+svg = ["gridwell-render/svg", "dep:gridwell-writer-svg"]
+ansi = ["gridwell-render/ansi", "dep:gridwell-writer-ansi"]
+pandoc = ["gridwell-render/pandoc", "dep:gridwell-writer-pandoc"]
+quarto = ["gridwell-render/quarto", "dep:gridwell-writer-quarto"]
+docx = ["gridwell-render/docx", "dep:gridwell-writer-docx"]
+xlsx = ["gridwell-render/xlsx", "dep:gridwell-writer-xlsx"]
+pptx = ["gridwell-render/pptx", "dep:gridwell-writer-pptx"]
+
+[dev-dependencies]
+serde_json = { workspace = true }
+
+[package.metadata.docs.rs]
+all-features = true
