@@ -422,6 +422,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "gridwell"
+version = "0.1.0"
+dependencies = [
+ "gridwell-ir",
+ "gridwell-layout",
+ "gridwell-render",
+ "gridwell-writer-ansi",
+ "gridwell-writer-docx",
+ "gridwell-writer-html",
+ "gridwell-writer-latex",
+ "gridwell-writer-pandoc",
+ "gridwell-writer-pptx",
+ "gridwell-writer-quarto",
+ "gridwell-writer-rtf",
+ "gridwell-writer-svg",
+ "gridwell-writer-typst",
+ "gridwell-writer-xlsx",
+ "serde_json",
+]
+
+[[package]]
 name = "gridwell-cli"
 version = "0.1.0"
 dependencies = [
