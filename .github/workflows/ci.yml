@@ -137,6 +137,46 @@ jobs:
       - name: LaTeX grid read-back
         run: cargo test --locked -p gridwell-render --test grid_invariant --test properties --test char_alignment latex
 
+  # Each format is a cargo feature of the `gridwell` crate (and of gridwell-render),
+  # all on by default. Lint and test the crate with each format alone and with
+  # none, so a format can't come to need another's code unnoticed.
+  features:
+    name: Format features
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Each format alone, and none
+        run: |
+          formats=$(cargo metadata --no-deps --format-version 1 --locked \
+            | jq -r '.packages[] | select(.name == "gridwell") | .features | keys[] | select(. != "default")')
+          test -n "$formats"
+          for f in "" $formats; do
+            echo "::group::features: ${f:-none}"
+            cargo clippy --locked -p gridwell --no-default-features --features "$f" --all-targets -- -D warnings
+            cargo test --locked -p gridwell --no-default-features --features "$f" --test features
+            echo "::endgroup::"
+          done
+
+  # What crates.io would get: every published crate packaged and built from its
+  # package alone, depending on the others by version.
+  package:
+    name: Package crates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: cargo package
+        run: |
+          packages=$(cargo metadata --no-deps --format-version 1 --locked \
+            | jq -r '.packages[] | select(.publish != []) | "-p " + .name')
+          test -n "$packages"
+          cargo package --locked $packages
+
   msrv:
     name: MSRV (Rust 1.85)
     runs-on: ubuntu-latest
