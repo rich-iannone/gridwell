@@ -2,10 +2,45 @@
 title: "Rust API"
 ---
 
+## The `gridwell` crate
+
+`gridwell` is the crate to depend on. It gathers the others: the format registry at
+its root (`gridwell::render`, `gridwell::save`, `gridwell::warnings`,
+`gridwell::REGISTRY`, …, as in `gridwell-render` below), the IR as `gridwell::ir`
+(with `gridwell::Table` at the root), the resolved layout as `gridwell::layout`, and
+each writer under its format's name (`gridwell::html`, `gridwell::latex`, …).
+
+```toml
+[dependencies]
+gridwell = "0.1"
+```
+
+```rust
+let table = gridwell::Table::from_json(&json)?;
+let html = gridwell::render(&table, "html", None)?;
+```
+
+### Features
+
+Each format is a cargo feature named as the format is: `html`, `latex`, `typst`,
+`rtf`, `svg`, `ansi`, `pandoc`, `quarto`, `docx`, `xlsx` and `pptx`. Every one is on
+by default. A format whose feature is off isn't built and isn't in the registry, so
+asking for it by name is an `UnknownFormat` error; `gridwell::display_html` needs
+`html`.
+
+```toml
+[dependencies]
+gridwell = { version = "0.1", default-features = false, features = ["html", "latex"] }
+```
+
+`gridwell-render` has the same features. The CLI, the C library and the Python and R
+packages are built with every format.
+
 ## Crates
 
 | Crate | Purpose |
 |-------|---------|
+| `gridwell` | Everything below, with a feature per format |
 | `gridwell-ir` | IR types, parsing, validation |
 | `gridwell-core` | Shared utilities (colors, lengths, font sizes, XML escaping) |
 | `gridwell-layout` | The resolved table every writer renders: visible grid, spans, style cascade |
@@ -155,5 +190,7 @@ use gridwell_ir::{Table, ParseError};
 match Table::from_json(input) {
     Ok(table) => { /* use table */ },
     Err(ParseError::Json(e)) => eprintln!("Invalid JSON: {e}"),
+    // Another major IR version, in a shape this gridwell doesn't read
+    Err(e @ ParseError::UnknownMajorVersion { .. }) => eprintln!("{e}"),
 }
 ```
