@@ -16,6 +16,7 @@ gridwell-ir = { workspace = true }
 gridwell-core = { workspace = true }
 gridwell-layout = { workspace = true }
 thiserror = { workspace = true }
+unicode-segmentation = "1.12"
 
 [dev-dependencies]
 gridwell-testkit = { workspace = true }
