@@ -80,7 +80,7 @@ fn want_of(content: &[ContentNode]) -> Want {
             ContentNode::FootnoteMark { mark_text, .. } => out.push_str(mark_text),
             ContentNode::Image { alt, .. } => out.push_str(alt.as_deref().unwrap_or("")),
             ContentNode::Raw { .. } => return Want::Any,
-            ContentNode::LineBreak {} | ContentNode::Unknown => {}
+            ContentNode::LineBreak {} | ContentNode::Unknown(_) => {}
         }
     }
     Want::Text(norm(&out))
