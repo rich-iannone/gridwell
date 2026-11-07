@@ -1,0 +1,298 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 2,
+    "header_rows": 1,
+    "body_rows": 1,
+    "stub_cols": 1,
+    "row_striping": true,
+    "row_striping_include_stub": true,
+    "row_striping_include_body": true,
+    "column_labels_hidden": false,
+    "table_width": "100%",
+    "container_width": "600px",
+    "container_height": "400px",
+    "container_overflow": "auto",
+    "locale": "fr-CA",
+    "lang": "fr-CA",
+    "dir": "ltr",
+    "page_break_mode": "allow",
+    "aria_label": "Scores",
+    "aria_describedby": "notes",
+    "summary": "Scores by name"
+  },
+  "styles": {
+    "defs": {
+      "s": {
+        "font_family": "Georgia, serif",
+        "font_size": "12px",
+        "font_weight": "bold",
+        "font_style": "italic",
+        "color": "#333333",
+        "background_color": "#F0F0F0",
+        "text_align": "right",
+        "vertical_align": "middle",
+        "text_transform": "uppercase",
+        "text_decoration": "underline",
+        "white_space": "nowrap",
+        "padding": { "top": "1px", "right": "2px", "bottom": "3px", "left": "4px" },
+        "border": {
+          "top": { "width": "1px", "style": "solid", "color": "#000000" },
+          "right": { "width": "1px", "style": "dashed", "color": "red" },
+          "bottom": { "width": "2px", "style": "double", "color": "rgb(0, 0, 255)" },
+          "left": { "width": "1px", "style": "dotted", "color": "steelblue" }
+        },
+        "indent": "1em",
+        "word_break": "break-word",
+        "overflow": "hidden",
+        "text_overflow": "ellipsis",
+        "min_width": "10px",
+        "max_width": "200px"
+      }
+    },
+    "compositions": {
+      "c": {
+        "extends": "s",
+        "overrides": {
+          "font_family": "Courier New, monospace",
+          "font_size": "10px",
+          "font_weight": 600,
+          "font_style": "normal",
+          "color": "#111111",
+          "background_color": "transparent",
+          "text_align": "center",
+          "vertical_align": "top",
+          "text_transform": "none",
+          "text_decoration": "none",
+          "white_space": "normal",
+          "padding": { "top": "0", "right": "0", "bottom": "0", "left": "0" },
+          "border": {
+            "top": { "width": "0", "style": "none", "color": "#000000" },
+            "right": { "width": "0", "style": "none", "color": "#000000" },
+            "bottom": { "width": "0", "style": "none", "color": "#000000" },
+            "left": { "width": "0", "style": "none", "color": "#000000" }
+          },
+          "indent": "0",
+          "word_break": "normal",
+          "overflow": "visible",
+          "text_overflow": "clip",
+          "min_width": "0",
+          "max_width": "100%"
+        }
+      }
+    },
+    "conditionals": [
+      {
+        "id": "stripe",
+        "selector": { "row_parity": "even", "scope": "tbody" },
+        "style": {
+          "font_family": "Arial",
+          "font_size": "small",
+          "font_weight": "normal",
+          "font_style": "oblique",
+          "color": "#222222",
+          "background_color": "#FAFAFA",
+          "text_align": "left",
+          "vertical_align": "bottom",
+          "text_transform": "lowercase",
+          "text_decoration": "line-through",
+          "white_space": "pre-wrap",
+          "padding": { "top": "1px", "right": "1px", "bottom": "1px", "left": "1px" },
+          "border": {
+            "top": { "width": "1px", "style": "solid", "color": "#CCCCCC" },
+            "right": { "width": "1px", "style": "solid", "color": "#CCCCCC" },
+            "bottom": { "width": "1px", "style": "solid", "color": "#CCCCCC" },
+            "left": { "width": "1px", "style": "solid", "color": "#CCCCCC" }
+          },
+          "indent": "2px",
+          "word_break": "keep-all",
+          "overflow": "clip",
+          "text_overflow": "clip",
+          "min_width": "1px",
+          "max_width": "300px"
+        }
+      }
+    ]
+  },
+  "header": {
+    "title": {
+      "content": [{ "type": "text", "value": "Scores" }],
+      "style_id": "s"
+    },
+    "subtitle": {
+      "content": [{ "type": "styled_text", "value": "Fall term", "style_id": "c" }],
+      "style_id": "c"
+    },
+    "extra_lines": [
+      {
+        "content": [{ "type": "text", "value": "Preliminary" }],
+        "style_id": "s"
+      }
+    ],
+    "preheader_content": { "producer": "test" }
+  },
+  "column_spec": [
+    {
+      "id": "name",
+      "align": "left",
+      "align_char": ".",
+      "width": "120px",
+      "min_width": "50px",
+      "max_width": "200px",
+      "style_id": "s",
+      "hidden": false,
+      "label": "Name"
+    },
+    {
+      "id": "score",
+      "align": "char",
+      "align_char": ".",
+      "width": "1fr",
+      "min_width": "40px",
+      "max_width": "50%",
+      "style_id": "c",
+      "hidden": false,
+      "label": "Score"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "style_id": "s",
+          "cells": [
+            {
+              "content": [{ "type": "text", "value": "Name" }],
+              "typed_value": { "type": "string", "value": "Name" },
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": "s",
+              "is_stub": true,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": "name",
+              "data_type": "string"
+            },
+            {
+              "content": [
+                { "type": "text", "value": "Score" },
+                { "type": "line_break" },
+                { "type": "footnote_mark", "ref": "fn1", "mark_text": "1" }
+              ],
+              "typed_value": { "type": "string", "value": "Score" },
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": "c",
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "col",
+              "sort_key": "score",
+              "data_type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "group_id": "g1",
+        "label": {
+          "content": [{ "type": "text", "value": "Group 1" }],
+          "style_id": "s",
+          "colspan": 2
+        },
+        "rows": [
+          {
+            "role": null,
+            "style_id": "c",
+            "cells": [
+              {
+                "content": [{ "type": "text", "value": "Alice" }],
+                "typed_value": { "type": "string", "value": "Alice" },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "s",
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "alice",
+                "data_type": "string"
+              },
+              {
+                "content": [
+                  { "type": "raw", "format": "html", "value": "<b>9.5</b>" },
+                  {
+                    "type": "image",
+                    "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E",
+                    "alt": "dot",
+                    "width": "1em",
+                    "height": "1em"
+                  }
+                ],
+                "typed_value": { "type": "number", "value": 9.5 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "c",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": "col",
+                "sort_key": 9.5,
+                "data_type": "number"
+              }
+            ]
+          }
+        ],
+        "summary_rows": [
+          {
+            "role": "summary_row",
+            "style_id": "s",
+            "cells": [
+              {
+                "content": [{ "type": "text", "value": "Mean" }],
+                "typed_value": { "type": "string", "value": "Mean" },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "s",
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": "row",
+                "sort_key": "mean",
+                "data_type": "string"
+              },
+              {
+                "content": [{ "type": "text", "value": "9.5" }],
+                "typed_value": { "type": "number", "value": 9.5 },
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "c",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": "col",
+                "sort_key": 9.5,
+                "data_type": "number"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "footnotes": [
+      {
+        "id": "fn1",
+        "mark": "1",
+        "content": [{ "type": "text", "value": "Out of 10." }],
+        "style_id": "s"
+      }
+    ],
+    "source_notes": [
+      {
+        "content": [{ "type": "text", "value": "Source: the registrar." }],
+        "style_id": "c"
+      }
+    ]
+  },
+  "extensions": { "example.com/producer": { "version": "1" } }
+}
