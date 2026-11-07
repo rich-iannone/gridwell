@@ -45,9 +45,39 @@ pub enum ValidationRule {
     /// `config.lang` is not a well-formed BCP 47 language tag (see
     /// [`gridwell_core::lang`]).
     InvalidLang,
+    /// Two footnotes have the same id, or a style id is a key of both
+    /// `styles.defs` and `styles.compositions`: a reference to it would be
+    /// ambiguous.
+    DuplicateId,
 }
 
 impl ValidationRule {
+    /// Every rule, in the order declared.
+    pub const ALL: [ValidationRule; 22] = [
+        ValidationRule::IrVersion,
+        ValidationRule::ColCount,
+        ValidationRule::RowCount,
+        ValidationRule::ColspecLength,
+        ValidationRule::StubContiguous,
+        ValidationRule::StyleRefsValid,
+        ValidationRule::FootnoteRefsValid,
+        ValidationRule::SpanOverflowRight,
+        ValidationRule::SpanOverflowBottom,
+        ValidationRule::SpanOverlap,
+        ValidationRule::SpanGap,
+        ValidationRule::SpanPlaceholderHasContent,
+        ValidationRule::SpanPlaceholderMismatch,
+        ValidationRule::SpanZeroValue,
+        ValidationRule::SummaryRequiresStub,
+        ValidationRule::LimitExceeded,
+        ValidationRule::UnknownValue,
+        ValidationRule::InvalidColor,
+        ValidationRule::InvalidLength,
+        ValidationRule::InvalidStyleId,
+        ValidationRule::InvalidLang,
+        ValidationRule::DuplicateId,
+    ];
+
     /// The rule's documented identifier, e.g. `SPAN_OVERFLOW_RIGHT` (the same string
     /// it serializes to).
     pub fn id(self) -> &'static str {
@@ -73,6 +103,7 @@ impl ValidationRule {
             ValidationRule::InvalidLength => "INVALID_LENGTH",
             ValidationRule::InvalidStyleId => "INVALID_STYLE_ID",
             ValidationRule::InvalidLang => "INVALID_LANG",
+            ValidationRule::DuplicateId => "DUPLICATE_ID",
         }
     }
 }
@@ -204,6 +235,7 @@ pub fn validate_with_limits(table: &Table, limits: &Limits) -> Vec<ValidationErr
     validate_style_ids(table, &mut errors);
     validate_style_refs(table, &mut errors);
     validate_footnote_refs(table, &mut errors);
+    validate_duplicate_ids(table, &mut errors);
     validate_summary_requires_stub(table, &mut errors);
     validate_stub_contiguous(table, &mut errors);
     validate_spans(table, &mut errors);
@@ -396,7 +428,24 @@ fn validate_col_counts(table: &Table, errors: &mut Vec<ValidationError>) {
     }
 }
 
-/// STYLE_REFS_VALID: all style_id values reference a defined style or composition
+/// A section as messages name it: `thead`, `tbody group 0`, or
+/// `tbody group 0 summary` (its summary rows).
+pub(crate) fn place(section: &str, row_group: Option<u32>) -> String {
+    match (section, row_group) {
+        ("tbody", Some(g)) => format!("tbody group {g}"),
+        ("tbody_summary", Some(g)) => format!("tbody group {g} summary"),
+        (section, _) => section.to_string(),
+    }
+}
+
+/// A cell as messages name it: `the cell at tbody group 0 (row=1, col=2)`.
+pub(crate) fn cell_place(section: &str, row_group: Option<u32>, row: usize, col: usize) -> String {
+    format!(
+        "the cell at {} (row={row}, col={col})",
+        place(section, row_group)
+    )
+}
+
 /// Whether `id` is a valid style id: non-empty ASCII letters, digits, `_` and `-`.
 pub fn is_valid_style_id(id: &str) -> bool {
     !id.is_empty()
@@ -435,96 +484,236 @@ fn validate_style_ids(table: &Table, errors: &mut Vec<ValidationError>) {
     }
 }
 
-fn validate_style_refs(table: &Table, errors: &mut Vec<ValidationError>) {
-    let valid_ids: std::collections::HashSet<&str> = table
-        .styles
-        .defs
-        .keys()
-        .chain(table.styles.compositions.keys())
-        .map(|s| s.as_str())
-        .collect();
+/// What a [`Part`] is, for its name in messages.
+#[derive(Clone, Copy)]
+enum PartKind {
+    Title,
+    Subtitle,
+    ExtraLine(usize),
+    Column,
+    Row,
+    Cell,
+    Label,
+    Footnote(usize),
+    SourceNote(usize),
+}
 
-    let mut check_style_ref = |style_id: &Option<String>,
-                               section: &str,
-                               row_group: Option<u32>,
-                               row: Option<u32>,
-                               col: Option<u32>| {
-        if let Some(ref id) = style_id {
-            if !valid_ids.contains(id.as_str()) {
-                errors.push(ValidationError {
-                    rule: ValidationRule::StyleRefsValid,
-                    section: section.to_string(),
+/// A part of the table that can have a `style_id` or content: a header line, a
+/// column, a row, a cell, a group label or a note.
+struct Part<'a> {
+    kind: PartKind,
+    section: &'static str,
+    row_group: Option<u32>,
+    row: Option<u32>,
+    col: Option<u32>,
+    style_id: Option<&'a String>,
+    content: &'a [ContentNode],
+}
+
+impl<'a> Part<'a> {
+    fn new(
+        kind: PartKind,
+        section: &'static str,
+        style_id: Option<&'a String>,
+        content: &'a [ContentNode],
+    ) -> Self {
+        Self {
+            kind,
+            section,
+            row_group: None,
+            row: None,
+            col: None,
+            style_id,
+            content,
+        }
+    }
+
+    /// What messages call it (built only for an error).
+    fn name(&self) -> String {
+        let n = |v: Option<u32>| v.unwrap_or_default() as usize;
+        match self.kind {
+            PartKind::Title => "header.title".to_string(),
+            PartKind::Subtitle => "header.subtitle".to_string(),
+            PartKind::ExtraLine(i) => format!("header.extra_lines[{i}]"),
+            PartKind::Column => format!("column_spec[{}]", n(self.col)),
+            PartKind::Row => format!(
+                "{} row {}",
+                place(self.section, self.row_group),
+                n(self.row)
+            ),
+            PartKind::Cell => cell_place(self.section, self.row_group, n(self.row), n(self.col)),
+            PartKind::Label => format!("the label of tbody group {}", n(self.row_group)),
+            PartKind::Footnote(i) => format!("footer.footnotes[{i}]"),
+            PartKind::SourceNote(i) => format!("footer.source_notes[{i}]"),
+        }
+    }
+
+    fn error(&self, rule: ValidationRule, message: String) -> ValidationError {
+        ValidationError {
+            rule,
+            section: self.section.to_string(),
+            row_group: self.row_group,
+            row: self.row,
+            col: self.col,
+            message,
+        }
+    }
+}
+
+/// Visit every part of the table that can have a `style_id` or content, in
+/// document order.
+fn for_each_part<'a>(table: &'a Table, mut f: impl FnMut(Part<'a>)) {
+    fn rows<'a>(
+        rows: &'a [crate::cell::Row],
+        section: &'static str,
+        row_group: Option<u32>,
+        f: &mut impl FnMut(Part<'a>),
+    ) {
+        for (r, row) in rows.iter().enumerate() {
+            let r = Some(r as u32);
+            f(Part {
+                row_group,
+                row: r,
+                ..Part::new(PartKind::Row, section, row.style_id.as_ref(), &[])
+            });
+            for (c, cell) in row.cells.iter().enumerate() {
+                f(Part {
                     row_group,
-                    row,
-                    col,
-                    message: format!(
-                        "style_id \"{id}\" is not defined in styles.defs or styles.compositions"
-                    ),
+                    row: r,
+                    col: Some(c as u32),
+                    ..Part::new(
+                        PartKind::Cell,
+                        section,
+                        cell.style_id.as_ref(),
+                        &cell.content,
+                    )
                 });
             }
         }
-    };
-
-    // Check header styles
-    if let Some(ref header) = table.header {
-        if let Some(ref title) = header.title {
-            check_style_ref(&title.style_id, "header.title", None, None, None);
-        }
-        if let Some(ref subtitle) = header.subtitle {
-            check_style_ref(&subtitle.style_id, "header.subtitle", None, None, None);
-        }
     }
 
-    // Check thead cells
-    for (r, row) in table.table.thead.rows.iter().enumerate() {
-        check_style_ref(&row.style_id, "thead", None, Some(r as u32), None);
-        for (c, cell) in row.cells.iter().enumerate() {
-            check_style_ref(
-                &cell.style_id,
-                "thead",
-                None,
-                Some(r as u32),
-                Some(c as u32),
-            );
+    if let Some(header) = &table.header {
+        let lines = [
+            (PartKind::Title, &header.title),
+            (PartKind::Subtitle, &header.subtitle),
+        ];
+        for (kind, line) in lines {
+            if let Some(line) = line {
+                f(Part::new(
+                    kind,
+                    "header",
+                    line.style_id.as_ref(),
+                    &line.content,
+                ));
+            }
+        }
+        for (i, line) in header.extra_lines.iter().enumerate() {
+            f(Part::new(
+                PartKind::ExtraLine(i),
+                "header",
+                line.style_id.as_ref(),
+                &line.content,
+            ));
         }
     }
-
-    // Check tbody cells
+    for (c, col) in table.column_spec.iter().enumerate() {
+        f(Part {
+            col: Some(c as u32),
+            ..Part::new(PartKind::Column, "column_spec", col.style_id.as_ref(), &[])
+        });
+    }
+    rows(&table.table.thead.rows, "thead", None, &mut f);
     for (g, group) in table.table.tbody.iter().enumerate() {
-        if let Some(ref label) = group.label {
-            check_style_ref(&label.style_id, "tbody_label", Some(g as u32), None, None);
+        let g = Some(g as u32);
+        if let Some(label) = &group.label {
+            f(Part {
+                row_group: g,
+                ..Part::new(
+                    PartKind::Label,
+                    "tbody_label",
+                    label.style_id.as_ref(),
+                    &label.content,
+                )
+            });
         }
-        for (r, row) in group.rows.iter().enumerate() {
-            check_style_ref(&row.style_id, "tbody", Some(g as u32), Some(r as u32), None);
-            for (c, cell) in row.cells.iter().enumerate() {
-                check_style_ref(
-                    &cell.style_id,
-                    "tbody",
-                    Some(g as u32),
-                    Some(r as u32),
-                    Some(c as u32),
-                );
-            }
+        rows(&group.rows, "tbody", g, &mut f);
+        rows(&group.summary_rows, "tbody_summary", g, &mut f);
+    }
+    if let Some(footer) = &table.footer {
+        for (i, n) in footer.footnotes.iter().enumerate() {
+            f(Part::new(
+                PartKind::Footnote(i),
+                "footer",
+                n.style_id.as_ref(),
+                &n.content,
+            ));
         }
-        for (r, row) in group.summary_rows.iter().enumerate() {
-            check_style_ref(
-                &row.style_id,
-                "tbody_summary",
-                Some(g as u32),
-                Some(r as u32),
-                None,
-            );
-            for (c, cell) in row.cells.iter().enumerate() {
-                check_style_ref(
-                    &cell.style_id,
-                    "tbody_summary",
-                    Some(g as u32),
-                    Some(r as u32),
-                    Some(c as u32),
-                );
-            }
+        for (i, n) in footer.source_notes.iter().enumerate() {
+            f(Part::new(
+                PartKind::SourceNote(i),
+                "footer",
+                n.style_id.as_ref(),
+                &n.content,
+            ));
         }
     }
+}
+
+/// STYLE_REFS_VALID: every `style_id` (of a header line, column, row, cell, group
+/// label, note or `styled_text` node) names a style definition or composition, and
+/// every composition `extends` a definition.
+fn validate_style_refs(table: &Table, errors: &mut Vec<ValidationError>) {
+    let styles = &table.styles;
+    let defined = |id: &str| styles.defs.contains_key(id) || styles.compositions.contains_key(id);
+
+    // Sorted ids so error order is deterministic (the palette is a HashMap).
+    let mut ids: Vec<&String> = styles.compositions.keys().collect();
+    ids.sort();
+    for id in ids {
+        let base = &styles.compositions[id].extends;
+        if !styles.defs.contains_key(base) {
+            errors.push(ValidationError {
+                rule: ValidationRule::StyleRefsValid,
+                section: "styles".to_string(),
+                row_group: None,
+                row: None,
+                col: None,
+                message: format!(
+                    "styles.compositions.{id}.extends is \"{base}\", which is not defined in \
+                     styles.defs (a composition extends a definition; compositions don't chain)"
+                ),
+            });
+        }
+    }
+
+    for_each_part(table, |part| {
+        if let Some(id) = part.style_id.filter(|id| !defined(id)) {
+            errors.push(part.error(
+                ValidationRule::StyleRefsValid,
+                format!(
+                    "style_id \"{id}\" of {} is not defined in styles.defs or styles.compositions",
+                    part.name()
+                ),
+            ));
+        }
+        for node in part.content {
+            if let ContentNode::StyledText {
+                style_id: Some(id), ..
+            } = node
+            {
+                if !defined(id) {
+                    errors.push(part.error(
+                        ValidationRule::StyleRefsValid,
+                        format!(
+                            "style_id \"{id}\" of a styled_text node in {} is not defined in \
+                             styles.defs or styles.compositions",
+                            part.name()
+                        ),
+                    ));
+                }
+            }
+        }
+    });
 }
 
 /// FOOTNOTE_REFS_VALID: every footnote_mark ref (in any cell, header line, group
@@ -536,88 +725,66 @@ fn validate_footnote_refs(table: &Table, errors: &mut Vec<ValidationError>) {
         .map(|f| f.footnotes.iter().map(|fn_| fn_.id.as_str()).collect())
         .unwrap_or_default();
 
-    let check_content = |content: &[ContentNode],
-                         section: &str,
-                         row_group: Option<u32>,
-                         row: Option<u32>,
-                         col: Option<u32>,
-                         errors: &mut Vec<ValidationError>| {
-        for node in content {
+    for_each_part(table, |part| {
+        for node in part.content {
             if let ContentNode::FootnoteMark { reference, .. } = node {
                 if !footnote_ids.contains(reference.as_str()) {
-                    errors.push(ValidationError {
-                        rule: ValidationRule::FootnoteRefsValid,
-                        section: section.to_string(),
-                        row_group,
-                        row,
-                        col,
-                        message: format!(
-                            "footnote_mark references \"{reference}\" but no footnote with that id exists"
+                    errors.push(part.error(
+                        ValidationRule::FootnoteRefsValid,
+                        format!(
+                            "footnote_mark in {} references \"{reference}\" but no footnote \
+                             with that id exists",
+                            part.name()
                         ),
-                    });
+                    ));
                 }
             }
         }
-    };
+    });
+}
 
-    // Check thead cells
-    for (r, row) in table.table.thead.rows.iter().enumerate() {
-        for (c, cell) in row.cells.iter().enumerate() {
-            check_content(
-                &cell.content,
-                "thead",
-                None,
-                Some(r as u32),
-                Some(c as u32),
-                errors,
-            );
-        }
+/// DUPLICATE_ID: footnote ids are unique, and no style id is both a definition and a
+/// composition.
+fn validate_duplicate_ids(table: &Table, errors: &mut Vec<ValidationError>) {
+    let mut both: Vec<&String> = table
+        .styles
+        .compositions
+        .keys()
+        .filter(|id| table.styles.defs.contains_key(*id))
+        .collect();
+    both.sort();
+    for id in both {
+        errors.push(ValidationError {
+            rule: ValidationRule::DuplicateId,
+            section: "styles".to_string(),
+            row_group: None,
+            row: None,
+            col: None,
+            message: format!(
+                "style id \"{id}\" is a key of both styles.defs and styles.compositions"
+            ),
+        });
     }
 
-    // Header lines
-    if let Some(header) = &table.header {
-        let lines = header
-            .title
-            .iter()
-            .chain(&header.subtitle)
-            .chain(&header.extra_lines);
-        for line in lines {
-            check_content(&line.content, "header", None, None, None, errors);
-        }
-    }
-
-    // Body: group labels, data rows, summary rows
-    for (g, group) in table.table.tbody.iter().enumerate() {
-        let g = Some(g as u32);
-        if let Some(label) = &group.label {
-            check_content(&label.content, "tbody_label", g, None, None, errors);
-        }
-        for (section, rows) in [
-            ("tbody", &group.rows),
-            ("tbody_summary", &group.summary_rows),
-        ] {
-            for (r, row) in rows.iter().enumerate() {
-                for (c, cell) in row.cells.iter().enumerate() {
-                    check_content(
-                        &cell.content,
-                        section,
-                        g,
-                        Some(r as u32),
-                        Some(c as u32),
-                        errors,
-                    );
-                }
-            }
-        }
-    }
-
-    // Footnote and source-note text (a note may refer to another note)
     if let Some(footer) = &table.footer {
-        for n in &footer.footnotes {
-            check_content(&n.content, "footer", None, None, None, errors);
-        }
-        for n in &footer.source_notes {
-            check_content(&n.content, "footer", None, None, None, errors);
+        let mut first = std::collections::HashMap::new();
+        for (i, n) in footer.footnotes.iter().enumerate() {
+            if let Some(&j) = first.get(n.id.as_str()) {
+                errors.push(ValidationError {
+                    rule: ValidationRule::DuplicateId,
+                    section: "footer".to_string(),
+                    row_group: None,
+                    row: None,
+                    col: None,
+                    message: format!(
+                        "footer.footnotes[{i}] has the id \"{}\" of footer.footnotes[{j}]: \
+                         footnote ids must be unique",
+                        n.id
+                    ),
+                });
+            } else {
+                first.insert(n.id.as_str(), i);
+            }
         }
     }
 }
@@ -651,7 +818,8 @@ fn validate_stub_contiguous(table: &Table, errors: &mut Vec<ValidationError>) {
                         row: Some(r as u32),
                         col: Some(c as u32),
                         message: format!(
-                            "cell is flagged is_stub but column {c} is outside the stub columns (config.stub_cols is {stub})"
+                            "{} is flagged is_stub, but column {c} is outside the stub columns (config.stub_cols is {stub})",
+                            cell_place(section, row_group, r, c)
                         ),
                     });
                 }
@@ -679,7 +847,7 @@ fn validate_summary_requires_stub(table: &Table, errors: &mut Vec<ValidationErro
                 row_group: Some(g as u32),
                 row: None,
                 col: None,
-                message: format!("Row group {g} has summary rows but config.stub_cols is 0"),
+                message: format!("tbody group {g} has summary rows but config.stub_cols is 0"),
             });
         }
     }
@@ -732,7 +900,8 @@ fn validate_placeholder_content(table: &Table, errors: &mut Vec<ValidationError>
                     row: Some(r as u32),
                     col: Some(c as u32),
                     message: format!(
-                        "Placeholder cell at thead (row={r}, col={c}) has non-empty content"
+                        "Placeholder cell at {} (row={r}, col={c}) has non-empty content",
+                        place("thead", None)
                     ),
                 });
             }
@@ -751,7 +920,8 @@ fn validate_placeholder_content(table: &Table, errors: &mut Vec<ValidationError>
                         row: Some(r as u32),
                         col: Some(c as u32),
                         message: format!(
-                            "Placeholder cell at tbody group {g} (row={r}, col={c}) has non-empty content"
+                            "Placeholder cell at {} (row={r}, col={c}) has non-empty content",
+                            place("tbody", Some(g as u32))
                         ),
                     });
                 }
@@ -767,7 +937,8 @@ fn validate_placeholder_content(table: &Table, errors: &mut Vec<ValidationError>
                         row: Some(r as u32),
                         col: Some(c as u32),
                         message: format!(
-                            "Placeholder cell at tbody group {g} summary (row={r}, col={c}) has non-empty content"
+                            "Placeholder cell at {} (row={r}, col={c}) has non-empty content",
+                            place("tbody_summary", Some(g as u32))
                         ),
                     });
                 }
@@ -921,6 +1092,21 @@ fn validate_keywords(table: &Table, errors: &mut Vec<ValidationError>) {
         }
     }
 
+    /// [`check`] for a row or cell, whose field name is built only for an error.
+    fn check_lazy<K: Keyword>(
+        value: Option<&K>,
+        field: impl FnOnce() -> String,
+        section: &str,
+        row_group: Option<u32>,
+        row: Option<u32>,
+        col: Option<u32>,
+        errors: &mut Vec<ValidationError>,
+    ) {
+        if value.is_some_and(|v| !v.is_known()) {
+            check(value, &field(), section, row_group, row, col, errors);
+        }
+    }
+
     fn check_rows(
         rows: &[Row],
         section: &str,
@@ -928,47 +1114,47 @@ fn validate_keywords(table: &Table, errors: &mut Vec<ValidationError>) {
         errors: &mut Vec<ValidationError>,
     ) {
         for (r, row) in rows.iter().enumerate() {
-            let r = Some(r as u32);
-            check(
+            check_lazy(
                 row.role.as_ref(),
-                "row role",
+                || format!("the role of {} row {r}", place(section, row_group)),
                 section,
                 row_group,
-                r,
+                Some(r as u32),
                 None,
                 errors,
             );
             for (c, cell) in row.cells.iter().enumerate() {
-                let c = Some(c as u32);
-                check(
+                let at = (Some(r as u32), Some(c as u32));
+                let of = |field: &str| {
+                    format!("the {field} of {}", cell_place(section, row_group, r, c))
+                };
+                check_lazy(
                     cell.scope.as_ref(),
-                    "cell scope",
+                    || of("scope"),
                     section,
                     row_group,
-                    r,
-                    c,
+                    at.0,
+                    at.1,
                     errors,
                 );
-                check(
+                check_lazy(
                     cell.data_type.as_ref(),
-                    "cell data_type",
+                    || of("data_type"),
                     section,
                     row_group,
-                    r,
-                    c,
+                    at.0,
+                    at.1,
                     errors,
                 );
-                if let Some(tv) = &cell.typed_value {
-                    check(
-                        Some(&tv.value_type),
-                        "typed_value.type",
-                        section,
-                        row_group,
-                        r,
-                        c,
-                        errors,
-                    );
-                }
+                check_lazy(
+                    cell.typed_value.as_ref().map(|tv| &tv.value_type),
+                    || of("typed_value.type"),
+                    section,
+                    row_group,
+                    at.0,
+                    at.1,
+                    errors,
+                );
             }
         }
     }
@@ -1055,5 +1241,45 @@ fn validate_keywords(table: &Table, errors: &mut Vec<ValidationError>) {
     for (g, group) in table.table.tbody.iter().enumerate() {
         check_rows(&group.rows, "tbody", Some(g as u32), errors);
         check_rows(&group.summary_rows, "tbody_summary", Some(g as u32), errors);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ValidationRule;
+
+    #[test]
+    fn all_lists_every_rule_once() {
+        // No wildcard: a new rule doesn't compile until it has a place here, and
+        // then the assertion wants it in `ALL` too.
+        let position = |r: ValidationRule| match r {
+            ValidationRule::IrVersion => 0,
+            ValidationRule::ColCount => 1,
+            ValidationRule::RowCount => 2,
+            ValidationRule::ColspecLength => 3,
+            ValidationRule::StubContiguous => 4,
+            ValidationRule::StyleRefsValid => 5,
+            ValidationRule::FootnoteRefsValid => 6,
+            ValidationRule::SpanOverflowRight => 7,
+            ValidationRule::SpanOverflowBottom => 8,
+            ValidationRule::SpanOverlap => 9,
+            ValidationRule::SpanGap => 10,
+            ValidationRule::SpanPlaceholderHasContent => 11,
+            ValidationRule::SpanPlaceholderMismatch => 12,
+            ValidationRule::SpanZeroValue => 13,
+            ValidationRule::SummaryRequiresStub => 14,
+            ValidationRule::LimitExceeded => 15,
+            ValidationRule::UnknownValue => 16,
+            ValidationRule::InvalidColor => 17,
+            ValidationRule::InvalidLength => 18,
+            ValidationRule::InvalidStyleId => 19,
+            ValidationRule::InvalidLang => 20,
+            ValidationRule::DuplicateId => 21,
+        };
+        for (i, rule) in ValidationRule::ALL.into_iter().enumerate() {
+            assert_eq!(position(rule), i, "{rule}");
+            // The id is what it serializes to.
+            assert_eq!(serde_json::to_value(rule).unwrap(), rule.id());
+        }
     }
 }
