@@ -235,14 +235,21 @@ fn cell_value(align: Value, rowspan: usize, colspan: usize, content: Vec<Value>)
     json!([null_attr(), align, rowspan, colspan, blocks])
 }
 
-/// Wrap inlines in `Strong` / `Emph` for a bold / italic style. Pandoc has no
-/// other inline styling.
+/// Wrap inlines in `Strong`, `Emph`, `Underline` and `Strikeout` for a bold,
+/// italic, underlined or struck-through style: the styling Pandoc's AST has. (Its
+/// `Span` attributes would carry colors and sizes only to some of its outputs.)
 pub fn styled(style: &ResolvedStyle, mut inlines: Vec<Value>) -> Vec<Value> {
     if inlines.is_empty() {
         return inlines;
     }
     if style.is_italic() {
         inlines = vec![json!({"t": "Emph", "c": inlines})];
+    }
+    if style.is_underline() {
+        inlines = vec![json!({"t": "Underline", "c": inlines})];
+    }
+    if style.is_strike() {
+        inlines = vec![json!({"t": "Strikeout", "c": inlines})];
     }
     if style.is_bold() {
         inlines = vec![json!({"t": "Strong", "c": inlines})];
@@ -289,7 +296,7 @@ pub fn inlines(rt: &ResolvedTable, nodes: &[ContentNode]) -> Vec<Value> {
             ContentNode::Raw { format, value } => {
                 out.push(json!({"t": "RawInline", "c": [format, value]}))
             }
-            ContentNode::Unknown => {}
+            ContentNode::Unknown(_) => {}
         }
     }
     out
