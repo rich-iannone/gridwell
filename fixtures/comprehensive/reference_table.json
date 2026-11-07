@@ -18,7 +18,7 @@
     "page_break_mode": "avoid",
     "aria_label": "Regional Sales Performance table",
     "aria_describedby": null,
-    "summary": "Sales revenue, expenses, profit, and margin percentage for North America and Europe, fiscal years 2023-2024."
+    "summary": "Sales revenue, expenses, and profit for North America and Europe, fiscal years 2023-2024."
   },
 
   "styles": {

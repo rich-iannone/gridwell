@@ -1,0 +1,83 @@
+{
+  "_comment": "INVALID: Two footnotes have the id 'fn1', and 'emph' is both a style definition and a composition. Expects DUPLICATE_ID.",
+  "_expect": ["DUPLICATE_ID"],
+  "ir_version": "1.0",
+
+  "config": {
+    "table_cols": 2,
+    "header_rows": 1,
+    "body_rows": 1,
+    "stub_cols": 0,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null
+  },
+
+  "styles": {
+    "defs": { "emph": { "font_style": "italic" }, "bold": { "font_weight": "bold" } },
+    "compositions": { "emph": { "extends": "bold", "overrides": {} } },
+    "conditionals": []
+  },
+  "header": { "title": null, "subtitle": null, "extra_lines": [], "preheader_content": null },
+
+  "column_spec": [
+    { "id": "col_0", "align": "left", "align_char": null, "width": "auto", "min_width": null, "max_width": null, "style_id": null, "hidden": false, "label": "A" },
+    { "id": "col_1", "align": "left", "align_char": null, "width": "auto", "min_width": null, "max_width": null, "style_id": null, "hidden": false, "label": "B" }
+  ],
+
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label", "style_id": null,
+          "cells": [
+            { "content": [{ "type": "text", "value": "A" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null },
+            { "content": [{ "type": "text", "value": "B" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null }
+          ]
+        }
+      ]
+    },
+
+    "tbody": [
+      {
+        "group_id": null, "label": null,
+        "rows": [
+          {
+            "role": null, "style_id": null,
+            "cells": [
+              { "content": [{ "type": "text", "value": "hello" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": "emph", "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null },
+              {
+                "content": [
+                  { "type": "text", "value": "world" },
+                  { "type": "footnote_mark", "ref": "fn1", "mark_text": "1" }
+                ],
+                "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null,
+                "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ]
+  },
+
+  "footer": {
+    "footnotes": [
+      { "id": "fn1", "mark": "1", "content": [{ "type": "text", "value": "The first note." }], "style_id": null },
+      { "id": "fn1", "mark": "2", "content": [{ "type": "text", "value": "The second note, with the same id." }], "style_id": null }
+    ],
+    "source_notes": []
+  },
+  "extensions": {}
+}
