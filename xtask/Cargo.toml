@@ -14,3 +14,18 @@ gridwell-testkit = { workspace = true }
 clap = { workspace = true }
 serde_json = { workspace = true }
 image = { version = "0.25", default-features = false, features = ["png"] }
+
+[dev-dependencies]
+# The crates the docs' Rust blocks use (tests/rust_snippets.rs).
+gridwell = { workspace = true }
+gridwell-writer-html = { workspace = true }
+gridwell-writer-latex = { workspace = true }
+gridwell-writer-typst = { workspace = true }
+gridwell-writer-rtf = { workspace = true }
+gridwell-writer-svg = { workspace = true }
+gridwell-writer-ansi = { workspace = true }
+gridwell-writer-pandoc = { workspace = true }
+gridwell-writer-quarto = { workspace = true }
+gridwell-writer-docx = { workspace = true }
+gridwell-writer-xlsx = { workspace = true }
+gridwell-writer-pptx = { workspace = true }
