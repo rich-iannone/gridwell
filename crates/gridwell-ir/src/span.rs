@@ -1,5 +1,5 @@
 use crate::cell::{Cell, Row};
-use crate::validation::{ValidationError, ValidationRule};
+use crate::validation::{place, ValidationError, ValidationRule};
 
 /// A materialized 2D occupancy grid for a table section.
 /// Each cell in the grid holds an optional identifier (row, col of the owning cell).
@@ -29,6 +29,7 @@ impl OccupancyGrid {
         let num_rows = rows.len() as u32;
         let mut grid = Self::new(num_rows, table_cols);
         let mut errors = Vec::new();
+        let at = place(section, row_group);
 
         for (r, row) in rows.iter().enumerate() {
             let r = r as u32;
@@ -58,7 +59,7 @@ impl OccupancyGrid {
                         row: Some(r),
                         col: Some(c),
                         message: format!(
-                            "Cell at (row={r}, col={c}) has colspan={colspan}, rowspan={rowspan} — minimum is 1"
+                            "Cell at {at} (row={r}, col={c}) has colspan={colspan}, rowspan={rowspan} — minimum is 1"
                         ),
                     });
                     // The cell still occupies its own position (not also a gap).
@@ -80,7 +81,7 @@ impl OccupancyGrid {
                         row: Some(r),
                         col: Some(c),
                         message: format!(
-                            "Cell at (row={r}, col={c}) has colspan={colspan} but table only has {table_cols} columns (would need col index up to {})",
+                            "Cell at {at} (row={r}, col={c}) has colspan={colspan} but table only has {table_cols} columns (would need col index up to {})",
                             col_end - 1
                         ),
                     });
@@ -110,7 +111,7 @@ impl OccupancyGrid {
                         row: Some(r),
                         col: Some(c),
                         message: format!(
-                            "Cell at (row={r}, col={c}) has rowspan={rowspan} but section only has {num_rows} rows (would need row index up to {})",
+                            "Cell at {at} (row={r}, col={c}) has rowspan={rowspan} but {at} only has {num_rows} rows (would need row index up to {})",
                             row_end - 1
                         ),
                     });
@@ -157,13 +158,13 @@ impl OccupancyGrid {
                         (
                             ValidationRule::SpanPlaceholderMismatch,
                             format!(
-                                "Placeholder at (row={r}, col={c}) is not covered by any cell's colspan or rowspan"
+                                "Placeholder at {at} (row={r}, col={c}) is not covered by any cell's colspan or rowspan"
                             ),
                         )
                     } else {
                         (
                             ValidationRule::SpanGap,
-                            format!("Grid position (row={r}, col={c}) has no cell"),
+                            format!("Grid position at {at} (row={r}, col={c}) has no cell"),
                         )
                     };
                     errors.push(ValidationError {
@@ -210,8 +211,8 @@ fn claim_cells(
                         row: Some(start_row + dr),
                         col: Some(start_col + dc),
                         message: format!(
-                            "Grid position (row={}, col={}) is already claimed by cell at (row={owner_r}, col={owner_c})",
-                            start_row + dr, start_col + dc
+                            "Grid position at {} (row={}, col={}) is already claimed by the cell at (row={owner_r}, col={owner_c})",
+                            place(section, row_group), start_row + dr, start_col + dc
                         ),
                     });
                 } else {
