@@ -7,6 +7,10 @@ use clap::{Parser, Subcommand};
 use gridwell_ir::Table;
 use gridwell_render::conformance::{self, Tier};
 use gridwell_render::{find, format_for_path, OutputKind, RenderError, Writer, REGISTRY};
+use serde_json::Value;
+
+mod grid;
+mod inspect;
 
 #[derive(Parser)]
 #[command(
@@ -66,6 +70,35 @@ enum Command {
         /// Warn of what this format can't express (default: every format)
         #[arg(short = 't', long = "to", value_name = "FORMAT", value_parser = parse_format)]
         format: Option<&'static dyn Writer>,
+    },
+
+    /// Print a table IR JSON file in canonical form: keys sorted, two-space indents
+    Fmt {
+        /// Input file (use "-" or omit for stdin)
+        #[arg(value_name = "INPUT")]
+        input: Option<PathBuf>,
+
+        /// Don't print it: exit 1 if the input isn't in canonical form
+        #[arg(long)]
+        check: bool,
+    },
+
+    /// Print what a table IR holds: columns, rows, groups, spans, styles, content
+    Inspect {
+        /// Input file (use "-" or omit for stdin)
+        #[arg(value_name = "INPUT")]
+        input: Option<PathBuf>,
+
+        /// Print machine-readable JSON
+        #[arg(long)]
+        json: bool,
+    },
+
+    /// Draw each section's occupancy grid, to see which cell covers each position
+    Grid {
+        /// Input file (use "-" or omit for stdin)
+        #[arg(value_name = "INPUT")]
+        input: Option<PathBuf>,
     },
 
     /// Normalize a table IR to a conformance grid, or check one against an
@@ -135,6 +168,9 @@ fn main() {
             options_file,
         } => cmd_convert(input, format, output, options, options_file),
         Command::Validate { input, format } => cmd_validate(input, format),
+        Command::Fmt { input, check } => cmd_fmt(input, check),
+        Command::Inspect { input, json } => cmd_inspect(input, json),
+        Command::Grid { input } => cmd_grid(input),
         Command::Conformance(ConformanceCommand::Normalize { input, tier }) => {
             cmd_normalize(input, tier)
         }
@@ -242,6 +278,44 @@ fn cmd_validate(input: Option<PathBuf>, format: Option<&'static dyn Writer>) {
         }
         process::exit(1);
     }
+}
+
+fn cmd_fmt(input: Option<PathBuf>, check: bool) {
+    let json = read_input(input.as_deref());
+    // Only IR is formatted, but it needn't be valid. It is formatted as JSON, so a
+    // field gridwell doesn't know is kept. serde_json's maps keep their keys
+    // sorted (its `preserve_order` feature is off), so writing one sorts them.
+    parse_table(&json);
+    let value: Value = serde_json::from_str(&json).unwrap_or_else(|e| fail(e));
+    let formatted = format!("{}\n", serde_json::to_string_pretty(&value).unwrap());
+    if !check {
+        print!("{formatted}");
+    } else if json != formatted {
+        let name = match &input {
+            Some(p) if p.to_str() != Some("-") => p.display().to_string(),
+            _ => "stdin".to_string(),
+        };
+        eprintln!("{name} is not in canonical form (see `gridwell fmt`)");
+        process::exit(1);
+    }
+}
+
+fn cmd_inspect(input: Option<PathBuf>, json: bool) {
+    let table = parse_table(&read_input(input.as_deref()));
+    let stats = inspect::Stats::of(&table);
+    if json {
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&stats.to_json()).unwrap()
+        );
+    } else {
+        print!("{}", stats.to_text());
+    }
+}
+
+fn cmd_grid(input: Option<PathBuf>) {
+    let table = parse_table(&read_input(input.as_deref()));
+    print!("{}", grid::draw(&table));
 }
 
 fn cmd_normalize(input: Option<PathBuf>, tier: Tier) {
