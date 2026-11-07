@@ -101,7 +101,8 @@ html <- gw_render(tbl, "html", list(inline_styles = TRUE))
 html <- gw_render(tbl, "html", '{"inline_styles": true}')
 html <- gw_render_html(tbl, inline_styles = TRUE)
 
-# Every format, with its options and defaults (a data frame)
+# Every format, with its options and defaults, and whether it is experimental
+# (a data frame)
 gw_formats()
 ```
 

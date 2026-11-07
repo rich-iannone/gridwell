@@ -92,7 +92,7 @@ output = table.render("html")
 output = table.render("html", {"inline_styles": True})
 output = table.render_html(inline_styles=True)
 
-# Every format, with its options and defaults
+# Every format, with its options and defaults, and whether it is experimental
 gridwell.formats()
 ```
 

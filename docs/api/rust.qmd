@@ -114,6 +114,9 @@ for w in REGISTRY {
 }
 ```
 
+`Writer::experimental()` is true for the
+[experimental formats](../guide/output-formats.qmd#experimental-formats).
+
 ## Saving to a file
 
 `save()` renders and writes the bytes unchanged. With no format it is inferred from
