@@ -329,9 +329,14 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   colors, cell borders and padding) still win, and an edge is drawn the way HTML draws
   it (a cell's own border replaces the rule there)
 - Text laid out with Roboto's real widths (cells leave room for Arial-compatible
-  fallbacks), and every line drawn with `textLength`, so viewers that substitute
-  another font keep the layout. librsvg ignores `textLength`, so rsvg-based tools
+  fallbacks), and drawn with `textLength`, so viewers that substitute another font
+  keep the layout. librsvg ignores `textLength`, so rsvg-based tools
   (Pandoc/Quarto PDF, R's rsvg) render best with Roboto installed
+- Text Roboto doesn't have (emoji, CJK, Arabic, Hebrew, …) gets estimated widths,
+  generous enough for the fonts a viewer draws it in, and its lines are drawn at
+  their natural width, with no `textLength`. An emoji sequence (a skin tone, a
+  family joined with ZWJ, a flag, a keycap) is measured as the one emoji it's
+  drawn as. Browsers draw emoji in color; librsvg draws them in one color
 - Body cells are vertically centered and head cells bottom-aligned, as in HTML, unless
   a style's `vertical_align` says otherwise
 - Known differences from HTML: a word too long for a fixed-width column is broken
