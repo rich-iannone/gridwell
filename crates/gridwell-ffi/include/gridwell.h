@@ -81,7 +81,9 @@ extern "C" {
 struct GridwellTable *gridwell_parse_ir(const char *json, size_t len, struct GridwellError **err);
 
 // Validate a parsed table. Returns null on success, or an error (code
-// `GRIDWELL_ERR_VALIDATE`) listing every validation error, separated by "; ".
+// `GRIDWELL_ERR_VALIDATE`) listing every validation error, one per line. For a
+// table of a newer minor IR version, a last line says an error may be something
+// that version added.
 //
 // # Safety
 // - `table` must be a valid pointer returned by `gridwell_parse_ir`.
