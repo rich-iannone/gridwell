@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="117" height="137" viewBox="0 0 117 137">
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
+<rect x="0" y="0" width="53.38" height="2" fill="#D3D3D3"/>
+<rect x="53.38" y="0" width="62.88" height="2" fill="#D3D3D3"/>
+<rect x="57.38" y="30.75" width="58.88" height="2" fill="#D3D3D3"/>
+<rect x="0" y="62.5" width="53.38" height="2" fill="#D3D3D3"/>
+<rect x="53.38" y="62.5" width="31.44" height="2" fill="#D3D3D3"/>
+<rect x="84.82" y="62.5" width="31.44" height="2" fill="#D3D3D3"/>
+<rect x="0" y="99.25" width="53.38" height="1" fill="#D3D3D3"/>
+<rect x="0" y="135" width="53.38" height="2" fill="#D3D3D3"/>
+<rect x="53.38" y="99.25" width="31.44" height="1" fill="#D3D3D3"/>
+<rect x="53.38" y="135" width="31.44" height="2" fill="#D3D3D3"/>
+<rect x="84.82" y="99.25" width="31.44" height="1" fill="#D3D3D3"/>
+<rect x="84.82" y="135" width="31.44" height="2" fill="#D3D3D3"/>
+<text x="86.82" y="21.84" font-size="16px" text-anchor="middle" textLength="49.16" xml:space="preserve">Scores</text>
+<text x="5" y="52.59" font-size="16px" textLength="42.63" xml:space="preserve">Name</text>
+<text x="79.82" y="52.59" font-size="16px" text-anchor="end" textLength="20" xml:space="preserve">Q1</text>
+<text x="111.26" y="52.59" font-size="16px" text-anchor="end" textLength="20" xml:space="preserve">Q2</text>
+<text x="5" y="87.34" font-size="16px" textLength="35.08" xml:space="preserve">Alice</text>
+<text x="79.82" y="87.34" font-size="16px" text-anchor="end" textLength="17.98" xml:space="preserve">90</text>
+<text x="111.26" y="87.34" font-size="16px" text-anchor="end" textLength="17.98" xml:space="preserve">95</text>
+<text x="5" y="123.09" font-size="16px" textLength="28.08" xml:space="preserve">Bob</text>
+<text x="79.82" y="123.09" font-size="16px" text-anchor="end" textLength="17.98" xml:space="preserve">85</text>
+<text x="111.26" y="123.09" font-size="16px" text-anchor="end" textLength="17.98" xml:space="preserve">88</text>
+</svg>

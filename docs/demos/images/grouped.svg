@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="222" height="253" viewBox="0 0 222 253">
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
+<rect x="0" y="0" width="64.97" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="64.97" height="2" fill="#D3D3D3"/>
+<rect x="64.97" y="0" width="69.24" height="2" fill="#D3D3D3"/>
+<rect x="64.97" y="31.75" width="69.24" height="2" fill="#D3D3D3"/>
+<rect x="134.21" y="0" width="87.39" height="2" fill="#D3D3D3"/>
+<rect x="134.21" y="31.75" width="87.39" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="64.97" height="2" fill="#D3D3D3"/>
+<rect x="63.97" y="69.5" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="64.97" y="68.5" width="69.24" height="2" fill="#D3D3D3"/>
+<rect x="134.21" y="68.5" width="87.39" height="2" fill="#D3D3D3"/>
+<rect x="0" y="105.25" width="64.97" height="1" fill="#D3D3D3"/>
+<rect x="0" y="141" width="64.97" height="2" fill="#D3D3D3"/>
+<rect x="63.97" y="105.75" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="64.97" y="105.25" width="69.24" height="1" fill="#D3D3D3"/>
+<rect x="64.97" y="141" width="69.24" height="2" fill="#D3D3D3"/>
+<rect x="134.21" y="105.25" width="87.39" height="1" fill="#D3D3D3"/>
+<rect x="134.21" y="141" width="87.39" height="2" fill="#D3D3D3"/>
+<rect x="0" y="177.75" width="64.97" height="2" fill="#D3D3D3"/>
+<rect x="63.97" y="178.75" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="64.97" y="177.75" width="69.24" height="2" fill="#D3D3D3"/>
+<rect x="134.21" y="177.75" width="87.39" height="2" fill="#D3D3D3"/>
+<rect x="0" y="214.5" width="64.97" height="1" fill="#D3D3D3"/>
+<rect x="0" y="250.25" width="64.97" height="2" fill="#D3D3D3"/>
+<rect x="63.97" y="215" width="2" height="37.25" fill="#D3D3D3"/>
+<rect x="64.97" y="214.5" width="69.24" height="1" fill="#D3D3D3"/>
+<rect x="64.97" y="250.25" width="69.24" height="2" fill="#D3D3D3"/>
+<rect x="134.21" y="214.5" width="87.39" height="1" fill="#D3D3D3"/>
+<rect x="134.21" y="250.25" width="87.39" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="221.6" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="221.6" height="2" fill="#D3D3D3"/>
+<rect x="0" y="141" width="221.6" height="2" fill="#D3D3D3"/>
+<rect x="0" y="177.75" width="221.6" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="27.11" xml:space="preserve">City</text>
+<text x="129.21" y="21.84" font-size="16px" text-anchor="end" textLength="57.19" xml:space="preserve">Pop (M)</text>
+<text x="216.6" y="21.84" font-size="16px" text-anchor="end" textLength="76.07" xml:space="preserve">Area (km²)</text>
+<text x="5" y="93.34" font-size="16px" textLength="43.48" xml:space="preserve">Tokyo</text>
+<text x="129.21" y="93.34" font-size="16px" text-anchor="end" textLength="40.19" xml:space="preserve">13.96</text>
+<text x="216.6" y="93.34" font-size="16px" text-anchor="end" textLength="39.12" xml:space="preserve">2,194</text>
+<text x="5" y="129.09" font-size="16px" textLength="39.82" xml:space="preserve">Seoul</text>
+<text x="129.21" y="129.09" font-size="16px" text-anchor="end" textLength="31.2" xml:space="preserve">9.74</text>
+<text x="216.6" y="129.09" font-size="16px" text-anchor="end" textLength="26.98" xml:space="preserve">605</text>
+<text x="5" y="202.59" font-size="16px" textLength="53.56" xml:space="preserve">London</text>
+<text x="129.21" y="202.59" font-size="16px" text-anchor="end" textLength="31.2" xml:space="preserve">8.98</text>
+<text x="216.6" y="202.59" font-size="16px" text-anchor="end" textLength="39.12" xml:space="preserve">1,572</text>
+<text x="5" y="238.34" font-size="16px" textLength="36.37" xml:space="preserve">Paris</text>
+<text x="129.21" y="238.34" font-size="16px" text-anchor="end" textLength="31.2" xml:space="preserve">2.16</text>
+<text x="216.6" y="238.34" font-size="16px" text-anchor="end" textLength="26.98" xml:space="preserve">105</text>
+<text x="5" y="56.59" font-size="16px" textLength="31.29" xml:space="preserve">Asia</text>
+<text x="5" y="165.84" font-size="16px" textLength="49.93" xml:space="preserve">Europe</text>
+</svg>
