@@ -7,4 +7,4 @@ Gridwell provides APIs in four languages:
 - [Rust](rust.qmd) — native crate API
 - [Python](python.qmd) — PyO3 bindings
 - [R](r.qmd) — extendr bindings
-- [C FFI](c-ffi.qmd) — stable C ABI for embedding
+- [C FFI](c-ffi.qmd) — C ABI for embedding
