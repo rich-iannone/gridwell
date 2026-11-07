@@ -162,8 +162,8 @@ fn rs_save(table_ptr: Robj, path: &str, format: Robj, options: Robj) -> String {
     }
 }
 
-/// The registry as columns: name, description, kind, extension, media_type, and
-/// options (each format's default options as a JSON string).
+/// The registry as columns: name, description, kind, extension, media_type,
+/// experimental, and options (each format's default options as a JSON string).
 /// @noRd
 #[extendr]
 fn rs_formats() -> List {
@@ -176,6 +176,7 @@ fn rs_formats() -> List {
         kind = col(|w| w.kind().to_string()),
         extension = col(|w| w.extension().to_string()),
         media_type = col(|w| w.media_type().to_string()),
+        experimental = Logicals::from_values(REGISTRY.iter().map(|w| w.experimental())),
         options = col(|w| w.default_options().to_string())
     )
 }
