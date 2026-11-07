@@ -18,6 +18,8 @@ use std::fmt;
 pub trait Keyword {
     /// Canonical spellings of the known values.
     const ALLOWED: &'static [&'static str];
+    /// The other spellings accepted, each with the canonical value it means.
+    const ALIASES: &'static [(&'static str, &'static str)] = &[];
     /// The value as written in canonical form (or verbatim if unknown).
     fn as_str(&self) -> &str;
     /// `false` for `Unknown(_)`.
@@ -52,6 +54,7 @@ macro_rules! keyword {
 
         impl Keyword for $name {
             const ALLOWED: &'static [&'static str] = &[$($canon),+];
+            const ALIASES: &'static [(&'static str, &'static str)] = &[$($(($alias, $canon),)*)+];
             fn as_str(&self) -> &str {
                 match self {
                     $( Self::$variant => $canon, )+
