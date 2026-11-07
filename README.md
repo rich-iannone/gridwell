@@ -23,7 +23,7 @@ IR can grow without breaking consumers.
 4. **Performance**: a Rust core aimed at extremely fast rendering for typical tables.
 5. **Testability**: the same corpus drives textual snapshots for every writer and a
 visual regression gate (see [Testing](#testing)).
-6. **Language-agnostic**: a stable C ABI with first-class Python (PyO3) and R
+6. **Language-agnostic**: a C ABI with first-class Python (PyO3) and R
 (extendr) bindings.
 
 ## Output formats
@@ -57,7 +57,8 @@ followed by `N−1` placeholder cells; `rowspan` places placeholders at the same
 in later rows. A validator materializes the grid to catch overlaps, gaps, and
 overflows before rendering.
 - **Versioned and open at the edges.** Has an `ir_version` field, an `extensions`
-blob, and an open content-node enum so unknown node types round-trip losslessly.
+blob, and an open content-node enum: a node type a reader doesn't know still parses
+(drawn as nothing, and kept with all its fields) rather than failing the table.
 
 Here is the top-level shape of the IR:
 
@@ -123,7 +124,8 @@ The workspace is a set of small, focused crates:
 crates/
   gridwell/               the crate to depend on: all below, a feature per format
   gridwell-ir/            IR types, serde (de)serialization, and the validator
-  gridwell-core/          shared primitives (length units, colors)
+  gridwell-core/          shared primitives: lengths, colors, font sizes, language
+                          tags, `data:` images, XML escaping
   gridwell-layout/        the resolved grid, spans and styles every writer renders
   gridwell-render/        the format registry: every format by name, options as JSON
   gridwell-writer-html/    ─┐
@@ -137,13 +139,16 @@ crates/
   gridwell-writer-docx/     │
   gridwell-writer-xlsx/     │
   gridwell-writer-pptx/    ─┘
+  gridwell-ooxml/         the zip packaging the DOCX, XLSX and PPTX writers share
   gridwell-ffi/           C ABI surface (cdylib / staticlib)
   gridwell-python/        Python bindings (PyO3, built with maturin)
   gridwell-cli/           `gridwell` command-line tool
   gridwell-testkit/       shared example corpus + a builder DSL for the IR
 python/                   Python package sources (`gridwell`, built with maturin)
 r-package/                R package (extendr; Rust glue in r-package/src/rust)
-xtask/                    visual test harness (render gallery + image diff)
+xtask/                    visual test harness (render gallery + image diff), the docs
+                          checks, and the R source package build
+conformance/              conformance kit for emitters: cases, expected grids, docs
 docs/                     Quarto documentation site
 harness/                  pinned renderer toolchain + goldens for visual tests
 ```
@@ -162,7 +167,7 @@ number, boolean, or date) that travels alongside the human-readable `content`, s
 value-aware targets (Excel cells, sortable HTML) can use the real value while every
 other target uses the pre-formatted text.
 
-> A secondary, planned mode lifts existing **HTML+CSS** (the kind that Great Tables/gt
+> A secondary mode, planned for after 0.1, would lift existing **HTML+CSS** (the kind that Great Tables/gt
 > already produce) back into the IR, enabling format conversion without upstream
 > changes.
 
@@ -171,7 +176,7 @@ other target uses the pre-formatted text.
 | Surface | How |
 |---|---|
 | **Rust** | the `gridwell` crate: `gridwell::Table::from_json`, then `gridwell::render(&table, "html", None)` or `gridwell::save`; one cargo feature per format |
-| **CLI** | `gridwell convert -t <format> [input] [-o out]`, `gridwell validate`, `gridwell formats` |
+| **CLI** | `gridwell convert -t <format> [input] [-o out]`, `gridwell validate`, `gridwell formats`, `gridwell conformance` |
 | **Python** | PyO3 module built with maturin: `gridwell.Table(ir_or_gt)`, shown as HTML in notebooks |
 | **R** | extendr wrapper: `gw_*` functions taking a `gw_table`, gt table or IR JSON; prints in the console, knits into R Markdown and Quarto |
 
@@ -194,7 +199,7 @@ The same example corpus (defined once in `gridwell-testkit`) feeds two layers:
 snapshot; the committed `.snap` files are the accepted baseline, reviewed with
 `cargo insta review`.
 - **Visual harness**: `cargo xtask gallery` renders each example to each format,
-rasterizes to PNGs, and builds a browsable gallery; a perceptual image diff gates a
+rasterizes to PNGs, and builds a browsable gallery; a perceptual image diff gates
 every rasterized format (HTML, SVG, Typst, LaTeX, RTF, DOCX, XLSX, PPTX) against committed goldens produced in a pinned
 Docker toolchain.
 
