@@ -111,21 +111,25 @@ Supported output formats:
     latex    LaTeX tabular / longtable (booktabs) (.tex)
     typst    Typst table markup (.typ)
     rtf      Rich Text Format (.rtf)
-    svg      SVG image (standalone, measured layout) (.svg)
-    ansi     Terminal output with box drawing and ANSI colors (.txt)
-    pandoc   Pandoc JSON AST (Table block) (.json)
-    quarto   Quarto-flavored Pandoc JSON AST (cross-referenceable Div) (.json)
+    svg      SVG image (standalone, measured layout) (.svg, experimental)
+    ansi     Terminal output with box drawing and ANSI colors (.txt, experimental)
+    pandoc   Pandoc JSON AST (Table block) (.json, experimental)
+    quarto   Quarto-flavored Pandoc JSON AST (cross-referenceable Div) (.json, experimental)
 
   Binary formats:
     docx     Microsoft Word document (.docx)
     xlsx     Microsoft Excel workbook (.xlsx)
-    pptx     Microsoft PowerPoint slide (.pptx)
+    pptx     Microsoft PowerPoint slide (.pptx, experimental)
 
+Experimental formats write valid output with every cell, but their styling
+is best-effort and may change between releases.
 Pass writer options with --options '<JSON>'; see `gridwell formats --json`.
 ```
 
 `gridwell formats --json` prints the same list as JSON, including each format's
-extension, media type, and [options](writer-options.qmd) with their defaults.
+extension, media type, whether it is
+[experimental](output-formats.qmd#experimental-formats), and
+[options](writer-options.qmd) with their defaults.
 
 ### `gridwell conformance`
 
