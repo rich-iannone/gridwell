@@ -63,7 +63,7 @@ external renderer:
 | Format(s)                     | Rasterizer            |
 |-------------------------------|-----------------------|
 | HTML                          | headless Chromium     |
-| SVG                           | resvg                 |
+| SVG                           | headless Chromium     |
 | Typst                         | `typst compile`       |
 | LaTeX                         | xelatex → pdftoppm    |
 | RTF, DOCX, XLSX, PPTX         | LibreOffice → pdftoppm|
@@ -80,7 +80,11 @@ Rendering details that keep previews faithful:
 - **Typst** renders on an auto-width page, except when `columns:` uses `fr` or `%`.
   On an auto-width page those collapse to zero width, so such tables get a 16cm
   page, as in a real document.
-- **SVG** is rasterized on white, like the other formats.
+- **SVG** is opened as a file in headless Chromium, as a browser shows it, in the
+  same windows as HTML, and drawn on white like the other formats. A browser
+  draws color emoji and honors `textLength`; librsvg does neither (it stays in the
+  image for the SVG writer's width calibration, which needs a viewer that ignores
+  `textLength`).
 - Images in the corpus are embedded `data:` URIs, since renderers run offline.
 
 ## gt vs gridwell HTML (report only)
