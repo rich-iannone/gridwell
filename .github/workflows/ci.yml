@@ -74,6 +74,8 @@ jobs:
           echo "GRIDWELL_REQUIRE_TYPST=1" >> "$GITHUB_ENV"
           echo "GRIDWELL_REQUIRE_RSVG=1" >> "$GITHUB_ENV"
           echo "GRIDWELL_REQUIRE_ROBOTO=1" >> "$GITHUB_ENV"
+          # The runner image's Google Chrome: the harness's SVG previews.
+          echo "GRIDWELL_REQUIRE_CHROMIUM=1" >> "$GITHUB_ENV"
 
       # Unit/validation tests, 594 writer snapshots, span stress, CLI end-to-end,
       # FFI (Rust-side, generated-header drift, C/C++/ASan smoke), Typst oracles.
