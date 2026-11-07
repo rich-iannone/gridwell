@@ -17,19 +17,23 @@ renders it to many output formats. It serves as a universal table rendering back
 
 ## Supported Formats
 
-| Format | Type   | Description                                   |
-|--------|--------|-----------------------------------------------|
-| HTML   | Text   | HTML5 table                                   |
-| LaTeX  | Text   | `tabular` or `longtable`, with booktabs rules |
-| Typst  | Text   | Typst table markup                            |
-| RTF    | Text   | Rich Text Format                              |
-| SVG    | Text   | Standalone SVG image, with a measured layout  |
-| ANSI   | Text   | Terminal output with box drawing and color    |
-| Pandoc | Text   | Pandoc JSON AST (a Table block)               |
-| Quarto | Text   | Quarto-flavored Pandoc JSON AST (a cross-referenceable Div) |
-| DOCX   | Binary | Microsoft Word document                       |
-| XLSX   | Binary | Microsoft Excel workbook                      |
-| PPTX   | Binary | Microsoft PowerPoint slide                    |
+| Format | Type   | Description | Status |
+|--------|--------|-------------|--------|
+| HTML   | Text   | HTML5 table | Stable |
+| LaTeX  | Text   | `tabular` or `longtable`, with booktabs rules | Stable |
+| Typst  | Text   | Typst table markup | Stable |
+| RTF    | Text   | Rich Text Format | Stable |
+| SVG    | Text   | Standalone SVG image, with a measured layout | Experimental |
+| ANSI   | Text   | Terminal output with box drawing and color | Experimental |
+| Pandoc | Text   | Pandoc JSON AST (a Table block) | Experimental |
+| Quarto | Text   | Quarto-flavored Pandoc JSON AST (a cross-referenceable Div) | Experimental |
+| DOCX   | Binary | Microsoft Word document | Stable |
+| XLSX   | Binary | Microsoft Excel workbook | Stable |
+| PPTX   | Binary | Microsoft PowerPoint slide | Experimental |
+
+An experimental format's output is valid and has every cell, but its styling is
+best-effort and may change between releases: see
+[Output Formats](guide/output-formats.qmd#experimental-formats).
 
 ## How It Works
 

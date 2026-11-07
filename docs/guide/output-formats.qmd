@@ -3,12 +3,23 @@ title: "Output Formats"
 ---
 
 Gridwell renders the table IR to 11 output formats, split into text (returns a string) and
-binary (returns bytes). Which styling features each Tier-1 writer (HTML, LaTeX, Typst,
+binary (returns bytes). Which styling features each stable writer (HTML, LaTeX, Typst,
 RTF, DOCX, XLSX) actually expresses is measured, not claimed: see the
 [Feature Matrix](feature-matrix.qmd). Where a format can't express a feature a table
 uses (the notes below say which), you can ask for a
 [warning](../schema/validation.qmd#warnings) saying where before rendering, and
 `gridwell convert` prints one.
+
+## Experimental formats
+
+SVG, ANSI, Pandoc, Quarto and PPTX are **experimental**. Their output is valid, with
+every cell where the table puts it: like the stable formats' output, it is read back
+as a grid, spans and hidden columns included, and compared with the table's. But
+their styling is best-effort, and how a table looks in them may change between
+releases. The other six formats are stable. Which formats are experimental is in the format list:
+`gridwell formats` marks them, and the `experimental` field of
+`gridwell formats --json`, `gridwell.formats()` (Python) and `gw_formats()` (R) is
+true for them.
 
 Two styles are CSS values that other formats translate:
 
@@ -310,6 +321,8 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 
 ### SVG
 
+*Experimental: styling is best-effort and may change between releases (see [above](#experimental-formats)).*
+
 - Standalone SVG image, self-contained (no external dependencies)
 - The same default look as HTML (gt's rules, padding, sizes and text color, from one
   shared spec), drawn by gridwell's own layout: the table's styles (fills, bold,
@@ -326,6 +339,8 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 
 ### ANSI (Terminal)
 
+*Experimental: styling is best-effort and may change between releases (see [above](#experimental-formats)).*
+
 - Box-drawing characters for borders (Unicode); rules run unbroken over and under cells
   that span columns
 - Footnote marks as Unicode superscripts, in cells and in the notes below
@@ -337,6 +352,8 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 
 ### Pandoc
 
+*Experimental: styling is best-effort and may change between releases (see [above](#experimental-formats)).*
+
 - One Pandoc JSON AST block, a `Table`, not a whole document
 - Bold, italic, underline and strike-through as `Strong`, `Emph`, `Underline` and
   `Strikeout`, footnote marks as `Superscript`, line breaks, images, raw HTML as
@@ -347,6 +364,8 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   gridwell's tests read it back with)
 
 ### Quarto
+
+*Experimental: styling is best-effort and may change between releases (see [above](#experimental-formats)).*
 
 - The Pandoc format's `Table` block, for Quarto's Pandoc-based pipeline, in a `Div`
   with the classes `quarto-table` and `cell-output-display`
@@ -418,6 +437,8 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   left unstated
 
 ### PPTX (Microsoft PowerPoint)
+
+*Experimental: styling is best-effort and may change between releases (see [above](#experimental-formats)).*
 
 - DrawingML table (`<a:tbl>`) in a slide shape
 - Grid-based spans with `gridSpan`/`rowSpan` attributes
