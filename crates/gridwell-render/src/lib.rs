@@ -159,6 +159,11 @@ pub trait Writer: Send + Sync {
     fn extension(&self) -> &'static str;
     /// The IANA media type (or the conventional one where none is registered).
     fn media_type(&self) -> &'static str;
+    /// Whether the format is experimental. Its output is valid and has every cell,
+    /// but it isn't held to the feature matrix: styling is best-effort, and how the
+    /// table looks may change between releases. (SVG, ANSI, Pandoc, Quarto and
+    /// PPTX, for now.)
+    fn experimental(&self) -> bool;
     /// The options this format accepts, with their default values (an empty object
     /// for formats without options).
     fn default_options(&self) -> Value;
