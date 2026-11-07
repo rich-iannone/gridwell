@@ -276,41 +276,200 @@ fn text_and_binary_entry_points_check_the_kind() {
     ));
 }
 
-#[test]
-fn every_option_is_documented() {
+/// Whether `value` is of the documented `kind`, as the options tables write it.
+fn of_kind(kind: &str, value: &Value) -> Option<bool> {
+    Some(match kind {
+        "boolean" => value.is_boolean(),
+        "string" => value.is_string(),
+        "number" => value.is_number(),
+        "integer" => value.is_u64() || value.is_i64(),
+        "string or `null`" => value.is_string() || value.is_null(),
+        "integer or `null`" => value.is_u64() || value.is_i64() || value.is_null(),
+        "list of `[key, value]` pairs" => value.as_array().is_some_and(|pairs| {
+            pairs.iter().all(|p| {
+                p.as_array()
+                    .is_some_and(|kv| kv.len() == 2 && kv.iter().all(Value::is_string))
+            })
+        }),
+        _ => return None,
+    })
+}
+
+/// The options page against the registry: a section per format with options whose
+/// rows are exactly its options, each with its real default and a type that fits it,
+/// and a sentence naming exactly the formats without options.
+fn option_doc_problems(doc: &str) -> Vec<String> {
+    let doc = doc.replace("\r\n", "\n");
+    let mut problems = Vec::new();
+    let mut without = Vec::new();
+    for w in REGISTRY {
+        let name = w.name();
+        let defaults = w.default_options();
+        let fields = defaults.as_object().unwrap();
+        let heading = format!("### `{name}`");
+        let section = doc
+            .split(&heading)
+            .nth(1)
+            .map(|s| s.split("\n### ").next().unwrap());
+        if fields.is_empty() {
+            without.push(name);
+            if section.is_some() {
+                problems.push(format!("{name} has no options but has a section"));
+            }
+            continue;
+        }
+        let Some(section) = section else {
+            problems.push(format!("no section for {name}"));
+            continue;
+        };
+        let mut documented = Vec::new();
+        for line in section.lines().filter(|l| l.starts_with("| `")) {
+            let cells: Vec<_> = line.trim_matches('|').split(" | ").map(str::trim).collect();
+            let [option, kind, default, _meaning] = cells[..] else {
+                problems.push(format!("{name}: malformed row {line:?}"));
+                continue;
+            };
+            let option = option.trim_matches('`');
+            documented.push(option.to_string());
+            let Some(actual) = fields.get(option) else {
+                problems.push(format!("{name}: documents unknown option {option}"));
+                continue;
+            };
+            match serde_json::from_str::<Value>(default.trim_matches('`')) {
+                Ok(shown) if &shown == actual => {}
+                // `16` for 16.0: JSON doesn't tell them apart.
+                Ok(shown) if shown.is_number() && shown.as_f64() == actual.as_f64() => {}
+                _ => problems.push(format!(
+                    "{name}: {option}'s default is shown as {default} but is {actual}"
+                )),
+            }
+            match of_kind(kind, actual) {
+                Some(true) => {}
+                Some(false) => problems.push(format!(
+                    "{name}: {option} is documented as {kind} but its default is {actual}"
+                )),
+                None => problems.push(format!("{name}: {option} has unknown type {kind:?}")),
+            }
+            // The default, given explicitly, is accepted.
+            let explicit = json!({ option: actual });
+            if let Err(e) = render(&table(), name, Some(&explicit)) {
+                problems.push(format!("{name}: {explicit} is rejected: {e}"));
+            }
+        }
+        let mut expected: Vec<_> = fields.keys().cloned().collect();
+        let mut sorted = documented.clone();
+        sorted.sort();
+        expected.sort();
+        if sorted != expected {
+            problems.push(format!(
+                "{name}: documents options {documented:?}, but has {expected:?}"
+            ));
+        }
+    }
+    // "RTF, Pandoc, DOCX, XLSX and PPTX have no options"
+    let named: Vec<String> = doc
+        .lines()
+        .find_map(|l| {
+            l.split(" have no options")
+                .next()
+                .filter(|_| l.contains(" have no options"))
+        })
+        .map(|list| {
+            list.replace(" and ", ", ")
+                .split(", ")
+                .map(|n| n.trim().to_ascii_lowercase())
+                .collect()
+        })
+        .unwrap_or_default();
+    if named != without {
+        problems.push(format!(
+            "the page says {named:?} have no options, but {without:?} don't"
+        ));
+    }
+    problems
+}
+
+fn writer_options_page() -> String {
     let path = concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/../../docs/guide/writer-options.qmd"
     );
-    let doc = std::fs::read_to_string(path).unwrap();
-    for w in REGISTRY {
-        let defaults = w.default_options();
-        let fields = defaults.as_object().unwrap();
-        if fields.is_empty() {
-            continue;
-        }
-        let section = doc
-            .split(&format!("### `{}`", w.name()))
-            .nth(1)
-            .unwrap_or_else(|| panic!("no section for {}", w.name()));
-        let section = section.split("\n### ").next().unwrap();
-        for name in fields.keys() {
-            assert!(
-                section.contains(&format!("| `{name}` |")),
-                "{}: option {name} is not documented",
-                w.name()
-            );
-        }
-        // And nothing documented that the format doesn't have.
-        for line in section.lines().filter(|l| l.starts_with("| `")) {
-            let name = line.split('`').nth(1).unwrap();
-            assert!(
-                fields.contains_key(name),
-                "{}: documents unknown option {name}",
-                w.name()
-            );
-        }
+    std::fs::read_to_string(path).unwrap()
+}
+
+#[test]
+fn every_option_is_documented() {
+    let problems = option_doc_problems(&writer_options_page());
+    assert!(
+        problems.is_empty(),
+        "writer-options.qmd:\n{}",
+        problems.join("\n")
+    );
+}
+
+/// Planted bugs: each wrong options page must be caught.
+#[test]
+fn the_options_check_catches_wrong_pages() {
+    let doc = writer_options_page();
+    let plants: &[(&str, &str, &str)] = &[
+        // A wrong default.
+        (
+            "| `font_size` | number | `16` |",
+            "| `font_size` | number | `14` |",
+            "default is shown as `14`",
+        ),
+        // A default that isn't JSON.
+        (
+            "| `class_prefix` | string | `\"gw\"` |",
+            "| `class_prefix` | string | `gw` |",
+            "default is shown as `gw`",
+        ),
+        // A wrong type.
+        (
+            "| `max_width` | integer |",
+            "| `max_width` | boolean |",
+            "documented as boolean",
+        ),
+        // A type the check doesn't know.
+        (
+            "| `max_width` | integer |",
+            "| `max_width` | int |",
+            "unknown type \"int\"",
+        ),
+        // A missing option.
+        (
+            "| `color` | boolean |",
+            "| `colour` | boolean |",
+            "documents unknown option colour",
+        ),
+        // A dropped row.
+        (
+            "| `repeat_header` | boolean | `true` |",
+            "| repeat_header | boolean | `true` |",
+            "documents options []",
+        ),
+        // A missing section.
+        ("### `typst`", "### Typst", "no section for typst"),
+        // A wrong "no options" sentence.
+        (
+            "RTF, Pandoc, DOCX, XLSX and PPTX",
+            "RTF, Pandoc, DOCX and XLSX",
+            "have no options, but",
+        ),
+    ];
+    for (from, to, expected) in plants {
+        assert!(doc.contains(from), "plant {from:?} no longer applies");
+        let problems = option_doc_problems(&doc.replacen(from, to, 1));
+        assert!(
+            problems.iter().any(|p| p.contains(expected)),
+            "plant {to:?} not caught as {expected:?}: {problems:?}"
+        );
     }
+    // A section for a format without options.
+    let extra = format!("{doc}\n### `rtf`\n\n| Option | Type | Default | Meaning |\n");
+    assert!(option_doc_problems(&extra)
+        .iter()
+        .any(|p| p == "rtf has no options but has a section"));
 }
 
 #[test]
