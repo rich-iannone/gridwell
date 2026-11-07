@@ -1,0 +1,130 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 3,
+    "header_rows": 1,
+    "body_rows": 2
+  },
+  "styles": {},
+  "column_spec": [
+    {
+      "id": "a"
+    },
+    {
+      "id": "b"
+    },
+    {
+      "id": "c"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "A"
+                }
+              ]
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "B"
+                }
+              ]
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "C"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1"
+                  }
+                ]
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2"
+                  }
+                ]
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "3"
+                  }
+                ]
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "rows": [
+          {
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "5"
+                  }
+                ]
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "6"
+                  }
+                ]
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "7"
+                  }
+                ],
+                "colspan": 2
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
