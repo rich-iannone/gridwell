@@ -4,40 +4,61 @@ title: "Styles"
 
 Styles are defined once in a palette and referenced by ID.
 
-## Structure
+## The palette
 
 ```json
 {
   "styles": {
-    "defs": { "<style_id>": StyleDef, ... },
-    "compositions": { "<comp_id>": { "extends": "base", "overrides": {...} } },
-    "conditionals": [ConditionalRule, ...]
+    "defs": { "header_bold": { "font_weight": "bold" } },
+    "compositions": { "header_right": { "extends": "header_bold", "overrides": { "text_align": "right" } } },
+    "conditionals": [{ "id": "stripe", "selector": { "row_parity": "even" }, "style": { "background_color": "#FAFAFA" } }]
   }
 }
 ```
 
+<!-- ir-fields: StylePalette -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `defs` | map of StyleDef | `{}` | Style definitions, by style id |
+| `compositions` | map of StyleComposition | `{}` | Compositions, by style id ([below](#compositions)) |
+| `conditionals` | array of ConditionalStyle | `[]` | Styles for the rows a selector matches ([below](#conditional-styles)) |
+
+A style id is a key of `defs` or `compositions`.
+
 ## Style Definition Fields
 
 All fields are optional; specify only what you need. Keyword fields accept the values
-listed in [Keyword values](validation.qmd#keyword-values); anything else is reported as
-`UNKNOWN_VALUE`.
+listed in [Keyword values](validation.qmd#keyword-values), lengths the forms in
+[Lengths](validation.qmd#lengths) and colors those in [Colors](validation.qmd#colors);
+anything else fails validation.
 
-| Field              | Type    | Description                    |
-|--------------------|---------|--------------------------------|
-| `font_weight`      | string or number | `"normal"`, `"bold"`, `"bolder"`, `"lighter"`, or 1–1000 |
-| `font_style`       | string  | `"normal"`, `"italic"`, `"oblique"` |
-| `font_size`        | string  | CSS font-size value            |
-| `font_family`      | string  | CSS font list (`"Georgia, serif"`) |
-| `color`            | string  | Text color                     |
-| `background_color` | string  | Background color               |
-| `text_align`       | string  | `"left"`, `"center"`, `"right"`, `"justify"` |
-| `vertical_align`   | string  | `"top"`, `"middle"`, `"bottom"`, `"baseline"`, `"super"`, `"sub"` |
-| `text_decoration`  | string  | `"none"`, `"underline"`, etc.  |
-| `text_transform`   | string  | `"none"`, `"uppercase"`, `"lowercase"`, `"capitalize"` |
-| `white_space`      | string  | CSS white-space value          |
-| `padding`          | object  | `{ top, right, bottom, left }` |
-| `border`           | object  | `{ top, right, bottom, left }` |
-| `indent`           | string  | Text indent value              |
+<!-- ir-fields: StyleDef -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `font_family` | string? | `null` | CSS font list (`"Georgia, serif"`) |
+| `font_size` | length? | `null` | A length or a CSS size keyword (`small`, `larger`, …) |
+| `font_weight` | keyword or number? | `null` | `"normal"`, `"bold"`, `"bolder"`, `"lighter"`, or 1–1000 (string or number) |
+| `font_style` | keyword? | `null` | `"normal"`, `"italic"`, `"oblique"` |
+| `color` | color? | `null` | Text color |
+| `background_color` | color? | `null` | Background color |
+| `text_align` | keyword? | `null` | `"left"`, `"center"`, `"right"`, `"justify"`, `"char"` |
+| `vertical_align` | keyword? | `null` | `"top"`, `"middle"`, `"bottom"`, `"baseline"`, `"super"`, `"sub"` |
+| `text_transform` | keyword? | `null` | `"none"`, `"uppercase"`, `"lowercase"`, `"capitalize"` |
+| `text_decoration` | keyword? | `null` | `"none"`, `"underline"`, `"overline"`, `"line-through"` |
+| `white_space` | keyword? | `null` | `"normal"`, `"nowrap"`, `"pre"`, `"pre-wrap"`, `"pre-line"`, `"break-spaces"` |
+| `padding` | Padding? | `null` | Space inside the cell, by side ([below](#padding)) |
+| `border` | BorderSet? | `null` | The cell's borders, by side ([below](#borders)) |
+| `indent` | length? | `null` | Indent of the first line (may be negative) |
+| `word_break` | keyword? | `null` | `"normal"`, `"break-all"`, `"keep-all"`, `"break-word"` |
+| `overflow` | keyword? | `null` | `"visible"`, `"hidden"`, `"clip"`, `"scroll"`, `"auto"` |
+| `text_overflow` | keyword? | `null` | `"clip"`, `"ellipsis"` |
+| `min_width` | length? | `null` | The least the cell is wide |
+| `max_width` | length? | `null` | The most the cell is wide |
+
+What each format does with each property is in the
+[Feature Matrix](../guide/feature-matrix.qmd).
 
 Outside HTML, `"baseline"`, `"super"` and `"sub"` place a cell's content at the top:
 in a table cell they line up the first lines of a row's cells, which is where top
@@ -47,13 +68,37 @@ alignment puts them when the cells share a font size. LaTeX output doesn't write
 How formats other than HTML write `font_family` and `text_transform` is described in
 [Output Formats](../guide/output-formats.qmd).
 
-### Border Side
+### Padding
 
-| Field   | Type   | Description                                                    |
-|---------|--------|----------------------------------------------------------------|
-| `width` | string | Border width (e.g. `"1px"`)                                    |
-| `style` | string | `"solid"`, `"dashed"`, `"dotted"`, `"double"`, `"none"`        |
-| `color` | string | Border color                                                   |
+<!-- ir-fields: Padding -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `top` | length? | `null` | Padding above the content |
+| `right` | length? | `null` | Padding to its right |
+| `bottom` | length? | `null` | Padding below it |
+| `left` | length? | `null` | Padding to its left |
+
+### Borders
+
+<!-- ir-fields: BorderSet -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `top` | Border? | `null` | The top border |
+| `right` | Border? | `null` | The right border |
+| `bottom` | Border? | `null` | The bottom border |
+| `left` | Border? | `null` | The left border |
+
+Each side is a border:
+
+<!-- ir-fields: Border -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `width` | length? | `null` | Border width (`"1px"`) |
+| `style` | keyword? | `null` | `"none"`, `"hidden"`, `"solid"`, `"dashed"`, `"dotted"`, `"double"` |
+| `color` | color? | `null` | Border color |
 
 ## Example
 
@@ -108,8 +153,37 @@ allowed set) are ignored, so they never reach any output.
 
 A style id is a non-empty name of ASCII letters, digits, `_` and `-` (anything else
 fails validation with `INVALID_STYLE_ID`): writers put ids into markup, such as HTML
-class names. A style id can name a definition or a composition. A composition is its `extends`
-definition with `overrides` laid over it; compositions don't chain.
+class names. A style id can name a definition or a composition, but not both
+(`DUPLICATE_ID`).
+
+### Compositions
+
+A composition is its `extends` definition with `overrides` laid over it;
+compositions don't chain.
+
+<!-- ir-fields: StyleComposition -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `extends` | string | required | The id of the definition (in `defs`, not a composition) it starts from (`STYLE_REFS_VALID` otherwise) |
+| `overrides` | StyleDef | `{}` | The properties it sets in place of the definition's |
+
+### Conditional styles
+
+<!-- ir-fields: ConditionalStyle -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `id` | string | required | The conditional style's id |
+| `selector` | ConditionalSelector | required | The rows it applies to (`{}` for every row) |
+| `style` | StyleDef | required | The properties it sets on their cells |
+
+<!-- ir-fields: ConditionalSelector -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `row_parity` | keyword? | `null` | `"odd"` or `"even"`: every other row ([below](#conditional-selectors)) |
+| `scope` | keyword? | `null` | `"tbody"`, `"thead"` or `"table"`: the rows it applies to |
 
 ### Conditional selectors
 

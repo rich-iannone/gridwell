@@ -1,0 +1,45 @@
+---
+title: "Header"
+---
+
+The optional `header` block holds the lines above the table: a title, a subtitle, and
+any number of extra lines, in that order.
+
+## Structure
+
+```json
+{
+  "header": {
+    "title": { "content": [{ "type": "text", "value": "Regional Sales" }] },
+    "subtitle": { "content": [{ "type": "text", "value": "Fiscal year 2024" }] },
+    "extra_lines": [
+      { "content": [{ "type": "text", "value": "Preliminary figures" }], "style_id": "note" }
+    ]
+  }
+}
+```
+
+## Fields
+
+<!-- ir-fields: Header -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `title` | HeaderLine? | `null` | The title |
+| `subtitle` | HeaderLine? | `null` | The subtitle, below the title |
+| `extra_lines` | array of HeaderLine | `[]` | More lines below the subtitle, in order |
+| `preheader_content` | any? | `null` | Anything a producer wants to carry along with the header. No writer reads it, and it round-trips unchanged |
+
+### Header lines
+
+<!-- ir-fields: HeaderLine -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `content` | array of [content nodes](index.qmd#content-nodes) | required | The line's content |
+| `style_id` | string? | `null` | The line's style |
+
+A line's content may hold footnote marks; they must refer to a defined footnote
+(`FOOTNOTE_REFS_VALID`). In HTML the title names the table for screen readers
+(`aria-labelledby`) and the subtitle describes it (`aria-describedby`), unless
+`config.aria_label`, `config.summary` or `config.aria_describedby` says otherwise.

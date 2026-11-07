@@ -15,6 +15,13 @@ The `footer` block contains footnotes and source notes displayed below the table
 }
 ```
 
+<!-- ir-fields: Footer -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `footnotes` | array of Footnote | `[]` | The footnotes, in order |
+| `source_notes` | array of SourceNote | `[]` | The source notes, below the footnotes |
+
 ## Footnotes
 
 Footnotes are referenced from cells via `footnote_mark` content nodes.
@@ -32,12 +39,14 @@ Footnotes are referenced from cells via `footnote_mark` content nodes.
 }
 ```
 
-| Field     | Type    | Description                             |
-|-----------|---------|------------------------------------------|
-| `id`      | string  | Unique identifier (referenced by cells)  |
-| `mark`    | string  | Display mark (`"1"`, `"*"`, `"†"`)       |
-| `content` | array   | Array of ContentNode                     |
-| `style_id`| string? | Style reference                          |
+<!-- ir-fields: Footnote -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `id` | string | required | The footnote's id, which `footnote_mark` nodes refer to (`ref`). Each footnote has its own (`DUPLICATE_ID` otherwise) |
+| `mark` | string | required | The mark shown before the note (`"1"`, `"*"`, `"†"`) |
+| `content` | array of [content nodes](index.qmd#content-nodes) | required | The note |
+| `style_id` | string? | `null` | The note's style |
 
 ### Referencing from Cells
 
@@ -68,7 +77,9 @@ Source notes provide attribution for the entire table.
 }
 ```
 
-| Field     | Type    | Description                   |
-|-----------|---------|-------------------------------|
-| `content` | array   | Array of ContentNode          |
-| `style_id`| string? | Style reference               |
+<!-- ir-fields: SourceNote -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `content` | array of [content nodes](index.qmd#content-nodes) | required | The note |
+| `style_id` | string? | `null` | The note's style |

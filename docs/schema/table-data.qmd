@@ -10,10 +10,20 @@ The `table` block contains the actual table data, split into `thead` and `tbody`
 {
   "table": {
     "thead": { "rows": [...] },
-    "tbody": [RowGroup, ...]
+    "tbody": [
+      { "rows": [...] },
+      { "rows": [...] }
+    ]
   }
 }
 ```
+
+<!-- ir-fields: TableBlock -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `thead` | TableHead | required | The column labels |
+| `tbody` | array of RowGroup | required | The body, as row groups ([below](#tbody-row-groups)) |
 
 ## thead
 
@@ -35,9 +45,16 @@ The `table` block contains the actual table data, split into `thead` and `tbody`
 }
 ```
 
+<!-- ir-fields: TableHead -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `rows` | array of [Row](#row-fields) | required | `config.header_rows` rows: spanner labels above the column labels |
+
 ## tbody (Row Groups)
 
-The body is an array of row groups. Each group has a label, data rows, and optional summary rows.
+The body is an array of row groups. Each group has an optional label, data rows, and
+optional summary rows. A table without groups puts its rows in one group with no label.
 
 ```json
 {
@@ -45,8 +62,7 @@ The body is an array of row groups. Each group has a label, data rows, and optio
     "group_id": "grp_1",
     "label": {
       "content": [{ "type": "text", "value": "North America" }],
-      "style_id": null,
-      "colspan": null
+      "style_id": null
     },
     "rows": [{ "role": null, "cells": [...] }],
     "summary_rows": []
@@ -54,33 +70,64 @@ The body is an array of row groups. Each group has a label, data rows, and optio
 }
 ```
 
+<!-- ir-fields: RowGroup -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `group_id` | string? | `null` | The group's id; HTML makes element ids from it (else from the label) |
+| `label` | GroupLabel? | `null` | A line above the group's rows, across the table |
+| `rows` | array of [Row](#row-fields) | required | The data rows |
+| `summary_rows` | array of [Row](#row-fields) | `[]` | Summary rows, below the data rows (they need a stub column, `SUMMARY_REQUIRES_STUB`) |
+
+### Group labels
+
+<!-- ir-fields: GroupLabel -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `content` | array of [content nodes](index.qmd#content-nodes) | required | The label |
+| `style_id` | string? | `null` | The label's style |
+| `colspan` | integer? | `null` | Kept for producers, but not read: a group label always spans the whole (visible) table |
+
 ## Row Fields
 
-| Field      | Type    | Required | Description |
-|------------|---------|----------|-------------|
-| `cells`    | array   | Yes      | Exactly `config.table_cols` cells |
-| `role`     | string? | No       | `"column_label"` or `"spanner_label"` in `thead`; `"summary_row"` or `"grand_summary_row"` in a group's `summary_rows` |
-| `style_id` | string? | No       | Style applied to the whole row |
+<!-- ir-fields: Row -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `cells` | array of [Cell](#cell-fields) | required | Exactly `config.table_cols` cells, placeholders included |
+| `role` | keyword? | `null` | `"column_label"` or `"spanner_label"` in `thead`; `"summary_row"` or `"grand_summary_row"` in a group's `summary_rows`; `null` for a data row |
+| `style_id` | string? | `null` | A style for the whole row |
 
 ## Cell Fields
 
-| Field           | Type    | Required | Description                       |
-|-----------------|---------|----------|-----------------------------------|
-| `content`       | array   | Yes      | Array of ContentNode              |
-| `typed_value`   | object? | No       | Typed data value                  |
-| `colspan`       | integer | Yes      | Column span (≥ 1)                 |
-| `rowspan`       | integer | Yes      | Row span (≥ 1)                    |
-| `style_id`      | string? | No       | Style reference                   |
-| `is_stub`       | boolean | Yes      | Whether cell is a row label       |
-| `is_placeholder`| boolean | Yes      | Whether cell is a span placeholder|
-| `scope`         | string? | No       | `"col"`, `"row"`, `"colgroup"`, `"rowgroup"` |
-| `sort_key`      | any?    | No       | Sort value                        |
-| `data_type`     | string? | No       | Value type: `"string"`, `"number"`, `"integer"`, `"boolean"`, `"date"`, `"datetime"`, `"time"`, `"duration"` |
+<!-- ir-fields: Cell -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `content` | array of [content nodes](index.qmd#content-nodes) | required | What the cell shows (empty for a placeholder) |
+| `typed_value` | TypedValue? | `null` | The value behind the display ([below](#typed-values)) |
+| `colspan` | integer | `1` | Columns the cell spans (≥ 1) |
+| `rowspan` | integer | `1` | Rows the cell spans (≥ 1), within its section |
+| `style_id` | string? | `null` | The cell's style |
+| `is_stub` | boolean | `false` | The cell is a row label, in a stub column |
+| `is_placeholder` | boolean | `false` | The cell is a position another cell spans ([below](#spans-and-placeholders)) |
+| `scope` | keyword? | `null` | HTML: what a header cell labels, `"col"`, `"row"`, `"colgroup"` or `"rowgroup"` |
+| `sort_key` | any? | `null` | A value to sort the row by, for producers and tools. No writer reads it |
+| `data_type` | keyword? | `null` | The value's type, as in `typed_value.type`. No writer reads it |
 
 ## Typed Values
 
-`typed_value` is the value behind a cell's display, `{"type": …, "value": …}`, with a
-`type` from the `data_type` list. Writers that keep values (XLSX) read `value` as:
+`typed_value` is the value behind a cell's display, `{"type": …, "value": …}`.
+
+<!-- ir-fields: TypedValue -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `type` | keyword | required | `"string"`, `"number"`, `"integer"`, `"boolean"`, `"date"`, `"datetime"`, `"time"` or `"duration"` (aliases in [Keyword values](validation.qmd#keyword-values)) |
+| `value` | any | required | The value |
+
+Writers that keep values (XLSX) read `value` as:
 
 | `type`                 | `value`                                             |
 |------------------------|-----------------------------------------------------|
@@ -95,7 +142,7 @@ another form is kept as text.
 
 ```json
 { "content": [{"type": "text", "value": "Mar 15, 2024"}],
-  "typed_value": {"type": "date", "value": "2024-03-15"}, ... }
+  "typed_value": {"type": "date", "value": "2024-03-15"} }
 ```
 
 ## Spans and Placeholders
@@ -105,8 +152,8 @@ Cells with `colspan` or `rowspan` > 1 span multiple positions. Spanned-over posi
 
 ```json
 [
-  { "content": [{"type": "text", "value": "Wide"}], "colspan": 2, "is_placeholder": false, ... },
-  { "content": [], "colspan": 1, "is_placeholder": true, "is_stub": false, ... }
+  { "content": [{"type": "text", "value": "Wide"}], "colspan": 2 },
+  { "content": [], "is_placeholder": true }
 ]
 ```
 

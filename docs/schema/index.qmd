@@ -19,26 +19,32 @@ structure, content, and styling.
 ```json
 {
   "ir_version": "1.0",
-  "config": { },
-  "styles": { },
-  "header": { },
-  "column_spec": [ ],
-  "table": { },
-  "footer": { },
-  "extensions": { }
+  "config": {...},
+  "styles": {...},
+  "header": {...},
+  "column_spec": [...],
+  "table": {...},
+  "footer": {...},
+  "extensions": {...}
 }
 ```
 
-| Field         | Type     | Required | Description                            |
-|---------------|----------|----------|----------------------------------------|
-| `ir_version`  | string   | Yes      | Schema version (currently `"1.0"`)     |
-| `config`      | object   | Yes      | Table-level configuration              |
-| `styles`      | object   | Yes      | Style palette                          |
-| `header`      | object   | No       | Title, subtitle, extra header content  |
-| `column_spec` | array    | Yes      | Column definitions                     |
-| `table`       | object   | Yes      | Table data (thead + tbody)             |
-| `footer`      | object   | No       | Footnotes and source notes             |
-| `extensions`  | object   | No       | Arbitrary extension data               |
+<!-- ir-fields: Table -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `ir_version` | string | required | The IR version, `"1.0"` ([below](#versions)) |
+| `config` | [Config](config.qmd) | required | Table-level configuration |
+| `styles` | [StylePalette](styles.qmd#the-palette) | required | The style palette (`{}` for none) |
+| `header` | [Header](header.qmd)? | `null` | Title, subtitle and extra header lines |
+| `column_spec` | array of [ColumnSpec](columns.qmd) | required | One entry per column |
+| `table` | [TableBlock](table-data.qmd) | required | The column labels and the body |
+| `footer` | [Footer](footer.qmd)? | `null` | Footnotes and source notes |
+| `extensions` | any? | `null` | Anything a producer wants to carry along. No writer reads it, and it round-trips unchanged; namespace its keys (`"example.com/producer"`) |
+
+A field the IR doesn't have is ignored, so a table written for a newer minor version
+still parses. Validation rejects a table whose values are wrong, not one with extra
+fields.
 
 ## Versions
 
@@ -59,16 +65,23 @@ This gridwell reads IR 1:
 
 ## Content Nodes
 
-Cell content is an array of content nodes:
+Cell content is an array of content nodes, each an object whose `type` says which:
+
+<!-- ir-content-nodes -->
 
 | Type           | Fields              | Description                |
 |----------------|---------------------|----------------------------|
 | `text`         | `value`             | Plain text                 |
-| `styled_text`  | `value`, `style_id` | Text with a style applied  |
+| `styled_text`  | `value`, `style_id` | Text with a style applied (`style_id` may be `null`) |
 | `line_break`   | —                   | Line break within cell     |
-| `footnote_mark`| `ref`, `mark_text`  | Footnote reference mark    |
-| `image`        | `src`, `alt`, `width`, `height` | Inline image |
+| `footnote_mark`| `ref`, `mark_text`  | A footnote's mark: `ref` is the footnote's `id`, `mark_text` what is shown |
+| `image`        | `src`, `alt`, `width`, `height` | Inline image ([below](#images)); `alt`, `width` and `height` may be `null` |
 | `raw`          | `format`, `value`   | Markup for one format ([below](#raw-markup)) |
+
+Every field is required except those that may be `null`. A node of a `type` this
+gridwell doesn't know parses, so a newer minor version can add node types: it is
+drawn as nothing, and written back with all its fields when the IR is serialized
+again.
 
 ## Raw markup
 
@@ -109,6 +122,7 @@ compiler may reject the document.
 ## Sections
 
 - [Config](config.qmd) — table-level configuration
+- [Header](header.qmd) — title, subtitle and header lines
 - [Columns](columns.qmd) — column specification
 - [Table Data](table-data.qmd) — thead and tbody structure
 - [Styles](styles.qmd) — style palette and references

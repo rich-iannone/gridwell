@@ -6,27 +6,29 @@ The `config` block contains table-level metadata used for validation and renderi
 
 ## Fields
 
-| Field                        | Type    | Default   | Description                      |
-|------------------------------|---------|-----------|----------------------------------|
-| `table_cols`                 | integer | —         | Number of columns (required)     |
-| `header_rows`                | integer | —         | Number of header rows (required) |
-| `body_rows`                  | integer | —         | Number of body data rows (required) |
-| `stub_cols`                  | integer | 0         | Number of stub columns           |
-| `row_striping`               | boolean | false     | Enable alternating row colors    |
-| `row_striping_include_stub`  | boolean | false     | Include stub in striping         |
-| `row_striping_include_body`  | boolean | false     | Include body in striping         |
-| `column_labels_hidden`       | boolean | false     | Hide column header row           |
-| `table_width`                | string? | null      | Table width: a length, or a % of the line ([widths](columns.qmd#width-values)) |
-| `container_width`            | string? | null      | Container width                  |
-| `container_height`           | string? | null      | Container height                 |
-| `container_overflow`         | string? | null      | Overflow behavior                |
-| `locale`                     | string  | "en-US"   | Locale identifier                |
-| `lang`                       | string? | null      | The language of the table's text, a BCP 47 tag ([language and direction](#language-and-direction)) |
-| `dir`                        | string? | null      | `"ltr"`, `"rtl"` or `"auto"`: the direction its columns and text run in |
-| `page_break_mode`            | string  | "avoid"   | `"avoid"`, `"allow"`, `"force-between-groups"` |
-| `aria_label`                 | string? | null      | Accessibility label              |
-| `aria_describedby`           | string? | null      | Accessibility description ref    |
-| `summary`                    | string? | null      | Table summary / caption          |
+<!-- ir-fields: Config -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `table_cols` | integer | required | Number of columns |
+| `header_rows` | integer | `0` | Number of rows in `thead` |
+| `body_rows` | integer | `0` | Number of data rows across all row groups (summary rows not counted) |
+| `stub_cols` | integer | `0` | Number of stub (row label) columns, at the left |
+| `row_striping` | boolean | `false` | Stripe alternate data rows ([below](#row-striping)) |
+| `row_striping_include_stub` | boolean | `false` | Stripe the stub cells |
+| `row_striping_include_body` | boolean | `false` | Stripe the other cells |
+| `column_labels_hidden` | boolean | `false` | Leave out the column labels: every format draws an empty head |
+| `table_width` | length? | `null` | The table's width: a length, or a % of the line ([widths](columns.qmd#width-values)) |
+| `container_width` | length? | `null` | HTML: the most the container around the table is wide (`max-width`) |
+| `container_height` | length? | `null` | HTML: the most the container is high (`max-height`) |
+| `container_overflow` | keyword? | `null` | HTML: what the container does with a table that doesn't fit (`overflow`: `visible`, `hidden`, `clip`, `scroll` or `auto`) |
+| `locale` | string | `"en-US"` | The locale the producer formatted values in. HTML takes its document's `lang` from it when `lang` isn't set |
+| `lang` | string? | `null` | The language of the table's text, a BCP 47 tag ([language and direction](#language-and-direction)) |
+| `dir` | keyword? | `null` | `"ltr"`, `"rtl"` or `"auto"`: the direction its columns and text run in |
+| `page_break_mode` | keyword | `"avoid"` | `"avoid"`, `"allow"` or `"force-between-groups"`. Validated, but not yet read by any writer |
+| `aria_label` | string? | `null` | HTML: the table's accessible name (`aria-label`), in place of the title |
+| `aria_describedby` | string? | `null` | HTML: the ids of the elements that describe the table (`aria-describedby`), in place of the subtitle |
+| `summary` | string? | `null` | HTML: a `<caption>` for the table, which then names it in place of the title |
 
 ## Row striping
 
@@ -43,7 +45,7 @@ Formats without transparency show the stripe as it looks on white (`#F9F9F9`).
 `lang` is the language the table's text is in, as a BCP 47 tag (`"ar"`, `"fr-CA"`,
 `"zh-Hant-TW"`). It lets a format choose fonts, hyphenation and shaping for the text,
 and screen readers choose a voice. A value that isn't a well-formed tag is an
-[`INVALID_LANG`](validation.qmd#rules) error. Unlike `locale`, which only sets how
+[`INVALID_LANG`](validation.qmd#structural-rules) error. Unlike `locale`, which only sets how
 values were formatted, `lang` is written into the output.
 
 `dir` is the direction the table runs in. With `"rtl"`, the first column is on the
