@@ -147,28 +147,28 @@ fn every_keyword_field_reports_unknown_values() {
             Box::new(|v| v["styles"]["conditionals"][0]["style"]["font_weight"] = json!("1001")),
         ),
         (
-            "row role",
+            "the role of thead row 0",
             Box::new(|v| v["table"]["thead"]["rows"][0]["role"] = json!("header")),
         ),
         (
-            "cell scope",
+            "the scope of the cell at thead (row=0, col=1)",
             Box::new(|v| v["table"]["thead"]["rows"][0]["cells"][1]["scope"] = json!("column")),
         ),
         (
-            "typed_value.type",
+            "the typed_value.type of the cell at tbody group 0 (row=0, col=1)",
             Box::new(|v| {
                 v["table"]["tbody"][0]["rows"][0]["cells"][1]["typed_value"]["type"] =
                     json!("bignum")
             }),
         ),
         (
-            "cell data_type",
+            "the data_type of the cell at tbody group 0 (row=0, col=1)",
             Box::new(|v| {
                 v["table"]["tbody"][0]["rows"][0]["cells"][1]["data_type"] = json!("bignum")
             }),
         ),
         (
-            "row role",
+            "the role of tbody group 0 summary row 0",
             Box::new(|v| v["table"]["tbody"][0]["summary_rows"][0]["role"] = json!("subtotal")),
         ),
     ];
@@ -235,4 +235,20 @@ fn wrong_json_type_for_a_keyword_is_still_a_parse_error() {
     let mut v = base();
     v["column_spec"][0]["align"] = json!(42);
     assert!(Table::from_json(&v.to_string()).is_err());
+}
+
+#[test]
+fn aliases_parse_to_the_value_they_name() {
+    assert_eq!(
+        HAlign::ALIASES,
+        &[("start", "left"), ("centre", "center"), ("end", "right")]
+    );
+    for (alias, canon) in HAlign::ALIASES {
+        assert_eq!(HAlign::parse(alias).as_str(), *canon);
+        assert!(HAlign::ALLOWED.contains(canon));
+    }
+    for (alias, canon) in RowRole::ALIASES {
+        assert_eq!(RowRole::parse(alias).as_str(), *canon);
+    }
+    assert!(gridwell_ir::FontWeight::ALIASES.is_empty());
 }

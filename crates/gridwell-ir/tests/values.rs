@@ -236,7 +236,7 @@ fn length_fields() -> Vec<LengthField> {
             true,
         ),
         (
-            "label.content[0].width",
+            "content[0].width of the label of tbody group 0",
             at(&["table", "tbody", "0", "label", "content", "0", "width"]),
             false,
             true,
@@ -244,7 +244,7 @@ fn length_fields() -> Vec<LengthField> {
             true,
         ),
         (
-            "cell content[0].width",
+            "content[0].width of the cell at tbody group 0 (row=0, col=1)",
             at(&[
                 "table", "tbody", "0", "rows", "0", "cells", "1", "content", "0", "width",
             ]),
@@ -254,7 +254,7 @@ fn length_fields() -> Vec<LengthField> {
             true,
         ),
         (
-            "cell content[0].height",
+            "content[0].height of the cell at tbody group 0 summary (row=0, col=1)",
             at(&[
                 "table",
                 "tbody",
