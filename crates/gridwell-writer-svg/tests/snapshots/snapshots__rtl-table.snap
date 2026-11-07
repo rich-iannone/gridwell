@@ -38,26 +38,26 @@ expression: out
 <rect x="0" y="229.13" width="245.11" height="2" fill="#D3D3D3"/>
 <rect x="0" y="265.88" width="245.11" height="2" fill="#D3D3D3"/>
 <rect x="0" y="390.13" width="245.11" height="2" fill="#A8A8A8"/>
-<text x="122.56" y="24.55" font-size="20px" direction="rtl" text-anchor="middle" textLength="233.92" xml:space="preserve">المبيعات حسب البلد</text>
-<text x="122.56" y="49.05" font-size="13.6px" direction="rtl" text-anchor="middle" textLength="155.69" xml:space="preserve">بملايين الدولارات</text>
-<text x="61.76" y="79.22" font-size="16px" direction="rtl" text-anchor="middle" textLength="100.8" xml:space="preserve">الإيرادات</text>
-<text x="240.11" y="109.97" font-size="16px" direction="rtl" textLength="56" xml:space="preserve">البلد</text>
+<text x="122.56" y="24.55" font-size="20px" direction="rtl" text-anchor="middle" xml:space="preserve">المبيعات حسب البلد</text>
+<text x="122.56" y="49.05" font-size="13.6px" direction="rtl" text-anchor="middle" xml:space="preserve">بملايين الدولارات</text>
+<text x="61.76" y="79.22" font-size="16px" direction="rtl" text-anchor="middle" xml:space="preserve">الإيرادات</text>
+<text x="240.11" y="109.97" font-size="16px" direction="rtl" xml:space="preserve">البلد</text>
 <text x="73.94" y="109.97" font-size="16px" direction="rtl" text-anchor="end" textLength="35.97" xml:space="preserve">2023</text>
 <text x="5" y="109.97" font-size="16px" direction="rtl" text-anchor="end" textLength="35.97" xml:space="preserve">2024</text>
-<text x="240.11" y="181.47" font-size="16px" direction="rtl" textLength="89.6" xml:space="preserve">السعودية</text>
+<text x="240.11" y="181.47" font-size="16px" direction="rtl" xml:space="preserve">السعودية</text>
 <text x="73.94" y="181.47" font-size="16px" direction="rtl" text-anchor="end" textLength="40.19" xml:space="preserve">120.5</text>
 <text x="5" y="181.47" font-size="16px" direction="rtl" text-anchor="end" textLength="46.73" xml:space="preserve">131.2<tspan font-style="italic" font-size="12px" baseline-shift="4.8px">1</tspan></text>
-<text x="240.11" y="217.22" font-size="16px" direction="rtl" textLength="89.6" xml:space="preserve">الإمارات</text>
+<text x="240.11" y="217.22" font-size="16px" direction="rtl" xml:space="preserve">الإمارات</text>
 <text x="73.94" y="217.22" font-size="16px" direction="rtl" text-anchor="end" textLength="31.2" xml:space="preserve">98.1</text>
 <text x="5" y="217.22" font-size="16px" direction="rtl" text-anchor="end" textLength="40.19" xml:space="preserve">104.7</text>
-<text x="240.11" y="290.72" font-size="16px" direction="rtl" textLength="33.6" xml:space="preserve">مصر</text>
+<text x="240.11" y="290.72" font-size="16px" direction="rtl" xml:space="preserve">مصر</text>
 <text x="73.94" y="290.72" font-size="16px" direction="rtl" text-anchor="end" textLength="31.2" xml:space="preserve">75.3</text>
 <text x="5" y="290.72" font-size="16px" direction="rtl" text-anchor="end" textLength="31.2" xml:space="preserve">80.9</text>
-<text x="240.11" y="326.47" font-size="16px" direction="rtl" textLength="67.2" xml:space="preserve">المغرب</text>
+<text x="240.11" y="326.47" font-size="16px" direction="rtl" xml:space="preserve">المغرب</text>
 <text x="73.94" y="326.47" font-size="16px" direction="rtl" text-anchor="end" textLength="31.2" xml:space="preserve">40.2</text>
 <text x="5" y="326.47" font-size="16px" direction="rtl" text-anchor="end" textLength="31.2" xml:space="preserve">43.8</text>
-<text x="240.11" y="144.72" font-size="16px" direction="rtl" textLength="67.2" xml:space="preserve">الخليج</text>
-<text x="240.11" y="253.97" font-size="16px" direction="rtl" textLength="127.17" xml:space="preserve">شمال أفريقيا</text>
-<text x="240.11" y="357.73" font-size="14.4px" direction="rtl" textLength="137.75" xml:space="preserve"><tspan font-style="italic" font-size="10.8px" baseline-shift="4.32px">1</tspan><tspan font-style="italic"> </tspan>تقديرات أولية.</text>
-<text x="240.11" y="382.61" font-size="14.4px" direction="rtl" textLength="205.95" xml:space="preserve">المصدر: بيانات تجريبية.</text>
+<text x="240.11" y="144.72" font-size="16px" direction="rtl" xml:space="preserve">الخليج</text>
+<text x="240.11" y="253.97" font-size="16px" direction="rtl" xml:space="preserve">شمال أفريقيا</text>
+<text x="240.11" y="357.73" font-size="14.4px" direction="rtl" xml:space="preserve"><tspan font-style="italic" font-size="10.8px" baseline-shift="4.32px">1</tspan><tspan font-style="italic"> </tspan>تقديرات أولية.</text>
+<text x="240.11" y="382.61" font-size="14.4px" direction="rtl" xml:space="preserve">المصدر: بيانات تجريبية.</text>
 </svg>

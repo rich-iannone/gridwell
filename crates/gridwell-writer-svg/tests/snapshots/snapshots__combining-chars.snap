@@ -19,7 +19,7 @@ expression: out
 <text x="5" y="56.59" font-size="16px" textLength="75.41" xml:space="preserve">composed</text>
 <text x="108.74" y="56.59" font-size="16px" textLength="31.13" xml:space="preserve">café</text>
 <text x="5" y="92.34" font-size="16px" textLength="92.91" xml:space="preserve">decomposed</text>
-<text x="108.74" y="92.34" font-size="16px" textLength="31.13" xml:space="preserve">café</text>
+<text x="108.74" y="92.34" font-size="16px" xml:space="preserve">café</text>
 <text x="5" y="128.09" font-size="16px" textLength="56.19" xml:space="preserve">stacked</text>
-<text x="108.74" y="128.09" font-size="16px" textLength="8.7" xml:space="preserve">à́̂</text>
+<text x="108.74" y="128.09" font-size="16px" xml:space="preserve">à́̂</text>
 </svg>
