@@ -667,7 +667,7 @@ impl Normalizer<'_, '_> {
                     json!({ "image": img })
                 }
                 ContentNode::Raw { format, value } => json!({"raw": format, "text": value}),
-                ContentNode::Unknown => json!({"unknown": true}),
+                ContentNode::Unknown(_) => json!({"unknown": true}),
             };
             if run.get("text").and_then(Value::as_str) == Some("") && run.get("raw").is_none() {
                 continue;
