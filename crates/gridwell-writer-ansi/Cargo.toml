@@ -8,7 +8,7 @@ repository.workspace = true
 homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
-description = "ANSI terminal writer for gridwell: IR → Rich terminal output with box-drawing"
+description = "ANSI terminal writer for gridwell (experimental): IR → Rich terminal output with box-drawing"
 
 [dependencies]
 serde = { workspace = true }

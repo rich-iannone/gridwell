@@ -8,7 +8,7 @@ repository.workspace = true
 homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
-description = "SVG writer for gridwell: IR → self-contained SVG table image"
+description = "SVG writer for gridwell (experimental): IR → self-contained SVG table image"
 
 [dependencies]
 serde = { workspace = true }

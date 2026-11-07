@@ -8,7 +8,7 @@ repository.workspace = true
 homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
-description = "Pandoc AST JSON writer for gridwell: IR → Pandoc native table AST"
+description = "Pandoc AST JSON writer for gridwell (experimental): IR → Pandoc native table AST"
 
 [dependencies]
 gridwell-ir = { workspace = true }

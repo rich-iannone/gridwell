@@ -8,7 +8,7 @@ repository.workspace = true
 homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
-description = "Quarto AST writer for gridwell: IR → Quarto-flavored Pandoc AST JSON"
+description = "Quarto AST writer for gridwell (experimental): IR → Quarto-flavored Pandoc AST JSON"
 
 [dependencies]
 gridwell-ir = { workspace = true }
