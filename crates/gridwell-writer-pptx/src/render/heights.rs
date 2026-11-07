@@ -7,7 +7,7 @@
 
 use std::convert::Infallible;
 
-use gridwell_layout::measure::char_em;
+use gridwell_layout::measure::clusters;
 use gridwell_layout::{ResolvedCell, ResolvedTable, Section, Slot};
 
 use super::widths::{breaks, run_size, EMU_PER_PT, INSET_PT};
@@ -132,7 +132,7 @@ fn cell_height(rt: &ResolvedTable, cell: &ResolvedCell, strong: bool, width: f64
 /// Runs wrapped as a viewer wraps them: at spaces and after a hyphen, slash,
 /// `?` or `!` ([`breaks_after`]), a word that doesn't fit on a line going to
 /// the next, one too wide for any line breaking where it overflows. Widths are
-/// estimates ([`char_em`]), wider than the text drawn, so lines break no later
+/// estimates ([`clusters`]), wider than the text drawn, so lines break no later
 /// than they do.
 #[derive(Debug)]
 struct Wrap {
@@ -144,7 +144,7 @@ struct Wrap {
     line_size: f64,
     /// The spaces after its last word: their width and largest size.
     space: (f64, f64),
-    /// The word being read: its characters' widths and sizes.
+    /// The word being read: its grapheme clusters' widths and sizes.
     word: Vec<(f64, f64)>,
     /// Whether the word ends with a character a line may break after.
     soft: bool,
@@ -172,8 +172,8 @@ impl Wrap {
             return Ok(());
         };
         let (size, pt) = run_size(&fmt);
-        for c in text.chars() {
-            let w = char_em(c) * pt;
+        for (c, em) in clusters(text) {
+            let w = em * pt;
             if breaks(c) {
                 self.end_word();
                 if self.line > 0.0 {
@@ -253,7 +253,7 @@ mod tests {
     use crate::render::widths::column_widths;
     use crate::render::Fmt;
     use gridwell_ir::{ContentNode, StyleDef, Table};
-    use gridwell_layout::measure::text_em;
+    use gridwell_layout::measure::{char_em, text_em};
     use gridwell_layout::resolve;
     use gridwell_testkit::*;
 
@@ -339,6 +339,15 @@ mod tests {
         let per_line = ((85.6 + space) / (word + space)).floor();
         assert_eq!(per_line, 3.0);
         assert_close(&heights(&t), &[lines(2.0)]);
+    }
+
+    #[test]
+    fn an_emoji_sequence_wraps_as_one_emoji() {
+        // 2 emoji (22.5pt each) to 45.6pt: four families joined with ZWJ are two
+        // lines, not the eight their sixteen people would be.
+        let family = "👨\u{200D}👩\u{200D}👧\u{200D}👦";
+        let t = one_column("60pt", &[&family.repeat(4)]);
+        assert_close(&heights(&t), &[with_insets(2.0 * line(BASE_PT))]);
     }
 
     #[test]

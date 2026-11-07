@@ -8,7 +8,7 @@
 use std::convert::Infallible;
 
 use gridwell_core::Length;
-use gridwell_layout::measure::{char_em, BOLD_FACTOR};
+use gridwell_layout::measure::{clusters, BOLD_FACTOR};
 use gridwell_layout::{ColumnWidth, ContentWidth, ResolvedCell, ResolvedTable, Slot};
 
 use super::{cell_fmt, for_each_run, label_fmt, pad_fmt, Fmt, Para, Run, BASE_PT, TEXT_W};
@@ -187,8 +187,8 @@ impl Measure {
             return Ok(());
         };
         let (_, pt) = run_size(&fmt);
-        for c in text.chars() {
-            let w = char_em(c) * pt;
+        for (c, em) in clusters(text) {
+            let w = em * pt;
             self.line += w;
             if breaks(c) {
                 self.word = 0.0;
@@ -304,6 +304,22 @@ mod tests {
             .build();
         let mixed = (text_em("ab", false) + text_em("cd", true) + text_em("1pic", false)) * BASE_PT;
         assert_close(&widths(&t), &[need("Big", false, 36.0), room(mixed)]);
+    }
+
+    #[test]
+    fn an_emoji_sequence_is_one_emoji_wide() {
+        // A family joined with ZWJ is drawn as one emoji, not four.
+        let family = "👨\u{200D}👩\u{200D}👧\u{200D}👦";
+        let t = TableBuilder::new(2)
+            .columns(two_columns())
+            .body(vec![row(vec![cell(family), cell("1\u{FE0F}\u{20E3} 🇨🇦")])])
+            .build();
+        let em = gridwell_layout::measure::EMOJI_EM;
+        let space = text_em(" ", false);
+        assert_close(
+            &widths(&t),
+            &[room(em * BASE_PT), room((2.0 * em + space) * BASE_PT)],
+        );
     }
 
     #[test]
