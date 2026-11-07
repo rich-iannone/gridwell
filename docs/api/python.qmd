@@ -19,12 +19,12 @@ import gridwell
 
 # From IR as a JSON string, a dict, or a Great Tables GT
 table = gridwell.Table(json_str)
-table = gridwell.Table({"ir_version": "1.0", ...})
+table = gridwell.Table(ir_dict)
 table = gridwell.Table(gt)
 
 # The same, one kind each
 table = gridwell.Table.from_json(json_str)
-table = gridwell.Table.from_dict({"ir_version": "1.0", ...})
+table = gridwell.Table.from_dict(ir_dict)
 table = gridwell.Table.from_gt(gt)
 table = gridwell.parse_ir(json_str)
 ```
@@ -33,10 +33,18 @@ Anything else is a `TypeError`.
 
 ## Showing a Table
 
+For the [getting-started](../guide/getting-started.qmd#first-table) table:
+
 ```python
 >>> table
-<gridwell.Table: 3 columns, 12 rows in 2 groups, titled "Sales">
+<gridwell.Table: 2 columns, 2 rows>
 >>> print(table)    # the table drawn as plain text, as render_ansi(color=False)
+┌────────────┬────────────┐
+│ Name       │      Score │
+├────────────┼────────────┤
+│ Alice      │         95 │
+│ Bob        │         87 │
+└────────────┴────────────┘
 ```
 
 `repr()` describes the table: its size, row groups, summary rows and title, and
@@ -111,6 +119,8 @@ unchanged (UTF-8 text, no added newline). `path` may be a `str` or any
 `os.PathLike`, and is returned.
 
 ```python
+from pathlib import Path
+
 table.save("output.docx")
 table.save(Path("out") / "table.tex", booktabs=False)  # writer options as kwargs
 table.save("table.json", format="quarto")
@@ -153,12 +163,14 @@ grids for the conformance cases are in the repository's `conformance/` directory
 (see its README).
 
 ```python
+from great_tables import GT, exibble
 from gridwell.conformance import assert_conforms, check, normalize
 
+gt = GT(exibble)                   # the exibble_basic case
 grid = normalize(gt, "L1")         # a table's grid, as a dict
 report = check(gt, grid)           # or the path of a grid file, or JSON
 report.passed                      # True
-report.tiers                       # {"L0": "pass", "L1": "pass", "L2": "not checked", ...}
+report.tiers                       # {"L0": "pass", "L1": "pass", "L2": "not checked", "L3": "not checked"}
 report.differences                 # (Difference(tier, path, expected, actual), ...)
 print(report)
 
@@ -183,7 +195,7 @@ can't be written; nothing is written if rendering fails.
 
 Every `render_*` method validates the table first. If the IR is invalid it raises
 `gridwell.InvalidTableError` (a subclass of `ValueError`) whose message lists the
-validation errors, e.g. `[SPAN_OVERFLOW_RIGHT] Cell at (row=1, col=3) ...`. Use
+validation errors, e.g. `[SPAN_OVERFLOW_RIGHT] Cell at tbody group 0 (row=1, col=3) ...`. Use
 `table.validate()` to get the errors as a list without raising.
 
 ```python
@@ -204,6 +216,7 @@ The package ships type stubs (`py.typed`), so mypy, pyright and editors know eve
 signature. Each per-format method takes its options as typed keyword arguments, so a
 misspelled option or a value of the wrong type is caught before the code runs:
 
+<!-- docs-check: skip -->
 ```python
 table.render_html(inline_styles=True)   # ok
 table.render_html(inline_style=True)    # error: unexpected keyword argument
