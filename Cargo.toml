@@ -72,6 +72,7 @@ rust-version = "1.85"
 [workspace.dependencies]
 # The workspace crates, by path here and by version on crates.io (a path alone
 # can't be published). They are released together, at the workspace version.
+gridwell = { path = "crates/gridwell", version = "0.1.0" }
 gridwell-ir = { path = "crates/gridwell-ir", version = "0.1.0" }
 gridwell-core = { path = "crates/gridwell-core", version = "0.1.0" }
 gridwell-layout = { path = "crates/gridwell-layout", version = "0.1.0" }
