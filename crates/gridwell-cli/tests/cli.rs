@@ -43,6 +43,7 @@ const TEXT_FORMATS: &[&str] = &[
     "html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto",
 ];
 const BINARY_FORMATS: &[&str] = &["docx", "xlsx", "pptx"];
+const EXPERIMENTAL_FORMATS: &[&str] = &["svg", "ansi", "pandoc", "quarto", "pptx"];
 
 #[test]
 fn convert_valid_fixture_to_every_text_format() {
@@ -370,8 +371,17 @@ fn formats_lists_every_format() {
     assert!(o.status.success());
     let out = stdout(&o);
     for fmt in TEXT_FORMATS.iter().chain(BINARY_FORMATS) {
-        assert!(out.contains(fmt), "missing {fmt}");
+        let line = out
+            .lines()
+            .find(|l| l.split_whitespace().next() == Some(fmt))
+            .unwrap_or_else(|| panic!("missing {fmt}"));
+        let experimental = EXPERIMENTAL_FORMATS.contains(fmt);
+        assert_eq!(line.ends_with(", experimental)"), experimental, "{line}");
     }
+    assert!(
+        out.contains("Experimental formats write valid output with every cell"),
+        "{out}"
+    );
 }
 
 #[test]
@@ -385,6 +395,10 @@ fn formats_json_matches_the_registry() {
     let mut sorted = names.clone();
     sorted.sort();
     assert_eq!(sorted, all);
+    for f in &list {
+        let experimental = EXPERIMENTAL_FORMATS.contains(&f["name"].as_str().unwrap());
+        assert_eq!(f["experimental"], experimental, "{}", f["name"]);
+    }
     let html = list.iter().find(|f| f["name"] == "html").unwrap();
     assert_eq!(html["kind"], "text");
     assert_eq!(html["options"]["class_prefix"], "gw");
