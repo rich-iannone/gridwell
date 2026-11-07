@@ -261,7 +261,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                         out.push_str(value);
                     }
                 }
-                ContentNode::Unknown => {}
+                ContentNode::Unknown(_) => {}
             }
         }
         out

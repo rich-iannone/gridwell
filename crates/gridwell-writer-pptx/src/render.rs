@@ -590,7 +590,7 @@ fn for_each_run<E>(
                     f(Some((alt, fmt)))?
                 }
             }
-            ContentNode::Raw { .. } | ContentNode::Unknown => {}
+            ContentNode::Raw { .. } | ContentNode::Unknown(_) => {}
         }
     }
     Ok(())

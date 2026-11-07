@@ -333,7 +333,7 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
                         out.push_str(value);
                     }
                 }
-                ContentNode::Unknown => {}
+                ContentNode::Unknown(_) => {}
             }
         }
         out

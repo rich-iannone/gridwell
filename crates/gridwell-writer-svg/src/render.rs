@@ -1087,7 +1087,7 @@ fn content_runs(
                     }
                 }
             },
-            ContentNode::Raw { .. } | ContentNode::Unknown => {}
+            ContentNode::Raw { .. } | ContentNode::Unknown(_) => {}
         }
     }
     // Newlines inside text are not breaks in SVG (that's `line_break`): spaces.
