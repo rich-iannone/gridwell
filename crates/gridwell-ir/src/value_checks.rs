@@ -5,7 +5,7 @@
 use crate::cell::Row;
 use crate::content::ContentNode;
 use crate::style::StyleDef;
-use crate::validation::{ValidationError, ValidationRule};
+use crate::validation::{cell_place, ValidationError, ValidationRule};
 use crate::Table;
 use gridwell_core::{Color, FontSize, LanguageTag, Length};
 
@@ -207,10 +207,12 @@ impl Checker<'_> {
         }
     }
 
-    fn content(&mut self, nodes: &[ContentNode], field: &str, at: At) {
+    /// Check the image nodes of `nodes`; `field` makes a field's name from its path
+    /// in the content (`content[0].width`).
+    fn content(&mut self, nodes: &[ContentNode], field: &dyn Fn(&str) -> String, at: At) {
         for (i, node) in nodes.iter().enumerate() {
             if let ContentNode::Image { width, height, .. } = node {
-                let f = |name: &str| format!("{field}[{i}].{name}");
+                let f = |name: &str| field(&format!("content[{i}].{name}"));
                 self.length(width.as_ref(), &f("width"), LengthKind::SIZE, at);
                 self.length(height.as_ref(), &f("height"), LengthKind::SIZE, at);
             }
@@ -226,7 +228,8 @@ impl Checker<'_> {
                     row: Some(r as u32),
                     col: Some(c as u32),
                 };
-                self.content(&cell.content, "cell content", at);
+                let of = |path: &str| format!("{path} of {}", cell_place(section, row_group, r, c));
+                self.content(&cell.content, &of, at);
             }
         }
     }
@@ -301,15 +304,15 @@ pub(crate) fn validate_values(table: &Table, errors: &mut Vec<ValidationError>) 
     if let Some(header) = &table.header {
         let at = At::section("header");
         if let Some(t) = &header.title {
-            ck.content(&t.content, "header.title.content", at);
+            ck.content(&t.content, &|p| format!("header.title.{p}"), at);
         }
         if let Some(t) = &header.subtitle {
-            ck.content(&t.content, "header.subtitle.content", at);
+            ck.content(&t.content, &|p| format!("header.subtitle.{p}"), at);
         }
         for (i, line) in header.extra_lines.iter().enumerate() {
             ck.content(
                 &line.content,
-                &format!("header.extra_lines[{i}].content"),
+                &|p| format!("header.extra_lines[{i}].{p}"),
                 at,
             );
         }
@@ -323,7 +326,13 @@ pub(crate) fn validate_values(table: &Table, errors: &mut Vec<ValidationError>) 
                 row_group: g,
                 ..At::section("tbody_label")
             };
-            ck.content(&label.content, "label.content", at);
+            let of = |p: &str| {
+                format!(
+                    "{p} of the label of tbody group {}",
+                    at.row_group.unwrap_or_default()
+                )
+            };
+            ck.content(&label.content, &of, at);
         }
         ck.rows(&group.rows, "tbody", g);
         ck.rows(&group.summary_rows, "tbody_summary", g);
@@ -332,10 +341,10 @@ pub(crate) fn validate_values(table: &Table, errors: &mut Vec<ValidationError>) 
     if let Some(footer) = &table.footer {
         let at = At::section("footer");
         for (i, n) in footer.footnotes.iter().enumerate() {
-            ck.content(&n.content, &format!("footer.footnotes[{i}].content"), at);
+            ck.content(&n.content, &|p| format!("footer.footnotes[{i}].{p}"), at);
         }
         for (i, n) in footer.source_notes.iter().enumerate() {
-            ck.content(&n.content, &format!("footer.source_notes[{i}].content"), at);
+            ck.content(&n.content, &|p| format!("footer.source_notes[{i}].{p}"), at);
         }
     }
 }
