@@ -2,7 +2,8 @@
 title: "CLI Tool"
 ---
 
-The `gridwell` CLI converts table IR files to any supported format.
+The `gridwell` CLI converts table IR files to any supported format, validates
+them, and formats, inspects and draws them for debugging.
 
 ## Installation
 
@@ -96,6 +97,120 @@ $ gridwell validate broken_table.json
 Found 2 validation error(s):
   - [COL_COUNT] tbody group 0 row 0 has 4 cells but config.table_cols is 3
   - [SPAN_OVERFLOW_RIGHT] Cell at tbody group 1 (row=0, col=2) has colspan=2 but table only has 3 columns (would need col index up to 3)
+```
+
+### `gridwell fmt`
+
+Print an IR file in canonical form: every object's keys sorted, two-space indents,
+LF line endings and a final newline. Once two IR files are formatted, a text diff
+of them shows only what differs in their JSON, not key order or whitespace.
+
+The input must parse as IR, but it needn't be valid, so an invalid file can be
+formatted before it's fixed. It is formatted as JSON: every field is kept,
+including ones gridwell doesn't know, and nothing is added. Numbers are written as
+gridwell reads them, so `1e3` becomes `1000.0`, and an integer too big for 64 bits
+becomes a float.
+
+```bash
+gridwell fmt [OPTIONS] [INPUT]
+```
+
+**Options:**
+
+- `--check` — Print nothing if the input is in canonical form; if it isn't, say so
+  on stderr and exit with code 1
+
+```bash
+# Canonical form, to stdout
+gridwell fmt table.json
+
+# From stdin
+cat table.json | gridwell fmt
+```
+
+```{.bash filename="Example output"}
+$ gridwell fmt --check hello.json
+hello.json is not in canonical form (see `gridwell fmt`)
+```
+
+### `gridwell inspect`
+
+Print what an IR file holds: its columns, rows, groups, spans, styles, notes and
+content nodes, counted. The styles that nothing uses are listed (a definition is
+used when a composition that's used extends it). An invalid table is inspected
+too; its count of validation errors is one of the lines, and `gridwell validate`
+lists them.
+
+```bash
+gridwell inspect [OPTIONS] [INPUT]
+```
+
+**Options:**
+
+- `--json` — Print the counts as JSON, with every style used and unused listed
+
+```{.bash filename="Example output"}
+$ gridwell inspect spanners.json
+IR version:    1.0
+Valid:         yes
+Columns:       3
+Header:        none
+Head rows:     2
+Body:          2 rows in 1 group
+Summary rows:  0
+Spans:         2 spanning cells, 2 placeholders
+Styles:        0 definitions, 0 compositions, 0 conditionals; 0 used
+Unused styles: none
+Footnotes:     0
+Source notes:  0
+Content:       10 text
+Typed values:  none
+Extensions:    none
+```
+
+### `gridwell grid`
+
+Draw the occupancy grid of each section (the head, each group's rows and each
+group's summary rows), to see which cell covers each position. These are the grids
+validation checks [spans](../schema/table-data.qmd#spans-and-placeholders) against. Each cell gets a code
+(`A`, `B`, …, `Z`, `AA`, …), and a position shows the code of the cell that covers
+it, so a span is a run of one code; `.` is a position nothing covers. The spanning
+cells are listed under each grid, then the section's span errors, marked `!`.
+
+An invalid table is drawn too, and the exit code is 0 whenever the IR parses. A
+section with a row of the wrong length isn't drawn (that's a `COL_COUNT` error,
+which `gridwell validate` reports).
+
+```bash
+gridwell grid [INPUT]
+```
+
+```{.bash filename="Example output"}
+$ gridwell grid spanners.json
+thead: 2 rows, 3 columns
+    c0  c1  c2
+r0 [A ][B ][B ]
+r1 [A ][C ][D ]
+A = cell(r0,c0, rowspan=2) "Name"
+B = cell(r0,c1, colspan=2) "Scores"
+
+tbody group 0: 2 rows, 3 columns
+    c0  c1  c2
+r0 [A ][B ][C ]
+r1 [D ][E ][F ]
+
+$ gridwell grid broken_table.json
+thead: 1 row, 3 columns
+    c0  c1  c2
+r0 [A ][B ][C ]
+
+tbody group 0: not drawn, row 0 has 4 cells but config.table_cols is 3
+
+tbody group 1: 1 row, 3 columns
+    c0  c1  c2
+r0 [A ][B ][C ]
+C = cell(r0,c2, colspan=2) "7"
+! [SPAN_OVERFLOW_RIGHT] Cell at tbody group 1 (row=0, col=2) has colspan=2 but table only has 3 columns (would need col index up to 3)
 ```
 
 ### `gridwell formats`
