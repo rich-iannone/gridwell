@@ -129,7 +129,9 @@ pub unsafe extern "C" fn gridwell_parse_ir(
 // ─── Validation ───
 
 /// Validate a parsed table. Returns null on success, or an error (code
-/// `GRIDWELL_ERR_VALIDATE`) listing every validation error, separated by "; ".
+/// `GRIDWELL_ERR_VALIDATE`) listing every validation error, one per line. For a
+/// table of a newer minor IR version, a last line says an error may be something
+/// that version added.
 ///
 /// # Safety
 /// - `table` must be a valid pointer returned by `gridwell_parse_ir`.
@@ -142,13 +144,13 @@ pub unsafe extern "C" fn gridwell_validate(table: *const GridwellTable) -> *mut 
         }
 
         let table = unsafe { &(*table).inner };
-        let errors = table.validate();
-
-        if errors.is_empty() {
-            ptr::null_mut()
-        } else {
-            let messages: Vec<String> = errors.iter().map(|e| e.to_string()).collect();
-            make_error(GRIDWELL_ERR_VALIDATE, &messages.join("; "))
+        match table.ensure_valid() {
+            Ok(()) => ptr::null_mut(),
+            Err(invalid) => {
+                let mut lines: Vec<String> = invalid.errors.iter().map(|e| e.to_string()).collect();
+                lines.extend(invalid.version_note());
+                make_error(GRIDWELL_ERR_VALIDATE, &lines.join("\n"))
+            }
         }
     });
     // A caught panic is reported through `err`; this function returns errors directly.
