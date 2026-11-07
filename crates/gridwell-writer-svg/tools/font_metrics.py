@@ -2,9 +2,9 @@
 
 The SVG writer lays text out itself, so it needs real glyph widths:
 
-- **Roboto** (first in the SVG font list): every line is drawn with `textLength`
-  set to its Roboto width, so viewers that honor `textLength` draw exactly that
-  width whatever font they substitute.
+- **Roboto** (first in the SVG font list): every line Roboto has all of is drawn
+  with `textLength` set to its Roboto width, so viewers that honor `textLength`
+  draw exactly that width whatever font they substitute.
 - **Arimo** (metric-compatible with Arial, Helvetica and Liberation Sans): cells
   are sized for the wider of the two per character, so viewers that ignore
   `textLength` (librsvg) and substitute Helvetica or Arial still fit.
