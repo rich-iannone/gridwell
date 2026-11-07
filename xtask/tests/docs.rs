@@ -3,8 +3,8 @@
 //! defaults; the keyword, color and length tables list exactly the fields that
 //! are checked and the values they take; the rule tables name every validation
 //! rule once; the error lines shown are what the validator writes; every JSON
-//! example fits the IR; and every link between pages lands on a page and a
-//! heading that exist.
+//! example fits the IR; every link between pages lands on a page and a heading
+//! that exist; and the formats the docs call experimental are the registry's.
 //!
 //! The IR's shape comes from `docs/maximal.json`, a valid table with every field
 //! set: parsed and written back, it has every field of every object.
@@ -1564,5 +1564,110 @@ fn every_page_is_in_the_site() {
             continue;
         }
         assert!(site.contains(page), "{rel} isn't in docs/_quarto.yml");
+    }
+}
+
+// --- Experimental formats ------------------------------------------------------
+
+/// The registry name of a format as the docs name it ("LaTeX", "ANSI (Terminal)",
+/// "PowerPoint", "`pptx`").
+fn format_named(name: &str) -> String {
+    let first = name.split_whitespace().next().unwrap_or("");
+    let first = first.trim_matches('`').to_lowercase();
+    match first.as_str() {
+        "word" => "docx".into(),
+        "excel" => "xlsx".into(),
+        "powerpoint" => "pptx".into(),
+        _ => first,
+    }
+}
+
+/// The formats a sentence lists before `marker` ("SVG, ANSI and PPTX are …").
+fn listed_before(text: &str, marker: &str, rel: &str) -> Vec<String> {
+    let at = text
+        .find(marker)
+        .unwrap_or_else(|| panic!("{rel}: no \"{marker}\""));
+    let start = text[..at].rfind("\n\n").map_or(0, |i| i + 2);
+    text[start..at]
+        .split(", ")
+        .flat_map(|s| s.split(" and "))
+        .map(format_named)
+        .collect()
+}
+
+#[test]
+fn the_docs_name_the_experimental_formats_the_registry_marks() {
+    let all: Vec<String> = gridwell_render::REGISTRY
+        .iter()
+        .map(|w| w.name().to_string())
+        .collect();
+    let experimental: Vec<String> = gridwell_render::REGISTRY
+        .iter()
+        .filter(|w| w.experimental())
+        .map(|w| w.name().to_string())
+        .collect();
+    assert!(!experimental.is_empty());
+
+    // The home page's format table: a status for every format.
+    let index = page("docs/index.qmd");
+    let table = tables(&index)
+        .into_iter()
+        .find(|t| t.header.first().is_some_and(|h| h == "Format"))
+        .expect("docs/index.qmd: no format table");
+    let status = table.header.iter().position(|h| h == "Status").unwrap();
+    let names: Vec<String> = table.rows.iter().map(|r| format_named(&r[0])).collect();
+    assert_eq!(names, all, "docs/index.qmd: the formats");
+    let marked: Vec<String> = table
+        .rows
+        .iter()
+        .filter(|r| {
+            assert!(
+                ["Stable", "Experimental"].contains(&r[status].as_str()),
+                "{r:?}"
+            );
+            r[status] == "Experimental"
+        })
+        .map(|r| format_named(&r[0]))
+        .collect();
+    assert_eq!(marked, experimental, "docs/index.qmd: the Status column");
+
+    // Output Formats: the list, and a note opening each experimental format's
+    // section, and no other.
+    let rel = "docs/guide/output-formats.qmd";
+    let guide = page(rel);
+    assert_eq!(
+        listed_before(&guide, " are **experimental**", rel),
+        experimental,
+        "{rel}"
+    );
+    let mut sections = Vec::new();
+    let mut marked = Vec::new();
+    for group in ["## Text Formats", "## Binary Formats"] {
+        let body = section(&guide, group);
+        for part in body.split("\n### ").skip(1) {
+            let (heading, rest) = part.split_once('\n').unwrap();
+            let name = format_named(heading);
+            if rest.trim_start().starts_with("*Experimental:") {
+                marked.push(name.clone());
+            }
+            sections.push(name);
+        }
+    }
+    sections.sort();
+    let mut sorted = all.clone();
+    sorted.sort();
+    assert_eq!(sections, sorted, "{rel}: a section for every format");
+    assert_eq!(
+        marked, experimental,
+        "{rel}: the sections marked experimental"
+    );
+
+    // The READMEs.
+    for rel in ["README.md", "crates/gridwell/README.md"] {
+        assert_eq!(
+            listed_before(&page(rel), " are experimental for now", rel),
+            experimental,
+            "{rel}"
+        );
     }
 }

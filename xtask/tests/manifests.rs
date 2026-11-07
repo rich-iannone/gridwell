@@ -154,6 +154,28 @@ fn formats() -> BTreeSet<String> {
         .collect()
 }
 
+/// An experimental format's writer crate says so on crates.io; no other crate does.
+#[test]
+fn experimental_writer_crates_say_so() {
+    let m = metadata();
+    let all = packages(&m);
+    for w in gridwell_render::REGISTRY {
+        let name = format!("gridwell-writer-{}", w.name());
+        let description = all[&name]["description"].as_str().unwrap();
+        assert_eq!(
+            description.contains(" for gridwell (experimental): "),
+            w.experimental(),
+            "{name}: {description}"
+        );
+    }
+    for (name, p) in &all {
+        if !name.starts_with("gridwell-writer-") {
+            let description = p["description"].as_str().unwrap_or("");
+            assert!(!description.contains("experimental"), "{name}");
+        }
+    }
+}
+
 fn features(p: &Value) -> BTreeMap<String, Vec<String>> {
     p["features"]
         .as_object()
