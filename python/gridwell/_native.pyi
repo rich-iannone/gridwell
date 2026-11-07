@@ -33,6 +33,7 @@ class FormatInfo(TypedDict):
     kind: Literal["text", "binary"]
     extension: str
     media_type: str
+    experimental: bool
     options: dict[str, Any]
 
 class InvalidTableError(ValueError):
@@ -208,7 +209,9 @@ def parse_ir(json: str) -> Table:
 
 def formats() -> list[FormatInfo]:
     """Every supported format: a list of dicts with name, description, kind ("text" or
-    "binary"), extension, media_type, and options (each option's default value)."""
+    "binary"), extension, media_type, experimental (True for a format whose styling
+    is best-effort and may change between releases), and options (each option's
+    default value)."""
 
 def _conformance_normalize(table: Table, tier: str) -> str:
     """The normalized conformance grid of a table, as JSON (`gridwell.conformance`
