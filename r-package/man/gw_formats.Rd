@@ -8,8 +8,9 @@ gw_formats()
 }
 \value{
 A data frame with one row per format: \code{name}, \code{description}, \code{kind}
-(\code{"text"} or \code{"binary"}), \code{extension}, \code{media_type}, and \code{options} (the
-format's options and their defaults, as a JSON string).
+(\code{"text"} or \code{"binary"}), \code{extension}, \code{media_type}, \code{experimental} (\code{TRUE}
+for a format whose styling is best-effort and may change between releases),
+and \code{options} (the format's options and their defaults, as a JSON string).
 }
 \description{
 List the supported output formats.
