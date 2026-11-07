@@ -36,6 +36,21 @@ test_that("gw_to_json round-trips", {
     expect_equal(parsed$ir_version, "1.0")
 })
 
+test_that("gw_to_json keeps a node of an unknown type", {
+    ir <- jsonlite::fromJSON(load_fixture("minimal/minimal_1x1.json"), simplifyVector = FALSE)
+    future <- list(type = "sparkline", values = list(1L, 2.5), options = list(a = list(TRUE)))
+    cell <- ir$table$tbody[[1]]$rows[[1]]$cells[[1]]
+    cell$content <- c(cell$content, list(future))
+    ir$table$tbody[[1]]$rows[[1]]$cells[[1]] <- cell
+    tbl <- gw_parse_ir(jsonlite::toJSON(ir, auto_unbox = TRUE, null = "null", digits = NA))
+    expect_length(gw_validate(tbl), 0)
+    back <- jsonlite::fromJSON(gw_to_json(tbl), simplifyVector = FALSE)
+    content <- back$table$tbody[[1]]$rows[[1]]$cells[[1]]$content
+    # Every field kept (a JSON object has no key order).
+    expect_setequal(names(content[[2]]), names(future))
+    expect_identical(content[[2]][names(future)], future)
+})
+
 # ─── Text render tests ───
 
 test_that("gw_render_html produces HTML", {
