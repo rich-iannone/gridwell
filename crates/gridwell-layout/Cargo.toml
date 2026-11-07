@@ -13,6 +13,7 @@ categories.workspace = true
 [dependencies]
 gridwell-ir = { workspace = true }
 gridwell-core = { workspace = true }
+unicode-segmentation = "1.12"
 unicode-width = "0.2"
 
 [dev-dependencies]
