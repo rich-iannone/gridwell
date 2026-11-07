@@ -281,6 +281,7 @@ fn cmd_formats(json: bool) {
                     "kind": w.kind().to_string(),
                     "extension": w.extension(),
                     "media_type": w.media_type(),
+                    "experimental": w.experimental(),
                     "options": w.default_options(),
                 })
             })
@@ -301,14 +302,23 @@ fn cmd_formats(json: bool) {
         );
         for w in REGISTRY.iter().filter(|w| w.kind() == kind) {
             println!(
-                "    {:<8} {} (.{})",
+                "    {:<8} {} (.{}{})",
                 w.name(),
                 w.description(),
-                w.extension()
+                w.extension(),
+                if w.experimental() {
+                    ", experimental"
+                } else {
+                    ""
+                }
             );
         }
     }
     println!();
+    if REGISTRY.iter().any(|w| w.experimental()) {
+        println!("Experimental formats write valid output with every cell, but their styling");
+        println!("is best-effort and may change between releases.");
+    }
     println!("Pass writer options with --options '<JSON>'; see `gridwell formats --json`.");
 }
 
