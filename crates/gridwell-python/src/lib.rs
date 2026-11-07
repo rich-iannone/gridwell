@@ -436,7 +436,9 @@ fn parse_ir(py: Python<'_>, json: &str) -> PyResult<PyTable> {
 }
 
 /// Every supported format: a list of dicts with name, description, kind ("text" or
-/// "binary"), extension, media_type, and options (each option's default value).
+/// "binary"), extension, media_type, experimental (True for a format whose styling
+/// is best-effort and may change between releases), and options (each option's
+/// default value).
 #[pyfunction]
 fn formats(py: Python<'_>) -> PyResult<Vec<Bound<'_, PyDict>>> {
     let json = py.import("json")?;
@@ -449,6 +451,7 @@ fn formats(py: Python<'_>) -> PyResult<Vec<Bound<'_, PyDict>>> {
             d.set_item("kind", w.kind().to_string())?;
             d.set_item("extension", w.extension())?;
             d.set_item("media_type", w.media_type())?;
+            d.set_item("experimental", w.experimental())?;
             let options = json.call_method1("loads", (w.default_options().to_string(),))?;
             d.set_item("options", options)?;
             Ok(d)
