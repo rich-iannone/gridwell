@@ -90,13 +90,14 @@ fn defaults<T: Serialize + Default>() -> Value {
     serde_json::to_value(T::default()).expect("option structs serialize")
 }
 
-/// Declare a format. `$options` is the writer's config type (or `()` for none);
-/// `$check` validates parsed options; `$render` turns (table, options) into the
-/// writer's result; `$unsupported`, if given, lists what the format can't
-/// express of a table.
+/// Declare a format. `$experimental` is [`Writer::experimental`]; `$options` is
+/// the writer's config type (or `()` for none); `$check` validates parsed
+/// options; `$render` turns (table, options) into the writer's result;
+/// `$unsupported`, if given, lists what the format can't express of a table.
 macro_rules! define_format {
     (
         $ty:ident, $name:literal, $desc:literal, $kind:ident, $ext:literal, $media:literal,
+        experimental: $experimental:literal,
         options: $options:ty,
         check: $check:expr,
         render: $render:expr
@@ -119,6 +120,9 @@ macro_rules! define_format {
             }
             fn media_type(&self) -> &'static str {
                 $media
+            }
+            fn experimental(&self) -> bool {
+                $experimental
             }
             fn default_options(&self) -> Value {
                 defaults::<$options>()
@@ -170,6 +174,7 @@ fn ok<T>(_: &T) -> Result<(), String> {
 #[cfg(feature = "html")]
 define_format!(
     Html, "html", "HTML5 table", Text, "html", "text/html",
+    experimental: false,
     options: gridwell_writer_html::HtmlWriterConfig,
     check: gridwell_writer_html::check_config,
     render: |t, o| gridwell_writer_html::HtmlWriter::with_config(o).render(t),
@@ -177,6 +182,7 @@ define_format!(
 #[cfg(feature = "latex")]
 define_format!(
     Latex, "latex", "LaTeX tabular / longtable (booktabs)", Text, "tex", "application/x-latex",
+    experimental: false,
     options: gridwell_writer_latex::LatexWriterConfig,
     check: ok,
     render: |t, o| gridwell_writer_latex::LatexWriter::with_config(o).render(t),
@@ -185,6 +191,7 @@ define_format!(
 #[cfg(feature = "typst")]
 define_format!(
     Typst, "typst", "Typst table markup", Text, "typ", "text/x-typst",
+    experimental: false,
     options: gridwell_writer_typst::TypstWriterConfig,
     check: ok,
     render: |t, o| gridwell_writer_typst::TypstWriter::with_config(o).render(t),
@@ -193,6 +200,7 @@ define_format!(
 #[cfg(feature = "rtf")]
 define_format!(
     Rtf, "rtf", "Rich Text Format", Text, "rtf", "application/rtf",
+    experimental: false,
     options: NoOptions,
     check: ok,
     render: |t, _| gridwell_writer_rtf::render_rtf(t),
@@ -201,6 +209,7 @@ define_format!(
 #[cfg(feature = "svg")]
 define_format!(
     Svg, "svg", "SVG image (standalone, measured layout)", Text, "svg", "image/svg+xml",
+    experimental: true,
     options: gridwell_writer_svg::SvgConfig,
     check: check_svg,
     render: |t, o| gridwell_writer_svg::SvgWriter::with_config(o).render(t),
@@ -209,6 +218,7 @@ define_format!(
 #[cfg(feature = "ansi")]
 define_format!(
     Ansi, "ansi", "Terminal output with box drawing and ANSI colors", Text, "txt", "text/plain",
+    experimental: true,
     options: gridwell_writer_ansi::AnsiConfig,
     check: ok,
     render: |t, o| gridwell_writer_ansi::AnsiWriter::with_config(o).render(t),
@@ -217,6 +227,7 @@ define_format!(
 #[cfg(feature = "pandoc")]
 define_format!(
     Pandoc, "pandoc", "Pandoc JSON AST (Table block)", Text, "json", "application/json",
+    experimental: true,
     options: NoOptions,
     check: ok,
     render: |t, _| gridwell_writer_pandoc::render_pandoc(t),
@@ -225,6 +236,7 @@ define_format!(
 define_format!(
     Quarto, "quarto", "Quarto-flavored Pandoc JSON AST (cross-referenceable Div)", Text, "json",
     "application/json",
+    experimental: true,
     options: gridwell_writer_quarto::QuartoConfig,
     check: ok,
     render: |t, o| gridwell_writer_quarto::QuartoWriter::with_config(o).render(t),
@@ -233,6 +245,7 @@ define_format!(
 define_format!(
     Docx, "docx", "Microsoft Word document", Binary, "docx",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    experimental: false,
     options: NoOptions,
     check: ok,
     render: |t, _| gridwell_writer_docx::render_docx(t),
@@ -242,6 +255,7 @@ define_format!(
 define_format!(
     Xlsx, "xlsx", "Microsoft Excel workbook", Binary, "xlsx",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    experimental: false,
     options: NoOptions,
     check: ok,
     render: |t, _| gridwell_writer_xlsx::render_xlsx(t),
@@ -251,6 +265,7 @@ define_format!(
 define_format!(
     Pptx, "pptx", "Microsoft PowerPoint slide", Binary, "pptx",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    experimental: true,
     options: NoOptions,
     check: ok,
     render: |t, _| gridwell_writer_pptx::render_pptx(t),
