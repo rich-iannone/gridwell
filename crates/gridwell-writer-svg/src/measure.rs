@@ -4,8 +4,8 @@
 //! widths ([`crate::metrics`]). Two widths per piece of text:
 //!
 //! - the **draw width**, Roboto's: Roboto is first in the SVG font list, and every
-//!   line is drawn with `textLength` set to it, so a viewer that substitutes another
-//!   font still draws the line at exactly that width;
+//!   line Roboto has all of is drawn with `textLength` set to it, so a viewer that
+//!   substitutes another font still draws the line at exactly that width;
 //! - the **room width**, the wider of Roboto and Arimo for each character: what
 //!   cells, columns and wrapping are sized for. Arimo is metric-compatible with
 //!   Arial, Helvetica and Liberation Sans, the fallbacks in the font list, so a
@@ -13,14 +13,19 @@
 //!   fits. (Their bold is several percent wider than Roboto's.)
 //!
 //! Characters Roboto doesn't cover (CJK, emoji, Arabic, Hebrew, …) use conservative
-//! estimates ([`char_em`]): those come from other fonts, whose widths are unknown.
+//! estimates ([`char_em`]; an emoji sequence is one emoji, [`EMOJI_EM`]): those come
+//! from other fonts, whose widths are unknown. A line with any is drawn at its
+//! natural width, with no `textLength`: stretched to an estimate, its glyphs would
+//! be spaced apart, and Arabic letters drawn unjoined.
 //!
 //! `tests/calibration.rs` checks the widths against real rendering with
 //! `rsvg-convert` in Roboto.
 
 use std::sync::Arc;
 
-pub use gridwell_layout::measure::{char_em, BOLD_FACTOR};
+use unicode_segmentation::UnicodeSegmentation;
+
+pub use gridwell_layout::measure::{char_em, is_emoji, BOLD_FACTOR, EMOJI_EM};
 
 /// One style's table: `(code point, advance)`, sorted.
 type Table = &'static [(u32, u16)];
@@ -58,11 +63,37 @@ pub fn arimo_em(c: char, bold: bool, italic: bool) -> Option<f64> {
 
 /// The estimate for a character neither font covers.
 fn estimate_em(c: char, bold: bool) -> f64 {
+    bolder(char_em(c), bold)
+}
+
+fn bolder(em: f64, bold: bool) -> f64 {
     if bold {
-        char_em(c) * BOLD_FACTOR
+        em * BOLD_FACTOR
     } else {
-        char_em(c)
+        em
     }
+}
+
+/// The em widths of `s`'s grapheme clusters, `per_char` for each character but an
+/// emoji's ([`is_emoji`]): those come from an emoji font, even when the
+/// characters in them (`1`, `©`) are Roboto's, and one is drawn for the cluster.
+fn text_em(s: &str, bold: bool, per_char: impl Fn(char) -> f64) -> f64 {
+    s.graphemes(true)
+        .map(|g| {
+            if is_emoji(g) {
+                bolder(EMOJI_EM, bold)
+            } else {
+                g.chars().map(&per_char).sum()
+            }
+        })
+        .sum()
+}
+
+/// Whether `s` is drawn exactly as wide as [`draw_width`] in Roboto: whether
+/// Roboto has all of it (no estimates). Never an emoji: each holds a character
+/// Roboto doesn't have (the emoji, a regional indicator, U+FE0F or U+20E3).
+pub fn exact(s: &str, bold: bool, italic: bool) -> bool {
+    s.chars().all(|c| roboto_em(c, bold, italic).is_some())
 }
 
 /// The advance `c` is drawn at, in em: Roboto's, else the estimate.
@@ -82,15 +113,13 @@ pub fn room_em(c: char, bold: bool, italic: bool) -> f64 {
 
 /// The room `s` needs in px at `font_size` px: what layout sizes cells for.
 pub fn text_width(s: &str, font_size: f64, bold: bool, italic: bool) -> f64 {
-    let em: f64 = s.chars().map(|c| room_em(c, bold, italic)).sum();
-    em * font_size
+    text_em(s, bold, |c| room_em(c, bold, italic)) * font_size
 }
 
-/// The width `s` is drawn at in px (its `textLength`): the sum of Roboto's advances
-/// (no kerning).
+/// The width `s` is drawn at in px (its `textLength`, when [`exact`]): the sum of
+/// Roboto's advances (no kerning).
 pub fn draw_width(s: &str, font_size: f64, bold: bool, italic: bool) -> f64 {
-    let em: f64 = s.chars().map(|c| advance_em(c, bold, italic)).sum();
-    em * font_size
+    text_em(s, bold, |c| advance_em(c, bold, italic)) * font_size
 }
 
 /// A run of text with uniform formatting, as measured and emitted by the layout.
@@ -156,7 +185,6 @@ impl Run {
         text_width(&self.text, size, self.style.bold, self.style.italic)
     }
 
-    /// The width the run is drawn at ([`draw_width`]).
     /// The overhang room an italic run needs at the end of a line, in px.
     pub fn overhang(&self, font_size: f64) -> f64 {
         if self.style.italic && !self.text.is_empty() && self.style.image.is_none() {
@@ -166,12 +194,19 @@ impl Run {
         }
     }
 
+    /// The width the run is drawn at ([`draw_width`]).
     pub fn draw_width(&self, font_size: f64) -> f64 {
         if let Some(pic) = &self.style.image {
             return pic.width;
         }
         let size = self.drawn_size(font_size);
         draw_width(&self.text, size, self.style.bold, self.style.italic)
+    }
+
+    /// Whether the run is drawn exactly [`Run::draw_width`] wide ([`exact`]; a
+    /// picture is).
+    pub fn exact(&self) -> bool {
+        self.style.image.is_some() || exact(&self.text, self.style.bold, self.style.italic)
     }
 }
 
@@ -309,9 +344,10 @@ pub fn wrap(runs: &[Run], font_size: f64, max_width: f64) -> Vec<Line> {
             continue;
         }
 
-        // The word alone is too wide: break it between characters.
+        // The word alone is too wide: break it between characters (grapheme
+        // clusters, so an emoji sequence or a letter's accents stay whole).
         for piece in word {
-            for ch in piece.text.chars() {
+            for ch in piece.text.graphemes(true) {
                 let ch_run = Run {
                     text: ch.to_string(),
                     style: piece.style.clone(),
@@ -501,6 +537,96 @@ mod tests {
             let noisy = (100.1 + w) - 100.1;
             assert_eq!(wrap(&plain(word), 14.0, noisy).len(), 1, "{word}");
         }
+    }
+
+    #[test]
+    fn an_emoji_sequence_is_measured_as_one_emoji() {
+        let family = "👨\u{200D}👩\u{200D}👧\u{200D}👦";
+        for g in [
+            family,
+            "👍🏽",
+            "🇨🇦",
+            "❤\u{FE0F}",
+            "1\u{FE0F}\u{20E3}",
+            "©\u{FE0F}",
+        ] {
+            for bold in [false, true] {
+                let em = if bold {
+                    EMOJI_EM * BOLD_FACTOR
+                } else {
+                    EMOJI_EM
+                };
+                assert!(
+                    (text_width(g, 16.0, bold, false) - em * 16.0).abs() < 1e-9,
+                    "{g}"
+                );
+                assert!(
+                    (draw_width(g, 16.0, bold, false) - em * 16.0).abs() < 1e-9,
+                    "{g}"
+                );
+            }
+        }
+        // A keycap's `1` and a `©` are Roboto's alone, the emoji's when VS16 asks.
+        assert_eq!(
+            text_width("1", 16.0, false, false),
+            room_em('1', false, false) * 16.0
+        );
+        let w = text_width("a👍🏽b", 16.0, false, false);
+        assert!(
+            (w - (room_em('a', false, false) + EMOJI_EM + room_em('b', false, false)) * 16.0).abs()
+                < 1e-9
+        );
+    }
+
+    #[test]
+    fn only_text_roboto_has_all_of_is_exact() {
+        assert!(exact("Net income, 1,250.3", false, false));
+        assert!(exact("Net income", true, true));
+        assert!(exact("", false, false));
+        // Every emoji holds a character Roboto doesn't have, in each style.
+        for s in [
+            "Status: 😀",
+            "販売",
+            "مرحبا",
+            "1\u{FE0F}\u{20E3}",
+            "#\u{20E3}",
+            "©\u{FE0F}",
+            "🇨🇦",
+        ] {
+            for (bold, italic) in [(false, false), (true, false), (false, true), (true, true)] {
+                assert!(!exact(s, bold, italic), "{s}");
+            }
+        }
+        let run = |text: &str| Run {
+            text: text.into(),
+            style: RunStyle::default(),
+        };
+        assert!(run("ok").exact());
+        assert!(!run("😀").exact());
+        let pic = Run {
+            style: RunStyle {
+                image: Some(Arc::new(Pic {
+                    href: "data:,".into(),
+                    width: 10.0,
+                    height: 10.0,
+                    alt: None,
+                })),
+                ..Default::default()
+            },
+            ..run("\u{FFFC}")
+        };
+        assert!(pic.exact());
+    }
+
+    #[test]
+    fn an_overlong_word_is_broken_between_clusters() {
+        let family = "👨\u{200D}👩\u{200D}👧\u{200D}👦";
+        let word = format!("{family}{family}é\u{0301}🇨🇦🇨🇦");
+        let lines = wrap(&plain(&word), 16.0, EMOJI_EM * 16.0 + 1.0);
+        assert_eq!(
+            lines.iter().map(Line::text).collect::<Vec<_>>(),
+            vec![family, family, "é\u{0301}", "🇨🇦", "🇨🇦"]
+        );
     }
 
     #[test]

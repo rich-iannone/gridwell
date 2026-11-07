@@ -1299,17 +1299,13 @@ fn text_block(buf: &mut String, b: &TextBlock, rtl: bool) -> Result<(), RenderEr
             pictured_line(buf, b, line, baseline, rtl)?;
             continue;
         }
-        // `textLength`: draw the line exactly as wide as the layout measured it,
-        // whatever font the viewer substitutes, by adjusting the letter spacing (the
-        // default `lengthAdjust`), which leaves the glyph shapes undistorted.
         write!(
             buf,
-            "<text x=\"{}\" y=\"{}\" font-size=\"{}px\"{anchor} textLength=\"{}\" \
-             xml:space=\"preserve\">",
+            "<text x=\"{}\" y=\"{}\" font-size=\"{}px\"{anchor}{} xml:space=\"preserve\">",
             num(x),
             num(baseline),
             num(b.font_size),
-            num(line.draw_width)
+            text_length(&line.runs, line.draw_width)
         )?;
         for run in &line.runs {
             write_run(buf, run, b.font_size)?;
@@ -1369,12 +1365,11 @@ fn pictured_line(
         let direction = if rtl { " direction=\"rtl\"" } else { "" };
         write!(
             buf,
-            "<text x=\"{}\" y=\"{}\" font-size=\"{}px\"{direction} textLength=\"{}\" \
-             xml:space=\"preserve\">",
+            "<text x=\"{}\" y=\"{}\" font-size=\"{}px\"{direction}{} xml:space=\"preserve\">",
             num(at),
             num(baseline),
             num(b.font_size),
-            num(width)
+            text_length(text.iter().copied(), width)
         )?;
         for run in text {
             write_run(buf, run, b.font_size)?;
@@ -1383,6 +1378,21 @@ fn pictured_line(
         at += if rtl { -width } else { width };
     }
     Ok(())
+}
+
+/// The `textLength` attribute of a `<text>` of `runs`, measured `width` wide: it
+/// draws them exactly that wide, whatever font the viewer substitutes, by
+/// adjusting the letter spacing (the default `lengthAdjust`), which leaves the
+/// glyph shapes undistorted. Only when the width is Roboto's ([`Run::exact`]):
+/// stretched to an estimate, emoji and CJK would be spaced apart and Arabic
+/// letters drawn unjoined, so text with any is drawn at its natural width
+/// (narrower than the room left for it).
+fn text_length<'a>(runs: impl IntoIterator<Item = &'a Run>, width: f64) -> String {
+    if runs.into_iter().all(Run::exact) {
+        format!(" textLength=\"{}\"", num(width))
+    } else {
+        String::new()
+    }
 }
 
 /// One run of a line's `<text>`: its text, in a `<tspan>` if it is styled.
