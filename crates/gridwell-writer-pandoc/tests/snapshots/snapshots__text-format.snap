@@ -150,8 +150,13 @@ expression: out
                   {
                     "c": [
                       {
-                        "c": "Underlined",
-                        "t": "Str"
+                        "c": [
+                          {
+                            "c": "Underlined",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Underline"
                       }
                     ],
                     "t": "Plain"
@@ -205,15 +210,20 @@ expression: out
                   {
                     "c": [
                       {
-                        "c": "Struck",
-                        "t": "Str"
-                      },
-                      {
-                        "t": "Space"
-                      },
-                      {
-                        "c": "out",
-                        "t": "Str"
+                        "c": [
+                          {
+                            "c": "Struck",
+                            "t": "Str"
+                          },
+                          {
+                            "t": "Space"
+                          },
+                          {
+                            "c": "out",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Strikeout"
                       }
                     ],
                     "t": "Plain"
@@ -398,8 +408,13 @@ expression: out
                         "t": "Space"
                       },
                       {
-                        "c": "underlined",
-                        "t": "Str"
+                        "c": [
+                          {
+                            "c": "underlined",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Underline"
                       },
                       {
                         "c": ",",
@@ -409,8 +424,13 @@ expression: out
                         "t": "Space"
                       },
                       {
-                        "c": "struck",
-                        "t": "Str"
+                        "c": [
+                          {
+                            "c": "struck",
+                            "t": "Str"
+                          }
+                        ],
+                        "t": "Strikeout"
                       },
                       {
                         "t": "Space"
