@@ -260,6 +260,34 @@ fn footnote_marks_are_superscript_runs() {
 }
 
 #[test]
+fn only_text_roboto_has_all_of_gets_a_text_length() {
+    use gridwell_testkit::{cell_content, image, images::LOGO_PNG, text};
+    let table = TableBuilder::new(4)
+        .body(vec![row(vec![
+            cell("Net income"),
+            cell("Status: 😀"),
+            cell("مرحبا"),
+            cell_content(vec![text("ok "), image(LOGO_PNG, "png"), text(" 👍🏽")]),
+        ])])
+        .build();
+    let svg = render(&table, &SvgConfig::default()).unwrap();
+    let text_length = |s: &str| {
+        let end = format!(">{s}</text>");
+        let line = svg
+            .lines()
+            .find(|l| l.starts_with("<text ") && l.ends_with(&end));
+        line.unwrap_or_else(|| panic!("no {s:?} in {svg}"))
+            .contains(" textLength=")
+    };
+    assert!(text_length("Net income"));
+    assert!(!text_length("Status: 😀"));
+    assert!(!text_length("مرحبا"));
+    // Beside a picture, each stretch of text on its own.
+    assert!(text_length("ok "));
+    assert!(!text_length(" 👍🏽"));
+}
+
+#[test]
 fn column_alignment_sets_text_anchor() {
     let table = TableBuilder::new(3)
         .columns(vec![
