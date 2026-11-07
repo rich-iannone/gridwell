@@ -2,7 +2,8 @@
 title: "C FFI API"
 ---
 
-The C API provides a stable ABI for embedding gridwell in any language with C interop.
+The C API embeds gridwell in any language with C interop. Before 1.0 it may still
+change between releases.
 The header is
 [`crates/gridwell-ffi/include/gridwell.h`](https://github.com/rich-iannone/gridwell/blob/main/crates/gridwell-ffi/include/gridwell.h).
 It is generated from the Rust source by cbindgen, and a test fails if the committed
@@ -46,7 +47,7 @@ No Rust panic ever unwinds into C: each function catches panics and reports them
 // Parse
 GridwellTable *gridwell_parse_ir(const char *json, size_t len, GridwellError **err);
 
-// Validate: null on success, else an error listing every problem.
+// Validate: null on success, else an error listing every problem, one per line.
 GridwellError *gridwell_validate(const GridwellTable *table);
 
 // Render text (html, latex, typst, rtf, svg, ansi, pandoc, quarto).
@@ -98,31 +99,85 @@ about.
 
 ## Example
 
-```c
+A program that renders a table IR file to LaTeX:
+
+```{.c filename="example.c"}
 #include "gridwell.h"
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-int main(void) {
-    const char *json = "{ ... }";
+/* The whole file, or NULL. */
+static char *read_file(const char *path, size_t *len) {
+    FILE *f = fopen(path, "rb");
+    if (!f) return NULL;
+    char *buf = NULL;
+    size_t cap = 0, n = 0, got;
+    do {
+        if (n == cap) {
+            char *bigger = realloc(buf, cap = cap ? 2 * cap : 4096);
+            if (!bigger) { free(buf); fclose(f); return NULL; }
+            buf = bigger;
+        }
+        got = fread(buf + n, 1, cap - n, f);
+        n += got;
+    } while (got > 0);
+    fclose(f);
+    *len = n;
+    return buf;
+}
+
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        fprintf(stderr, "usage: %s TABLE.json\n", argv[0]);
+        return 2;
+    }
+    size_t len;
+    char *json = read_file(argv[1], &len);
+    if (!json) {
+        perror(argv[1]);
+        return 1;
+    }
+
     GridwellError *err = NULL;
-
-    GridwellTable *table = gridwell_parse_ir(json, strlen(json), &err);
+    GridwellTable *table = gridwell_parse_ir(json, len, &err);
+    free(json);
     if (!table) {
-        fprintf(stderr, "Parse error: %s\n", gridwell_error_message(err));
+        fprintf(stderr, "parse error: %s\n", gridwell_error_message(err));
         gridwell_free_error(err);
         return 1;
     }
 
-    GridwellTextResult result = gridwell_render_text(table, "html", &err);
-    if (result.text) {
-        printf("%.*s\n", (int)result.len, result.text);
-        gridwell_free_text_result(result);
+    GridwellTextResult result = gridwell_render_text(table, "latex", &err);
+    gridwell_free_table(table);  /* the result doesn't borrow from the table */
+    if (!result.text) {
+        fprintf(stderr, "error %d: %s\n", (int)gridwell_error_code(err),
+                gridwell_error_message(err));
+        gridwell_free_error(err);
+        return 1;
     }
-
-    gridwell_free_table(table);
+    fwrite(result.text, 1, result.len, stdout);
+    gridwell_free_text_result(result);
     return 0;
 }
+```
+
+Built and run on the [getting-started](../guide/getting-started.qmd#first-table)
+table, and on an invalid one:
+
+```{.bash filename="Example output"}
+$ ./example hello.json
+\begin{tabular}{lr}
+\toprule
+Name & Score \\
+\midrule
+Alice & 95 \\
+Bob & 87 \\
+\bottomrule
+\end{tabular}
+$ ./example broken_table.json
+error 2: table IR failed validation with 2 errors
+  - [COL_COUNT] tbody group 0 row 0 has 4 cells but config.table_cols is 3
+  - [SPAN_OVERFLOW_RIGHT] Cell at tbody group 1 (row=0, col=2) has colspan=2 but table only has 3 columns (would need col index up to 3)
 ```
 
 ## Linking
@@ -131,7 +186,7 @@ Build the library with `cargo build --release -p gridwell-ffi`. That produces
 `libgridwell_ffi.{so,dylib}` and `libgridwell_ffi.a` in `target/release/`. Then:
 
 ```bash
-cc -o myapp myapp.c -I crates/gridwell-ffi/include -L target/release -lgridwell_ffi
+cc -o example example.c -I crates/gridwell-ffi/include -L target/release -lgridwell_ffi
 ```
 
 `crates/gridwell-ffi/tests/c/smoke.c` is a complete working example. The test suite
