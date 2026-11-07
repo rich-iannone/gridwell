@@ -1109,7 +1109,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                     }
                     // Non-HTML raw content is skipped
                 }
-                ContentNode::Unknown => {}
+                ContentNode::Unknown(_) => {}
             }
         }
     }

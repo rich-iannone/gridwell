@@ -531,7 +531,7 @@ fn write_content(
                     }
                 }
             },
-            ContentNode::Raw { .. } | ContentNode::Unknown => {}
+            ContentNode::Raw { .. } | ContentNode::Unknown(_) => {}
         }
     }
     Ok(())

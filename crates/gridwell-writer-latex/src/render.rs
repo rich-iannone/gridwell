@@ -683,7 +683,7 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
                         out.push_str(value);
                     }
                 }
-                ContentNode::Unknown => {}
+                ContentNode::Unknown(_) => {}
             }
         }
         let mut lines: Vec<String> = lines
