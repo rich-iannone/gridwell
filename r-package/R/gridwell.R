@@ -140,8 +140,9 @@ gw_to_json <- function(x) {
 #' List the supported output formats.
 #'
 #' @return A data frame with one row per format: `name`, `description`, `kind`
-#'   (`"text"` or `"binary"`), `extension`, `media_type`, and `options` (the
-#'   format's options and their defaults, as a JSON string).
+#'   (`"text"` or `"binary"`), `extension`, `media_type`, `experimental` (`TRUE`
+#'   for a format whose styling is best-effort and may change between releases),
+#'   and `options` (the format's options and their defaults, as a JSON string).
 #' @export
 gw_formats <- function() {
     as.data.frame(rs_formats(), stringsAsFactors = FALSE)
