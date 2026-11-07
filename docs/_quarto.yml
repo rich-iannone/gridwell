@@ -42,6 +42,7 @@ website:
       contents:
         - schema/index.qmd
         - schema/config.qmd
+        - schema/header.qmd
         - schema/columns.qmd
         - schema/table-data.qmd
         - schema/styles.qmd
