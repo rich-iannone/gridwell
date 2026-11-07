@@ -56,6 +56,16 @@ fn registry_metadata_is_complete_and_consistent() {
 }
 
 #[test]
+fn the_experimental_formats_are_the_tier_2_and_3_writers() {
+    let experimental: Vec<&str> = REGISTRY
+        .iter()
+        .filter(|w| w.experimental())
+        .map(|w| w.name())
+        .collect();
+    assert_eq!(experimental, ["svg", "ansi", "pandoc", "quarto", "pptx"]);
+}
+
+#[test]
 fn registry_output_equals_the_writers_own_entry_points() {
     type Direct = fn(&Table) -> Output;
     let direct: Vec<(&str, Direct)> = vec![
