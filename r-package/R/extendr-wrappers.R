@@ -53,8 +53,8 @@ rs_render_binary <- function(table_ptr, format, options) .Call(wrap__rs_render_b
 #' @noRd
 rs_save <- function(table_ptr, path, format, options) .Call(wrap__rs_save, table_ptr, path, format, options)
 
-#' The registry as columns: name, description, kind, extension, media_type, and
-#' options (each format's default options as a JSON string).
+#' The registry as columns: name, description, kind, extension, media_type,
+#' experimental, and options (each format's default options as a JSON string).
 #' @noRd
 rs_formats <- function() .Call(wrap__rs_formats)
 
