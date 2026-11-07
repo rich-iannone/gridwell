@@ -7,5 +7,7 @@ The gridwell user guide covers installation, usage, and integration with upstrea
 - [Getting Started](getting-started.qmd) — installation and first table
 - [CLI Tool](cli.qmd) — command-line usage
 - [Output Formats](output-formats.qmd) — format-specific details
+- [Writer Options](writer-options.qmd) — each format's options and their defaults
+- [Feature Matrix](feature-matrix.qmd) — what each format can express
 - [Great Tables Integration](integration-great-tables.qmd) — Python workflow
 - [gt Integration](integration-gt.qmd) — R workflow

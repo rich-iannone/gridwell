@@ -135,7 +135,7 @@ groups reorder the rows). Great Tables' `GT(id=)` isn't part of the table, so
 pass it to the writer as `table_id`:
 
 ```python
-gt = GT(df, rowname_col="name", groupname_col="grp", id="sales")
+gt = GT(exibble, rowname_col="row", groupname_col="group", id="sales")
 html = gridwell.Table(gt).render_html(table_id="sales")
 ```
 

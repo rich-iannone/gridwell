@@ -127,7 +127,8 @@ italic cell as regular, upright text.
 
 ### HTML
 
-- Semantic HTML5 with `<table>`, `<thead>`, `<tbody>`, `<tfoot>`
+- Semantic HTML5: a `<table>` with a `<thead>` and a `<tbody>` for each row group; the
+  heading lines and the footer are `<div>`s around it
 - A fragment for a host page, styled like gt by default: the `<style>` block starts
   with a base stylesheet (system font, the rules above and below the table and around
   the column labels, spanner and row-group rules, the stub's border, footnote and
@@ -155,7 +156,7 @@ italic cell as regular, upright text.
   true` marks the table so Quarto leaves it as written; the R and Python displays turn
   it on
 - Optional inline-style mode for email/embedded contexts
-- Footnote marks as `<sup>` linked to footer
+- Footnote marks as `<sup>` linking to their footnote
 - Accessibility: the stub is a row header (`<th scope="row">`, or `rowgroup` for a
   stub cell spanning rows), a row group's label heads its rows (`<th
   scope="colgroup">`), and any cell with a `scope` is a header cell with that scope;
@@ -255,7 +256,8 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   (`fr` columns), `xcolor` with the `table` option, and `ulem` with `normalem`
   (`\usepackage[normalem]{ulem}`, so `\emph` keeps its meaning). `tabularx` reads its
   body as an argument, so raw LaTeX in a table with `fr` columns can't use `\verb`
-- Special characters escaped: `& % $ # _ { } ~ ^ \`
+- Special characters escaped: `& % $ # _ { } ~ ^ \`, and `< > |` (which print as
+  other glyphs in the default OT1 encoding)
 - `font_family` is written only for monospace families (`\texttt`, in cells and group
   labels): a named system font needs XeLaTeX or LuaLaTeX with `fontspec`, and the
   output also targets pdfLaTeX
@@ -327,22 +329,28 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 - Box-drawing characters for borders (Unicode); rules run unbroken over and under cells
   that span columns
 - Footnote marks as Unicode superscripts, in cells and in the notes below
-- 24-bit ANSI color sequences
-- Column widths computed from content
-- Text truncation with ellipsis for overflow
+- 24-bit ANSI color sequences (`true_color`)
+- Column widths computed from content; with `max_width`, the widest columns shrink
+  until the grid fits, and text that no longer fits is cut with `…`
 - Saved to a file (`.txt`), it is plain text with no escape codes unless the `color`
   option is set
 
 ### Pandoc
 
-- Pandoc JSON AST format (`Table` constructor)
-- Supports all inline formatting (Strong, Emph, Superscript, etc.)
-- Usable with `pandoc -f json -t docx/pdf/epub/...`
+- One Pandoc JSON AST block, a `Table`, not a whole document
+- Bold, italic, underline and strike-through as `Strong`, `Emph`, `Underline` and
+  `Strikeout`, footnote marks as `Superscript`, line breaks, images, raw HTML as
+  `RawInline`, and cell spans and alignment. Other styles (colors, fills, borders,
+  sizes, fonts) aren't written, and aren't warned for
+- To read it with `pandoc -f json`, put it in a document's blocks:
+  `{"pandoc-api-version": [1, 23, 1], "meta": {}, "blocks": [ … ]}` (the API version
+  gridwell's tests read it back with)
 
 ### Quarto
 
-- The Pandoc JSON AST, as for the Pandoc format, for Quarto's Pandoc-based pipeline
-- Optionally wrapped in a `tbl-<id>` div for cross-references (`table_id` option)
+- The Pandoc format's `Table` block, for Quarto's Pandoc-based pipeline, in a `Div`
+  with the classes `quarto-table` and `cell-output-display`
+- With the `table_id` option the `Div`'s id is `tbl-<table_id>`, for cross-references
 
 ## Binary Formats
 

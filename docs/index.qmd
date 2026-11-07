@@ -9,26 +9,27 @@ renders it to many output formats. It serves as a universal table rendering back
 ## Key Features
 
 - **11 output formats** from a single declarative JSON input
-- **Sub-millisecond rendering** for typical tables (Rust core)
 - **Language bindings** for Python (PyO3), R (extendr), and C (FFI)
-- **Rigorous validation** catches structural errors before rendering
+- **Rigorous validation** catches structural errors before rendering, and warns
+  where a format can't express a feature the table uses
 - **CLI tool** for command-line conversions
+- **Conformance kit** for checking a producer's IR against expected tables
 
 ## Supported Formats
 
-| Format | Type   | Description               |
-|--------|--------|---------------------------|
-| HTML   | Text   | Semantic HTML5 table      |
-| LaTeX  | Text   | longtable with booktabs   |
-| Typst  | Text   | Typst table markup        |
-| RTF    | Text   | Rich Text Format          |
-| SVG    | Text   | Standalone SVG image      |
-| ANSI   | Text   | Terminal output            |
-| Pandoc | Text   | Pandoc AST JSON           |
-| Quarto | Text   | Quarto Markdown           |
-| DOCX   | Binary | Microsoft Word            |
-| XLSX   | Binary | Microsoft Excel           |
-| PPTX   | Binary | Microsoft PowerPoint      |
+| Format | Type   | Description                                   |
+|--------|--------|-----------------------------------------------|
+| HTML   | Text   | HTML5 table                                   |
+| LaTeX  | Text   | `tabular` or `longtable`, with booktabs rules |
+| Typst  | Text   | Typst table markup                            |
+| RTF    | Text   | Rich Text Format                              |
+| SVG    | Text   | Standalone SVG image, with a measured layout  |
+| ANSI   | Text   | Terminal output with box drawing and color    |
+| Pandoc | Text   | Pandoc JSON AST (a Table block)               |
+| Quarto | Text   | Quarto-flavored Pandoc JSON AST (a cross-referenceable Div) |
+| DOCX   | Binary | Microsoft Word document                       |
+| XLSX   | Binary | Microsoft Excel workbook                      |
+| PPTX   | Binary | Microsoft PowerPoint slide                    |
 
 ## How It Works
 

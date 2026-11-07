@@ -55,11 +55,10 @@ gridwell convert table.json -o table.tex
 gridwell convert table.json -o report.docx
 
 # .json needs --to
-gridwell convert table.json --to quarto -o table.json
+gridwell convert table.json --to quarto -o quarto.json
 
 # Writer options
 gridwell convert table.json --to html --options '{"inline_styles": true}'
-
 
 # From stdin
 cat table.json | gridwell convert --to html
@@ -85,7 +84,7 @@ gridwell validate [OPTIONS] [INPUT]
   format)
 
 ```{.bash filename="Example output"}
-$ gridwell validate valid_table.json
+$ gridwell validate hello.json
 Valid: no errors found.
 
 $ gridwell validate --to typst borders.json
@@ -96,7 +95,7 @@ Valid: no errors found.
 $ gridwell validate broken_table.json
 Found 2 validation error(s):
   - [COL_COUNT] tbody group 0 row 0 has 4 cells but config.table_cols is 3
-  - [SPAN_OVERFLOW_RIGHT] cell at (row=1, col=3) has colspan=2 but table has 3 columns
+  - [SPAN_OVERFLOW_RIGHT] Cell at tbody group 1 (row=0, col=2) has colspan=2 but table only has 3 columns (would need col index up to 3)
 ```
 
 ### `gridwell formats`
@@ -147,7 +146,7 @@ when it doesn't conform (IR that doesn't parse or validate fails L0). `--json`
 prints the report as JSON.
 
 ```{.bash filename="Example output"}
-$ gridwell conformance check table.json conformance/expected/gt/exibble_basic.json
+$ gridwell conformance check reformatted.json conformance/expected/gt/exibble_basic.json
 fails L1 (checked to L3)
   L0 valid: pass
   L1 structure: fail (1 difference)

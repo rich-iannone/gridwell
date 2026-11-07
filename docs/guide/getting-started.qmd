@@ -26,6 +26,7 @@ pip install 'gridwell[gt]'    # include the Great Tables integration
 
 ### R
 
+<!-- docs-check: skip -->
 ```r
 # From a source package (needs Rust 1.85 or later):
 install.packages("gridwell_0.1.0.tar.gz", repos = NULL, type = "source")
@@ -52,63 +53,79 @@ cargo build --release -p gridwell-cli
 
 ## First Table
 
-Create a minimal table IR file called `hello.json`:
+Create a table IR file called `hello.json`, with two columns and two rows:
 
+<!-- gridwell file docs/examples/hello.json -->
 ```{.json filename="hello.json"}
 {
   "ir_version": "1.0",
-  "config": {
-    "table_cols": 2,
-    "header_rows": 1,
-    "body_rows": 2,
-    "stub_cols": 0,
-    "row_striping": false,
-    "row_striping_include_stub": false,
-    "row_striping_include_body": false,
-    "column_labels_hidden": false,
-    "locale": "en-US",
-    "page_break_mode": "avoid"
-  },
-  "styles": { "defs": {}, "compositions": {}, "conditionals": [] },
-  "header": null,
+  "config": { "table_cols": 2, "header_rows": 1, "body_rows": 2 },
+  "styles": {},
   "column_spec": [
-    { "id": "col_0", "align": "left", "width": "auto", "hidden": false, "label": "Name" },
-    { "id": "col_1", "align": "right", "width": "auto", "hidden": false, "label": "Score" }
+    { "id": "name", "align": "left" },
+    { "id": "score", "align": "right" }
   ],
   "table": {
     "thead": {
-      "rows": [{
-        "role": "column_label",
-        "cells": [
-          { "content": [{"type": "text", "value": "Name"}], "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "scope": "col" },
-          { "content": [{"type": "text", "value": "Score"}], "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "scope": "col" }
-        ]
-      }]
-    },
-    "tbody": [{
       "rows": [
-        { "cells": [
-          { "content": [{"type": "text", "value": "Alice"}], "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "data_type": "string" },
-          { "content": [{"type": "text", "value": "95"}], "typed_value": {"type": "number", "value": 95}, "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "data_type": "number" }
-        ]},
-        { "cells": [
-          { "content": [{"type": "text", "value": "Bob"}], "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "data_type": "string" },
-          { "content": [{"type": "text", "value": "87"}], "typed_value": {"type": "number", "value": 87}, "colspan": 1, "rowspan": 1, "is_stub": false, "is_placeholder": false, "data_type": "number" }
-        ]}
-      ],
-      "summary_rows": []
-    }]
-  },
-  "footer": { "footnotes": [], "source_notes": [] }
+        {
+          "role": "column_label",
+          "cells": [
+            { "content": [{ "type": "text", "value": "Name" }], "scope": "col" },
+            { "content": [{ "type": "text", "value": "Score" }], "scope": "col" }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              { "content": [{ "type": "text", "value": "Alice" }] },
+              {
+                "content": [{ "type": "text", "value": "95" }],
+                "typed_value": { "type": "number", "value": 95 }
+              }
+            ]
+          },
+          {
+            "cells": [
+              { "content": [{ "type": "text", "value": "Bob" }] },
+              {
+                "content": [{ "type": "text", "value": "87" }],
+                "typed_value": { "type": "number", "value": 87 }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
+Every field it leaves out takes its default (see the [IR schema](../schema/index.qmd)).
 Then render it:
 
 ```bash
+$ gridwell convert hello.json --to latex
+\begin{tabular}{lr}
+\toprule
+Name & Score \\
+\midrule
+Alice & 95 \\
+Bob & 87 \\
+\bottomrule
+\end{tabular}
+```
+
+or to another format, or a file:
+
+```bash
 gridwell convert hello.json --to html
-gridwell convert hello.json --to latex
-gridwell convert hello.json --to docx -o hello.docx
+gridwell convert hello.json --to typst
+gridwell convert hello.json -o hello.docx
 ```
 
 ## Using with Great Tables (Python)
