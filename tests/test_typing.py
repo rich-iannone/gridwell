@@ -211,7 +211,9 @@ def test_format_info_describes_formats():
         assert entry["kind"] in ("text", "binary")
         for name in ("name", "description", "extension", "media_type"):
             assert isinstance(entry[name], str), name
+        assert isinstance(entry["experimental"], bool)
         assert isinstance(entry["options"], dict)
+    assert fields["experimental"] == "bool"
     assert fields["kind"] == "Literal['text', 'binary']"
 
 

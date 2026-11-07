@@ -337,6 +337,8 @@ def test_formats_lists_every_format_with_options():
     assert by_name["latex"]["options"]["booktabs"] is True
     assert by_name["docx"]["options"] == {}
     assert by_name["quarto"]["extension"] == "json"
+    experimental = [f["name"] for f in fmts if f["experimental"]]
+    assert experimental == ["svg", "ansi", "pandoc", "quarto", "pptx"]
 
 
 def test_options_as_dict_and_as_keywords_agree():
