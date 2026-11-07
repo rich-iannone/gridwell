@@ -14,8 +14,8 @@ pub enum Output {
 pub enum Raster {
     /// HTML rendered by headless Chromium.
     Browser,
-    /// SVG rendered by resvg.
-    Resvg,
+    /// SVG opened by headless Chromium.
+    Svg,
     /// Typst source compiled to PNG.
     Typst,
     /// LaTeX compiled with xelatex, then pdftoppm.
@@ -47,7 +47,7 @@ pub const FORMATS: &[Format] = &[
     },
     Format {
         id: "svg",
-        raster: Raster::Resvg,
+        raster: Raster::Svg,
         gated: true,
     },
     Format {

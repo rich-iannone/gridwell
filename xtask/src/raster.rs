@@ -20,7 +20,6 @@ pub enum RasterOutcome {
 /// Detected external tools (probed once at startup).
 pub struct Tools {
     pub chromium: Option<String>,
-    pub rsvg: Option<String>,
     pub typst: Option<String>,
     pub xelatex: Option<String>,
     pub soffice: Option<String>,
@@ -41,9 +40,6 @@ impl Tools {
                 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
                 "/Applications/Chromium.app/Contents/MacOS/Chromium",
             ]),
-            // rsvg-convert (librsvg2-bin, apt-installable) is preferred; resvg
-            // is accepted too if present.
-            rsvg: which(&["rsvg-convert", "resvg"]),
             typst: which(&["typst"]),
             xelatex: which(&["xelatex", "pdflatex"]),
             soffice: which(&[
@@ -60,9 +56,8 @@ impl Tools {
     pub fn summary(&self) -> String {
         let f = |o: &Option<String>| if o.is_some() { "yes" } else { "no" };
         format!(
-            "chromium={} rsvg={} typst={} xelatex={} soffice={} pdftoppm={}",
+            "chromium={} typst={} xelatex={} soffice={} pdftoppm={}",
             f(&self.chromium),
-            f(&self.rsvg),
             f(&self.typst),
             f(&self.xelatex),
             f(&self.soffice),
@@ -84,9 +79,9 @@ pub fn rasterize(
             Some(bin) => browser(bin, output_path, png_path, work_dir),
             None => RasterOutcome::Unavailable("chromium"),
         },
-        Raster::Resvg => match &tools.rsvg {
-            Some(bin) => svg(bin, output_path, png_path),
-            None => RasterOutcome::Unavailable("rsvg-convert"),
+        Raster::Svg => match &tools.chromium {
+            Some(bin) => browser_svg(bin, output_path, png_path),
+            None => RasterOutcome::Unavailable("chromium"),
         },
         Raster::Typst => match &tools.typst {
             Some(bin) => typst(bin, output_path, png_path, work_dir),
@@ -165,6 +160,30 @@ fn browser_page(
     if let Err(e) = std::fs::write(&wrapped_path, wrapped) {
         return RasterOutcome::Failed(format!("write wrapper: {e}"));
     }
+    if let Err(e) = screenshot(bin, &wrapped_path, png) {
+        return RasterOutcome::Failed(e);
+    }
+    crop_to_content(png);
+    RasterOutcome::Png(png.to_path_buf())
+}
+
+/// Screenshot a standalone SVG file as a browser opens it: drawn at the top left
+/// of the window, with emoji in color and `textLength` honored (librsvg does
+/// neither). The drawing fills its canvas, so it gets the margin the other
+/// formats' pages have before the crop, which leaves the same whitespace around
+/// every preview.
+fn browser_svg(bin: &str, svg: &Path, png: &Path) -> RasterOutcome {
+    if let Err(e) = screenshot(bin, svg, png) {
+        return RasterOutcome::Failed(e);
+    }
+    add_margin(png, MARGIN);
+    crop_to_content(png);
+    RasterOutcome::Png(png.to_path_buf())
+}
+
+/// Screenshot the file `page` in headless Chromium to `png`, uncropped, in the
+/// first of [`BROWSER_WINDOWS`] that holds all of it.
+fn screenshot(bin: &str, page: &Path, png: &Path) -> Result<(), String> {
     for &(w, h) in BROWSER_WINDOWS {
         let out = Command::new(bin)
             .args([
@@ -177,38 +196,35 @@ fn browser_page(
             ])
             .arg(format!("--window-size={w},{h}"))
             .arg(format!("--screenshot={}", png.display()))
-            .arg(&wrapped_path)
+            .arg(page)
             .output();
-        if let Err(e) = check(out) {
-            return RasterOutcome::Failed(e);
-        }
+        check(out)?;
         if !png.exists() {
-            return RasterOutcome::Failed("tool produced no png".into());
+            return Err("tool produced no png".into());
         }
         match touches_far_edge(png) {
-            Some(false) => {
-                crop_to_content(png);
-                return RasterOutcome::Png(png.to_path_buf());
-            }
+            Some(false) => return Ok(()),
             Some(true) => continue, // clipped: try a larger window
-            None => return RasterOutcome::Failed("could not read screenshot".into()),
+            None => return Err("could not read screenshot".into()),
         }
     }
     let (w, h) = BROWSER_WINDOWS[BROWSER_WINDOWS.len() - 1];
-    RasterOutcome::Failed(format!(
+    Err(format!(
         "content is clipped even at the largest window ({w}x{h} CSS px)"
     ))
 }
 
-/// Whether any non-background pixel lies on the image's last column or last row,
-/// i.e. content may continue past the captured area. `None` if unreadable.
+/// Whether any pixel but the window's white background lies on the image's last
+/// column or last row, i.e. content may continue past the captured area. Not
+/// the top left pixel's color: a standalone SVG is drawn from that corner, so
+/// that pixel may be the drawing's. `None` if unreadable.
 fn touches_far_edge(png: &Path) -> Option<bool> {
     let img = image::open(png).ok()?.to_rgba8();
     let (w, h) = img.dimensions();
     if w == 0 || h == 0 {
         return Some(false);
     }
-    let bg = *img.get_pixel(0, 0);
+    let bg = image::Rgba([255, 255, 255, 255]);
     let differs = |p: &image::Rgba<u8>| {
         p.0.iter()
             .zip(bg.0.iter())
@@ -372,31 +388,6 @@ fn pdf_to_png(ppm_bin: &str, pdf: &Path, png: &Path) -> RasterOutcome {
         .arg(pdf)
         .arg(&prefix)
         .output();
-    finish(out, png)
-}
-
-fn svg(bin: &str, svg_in: &Path, png: &Path) -> RasterOutcome {
-    // rsvg-convert writes the output with `-o`; resvg takes `<in> <out>`
-    // positionally. Both accept `--zoom`. A white background matches the other
-    // formats' previews (SVG itself is transparent).
-    let out = if bin.contains("rsvg-convert") {
-        Command::new(bin)
-            .args(["--zoom", "2", "--background-color", "white", "-o"])
-            .arg(png)
-            .arg(svg_in)
-            .output()
-    } else {
-        Command::new(bin)
-            .args(["--zoom", "2", "--background", "white"])
-            .arg(svg_in)
-            .arg(png)
-            .output()
-    };
-    // The drawing fills its canvas: give it the margin the other formats' pages
-    // have, so the crop leaves the same whitespace around every preview.
-    if matches!(&out, Ok(o) if o.status.success()) {
-        add_margin(png, MARGIN);
-    }
     finish(out, png)
 }
 
@@ -609,33 +600,55 @@ mod tests {
         assert_eq!(img.dimensions(), (10 + 2 * MARGIN, 1 + 2 * MARGIN));
     }
 
-    #[test]
-    fn an_svg_preview_gets_the_margin() {
-        let Some(bin) = Tools::detect().rsvg else {
-            if std::env::var_os("GRIDWELL_REQUIRE_RSVG").is_some_and(|v| !v.is_empty()) {
-                panic!("rsvg-convert not found but GRIDWELL_REQUIRE_RSVG is set");
+    /// An SVG drawn as a browser draws it, to a PNG.
+    fn svg_preview(name: &str, svg: &str) -> Option<image::RgbaImage> {
+        let tools = Tools::detect();
+        if tools.chromium.is_none() {
+            if std::env::var_os("GRIDWELL_REQUIRE_CHROMIUM").is_some_and(|v| !v.is_empty()) {
+                panic!("chromium not found but GRIDWELL_REQUIRE_CHROMIUM is set");
             }
-            eprintln!("skipping: rsvg-convert not found");
-            return;
-        };
-        // A drawing that fills its canvas, drawn at twice its size.
+            eprintln!("skipping: chromium not found");
+            return None;
+        }
         let dir = std::env::temp_dir();
-        let svg_in = dir.join(format!("gridwell-xtask-{}-fill.svg", std::process::id()));
-        std::fs::write(
-            &svg_in,
-            r#"<svg xmlns="http://www.w3.org/2000/svg" width="20" height="10"><rect width="20" height="10"/></svg>"#,
-        )
-        .unwrap();
+        let svg_in = dir.join(format!("gridwell-xtask-{}-{name}.svg", std::process::id()));
+        std::fs::write(&svg_in, svg).unwrap();
         let png = svg_in.with_extension("png");
-        match svg(&bin, &svg_in, &png) {
+        let _ = std::fs::remove_file(&png);
+        match rasterize(Raster::Svg, &tools, &svg_in, &png, &dir) {
             RasterOutcome::Png(_) => {}
             RasterOutcome::Failed(e) => panic!("{e}"),
             RasterOutcome::Unavailable(t) => panic!("{t} unavailable"),
         }
-        let img = image::open(&png).unwrap().to_rgba8();
+        Some(image::open(&png).unwrap().to_rgba8())
+    }
+
+    #[test]
+    fn an_svg_preview_gets_the_margin() {
+        // A drawing that fills its canvas, drawn at twice its size.
+        let Some(img) = svg_preview(
+            "fill",
+            r#"<svg xmlns="http://www.w3.org/2000/svg" width="20" height="10"><rect width="20" height="10"/></svg>"#,
+        ) else {
+            return;
+        };
         assert_eq!(img.dimensions(), (40 + 2 * MARGIN, 20 + 2 * MARGIN));
         assert_eq!(*img.get_pixel(0, 0), image::Rgba([255, 255, 255, 255]));
         assert_eq!(*img.get_pixel(MARGIN, MARGIN), image::Rgba([0, 0, 0, 255]));
+    }
+
+    #[test]
+    fn an_svg_preview_honors_text_length() {
+        // Two letters stretched across 150px (librsvg would draw them about 25px
+        // wide): the ink spans most of 300 pixels at twice the size.
+        let Some(img) = svg_preview(
+            "length",
+            r#"<svg xmlns="http://www.w3.org/2000/svg" width="160" height="30"><text x="5" y="22" font-size="20px" textLength="150">ab</text></svg>"#,
+        ) else {
+            return;
+        };
+        let ink = img.width() - 2 * MARGIN;
+        assert!((280..=310).contains(&ink), "{ink}");
     }
 
     #[test]
@@ -655,6 +668,11 @@ mod tests {
         // Ink on the near (left/top) edges is padding-side and not clipping.
         assert_eq!(
             touches_far_edge(&write_png("near", 10, 10, &[(0, 5), (5, 0)])),
+            Some(false)
+        );
+        // An SVG drawn from the top left corner, inside the window.
+        assert_eq!(
+            touches_far_edge(&write_png("corner", 10, 10, &[(0, 0), (1, 0), (0, 1)])),
             Some(false)
         );
         assert_eq!(

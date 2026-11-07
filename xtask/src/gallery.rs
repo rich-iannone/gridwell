@@ -531,7 +531,6 @@ mod tests {
     fn the_index_links_to_every_comparison_page() {
         let tools = Tools {
             chromium: None,
-            rsvg: None,
             typst: None,
             xelatex: None,
             soffice: None,
