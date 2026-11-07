@@ -73,6 +73,19 @@ def test_to_json():
     assert parsed["ir_version"] == "1.0"
 
 
+def test_to_json_keeps_a_node_of_an_unknown_type():
+    d = json.loads(load_fixture("minimal/minimal_1x1.json"))
+    future = {"type": "sparkline", "values": [1, 2.5, None], "options": {"a": [True]}}
+    d["table"]["tbody"][0]["rows"][0]["cells"][0]["content"].append(future)
+    table = gridwell.Table.from_dict(d)
+    assert table.validate() == []
+    back = json.loads(table.to_json())
+    assert back["table"]["tbody"][0]["rows"][0]["cells"][0]["content"] == [
+        {"type": "text", "value": "Hello"},
+        future,
+    ]
+
+
 # ─── Text render tests ───
 
 
