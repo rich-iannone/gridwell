@@ -82,7 +82,7 @@ options at all).
 
 | Option | Type | Default | Meaning |
 |---|---|---|---|
-| `font_family` | string | `"Roboto, Helvetica, Arial, 'Liberation Sans', Arimo, sans-serif"` | CSS font list for all text; letters, digits, spaces, quotes and `, - _ .` only. Layout uses Roboto's widths (and leaves room for Arial-compatible fallbacks), and every line is drawn with `textLength`, so viewers that substitute another font keep the layout; a list without Roboto or an Arial-compatible font may not fit as well in viewers that ignore `textLength` (librsvg) |
+| `font_family` | string | `"Roboto, Helvetica, Arial, 'Liberation Sans', Arimo, sans-serif"` | CSS font list for all text; letters, digits, spaces, quotes and `, - _ .` only. Layout uses Roboto's widths (and leaves room for Arial-compatible fallbacks), and every line of text Roboto has is drawn with `textLength`, so viewers that substitute another font keep the layout; a list without Roboto or an Arial-compatible font may not fit as well in viewers that ignore `textLength` (librsvg) |
 | `font_size` | number | `16` | Base font size in px (greater than 0, at most 10000) |
 | `row_height` | number | `0` | Minimum row height in px (0–10000); `0`: rows are as tall as their content |
 | `cell_padding_x` | number | `5` | Horizontal padding of body cells in px (0–10000); column labels and spanners use the default look's own |
