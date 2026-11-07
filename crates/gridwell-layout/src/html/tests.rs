@@ -34,7 +34,7 @@ fn show(nodes: &[ContentNode]) -> String {
             } => out.push_str(&format!("<img {src} {alt:?} {width:?} {height:?}>")),
             ContentNode::FootnoteMark { mark_text, .. } => out.push_str(&format!("^{mark_text}")),
             ContentNode::Raw { format, value } => out.push_str(&format!("{{{format}:{value}}}")),
-            ContentNode::Unknown => out.push('?'),
+            ContentNode::Unknown(_) => out.push('?'),
         }
     }
     out
