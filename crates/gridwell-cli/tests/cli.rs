@@ -891,3 +891,664 @@ fn another_major_version_is_refused() {
          (a newer gridwell may read it)\n"
     );
 }
+
+// ─── fmt, inspect, grid ───
+
+fn with_stdin(args: &[&str], input: &[u8]) -> Output {
+    use std::io::Write;
+    use std::process::Stdio;
+    let mut child = bin()
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child.stdin.take().unwrap().write_all(input).unwrap();
+    child.wait_with_output().unwrap()
+}
+
+/// Every IR file in the repository that parses: the fixtures and the docs' examples.
+fn ir_files() -> Vec<PathBuf> {
+    let mut files = Vec::new();
+    for dir in [
+        "fixtures/minimal",
+        "fixtures/comprehensive",
+        "fixtures/invalid",
+        "docs/examples",
+    ] {
+        for entry in std::fs::read_dir(repo(dir)).unwrap() {
+            let path = entry.unwrap().path();
+            let text = std::fs::read_to_string(&path).unwrap();
+            if path.extension().is_some_and(|e| e == "json") && text.contains("\"ir_version\"") {
+                files.push(path);
+            }
+        }
+    }
+    files.sort();
+    assert!(files.len() > 30, "{files:?}");
+    files
+}
+
+#[test]
+fn fmt_sorts_keys_at_every_depth_and_keeps_every_field() {
+    let ir = r#"{"table":{"tbody":[{"rows":[{"cells":[{"content":[{"value":"x","type":"text"},
+        {"type":"sparkline","values":[1,2.5]}],"zz_future":true}]}]}],"thead":{"rows":[]}},
+        "styles":{},"ir_version":"1.0","config":{"table_cols":1,"header_rows":0,"body_rows":1},
+        "column_spec":[{"id":"a"}]}"#;
+    let o = with_stdin(&["fmt"], ir.as_bytes());
+    assert!(o.status.success(), "{}", stderr(&o));
+    assert_eq!(
+        stdout(&o),
+        r#"{
+  "column_spec": [
+    {
+      "id": "a"
+    }
+  ],
+  "config": {
+    "body_rows": 1,
+    "header_rows": 0,
+    "table_cols": 1
+  },
+  "ir_version": "1.0",
+  "styles": {},
+  "table": {
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "x"
+                  },
+                  {
+                    "type": "sparkline",
+                    "values": [
+                      1,
+                      2.5
+                    ]
+                  }
+                ],
+                "zz_future": true
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "thead": {
+      "rows": []
+    }
+  }
+}
+"#
+    );
+    assert!(stderr(&o).is_empty(), "{}", stderr(&o));
+}
+
+#[test]
+fn fmt_is_lossless_idempotent_and_agrees_with_check() {
+    for path in ir_files() {
+        let name = path.display().to_string();
+        let original = std::fs::read_to_string(&path).unwrap();
+        let o = bin().arg("fmt").arg(&path).output().unwrap();
+        assert!(o.status.success(), "{name}: {}", stderr(&o));
+        let formatted = stdout(&o);
+        // The same JSON: nothing added, dropped or changed.
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&formatted).unwrap(),
+            serde_json::from_str::<serde_json::Value>(&original).unwrap(),
+            "{name}"
+        );
+        assert!(
+            formatted.ends_with("}\n") && !formatted.contains('\r'),
+            "{name}"
+        );
+        // Formatting what's formatted changes nothing, and --check says so.
+        let again = with_stdin(&["fmt"], formatted.as_bytes());
+        assert_eq!(stdout(&again), formatted, "{name}");
+        let check = with_stdin(&["fmt", "--check"], formatted.as_bytes());
+        assert!(check.status.success(), "{name}: {}", stderr(&check));
+        assert!(check.stdout.is_empty() && check.stderr.is_empty(), "{name}");
+        // None of the files is written that way, so --check fails on each.
+        let check = bin().args(["fmt", "--check"]).arg(&path).output().unwrap();
+        assert_clean_failure(&check);
+        assert!(check.stdout.is_empty(), "{name}");
+        assert_eq!(
+            stderr(&check),
+            format!("{name} is not in canonical form (see `gridwell fmt`)\n")
+        );
+    }
+}
+
+#[test]
+fn fmt_check_is_byte_exact() {
+    let canonical = stdout(
+        &bin()
+            .arg("fmt")
+            .arg(fixture("minimal/minimal_1x1.json"))
+            .output()
+            .unwrap(),
+    );
+    for (what, text) in [
+        ("CRLF line endings", canonical.replace('\n', "\r\n")),
+        ("no final newline", canonical.trim_end().to_string()),
+        ("a trailing blank line", format!("{canonical}\n")),
+        ("four-space indents", canonical.replace("\n  ", "\n    ")),
+        ("a leading space", format!(" {canonical}")),
+    ] {
+        let o = with_stdin(&["fmt", "--check"], text.as_bytes());
+        assert_clean_failure(&o);
+        assert_eq!(
+            stderr(&o),
+            "stdin is not in canonical form (see `gridwell fmt`)\n",
+            "{what}"
+        );
+        // And formatting it gives the canonical form back.
+        assert_eq!(
+            stdout(&with_stdin(&["fmt"], text.as_bytes())),
+            canonical,
+            "{what}"
+        );
+    }
+    let o = with_stdin(&["fmt", "--check", "-"], canonical.as_bytes());
+    assert!(o.status.success(), "{}", stderr(&o));
+}
+
+#[test]
+fn fmt_needs_ir_but_not_valid_ir() {
+    // Invalid IR formats: the formatter is for fixing it too.
+    let o = bin()
+        .arg("fmt")
+        .arg(fixture("invalid/span_overlap.json"))
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    // JSON that isn't IR, and text that isn't JSON, don't.
+    for (input, error) in [
+        (
+            r#"{"a": 1}"#,
+            "Error parsing IR: JSON parse error: missing field `ir_version`",
+        ),
+        (
+            "{ not json",
+            "Error parsing IR: JSON parse error: key must be a string",
+        ),
+        ("", "Error parsing IR: JSON parse error: EOF while parsing"),
+    ] {
+        for args in [vec!["fmt"], vec!["fmt", "--check"]] {
+            let o = with_stdin(&args, input.as_bytes());
+            assert_clean_failure(&o);
+            assert!(o.stdout.is_empty(), "{input}");
+            assert!(stderr(&o).starts_with(error), "{input}: {}", stderr(&o));
+        }
+    }
+    let o = bin()
+        .args(["fmt", "/nonexistent/gridwell.json"])
+        .output()
+        .unwrap();
+    assert_clean_failure(&o);
+    assert!(
+        stderr(&o).starts_with("Error reading /nonexistent/gridwell.json"),
+        "{}",
+        stderr(&o)
+    );
+}
+
+#[test]
+fn inspect_counts_what_the_table_holds() {
+    let o = bin()
+        .arg("inspect")
+        .arg(fixture("comprehensive/reference_table.json"))
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    assert_eq!(
+        stdout(&o),
+        "\
+IR version:    1.0
+Valid:         yes
+Columns:       5 (1 stub)
+Header:        title, subtitle
+Head rows:     2
+Body:          6 rows in 2 groups (2 labeled)
+Summary rows:  2
+Spans:         3 spanning cells, 4 placeholders
+Styles:        14 definitions, 0 compositions, 0 conditionals; 13 used
+Unused styles: footnote_mark
+Footnotes:     1
+Source notes:  1
+Content:       1 footnote_mark, 50 text
+Typed values:  6 integer, 24 number, 4 string
+Extensions:    html, latex
+"
+    );
+    let o = bin()
+        .args(["inspect", "--json"])
+        .arg(fixture("comprehensive/reference_table.json"))
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    let stats = json_out(&o);
+    for (field, value) in [
+        ("ir_version", serde_json::json!("1.0")),
+        ("valid", serde_json::json!(true)),
+        ("errors", serde_json::json!(0)),
+        (
+            "columns",
+            serde_json::json!({ "total": 5, "stub": 1, "hidden": [] }),
+        ),
+        (
+            "header",
+            serde_json::json!({ "title": true, "subtitle": true, "extra_lines": 0 }),
+        ),
+        ("head_rows", serde_json::json!(2)),
+        ("groups", serde_json::json!(2)),
+        ("labeled_groups", serde_json::json!(2)),
+        ("body_rows", serde_json::json!(6)),
+        ("summary_rows", serde_json::json!(2)),
+        ("grand_summary_rows", serde_json::json!(0)),
+        ("spanning_cells", serde_json::json!(3)),
+        ("placeholders", serde_json::json!(4)),
+        ("footnotes", serde_json::json!(1)),
+        ("source_notes", serde_json::json!(1)),
+        (
+            "content",
+            serde_json::json!({ "footnote_mark": 1, "text": 50 }),
+        ),
+        (
+            "typed_values",
+            serde_json::json!({ "integer": 6, "number": 24, "string": 4 }),
+        ),
+        ("extensions", serde_json::json!(["html", "latex"])),
+    ] {
+        assert_eq!(stats[field], value, "{field}");
+    }
+    assert_eq!(stats["styles"]["definitions"], 14);
+    assert_eq!(stats["styles"]["used"].as_array().unwrap().len(), 13);
+    assert_eq!(
+        stats["styles"]["unused"],
+        serde_json::json!(["footnote_mark"])
+    );
+    assert_eq!(stats.as_object().unwrap().len(), 19, "{stats}");
+}
+
+/// A table with one of everything `inspect` counts.
+fn everything_table() -> serde_json::Value {
+    let mut ir = one_row_table(vec![
+        serde_json::json!({ "content": [{ "type": "styled_text", "value": "a", "style_id": "a" }],
+            "style_id": "comp", "is_stub": true }),
+        serde_json::json!({ "content": [{ "type": "sparkline", "values": [1] }],
+            "typed_value": { "type": "date", "value": "2026-01-01" } }),
+        serde_json::json!({ "content": [{ "type": "image", "src": "data:," }, { "type": "line_break" }] }),
+    ]);
+    ir["config"]["stub_cols"] = serde_json::json!(1);
+    ir["column_spec"][1]["hidden"] = serde_json::json!(true);
+    ir["column_spec"][2]["hidden"] = serde_json::json!(true);
+    ir["column_spec"][2]["id"] = serde_json::json!("x\u{1b}[31m");
+    // A definition for each place a style can be used, and one used by nothing.
+    let defs: serde_json::Map<String, serde_json::Value> = "abcdefghij"
+        .chars()
+        .map(|c| (c.to_string(), serde_json::json!({})))
+        .collect();
+    ir["styles"] = serde_json::json!({
+        "defs": defs,
+        "compositions": {
+            "comp": { "extends": "b", "overrides": {} },
+            "spare": { "extends": "c", "overrides": {} }
+        },
+        "conditionals": [{ "id": "z", "selector": { "row_parity": "odd" }, "style": {} }]
+    });
+    ir["column_spec"][0]["style_id"] = serde_json::json!("f");
+    ir["header"] = serde_json::json!({
+        "subtitle": { "content": [{ "type": "text", "value": "s" }], "style_id": "j" },
+        "extra_lines": [{ "content": [] }, { "content": [], "style_id": "e" }]
+    });
+    let row = ir["table"]["tbody"][0]["rows"][0].clone();
+    let group = &mut ir["table"]["tbody"][0];
+    group["label"] =
+        serde_json::json!({ "content": [{ "type": "text", "value": "G" }], "style_id": "g" });
+    group["summary_rows"] = serde_json::json!([row.clone(), row]);
+    group["summary_rows"][1]["role"] = serde_json::json!("grand_summary_row");
+    group["summary_rows"][1]["style_id"] = serde_json::json!("d");
+    ir["table"]["tbody"]
+        .as_array_mut()
+        .unwrap()
+        .push(serde_json::json!({ "rows": [] }));
+    ir["footer"] = serde_json::json!({
+        "footnotes": [{ "id": "n", "mark": "1", "content": [{ "type": "text", "value": "n" }],
+            "style_id": "h" }],
+        "source_notes": [{ "content": [{ "type": "text", "value": "src" }], "style_id": "i" }]
+    });
+    ir["extensions"] = serde_json::json!({ "zeta": 1, "alpha": {} });
+    ir
+}
+
+#[test]
+fn inspect_counts_one_of_everything() {
+    let path = write_json("inspect-everything", &everything_table());
+    let o = bin().arg("inspect").arg(&path).output().unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    let text = stdout(&o);
+    // The ids are the table's; an escape sequence in one is shown escaped.
+    assert!(!text.contains('\u{1b}'), "{text}");
+    assert_eq!(
+        text,
+        "\
+IR version:    1.0
+Valid:         yes
+Columns:       3 (1 stub, 2 hidden: c1, \"x\\u{1b}[31m\")
+Header:        subtitle, 2 extra lines
+Head rows:     0
+Body:          1 row in 2 groups (1 labeled)
+Summary rows:  2 (1 grand summary)
+Spans:         none
+Styles:        10 definitions, 2 compositions, 1 conditional; 9 used
+Unused styles: c, spare
+Footnotes:     1
+Source notes:  1
+Content:       3 image, 3 line_break, 3 sparkline, 3 styled_text, 4 text
+Typed values:  3 date
+Extensions:    alpha, zeta
+"
+    );
+    let o = bin()
+        .args(["inspect", "--json"])
+        .arg(&path)
+        .output()
+        .unwrap();
+    let stats = json_out(&o);
+    assert_eq!(stats["valid"], true);
+    assert_eq!(stats["summary_rows"], 2);
+    assert_eq!(stats["grand_summary_rows"], 1);
+    assert_eq!(
+        stats["styles"]["used"],
+        serde_json::json!(["a", "comp", "d", "e", "f", "g", "h", "i", "j"])
+    );
+    assert_eq!(stats["styles"]["unused"], serde_json::json!(["c", "spare"]));
+    assert_eq!(
+        stats["columns"]["hidden"],
+        serde_json::json!(["c1", "x\u{1b}[31m"])
+    );
+}
+
+#[test]
+fn inspect_counts_spans_of_any_size_and_placeholders_apart() {
+    let ir = one_row_table(vec![
+        txt("a", 2),
+        serde_json::json!({ "content": [], "is_placeholder": true, "colspan": 3 }),
+        txt("b", 0),
+        serde_json::json!({ "content": [{ "type": "text", "value": "c" }], "rowspan": 2 }),
+        txt("d", 1),
+    ]);
+    let o = bin()
+        .args(["inspect", "--json"])
+        .arg(write_json("inspect-spans", &ir))
+        .output()
+        .unwrap();
+    let stats = json_out(&o);
+    assert_eq!(stats["spanning_cells"], 3, "{stats}");
+    assert_eq!(stats["placeholders"], 1, "{stats}");
+    assert_eq!(stats["valid"], false, "{stats}");
+}
+
+#[test]
+fn inspect_and_grid_read_invalid_ir_and_stdin() {
+    let broken = std::fs::read(repo("docs/examples/broken_table.json")).unwrap();
+    let o = with_stdin(&["inspect"], &broken);
+    assert!(o.status.success(), "{}", stderr(&o));
+    assert!(stdout(&o).contains("\nValid:         no, 2 errors (see `gridwell validate`)\n"));
+    let o = with_stdin(&["grid", "-"], &broken);
+    assert!(o.status.success(), "{}", stderr(&o));
+    assert!(
+        stdout(&o).contains("[SPAN_OVERFLOW_RIGHT]"),
+        "{}",
+        stdout(&o)
+    );
+    for args in [vec!["inspect"], vec!["inspect", "--json"], vec!["grid"]] {
+        let o = with_stdin(&args, b"{ not json");
+        assert_clean_failure(&o);
+        assert!(o.stdout.is_empty());
+        assert!(stderr(&o).starts_with("Error parsing IR"), "{}", stderr(&o));
+    }
+}
+
+#[test]
+fn grid_draws_each_section() {
+    let o = bin()
+        .arg("grid")
+        .arg(fixture("comprehensive/reference_table.json"))
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    assert_eq!(
+        stdout(&o),
+        r#"Stub columns: c0
+
+thead: 2 rows, 5 columns
+    c0  c1  c2  c3  c4
+r0 [A ][B ][C ][C ][C ]
+r1 [D ][E ][F ][G ][H ]
+C = cell(r0,c2, colspan=3) "Financials"
+
+tbody group 0 "North America": 3 rows, 5 columns
+    c0  c1  c2  c3  c4
+r0 [A ][B ][C ][D ][E ]
+r1 [A ][F ][G ][H ][I ]
+r2 [J ][K ][L ][M ][N ]
+A = cell(r0,c0, rowspan=2) "United States"
+
+tbody group 0 summary: 1 row, 5 columns
+    c0  c1  c2  c3  c4
+r0 [A ][B ][C ][D ][E ]
+
+tbody group 1 "Europe": 3 rows, 5 columns
+    c0  c1  c2  c3  c4
+r0 [A ][B ][C ][D ][E ]
+r1 [A ][F ][G ][H ][I ]
+r2 [J ][K ][L ][M ][N ]
+A = cell(r0,c0, rowspan=2) "Germany"
+
+tbody group 1 summary: 1 row, 5 columns
+    c0  c1  c2  c3  c4
+r0 [A ][B ][C ][D ][E ]
+"#
+    );
+}
+
+#[test]
+fn grid_draws_span_errors_where_they_are() {
+    let grid = |rel: &str| {
+        let o = bin().arg("grid").arg(fixture(rel)).output().unwrap();
+        // A view, not a check: it succeeds for any IR that parses.
+        assert!(o.status.success(), "{rel}: {}", stderr(&o));
+        stdout(&o)
+    };
+    let overlap = grid("invalid/span_overlap.json");
+    assert!(
+        overlap.contains(
+            "\
+r0 [A ][A ][B ]
+r1 [A ][A ][D ]
+A = cell(r0,c0, rowspan=2, colspan=2) \"spans right\"
+C = cell(r1,c0, colspan=2) \"CONFLICT\"
+! [SPAN_OVERLAP] Grid position at tbody group 0 (row=1, col=0) is already claimed by the cell at (row=0, col=0)
+"
+        ),
+        "{overlap}"
+    );
+    // A position nothing covers.
+    let mismatch = grid("invalid/span_placeholder_mismatch.json");
+    assert!(
+        mismatch.contains("r0 [A ][. ]\n! [SPAN_PLACEHOLDER_MISMATCH]"),
+        "{mismatch}"
+    );
+    let zero = grid("invalid/span_zero_value.json");
+    assert!(
+        zero.contains("A = cell(r0,c0, colspan=0) \"1\"\n! [SPAN_ZERO_VALUE]"),
+        "{zero}"
+    );
+    let bottom = grid("invalid/span_overflow_bottom.json");
+    assert!(
+        bottom.contains("r1 [A ][C ]\nA = cell(r0,c0, rowspan=3)"),
+        "{bottom}"
+    );
+    let count = grid("invalid/col_count_mismatch.json");
+    assert!(
+        count.contains("tbody group 0: not drawn, row 0 has 4 cells but config.table_cols is 3\n"),
+        "{count}"
+    );
+}
+
+#[test]
+fn grid_lists_every_error_and_excerpts_every_kind_of_text() {
+    // Two zero spans in one section: both errors are listed. The excerpt has the
+    // text of each kind of node that has some.
+    let mut ir = one_row_table(vec![txt("a", 0), txt("b", 0), txt("c", 1)]);
+    ir["table"]["tbody"][0]["rows"][0]["cells"][0]["content"] = serde_json::json!([
+        { "type": "styled_text", "value": "Bold", "style_id": "s" },
+        { "type": "line_break" },
+        { "type": "text", "value": "x" },
+        { "type": "footnote_mark", "ref": "f", "mark_text": "1" },
+        { "type": "image", "src": "data:," },
+        { "type": "image", "src": "data:,", "alt": "logo" },
+        { "type": "raw", "format": "html", "value": "<b>" },
+    ]);
+    let o = bin()
+        .arg("grid")
+        .arg(write_json("grid-errors", &ir))
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    let out = stdout(&o);
+    let lines: Vec<&str> = out.lines().skip_while(|l| !l.starts_with("A = ")).collect();
+    assert_eq!(
+        lines[0],
+        r#"A = cell(r0,c0, colspan=0) "Bold x1[image]logo""#
+    );
+    assert_eq!(lines[1], r#"B = cell(r0,c1, colspan=0) "b""#);
+    let errors: Vec<&&str> = lines.iter().filter(|l| l.starts_with("! ")).collect();
+    assert_eq!(errors.len(), 2, "{out}");
+    assert!(
+        errors.iter().all(|l| l.contains("[SPAN_ZERO_VALUE]")),
+        "{out}"
+    );
+}
+
+#[test]
+fn grid_codes_go_past_z() {
+    let cells = (0..30).map(|i| txt(&i.to_string(), 1)).collect();
+    let mut ir = one_row_table(cells);
+    ir["table"]["thead"]["rows"] = serde_json::json!([]);
+    let o = bin()
+        .arg("grid")
+        .arg(write_json("grid-codes", &ir))
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    let out = stdout(&o);
+    let lines: Vec<&str> = out.lines().collect();
+    assert_eq!(lines[0], "thead: no rows");
+    assert_eq!(lines[2], "tbody group 0: 1 row, 30 columns");
+    // Three wide, for c29.
+    assert!(lines[3].starts_with("    c0   c1   c2 "), "{}", lines[3]);
+    assert!(lines[3].ends_with(" c28  c29"), "{}", lines[3]);
+    assert!(lines[4].starts_with("r0 [A  ][B  ]"), "{}", lines[4]);
+    assert!(
+        lines[4].ends_with("[Y  ][Z  ][AA ][AB ][AC ][AD ]"),
+        "{}",
+        lines[4]
+    );
+    // Each code is under its column's name.
+    for c in [0, 9, 10, 29] {
+        let label = lines[3]
+            .find(&format!(" c{c} ").trim_end().to_string())
+            .unwrap();
+        assert_eq!(&lines[4][label..label + 1], "[", "c{c}");
+    }
+    assert_eq!(lines.len(), 5, "{out}");
+}
+
+#[test]
+fn grid_of_hostile_ir_is_bounded_and_escaped() {
+    // table_cols far beyond the cells present: not drawn, and nothing that size
+    // allocated.
+    let mut ir = one_row_table(vec![txt("a", 1)]);
+    ir["config"]["table_cols"] = serde_json::json!(u32::MAX);
+    let o = bin()
+        .arg("grid")
+        .arg(write_json("grid-wide", &ir))
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    assert!(stdout(&o).contains("not drawn, row 0 has 1 cells but config.table_cols is 4294967295"));
+    // A span as big as can be is clamped.
+    let ir = one_row_table(vec![txt("a", 1), txt("b", u32::MAX as u64)]);
+    let o = bin()
+        .arg("grid")
+        .arg(write_json("grid-huge-span", &ir))
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", stderr(&o));
+    assert!(
+        stdout(&o).contains(
+            "r0 [A ][B ]\nB = cell(r0,c1, colspan=4294967295) \"b\"\n! [SPAN_OVERFLOW_RIGHT]"
+        ),
+        "{}",
+        stdout(&o)
+    );
+    // Text from the IR is quoted and escaped, and cut short.
+    let mut ir = one_row_table(vec![txt("\u{1b}[2J\u{7}", 2), ph()]);
+    ir["table"]["tbody"][0]["label"] =
+        serde_json::json!({ "content": [{ "type": "text", "value": "x".repeat(40) }] });
+    let o = bin()
+        .arg("grid")
+        .arg(write_json("grid-escapes", &ir))
+        .output()
+        .unwrap();
+    let out = stdout(&o);
+    assert!(!out.contains('\u{1b}') && !out.contains('\u{7}'), "{out}");
+    assert!(
+        out.contains(r#"A = cell(r0,c0, colspan=2) "\u{1b}[2J\u{7}""#),
+        "{out}"
+    );
+    assert!(
+        out.contains(&format!("tbody group 0 \"{}...\": 1 row", "x".repeat(21))),
+        "{out}"
+    );
+}
+
+/// Every command `gridwell --help` lists has a section in the CLI guide.
+#[test]
+fn every_command_is_documented() {
+    let help = stdout(&bin().arg("--help").output().unwrap());
+    let commands: Vec<&str> = help
+        .split("Commands:\n")
+        .nth(1)
+        .unwrap()
+        .lines()
+        .take_while(|l| l.starts_with("  "))
+        .map(|l| l.split_whitespace().next().unwrap())
+        .filter(|&c| c != "help")
+        .collect();
+    assert_eq!(
+        commands,
+        [
+            "convert",
+            "validate",
+            "fmt",
+            "inspect",
+            "grid",
+            "conformance",
+            "formats"
+        ]
+    );
+    let guide = std::fs::read_to_string(repo("docs/guide/cli.qmd")).unwrap();
+    for c in commands {
+        assert!(guide.contains(&format!("\n### `gridwell {c}`\n")), "{c}");
+    }
+}
