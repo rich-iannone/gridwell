@@ -63,9 +63,9 @@ In Python (`gridwell.conformance`); `ir` is IR as a JSON string or a dict, a
 ```python
 from gridwell.conformance import assert_conforms, check
 
-assert_conforms(gt_table, "conformance/expected/great_tables/exibble_basic.json")
+assert_conforms(ir, "conformance/expected/great_tables/exibble_basic.json")
 
-report = check(gt_table, "conformance/expected/great_tables/exibble_basic.json")
+report = check(ir, "conformance/expected/great_tables/exibble_basic.json")
 report.passed, report.tiers, report.differences
 print(report)
 ```
@@ -89,7 +89,8 @@ gridwell conformance normalize --tier L1 table.json   # the table's grid
 A failing report lists every difference with its tier and where it is (here, IR
 that formats the first number another way):
 
-```
+```bash
+$ gridwell conformance check reformatted.json conformance/expected/gt/exibble_basic.json
 fails L1 (checked to L3)
   L0 valid: pass
   L1 structure: fail (1 difference)
