@@ -19,7 +19,7 @@ pub fn plain_text(nodes: &[ContentNode], line_break: &str) -> String {
             ContentNode::LineBreak {} => out.push_str(line_break),
             ContentNode::FootnoteMark { mark_text, .. } => out.push_str(mark_text),
             ContentNode::Image { alt, .. } => out.push_str(alt.as_deref().unwrap_or("")),
-            ContentNode::Raw { .. } | ContentNode::Unknown => {}
+            ContentNode::Raw { .. } | ContentNode::Unknown(_) => {}
         }
     }
     out
