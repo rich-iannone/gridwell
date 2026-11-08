@@ -291,13 +291,14 @@ impl PyTable {
     // ─── Per-format shorthands: options as keyword arguments ───
 
     /// Render the table to HTML. Options: inline_styles, pretty_print, class_prefix,
-    /// base_styles, table_id, standalone, quarto_disable_processing.
+    /// base_styles, table_id, standalone, quarto_disable_processing, raw.
     #[pyo3(signature = (**options))]
     fn render_html(&self, py: Python<'_>, options: Option<&Bound<'_, PyDict>>) -> PyResult<String> {
         self.text(py, "html", options.map(|d| d.as_any()))
     }
 
-    /// Render the table to LaTeX. Options: longtable, longtable_threshold, booktabs.
+    /// Render the table to LaTeX. Options: longtable, longtable_threshold, booktabs,
+    /// raw.
     #[pyo3(signature = (**options))]
     fn render_latex(
         &self,
@@ -307,7 +308,7 @@ impl PyTable {
         self.text(py, "latex", options.map(|d| d.as_any()))
     }
 
-    /// Render the table to Typst. Options: repeat_header.
+    /// Render the table to Typst. Options: repeat_header, raw.
     #[pyo3(signature = (**options))]
     fn render_typst(
         &self,
@@ -317,27 +318,27 @@ impl PyTable {
         self.text(py, "typst", options.map(|d| d.as_any()))
     }
 
-    /// Render the table to RTF.
+    /// Render the table to RTF. Options: raw.
     #[pyo3(signature = (**options))]
     fn render_rtf(&self, py: Python<'_>, options: Option<&Bound<'_, PyDict>>) -> PyResult<String> {
         self.text(py, "rtf", options.map(|d| d.as_any()))
     }
 
     /// Render the table to SVG. Options: font_family, font_size, row_height,
-    /// cell_padding_x, cell_padding_y, default_col_width, base_styles.
+    /// cell_padding_x, cell_padding_y, default_col_width, base_styles, raw.
     #[pyo3(signature = (**options))]
     fn render_svg(&self, py: Python<'_>, options: Option<&Bound<'_, PyDict>>) -> PyResult<String> {
         self.text(py, "svg", options.map(|d| d.as_any()))
     }
 
     /// Render the table for a terminal. Options: box_drawing, true_color, max_width,
-    /// background_colors, color.
+    /// background_colors, color, raw.
     #[pyo3(signature = (**options))]
     fn render_ansi(&self, py: Python<'_>, options: Option<&Bound<'_, PyDict>>) -> PyResult<String> {
         self.text(py, "ansi", options.map(|d| d.as_any()))
     }
 
-    /// Render the table to Pandoc AST JSON.
+    /// Render the table to Pandoc AST JSON. Options: raw.
     #[pyo3(signature = (**options))]
     fn render_pandoc(
         &self,
@@ -348,7 +349,7 @@ impl PyTable {
     }
 
     /// Render the table to Quarto-flavored Pandoc AST JSON. Options: table_id,
-    /// extra_attrs.
+    /// extra_attrs, raw.
     #[pyo3(signature = (**options))]
     fn render_quarto(
         &self,
@@ -358,8 +359,7 @@ impl PyTable {
         self.text(py, "quarto", options.map(|d| d.as_any()))
     }
 
-    /// Render the table to a DOCX file (returns bytes). The format has no options
-    /// yet; any given raise `InvalidOptionsError`.
+    /// Render the table to a DOCX file (returns bytes). Options: raw.
     #[pyo3(signature = (**options))]
     fn render_docx<'py>(
         &self,
@@ -369,8 +369,7 @@ impl PyTable {
         self.binary(py, "docx", options.map(|d| d.as_any()))
     }
 
-    /// Render the table to an XLSX file (returns bytes). The format has no options
-    /// yet; any given raise `InvalidOptionsError`.
+    /// Render the table to an XLSX file (returns bytes). Options: raw.
     #[pyo3(signature = (**options))]
     fn render_xlsx<'py>(
         &self,
@@ -380,8 +379,7 @@ impl PyTable {
         self.binary(py, "xlsx", options.map(|d| d.as_any()))
     }
 
-    /// Render the table to a PPTX file (returns bytes). The format has no options
-    /// yet; any given raise `InvalidOptionsError`.
+    /// Render the table to a PPTX file (returns bytes). Options: raw.
     #[pyo3(signature = (**options))]
     fn render_pptx<'py>(
         &self,
