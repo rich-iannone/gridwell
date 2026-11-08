@@ -372,3 +372,67 @@ fn deep_nesting_and_long_input_stay_linear() {
     let _ = lowered(&long);
     assert!(start.elapsed().as_secs() < 5, "{:?}", start.elapsed());
 }
+
+fn raw_in(format: &str, value: &str) -> ContentNode {
+    ContentNode::Raw {
+        format: format.into(),
+        value: value.into(),
+    }
+}
+
+/// A one-cell table with `content`, and a title holding `title`.
+fn one_cell(content: Vec<ContentNode>, title: Vec<ContentNode>) -> Table {
+    use gridwell_testkit::{row, TableBuilder};
+    let cell = gridwell_ir::Cell {
+        content,
+        ..gridwell_testkit::cell("")
+    };
+    let mut t = TableBuilder::new(1)
+        .title("t")
+        .body(vec![row(vec![cell])])
+        .build();
+    t.header.as_mut().unwrap().title.as_mut().unwrap().content = title;
+    t
+}
+
+fn body_cell(t: &Table) -> &[ContentNode] {
+    &t.table.tbody[0].rows[0].cells[0].content
+}
+
+#[test]
+fn a_table_without_raw_nodes_is_borrowed() {
+    let t = one_cell(vec![text("a")], vec![text("b")]);
+    assert!(matches!(without_raw(&t), Cow::Borrowed(_)));
+}
+
+#[test]
+fn without_raw_lowers_html_and_drops_the_rest() {
+    let t = one_cell(
+        // Versions for two formats: HTML's is drawn, as every format draws it.
+        vec![
+            raw("<i>x</i><script>s</script>"),
+            raw_in("latex", "\\textit{x}"),
+        ],
+        vec![
+            text("a "),
+            raw_in("typst", "#read(\"f\")"),
+            raw_in("rtf", "{\\field}"),
+            raw_in("HTML", "<b>b</b>"),
+        ],
+    );
+    let out = without_raw(&t);
+    assert_eq!(show(body_cell(&out)), "[x|font-style:italic;]");
+    let title = &out.header.as_ref().unwrap().title.as_ref().unwrap().content;
+    assert_eq!(show(title), "a [b|font-weight:bold;]");
+    // What isn't content is left as it is.
+    let rest = |t: &Table| {
+        let mut v = serde_json::to_value(t).unwrap();
+        v["header"]["title"]["content"].take();
+        v["table"]["tbody"][0]["rows"][0]["cells"][0]["content"].take();
+        v
+    };
+    assert_eq!(rest(&out), rest(&t));
+    // Only raw markup for other formats: nothing is left of it.
+    let t = one_cell(vec![text("a"), raw_in("latex", "x")], vec![]);
+    assert_eq!(show(body_cell(&without_raw(&t))), "a");
+}
