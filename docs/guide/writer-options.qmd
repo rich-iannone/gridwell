@@ -47,10 +47,20 @@ gridwell_render::render(&table, "latex", Some(&options))?;
 
 :::
 
+## Options of every format
+
+| Option | Type | Default | Meaning |
+|---|---|---|---|
+| `raw` | boolean | `true` | Write the markup of [`raw`](../schema/index.qmd#raw-markup) nodes as it is. Pass `false` for IR you don't trust. Then raw HTML is drawn as text and styled runs in every format, HTML included, the way formats other than HTML always draw it. Raw markup for other formats is dropped. No markup from the IR reaches the output unchecked |
+
+```bash
+gridwell convert table.json --to html --options '{"raw": false}'
+```
+
 ## Options by format
 
-RTF, Pandoc, DOCX, XLSX and PPTX have no options; they accept only `{}` (or no
-options at all).
+RTF, Pandoc, DOCX, XLSX and PPTX have no options of their own; they accept only
+`raw` (or no options at all).
 
 ### `html`
 
