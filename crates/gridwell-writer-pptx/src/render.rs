@@ -2,6 +2,7 @@ use gridwell_core::xml::escape as escape_xml;
 use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table};
+use gridwell_layout::look::{BaseRules, LOOK};
 use gridwell_layout::{
     resolve, CellVAlign, ResolvedCell, ResolvedStyle, ResolvedTable, Section, Sides, Slot, Stroke,
 };
@@ -9,9 +10,11 @@ use gridwell_ooxml::{package, Part};
 use std::fmt::Write;
 use thiserror::Error;
 
-use crate::xml;
+use crate::{xml, PptxConfig};
+use rules::{Line, Strokes};
 
 mod heights;
+mod rules;
 mod widths;
 
 #[derive(Debug, Error)]
@@ -23,8 +26,8 @@ pub enum RenderError {
 }
 
 /// Render the full .pptx ZIP file as bytes.
-pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
-    let slide_xml = render_slide_xml(table)?;
+pub fn render(table: &Table, config: &PptxConfig) -> Result<Vec<u8>, RenderError> {
+    let slide_xml = render_slide_xml(table, config)?;
 
     Ok(package(&[
         Part::new("[Content_Types].xml", xml::CONTENT_TYPES),
@@ -48,15 +51,20 @@ pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
 }
 
 /// Render only the slide XML content (for snapshot testing).
-pub fn render_slide_xml(table: &Table) -> Result<String, RenderError> {
+pub fn render_slide_xml(table: &Table, config: &PptxConfig) -> Result<String, RenderError> {
     let rt = resolve(table);
     let mut buf = String::with_capacity(8192);
-    write_slide_xml(&mut buf, &rt)?;
+    write_slide_xml(&mut buf, &rt, config)?;
     Ok(buf)
 }
 
-/// The slide: a `<p:sld>` whose shape tree holds the table's graphic frame.
-fn write_slide_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderError> {
+/// The slide: a `<p:sld>` whose shape tree holds the table's graphic frame, the
+/// title and notes boxes, and the look's lines.
+fn write_slide_xml(
+    buf: &mut String,
+    rt: &ResolvedTable,
+    config: &PptxConfig,
+) -> Result<(), RenderError> {
     buf.push_str(r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>"#);
     buf.push('\n');
     buf.push_str(r#"<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" "#);
@@ -121,35 +129,74 @@ fn write_slide_xml(buf: &mut String, rt: &ResolvedTable) -> Result<(), RenderErr
     let table_w: u32 = col_widths.iter().sum();
     let table_h = row_heights.iter().fold(0u32, |a, h| a.saturating_add(*h));
     let table_x = SLIDE_W.saturating_sub(table_w) / 2;
-    let (box_x, box_w) = text_span(rt, heading.iter().chain(&notes), table_x, table_w);
+    let (box_x, box_w, need) = text_span(rt, heading.iter().chain(&notes), table_x, table_w);
     let header_h = heights::box_height(rt, &heading, box_w);
     let notes_h = heights::box_height(rt, &notes, box_w);
     let gap = |a: u32, b: u32| if a > 0 && b > 0 { GAP_EMU } else { 0 };
+    // The look's outer rules: above the heading and below the notes, across the
+    // table and the boxes' text.
+    let rules = config.base_styles.then(|| BaseRules::new(rt));
+    let outer = LOOK.outer_rule;
+    let outer_h = |on: bool| {
+        if on && rules.is_some() {
+            rules::rule_emu(outer)
+        } else {
+            0
+        }
+    };
+    let (top_rule, bottom_rule) = (outer_h(!heading.is_empty()), outer_h(!notes.is_empty()));
+    let (rule_x, rule_w) = rule_span(rt, (box_x, box_w, need), table_x, table_w);
     let total = [
+        top_rule,
         header_h,
         gap(header_h, table_h),
         table_h,
         gap(table_h.saturating_add(header_h), notes_h),
         notes_h,
+        bottom_rule,
     ]
     .into_iter()
     .fold(0u32, u32::saturating_add);
     let mut y = (SLIDE_H.saturating_sub(total) / 2).max(MARGIN_EMU);
+    let mut lines = Vec::new();
+    let mut outer_line = |y: u32, h: u32| {
+        if h > 0 {
+            lines.push(Line {
+                x: rule_x,
+                y: y.saturating_add(h / 2),
+                width: rule_w,
+                rule: outer,
+            });
+        }
+    };
 
+    outer_line(y, top_rule);
+    y = y.saturating_add(top_rule);
     if !heading.is_empty() {
         write_text_box(buf, rt, 3, "Title", (box_x, box_w), y, header_h, &heading)?;
         y = y
             .saturating_add(header_h)
             .saturating_add(gap(header_h, table_h.saturating_add(notes_h)));
     }
+    let mut spanners = Vec::new();
     if !rt.is_empty() {
-        write_table_frame(buf, rt, &col_widths, &row_heights, table_x, y)?;
+        let strokes = rules::cell_strokes(rt, rules.as_ref());
+        write_table_frame(buf, rt, &col_widths, &row_heights, &strokes, table_x, y)?;
+        if let Some(rules) = &rules {
+            spanners = rules::spanner_lines(rt, rules, &col_widths, &row_heights, (table_x, y));
+        }
         y = y
             .saturating_add(table_h)
             .saturating_add(gap(table_h, notes_h));
     }
     if !notes.is_empty() {
         write_text_box(buf, rt, 4, "Notes", (box_x, box_w), y, notes_h, &notes)?;
+        y = y.saturating_add(notes_h);
+    }
+    outer_line(y, bottom_rule);
+    // Drawn over the table: after it.
+    for (id, line) in (5..).zip(lines.iter().chain(&spanners)) {
+        rules::write_line(buf, id, line)?;
     }
 
     buf.push_str("</p:spTree></p:cSld>\n");
@@ -206,28 +253,50 @@ impl<'a> Para<'a> {
 /// Where the title and notes boxes go, `(x, width)` in EMU: from the table's
 /// start edge (its right when right to left) to the far margin, so their text
 /// lines up with the table, moved toward the near margin as far as their widest
-/// line needs.
+/// line needs; and that line's room, the third value.
 fn text_span<'a>(
     rt: &ResolvedTable,
     paras: impl IntoIterator<Item = &'a Para<'a>>,
     table_x: u32,
     table_w: u32,
-) -> (u32, u32) {
+) -> (u32, u32, u32) {
     let (lo, hi) = (TEXT_X, TEXT_X + TEXT_W);
-    if rt.is_empty() {
-        return (lo, TEXT_W);
-    }
     let need = (widths::text_room(rt, paras) * widths::EMU_PER_PT)
         .ceil()
         .min(f64::from(TEXT_W)) as u32;
+    if rt.is_empty() {
+        return (lo, TEXT_W, need);
+    }
     if rt.is_rtl() {
         let end = table_x.saturating_add(table_w).clamp(lo, hi);
         let end = end.max(lo + need);
-        (lo, end - lo)
+        (lo, end - lo, need)
     } else {
         let start = table_x.clamp(lo, hi).min(hi - need);
-        (start, hi - start)
+        (start, hi - start, need)
     }
+}
+
+/// Where the outer rules go, `(x, width)` in EMU: across the table and the text of
+/// the boxes `text_span` places, which starts at the box's start edge.
+fn rule_span(
+    rt: &ResolvedTable,
+    (box_x, box_w, need): (u32, u32, u32),
+    table_x: u32,
+    table_w: u32,
+) -> (u32, u32) {
+    let (lo, hi) = if rt.is_rtl() {
+        let end = box_x.saturating_add(box_w);
+        (end.saturating_sub(need), end)
+    } else {
+        (box_x, box_x.saturating_add(need))
+    };
+    let (lo, hi) = if rt.is_empty() {
+        (lo, hi)
+    } else {
+        (lo.min(table_x), hi.max(table_x.saturating_add(table_w)))
+    };
+    (lo, hi - lo)
 }
 
 /// A text box shape: `paras` at `(x, width)`.
@@ -274,12 +343,14 @@ fn open_paragraph(buf: &mut String, rt: &ResolvedTable, algn: Option<&str>) {
     }
 }
 
-/// The table's graphic frame, as wide as its columns and as tall as its rows.
+/// The table's graphic frame, as wide as its columns and as tall as its rows, each
+/// position with its borders from `strokes` ([`rules::cell_strokes`]).
 fn write_table_frame(
     buf: &mut String,
     rt: &ResolvedTable,
     col_widths: &[u32],
     row_heights: &[u32],
+    strokes: &[Vec<Strokes>],
     offset_x: u32,
     offset_y: u32,
 ) -> Result<(), RenderError> {
@@ -307,16 +378,22 @@ fn write_table_frame(
     }
     buf.push_str("</a:tblGrid>\n");
 
-    // In the order `heights::row_heights` gives them, one for each row.
-    let mut heights = row_heights.iter().copied();
-    let mut h = || heights.next().unwrap_or(1);
-    write_section(buf, rt, &rt.head, true, &mut h)?;
+    // In the order `heights::row_heights` gives them, one for each row, as
+    // `strokes` does.
+    let mut heights = row_heights.iter().copied().zip(strokes);
+    let mut next = || {
+        heights
+            .next()
+            .map_or((1, &[][..]), |(h, s)| (h, s.as_slice()))
+    };
+    write_section(buf, rt, &rt.head, true, &mut next)?;
     for group in &rt.groups {
         if let Some(label) = &group.label {
-            write_group_label_row(buf, rt, label, col_widths.len(), h())?;
+            let (h, strokes) = next();
+            write_group_label_row(buf, rt, label, col_widths.len(), h, strokes)?;
         }
-        write_section(buf, rt, &group.rows, false, &mut h)?;
-        write_section(buf, rt, &group.summary_rows, true, &mut h)?;
+        write_section(buf, rt, &group.rows, false, &mut next)?;
+        write_section(buf, rt, &group.summary_rows, true, &mut next)?;
     }
 
     buf.push_str("</a:tbl>\n");
@@ -326,29 +403,19 @@ fn write_table_frame(
 }
 
 /// Write one section. Spans are resolved per section, so a merge never crosses a
-/// section boundary.
-fn write_section(
+/// section boundary. `next` gives each row's height and its positions' borders.
+fn write_section<'s>(
     buf: &mut String,
     rt: &ResolvedTable,
     section: &Section,
     strong: bool,
-    height: &mut dyn FnMut() -> u32,
+    next: &mut dyn FnMut() -> (u32, &'s [Strokes]),
 ) -> Result<(), RenderError> {
-    for (r, row) in section.rows.iter().enumerate() {
-        write!(buf, "<a:tr h=\"{}\">", height())?;
+    for row in &section.rows {
+        let (height, strokes) = next();
+        write!(buf, "<a:tr h=\"{height}\">")?;
         for (col, slot) in row.slots.iter().enumerate() {
-            // Each position draws the borders of the cell covering it on the
-            // sides that lie on that cell's outline. In a right-to-left table
-            // `lnL` and `lnR` are the cell's start and end: the strokes are
-            // mirrored, before the mask (a span's start edge is its outline's
-            // left).
-            let strokes = section
-                .covering(r, col)
-                .map(|(owner, outline)| {
-                    let strokes = owner.style.strokes(BASE_PT).mirrored(rt.is_rtl());
-                    strokes.masked(outline)
-                })
-                .unwrap_or_default();
+            let strokes = strokes.get(col).cloned().unwrap_or_default();
             write_slot(buf, rt, col, slot, &strokes, strong)?;
         }
         buf.push_str("</a:tr>\n");
@@ -685,6 +752,7 @@ fn write_group_label_row(
     label: &gridwell_layout::Line,
     num_cols: usize,
     height: u32,
+    strokes: &[Strokes],
 ) -> Result<(), RenderError> {
     write!(buf, "<a:tr h=\"{height}\">")?;
 
@@ -700,17 +768,7 @@ fn write_group_label_row(
         buf.push_str("<a:endParaRPr/>");
     }
     buf.push_str("</a:p></a:txBody>");
-    // The label spans every column: the first position takes the start edge
-    // (`lnL`; mirrored in a right-to-left table), the last the end, and every
-    // position the top and bottom.
-    let strokes = label.style.strokes(BASE_PT).mirrored(rt.is_rtl());
-    let piece = |c: usize| {
-        strokes.masked(Sides {
-            left: c == 0,
-            right: c + 1 == num_cols,
-            ..Sides::ALL
-        })
-    };
+    let piece = |c: usize| strokes.get(c).cloned().unwrap_or_default();
     let fill = label.style.fill().unwrap_or(Color::rgb(0xF0, 0xF0, 0xF0));
     write_tc_pr(buf, &piece(0), Some(fill), None)?;
     buf.push_str("</a:tc>");
