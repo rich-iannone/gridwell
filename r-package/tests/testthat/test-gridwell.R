@@ -343,6 +343,27 @@ test_that("gw_formats lists every format with its options", {
     expect_identical(f$name[f$experimental], c("svg", "ansi", "pandoc", "quarto", "pptx"))
     html_opts <- jsonlite::fromJSON(f$options[f$name == "html"])
     expect_equal(html_opts$class_prefix, "gw")
+    for (opts in f$options) {
+        expect_true(jsonlite::fromJSON(opts)$raw)
+    }
+})
+
+test_that("raw = FALSE writes no raw markup", {
+    ir <- jsonlite::fromJSON(load_fixture("minimal/minimal_1x1.json"), simplifyVector = FALSE)
+    ir$table$tbody[[1]]$rows[[1]]$cells[[1]]$content <- list(
+        list(type = "raw", format = "html", value = "<b>hi</b><script>x</script>"),
+        list(type = "raw", format = "latex", value = "\\input{secret}")
+    )
+    tbl <- gw_parse_ir(jsonlite::toJSON(ir, auto_unbox = TRUE, null = "null"))
+    expect_match(gw_render_html(tbl), "<script>", fixed = TRUE)
+    expect_match(gw_render_latex(tbl), "\\input", fixed = TRUE)
+    html <- gw_render_html(tbl, raw = FALSE)
+    expect_false(grepl("<script>", html, fixed = TRUE))
+    expect_match(html, ">hi</span>", fixed = TRUE)
+    expect_identical(html, gw_render(tbl, "html", list(raw = FALSE)))
+    expect_false(grepl("\\input", gw_render_latex(tbl, raw = FALSE), fixed = TRUE))
+    expect_gt(length(gw_render_docx(tbl, raw = FALSE)), 0)
+    expect_error(gw_render_html(tbl, raw = "no"), "raw")
 })
 
 test_that("options work as a list, as named arguments, and as JSON", {
