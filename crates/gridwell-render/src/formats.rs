@@ -20,9 +20,11 @@
     allow(dead_code, unused_imports, unused_macros)
 )]
 
+use std::borrow::Cow;
+
 use gridwell_ir::ValidatedTable;
 use serde::de::DeserializeOwned;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::{Output, OutputKind, RenderError, Unsupported, Writer};
@@ -90,6 +92,52 @@ fn defaults<T: Serialize + Default>() -> Value {
     serde_json::to_value(T::default()).expect("option structs serialize")
 }
 
+/// The option every format takes: whether `raw` nodes' markup is written as it
+/// is (the default). `false` is for IR you don't trust: then raw HTML is drawn as
+/// text and styled runs, as formats other than HTML draw it, and raw markup for
+/// any other format is dropped ([`gridwell_layout::html::without_raw`]).
+const RAW: &str = "raw";
+
+/// A format's own default options, with the one every format takes.
+fn with_common(mut defaults: Value) -> Value {
+    if let Value::Object(map) = &mut defaults {
+        map.insert(RAW.to_string(), Value::Bool(true));
+    }
+    defaults
+}
+
+/// Take the option every format takes out of `options`: whether raw markup is
+/// written as it is, and the format's own options. A name `known` (the format's
+/// defaults) doesn't have is an error; options that aren't an object are left
+/// for [`parse_options`] to report.
+fn common_options(
+    format: &str,
+    options: Option<&Value>,
+    known: &Value,
+) -> Result<(bool, Option<Value>), RenderError> {
+    let Some(Value::Object(map)) = options else {
+        return Ok((true, options.cloned()));
+    };
+    let known = known.as_object().expect("defaults are an object");
+    if let Some(unknown) = map.keys().find(|k| !known.contains_key(*k)) {
+        let names: Vec<String> = known.keys().map(|k| format!("`{k}`")).collect();
+        let expected = match &names[..] {
+            [one] => one.clone(),
+            _ => format!("one of {}", names.join(", ")),
+        };
+        return Err(invalid(
+            format,
+            format!("unknown field `{unknown}`, expected {expected}"),
+        ));
+    }
+    let mut own = map.clone();
+    let raw = match own.remove(RAW) {
+        None => true,
+        Some(v) => bool::deserialize(&v).map_err(|e| invalid(format, format!("{RAW}: {e}")))?,
+    };
+    Ok((raw, Some(Value::Object(own))))
+}
+
 /// Declare a format. `$experimental` is [`Writer::experimental`]; `$options` is
 /// the writer's config type (or `()` for none); `$check` validates parsed
 /// options; `$render` turns (table, options) into the writer's result;
@@ -125,18 +173,23 @@ macro_rules! define_format {
                 $experimental
             }
             fn default_options(&self) -> Value {
-                defaults::<$options>()
+                with_common(defaults::<$options>())
             }
             fn render(
                 &self,
                 table: &ValidatedTable<'_>,
                 options: Option<&Value>,
             ) -> Result<Output, RenderError> {
-                let opts: $options = parse_options($name, options)?;
+                let (raw, options) = common_options($name, options, &self.default_options())?;
+                let opts: $options = parse_options($name, options.as_ref())?;
                 let check: fn(&$options) -> Result<(), String> = $check;
                 check(&opts).map_err(|m| invalid($name, m))?;
+                let table = match raw {
+                    true => Cow::Borrowed(table.table()),
+                    false => gridwell_layout::html::without_raw(table.table()),
+                };
                 let render: fn(&gridwell_ir::Table, $options) -> Result<_, _> = $render;
-                render(table.table(), opts)
+                render(&table, opts)
                     .map(Into::into)
                     .map_err(|e| failed($name, e))
             }
@@ -162,7 +215,7 @@ impl From<Vec<u8>> for Output {
     }
 }
 
-/// No options: only `{}` / `null` are accepted.
+/// No options of the format's own: only `{}` / `null` (and `raw`) are accepted.
 #[derive(Debug, Default, Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct NoOptions {}
