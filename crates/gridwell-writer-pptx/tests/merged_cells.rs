@@ -3,7 +3,14 @@
 //! cell's outline, before its fill. The origin alone carries the alignment.
 
 use gridwell_testkit::examples::styled_merge;
-use gridwell_writer_pptx::PptxWriter;
+use gridwell_writer_pptx::{PptxConfig, PptxWriter};
+
+/// The slide without the default look's rules: only the table's own borders.
+fn bare_slide() -> String {
+    PptxWriter::with_config(PptxConfig { base_styles: false })
+        .render_slide_xml(&styled_merge())
+        .unwrap()
+}
 
 /// The `<a:tc>`s of each `<a:tr>`.
 fn cells(xml: &str) -> Vec<Vec<&str>> {
@@ -24,7 +31,7 @@ fn sides(tc: &str) -> [bool; 4] {
 
 #[test]
 fn merged_cells_are_outlined_once() {
-    let xml = PptxWriter::new().render_slide_xml(&styled_merge()).unwrap();
+    let xml = bare_slide();
     let rows = cells(&xml);
     // Header, group label, then the two rows the merge spans.
     let (r0, r1) = (&rows[2], &rows[3]);
@@ -55,7 +62,7 @@ fn merged_cells_are_outlined_once() {
 
 #[test]
 fn a_merged_cell_is_anchored_by_its_origin() {
-    let xml = PptxWriter::new().render_slide_xml(&styled_merge()).unwrap();
+    let xml = bare_slide();
     let rows = cells(&xml);
     assert!(
         rows[2][0].contains("<a:tcPr anchor=\"b\"><a:lnL "),
