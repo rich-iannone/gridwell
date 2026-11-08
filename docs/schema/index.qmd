@@ -93,6 +93,14 @@ colors, line breaks, images, …) into its own runs. The
 Content may carry raw markup for several formats side by side (one version each);
 then each writer takes only its own, HTML included.
 
+Raw markup is a trust boundary. A writer copies it into its output unchecked, so
+raw HTML can hold a script, and raw LaTeX, Typst or RTF can read files or run
+commands when the output is compiled or opened. For IR you don't trust, render with
+the [`raw` option](../guide/writer-options.qmd#options-of-every-format) off. Every
+format takes it. Then every format draws raw HTML the way formats other than HTML
+do, HTML included, and raw markup for other formats is dropped. An image's `src` is
+another matter: HTML still writes it as it is (see [Images](#images)).
+
 ## Images
 
 An `image` node's `src` is drawn only when it is a `data:` URI (base64 or
