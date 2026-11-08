@@ -245,6 +245,8 @@ gw_save <- function(x, path, format = NULL, ...) {
 #'
 #' Shorthands for [gw_render()] and [gw_render_binary()]; writer options are
 #' passed as named arguments, e.g. `gw_render_html(tbl, inline_styles = TRUE)`.
+#' Every format takes `raw`: for IR you don't trust, `raw = FALSE` writes no raw
+#' markup from it (raw HTML is drawn as text and styled runs instead).
 #'
 #' @param x A table: a `gw_table` from [gw_parse_ir()], a gt table, or table IR
 #'   as a JSON string (see [as_gw_table()]).
