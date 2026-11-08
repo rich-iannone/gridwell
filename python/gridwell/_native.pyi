@@ -126,9 +126,10 @@ class Table:
         table_id: str | None = None,
         standalone: bool = False,
         quarto_disable_processing: bool = False,
+        raw: bool = True,
     ) -> str:
         """Render the table to HTML. Options: inline_styles, pretty_print, class_prefix,
-        base_styles, table_id, standalone, quarto_disable_processing."""
+        base_styles, table_id, standalone, quarto_disable_processing, raw."""
 
     def render_latex(
         self,
@@ -136,14 +137,16 @@ class Table:
         longtable: bool = False,
         longtable_threshold: int = 30,
         booktabs: bool = True,
+        raw: bool = True,
     ) -> str:
-        """Render the table to LaTeX. Options: longtable, longtable_threshold, booktabs."""
+        """Render the table to LaTeX. Options: longtable, longtable_threshold, booktabs,
+        raw."""
 
-    def render_typst(self, *, repeat_header: bool = True) -> str:
-        """Render the table to Typst. Options: repeat_header."""
+    def render_typst(self, *, repeat_header: bool = True, raw: bool = True) -> str:
+        """Render the table to Typst. Options: repeat_header, raw."""
 
-    def render_rtf(self) -> str:
-        """Render the table to RTF."""
+    def render_rtf(self, *, raw: bool = True) -> str:
+        """Render the table to RTF. Options: raw."""
 
     def render_svg(
         self,
@@ -155,9 +158,10 @@ class Table:
         cell_padding_y: float = 8.0,
         default_col_width: float = 120.0,
         base_styles: bool = True,
+        raw: bool = True,
     ) -> str:
         """Render the table to SVG. Options: font_family, font_size, row_height,
-        cell_padding_x, cell_padding_y, default_col_width, base_styles."""
+        cell_padding_x, cell_padding_y, default_col_width, base_styles, raw."""
 
     def render_ansi(
         self,
@@ -167,33 +171,32 @@ class Table:
         max_width: int = 0,
         background_colors: bool = False,
         color: bool = True,
+        raw: bool = True,
     ) -> str:
         """Render the table for a terminal. Options: box_drawing, true_color, max_width,
-        background_colors, color."""
+        background_colors, color, raw."""
 
-    def render_pandoc(self) -> str:
-        """Render the table to Pandoc AST JSON."""
+    def render_pandoc(self, *, raw: bool = True) -> str:
+        """Render the table to Pandoc AST JSON. Options: raw."""
 
     def render_quarto(
         self,
         *,
         table_id: str | None = None,
         extra_attrs: Sequence[tuple[str, str]] = ...,
+        raw: bool = True,
     ) -> str:
         """Render the table to Quarto-flavored Pandoc AST JSON. Options: table_id,
-        extra_attrs."""
+        extra_attrs, raw."""
 
-    def render_docx(self) -> bytes:
-        """Render the table to a DOCX file (returns bytes). The format has no options
-        yet; any given raise `InvalidOptionsError`."""
+    def render_docx(self, *, raw: bool = True) -> bytes:
+        """Render the table to a DOCX file (returns bytes). Options: raw."""
 
-    def render_xlsx(self) -> bytes:
-        """Render the table to an XLSX file (returns bytes). The format has no options
-        yet; any given raise `InvalidOptionsError`."""
+    def render_xlsx(self, *, raw: bool = True) -> bytes:
+        """Render the table to an XLSX file (returns bytes). Options: raw."""
 
-    def render_pptx(self) -> bytes:
-        """Render the table to a PPTX file (returns bytes). The format has no options
-        yet; any given raise `InvalidOptionsError`."""
+    def render_pptx(self, *, raw: bool = True) -> bytes:
+        """Render the table to a PPTX file (returns bytes). Options: raw."""
 
     def __repr__(self) -> str: ...
     def __str__(self) -> str: ...
