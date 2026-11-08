@@ -404,7 +404,8 @@ fn formats_json_matches_the_registry() {
     assert_eq!(html["options"]["class_prefix"], "gw");
     let docx = list.iter().find(|f| f["name"] == "docx").unwrap();
     assert_eq!(docx["kind"], "binary");
-    assert_eq!(docx["options"], serde_json::json!({}));
+    assert_eq!(docx["options"], serde_json::json!({ "raw": true }));
+    assert!(list.iter().all(|f| f["options"]["raw"] == true), "{list:?}");
     // Quarto output is Pandoc JSON, not a .qmd document.
     let quarto = list.iter().find(|f| f["name"] == "quarto").unwrap();
     assert_eq!(quarto["extension"], "json");
@@ -449,6 +450,39 @@ fn convert_rejects_bad_options_cleanly() {
         assert_clean_failure(&o);
         assert!(stderr(&o).contains(needle), "{opts}: {}", stderr(&o));
     }
+}
+
+#[test]
+fn convert_with_raw_off_writes_no_raw_markup() {
+    let path = write_json(
+        "raw-off",
+        &one_row_table(vec![serde_json::json!({ "content": [
+            { "type": "raw", "format": "html", "value": "<b>hi</b><script>alert(1)</script>" },
+            { "type": "raw", "format": "latex", "value": "\\input{/etc/passwd}" },
+        ] })]),
+    );
+    let convert = |to: &str, opts: Option<&str>| {
+        let mut cmd = bin();
+        cmd.args(["convert", "-t", to]);
+        if let Some(opts) = opts {
+            cmd.args(["-O", opts]);
+        }
+        let o = cmd.arg(&path).output().unwrap();
+        assert!(o.status.success(), "{to}: {}", stderr(&o));
+        stdout(&o)
+    };
+    assert!(convert("html", None).contains("<script>"));
+    assert!(convert("latex", None).contains("\\input"));
+    let html = convert("html", Some(r#"{"raw": false}"#));
+    assert!(
+        !html.contains("<script>") && html.contains(">hi</span>"),
+        "{html}"
+    );
+    let latex = convert("latex", Some(r#"{"raw": false, "booktabs": false}"#));
+    assert!(
+        !latex.contains("\\input") && latex.contains("\\textbf{hi}"),
+        "{latex}"
+    );
 }
 
 #[test]
