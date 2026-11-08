@@ -20,7 +20,7 @@ use gridwell_core::xml::escape as escape_xml;
 use gridwell_core::{Image, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, RowRole, Table};
-use gridwell_layout::look::{EdgePart, EdgeRules, Pad, Rule as LookRule, LOOK};
+use gridwell_layout::look::{BaseRules, EdgePart, OwnEdges, Pad, Rule as LookRule, LOOK};
 use gridwell_layout::{
     resolve, CellVAlign, ResolvedBorder, ResolvedStyle, ResolvedTable, SectionKind, Sides,
 };
@@ -164,11 +164,8 @@ struct PendingCell {
     pad: Pad,
     /// A stub cell outside the head: draws the stub's right border.
     stub: bool,
-    /// The cell's own style removes its top border.
-    clears_top: bool,
-    /// On an edge drawn by its cells ([`EdgeRules`]): whether the cell draws the
-    /// section rule on its top, its bottom.
-    carries: (bool, bool),
+    /// The base rules the cell draws on its top and bottom ([`BaseRules::cell`]).
+    base_rules: (Option<LookRule>, Option<LookRule>),
     /// The cell's own borders (from its style), which replace the base rules.
     borders: Sides<Option<RuleLine>>,
 }
@@ -226,14 +223,6 @@ struct PendingBand {
     fill: Option<String>,
 }
 
-/// The rule on a boundary between rows (or at the table's top or bottom).
-fn wider(a: Option<LookRule>, b: LookRule) -> Option<LookRule> {
-    match a {
-        Some(a) if a.width_px >= b.width_px => Some(a),
-        _ => Some(b),
-    }
-}
-
 /// Compute the geometry of every box, line and rule. See the module docs.
 pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     let fs = config.font_size;
@@ -253,23 +242,22 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     // end up where they say.
     let rtl = rt.is_rtl();
 
-    // 1. Collect cells and bands in display order, assigning global row indices, and
-    //    the rule on every row boundary (`hrule[r]` is above row `r`).
+    // 1. Collect cells and bands in display order, assigning global row indices (as
+    //    `BaseRules` counts them), and the base rules each cell draws.
     let mut cells: Vec<PendingCell> = Vec::new();
     let mut bands: Vec<PendingBand> = Vec::new();
-    let mut hrule: Vec<Option<LookRule>> = vec![None];
-    // Boundaries whose summary rule is the summary cells' own (see `owned` below).
-    let mut summary_owned: Vec<usize> = Vec::new();
     let mut nrows = 0usize;
-    // The rule a boundary gets by default: hairlines between body rows.
-    let next_rule = |hrule: &mut Vec<Option<LookRule>>, r: Option<LookRule>| hrule.push(r);
-    let edges = EdgeRules::new(rt);
+    let rules = BaseRules::new(rt);
+    // The rule on every row boundary (`hrule[r]` is above row `r`).
+    let mut hrule = rules.boundary.clone();
+    if !base {
+        hrule.iter_mut().for_each(|r| *r = None);
+    }
 
     let add_section = |section: &gridwell_layout::Section,
                        edge_part: EdgePart,
                        nrows: &mut usize,
-                       cells: &mut Vec<PendingCell>,
-                       hrule: &mut Vec<Option<LookRule>>| {
+                       cells: &mut Vec<PendingCell>| {
         let head = section.kind == SectionKind::Head;
         for (r, row) in section.rows.iter().enumerate() {
             let spanner_row = head && row.role == Some(RowRole::SpannerLabel);
@@ -329,6 +317,16 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
                     left: ir_border(&b.left, &text_color),
                 }
                 .mirrored(rtl);
+                let own = OwnEdges {
+                    top: borders.top.is_some(),
+                    bottom: borders.bottom.is_some(),
+                    clears_top: cell.style.border_cleared.top,
+                };
+                let base_rules = if base {
+                    rules.cell(edge_part, r, cell.col, cell.rowspan, own)
+                } else {
+                    (None, None)
+                };
                 cells.push(PendingCell {
                     row: *nrows + r,
                     col: cell.col,
@@ -348,122 +346,36 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
                     part,
                     pad,
                     stub: cell.is_stub && !head,
-                    clears_top: cell.style.border_cleared.top,
-                    carries: (
-                        edges.carries_top(edge_part, r, cell.col),
-                        edges.carries_bottom(edge_part, r, cell.col),
-                    ),
+                    base_rules,
                     borders,
                 });
             }
-            // The boundary below this row: none inside the head, hairlines between
-            // body rows; section rules are applied afterwards.
-            let below = if head { None } else { Some(look.row_rule) };
-            hrule.push(below);
-            let _ = &row;
         }
         *nrows += section.rows.len();
     };
 
-    hrule[0] = Some(look.section_rule);
     if !rt.head.is_empty() {
-        add_section(&rt.head, EdgePart::Head, &mut nrows, &mut cells, &mut hrule);
-        hrule[nrows] = wider(None, look.section_rule);
+        add_section(&rt.head, EdgePart::Head, &mut nrows, &mut cells);
     }
-    let head_end = nrows;
     for (g, group) in rt.groups.iter().enumerate() {
         if let Some(label) = &group.label {
             let mut style = RunStyle::default();
             apply_style(&mut style, &label.style, fs);
-            let r = nrows;
-            hrule[r] = wider(hrule[r], look.section_rule);
             bands.push(PendingBand {
-                row: r,
+                row: nrows,
                 runs: content_runs(&label.content, &style, rt, fs, base),
                 fill: label.style.fill().map(|c| c.to_css()),
             });
             nrows += 1;
-            next_rule(&mut hrule, Some(look.section_rule));
         }
-        let rows = EdgePart::Rows(g);
-        add_section(&group.rows, rows, &mut nrows, &mut cells, &mut hrule);
-        let first_summary = nrows;
+        add_section(&group.rows, EdgePart::Rows(g), &mut nrows, &mut cells);
         let summary = EdgePart::Summary(g);
-        add_section(
-            &group.summary_rows,
-            summary,
-            &mut nrows,
-            &mut cells,
-            &mut hrule,
-        );
-        if let Some(row) = group.summary_rows.rows.first() {
-            let rule = if row.role == Some(RowRole::GrandSummary) {
-                look.grand_summary_rule
-            } else {
-                look.section_rule
-            };
-            let before = hrule[first_summary];
-            hrule[first_summary] = wider(before, rule);
-            // The summary cells' own top border, unless a rule from elsewhere won.
-            if hrule[first_summary] == Some(rule)
-                && before.is_none_or(|b| b.width_px < rule.width_px)
-            {
-                summary_owned.push(first_summary);
-            }
-        }
+        add_section(&group.summary_rows, summary, &mut nrows, &mut cells);
     }
-    // The table's bottom.
-    if let Some(last) = hrule.last_mut() {
-        *last = Some(look.section_rule);
-    }
-    debug_assert_eq!(hrule.len(), nrows + 1);
-    // Who owns each boundary's rule, as in HTML: hairlines and summary rules are the
-    // lower cells' own top border, so a cell style removing its top border removes
-    // them; the table's edges, the head's bottom and group labels' rules belong to
-    // other elements and win over a removed border (`none` loses every collapsed-
-    // border conflict). Owned boundaries are drawn by the cells below; others by the
-    // cells on both sides.
-    let owned: Vec<bool> = (0..=nrows)
-        .map(|b| {
-            (b > 0 && b < nrows && hrule[b] == Some(look.row_rule)) || summary_owned.contains(&b)
-        })
-        .collect();
-    if !base {
-        hrule.iter_mut().for_each(|r| *r = None);
-    }
-    // The edges drawn by their cells (the table's top and bottom, the head's bottom).
-    let mut by_cells = vec![false; nrows + 1];
-    by_cells[0] |= edges.top;
-    if head_end > 0 {
-        by_cells[head_end] |= edges.head;
-    }
-    by_cells[nrows] |= edges.bottom;
-    // The base rules each cell draws on its top and bottom edges (per cell, so they
-    // never cross a rowspan), unless it sets its own border there. On an edge drawn
-    // by the cells, those carrying the rule. Elsewhere, its top: unless the rule is
-    // its own and its style removes it; its bottom: only rules no cell owns (an
-    // owned one is the next cell's top).
-    let base_rules: Vec<(Option<LookRule>, Option<LookRule>)> = cells
-        .iter()
-        .map(|c| {
-            let (bt, bb) = (c.row, c.row + c.rowspan);
-            let top = if by_cells[bt] {
-                hrule[bt].filter(|_| c.carries.0)
-            } else if c.borders.top.is_some() || (owned[bt] && c.clears_top) {
-                None
-            } else {
-                hrule[bt]
-            };
-            let bottom = if by_cells[bb] {
-                hrule[bb].filter(|_| c.carries.1)
-            } else if c.borders.bottom.is_some() || owned[bb] {
-                None
-            } else {
-                hrule[bb]
-            };
-            (top, bottom)
-        })
-        .collect();
+    debug_assert_eq!(rules.rows(), nrows);
+    // The base rules each cell draws on its top and bottom edges.
+    let base_rules: Vec<(Option<LookRule>, Option<LookRule>)> =
+        cells.iter().map(|c| c.base_rules).collect();
     let rule_w = |r: &Option<LookRule>| r.map_or(0.0, |r| r.width_px);
     // Each boundary is as thick as the widest rule or cell border drawn on it.
     let mut hthick = vec![0.0f64; nrows + 1];
