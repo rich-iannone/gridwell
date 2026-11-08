@@ -319,9 +319,9 @@ define_format!(
     Pptx, "pptx", "Microsoft PowerPoint slide", Binary, "pptx",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     experimental: true,
-    options: NoOptions,
+    options: gridwell_writer_pptx::PptxConfig,
     check: ok,
-    render: |t, _| gridwell_writer_pptx::render_pptx(t),
+    render: |t, o| gridwell_writer_pptx::PptxWriter::with_config(o).render(t),
     unsupported: gridwell_writer_pptx::unsupported,
 );
 
