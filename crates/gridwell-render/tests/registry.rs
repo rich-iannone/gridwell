@@ -235,6 +235,8 @@ fn bad_options_are_invalid_options_errors() {
         ("quarto", json!({ "extra_attrs": "nope" }), "invalid type"),
         ("rtf", json!({ "anything": 1 }), "unknown field"),
         ("docx", json!({ "anything": 1 }), "unknown field"),
+        ("pptx", json!({ "base_styles": 1 }), "invalid type"),
+        ("pptx", json!({ "anything": 1 }), "unknown field"),
     ];
     for (format, opts, needle) in cases {
         let err = render(&t, format, Some(&opts)).unwrap_err();
@@ -245,7 +247,7 @@ fn bad_options_are_invalid_options_errors() {
         );
         assert!(msg.contains(needle), "{format} {opts}: {msg}");
     }
-    // Formats without options accept an empty object.
+    // An empty object is the defaults.
     for format in ["rtf", "pandoc", "docx", "xlsx", "pptx"] {
         assert!(render(&t, format, Some(&json!({}))).is_ok(), "{format}");
     }
@@ -352,7 +354,7 @@ fn option_doc_problems(doc: &str) -> Vec<String> {
         };
         option_rows(name, section, &own, &[name], &mut problems);
     }
-    // "RTF, Pandoc, DOCX, XLSX and PPTX have no options of their own"
+    // "RTF, Pandoc, DOCX and XLSX have no options of their own"
     let named: Vec<String> = doc
         .lines()
         .find_map(|l| {
@@ -517,8 +519,8 @@ fn the_options_check_catches_wrong_pages() {
         ),
         // A wrong "no options" sentence.
         (
-            "RTF, Pandoc, DOCX, XLSX and PPTX",
             "RTF, Pandoc, DOCX and XLSX",
+            "RTF, Pandoc and DOCX",
             "have no options, but",
         ),
     ];
