@@ -8,17 +8,18 @@ expression: xml
 <p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/>
 <p:graphicFrame>
 <p:nvGraphicFramePr><p:cNvPr id="2" name="Table"/><p:cNvGraphicFramePr><a:graphicFrameLocks noGrp="1"/></p:cNvGraphicFramePr><p:nvPr/></p:nvGraphicFramePr>
-<p:xfrm><a:off x="3553635" y="2812288"/><a:ext cx="2036729" cy="740664"/></p:xfrm>
+<p:xfrm><a:off x="3553635" y="2802763"/><a:ext cx="2036729" cy="740664"/></p:xfrm>
 <a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/table">
 <a:tbl>
 <a:tblPr firstRow="1" bandRow="1"/>
 <a:tblGrid><a:gridCol w="1063631"/><a:gridCol w="973098"/></a:tblGrid>
-<a:tr h="370332"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Metric</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Value</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
-<a:tr h="370332"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Users</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>1,024</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="370332"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Metric</a:t></a:r></a:p></a:txBody><a:tcPr><a:lnT w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnT><a:lnB w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnB></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Value</a:t></a:r></a:p></a:txBody><a:tcPr><a:lnT w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnT><a:lnB w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnB></a:tcPr></a:tc></a:tr>
+<a:tr h="370332"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Users</a:t></a:r></a:p></a:txBody><a:tcPr><a:lnT w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnT><a:lnB w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnB></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>1,024</a:t></a:r></a:p></a:txBody><a:tcPr><a:lnT w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnT><a:lnB w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnB></a:tcPr></a:tc></a:tr>
 </a:tbl>
 </a:graphicData></a:graphic>
 </p:graphicFrame>
-<p:sp><p:nvSpPr><p:cNvPr id="4" name="Notes"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="3553635" y="3644392"/><a:ext cx="5133165" cy="401320"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr><p:txBody><a:bodyPr wrap="square"/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" sz="1000"/><a:t>Source: internal analytics.</a:t></a:r></a:p><a:p><a:r><a:rPr lang="en-US" sz="1000"/><a:t>Collected June 2026.</a:t></a:r></a:p></p:txBody></p:sp>
+<p:sp><p:nvSpPr><p:cNvPr id="4" name="Notes"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="3553635" y="3634867"/><a:ext cx="5133165" cy="401320"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr><p:txBody><a:bodyPr wrap="square"/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" sz="1000"/><a:t>Source: internal analytics.</a:t></a:r></a:p><a:p><a:r><a:rPr lang="en-US" sz="1000"/><a:t>Collected June 2026.</a:t></a:r></a:p></p:txBody></p:sp>
+<p:cxnSp><p:nvCxnSpPr><p:cNvPr id="5" name="Rule 5"/><p:cNvCxnSpPr/><p:nvPr/></p:nvCxnSpPr><p:spPr><a:xfrm><a:off x="3553635" y="4045712"/><a:ext cx="2036729" cy="0"/></a:xfrm><a:prstGeom prst="line"><a:avLst/></a:prstGeom><a:ln w="19050" cap="flat"><a:solidFill><a:srgbClr val="A8A8A8"/></a:solidFill></a:ln></p:spPr></p:cxnSp>
 </p:spTree></p:cSld>
 <p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr>
 </p:sld>

@@ -13,8 +13,8 @@ expression: xml
 <a:tbl>
 <a:tblPr firstRow="1" bandRow="1"/>
 <a:tblGrid><a:gridCol w="778718"/><a:gridCol w="946471"/></a:tblGrid>
-<a:tr h="370332"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Icon</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Label</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
-<a:tr h="370332"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>logo</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Brand</a:t></a:r></a:p></a:txBody><a:tcPr></a:tcPr></a:tc></a:tr>
+<a:tr h="370332"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Icon</a:t></a:r></a:p></a:txBody><a:tcPr><a:lnT w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnT><a:lnB w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnB></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" b="1"/><a:t>Label</a:t></a:r></a:p></a:txBody><a:tcPr><a:lnT w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnT><a:lnB w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnB></a:tcPr></a:tc></a:tr>
+<a:tr h="370332"><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>logo</a:t></a:r></a:p></a:txBody><a:tcPr><a:lnT w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnT><a:lnB w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnB></a:tcPr></a:tc><a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>Brand</a:t></a:r></a:p></a:txBody><a:tcPr><a:lnT w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnT><a:lnB w="19050"><a:solidFill><a:srgbClr val="D3D3D3"/></a:solidFill></a:lnB></a:tcPr></a:tc></a:tr>
 </a:tbl>
 </a:graphicData></a:graphic>
 </p:graphicFrame>
