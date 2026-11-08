@@ -8,7 +8,7 @@ use gridwell_render::{
     RenderError, REGISTRY,
 };
 use gridwell_testkit::{cell, examples, row, TableBuilder};
-use serde_json::{json, Value};
+use serde_json::{json, Map, Value};
 
 fn table() -> Table {
     TableBuilder::new(2)
@@ -305,24 +305,42 @@ fn of_kind(kind: &str, value: &Value) -> Option<bool> {
     })
 }
 
-/// The options page against the registry: a section per format with options whose
-/// rows are exactly its options, each with its real default and a type that fits it,
-/// and a sentence naming exactly the formats without options.
+/// The options page against the registry: a section for the options every format
+/// takes, whose rows are exactly those; a section per format with options of its own
+/// whose rows are exactly those; each row with its real default and a type that fits
+/// it; and a sentence naming exactly the formats without options of their own.
 fn option_doc_problems(doc: &str) -> Vec<String> {
     let doc = doc.replace("\r\n", "\n");
     let mut problems = Vec::new();
+    let defaults: Vec<(&str, Map<String, Value>)> = REGISTRY
+        .iter()
+        .map(|w| (w.name(), w.default_options().as_object().unwrap().clone()))
+        .collect();
+    // The options every format takes, with the same default in each.
+    let mut common = defaults[0].1.clone();
+    common.retain(|k, v| defaults.iter().all(|(_, d)| d.get(k) == Some(v)));
+    match doc
+        .split("\n## Options of every format\n")
+        .nth(1)
+        .map(|s| s.split("\n## ").next().unwrap())
+    {
+        Some(section) => {
+            let names: Vec<&str> = defaults.iter().map(|(n, _)| *n).collect();
+            option_rows("every format", section, &common, &names, &mut problems);
+        }
+        None => problems.push("no section for the options of every format".to_string()),
+    }
     let mut without = Vec::new();
-    for w in REGISTRY {
-        let name = w.name();
-        let defaults = w.default_options();
-        let fields = defaults.as_object().unwrap();
+    for (name, fields) in &defaults {
+        let mut own = fields.clone();
+        own.retain(|k, _| !common.contains_key(k));
         let heading = format!("### `{name}`");
         let section = doc
             .split(&heading)
             .nth(1)
             .map(|s| s.split("\n### ").next().unwrap());
-        if fields.is_empty() {
-            without.push(name);
+        if own.is_empty() {
+            without.push(*name);
             if section.is_some() {
                 problems.push(format!("{name} has no options but has a section"));
             }
@@ -332,51 +350,9 @@ fn option_doc_problems(doc: &str) -> Vec<String> {
             problems.push(format!("no section for {name}"));
             continue;
         };
-        let mut documented = Vec::new();
-        for line in section.lines().filter(|l| l.starts_with("| `")) {
-            let cells: Vec<_> = line.trim_matches('|').split(" | ").map(str::trim).collect();
-            let [option, kind, default, _meaning] = cells[..] else {
-                problems.push(format!("{name}: malformed row {line:?}"));
-                continue;
-            };
-            let option = option.trim_matches('`');
-            documented.push(option.to_string());
-            let Some(actual) = fields.get(option) else {
-                problems.push(format!("{name}: documents unknown option {option}"));
-                continue;
-            };
-            match serde_json::from_str::<Value>(default.trim_matches('`')) {
-                Ok(shown) if &shown == actual => {}
-                // `16` for 16.0: JSON doesn't tell them apart.
-                Ok(shown) if shown.is_number() && shown.as_f64() == actual.as_f64() => {}
-                _ => problems.push(format!(
-                    "{name}: {option}'s default is shown as {default} but is {actual}"
-                )),
-            }
-            match of_kind(kind, actual) {
-                Some(true) => {}
-                Some(false) => problems.push(format!(
-                    "{name}: {option} is documented as {kind} but its default is {actual}"
-                )),
-                None => problems.push(format!("{name}: {option} has unknown type {kind:?}")),
-            }
-            // The default, given explicitly, is accepted.
-            let explicit = json!({ option: actual });
-            if let Err(e) = render(&table(), name, Some(&explicit)) {
-                problems.push(format!("{name}: {explicit} is rejected: {e}"));
-            }
-        }
-        let mut expected: Vec<_> = fields.keys().cloned().collect();
-        let mut sorted = documented.clone();
-        sorted.sort();
-        expected.sort();
-        if sorted != expected {
-            problems.push(format!(
-                "{name}: documents options {documented:?}, but has {expected:?}"
-            ));
-        }
+        option_rows(name, section, &own, &[name], &mut problems);
     }
-    // "RTF, Pandoc, DOCX, XLSX and PPTX have no options"
+    // "RTF, Pandoc, DOCX, XLSX and PPTX have no options of their own"
     let named: Vec<String> = doc
         .lines()
         .find_map(|l| {
@@ -397,6 +373,63 @@ fn option_doc_problems(doc: &str) -> Vec<String> {
         ));
     }
     problems
+}
+
+/// A section's option rows against `fields`: exactly those, each with its real
+/// default, a type that fits it, and accepted when given explicitly to each of
+/// `formats`. Problems are labeled with `name`.
+fn option_rows(
+    name: &str,
+    section: &str,
+    fields: &Map<String, Value>,
+    formats: &[&str],
+    problems: &mut Vec<String>,
+) {
+    let mut documented = Vec::new();
+    for line in section.lines().filter(|l| l.starts_with("| `")) {
+        let cells: Vec<_> = line.trim_matches('|').split(" | ").map(str::trim).collect();
+        let [option, kind, default, _meaning] = cells[..] else {
+            problems.push(format!("{name}: malformed row {line:?}"));
+            continue;
+        };
+        let option = option.trim_matches('`');
+        documented.push(option.to_string());
+        let Some(actual) = fields.get(option) else {
+            problems.push(format!("{name}: documents unknown option {option}"));
+            continue;
+        };
+        match serde_json::from_str::<Value>(default.trim_matches('`')) {
+            Ok(shown) if &shown == actual => {}
+            // `16` for 16.0: JSON doesn't tell them apart.
+            Ok(shown) if shown.is_number() && shown.as_f64() == actual.as_f64() => {}
+            _ => problems.push(format!(
+                "{name}: {option}'s default is shown as {default} but is {actual}"
+            )),
+        }
+        match of_kind(kind, actual) {
+            Some(true) => {}
+            Some(false) => problems.push(format!(
+                "{name}: {option} is documented as {kind} but its default is {actual}"
+            )),
+            None => problems.push(format!("{name}: {option} has unknown type {kind:?}")),
+        }
+        // The default, given explicitly, is accepted.
+        let explicit = json!({ option: actual });
+        for format in formats {
+            if let Err(e) = render(&table(), format, Some(&explicit)) {
+                problems.push(format!("{format}: {explicit} is rejected: {e}"));
+            }
+        }
+    }
+    let mut expected: Vec<_> = fields.keys().cloned().collect();
+    let mut sorted = documented.clone();
+    sorted.sort();
+    expected.sort();
+    if sorted != expected {
+        problems.push(format!(
+            "{name}: documents options {documented:?}, but has {expected:?}"
+        ));
+    }
 }
 
 fn writer_options_page() -> String {
@@ -460,6 +493,28 @@ fn the_options_check_catches_wrong_pages() {
         ),
         // A missing section.
         ("### `typst`", "### Typst", "no section for typst"),
+        // The option every format takes: a wrong default, a missing row, a
+        // missing section, a row in a format's own section.
+        (
+            "| `raw` | boolean | `true` |",
+            "| `raw` | boolean | `false` |",
+            "every format: raw's default is shown as `false`",
+        ),
+        (
+            "| `raw` | boolean |",
+            "| raw | boolean |",
+            "every format: documents options []",
+        ),
+        (
+            "## Options of every format",
+            "## Options",
+            "no section for the options of every format",
+        ),
+        (
+            "| `repeat_header` | boolean | `true` |",
+            "| `raw` | boolean | `true` | x |\n| `repeat_header` | boolean | `true` |",
+            "typst: documents unknown option raw",
+        ),
         // A wrong "no options" sentence.
         (
             "RTF, Pandoc, DOCX, XLSX and PPTX",
