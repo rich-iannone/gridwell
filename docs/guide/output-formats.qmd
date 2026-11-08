@@ -49,7 +49,8 @@ its cell's but can't remove them.
 A [`raw`](../schema/index.qmd#raw-markup) node with HTML is written as it is by
 HTML, and passed on as a `RawInline` by Pandoc and Quarto, which pandoc keeps in its
 HTML outputs only. Every other format draws its inline markup with the format's own
-runs:
+runs, and with the [`raw` option](writer-options.qmd#options-of-every-format) off
+(for IR you don't trust), HTML, Pandoc and Quarto do too:
 
 - `b`/`strong` bold, `i`/`em` italic, `u` underline, `s`/`del` strike-through,
   `code`/`kbd` monospace, `small`/`big`, `mark`, `font`, and a `style` attribute's
