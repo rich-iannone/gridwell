@@ -632,6 +632,7 @@ dependencies = [
  "gridwell-ooxml",
  "gridwell-testkit",
  "insta",
+ "serde",
  "serde_json",
  "thiserror",
 ]
