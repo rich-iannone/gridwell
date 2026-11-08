@@ -16,6 +16,7 @@ gridwell-core = { workspace = true }
 gridwell-layout = { workspace = true }
 thiserror = { workspace = true }
 gridwell-ooxml = { workspace = true }
+serde = { workspace = true }
 
 [dev-dependencies]
 gridwell-layout = { workspace = true }
