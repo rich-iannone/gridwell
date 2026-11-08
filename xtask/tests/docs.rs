@@ -1520,10 +1520,10 @@ fn every_link_between_pages_lands() {
                 let page = if file.is_empty() {
                     rel.clone()
                 } else {
-                    // Normalize `a/../b`.
+                    // Normalize `a/../b` (`a\..\b` once joined on Windows).
                     let joined = dir.join(file).to_string_lossy().into_owned();
                     let mut parts: Vec<&str> = Vec::new();
-                    for part in joined.split('/') {
+                    for part in joined.split(['/', '\\']) {
                         match part {
                             ".." => {
                                 parts.pop();
