@@ -1035,7 +1035,16 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                 }
                 ContentNode::StyledText { value, style_id } => {
                     if let Some(ref id) = style_id {
-                        if self.config.inline_styles {
+                        // A run without a class (one lowered from raw HTML, its
+                        // style not in the table's) gets its style inline.
+                        let class = self.style_class(id).filter(|_| !self.config.inline_styles);
+                        if let Some(class) = class {
+                            let _ = write!(
+                                self.buf,
+                                "<span class=\"{class}\">{}</span>",
+                                escape_html(value)
+                            );
+                        } else {
                             let style = self.rt.style(id);
                             if !style.is_empty() {
                                 let css = style_css(&style);
@@ -1048,12 +1057,6 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                             } else {
                                 let _ = write!(self.buf, "<span>{}</span>", escape_html(value));
                             }
-                        } else {
-                            let class = self
-                                .style_class(id)
-                                .map(|c| format!(" class=\"{c}\""))
-                                .unwrap_or_default();
-                            let _ = write!(self.buf, "<span{class}>{}</span>", escape_html(value));
                         }
                     } else {
                         let _ = write!(self.buf, "<span>{}</span>", escape_html(value));
