@@ -12,7 +12,7 @@ const SLIDE_H: u64 = 6_858_000;
 const TEXT_X: u64 = 457_200;
 const TEXT_END: u64 = 457_200 + 8_229_600;
 
-/// (name, y, height) for each shape, in document order.
+/// (name, y, height) for each shape but the rules, in document order.
 fn shapes(xml: &str) -> Vec<(String, u64, u64)> {
     boxes(xml)
         .into_iter()
@@ -29,8 +29,28 @@ struct Shape {
     cy: u64,
 }
 
-/// Each shape's name and place, in document order.
+/// Each shape's name and place but the rules', in document order.
 fn boxes(xml: &str) -> Vec<Shape> {
+    let mut all = all_shapes(xml);
+    all.retain(|s| !s.name.starts_with("Rule "));
+    all
+}
+
+/// The rules (line shapes): each one's place, `y` its center, and its width.
+fn rules(xml: &str) -> Vec<(Shape, u64)> {
+    let ws = xml
+        .split("<p:cxnSp>")
+        .skip(1)
+        .map(|s| numbers(s, "<a:ln w=\"")[0]);
+    all_shapes(xml)
+        .into_iter()
+        .filter(|s| s.name.starts_with("Rule "))
+        .zip(ws)
+        .collect()
+}
+
+/// Every shape's name and place, in document order.
+fn all_shapes(xml: &str) -> Vec<Shape> {
     let mut out = Vec::new();
     for chunk in xml.split("<p:cNvPr id=\"").skip(2) {
         let name = chunk
@@ -110,6 +130,35 @@ fn shapes_stack_without_overlap() {
         for pair in s.windows(2) {
             let (a, b) = (&pair[0], &pair[1]);
             assert!(a.1 + a.2 <= b.1, "{}: {} overlaps {}", ex.name, a.0, b.0);
+        }
+        // The outer rules: one ending where the title starts, one starting where
+        // the notes end, each across the table; none above a table without a title.
+        let (all, lines) = (boxes(&xml), rules(&xml));
+        let table = all.iter().find(|b| b.name == "Table");
+        let rule_at = |y: u64| {
+            lines.iter().any(|(r, w)| {
+                r.y.abs_diff(y) == w / 2
+                    && table.is_none_or(|t| r.x <= t.x && r.x + r.cx >= t.x + t.cx)
+            })
+        };
+        let top = |name: &str| all.iter().find(|b| b.name == name).map(|b| b.y);
+        let bottom = |name: &str| all.iter().find(|b| b.name == name).map(|b| b.y + b.cy);
+        assert_eq!(top("Title").is_some_and(rule_at), header, "{}", ex.name);
+        assert_eq!(bottom("Notes").is_some_and(rule_at), notes, "{}", ex.name);
+        if !header {
+            assert!(!top("Table").is_some_and(rule_at), "{}", ex.name);
+        }
+        // The stack, its rules included, is centered on a slide it fits.
+        let (first, last) = (&all[0], &all[all.len() - 1]);
+        let outer_w = |y: u64| lines.iter().find(|(r, w)| r.y.abs_diff(y) == w / 2);
+        let start = first.y - outer_w(first.y).map_or(0, |(_, w)| *w);
+        let end = last.y + last.cy + outer_w(last.y + last.cy).map_or(0, |(_, w)| *w);
+        if end - start < SLIDE_H - 2 * 228_600 {
+            assert!(
+                (start + end).abs_diff(SLIDE_H) <= 1,
+                "{}: {start}..{end}",
+                ex.name
+            );
         }
         // Text boxes on the slide whenever the whole stack fits.
         let total: u64 = s.iter().map(|(_, _, h)| h).sum();
