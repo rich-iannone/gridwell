@@ -21,6 +21,28 @@
 //! ```
 //!
 //! [`save`] renders straight to a file, inferring the format from the extension.
+//!
+//! # Raw markup
+//!
+//! A `raw` content node's markup is copied into its format's output unchecked:
+//! raw HTML can hold a script, raw LaTeX can read a file. Every format takes the
+//! option `raw`; `false` is for IR you don't trust. Then raw HTML is drawn as
+//! text and styled runs in every format, HTML included, and raw markup for any
+//! other format is dropped ([`gridwell_layout::html::without_raw`]).
+//!
+//! ```
+//! # let json = r#"{"ir_version":"1.0","config":{"table_cols":1,"body_rows":1},
+//! #   "styles":{"defs":{},"compositions":{},"conditionals":[]},
+//! #   "column_spec":[{"id":"a"}],
+//! #   "table":{"thead":{"rows":[]},"tbody":[{"rows":[{"cells":[{"content":[
+//! #     {"type":"raw","format":"html","value":"<b>Hi</b><script>alert(1)</script>"}
+//! #   ]}]}]}]}}"#;
+//! let table = gridwell_ir::Table::from_json(json).unwrap();
+//! let untrusted = serde_json::json!({ "raw": false });
+//! let html = gridwell_render::render(&table, "html", Some(&untrusted)).unwrap();
+//! let html = html.as_text().unwrap();
+//! assert!(html.contains(">Hi</span>") && !html.contains("<script>"));
+//! ```
 
 pub mod conformance;
 mod display;
@@ -164,8 +186,8 @@ pub trait Writer: Send + Sync {
     /// table looks may change between releases. (SVG, ANSI, Pandoc, Quarto and
     /// PPTX, for now.)
     fn experimental(&self) -> bool;
-    /// The options this format accepts, with their default values (an empty object
-    /// for formats without options).
+    /// The options this format accepts, with their default values: `raw`, which
+    /// every format takes (see [Raw markup](#raw-markup)), and the format's own.
     fn default_options(&self) -> Value;
     /// Render the table.
     fn render(
