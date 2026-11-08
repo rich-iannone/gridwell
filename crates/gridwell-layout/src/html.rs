@@ -32,12 +32,17 @@
 //! A lowered run's style id is [`STYLE_PREFIX`] followed by its CSS declarations
 //! (`\0html:font-weight:bold;`); [`style_def`] reads it back, so a writer resolves
 //! it like any other id ([`ResolvedTable::style`](crate::ResolvedTable::style)).
+//!
+//! For IR you don't trust, [`without_raw`] leaves no raw markup to write as it
+//! is: it lowers raw HTML for every format, HTML included, and drops raw markup
+//! for any other.
 
 use std::borrow::Cow;
 
+use gridwell_ir::cell::Row;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::style::StyleDef;
-use gridwell_ir::{FontStyle, FontWeight, TextDecoration, TextTransform};
+use gridwell_ir::{FontStyle, FontWeight, Table, TextDecoration, TextTransform};
 
 use crate::text::{subscript_char, superscript_char};
 
@@ -82,6 +87,78 @@ pub fn lower(content: &[ContentNode]) -> Cow<'_, [ContentNode]> {
         }
     }
     Cow::Owned(out)
+}
+
+/// `table` with no `raw` node left, for IR you don't trust: raw HTML lowered
+/// (as [`lower`] lowers it, whatever other raw markup the content holds), raw
+/// markup for any other format dropped. Borrowed when the table has no raw node.
+/// Every writer takes the result as it takes any table: a lowered run's style id
+/// resolves as [`style_def`] reads it.
+pub fn without_raw(table: &Table) -> Cow<'_, Table> {
+    let is_raw = |n: &ContentNode| matches!(n, ContentNode::Raw { .. });
+    if !contents(table).any(|c| c.iter().any(is_raw)) {
+        return Cow::Borrowed(table);
+    }
+    let mut out = table.clone();
+    for content in contents_mut(&mut out) {
+        if content.iter().any(is_raw) {
+            content.retain(|n| !matches!(n, ContentNode::Raw { format, .. } if !is_html(format)));
+            if let Cow::Owned(lowered) = lower(content) {
+                *content = lowered;
+            }
+        }
+    }
+    Cow::Owned(out)
+}
+
+/// Every content list of a table: header lines, cells, group labels and notes.
+fn contents(t: &Table) -> impl Iterator<Item = &[ContentNode]> {
+    fn cells(rows: &[Row]) -> impl Iterator<Item = &[ContentNode]> {
+        rows.iter()
+            .flat_map(|r| r.cells.iter().map(|c| &c.content[..]))
+    }
+    let header = t.header.iter().flat_map(|h| {
+        let lines = h.title.iter().chain(&h.subtitle).chain(&h.extra_lines);
+        lines.map(|l| &l.content[..])
+    });
+    let head = cells(&t.table.thead.rows);
+    let body = t.table.tbody.iter().flat_map(move |g| {
+        let label = g.label.iter().map(|l| &l.content[..]);
+        label.chain(cells(&g.rows)).chain(cells(&g.summary_rows))
+    });
+    let footer = t.footer.iter().flat_map(|f| {
+        let notes = f.footnotes.iter().map(|n| &n.content[..]);
+        notes.chain(f.source_notes.iter().map(|n| &n.content[..]))
+    });
+    header.chain(head).chain(body).chain(footer)
+}
+
+/// [`contents`], to change.
+fn contents_mut(t: &mut Table) -> impl Iterator<Item = &mut Vec<ContentNode>> {
+    fn cells(rows: &mut [Row]) -> impl Iterator<Item = &mut Vec<ContentNode>> {
+        rows.iter_mut()
+            .flat_map(|r| r.cells.iter_mut().map(|c| &mut c.content))
+    }
+    let header = t.header.iter_mut().flat_map(|h| {
+        let lines = h
+            .title
+            .iter_mut()
+            .chain(&mut h.subtitle)
+            .chain(&mut h.extra_lines);
+        lines.map(|l| &mut l.content)
+    });
+    let head = cells(&mut t.table.thead.rows);
+    let body = t.table.tbody.iter_mut().flat_map(|g| {
+        let label = g.label.iter_mut().map(|l| &mut l.content);
+        label
+            .chain(cells(&mut g.rows))
+            .chain(cells(&mut g.summary_rows))
+    });
+    let footer = t.footer.iter_mut().flat_map(|f| {
+        let notes = f.footnotes.iter_mut().map(|n| &mut n.content);
+        notes.chain(f.source_notes.iter_mut().map(|n| &mut n.content))
+    });
+    header.chain(head).chain(body).chain(footer)
 }
 
 /// The style a lowered run's id (`\0html:` and declarations) describes; `None`
