@@ -32,6 +32,9 @@ pub enum ContentNode {
         #[serde(default)]
         height: Option<String>,
     },
+    /// Markup in `format`, which that format's writer copies into its output
+    /// unchecked: a trust boundary. Rendering with the `raw` option off (in
+    /// `gridwell-render`) writes none of it.
     Raw {
         format: String,
         value: String,
