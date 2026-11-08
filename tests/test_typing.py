@@ -360,7 +360,7 @@ GOOD = """
     assert_type(t.render_quarto(table_id="tbl-x", extra_attrs=[("a", "b")]), str)
     assert_type(t.render_docx(), bytes)
     assert_type(t.render_xlsx(), bytes)
-    assert_type(t.render_pptx(), bytes)
+    assert_type(t.render_pptx(base_styles=False), bytes)
     assert_type(t._repr_html_(), str | None)
     assert_type(repr(t), str)
     info = gridwell.formats()[0]
