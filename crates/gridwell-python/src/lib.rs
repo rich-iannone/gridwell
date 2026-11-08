@@ -379,7 +379,7 @@ impl PyTable {
         self.binary(py, "xlsx", options.map(|d| d.as_any()))
     }
 
-    /// Render the table to a PPTX file (returns bytes). Options: raw.
+    /// Render the table to a PPTX file (returns bytes). Options: base_styles, raw.
     #[pyo3(signature = (**options))]
     fn render_pptx<'py>(
         &self,
