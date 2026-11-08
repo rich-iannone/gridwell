@@ -3,3 +3,7 @@
 crates/gridwell-ffi/cbindgen.toml text eol=lf
 crates/gridwell-ffi/include/gridwell.h text eol=lf
 docs/guide/feature-matrix.qmd text eol=lf
+# The docs checks read these line by line and match headings and paragraphs.
+*.qmd text eol=lf
+*.md text eol=lf
+docs/examples/*.json text eol=lf
