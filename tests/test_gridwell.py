@@ -187,6 +187,9 @@ def test_render_pptx():
     data = table.render_pptx()
     assert isinstance(data, bytes)
     assert data[:4] == b"PK\x03\x04"
+    # Without the default look's rules: a different slide.
+    bare = table.render_pptx(base_styles=False)
+    assert bare[:4] == b"PK\x03\x04" and bare != data
 
 
 def test_render_binary_by_name():
