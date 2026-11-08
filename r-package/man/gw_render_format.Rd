@@ -49,4 +49,6 @@ A string for text formats, a raw vector for binary formats.
 \description{
 Shorthands for \code{\link[=gw_render]{gw_render()}} and \code{\link[=gw_render_binary]{gw_render_binary()}}; writer options are
 passed as named arguments, e.g. \code{gw_render_html(tbl, inline_styles = TRUE)}.
+Every format takes \code{raw}: for IR you don't trust, \code{raw = FALSE} writes no raw
+markup from it (raw HTML is drawn as text and styled runs instead).
 }
