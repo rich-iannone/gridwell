@@ -335,7 +335,8 @@ def test_formats_lists_every_format_with_options():
     assert by_name["docx"]["kind"] == "binary"
     assert by_name["html"]["options"]["class_prefix"] == "gw"
     assert by_name["latex"]["options"]["booktabs"] is True
-    assert by_name["docx"]["options"] == {}
+    assert by_name["docx"]["options"] == {"raw": True}
+    assert all(f["options"]["raw"] is True for f in fmts)
     assert by_name["quarto"]["extension"] == "json"
     experimental = [f["name"] for f in fmts if f["experimental"]]
     assert experimental == ["svg", "ansi", "pandoc", "quarto", "pptx"]
@@ -350,6 +351,25 @@ def test_options_as_dict_and_as_keywords_agree():
     assert "\\toprule" in default and "\\toprule" not in as_dict
     assert table.render("latex", None) == default
     assert table.render_html(inline_styles=True, pretty_print=False).count("\n") == 0
+
+
+def test_raw_off_writes_no_raw_markup():
+    d = json.loads(load_fixture("minimal/minimal_1x1.json"))
+    d["table"]["tbody"][0]["rows"][0]["cells"][0]["content"] = [
+        {"type": "raw", "format": "html", "value": "<b>hi</b><script>alert(1)</script>"},
+        {"type": "raw", "format": "latex", "value": "\\input{/etc/passwd}"},
+    ]
+    table = gridwell.Table.from_dict(d)
+    assert "<script>" in table.render_html()
+    assert "\\input" in table.render_latex()
+    html = table.render_html(raw=False)
+    assert "<script>" not in html and '<span style="font-weight: bold">hi</span>' in html
+    assert table.render("html", {"raw": False}) == html
+    latex = table.render_latex(raw=False)
+    assert "\\input" not in latex and "hi" in latex
+    assert table.render_docx(raw=False).startswith(b"PK")
+    with pytest.raises(gridwell.InvalidOptionsError, match="raw"):
+        table.render_html(raw="no")
 
 
 def test_bad_options_raise_invalid_options_error():
