@@ -1,7 +1,7 @@
-//! A right-to-left table (`a:tblPr rtl`, its paragraphs `rtl`, aligned right by
-//! default) and the table's language on every run. Paragraph alignment is
-//! physical, so a left-aligned cell says so; an `rtl` table's cell borders are
-//! its start and end, so the IR's physical sides swap.
+//! A right-to-left table (its columns written as they are seen, the first on the
+//! right, and its paragraphs `rtl`, aligned right by default) and the table's
+//! language on every run. Paragraph alignment and cell borders are physical, so
+//! a left-aligned cell says so, and a border keeps its side.
 
 use gridwell_ir::TextDirection;
 use gridwell_testkit::examples::directed;
@@ -32,9 +32,10 @@ fn a_right_to_left_table_has_right_to_left_paragraphs() {
     let ltr = slide(None, None);
     assert!(!ltr.contains("rtl="), "{ltr}");
     assert!(ltr.contains("<a:tblPr firstRow=\"1\" bandRow=\"1\"/>"));
+    // Not `rtl="1"`, which LibreOffice and Apple's importer ignore.
     let rtl = slide(Some(TextDirection::Rtl), None);
     assert!(
-        rtl.contains("<a:tblPr rtl=\"1\" firstRow=\"1\" bandRow=\"1\"/>"),
+        rtl.contains("<a:tblPr firstRow=\"1\" bandRow=\"1\"/>"),
         "{rtl}"
     );
     for (text, algn) in [
@@ -56,21 +57,49 @@ fn a_right_to_left_table_has_right_to_left_paragraphs() {
 }
 
 #[test]
-fn cell_borders_swap() {
+fn right_to_left_the_columns_are_written_as_they_are_seen() {
+    let order = |xml: &str, texts: &[&str]| {
+        let at: Vec<usize> = texts
+            .iter()
+            .map(|t| xml.find(&format!(">{t}</a:t>")).unwrap())
+            .collect();
+        at.windows(2).all(|w| w[0] < w[1])
+    };
     let ltr = slide(None, None);
-    let c = cell_props(&ltr, "LEFTRED");
-    assert!(
-        c.contains("<a:lnL w=\"19050\"><a:solidFill><a:srgbClr val=\"FF0000\"/>"),
-        "{c}"
-    );
-    assert!(!c.contains("<a:lnR"), "{c}");
+    assert!(order(
+        &ltr,
+        &["Name", "Value", "one", "LEFTRED", "two", "2"]
+    ));
     let rtl = slide(Some(TextDirection::Rtl), None);
-    let c = cell_props(&rtl, "LEFTRED");
     assert!(
-        c.contains("<a:lnR w=\"19050\"><a:solidFill><a:srgbClr val=\"FF0000\"/>"),
-        "{c}"
+        order(&rtl, &["Value", "Name", "LEFTRED", "one", "2", "two"]),
+        "{rtl}"
     );
+}
+
+#[test]
+fn cell_borders_keep_their_sides() {
+    let red = "<a:lnL w=\"19050\"><a:solidFill><a:srgbClr val=\"FF0000\"/>";
+    let stub = "w=\"19050\"><a:solidFill><a:srgbClr val=\"D3D3D3\"/>";
+    for dir in [None, Some(TextDirection::Rtl)] {
+        let xml = slide(dir.clone(), None);
+        let c = cell_props(&xml, "LEFTRED");
+        assert!(c.contains(red), "{dir:?}: {c}");
+        assert!(!c.contains("<a:lnR"), "{dir:?}: {c}");
+    }
+    // The rule at the stub's end: its right, or right to left its left. Left to
+    // right, beside LEFTRED's own border, none.
+    let ltr = slide(None, None);
+    let c = cell_props(&ltr, "two");
+    assert!(c.contains(&format!("<a:lnR {stub}")), "{c}");
     assert!(!c.contains("<a:lnL"), "{c}");
+    assert!(!cell_props(&ltr, "one").contains("<a:lnR"));
+    let rtl = slide(Some(TextDirection::Rtl), None);
+    for text in ["one", "two"] {
+        let c = cell_props(&rtl, text);
+        assert!(c.contains(&format!("<a:lnL {stub}")), "{text}: {c}");
+        assert!(!c.contains("<a:lnR"), "{text}: {c}");
+    }
 }
 
 #[test]
