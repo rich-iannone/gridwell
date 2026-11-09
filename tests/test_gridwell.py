@@ -342,7 +342,7 @@ def test_formats_lists_every_format_with_options():
     assert all(f["options"]["raw"] is True for f in fmts)
     assert by_name["quarto"]["extension"] == "json"
     experimental = [f["name"] for f in fmts if f["experimental"]]
-    assert experimental == ["svg", "ansi", "pandoc", "quarto", "pptx"]
+    assert experimental == ["svg", "ansi", "pandoc", "quarto"]
 
 
 def test_options_as_dict_and_as_keywords_agree():

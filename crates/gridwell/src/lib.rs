@@ -35,8 +35,8 @@
 //!
 //! builds the HTML writer alone.
 //!
-//! `svg`, `ansi`, `pandoc`, `quarto` and `pptx` are
-//! [experimental](Writer::experimental) for now.
+//! `svg`, `ansi`, `pandoc` and `quarto` are [experimental](Writer::experimental)
+//! for now.
 
 pub use gridwell_ir as ir;
 pub use gridwell_ir::{InvalidTable, ParseError, Table, ValidatedTable};

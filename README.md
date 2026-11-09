@@ -41,7 +41,7 @@ that makes the output binary.)
 | **Text** | HTML · LaTeX · Typst · RTF · SVG · ANSI (terminal) · Pandoc AST · Quarto |
 | **Packaged (OOXML)** | Word `.docx` · Excel `.xlsx` · PowerPoint `.pptx` |
 
-SVG, ANSI, Pandoc, Quarto and PowerPoint are experimental for now: their output is
+SVG, ANSI, Pandoc and Quarto are experimental for now: their output is
 valid and has every cell, but their styling is best-effort and may change between
 releases.
 

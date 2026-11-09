@@ -344,7 +344,7 @@ test_that("gw_formats lists every format with its options", {
     expect_equal(f$kind[f$name == "docx"], "binary")
     expect_equal(f$extension[f$name == "quarto"], "json")
     expect_type(f$experimental, "logical")
-    expect_identical(f$name[f$experimental], c("svg", "ansi", "pandoc", "quarto", "pptx"))
+    expect_identical(f$name[f$experimental], c("svg", "ansi", "pandoc", "quarto"))
     html_opts <- jsonlite::fromJSON(f$options[f$name == "html"])
     expect_equal(html_opts$class_prefix, "gw")
     for (opts in f$options) {

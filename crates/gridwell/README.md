@@ -24,7 +24,7 @@ default. To build only the formats you need:
 gridwell = { version = "0.1", default-features = false, features = ["html", "latex"] }
 ```
 
-`svg`, `ansi`, `pandoc`, `quarto` and `pptx` are experimental for now: their output
+`svg`, `ansi`, `pandoc` and `quarto` are experimental for now: their output
 is valid and has every cell, but their styling is best-effort and may change between
 releases (`Writer::experimental()` says which formats are).
 

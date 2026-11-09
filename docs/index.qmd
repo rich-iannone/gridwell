@@ -29,7 +29,7 @@ renders it to many output formats. It serves as a universal table rendering back
 | Quarto | Text   | Quarto-flavored Pandoc JSON AST (a cross-referenceable Div) | Experimental |
 | DOCX   | Binary | Microsoft Word document | Stable |
 | XLSX   | Binary | Microsoft Excel workbook | Stable |
-| PPTX   | Binary | Microsoft PowerPoint slide | Experimental |
+| PPTX   | Binary | Microsoft PowerPoint slide | Stable |
 
 An experimental format's output is valid and has every cell, but its styling is
 best-effort and may change between releases: see

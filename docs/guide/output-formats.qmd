@@ -12,11 +12,11 @@ uses (the notes below say which), you can ask for a
 
 ## Experimental formats
 
-SVG, ANSI, Pandoc, Quarto and PPTX are **experimental**. Their output is valid, with
+SVG, ANSI, Pandoc and Quarto are **experimental**. Their output is valid, with
 every cell where the table puts it: like the stable formats' output, it is read back
 as a grid, spans and hidden columns included, and compared with the table's. But
 their styling is best-effort, and how a table looks in them may change between
-releases. The other six formats are stable. Which formats are experimental is in the format list:
+releases. The other seven formats are stable. Which formats are experimental is in the format list:
 `gridwell formats` marks them, and the `experimental` field of
 `gridwell formats --json`, `gridwell.formats()` (Python) and `gw_formats()` (R) is
 true for them.
@@ -442,8 +442,6 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   left unstated
 
 ### PPTX (Microsoft PowerPoint)
-
-*Experimental: styling is best-effort and may change between releases (see [above](#experimental-formats)).*
 
 - DrawingML table (`<a:tbl>`) in a slide shape
 - Grid-based spans with `gridSpan`/`rowSpan` attributes

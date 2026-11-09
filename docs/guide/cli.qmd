@@ -234,7 +234,7 @@ Supported output formats:
   Binary formats:
     docx     Microsoft Word document (.docx)
     xlsx     Microsoft Excel workbook (.xlsx)
-    pptx     Microsoft PowerPoint slide (.pptx, experimental)
+    pptx     Microsoft PowerPoint slide (.pptx)
 
 Experimental formats write valid output with every cell, but their styling
 is best-effort and may change between releases.
