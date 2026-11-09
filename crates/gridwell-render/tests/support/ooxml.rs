@@ -133,7 +133,9 @@ pub fn docx_grid(xml: &str) -> Grid {
 /// The PPTX grid, checking DrawingML's merge rules on the way: an origin's
 /// `gridSpan` / `rowSpan` are followed by exactly that many `hMerge` / `vMerge`
 /// cells, and a `vMerge` cell is `hMerge` exactly when the cell above it is.
-pub fn pptx_grid(xml: &str) -> Grid {
+/// Right to left (`rtl`) the writer writes the columns as they are seen, the
+/// first on the right: the grid is turned back into the table's column order.
+pub fn pptx_grid(xml: &str, rtl: bool) -> Grid {
     let raw = parse_rows(xml, "tr", "tc", "t");
     let flag = |c: &RawCell, k: &str| c.attrs.contains_key(k);
     for (r, row) in raw.iter().enumerate() {
@@ -189,6 +191,9 @@ pub fn pptx_grid(xml: &str) -> Grid {
             out.push(text);
         }
         grid.push(out);
+    }
+    if rtl {
+        grid.iter_mut().for_each(|row| row.reverse());
     }
     grid
 }

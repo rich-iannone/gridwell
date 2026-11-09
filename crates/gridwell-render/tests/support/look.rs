@@ -2326,8 +2326,9 @@ pub fn latex(src: &str) -> Doc {
 
 /// Read a slide (`ppt/slides/slide1.xml`): table cells from `a:tc` (fill and
 /// anchoring from `a:tcPr`, edges from `a:lnL/R/T/B`, alignment from `a:pPr`,
-/// runs from `a:rPr` attributes and fills), and text boxes as text outside the
-/// table. Merged-away cells (`hMerge` / `vMerge`) are skipped.
+/// runs from `a:rPr` attributes and fills; right to left if the cells' `a:pPr`
+/// say so), and text boxes as text outside the table. Merged-away cells
+/// (`hMerge` / `vMerge`) are skipped.
 pub fn pptx(xml: &str) -> Doc {
     let mut reader = Reader::from_str(xml);
     let mut doc = Doc::default();
@@ -2354,7 +2355,6 @@ pub fn pptx(xml: &str) -> Doc {
                     skip_cell = attr(&e, "hMerge").is_some() || attr(&e, "vMerge").is_some();
                     look = Some(Look::default());
                 }
-                "tblPr" => doc.rtl = on_flag(&e, "rtl"),
                 "tcPr" => {
                     if let Some(l) = look.as_mut() {
                         l.valign = match attr(&e, "anchor").as_deref() {
@@ -2366,6 +2366,9 @@ pub fn pptx(xml: &str) -> Doc {
                     }
                 }
                 "pPr" => {
+                    // Right to left, the writer reverses the columns itself (no
+                    // `tblPr rtl`), so the cells' paragraphs tell.
+                    doc.rtl |= look.is_some() && on_flag(&e, "rtl");
                     para_align = match attr(&e, "algn").as_deref() {
                         Some("ctr") => Some(Align::Center),
                         Some("r") => Some(Align::Right),
