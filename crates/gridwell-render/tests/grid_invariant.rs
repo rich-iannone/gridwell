@@ -62,7 +62,7 @@ fn readers() -> Vec<(&'static str, Reader, bool)> {
                 let xml = gridwell_writer_pptx::PptxWriter::new()
                     .render_slide_xml(t)
                     .unwrap();
-                Some(ooxml::pptx_grid(&xml))
+                Some(ooxml::pptx_grid(&xml, gridwell_layout::resolve(t).is_rtl()))
             },
             false,
         ),
@@ -215,6 +215,24 @@ fn every_readable_format_shows_the_ir_grid() {
     for ((format, ..), n) in readers.iter().zip(&checked) {
         assert!(*n > scenarios.len() / 2, "{format}: only {n} checked");
     }
+}
+
+/// PPTX writes a right-to-left table's columns as they are seen, the first on the
+/// right, so every span layout's merges are written from the other end: the same
+/// scenarios right to left, read back in the table's column order.
+#[test]
+fn pptx_shows_the_ir_grid_right_to_left() {
+    let mut failures = Vec::new();
+    for (name, mut table) in scenarios() {
+        table.config.dir = Some(gridwell_ir::TextDirection::Rtl);
+        let xml = gridwell_writer_pptx::PptxWriter::new()
+            .render_slide_xml(&table)
+            .unwrap();
+        if let Err(e) = compare(&ooxml::pptx_grid(&xml, true), &expected(&table), false) {
+            failures.push(format!("{name}: {e}"));
+        }
+    }
+    report("right-to-left PPTX grid", &failures);
 }
 
 /// Collect failures (the first 15 in full) and fail with all of them.

@@ -42,7 +42,7 @@ proptest! {
         let docx = gridwell_writer_docx::DocxWriter::new().render_document_xml(&t).unwrap();
         checks.push(("docx", Some(ooxml::docx_grid(&docx)), false));
         let pptx = gridwell_writer_pptx::PptxWriter::new().render_slide_xml(&t).unwrap();
-        checks.push(("pptx", Some(ooxml::pptx_grid(&pptx)), false));
+        checks.push(("pptx", Some(ooxml::pptx_grid(&pptx, gridwell_layout::resolve(&t).is_rtl())), false));
         let xlsx = render(&t, "xlsx", None).unwrap().into_bytes();
         checks.push(("xlsx", Some(xlsx_grid(&xlsx, want.header_lines, want.rows.len(), want.width())), true));
         for (format, got, numbers) in checks {
