@@ -1640,6 +1640,15 @@ fn the_docs_name_the_experimental_formats_the_registry_marks() {
         experimental,
         "{rel}"
     );
+    let words = [
+        "no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+        "eleven", "twelve",
+    ];
+    let stable = format!(
+        "The other {} formats are stable.",
+        words[all.len() - experimental.len()]
+    );
+    assert!(guide.contains(&stable), "{rel}: no \"{stable}\"");
     let mut sections = Vec::new();
     let mut marked = Vec::new();
     for group in ["## Text Formats", "## Binary Formats"] {
