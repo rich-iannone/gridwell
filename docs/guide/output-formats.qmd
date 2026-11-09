@@ -123,12 +123,11 @@ side, which is the right in a right-to-left table.
 | Quarto | `lang` on the `Div` and the `Table` | `dir` on both. On the `Div`, Pandoc's LaTeX writer puts the table in babel or polyglossia's `otherlanguage` and `RTL` environments |
 | DOCX | `<w:lang>` in the document's run defaults (`styles.xml`), also as `w:eastAsia` for Chinese, Japanese and Korean and as `w:bidi` for right-to-left languages | `<w:bidiVisual/>` table and `<w:bidi/>` paragraphs. Word reads `w:jc` left and right, and cell borders, as start and end there, so both swap |
 | XLSX | ⊘ warned: cells have no language | A `rightToLeft` sheet. Horizontal alignment stays physical, and `left` is written out, since a general-aligned cell starts on the right. Cell borders swap |
-| PPTX | `lang` on every run (else `en-US`) | `rtl="1"` on the table and its paragraphs. `algn` is physical (a paragraph without one is put on the right); cell borders swap |
+| PPTX | `lang` on every run (else `en-US`) | The columns are written as they are seen, the first on the right, and the paragraphs are `rtl="1"`. The table itself isn't `rtl="1"`, which LibreOffice and Keynote ignore. `algn` and cell borders are physical (a paragraph without `algn` is put on the right) |
 
 The OOXML formats' readings of left and right are from the specification, and
-haven't been checked in Word, Excel or PowerPoint yet: DOCX's `w:jc` and cell
-borders, XLSX's cell borders (its alignment is physical, per ECMA-376), and PPTX's
-cell borders.
+haven't been checked in Word or Excel yet: DOCX's `w:jc` and cell borders, and
+XLSX's cell borders (its alignment is physical, per ECMA-376).
 
 Bold and italic are also set for complex-script text in every table: DOCX writes
 `<w:bCs/>` and `<w:iCs/>` beside `<w:b/>` and `<w:i/>`, and RTF writes `\ab` and `\ai`
