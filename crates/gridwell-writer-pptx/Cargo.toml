@@ -8,7 +8,7 @@ repository.workspace = true
 homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
-description = "PowerPoint (.pptx) writer for gridwell (experimental): IR → PresentationML table"
+description = "PowerPoint (.pptx) writer for gridwell: IR → PresentationML table"
 
 [dependencies]
 gridwell-ir = { workspace = true }
