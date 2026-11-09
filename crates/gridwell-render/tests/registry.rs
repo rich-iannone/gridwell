@@ -62,7 +62,7 @@ fn the_experimental_formats_are_the_tier_2_and_3_writers() {
         .filter(|w| w.experimental())
         .map(|w| w.name())
         .collect();
-    assert_eq!(experimental, ["svg", "ansi", "pandoc", "quarto", "pptx"]);
+    assert_eq!(experimental, ["svg", "ansi", "pandoc", "quarto"]);
 }
 
 #[test]
