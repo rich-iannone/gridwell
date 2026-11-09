@@ -19,9 +19,11 @@ FROM rust:1-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# System renderers from the bookworm apt snapshot:
-#  - chromium          : HTML screenshots (gated)
-#  - librsvg2-bin       : rsvg-convert, SVG -> PNG (gated)
+# System renderers from Debian bookworm (a stable release, not a dated apt
+# snapshot: the buildx layer cache is what keeps a built layer as it is):
+#  - chromium          : HTML and SVG screenshots (gated)
+#  - librsvg2-bin       : rsvg-convert, for the SVG writer's width calibration
+#                         (a viewer that ignores `textLength`; not gated)
 #  - poppler-utils      : pdftoppm (PDF -> PNG for LaTeX/LibreOffice)
 #  - texlive-*          : xelatex + standalone.cls (LaTeX -> PDF)
 #  - libreoffice        : RTF/DOCX/XLSX/PPTX -> PDF
@@ -44,9 +46,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git-lfs \
     && rm -rf /var/lib/apt/lists/*
 
-# Typst isn't packaged for bookworm; install a pinned CLI via cargo. (SVG uses
-# librsvg2-bin's rsvg-convert above, which is more reliable than `cargo install
-# resvg`, whose recent releases are library-only.)
+# Typst isn't packaged for bookworm; install a pinned CLI via cargo.
 RUN cargo install typst-cli --version 0.12.0 --locked
 
 # Chromium in a container must run without the sandbox; the xtask already
@@ -64,9 +64,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends texlive-plain-g
     && rm -rf /var/lib/apt/lists/*
 
 # Roboto: the font the SVG writer lays text out with (crates/gridwell-writer-svg,
-# measure.rs), so rsvg (which ignores `textLength`) renders SVG goldens in the font
-# their widths describe; the calibration test requires it here
-# (GRIDWELL_REQUIRE_ROBOTO). Its own final layer, like ulem above, so every earlier
+# measure.rs), so Chromium draws the SVG goldens in the font their widths describe,
+# and rsvg (which ignores `textLength`) shows the calibration test how well they fit;
+# that test requires it here (GRIDWELL_REQUIRE_ROBOTO). Its own final layer, like ulem above, so every earlier
 # layer stays exactly as it was. Not Liberation Sans: LibreOffice would substitute it
 # for Arial and Calibri and change every RTF/DOCX/XLSX/PPTX golden.
 RUN apt-get update && apt-get install -y --no-install-recommends fonts-roboto \
