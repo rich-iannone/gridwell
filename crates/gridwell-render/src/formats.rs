@@ -318,7 +318,7 @@ define_format!(
 define_format!(
     Pptx, "pptx", "Microsoft PowerPoint slide", Binary, "pptx",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    experimental: true,
+    experimental: false,
     options: gridwell_writer_pptx::PptxConfig,
     check: ok,
     render: |t, o| gridwell_writer_pptx::PptxWriter::with_config(o).render(t),
