@@ -4,7 +4,7 @@ use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table};
 use gridwell_layout::look::{BaseRules, LOOK};
 use gridwell_layout::{
-    resolve, CellVAlign, ResolvedCell, ResolvedStyle, ResolvedTable, Section, Sides, Slot, Stroke,
+    resolve, CellVAlign, ResolvedCell, ResolvedStyle, ResolvedTable, Section, Sides, Stroke,
 };
 use gridwell_ooxml::{package, Part};
 use std::fmt::Write;
@@ -368,12 +368,14 @@ fn write_table_frame(
     )?;
     buf.push_str("<a:graphic><a:graphicData uri=\"http://schemas.openxmlformats.org/drawingml/2006/table\">\n");
     buf.push_str("<a:tbl>\n");
-    // Right to left: the first column is on the right.
-    let rtl = if rt.is_rtl() { " rtl=\"1\"" } else { "" };
-    writeln!(buf, "<a:tblPr{rtl} firstRow=\"1\" bandRow=\"1\"/>")?;
+    // Right to left, the columns are written as they are seen, the first on the
+    // right ([`visual`]), not as `rtl="1"` asks: LibreOffice and Apple's
+    // importer draw such a table left to right.
+    writeln!(buf, "<a:tblPr firstRow=\"1\" bandRow=\"1\"/>")?;
 
     buf.push_str("<a:tblGrid>");
-    for w in col_widths {
+    for v in 0..col_widths.len() {
+        let w = col_widths[visual(rt, col_widths.len(), v)];
         write!(buf, "<a:gridCol w=\"{w}\"/>")?;
     }
     buf.push_str("</a:tblGrid>\n");
@@ -402,6 +404,27 @@ fn write_table_frame(
     Ok(())
 }
 
+/// The column written `v`th of `ncols`: the columns in the order they are seen,
+/// left to right, so reversed in a right-to-left table.
+fn visual(rt: &ResolvedTable, ncols: usize, v: usize) -> usize {
+    if rt.is_rtl() {
+        ncols - 1 - v
+    } else {
+        v
+    }
+}
+
+/// The borders of the position in column `col` of a row's `strokes`, by the
+/// sides they are drawn on. [`rules::cell_strokes`] gives a position's start
+/// edge as its left, so right to left they swap back.
+fn drawn_strokes(rt: &ResolvedTable, strokes: &[Strokes], col: usize) -> Strokes {
+    strokes
+        .get(col)
+        .cloned()
+        .unwrap_or_default()
+        .mirrored(rt.is_rtl())
+}
+
 /// Write one section. Spans are resolved per section, so a merge never crosses a
 /// section boundary. `next` gives each row's height and its positions' borders.
 fn write_section<'s>(
@@ -411,38 +434,44 @@ fn write_section<'s>(
     strong: bool,
     next: &mut dyn FnMut() -> (u32, &'s [Strokes]),
 ) -> Result<(), RenderError> {
-    for row in &section.rows {
+    for (r, row) in section.rows.iter().enumerate() {
         let (height, strokes) = next();
         write!(buf, "<a:tr h=\"{height}\">")?;
-        for (col, slot) in row.slots.iter().enumerate() {
-            let strokes = strokes.get(col).cloned().unwrap_or_default();
-            write_slot(buf, rt, col, slot, &strokes, strong)?;
+        let ncols = row.slots.len();
+        for v in 0..ncols {
+            let col = visual(rt, ncols, v);
+            let strokes = drawn_strokes(rt, strokes, col);
+            write_slot(buf, rt, section, (r, col), &strokes, strong)?;
         }
         buf.push_str("</a:tr>\n");
     }
     Ok(())
 }
 
-/// One `<a:tc>`. DrawingML needs a cell for every grid position: origins carry
-/// `gridSpan`/`rowSpan`; covered positions are empty cells marked `hMerge`
-/// (covered from the left) and/or `vMerge` (covered from above).
+/// One `<a:tc>`, for the position at `(row, col)`. DrawingML needs a cell for
+/// every grid position: a cell's first position as written (its last column right
+/// to left) carries `gridSpan`/`rowSpan`; the others are empty cells marked
+/// `hMerge` (covered from the left) and/or `vMerge` (covered from above).
 fn write_slot(
     buf: &mut String,
     rt: &ResolvedTable,
-    col: usize,
-    slot: &Slot,
+    section: &Section,
+    (row, col): (usize, usize),
     strokes: &Sides<Option<Stroke>>,
     strong: bool,
 ) -> Result<(), RenderError> {
-    let cell = match slot {
-        Slot::Origin(cell) => cell,
-        Slot::CoveredH { .. } => return write_merged_cell(buf, true, false, strokes),
-        Slot::CoveredV { origin_col, .. } => {
-            return write_merged_cell(buf, col != *origin_col, true, strokes);
-        }
-        // Invalid IR only: an empty, unmerged cell keeps the grid intact.
-        Slot::Empty => return write_merged_cell(buf, false, false, strokes),
+    // Invalid IR only: an empty, unmerged cell keeps the grid intact.
+    let Some((cell, outline)) = section.covering(row, col) else {
+        return write_merged_cell(buf, false, false, strokes);
     };
+    let first = if rt.is_rtl() {
+        outline.right
+    } else {
+        outline.left
+    };
+    if !first || !outline.top {
+        return write_merged_cell(buf, !first, !outline.top, strokes);
+    }
 
     buf.push_str("<a:tc");
     if cell.colspan > 1 {
@@ -768,12 +797,12 @@ fn write_group_label_row(
         buf.push_str("<a:endParaRPr/>");
     }
     buf.push_str("</a:p></a:txBody>");
-    let piece = |c: usize| strokes.get(c).cloned().unwrap_or_default();
+    let piece = |v: usize| drawn_strokes(rt, strokes, visual(rt, num_cols, v));
     let fill = label.style.fill().unwrap_or(Color::rgb(0xF0, 0xF0, 0xF0));
     write_tc_pr(buf, &piece(0), Some(fill), None)?;
     buf.push_str("</a:tc>");
-    for c in 1..num_cols {
-        write_merged_cell(buf, true, false, &piece(c))?;
+    for v in 1..num_cols {
+        write_merged_cell(buf, true, false, &piece(v))?;
     }
 
     buf.push_str("</a:tr>\n");
