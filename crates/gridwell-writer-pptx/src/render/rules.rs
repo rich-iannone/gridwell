@@ -13,8 +13,9 @@ use gridwell_layout::{ResolvedTable, Section, Sides, Slot, Stroke};
 
 use super::{RenderError, BASE_PT};
 
-/// A position's borders: `lnL`, `lnR`, `lnT`, `lnB` (`lnL` the start in a
-/// right-to-left table).
+/// A position's borders: `lnL`, `lnR`, `lnT`, `lnB`. In a right-to-left table
+/// the left is the start (drawn on the right): the writer mirrors them as it
+/// writes the columns as they are seen.
 pub(super) type Strokes = Sides<Option<Stroke>>;
 
 /// EMU per px: 0.75pt, 12700 EMU each.
@@ -54,8 +55,8 @@ pub(super) fn cell_strokes(rt: &ResolvedTable, rules: Option<&BaseRules>) -> Vec
                     b.push(Strokes::default());
                     continue;
                 };
-                // In a right-to-left table `lnL` and `lnR` are the cell's start and
-                // end: the strokes are mirrored, before the mask (a span's start
+                // In a right-to-left table the left and right are the cell's start
+                // and end: the strokes are mirrored, before the mask (a span's start
                 // edge is its outline's left).
                 let strokes = cell.style.strokes(BASE_PT).mirrored(rtl);
                 let mut rule = Strokes::default();
