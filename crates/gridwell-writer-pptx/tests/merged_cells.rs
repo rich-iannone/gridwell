@@ -78,3 +78,36 @@ fn a_merged_cell_is_anchored_by_its_origin() {
         .collect();
     assert_eq!(anchored, [(2, 0)]);
 }
+
+#[test]
+fn right_to_left_a_merged_cell_starts_at_its_left() {
+    let mut t = styled_merge();
+    t.config.dir = Some(gridwell_ir::TextDirection::Rtl);
+    let xml = PptxWriter::with_config(PptxConfig { base_styles: false })
+        .render_slide_xml(&t)
+        .unwrap();
+    let rows = cells(&xml);
+    // The columns as they are seen: `c` and `d` on the left, then the merge,
+    // its origin at its left (the IR's last column), the sides as drawn.
+    let (r0, r1) = (&rows[2], &rows[3]);
+    assert!(r0[0].contains(">c</a:t>") && r1[0].contains(">d</a:t>"));
+    assert!(r0[1].contains("gridSpan=\"2\" rowSpan=\"2\""), "{}", r0[1]);
+    assert!(r0[1].contains("<a:tcPr anchor=\"b\">"), "{}", r0[1]);
+    assert!(r0[2].contains("<a:tc hMerge=\"1\">"), "{}", r0[2]);
+    assert!(r1[1].contains("<a:tc vMerge=\"1\">"), "{}", r1[1]);
+    assert!(
+        r1[2].contains("<a:tc hMerge=\"1\" vMerge=\"1\">"),
+        "{}",
+        r1[2]
+    );
+    assert_eq!(sides(r0[1]), [true, false, false, true], "{}", r0[1]);
+    assert_eq!(sides(r0[2]), [true, true, false, false], "{}", r0[2]);
+    assert_eq!(sides(r1[1]), [false, false, true, true], "{}", r1[1]);
+    assert_eq!(sides(r1[2]), [false, true, true, false], "{}", r1[2]);
+    assert_eq!((sides(r0[0]), sides(r1[0])), ([false; 4], [false; 4]));
+    // The label: its left piece first.
+    let label = &rows[1];
+    assert_eq!(sides(label[0]), [true, false, true, true]);
+    assert_eq!(sides(label[2]), [true, true, true, false]);
+    assert!(label[0].contains(">Group</a:t>"), "{}", label[0]);
+}

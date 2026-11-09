@@ -264,6 +264,13 @@ fn grid(xml: &str) -> ((u32, u32), Vec<u32>, Vec<u32>) {
 fn spanners(dir: Option<TextDirection>) -> Table {
     TableBuilder::new(4)
         .config(|c| c.dir = dir)
+        // Unequal, so a mirror image is not the same widths.
+        .columns(vec![
+            column("a1", "A1").width("40pt"),
+            column("a2", "A2").width("80pt"),
+            column("b1", "B1").width("60pt"),
+            column("b2", "B2").width("100pt"),
+        ])
         .head(
             row(vec![
                 cell("Group A").colspan(2).scope("colgroup"),
@@ -301,8 +308,9 @@ fn right_to_left_the_spanner_rules_are_mirrored() {
     let ((x, _), cols, _) = grid(&xml);
     let inset = 38100;
     let end = x + cols.iter().sum::<u32>();
-    // The first spanner's columns are on the right.
-    let mid = end - cols[0] - cols[1];
+    // The columns are written as they are seen: the first spanner's on the right.
+    assert_eq!(cols, [1_270_000, 762_000, 1_016_000, 508_000]);
+    let mid = x + cols[0] + cols[1];
     let l = lines(&xml);
     assert_eq!((l[0].0, l[0].0 + l[0].2), (mid + inset, end));
     assert_eq!((l[1].0, l[1].0 + l[1].2), (x, mid - inset));
