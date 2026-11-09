@@ -43,7 +43,7 @@ const TEXT_FORMATS: &[&str] = &[
     "html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto",
 ];
 const BINARY_FORMATS: &[&str] = &["docx", "xlsx", "pptx"];
-const EXPERIMENTAL_FORMATS: &[&str] = &["svg", "ansi", "pandoc", "quarto", "pptx"];
+const EXPERIMENTAL_FORMATS: &[&str] = &["svg", "ansi", "pandoc", "quarto"];
 
 #[test]
 fn convert_valid_fixture_to_every_text_format() {
