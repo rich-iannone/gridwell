@@ -136,6 +136,23 @@ keyword! {
 }
 
 keyword! {
+    /// Where a group's summary rows go (`summary_placement`): after its data rows,
+    /// or between its label and its data rows.
+    SummaryPlacement {
+        Bottom = "bottom",
+        Top = "top",
+    }
+}
+
+// Not derivable: the enum comes from `keyword!`, and only some keywords have a default.
+#[allow(clippy::derivable_impls)]
+impl Default for SummaryPlacement {
+    fn default() -> Self {
+        SummaryPlacement::Bottom
+    }
+}
+
+keyword! {
     /// The HTML `scope` of a header cell.
     CellScope {
         Col = "col",
@@ -278,7 +295,7 @@ keyword! {
 }
 
 keyword! {
-    /// Type of a cell's raw value (`typed_value.type`, `data_type`).
+    /// Type of a cell's raw value (`typed_value.type`).
     ValueType {
         String = "string" | "str" | "text" | "character",
         Number = "number" | "float" | "double" | "numeric",
