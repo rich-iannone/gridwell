@@ -12,6 +12,7 @@ description = "ANSI terminal writer for gridwell (experimental): IR → Rich ter
 
 [dependencies]
 serde = { workspace = true }
+gridwell-core = { workspace = true }
 gridwell-ir = { workspace = true }
 gridwell-layout = { workspace = true }
 thiserror = { workspace = true }
