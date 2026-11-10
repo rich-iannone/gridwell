@@ -355,10 +355,11 @@ fn places_are_where_the_ir_has_them() {
 }
 
 #[test]
-fn the_corpus_has_three_gaps() {
-    // Every corpus table but three is expressed whole: `borders-dashed` has
+fn the_corpus_has_four_gaps() {
+    // Every corpus table but four is expressed whole: `borders-dashed` has
     // dashed and dotted sides, `rtl-table` an Arabic language and right to
-    // left direction, which are the document's, and `inline-image` an image.
+    // left direction, which are the document's, `inline-image` an image, and
+    // `custom-rules` rules of its own (LaTeX draws its own).
     for ex in gridwell_testkit::examples() {
         let found: Vec<_> = unsupported(&ex.table())
             .into_iter()
@@ -368,6 +369,7 @@ fn the_corpus_has_three_gaps() {
             "borders-dashed" => &["border-styles"],
             "rtl-table" => &["lang", "rtl"],
             "inline-image" => &["image"],
+            "custom-rules" => &["table-rules"],
             _ => &[],
         };
         assert_eq!(found, want, "{}", ex.name);
