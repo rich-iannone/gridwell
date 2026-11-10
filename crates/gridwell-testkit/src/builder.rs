@@ -27,6 +27,7 @@ use std::collections::HashMap;
 pub fn text(value: &str) -> ContentNode {
     ContentNode::Text {
         value: value.to_string(),
+        href: None,
     }
 }
 
@@ -35,6 +36,15 @@ pub fn styled(value: &str, style_id: &str) -> ContentNode {
     ContentNode::StyledText {
         value: value.to_string(),
         style_id: Some(style_id.to_string()),
+        href: None,
+    }
+}
+
+/// Plain text linking to `href`.
+pub fn link(value: &str, href: &str) -> ContentNode {
+    ContentNode::Text {
+        value: value.to_string(),
+        href: Some(href.to_string()),
     }
 }
 
@@ -98,8 +108,6 @@ pub fn cell_content(content: Vec<ContentNode>) -> Cell {
         is_stub: false,
         is_placeholder: false,
         scope: None,
-        sort_key: None,
-        data_type: None,
     }
 }
 
@@ -119,7 +127,6 @@ pub trait CellExt {
     fn style(self, style_id: &str) -> Self;
     fn scope(self, scope: &str) -> Self;
     fn typed(self, value_type: &str, value: serde_json::Value) -> Self;
-    fn data_type(self, data_type: &str) -> Self;
 }
 
 impl CellExt for Cell {
@@ -148,10 +155,6 @@ impl CellExt for Cell {
             value_type: value_type.into(),
             value,
         });
-        self
-    }
-    fn data_type(mut self, data_type: &str) -> Self {
-        self.data_type = Some(data_type.into());
         self
     }
 }
@@ -199,6 +202,7 @@ pub fn group(rows: Vec<Row>) -> GroupBuilder {
             label: None,
             rows,
             summary_rows: vec![],
+            summary_placement: Default::default(),
         },
     }
 }
@@ -215,6 +219,7 @@ pub fn labeled_group(label: &str, rows: Vec<Row>) -> GroupBuilder {
             }),
             rows,
             summary_rows: vec![],
+            summary_placement: Default::default(),
         },
     }
 }
@@ -223,6 +228,11 @@ impl GroupBuilder {
     /// Attach summary rows to this group (requires `stub_cols >= 1`).
     pub fn summary(mut self, rows: Vec<Row>) -> Self {
         self.group.summary_rows = rows;
+        self
+    }
+    /// Place the summary rows at the top, between the label and the data rows.
+    pub fn summary_top(mut self) -> Self {
+        self.group.summary_placement = gridwell_ir::SummaryPlacement::Top;
         self
     }
     /// Style the group label.
@@ -594,5 +604,7 @@ fn default_config(cols: u32) -> Config {
         aria_label: None,
         aria_describedby: None,
         summary: None,
+        id: None,
+        rules: None,
     }
 }
