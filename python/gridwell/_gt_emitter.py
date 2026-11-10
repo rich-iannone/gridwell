@@ -78,6 +78,15 @@ def build_ir(gt_obj: GT) -> dict[str, Any]:
     # Build footer
     footer = _build_footer(built, shown_footnotes, decor)
 
+    table_id = _table_id(built)
+    if table_id is not None:
+        config["id"] = table_id
+    has_heading = header["title"] is not None or header["subtitle"] is not None
+    has_footer = bool(footer["footnotes"] or footer["source_notes"])
+    rules = _table_rules(built, has_heading, has_footer)
+    if rules:
+        config["rules"] = rules
+
     return {
         "ir_version": "1.0",
         "config": config,
@@ -142,6 +151,80 @@ _RTL_SCRIPTS = frozenset(
 _RTL_LANGUAGES = frozenset(
     "ar arc bal bqi ckb dv fa glk he iw ji ks lrc mzn nqo pnb prs ps sd sdh syr ug ur yi".split()
 )
+
+
+def _table_id(built: Any) -> str | None:
+    """The table's id (`GT(id=)`), when it's one the IR takes (an HTML id: not
+    empty, no whitespace)."""
+    table_id = getattr(getattr(built._options, "table_id", None), "value", None)
+    if isinstance(table_id, str) and table_id and not any(c.isspace() for c in table_id):
+        return table_id
+    return None
+
+
+# Great Tables' border options drawn on each of gridwell's rules (`config.rules`),
+# by the start of their names (`<name>_style`, `_width`, `_color`), the outer one
+# last. Which ones are drawn on the table's top and bottom depends on whether
+# there's a heading and a footer: `table_border_top` is above the heading, or the
+# table's top without one (and `table_border_bottom` likewise).
+def _rule_options(has_heading: bool, has_footer: bool) -> dict[str, list[str]]:
+    return {
+        "title": ["table_border_top"] if has_heading else [],
+        "top": ["column_labels_border_top"]
+        + (["heading_border_bottom"] if has_heading else ["table_border_top"]),
+        "column_labels": ["table_body_border_top", "column_labels_border_bottom"],
+        "spanners": ["column_labels_border_bottom"],
+        "group": ["row_group_border_bottom", "row_group_border_top"],
+        "rows": ["table_body_hlines"],
+        "stub": ["stub_border"],
+        "summary": ["summary_row_border"],
+        "grand_summary": ["grand_summary_row_border"],
+        "bottom": ["table_body_border_bottom"] + ([] if has_footer else ["table_border_bottom"]),
+        "notes": ["table_border_bottom"] if has_footer else [],
+    }
+
+
+_RULE_STYLES = frozenset("none hidden dotted dashed solid double".split())
+
+
+def _table_rules(built: Any, has_heading: bool, has_footer: bool) -> dict[str, Any]:
+    """The rules of the table's border options a user changed, as `config.rules`:
+    each option at Great Tables' default is left out, so a rule changes only what
+    the options change (and the default look draws the rest). Where two options
+    are drawn on one rule, the outer one's changes win. Styles the IR has no rule
+    for (`groove`, ...) are left out."""
+    options = built._options
+    try:
+        from great_tables._gt_data import Options
+
+        defaults: Any = Options()
+    except ImportError:
+        defaults = None
+
+    def changed(name: str) -> Any:
+        v = getattr(getattr(options, name, None), "value", None)
+        if v is None or v == getattr(getattr(defaults, name, None), "value", None):
+            return None
+        return v
+
+    rules: dict[str, Any] = {}
+    for rule, names in _rule_options(has_heading, has_footer).items():
+        border: dict[str, str] = {}
+        for name in names:
+            style = changed(f"{name}_style")
+            if isinstance(style, str) and style.lower() in _RULE_STYLES:
+                border["style"] = style.lower()
+            width = changed(f"{name}_width")
+            if isinstance(width, (int, float)) and not isinstance(width, bool):
+                border["width"] = f"{width}px"
+            elif isinstance(width, str) and width:
+                border["width"] = width
+            color = changed(f"{name}_color")
+            if isinstance(color, str) and color:
+                border["color"] = color
+        if border:
+            rules[rule] = border
+    return rules
 
 
 def _is_rtl(lang: str) -> bool:
@@ -268,8 +351,6 @@ def _head_cell(
         "is_stub": False,
         "is_placeholder": is_placeholder,
         "scope": None if is_placeholder else ("colgroup" if colspan > 1 else "col"),
-        "sort_key": None,
-        "data_type": None,
     }
 
 
@@ -426,8 +507,8 @@ def _build_tbody(
     decor: _Decor,
 ) -> list[dict]:
     """Build the tbody section with row groups, then the grand summary (as a group
-    of summary rows alone). Data rows are counted across groups, for striping, as
-    Great Tables counts them.
+    of summary rows alone; its rows at the top are a group before the others).
+    Data rows are counted across groups, for striping, as Great Tables counts them.
 
     With a row group column, a group's label is the cell in that column of its
     first row, spanning its data rows (the IR has no span from a group's rows
@@ -435,8 +516,22 @@ def _build_tbody(
     grand = _summary_rows(
         built._summary_rows_grand, None, all_cols, stub, "grand_summary_row", decor
     )
+    # The grand summary rows at the top (listed first) are a group above the
+    # others, the rest a group after them.
+    n_top = _summary_sides(built._summary_rows_grand, None).count("top")
+    grand_top: list[dict[str, Any]] = []
+    if n_top:
+        grand_top.append({
+            "group_id": None,
+            "label": None,
+            "rows": [],
+            "summary_rows": grand[:n_top],
+            "summary_placement": "top",
+        })
     grand_group = (
-        [{"group_id": None, "label": None, "rows": [], "summary_rows": grand}] if grand else []
+        [{"group_id": None, "label": None, "rows": [], "summary_rows": grand[n_top:]}]
+        if grand[n_top:]
+        else []
     )
     if has_groups and group_rows:
         listed = [(grp, [int(idx) for idx in grp.indices]) for grp in group_rows]
@@ -462,7 +557,7 @@ def _build_tbody(
         if grp is None:
             groups.append({"group_id": None, "label": None, "rows": rows, "summary_rows": []})
             continue
-        groups.append({
+        group = {
             "group_id": grp.group_id,
             "label": None if group_cell is not None else _group_label(grp, decor),
             "rows": rows,
@@ -470,8 +565,27 @@ def _build_tbody(
                 built._summary_rows, grp.group_id, all_cols, stub, "summary_row", decor,
                 group_style=None if group_cell is None else group_cell["style_id"],
             ),
-        })
-    return groups + grand_group
+        }
+        # A group has one placement: summary rows on both sides are all after
+        # its rows.
+        sides = _summary_sides(built._summary_rows, grp.group_id)
+        if sides and all(side == "top" for side in sides):
+            group["summary_placement"] = "top"
+        groups.append(group)
+    return grand_top + groups + grand_group
+
+
+def _summary_sides(summaries: Any, group_id: str | None) -> list[str]:
+    """The side (`top` or `bottom`) of each of a group's summary rows (the grand
+    summary's for `group_id=None`), in `_summary_rows`' order: the top ones first."""
+    if not summaries:
+        return []
+    found = (
+        summaries.get_summary_rows()
+        if group_id is None
+        else summaries.get_summary_rows(group_id=group_id)
+    )
+    return [getattr(s, "side", "bottom") for s in found]
 
 
 def _stub_spans(
@@ -515,8 +629,6 @@ def _body_placeholder(is_stub: bool) -> dict:
         "is_stub": is_stub,
         "is_placeholder": True,
         "scope": None,
-        "data_type": None,
-        "sort_key": None,
     }
 
 
@@ -564,8 +676,6 @@ def _group_cell(grp: Any, n_rows: int, shown: int, decor: _Decor) -> dict:
         "is_stub": True,
         "is_placeholder": False,
         "scope": "rowgroup",
-        "data_type": None,
-        "sort_key": None,
     }
 
 
@@ -589,9 +699,8 @@ def _summary_rows(
     group_style: str | None = None,
 ) -> list[dict]:
     """A group's summary rows (the grand summary's for `group_id=None`): the label
-    across the stub, then the text Great Tables shows for each column. Summary
-    rows on a group's top side (`side="top"`) are listed with the others: the IR
-    has summary rows only after a group's data rows.
+    across the stub, then the text Great Tables shows for each column, the rows
+    on the top side (`side="top"`) first (see `_build_tbody` for where they go).
 
     With a row group column, a group's summary label is across the other stub
     columns, as Great Tables draws it under the group's label; the group column
@@ -634,8 +743,6 @@ def _summary_rows(
                 "is_stub": True,
                 "is_placeholder": False,
                 "scope": None,
-                "sort_key": None,
-                "data_type": None,
             })
         if stub.group is not None:
             styles = decor.styles(stub_loc, lambda x: x.rownum == index)
@@ -659,8 +766,6 @@ def _summary_rows(
             "is_stub": True,
             "is_placeholder": False,
             "scope": "row",
-            "sort_key": None,
-            "data_type": None,
         })
         cells.extend(_body_placeholder(is_stub=True) for _ in range(span - 1))
         for col in all_cols[n_stub:]:
@@ -679,8 +784,6 @@ def _summary_rows(
                 "is_stub": False,
                 "is_placeholder": False,
                 "scope": None,
-                "sort_key": None,
-                "data_type": None,
             })
         rows.append({"role": role, "style_id": row_style, "cells": cells})
     return rows
@@ -746,8 +849,6 @@ def _build_row(
                 "is_stub": True,
                 "is_placeholder": False,
                 "scope": "row",
-                "data_type": None,
-                "sort_key": None,
             })
             continue
         value = tbl_data[col.var].iloc[row_idx]
@@ -758,7 +859,7 @@ def _build_row(
         label = _HtmlLabel(str(value))
         text = _plain(label)
 
-        # Determine data type from the original data
+        # The value's type, from the original data
         orig_val = built._tbl_data[col.var].iloc[row_idx]
         data_type = _infer_data_type(orig_val, col.var, built._tbl_data.dtypes)
 
@@ -769,10 +870,6 @@ def _build_row(
             "style_id": style_id,
             "is_stub": is_stub,
             "is_placeholder": False,
-            "data_type": data_type,
-            # A missing value sorts as missing, not as its text; the text shown
-            # sorts, not its markup.
-            "sort_key": text.lower() if text and not missing else None,
         }
 
         if is_stub:
@@ -793,7 +890,7 @@ def _build_row(
 
 
 def _infer_data_type(value: Any, col_name: str, dtypes: Any) -> str | None:
-    """Infer the gridwell data_type from a pandas value/dtype."""
+    """Infer the IR value type (`typed_value.type`) from a pandas value/dtype."""
     if pd.isna(value):
         return None
 
@@ -1496,9 +1593,10 @@ class _OptionStyles:
     `opt_row_striping()`) that the IR can express, as the R emitter's: style ids
     for the head rows, data rows and summary rows, definitions for group labels,
     the row group column and stub cells (under any `tab_style()` on them), and
-    the striping. Options at
-    Great Tables' defaults are left out: gridwell's writers supply their own
-    default look. A fill comes with the text color Great Tables gives it.
+    the striping. Options at Great Tables' defaults are left out: gridwell's
+    writers supply their own default look. A fill comes with the text color
+    Great Tables gives it. The border options are the table's rules
+    (`_table_rules`).
 
     Great Tables' stripe (#F4F4F4 by default) isn't the IR's default one, so
     striping is always a conditional style on even data rows (Great Tables
