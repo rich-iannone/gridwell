@@ -75,9 +75,7 @@ A column label row with a label spanning two columns above them.
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": null,
-              "sort_key": null,
-              "data_type": null
+              "scope": null
             },
             {
               "content": [{ "type": "text", "value": "Scores" }],
@@ -86,9 +84,7 @@ A column label row with a label spanning two columns above them.
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "colgroup",
-              "sort_key": null,
-              "data_type": null
+              "scope": "colgroup"
             },
             {
               "content": [],
@@ -97,9 +93,7 @@ A column label row with a label spanning two columns above them.
               "style_id": null,
               "is_stub": false,
               "is_placeholder": true,
-              "scope": null,
-              "sort_key": null,
-              "data_type": null
+              "scope": null
             }
           ]
         },
@@ -114,9 +108,7 @@ A column label row with a label spanning two columns above them.
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": "string"
+              "scope": "col"
             },
             {
               "content": [{ "type": "text", "value": "Q1" }],
@@ -125,9 +117,7 @@ A column label row with a label spanning two columns above them.
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": "number"
+              "scope": "col"
             },
             {
               "content": [{ "type": "text", "value": "Q2" }],
@@ -136,9 +126,7 @@ A column label row with a label spanning two columns above them.
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": "number"
+              "scope": "col"
             }
           ]
         }
@@ -158,22 +146,19 @@ A column label row with a label spanning two columns above them.
                 "content": [{ "type": "text", "value": "Alice" }],
                 "typed_value": { "type": "string", "value": "Alice" },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "string", "sort_key": "alice"
+                "is_stub": false, "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "90" }],
                 "typed_value": { "type": "number", "value": 90 },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 90
+                "is_stub": false, "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "95" }],
                 "typed_value": { "type": "number", "value": 95 },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 95
+                "is_stub": false, "is_placeholder": false
               }
             ]
           },
@@ -185,22 +170,19 @@ A column label row with a label spanning two columns above them.
                 "content": [{ "type": "text", "value": "Bob" }],
                 "typed_value": { "type": "string", "value": "Bob" },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "string", "sort_key": "bob"
+                "is_stub": false, "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "85" }],
                 "typed_value": { "type": "number", "value": 85 },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 85
+                "is_stub": false, "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "88" }],
                 "typed_value": { "type": "number", "value": 88 },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 88
+                "is_stub": false, "is_placeholder": false
               }
             ]
           }
@@ -233,14 +215,13 @@ A column label row with a label spanning two columns above them.
     :where(#colspan .gw_cells_top) { border-top: none }
     :where(#colspan .gw_cells_bottom) { border-bottom: none }
     :where(#colspan .gw_table td, #colspan .gw_table th) { padding: 8px 5px; border-top: 1px solid #D3D3D3 }
+    :where(#colspan .gw_table > tbody:first-of-type > tr:first-child > *) { border-top: none }
     :where(#colspan .gw_table th) { font-weight: inherit }
     :where(#colspan .gw_table thead th) { border-top: none; padding: 5px 5px 6px }
     :where(#colspan .gw_table thead tr) { vertical-align: bottom }
     :where(#colspan .gw_table thead) { border-bottom: 2px solid #D3D3D3 }
+    :where(#colspan .gw_table thead:last-child) { border-bottom: none }
     :where(#colspan .gw_cells_head thead) { border-bottom: none }
-    :where(#colspan .gw_cells_head thead + tbody > tr:first-child > *) { border-top: none }
-    :where(#colspan .gw_rule_top) { border-top: 2px solid #D3D3D3 }
-    :where(#colspan .gw_rule_bottom) { border-bottom: 2px solid #D3D3D3 }
     :where(#colspan .gw_spanner) { padding: 5px 4px 7px; background-image: linear-gradient(#D3D3D3, #D3D3D3); background-size: calc(100% - 8px) 2px; background-position: bottom center; background-repeat: no-repeat }
     :where(#colspan .gw_spanner:first-child) { padding-left: 0; background-size: calc(100% - 4px) 2px; background-position: bottom left }
     :where(#colspan .gw_spanner:last-child) { padding-right: 0; background-size: calc(100% - 4px) 2px; background-position: bottom right }
@@ -248,7 +229,13 @@ A column label row with a label spanning two columns above them.
     :where(#colspan .gw_group_label) { border-top: 2px solid #D3D3D3; border-bottom: 2px solid #D3D3D3 }
     :where(#colspan .gw_stub) { border-right: 2px solid #D3D3D3 }
     :where(#colspan tbody > tr.gw_summary:first-child > *, #colspan tr:not(.gw_summary) + tr.gw_summary > *) { border-top: 2px solid #D3D3D3 }
-    :where(#colspan tbody > tr.gw_grand_summary:first-child > *, #colspan tr:not(.gw_grand_summary) + tr.gw_grand_summary > *) { border-top: 6px double #D3D3D3 }
+    :where(#colspan tbody > tr.gw_grand_summary:first-child:not(.gw_summary_top) > *, #colspan tr:not(.gw_grand_summary) + tr.gw_grand_summary:not(.gw_summary_top) > *) { border-top: 6px double #D3D3D3 }
+    :where(#colspan tr.gw_summary_end > *) { border-bottom: 2px solid #D3D3D3 }
+    :where(#colspan tr.gw_grand_summary.gw_summary_end > *) { border-bottom: 6px double #D3D3D3 }
+    :where(#colspan .gw_rule_top) { border-top: 2px solid #D3D3D3 }
+    :where(#colspan thead .gw_rule_head) { border-bottom: 2px solid #D3D3D3 }
+    :where(#colspan tbody .gw_rule_head) { border-top: 2px solid #D3D3D3 }
+    :where(#colspan .gw_rule_bottom) { border-bottom: 2px solid #D3D3D3 }
     :where(#colspan .gw_table tbody .gw__al_right) { font-variant-numeric: tabular-nums }
     :where(#colspan .gw_footer) { border-bottom: 2px solid #A8A8A8 }
     :where(#colspan .gw_footnote, #colspan .gw_source_note) { margin: 0; font-size: 90%; padding: 4px 5px }
@@ -446,13 +433,13 @@ A body cell spanning two rows.
               "content": [{ "type": "text", "value": "Country" }],
               "colspan": 1, "rowspan": 1, "style_id": null,
               "is_stub": true, "is_placeholder": false,
-              "scope": "col", "sort_key": null, "data_type": "string"
+              "scope": "col"
             },
             {
               "content": [{ "type": "text", "value": "Value" }],
               "colspan": 1, "rowspan": 1, "style_id": null,
               "is_stub": false, "is_placeholder": false,
-              "scope": "col", "sort_key": null, "data_type": "number"
+              "scope": "col"
             }
           ]
         }
@@ -472,15 +459,13 @@ A body cell spanning two rows.
                 "content": [{ "type": "text", "value": "Japan" }],
                 "typed_value": { "type": "string", "value": "Japan" },
                 "colspan": 1, "rowspan": 2,
-                "style_id": null, "is_stub": true, "is_placeholder": false,
-                "data_type": "string", "sort_key": "japan"
+                "style_id": null, "is_stub": true, "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "100" }],
                 "typed_value": { "type": "number", "value": 100 },
                 "colspan": 1, "rowspan": 1,
-                "style_id": null, "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 100
+                "style_id": null, "is_stub": false, "is_placeholder": false
               }
             ]
           },
@@ -492,15 +477,13 @@ A body cell spanning two rows.
                 "content": [],
                 "typed_value": null,
                 "colspan": 1, "rowspan": 1,
-                "style_id": null, "is_stub": true, "is_placeholder": true,
-                "data_type": null, "sort_key": null
+                "style_id": null, "is_stub": true, "is_placeholder": true
               },
               {
                 "content": [{ "type": "text", "value": "110" }],
                 "typed_value": { "type": "number", "value": 110 },
                 "colspan": 1, "rowspan": 1,
-                "style_id": null, "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 110
+                "style_id": null, "is_stub": false, "is_placeholder": false
               }
             ]
           },
@@ -512,15 +495,13 @@ A body cell spanning two rows.
                 "content": [{ "type": "text", "value": "Korea" }],
                 "typed_value": { "type": "string", "value": "Korea" },
                 "colspan": 1, "rowspan": 1,
-                "style_id": null, "is_stub": true, "is_placeholder": false,
-                "data_type": "string", "sort_key": "korea"
+                "style_id": null, "is_stub": true, "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "80" }],
                 "typed_value": { "type": "number", "value": 80 },
                 "colspan": 1, "rowspan": 1,
-                "style_id": null, "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 80
+                "style_id": null, "is_stub": false, "is_placeholder": false
               }
             ]
           }
@@ -553,14 +534,13 @@ A body cell spanning two rows.
     :where(#rowspan .gw_cells_top) { border-top: none }
     :where(#rowspan .gw_cells_bottom) { border-bottom: none }
     :where(#rowspan .gw_table td, #rowspan .gw_table th) { padding: 8px 5px; border-top: 1px solid #D3D3D3 }
+    :where(#rowspan .gw_table > tbody:first-of-type > tr:first-child > *) { border-top: none }
     :where(#rowspan .gw_table th) { font-weight: inherit }
     :where(#rowspan .gw_table thead th) { border-top: none; padding: 5px 5px 6px }
     :where(#rowspan .gw_table thead tr) { vertical-align: bottom }
     :where(#rowspan .gw_table thead) { border-bottom: 2px solid #D3D3D3 }
+    :where(#rowspan .gw_table thead:last-child) { border-bottom: none }
     :where(#rowspan .gw_cells_head thead) { border-bottom: none }
-    :where(#rowspan .gw_cells_head thead + tbody > tr:first-child > *) { border-top: none }
-    :where(#rowspan .gw_rule_top) { border-top: 2px solid #D3D3D3 }
-    :where(#rowspan .gw_rule_bottom) { border-bottom: 2px solid #D3D3D3 }
     :where(#rowspan .gw_spanner) { padding: 5px 4px 7px; background-image: linear-gradient(#D3D3D3, #D3D3D3); background-size: calc(100% - 8px) 2px; background-position: bottom center; background-repeat: no-repeat }
     :where(#rowspan .gw_spanner:first-child) { padding-left: 0; background-size: calc(100% - 4px) 2px; background-position: bottom left }
     :where(#rowspan .gw_spanner:last-child) { padding-right: 0; background-size: calc(100% - 4px) 2px; background-position: bottom right }
@@ -568,7 +548,13 @@ A body cell spanning two rows.
     :where(#rowspan .gw_group_label) { border-top: 2px solid #D3D3D3; border-bottom: 2px solid #D3D3D3 }
     :where(#rowspan .gw_stub) { border-right: 2px solid #D3D3D3 }
     :where(#rowspan tbody > tr.gw_summary:first-child > *, #rowspan tr:not(.gw_summary) + tr.gw_summary > *) { border-top: 2px solid #D3D3D3 }
-    :where(#rowspan tbody > tr.gw_grand_summary:first-child > *, #rowspan tr:not(.gw_grand_summary) + tr.gw_grand_summary > *) { border-top: 6px double #D3D3D3 }
+    :where(#rowspan tbody > tr.gw_grand_summary:first-child:not(.gw_summary_top) > *, #rowspan tr:not(.gw_grand_summary) + tr.gw_grand_summary:not(.gw_summary_top) > *) { border-top: 6px double #D3D3D3 }
+    :where(#rowspan tr.gw_summary_end > *) { border-bottom: 2px solid #D3D3D3 }
+    :where(#rowspan tr.gw_grand_summary.gw_summary_end > *) { border-bottom: 6px double #D3D3D3 }
+    :where(#rowspan .gw_rule_top) { border-top: 2px solid #D3D3D3 }
+    :where(#rowspan thead .gw_rule_head) { border-bottom: 2px solid #D3D3D3 }
+    :where(#rowspan tbody .gw_rule_head) { border-top: 2px solid #D3D3D3 }
+    :where(#rowspan .gw_rule_bottom) { border-bottom: 2px solid #D3D3D3 }
     :where(#rowspan .gw_table tbody .gw__al_right) { font-variant-numeric: tabular-nums }
     :where(#rowspan .gw_footer) { border-bottom: 2px solid #A8A8A8 }
     :where(#rowspan .gw_footnote, #rowspan .gw_source_note) { margin: 0; font-size: 90%; padding: 4px 5px }
