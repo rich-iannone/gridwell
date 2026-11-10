@@ -83,16 +83,16 @@ today `"auto"` always uses gridwell's.
 | A stub of several columns (`rowname_col=["region", "city"]`) | One stub column each, outermost first. Where an outer column's value is the same in consecutive rows of a group (and so are the columns to its left), the rows share one cell spanning them (`rowspan`, `scope: "rowgroup"`), merged in the order the rows are shown |
 | Row group column (`tab_options(row_group_as_column=True)`) | The first stub column: each group's label is a stub cell spanning its rows (`scope: "rowgroup"`), and the group has no label row |
 | Stubhead label (`tab_stubhead()`) | One head cell spanning the stub columns (blank without one); a list of labels (`tab_stubhead(["A", "B"])`) gives each row stub column its own, with a blank one above a row group column |
-| Summary rows (`summary_rows()`, `grand_summary_rows()`) | A group's `summary_rows`, and a last group without a label for the grand summary; a table without a stub gets an empty one for their labels, as in Great Tables. Summary rows on a group's top side are listed after its rows. With a row group column, a summary row's label spans the other stub columns, beside an empty cell under the group's label (Great Tables' HTML has the group's cell span its summary rows instead) |
+| Summary rows (`summary_rows()`, `grand_summary_rows()`) | A group's `summary_rows`, and a last group without a label for the grand summary; a table without a stub gets an empty one for their labels, as in Great Tables. A group whose summary rows are all on its top side (`side="top"`) has them at the top (`summary_placement: "top"`); one with rows on both sides has them all at the bottom, after its rows. Grand summary rows on the top side are a first group without a label, with its rows at the top. With a row group column, a summary row's label spans the other stub columns, beside an empty cell under the group's label (Great Tables' HTML has the group's cell span its summary rows instead) |
 | Title/subtitle | `header` block |
 | Source notes | `footer.source_notes` |
 | Footnotes (`tab_footnote()`) | `footer.footnotes`, the ones Great Tables lists, in its order and with its marks; each mark is also on the cell or label it annotates, where Great Tables puts it (with `placement="auto"`, before a number and after anything else) |
 | Styles (`tab_style()`) | Each styled cell's or label's own style (`style_id`), as the CSS Great Tables writes for it, later declarations winning: text, fill, borders and the `style.css()` declarations the IR has. A font size without a unit (`style.text(size=12)`) is in pixels; properties the IR has no equivalent for (`font-stretch`, `letter-spacing`) are dropped |
-| Table options (`tab_options()`, `opt_stylize()`, `opt_row_striping()`) | The options the IR can express, where changed from Great Tables' defaults: the fills (with the text color Great Tables gives them) and font weights of the column labels, row group labels and stub, the summary rows' fills, no lines between body rows, and striping (a conditional style on even rows, of the stub, the body or both). Other options (fonts, sizes, padding, the table's borders) aren't converted yet |
+| Table options (`tab_options()`, `opt_stylize()`, `opt_row_striping()`) | The options the IR can express, where changed from Great Tables' defaults: the fills (with the text color Great Tables gives them) and font weights of the column labels, row group labels and stub, the summary rows' fills, no lines between body rows, striping (a conditional style on even rows, of the stub, the body or both), and the table's borders (below). Other options (fonts, sizes, padding, vertical lines between body cells) aren't converted yet |
 | `md()` and `html()` labels | The content of the HTML Great Tables makes of them: text with bold, italic, underline, strike-through and code runs, line breaks, superscripts and subscripts in Unicode characters where every character has one (`m²`), images (`<img>`, their `src` copied, never read) and SVG as raw HTML (other markup is dropped and its text kept) |
 | Column alignment | `column_spec[].align` |
 | Column widths | `column_spec[].width` |
-| Formatted values | Cell `content`: the content of the HTML Great Tables puts in the cell, read as labels are, so `fmt_*()` output that is HTML (`fmt_markdown()`, `fmt_units()`, `fmt_scientific()`, `fmt_image()`, nanoplots) is drawn as formatted, and other values are their text. A cell's `sort_key` is the text shown, not its markup |
+| Formatted values | Cell `content`: the content of the HTML Great Tables puts in the cell, read as labels are, so `fmt_*()` output that is HTML (`fmt_markdown()`, `fmt_units()`, `fmt_scientific()`, `fmt_image()`, nanoplots) is drawn as formatted, and other values are their text. |
 | Typed values | Cell `typed_value` (below) |
 
 A cell's [typed value](../schema/table-data.qmd#typed-values) is what a spreadsheet
@@ -126,18 +126,38 @@ neither `lang` nor `dir`, as before.
 
 The R package does the same for gt's `locale` (`gt(df, locale = "ar")`).
 
+## Borders
+
+The border options (`table_border_*`, `heading_border_bottom_*`,
+`column_labels_border_*`, `row_group_border_*`, `table_body_border_*`,
+`table_body_hlines_*`, `stub_border_*`, `summary_row_border_*` and
+`grand_summary_row_border_*`) become the table's
+[rules](../schema/config.qmd#rules), where changed from Great Tables' defaults. Each
+rule takes the style, width and color of the options that draw it in Great Tables'
+HTML. Where two options draw one rule, the outer one's changes win: with a heading,
+`table_border_top_*` is the rule above it (`title`) and `heading_border_bottom_*`
+and `column_labels_border_top_*` the one under it (`top`); without one,
+`table_border_top_*` is `top`. The same goes for `table_border_bottom_*`, which is
+the rule under the footer (`notes`), or the table's `bottom` when there is no
+footer. Styles the IR has no rule for (`groove`, `ridge`, `inset`, `outset`) are
+left out.
+
 ## HTML ids
 
 The HTML writer gives the header cells the ids Great Tables gives them, and each
 body cell the same `headers` (except that stub cells are numbered in the order the
 rows are shown, where Great Tables numbers them by data row, which differs when row
-groups reorder the rows). Great Tables' `GT(id=)` isn't part of the table, so
-pass it to the writer as `table_id`:
+groups reorder the rows). Great Tables' `GT(id=)` is the table's
+[`config.id`](../schema/config.qmd), which the HTML writer uses as its `table_id`, so
+the ids are prefixed as Great Tables prefixes them:
 
 ```python
 gt = GT(exibble, rowname_col="row", groupname_col="group", id="sales")
-html = gridwell.Table(gt).render_html(table_id="sales")
+html = gridwell.Table(gt).render_html()  # ids start "sales-"
 ```
+
+The writer's `table_id` option, when set, is used instead. An id that isn't an HTML
+id (empty, or with whitespace) is left out.
 
 ## Full Pipeline Example
 
