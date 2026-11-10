@@ -213,6 +213,13 @@ fn tokenize(rtf: &str) -> Vec<Tok> {
                     out.push(Tok::Word(name, num.parse().ok()));
                     continue;
                 }
+                // An ignorable destination (`{\*\fldinst …}`): a reader that
+                // doesn't know it skips its group.
+                if c == '*' {
+                    out.push(Tok::Word("*".into(), None));
+                    i += 1;
+                    continue;
+                }
                 // Escaped symbol: \\ \{ \}
                 out.push(Tok::Text(c));
             }
@@ -316,7 +323,7 @@ pub fn rtf_grid(rtf: &str, width: usize) -> Option<Grid> {
             Tok::Open => depth += 1,
             Tok::Close => depth -= 1,
             Tok::Word(w, n) => match w.as_str() {
-                "fonttbl" | "colortbl" => skip_depth = Some(depth),
+                "fonttbl" | "colortbl" | "*" => skip_depth = Some(depth),
                 "trowd" => {
                     units.clear();
                     in_row = true;
