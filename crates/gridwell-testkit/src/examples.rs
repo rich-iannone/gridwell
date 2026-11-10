@@ -9,7 +9,7 @@
 use crate::builder::*;
 use crate::{Category, Example, Feature};
 use gridwell_ir::style::{ConditionalSelector, StyleDef};
-use gridwell_ir::{Table, TextDirection};
+use gridwell_ir::{ContentNode, Table, TextDirection};
 use serde_json::json;
 
 use Category::*;
@@ -154,6 +154,14 @@ pub fn all() -> Vec<Example> {
             &[F::Header, F::Stub, F::Summary],
             grand_summary,
         ),
+        ex(
+            "summary-top",
+            Groups,
+            "Summary rows at the top: a grand summary above the groups, and each group's \
+             above its rows",
+            &[F::Header, F::Stub, F::RowGroup, F::Summary],
+            summary_top,
+        ),
         // ── footnotes / notes ──
         ex(
             "footnote-single",
@@ -211,6 +219,22 @@ pub fn all() -> Vec<Example> {
             "Double borders",
             &[F::Header, F::Borders],
             borders_double,
+        ),
+        ex(
+            "custom-rules",
+            Styling,
+            "The default look's rules changed by `config.rules`: removed, recolored, \
+             widened, dashed, dotted and double",
+            &[
+                F::Header,
+                F::Spanner,
+                F::Stub,
+                F::RowGroup,
+                F::Summary,
+                F::SourceNote,
+                F::Borders,
+            ],
+            custom_rules,
         ),
         ex(
             "striping-basic",
@@ -299,6 +323,13 @@ pub fn all() -> Vec<Example> {
             line_breaks,
         ),
         ex(
+            "links",
+            Content,
+            "Links in cells and a source note: whole and partial, styled, and an email address",
+            &[F::Header, F::Link, F::StyledText, F::SourceNote],
+            links,
+        ),
+        ex(
             "inline-image",
             Content,
             "An inline image in a cell",
@@ -315,7 +346,7 @@ pub fn all() -> Vec<Example> {
         ex(
             "typed-values",
             Content,
-            "Cells carrying typed_value + sort_key",
+            "Cells carrying typed values",
             &[F::Header, F::TypedValue],
             typed_values,
         ),
@@ -766,6 +797,35 @@ fn grand_summary() -> Table {
         .build()
 }
 
+fn summary_top() -> Table {
+    let quarter = |label: &str, months: [(&str, &str); 2], total: &str| {
+        labeled_group(
+            label,
+            months
+                .iter()
+                .map(|(m, v)| row(vec![cell(m).stub(), cell(v)]))
+                .collect(),
+        )
+        .summary(vec![
+            row(vec![cell("Subtotal").stub(), cell(total)]).role("summary")
+        ])
+        .summary_top()
+    };
+    TableBuilder::new(2)
+        .stub_cols(1)
+        .head(row(vec![cell("Item").stub(), cell("Amount")]).role("column_label"))
+        .group(
+            group(vec![])
+                .summary(vec![
+                    row(vec![cell("Total").stub(), cell("70")]).role("grand_summary")
+                ])
+                .summary_top(),
+        )
+        .group(quarter("Q1", [("Jan", "10"), ("Feb", "20")], "30"))
+        .group(quarter("Q2", [("Apr", "15"), ("May", "25")], "40"))
+        .build()
+}
+
 // ────────────────────────────── footnotes ────────────────────────────────
 
 fn footnote_single() -> Table {
@@ -857,6 +917,59 @@ fn borders_dashed() -> Table {
 
 fn borders_double() -> Table {
     borders_with("double")
+}
+
+fn custom_rules() -> Table {
+    let rules = json!({
+        "title": { "style": "none" },
+        "top": { "width": "3px", "color": "#333333" },
+        "column_labels": { "color": "#333333" },
+        "spanners": { "style": "dotted", "color": "#333333" },
+        "group": { "style": "dashed", "width": "1px" },
+        "rows": { "style": "none" },
+        "stub": { "width": "1px" },
+        "summary": { "style": "double", "width": "3px" },
+        "grand_summary": { "width": "2px", "color": "#333333" },
+        "bottom": { "width": "3px", "color": "#333333" },
+        "notes": { "width": "0" },
+    });
+    TableBuilder::new(3)
+        .stub_cols(1)
+        .config(|c| c.rules = Some(serde_json::from_value(rules).unwrap()))
+        .title("Rules of our own")
+        .head(
+            row(vec![
+                cell("").stub(),
+                cell("Amount").colspan(2).scope("colgroup"),
+                placeholder(),
+            ])
+            .role("spanner_label"),
+        )
+        .head(row(vec![cell("Item").stub(), cell("2024"), cell("2025")]).role("column_label"))
+        .group(
+            labeled_group(
+                "Fruit",
+                vec![
+                    row(vec![cell("Apples").stub(), cell("10"), cell("12")]),
+                    row(vec![cell("Pears").stub(), cell("20"), cell("18")]),
+                ],
+            )
+            .summary(vec![row(vec![
+                cell("Subtotal").stub(),
+                cell("30"),
+                cell("30"),
+            ])
+            .role("summary")]),
+        )
+        .group(labeled_group(
+            "Nuts",
+            vec![row(vec![cell("Almonds").stub(), cell("5"), cell("7")])],
+        ))
+        .group(group(vec![]).summary(vec![
+            row(vec![cell("Total").stub(), cell("35"), cell("37")]).role("grand_summary"),
+        ]))
+        .source_note("Made up.")
+        .build()
 }
 
 fn borders_with(style: &str) -> Table {
@@ -1133,6 +1246,50 @@ fn line_breaks() -> Table {
         .build()
 }
 
+fn links() -> Table {
+    let mut t = TableBuilder::new(2)
+        .style_def(
+            "bold",
+            StyleDef {
+                font_weight: Some("bold".into()),
+                ..Default::default()
+            },
+        )
+        .head(row(vec![cell("Resource"), cell("Where")]).role("column_label"))
+        .body(vec![
+            row(vec![
+                cell("Docs"),
+                cell_content(vec![link(
+                    "example.com/docs",
+                    "https://example.com/docs?a=1&b=2",
+                )]),
+            ]),
+            row(vec![
+                cell("Contact"),
+                cell_content(vec![
+                    text("Write to "),
+                    link("team@example.com", "mailto:team@example.com"),
+                ]),
+            ]),
+            row(vec![
+                cell("Report"),
+                cell_content(vec![ContentNode::StyledText {
+                    value: "Résumé (100%)".into(),
+                    style_id: Some("bold".into()),
+                    href: Some("https://example.org/r%C3%A9sum%C3%A9/100%25#top".into()),
+                }]),
+            ]),
+        ])
+        .source_note("Source: ")
+        .build();
+    if let Some(footer) = &mut t.footer {
+        footer.source_notes[0]
+            .content
+            .push(link("gridwell", "https://example.com/gridwell"));
+    }
+    t
+}
+
 /// A 24×24 PNG (blue square, white dot) as a data URI.
 use crate::images::LOGO_PNG;
 
@@ -1169,12 +1326,12 @@ fn typed_values() -> Table {
         .body(vec![
             row(vec![
                 cell("Alice").typed("string", json!("Alice")),
-                cell("90").typed("number", json!(90)).data_type("number"),
+                cell("90").typed("number", json!(90)),
                 cell("yes").typed("boolean", json!(true)),
             ]),
             row(vec![
                 cell("Bob").typed("string", json!("Bob")),
-                cell("85").typed("number", json!(85)).data_type("number"),
+                cell("85").typed("number", json!(85)),
                 cell("no").typed("boolean", json!(false)),
             ]),
         ])
