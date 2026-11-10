@@ -9,7 +9,7 @@ expression: out
 \pard\intbl\plain\b\ab Item\cell
 \pard\intbl\plain\b\ab Amount\cell
 \row
-\trowd\trqc\cellx4320
+\trowd\cellx4320
 \pard\intbl{\b\ab Q1}\cell
 \row
 \trowd\cellx2160\cellx4320
@@ -24,7 +24,7 @@ expression: out
 \pard\intbl\plain Subtotal\cell
 \pard\intbl\plain 30\cell
 \row
-\trowd\trqc\cellx4320
+\trowd\cellx4320
 \pard\intbl{\b\ab Q2}\cell
 \row
 \trowd\cellx2160\cellx4320

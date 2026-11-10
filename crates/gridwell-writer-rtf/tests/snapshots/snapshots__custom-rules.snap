@@ -16,7 +16,7 @@ expression: out
 \pard\intbl\plain\b\ab 2024\cell
 \pard\intbl\plain\b\ab 2025\cell
 \row
-\trowd\trqc\cellx6480
+\trowd\cellx6480
 \pard\intbl{\b\ab Fruit}\cell
 \row
 \trowd\cellx2160\cellx4320\cellx6480
@@ -34,7 +34,7 @@ expression: out
 \pard\intbl\plain 30\cell
 \pard\intbl\plain 30\cell
 \row
-\trowd\trqc\cellx6480
+\trowd\cellx6480
 \pard\intbl{\b\ab Nuts}\cell
 \row
 \trowd\cellx2160\cellx4320\cellx6480

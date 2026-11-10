@@ -19,7 +19,7 @@ expression: out
 \pard\intbl\plain\qr\b\ab Revenue\cell
 \pard\intbl\plain\qr\b\ab Profit\cell
 \row
-\trowd\trqc\cellx8640
+\trowd\cellx8640
 \pard\intbl{\b\ab North America}\cell
 \row
 \trowd\clvmgf\cellx2160\cellx4320\cellx6480\cellx8640
@@ -40,7 +40,7 @@ expression: out
 \pard\intbl\plain\qr 420.1\cell
 \pard\intbl\plain\qr 109.5\cell
 \row
-\trowd\trqc\cellx8640
+\trowd\cellx8640
 \pard\intbl{\b\ab Europe}\cell
 \row
 \trowd\cellx2160\cellx4320\cellx6480\cellx8640
