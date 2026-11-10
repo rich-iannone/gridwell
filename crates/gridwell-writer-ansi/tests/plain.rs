@@ -5,14 +5,21 @@
 use gridwell_testkit::examples;
 use gridwell_writer_ansi::{AnsiConfig, AnsiWriter};
 
-/// Remove every `ESC [ … m` sequence.
-fn strip_sgr(s: &str) -> String {
-    let mut out = String::with_capacity(s.len());
-    let mut chars = s.chars();
+/// Remove the escapes the writer emits: SGR sequences (`ESC [ … m`) and OSC 8
+/// hyperlinks (`ESC ] 8 ; ; URL ESC \\`).
+fn strip_escapes(s: &str) -> String {
+    let mut out = String::new();
+    let mut chars = s.chars().peekable();
     while let Some(c) = chars.next() {
-        if c == '\x1b' {
-            for c in chars.by_ref() {
-                if c == 'm' {
+        if c == '\x1b' && chars.peek() == Some(&'[') {
+            for d in chars.by_ref() {
+                if d == 'm' {
+                    break;
+                }
+            }
+        } else if c == '\x1b' && chars.peek() == Some(&']') {
+            while let Some(d) = chars.next() {
+                if d == '\x1b' && chars.next_if_eq(&'\\').is_some() {
                     break;
                 }
             }
@@ -46,7 +53,7 @@ fn color_off_is_the_colored_output_without_escapes() {
                 "{}: escape in plain output:\n{plain}",
                 ex.name
             );
-            assert_eq!(plain, strip_sgr(&colored), "{}", ex.name);
+            assert_eq!(plain, strip_escapes(&colored), "{}", ex.name);
             styled += usize::from(colored != plain);
         }
     }
