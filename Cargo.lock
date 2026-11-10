@@ -553,6 +553,7 @@ dependencies = [
 name = "gridwell-writer-ansi"
 version = "0.1.0"
 dependencies = [
+ "gridwell-core",
  "gridwell-ir",
  "gridwell-layout",
  "gridwell-testkit",
@@ -701,6 +702,7 @@ dependencies = [
  "gridwell-core",
  "gridwell-ir",
  "gridwell-layout",
+ "gridwell-ooxml",
  "gridwell-testkit",
  "insta",
  "rust_xlsxwriter",
