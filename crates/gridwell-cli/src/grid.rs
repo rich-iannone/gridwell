@@ -11,7 +11,7 @@
 use std::collections::HashMap;
 
 use gridwell_ir::span::OccupancyGrid;
-use gridwell_ir::{Cell, ContentNode, Row, Table};
+use gridwell_ir::{Cell, ContentNode, Row, SummaryPlacement, Table};
 
 use crate::inspect::count;
 
@@ -37,11 +37,23 @@ pub fn draw(table: &Table) -> String {
         if let Some(label) = &group.label {
             name.push_str(&format!(" {}", excerpt(&label.content)));
         }
-        let summary = format!("tbody group {g} summary");
+        let top = group.summary_placement == SummaryPlacement::Top;
+        let summary = format!("tbody group {g} summary{}", if top { " (top)" } else { "" });
         let g = Some(g as u32);
-        sections.push((name, &group.rows, "tbody", g));
-        if !group.summary_rows.is_empty() {
-            sections.push((summary, &group.summary_rows, "tbody_summary", g));
+        let rows = (name, &group.rows, "tbody", g);
+        let summary = (!group.summary_rows.is_empty()).then_some((
+            summary,
+            &group.summary_rows,
+            "tbody_summary",
+            g,
+        ));
+        // In display order.
+        if top {
+            sections.extend(summary);
+            sections.push(rows);
+        } else {
+            sections.push(rows);
+            sections.extend(summary);
         }
     }
     for (name, rows, section, row_group) in sections {
@@ -167,7 +179,7 @@ fn excerpt(content: &[ContentNode]) -> String {
     let mut text = String::new();
     for node in content {
         match node {
-            ContentNode::Text { value } | ContentNode::StyledText { value, .. } => {
+            ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. } => {
                 text.push_str(value)
             }
             ContentNode::FootnoteMark { mark_text, .. } => text.push_str(mark_text),
