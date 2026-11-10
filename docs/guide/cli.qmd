@@ -269,11 +269,10 @@ $ gridwell conformance check reformatted.json conformance/expected/gt/exibble_ba
 fails L1 (checked to L3)
   L0 valid: pass
   L1 structure: fail (1 difference)
-  L2 content: fail (2 differences)
+  L2 content: fail (1 difference)
   L3 styling: fail
-3 differences:
+2 differences:
   L2 groups[0].rows[0].cells[0].runs[0].text: expected "1.111e-01", got "0.1111"
-  L2 groups[0].rows[0].cells[0].sort_key: expected "1.111e-01", got "0.1111"
   L1 groups[0].rows[0].cells[0].text: expected "1.111e-01", got "0.1111"
 ```
 
