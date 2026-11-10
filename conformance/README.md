@@ -21,7 +21,7 @@ at it or below.
 |------|--------|
 | L0 valid | The IR parses and validates. |
 | L1 structure | Columns and stub, title, subtitle and extra lines, head rows and their spans, groups and their labels, row roles, data and summary rows, the text of every cell, footnote and source note. |
-| L2 content | Text runs, footnote marks, images and raw content, typed values, `data_type`, `sort_key`, `scope`, column and group ids, `lang` and `dir`. |
+| L2 content | Text runs, footnote marks, images and raw content, typed values, `scope`, column and group ids, `lang` and `dir`. |
 | L3 styling | Resolved styles, alignment, column, table and image sizes. |
 | L4 visual | Not here: the gt and Great Tables gallery pages (`cargo xtask gt`, see `harness/README.md`), report only. |
 
@@ -53,7 +53,7 @@ Where each tier's expectation comes from (each file's `source` says it too):
 - **L2 and L3** can't be read off HTML. They are the normalized grid of the
   reference IR, which comes from gridwell's emitter (`ir_emitter` in each
   reference set's `manifest.json`) and has been reviewed; they say what that
-  emitter does, for example that a date column is `data_type: "string"`.
+  emitter does, for example that a date cell's typed value is a `string`.
 
 ## Checking an emitter
 
@@ -94,11 +94,10 @@ $ gridwell conformance check reformatted.json conformance/expected/gt/exibble_ba
 fails L1 (checked to L3)
   L0 valid: pass
   L1 structure: fail (1 difference)
-  L2 content: fail (2 differences)
+  L2 content: fail (1 difference)
   L3 styling: fail
-3 differences:
+2 differences:
   L2 groups[0].rows[0].cells[0].runs[0].text: expected "1.111e-01", got "0.1111"
-  L2 groups[0].rows[0].cells[0].sort_key: expected "1.111e-01", got "0.1111"
   L1 groups[0].rows[0].cells[0].text: expected "1.111e-01", got "0.1111"
 ```
 
