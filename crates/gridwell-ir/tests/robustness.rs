@@ -313,6 +313,8 @@ fn every_rule_displays_as_its_serialized_id() {
         InvalidStyleId,
         InvalidLang,
         DuplicateId,
+        InvalidHref,
+        InvalidTableId,
     ] {
         // Exhaustive: a new rule fails to compile here until it's added above.
         match rule {
@@ -337,7 +339,9 @@ fn every_rule_displays_as_its_serialized_id() {
             | InvalidLength
             | InvalidStyleId
             | InvalidLang
-            | DuplicateId => {}
+            | DuplicateId
+            | InvalidHref
+            | InvalidTableId => {}
         }
         let serialized = serde_json::to_string(&rule).unwrap();
         assert_eq!(format!("\"{rule}\""), serialized);
