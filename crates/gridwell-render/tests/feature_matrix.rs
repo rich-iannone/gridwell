@@ -643,11 +643,46 @@ fn features() -> Vec<Feature> {
             },
             check: |d| d.rtl.then_some(()).ok_or_else(|| "left to right".into()),
         },
+        Feature {
+            id: "table-rules",
+            what: "`config.rules`, the default look's rules changed (here the rule \
+                   between body rows: 3px, dashed, red)",
+            table: || {
+                let mut t = probe(StyleDef::default());
+                t.config.rules = Some(
+                    serde_json::from_value(serde_json::json!({
+                        "rows": { "width": "3px", "style": "dashed", "color": "#FF0000" }
+                    }))
+                    .unwrap(),
+                );
+                t
+            },
+            check: |d| {
+                let red_dashed = |e: Option<look::Edge>| {
+                    e.is_some_and(|e| e.line == Line::Dashed && e.color == Some(RED))
+                };
+                // Between the body rows, drawn by the row above or below.
+                for (above, below) in [("TARGET", "CONTROLB"), ("CONTROLA", "CONTROLC")] {
+                    let (a, b) = (get(d, above)?, get(d, below)?);
+                    if !red_dashed(a.borders[2]) && !red_dashed(b.borders[0]) {
+                        return Err(format!("no rule under {above}: {:?}, {:?}", a.borders, b.borders));
+                    }
+                }
+                // Nowhere else.
+                for text in ["H1", "H2"] {
+                    let l = get(d, text)?;
+                    if l.borders.iter().any(|e| red_dashed(*e)) {
+                        return Err(format!("the rule leaks into {text}: {:?}", l.borders));
+                    }
+                }
+                Ok(())
+            },
+        },
     ]
 }
 
 /// Features of the table as a whole, which a writer warns of at the table.
-const TABLE_WIDE: &[&str] = &["lang", "rtl"];
+const TABLE_WIDE: &[&str] = &["lang", "rtl", "table-rules"];
 
 /// `font_style: normal` on a run inside an italic cell and an italic source
 /// note (`ITALICTEXT` and `LINETEXT`, the rest of each, stay italic).
@@ -845,6 +880,7 @@ fn gap(feature: &str, format: &str) -> Option<Gap> {
         ("lang", "latex" | "xlsx") => Limit,
         ("lang", "rtf") => Todo,
         ("rtl", "latex") => Limit,
+        ("table-rules", "latex" | "typst" | "rtf" | "docx" | "xlsx") => Todo,
         _ => return None,
     })
 }
@@ -1063,7 +1099,7 @@ fn writers_warn_of_their_gaps() {
         }
     }
     assert!(wrong.is_empty(), "{}", wrong.join("\n"));
-    assert_eq!(warned, 9);
+    assert_eq!(warned, 14);
 }
 
 /// The probes' columns have no width; a column with one (fixed, `%`, `fr`) must
