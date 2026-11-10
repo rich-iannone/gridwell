@@ -242,6 +242,7 @@ const LATEX_PREAMBLE: &str = r"\documentclass{article}
 \usepackage{booktabs,multirow,longtable,tabularx}
 \usepackage[normalem]{ulem}
 \usepackage[table]{xcolor}
+\usepackage[hidelinks]{hyperref}
 \setlength{\parindent}{0pt}
 \pagestyle{empty}
 \setlength{\tabcolsep}{12pt}
