@@ -37,6 +37,8 @@ and when errors are serialized.
 | `INVALID_STYLE_ID` | A style id (a key of `styles.defs` or `styles.compositions`) is empty or uses a character other than ASCII letters, digits, `_` and `-` |
 | `DUPLICATE_ID` | Two footnotes have the same `id`, or a style id is a key of both `styles.defs` and `styles.compositions`: a reference to it would be ambiguous |
 | `INVALID_LANG` | `config.lang` is not a well-formed BCP 47 language tag: subtags of ASCII letters and digits separated by `-` (`fr-CA`, not `fr_CA`), as in `ar`, `zh-Hant-TW`, `es-419` or a private-use `x-…` tag |
+| `INVALID_HREF` | A text run's `href` is not a link gridwell writes: an absolute `http` or `https` URL with a host, or a `mailto` URL with an address, without whitespace or control characters (the scheme matched ignoring case). Other schemes, such as `javascript:`, `data:` and `file:`, could run code or open a local file when the link is followed |
+| `INVALID_TABLE_ID` | `config.id` is not an HTML id: it is empty or has whitespace |
 
 ## Span Rules
 
@@ -66,6 +68,7 @@ at once. Known values are written back in their canonical spelling.
 | `vertical_align` | `top`, `middle`, `bottom`, `baseline`, `super`, `sub` |
 | `row.role` | `column_label`, `spanner_label`, `summary_row` (`summary`), `grand_summary_row` (`grand_summary`) |
 | `cell.scope` | `col`, `colgroup`, `row`, `rowgroup` |
+| `table.tbody[].summary_placement` | `bottom`, `top` |
 | `config.page_break_mode` | `avoid`, `allow`, `force-between-groups` (`force_between_groups`) |
 | `config.dir` | `ltr`, `rtl`, `auto` |
 | `border.*.style` | `none`, `hidden`, `solid`, `dashed`, `dotted`, `double` |
@@ -79,12 +82,12 @@ at once. Known values are written back in their canonical spelling.
 | `text_overflow` | `clip`, `ellipsis` |
 | conditional `selector.row_parity` | `even`, `odd` |
 | conditional `selector.scope` | `tbody` (`body`), `thead` (`head`), `table` (`all`) |
-| `typed_value.type`, `cell.data_type` | `string` (`str`, `text`, `character`), `number` (`float`, `double`, `numeric`), `integer` (`int`), `boolean` (`bool`, `logical`), `date`, `datetime` (`timestamp`), `time`, `duration` |
+| `typed_value.type` | `string` (`str`, `text`, `character`), `number` (`float`, `double`, `numeric`), `integer` (`int`), `boolean` (`bool`, `logical`), `date`, `datetime` (`timestamp`), `time`, `duration` |
 
 ## Colors
 
 `color`, `background_color` and `border.*.color` (in style definitions, composition
-overrides and conditional styles) accept, ignoring case and surrounding whitespace:
+overrides and conditional styles), and `config.rules.*.color`, accept, ignoring case and surrounding whitespace:
 
 | Form | Examples |
 |------|----------|
@@ -115,7 +118,7 @@ that make sense for it:
 | `image.width`, `image.height` (image nodes, in any content) | ✓ | ✓ | | ✓ | |
 | style `min_width`, `max_width`, `padding.*` (definitions, composition overrides, conditional styles) | ✓ | ✓ | | | |
 | style `indent` | ✓ | ✓ | | | ✓ |
-| style `border.*.width` | ✓ | | | | |
+| style `border.*.width`, `config.rules.*.width` | ✓ | | | | |
 | style `font_size` | ✓ | ✓ | | | |
 
 `font_size` also accepts the CSS size keywords `xx-small`, `x-small`, `small`,
