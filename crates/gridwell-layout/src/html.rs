@@ -19,10 +19,13 @@
 //!   …), break lines; list items start with a bullet, or their number in an `ol`;
 //!   `pre` keeps its spaces and line breaks. Elsewhere, white space collapses as
 //!   in a browser.
+//! - **Links.** The text of an `a` whose `href` is a link (an `http`, `https`
+//!   or `mailto` URL; see [`gridwell_core::link`]) links to it. Any other `href`
+//!   (`javascript:`, a relative path) leaves the text as it is.
 //! - **Images.** An `img` becomes an image node with its `src`, `alt`, `width`
 //!   and `height`. Writers draw only `data:` URIs (see the schema docs); nothing
 //!   is fetched.
-//! - **Everything else keeps its text** (links, unknown tags), except what a
+//! - **Everything else keeps its text** (unknown tags), except what a
 //!   browser doesn't show: comments, `script`, `style`, `head`, `title`,
 //!   `template`, `svg`, and elements with `hidden` or `display: none`.
 //! - Character references (named, decimal and hexadecimal) are decoded.
@@ -75,7 +78,7 @@ pub fn lower(content: &[ContentNode]) -> Cow<'_, [ContentNode]> {
                 let line_start = matches!(out.last(), None | Some(ContentNode::LineBreak {}));
                 let space = matches!(
                     out.last(),
-                    Some(ContentNode::Text { value } | ContentNode::StyledText { value, .. })
+                    Some(ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. })
                         if value.ends_with(is_space)
                 );
                 let at_end = matches!(content.get(i + 1), None | Some(ContentNode::LineBreak {}));
@@ -405,6 +408,8 @@ struct Open {
     /// The style of its content (its ancestors' and its own).
     css: Css,
     id: Option<String>,
+    /// The link of its content: its own, if it is an `a`, or its parent's.
+    href: Option<String>,
     hidden: bool,
     pre: bool,
     /// A list: `Some(n)` for an `ol` (the last number given), `None` for a `ul`.
@@ -557,6 +562,14 @@ impl<'o> Lowerer<'o> {
             hidden |= css.declare(style);
         }
         let pre = parent.is_some_and(|o| o.pre) || name == "pre";
+        let href = if name == "a" {
+            attr_value(attrs, "href")
+                .map(str::trim)
+                .filter(|h| gridwell_core::link::is_link(h))
+                .map(str::to_string)
+        } else {
+            parent.and_then(|o| o.href.clone())
+        };
         let script = match name {
             "sup" => Some(Script::Super),
             "sub" => Some(Script::Sub),
@@ -582,6 +595,7 @@ impl<'o> Lowerer<'o> {
             name: name.to_string(),
             css,
             id,
+            href,
             hidden,
             pre,
             list,
@@ -639,7 +653,7 @@ impl<'o> Lowerer<'o> {
         let mut converted = Vec::with_capacity(nodes.len());
         for node in nodes {
             match node {
-                ContentNode::Text { value } | ContentNode::StyledText { value, .. } => {
+                ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. } => {
                     match convert(value) {
                         Some(v) => converted.push(v),
                         None => return,
@@ -649,7 +663,7 @@ impl<'o> Lowerer<'o> {
             }
         }
         for (node, v) in self.out[start..].iter_mut().zip(converted) {
-            if let ContentNode::Text { value } | ContentNode::StyledText { value, .. } = node {
+            if let ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. } = node {
                 *value = v;
             }
         }
@@ -733,26 +747,40 @@ impl<'o> Lowerer<'o> {
             return;
         }
         self.flush_break();
-        let id = self.stack.last().and_then(|o| o.id.as_deref());
+        let top = self.stack.last();
+        let id = top.and_then(|o| o.id.as_deref());
+        let link = top.and_then(|o| o.href.as_ref());
         let split = std::mem::take(&mut self.split);
         let last = self.out.len().checked_sub(1).filter(|&l| l >= self.base);
         let run = last.and_then(|l| match &mut self.out[l] {
-            ContentNode::Text { value } if id.is_none() && !split => Some(value),
+            ContentNode::Text { value, href }
+                if id.is_none() && href.as_ref() == link && !split =>
+            {
+                Some(value)
+            }
             ContentNode::StyledText {
                 value,
                 style_id: Some(s),
-            } if id == Some(s.as_str()) && !split => Some(value),
+                href,
+            } if id == Some(s.as_str()) && href.as_ref() == link && !split => Some(value),
             _ => None,
         });
         match run {
             Some(value) => value.push(c),
-            None => self.out.push(match id {
-                None => ContentNode::Text { value: c.into() },
-                Some(id) => ContentNode::StyledText {
-                    value: c.into(),
-                    style_id: Some(id.to_string()),
-                },
-            }),
+            None => {
+                let href = link.cloned();
+                self.out.push(match id {
+                    None => ContentNode::Text {
+                        value: c.into(),
+                        href,
+                    },
+                    Some(id) => ContentNode::StyledText {
+                        value: c.into(),
+                        style_id: Some(id.to_string()),
+                        href,
+                    },
+                })
+            }
         }
         self.line_start = false;
         self.space = false;
@@ -780,7 +808,7 @@ impl<'o> Lowerer<'o> {
         let Some(l) = self.out.len().checked_sub(1).filter(|&l| l >= self.base) else {
             return;
         };
-        if let ContentNode::Text { value } | ContentNode::StyledText { value, .. } =
+        if let ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. } =
             &mut self.out[l]
         {
             value.pop();
