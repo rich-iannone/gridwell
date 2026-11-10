@@ -11,11 +11,18 @@ use serde_json::{Map, Value};
 pub enum ContentNode {
     Text {
         value: String,
+        /// A link: an `http`, `https` or `mailto` URL (see
+        /// [`gridwell_core::link`]). Left out when there is none.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        href: Option<String>,
     },
     StyledText {
         value: String,
         #[serde(default)]
         style_id: Option<String>,
+        /// As [`ContentNode::Text`]'s.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        href: Option<String>,
     },
     LineBreak {},
     FootnoteMark {
