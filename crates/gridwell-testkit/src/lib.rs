@@ -78,6 +78,7 @@ pub enum Feature {
     /// Underline, strike-through, font sizes.
     TextFormat,
     LineBreak,
+    Link,
     Image,
     RawHtml,
     TypedValue,
@@ -112,6 +113,7 @@ impl Feature {
             Feature::StyledText => "styled-text",
             Feature::TextFormat => "text-format",
             Feature::LineBreak => "line-break",
+            Feature::Link => "link",
             Feature::Image => "image",
             Feature::RawHtml => "raw-html",
             Feature::TypedValue => "typed-value",
