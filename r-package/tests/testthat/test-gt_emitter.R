@@ -123,7 +123,6 @@ test_that("date-times and times of day are typed as their wall-clock time", {
         t = as.POSIXct(c("2024-03-15 14:30:00", "2024-12-01 08:00:05.25"), tz = "America/Toronto")
     )
     ir <- ir_of(gt::gt(df) |> gt::fmt_datetime(t, date_style = "yMMMd", time_style = "Hm"))$ir
-    expect_equal(body_cell(ir, 1, 1)$data_type, "datetime")
     expect_equal(body_cell(ir, 1, 1)$typed_value, list(type = "datetime", value = "2024-03-15T14:30:00"))
     expect_equal(
         body_cell(ir, 2, 1)$typed_value,
@@ -133,11 +132,9 @@ test_that("date-times and times of day are typed as their wall-clock time", {
     hms <- structure(c(52200.5, 3600, 90000), units = "secs", class = c("hms", "difftime"))
     df <- data.frame(h = hms)
     ir <- ir_of(gt::gt(df))$ir
-    expect_equal(body_cell(ir, 1, 1)$data_type, "time")
     expect_equal(body_cell(ir, 1, 1)$typed_value, list(type = "time", value = "14:30:00.500000"))
     expect_equal(body_cell(ir, 2, 1)$typed_value, list(type = "time", value = "01:00:00"))
     # A duration of a day or more isn't a time of day.
-    expect_equal(body_cell(ir, 3, 1)$data_type, "string")
     expect_equal(body_cell(ir, 3, 1)$typed_value$type, "string")
 })
 
@@ -319,6 +316,73 @@ test_that("group and grand summary rows are emitted as gt formats them", {
     expect_length(gw_validate(gw_parse_ir(gt_to_ir(tbl))), 0)
 })
 
+test_that("summary rows at the top are placed at the top, in gt's order", {
+    tbl <- gt::exibble[1:4, c("row", "group", "num")] |>
+        gt::gt(rowname_col = "row", groupname_col = "group") |>
+        gt::summary_rows(columns = num, fns = list(Top = ~ sum(.)), side = "top") |>
+        gt::grand_summary_rows(columns = num, fns = list(First = ~ sum(.)), side = "top")
+    out <- ir_of(tbl)
+    groups <- out$ir$table$tbody
+    expect_identical(
+        lapply(groups, function(g) list(g$group_id, g$summary_placement, length(g$rows))),
+        list(list(NULL, "top", 0L), list("grp_a", "top", 4L))
+    )
+    expect_identical(groups[[1]]$summary_rows[[1]]$role, "grand_summary_row")
+    # gridwell's HTML has the rows in gt's order.
+    first_cells <- function(html) {
+        body <- regmatches(html, regexpr("<tbody.*</tbody>", html))
+        rows <- regmatches(body, gregexpr("<tr[^>]*>\\s*<t[hd][^>]*>[^<]*", body))[[1]]
+        trimws(sub(".*>", "", rows))
+    }
+    ours <- first_cells(gw_render(out$tbl, "html"))
+    expect_identical(ours[1:3], c("First", "grp_a", "Top"))
+    expect_identical(ours, first_cells(as.character(gt::as_raw_html(tbl, inline_css = FALSE))))
+    # At the bottom, there's no placement.
+    bottom <- gt_to_ir_list(gt::summary_rows(
+        gt::gt(gt::exibble[1:2, c("row", "group", "num")], groupname_col = "group"),
+        columns = num, fns = list(Sum = ~ sum(.))
+    ))
+    expect_null(bottom$table$tbody[[1]]$summary_placement)
+})
+
+test_that("border options are the table's rules; the id is config$id", {
+    tbl <- gt::exibble[1:4, c("row", "group", "num")] |>
+        gt::gt(rowname_col = "row", groupname_col = "group", id = "sales") |>
+        gt::tab_header("T") |>
+        gt::tab_options(
+            table.border.top.color = "#FF0000",
+            heading.border.bottom.style = "dashed",
+            column_labels.border.bottom.color = "#00FF00",
+            row_group.border.top.style = "dotted",
+            row_group.border.bottom.style = "double",
+            table_body.hlines.style = "groove",
+            table_body.hlines.width = gt::px(3),
+            stub.border.color = "#0000FF",
+            summary_row.border.width = gt::px(4),
+            grand_summary_row.border.style = "solid",
+            table.border.bottom.width = gt::px(6)
+        )
+    out <- ir_of(tbl)
+    expect_identical(out$ir$config$id, "sales")
+    expect_identical(out$ir$config$rules, list(
+        title = list(color = "#FF0000"),
+        top = list(style = "dashed"),
+        column_labels = list(color = "#00FF00"),
+        spanners = list(color = "#00FF00"),
+        group = list(style = "dotted"),
+        rows = list(width = "3px"),
+        stub = list(color = "#0000FF"),
+        summary = list(width = "4px"),
+        grand_summary = list(style = "solid"),
+        # No footer: the table's bottom border is the table's bottom.
+        bottom = list(width = "6px")
+    ))
+    expect_match(gw_render(out$tbl, "html"), "dotted", fixed = TRUE)
+    plain <- gt_to_ir_list(gt::gt(gt::exibble[1:2, c("num")], id = "a b"))
+    expect_null(plain$config$id)
+    expect_null(plain$config$rules)
+})
+
 test_that("a grand summary without a stub gets one, empty in the data rows", {
     tbl <- gt::exibble[1:3, c("char", "num")] |>
         gt::gt() |>
@@ -402,14 +466,15 @@ test_that("row striping: gt's default color is the IR's; a custom one is conditi
     expect_identical(stub$background_color, "#FFFFFF")
 })
 
-test_that("missing values show as gt shows them and sort as missing", {
+test_that("missing values show as gt shows them and have no typed value", {
     ir <- gt_to_ir_list(gt::gt(gt::exibble[5:6, c("char", "num")]))
     rows <- ir$table$tbody[[1]]$rows
     na_char <- rows[[1]]$cells[[1]]
     expect_identical(na_char$content[[1]]$value, "NA")
-    expect_null(na_char$sort_key)
     expect_null(na_char$typed_value)
-    expect_identical(rows[[1]]$cells[[2]]$sort_key, tolower(rows[[1]]$cells[[2]]$content[[1]]$value))
+    expect_false(is.null(rows[[1]]$cells[[2]]$typed_value))
+    # Cells have no sort key or data type (IR 1.0 has neither).
+    expect_false(any(c("sort_key", "data_type") %in% names(na_char)))
 })
 
 test_that("a locale is the table's language and direction", {
