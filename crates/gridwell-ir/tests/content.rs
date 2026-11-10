@@ -87,10 +87,14 @@ fn every_variant_serializes_to_a_known_type() {
     // fails the test until its type is in KNOWN_TYPES.
     let s = || String::from("x");
     let all = [
-        ContentNode::Text { value: s() },
+        ContentNode::Text {
+            value: s(),
+            href: None,
+        },
         ContentNode::StyledText {
             value: s(),
             style_id: None,
+            href: None,
         },
         ContentNode::LineBreak {},
         ContentNode::FootnoteMark {
