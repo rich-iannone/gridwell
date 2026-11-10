@@ -372,6 +372,7 @@ def test_default_options_add_no_styles():
         fns={"Sum": lambda x: x.sum(numeric_only=True)}
     ))
     assert ir["styles"] == {"defs": {}, "compositions": {}, "conditionals": []}
+    assert "rules" not in ir["config"]
 
 
 def test_a_theme_is_the_options_styles():
@@ -408,6 +409,132 @@ def test_a_theme_is_the_options_styles():
     assert table.validate() == []
     html = table.render_html()
     assert "#EDF7FC" in html.upper() and "#0076BA" in html.upper()
+
+
+@pytest.mark.parametrize("heading,footer", [(False, False), (True, True)])
+def test_border_options_are_the_tables_rules(heading, footer):
+    gt_obj = GT(exibble[["num", "row", "group"]].head(4), rowname_col="row", groupname_col="group")
+    if heading:
+        gt_obj = gt_obj.tab_header(title="T")
+    if footer:
+        gt_obj = gt_obj.tab_source_note("Note")
+    gt_obj = gt_obj.tab_options(
+        table_border_top_color="#FF0000",
+        heading_border_bottom_style="dashed",
+        column_labels_border_top_width=great_tables.px(5),
+        column_labels_border_bottom_color="#00FF00",
+        row_group_border_top_style="dotted",
+        row_group_border_bottom_style="double",
+        table_body_hlines_style="groove",
+        table_body_hlines_width=great_tables.px(3),
+        stub_border_color="#0000FF",
+        summary_row_border_width=great_tables.px(4),
+        grand_summary_row_border_style="solid",
+        table_body_border_bottom_color="#111111",
+        table_border_bottom_width=great_tables.px(6),
+    )
+    rules = gridwell.gt_to_dict(gt_obj)["config"]["rules"]
+    expected = {
+        # Labels and spanners share Great Tables' column label bottom border.
+        "column_labels": {"color": "#00FF00"},
+        "spanners": {"color": "#00FF00"},
+        # The group's top border wins over its bottom one; groove isn't a rule.
+        "group": {"style": "dotted"},
+        "rows": {"width": "3px"},
+        "stub": {"color": "#0000FF"},
+        "summary": {"width": "4px"},
+        "grand_summary": {"style": "solid"},
+    }
+    if heading:
+        expected["title"] = {"color": "#FF0000"}
+        expected["top"] = {"width": "5px", "style": "dashed"}
+    else:
+        # Without a heading, the table's top border is the table's top.
+        expected["top"] = {"width": "5px", "color": "#FF0000"}
+    if footer:
+        expected["bottom"] = {"color": "#111111"}
+        expected["notes"] = {"width": "6px"}
+    else:
+        expected["bottom"] = {"color": "#111111", "width": "6px"}
+    assert rules == expected
+    table = gridwell.Table(gridwell.gt_to_ir(gt_obj))
+    assert table.validate() == []
+    html = table.render_html()
+    assert "dotted" in html and "#0000FF" in html.upper()
+
+
+@pytest.mark.parametrize("table_id,expected", [("sales", "sales"), ("a b", None), ("", None)])
+def test_the_tables_id_is_config_id(table_id, expected):
+    config = gridwell.gt_to_dict(GT(exibble[["num"]].head(2), id=table_id))["config"]
+    assert config.get("id") == expected
+
+
+class _BodyRows(HTMLParser):
+    """The first cell's text of each row in a table body."""
+
+    def __init__(self):
+        super().__init__()
+        self.rows, self._in_body, self._cell = [], False, None
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "tbody":
+            self._in_body = True
+        elif tag == "tr" and self._in_body:
+            self.rows.append(None)
+        elif tag in ("th", "td") and self._in_body and self.rows and self.rows[-1] is None:
+            self._cell = ""
+
+    def handle_endtag(self, tag):
+        if tag == "tbody":
+            self._in_body = False
+        elif tag in ("th", "td") and self._cell is not None:
+            self.rows[-1], self._cell = self._cell.strip(), None
+
+    def handle_data(self, data):
+        if self._cell is not None:
+            self._cell += data
+
+
+def body_rows(html):
+    parser = _BodyRows()
+    parser.feed(html)
+    return parser.rows
+
+
+def test_summary_rows_at_the_top_are_where_great_tables_draws_them():
+    total = lambda x: x[["num"]].sum()
+    gt_obj = (
+        GT(exibble[["num", "row", "group"]].head(4), rowname_col="row", groupname_col="group")
+        .summary_rows(fns={"Top": total}, side="top")
+        .grand_summary_rows(fns={"First": total}, side="top")
+        .grand_summary_rows(fns={"Last": total})
+    )
+    ir = gridwell.gt_to_dict(gt_obj)
+    groups = ir["table"]["tbody"]
+    assert [(g["group_id"], g.get("summary_placement"), len(g["rows"])) for g in groups] == [
+        (None, "top", 0),
+        ("grp_a", "top", 4),
+        (None, None, 0),
+    ]
+    assert [r["role"] for r in groups[0]["summary_rows"]] == ["grand_summary_row"]
+    assert [r["role"] for r in groups[2]["summary_rows"]] == ["grand_summary_row"]
+    table = gridwell.Table(json.dumps(ir))
+    assert table.validate() == []
+    ours = body_rows(table.render_html())
+    assert ours == body_rows(gt_obj.as_raw_html())
+    assert ours[:3] == ["First", "grp_a", "Top"] and ours[-1] == "Last"
+
+
+def test_a_group_with_summary_rows_on_both_sides_has_them_below():
+    total = lambda x: x[["num"]].sum()
+    gt_obj = (
+        GT(exibble[["num", "row", "group"]].head(4), rowname_col="row", groupname_col="group")
+        .summary_rows(fns={"Top": total}, side="top")
+        .summary_rows(fns={"Bottom": total})
+    )
+    (group,) = gridwell.gt_to_dict(gt_obj)["table"]["tbody"]
+    assert "summary_placement" not in group
+    assert len(group["summary_rows"]) == 2
 
 
 def test_striping_covers_the_parts_great_tables_stripes():
