@@ -147,6 +147,15 @@ fn the_corpus_warns_only_of_its_borders_its_rtl_table_and_its_image() {
         let want: &[(&str, &str)] = match ex.name {
             "borders-dashed" => &[("latex", "border-styles")],
             "borders-double" => &[("typst", "border-double")],
+            // Formats that draw only the default look's rules.
+            "custom-rules" => &[
+                ("latex", "table-rules"),
+                ("typst", "table-rules"),
+                ("rtf", "table-rules"),
+                ("ansi", "table-rules"),
+                ("docx", "table-rules"),
+                ("xlsx", "table-rules"),
+            ],
             "rtl-table" => &[
                 ("latex", "lang"),
                 ("latex", "rtl"),
