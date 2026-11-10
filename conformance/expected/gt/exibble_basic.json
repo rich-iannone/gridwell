@@ -61,13 +61,11 @@
               {
                 "align": "right",
                 "col": 0,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "1.111e-01"
                   }
                 ],
-                "sort_key": "1.111e-01",
                 "text": "1.111e-01",
                 "typed_value": {
                   "type": "number",
@@ -77,13 +75,11 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "apricot"
                   }
                 ],
-                "sort_key": "apricot",
                 "text": "apricot",
                 "typed_value": {
                   "type": "string",
@@ -93,13 +89,11 @@
               {
                 "align": "center",
                 "col": 2,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "one"
                   }
                 ],
-                "sort_key": "one",
                 "text": "one",
                 "typed_value": {
                   "type": "string",
@@ -109,13 +103,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-01-15"
                   }
                 ],
-                "sort_key": "2015-01-15",
                 "text": "2015-01-15",
                 "typed_value": {
                   "type": "string",
@@ -125,13 +117,11 @@
               {
                 "align": "right",
                 "col": 4,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "13:35"
                   }
                 ],
-                "sort_key": "13:35",
                 "text": "13:35",
                 "typed_value": {
                   "type": "string",
@@ -141,13 +131,11 @@
               {
                 "align": "right",
                 "col": 5,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2018-01-01 02:22"
                   }
                 ],
-                "sort_key": "2018-01-01 02:22",
                 "text": "2018-01-01 02:22",
                 "typed_value": {
                   "type": "string",
@@ -157,13 +145,11 @@
               {
                 "align": "right",
                 "col": 6,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "49.950"
                   }
                 ],
-                "sort_key": "49.950",
                 "text": "49.950",
                 "typed_value": {
                   "type": "number",
@@ -173,13 +159,11 @@
               {
                 "align": "left",
                 "col": 7,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "row_1"
                   }
                 ],
-                "sort_key": "row_1",
                 "text": "row_1",
                 "typed_value": {
                   "type": "string",
@@ -189,13 +173,11 @@
               {
                 "align": "left",
                 "col": 8,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "grp_a"
                   }
                 ],
-                "sort_key": "grp_a",
                 "text": "grp_a",
                 "typed_value": {
                   "type": "string",
@@ -209,13 +191,11 @@
               {
                 "align": "right",
                 "col": 0,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "2.222e+00"
                   }
                 ],
-                "sort_key": "2.222e+00",
                 "text": "2.222e+00",
                 "typed_value": {
                   "type": "number",
@@ -225,13 +205,11 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "banana"
                   }
                 ],
-                "sort_key": "banana",
                 "text": "banana",
                 "typed_value": {
                   "type": "string",
@@ -241,13 +219,11 @@
               {
                 "align": "center",
                 "col": 2,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "two"
                   }
                 ],
-                "sort_key": "two",
                 "text": "two",
                 "typed_value": {
                   "type": "string",
@@ -257,13 +233,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-02-15"
                   }
                 ],
-                "sort_key": "2015-02-15",
                 "text": "2015-02-15",
                 "typed_value": {
                   "type": "string",
@@ -273,13 +247,11 @@
               {
                 "align": "right",
                 "col": 4,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "14:40"
                   }
                 ],
-                "sort_key": "14:40",
                 "text": "14:40",
                 "typed_value": {
                   "type": "string",
@@ -289,13 +261,11 @@
               {
                 "align": "right",
                 "col": 5,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2018-02-02 14:33"
                   }
                 ],
-                "sort_key": "2018-02-02 14:33",
                 "text": "2018-02-02 14:33",
                 "typed_value": {
                   "type": "string",
@@ -305,13 +275,11 @@
               {
                 "align": "right",
                 "col": 6,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "17.950"
                   }
                 ],
-                "sort_key": "17.950",
                 "text": "17.950",
                 "typed_value": {
                   "type": "number",
@@ -321,13 +289,11 @@
               {
                 "align": "left",
                 "col": 7,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "row_2"
                   }
                 ],
-                "sort_key": "row_2",
                 "text": "row_2",
                 "typed_value": {
                   "type": "string",
@@ -337,13 +303,11 @@
               {
                 "align": "left",
                 "col": 8,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "grp_a"
                   }
                 ],
-                "sort_key": "grp_a",
                 "text": "grp_a",
                 "typed_value": {
                   "type": "string",
@@ -357,13 +321,11 @@
               {
                 "align": "right",
                 "col": 0,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "3.333e+01"
                   }
                 ],
-                "sort_key": "3.333e+01",
                 "text": "3.333e+01",
                 "typed_value": {
                   "type": "number",
@@ -373,13 +335,11 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "coconut"
                   }
                 ],
-                "sort_key": "coconut",
                 "text": "coconut",
                 "typed_value": {
                   "type": "string",
@@ -389,13 +349,11 @@
               {
                 "align": "center",
                 "col": 2,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "three"
                   }
                 ],
-                "sort_key": "three",
                 "text": "three",
                 "typed_value": {
                   "type": "string",
@@ -405,13 +363,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-03-15"
                   }
                 ],
-                "sort_key": "2015-03-15",
                 "text": "2015-03-15",
                 "typed_value": {
                   "type": "string",
@@ -421,13 +377,11 @@
               {
                 "align": "right",
                 "col": 4,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "15:45"
                   }
                 ],
-                "sort_key": "15:45",
                 "text": "15:45",
                 "typed_value": {
                   "type": "string",
@@ -437,13 +391,11 @@
               {
                 "align": "right",
                 "col": 5,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2018-03-03 03:44"
                   }
                 ],
-                "sort_key": "2018-03-03 03:44",
                 "text": "2018-03-03 03:44",
                 "typed_value": {
                   "type": "string",
@@ -453,13 +405,11 @@
               {
                 "align": "right",
                 "col": 6,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "1.390"
                   }
                 ],
-                "sort_key": "1.390",
                 "text": "1.390",
                 "typed_value": {
                   "type": "number",
@@ -469,13 +419,11 @@
               {
                 "align": "left",
                 "col": 7,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "row_3"
                   }
                 ],
-                "sort_key": "row_3",
                 "text": "row_3",
                 "typed_value": {
                   "type": "string",
@@ -485,13 +433,11 @@
               {
                 "align": "left",
                 "col": 8,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "grp_a"
                   }
                 ],
-                "sort_key": "grp_a",
                 "text": "grp_a",
                 "typed_value": {
                   "type": "string",
@@ -505,13 +451,11 @@
               {
                 "align": "right",
                 "col": 0,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "4.444e+02"
                   }
                 ],
-                "sort_key": "4.444e+02",
                 "text": "4.444e+02",
                 "typed_value": {
                   "type": "number",
@@ -521,13 +465,11 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "durian"
                   }
                 ],
-                "sort_key": "durian",
                 "text": "durian",
                 "typed_value": {
                   "type": "string",
@@ -537,13 +479,11 @@
               {
                 "align": "center",
                 "col": 2,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "four"
                   }
                 ],
-                "sort_key": "four",
                 "text": "four",
                 "typed_value": {
                   "type": "string",
@@ -553,13 +493,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-04-15"
                   }
                 ],
-                "sort_key": "2015-04-15",
                 "text": "2015-04-15",
                 "typed_value": {
                   "type": "string",
@@ -569,13 +507,11 @@
               {
                 "align": "right",
                 "col": 4,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "16:50"
                   }
                 ],
-                "sort_key": "16:50",
                 "text": "16:50",
                 "typed_value": {
                   "type": "string",
@@ -585,13 +521,11 @@
               {
                 "align": "right",
                 "col": 5,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2018-04-04 15:55"
                   }
                 ],
-                "sort_key": "2018-04-04 15:55",
                 "text": "2018-04-04 15:55",
                 "typed_value": {
                   "type": "string",
@@ -601,13 +535,11 @@
               {
                 "align": "right",
                 "col": 6,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "65100.000"
                   }
                 ],
-                "sort_key": "65100.000",
                 "text": "65100.000",
                 "typed_value": {
                   "type": "number",
@@ -617,13 +549,11 @@
               {
                 "align": "left",
                 "col": 7,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "row_4"
                   }
                 ],
-                "sort_key": "row_4",
                 "text": "row_4",
                 "typed_value": {
                   "type": "string",
@@ -633,13 +563,11 @@
               {
                 "align": "left",
                 "col": 8,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "grp_a"
                   }
                 ],
-                "sort_key": "grp_a",
                 "text": "grp_a",
                 "typed_value": {
                   "type": "string",
@@ -653,13 +581,11 @@
               {
                 "align": "right",
                 "col": 0,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "5.550e+03"
                   }
                 ],
-                "sort_key": "5.550e+03",
                 "text": "5.550e+03",
                 "typed_value": {
                   "type": "number",
@@ -669,7 +595,6 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "NA"
@@ -680,13 +605,11 @@
               {
                 "align": "center",
                 "col": 2,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "five"
                   }
                 ],
-                "sort_key": "five",
                 "text": "five",
                 "typed_value": {
                   "type": "string",
@@ -696,13 +619,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-05-15"
                   }
                 ],
-                "sort_key": "2015-05-15",
                 "text": "2015-05-15",
                 "typed_value": {
                   "type": "string",
@@ -712,13 +633,11 @@
               {
                 "align": "right",
                 "col": 4,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "17:55"
                   }
                 ],
-                "sort_key": "17:55",
                 "text": "17:55",
                 "typed_value": {
                   "type": "string",
@@ -728,13 +647,11 @@
               {
                 "align": "right",
                 "col": 5,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2018-05-05 04:00"
                   }
                 ],
-                "sort_key": "2018-05-05 04:00",
                 "text": "2018-05-05 04:00",
                 "typed_value": {
                   "type": "string",
@@ -744,13 +661,11 @@
               {
                 "align": "right",
                 "col": 6,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "1325.810"
                   }
                 ],
-                "sort_key": "1325.810",
                 "text": "1325.810",
                 "typed_value": {
                   "type": "number",
@@ -760,13 +675,11 @@
               {
                 "align": "left",
                 "col": 7,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "row_5"
                   }
                 ],
-                "sort_key": "row_5",
                 "text": "row_5",
                 "typed_value": {
                   "type": "string",
@@ -776,13 +689,11 @@
               {
                 "align": "left",
                 "col": 8,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "grp_b"
                   }
                 ],
-                "sort_key": "grp_b",
                 "text": "grp_b",
                 "typed_value": {
                   "type": "string",
@@ -796,25 +707,21 @@
               {
                 "align": "right",
                 "col": 0,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "NA"
                   }
                 ],
-                "sort_key": "na",
                 "text": "NA"
               },
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "fig"
                   }
                 ],
-                "sort_key": "fig",
                 "text": "fig",
                 "typed_value": {
                   "type": "string",
@@ -824,13 +731,11 @@
               {
                 "align": "center",
                 "col": 2,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "six"
                   }
                 ],
-                "sort_key": "six",
                 "text": "six",
                 "typed_value": {
                   "type": "string",
@@ -840,13 +745,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-06-15"
                   }
                 ],
-                "sort_key": "2015-06-15",
                 "text": "2015-06-15",
                 "typed_value": {
                   "type": "string",
@@ -856,7 +759,6 @@
               {
                 "align": "right",
                 "col": 4,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "NA"
@@ -867,13 +769,11 @@
               {
                 "align": "right",
                 "col": 5,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2018-06-06 16:11"
                   }
                 ],
-                "sort_key": "2018-06-06 16:11",
                 "text": "2018-06-06 16:11",
                 "typed_value": {
                   "type": "string",
@@ -883,13 +783,11 @@
               {
                 "align": "right",
                 "col": 6,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "13.255"
                   }
                 ],
-                "sort_key": "13.255",
                 "text": "13.255",
                 "typed_value": {
                   "type": "number",
@@ -899,13 +797,11 @@
               {
                 "align": "left",
                 "col": 7,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "row_6"
                   }
                 ],
-                "sort_key": "row_6",
                 "text": "row_6",
                 "typed_value": {
                   "type": "string",
@@ -915,13 +811,11 @@
               {
                 "align": "left",
                 "col": 8,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "grp_b"
                   }
                 ],
-                "sort_key": "grp_b",
                 "text": "grp_b",
                 "typed_value": {
                   "type": "string",
@@ -935,13 +829,11 @@
               {
                 "align": "right",
                 "col": 0,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "7.770e+05"
                   }
                 ],
-                "sort_key": "7.770e+05",
                 "text": "7.770e+05",
                 "typed_value": {
                   "type": "number",
@@ -951,13 +843,11 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "grapefruit"
                   }
                 ],
-                "sort_key": "grapefruit",
                 "text": "grapefruit",
                 "typed_value": {
                   "type": "string",
@@ -967,13 +857,11 @@
               {
                 "align": "center",
                 "col": 2,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "seven"
                   }
                 ],
-                "sort_key": "seven",
                 "text": "seven",
                 "typed_value": {
                   "type": "string",
@@ -983,7 +871,6 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "NA"
@@ -994,13 +881,11 @@
               {
                 "align": "right",
                 "col": 4,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "19:10"
                   }
                 ],
-                "sort_key": "19:10",
                 "text": "19:10",
                 "typed_value": {
                   "type": "string",
@@ -1010,13 +895,11 @@
               {
                 "align": "right",
                 "col": 5,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2018-07-07 05:22"
                   }
                 ],
-                "sort_key": "2018-07-07 05:22",
                 "text": "2018-07-07 05:22",
                 "typed_value": {
                   "type": "string",
@@ -1026,25 +909,21 @@
               {
                 "align": "right",
                 "col": 6,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "NA"
                   }
                 ],
-                "sort_key": "na",
                 "text": "NA"
               },
               {
                 "align": "left",
                 "col": 7,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "row_7"
                   }
                 ],
-                "sort_key": "row_7",
                 "text": "row_7",
                 "typed_value": {
                   "type": "string",
@@ -1054,13 +933,11 @@
               {
                 "align": "left",
                 "col": 8,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "grp_b"
                   }
                 ],
-                "sort_key": "grp_b",
                 "text": "grp_b",
                 "typed_value": {
                   "type": "string",
@@ -1074,13 +951,11 @@
               {
                 "align": "right",
                 "col": 0,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "8.880e+06"
                   }
                 ],
-                "sort_key": "8.880e+06",
                 "text": "8.880e+06",
                 "typed_value": {
                   "type": "number",
@@ -1090,13 +965,11 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "honeydew"
                   }
                 ],
-                "sort_key": "honeydew",
                 "text": "honeydew",
                 "typed_value": {
                   "type": "string",
@@ -1106,13 +979,11 @@
               {
                 "align": "center",
                 "col": 2,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "eight"
                   }
                 ],
-                "sort_key": "eight",
                 "text": "eight",
                 "typed_value": {
                   "type": "string",
@@ -1122,13 +993,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-08-15"
                   }
                 ],
-                "sort_key": "2015-08-15",
                 "text": "2015-08-15",
                 "typed_value": {
                   "type": "string",
@@ -1138,13 +1007,11 @@
               {
                 "align": "right",
                 "col": 4,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "20:20"
                   }
                 ],
-                "sort_key": "20:20",
                 "text": "20:20",
                 "typed_value": {
                   "type": "string",
@@ -1154,7 +1021,6 @@
               {
                 "align": "right",
                 "col": 5,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "NA"
@@ -1165,13 +1031,11 @@
               {
                 "align": "right",
                 "col": 6,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "0.440"
                   }
                 ],
-                "sort_key": "0.440",
                 "text": "0.440",
                 "typed_value": {
                   "type": "number",
@@ -1181,13 +1045,11 @@
               {
                 "align": "left",
                 "col": 7,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "row_8"
                   }
                 ],
-                "sort_key": "row_8",
                 "text": "row_8",
                 "typed_value": {
                   "type": "string",
@@ -1197,13 +1059,11 @@
               {
                 "align": "left",
                 "col": 8,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "grp_b"
                   }
                 ],
-                "sort_key": "grp_b",
                 "text": "grp_b",
                 "typed_value": {
                   "type": "string",

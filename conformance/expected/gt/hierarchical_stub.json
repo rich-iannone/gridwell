@@ -50,7 +50,6 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "rowspan": 2,
                 "runs": [
                   {
@@ -58,34 +57,29 @@
                   }
                 ],
                 "scope": "rowgroup",
-                "sort_key": "france",
                 "stub": true,
                 "text": "France"
               },
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "Paris"
                   }
                 ],
                 "scope": "row",
-                "sort_key": "paris",
                 "stub": true,
                 "text": "Paris"
               },
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "integer",
                 "runs": [
                   {
                     "text": "12"
                   }
                 ],
-                "sort_key": "12",
                 "text": "12",
                 "typed_value": {
                   "type": "integer",
@@ -95,13 +89,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "integer",
                 "runs": [
                   {
                     "text": "140"
                   }
                 ],
-                "sort_key": "140",
                 "text": "140",
                 "typed_value": {
                   "type": "integer",
@@ -115,27 +107,23 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "Lyon"
                   }
                 ],
                 "scope": "row",
-                "sort_key": "lyon",
                 "stub": true,
                 "text": "Lyon"
               },
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "integer",
                 "runs": [
                   {
                     "text": "4"
                   }
                 ],
-                "sort_key": "4",
                 "text": "4",
                 "typed_value": {
                   "type": "integer",
@@ -145,13 +133,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "integer",
                 "runs": [
                   {
                     "text": "38"
                   }
                 ],
-                "sort_key": "38",
                 "text": "38",
                 "typed_value": {
                   "type": "integer",
@@ -165,41 +151,35 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "Germany"
                   }
                 ],
                 "scope": "row",
-                "sort_key": "germany",
                 "stub": true,
                 "text": "Germany"
               },
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "Berlin"
                   }
                 ],
                 "scope": "row",
-                "sort_key": "berlin",
                 "stub": true,
                 "text": "Berlin"
               },
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "integer",
                 "runs": [
                   {
                     "text": "9"
                   }
                 ],
-                "sort_key": "9",
                 "text": "9",
                 "typed_value": {
                   "type": "integer",
@@ -209,13 +189,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "integer",
                 "runs": [
                   {
                     "text": "95"
                   }
                 ],
-                "sort_key": "95",
                 "text": "95",
                 "typed_value": {
                   "type": "integer",
@@ -243,7 +221,6 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "rowspan": 2,
                 "runs": [
                   {
@@ -251,34 +228,29 @@
                   }
                 ],
                 "scope": "rowgroup",
-                "sort_key": "japan",
                 "stub": true,
                 "text": "Japan"
               },
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "Tokyo"
                   }
                 ],
                 "scope": "row",
-                "sort_key": "tokyo",
                 "stub": true,
                 "text": "Tokyo"
               },
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "integer",
                 "runs": [
                   {
                     "text": "20"
                   }
                 ],
-                "sort_key": "20",
                 "text": "20",
                 "typed_value": {
                   "type": "integer",
@@ -288,13 +260,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "integer",
                 "runs": [
                   {
                     "text": "260"
                   }
                 ],
-                "sort_key": "260",
                 "text": "260",
                 "typed_value": {
                   "type": "integer",
@@ -308,27 +278,23 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "Osaka"
                   }
                 ],
                 "scope": "row",
-                "sort_key": "osaka",
                 "stub": true,
                 "text": "Osaka"
               },
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "integer",
                 "runs": [
                   {
                     "text": "7"
                   }
                 ],
-                "sort_key": "7",
                 "text": "7",
                 "typed_value": {
                   "type": "integer",
@@ -338,13 +304,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "integer",
                 "runs": [
                   {
                     "text": "81"
                   }
                 ],
-                "sort_key": "81",
                 "text": "81",
                 "typed_value": {
                   "type": "integer",

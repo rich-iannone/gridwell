@@ -37,13 +37,11 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "apricot"
                   }
                 ],
-                "sort_key": "apricot",
                 "style": {
                   "color": "#B42318",
                   "font_style": "italic"
@@ -57,13 +55,11 @@
               {
                 "align": "right",
                 "col": 1,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "0.1111"
                   }
                 ],
-                "sort_key": "0.1111",
                 "text": "0.1111",
                 "typed_value": {
                   "type": "number",
@@ -73,13 +69,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "49.95"
                   }
                 ],
-                "sort_key": "49.95",
                 "text": "49.95",
                 "typed_value": {
                   "type": "number",
@@ -93,13 +87,11 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "banana"
                   }
                 ],
-                "sort_key": "banana",
                 "style": {
                   "color": "#B42318",
                   "font_style": "italic"
@@ -113,13 +105,11 @@
               {
                 "align": "right",
                 "col": 1,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "2.2220"
                   }
                 ],
-                "sort_key": "2.2220",
                 "style": {
                   "background_color": "#E8F0FE",
                   "font_weight": "bold"
@@ -133,13 +123,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "17.95"
                   }
                 ],
-                "sort_key": "17.95",
                 "text": "17.95",
                 "typed_value": {
                   "type": "number",
@@ -153,13 +141,11 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "coconut"
                   }
                 ],
-                "sort_key": "coconut",
                 "style": {
                   "color": "#B42318",
                   "font_style": "italic"
@@ -173,13 +159,11 @@
               {
                 "align": "right",
                 "col": 1,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "33.3300"
                   }
                 ],
-                "sort_key": "33.3300",
                 "style": {
                   "background_color": "#E8F0FE",
                   "font_weight": "bold"
@@ -193,13 +177,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "1.39"
                   }
                 ],
-                "sort_key": "1.39",
                 "text": "1.39",
                 "typed_value": {
                   "type": "number",
@@ -213,13 +195,11 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "durian"
                   }
                 ],
-                "sort_key": "durian",
                 "style": {
                   "color": "#B42318",
                   "font_style": "italic"
@@ -233,13 +213,11 @@
               {
                 "align": "right",
                 "col": 1,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "444.4000"
                   }
                 ],
-                "sort_key": "444.4000",
                 "style": {
                   "background_color": "#E8F0FE",
                   "font_weight": "bold"
@@ -253,13 +231,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "65100.00"
                   }
                 ],
-                "sort_key": "65100.00",
                 "text": "65100.00",
                 "typed_value": {
                   "type": "number",
@@ -273,7 +249,6 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "NA"
@@ -288,13 +263,11 @@
               {
                 "align": "right",
                 "col": 1,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "5550.0000"
                   }
                 ],
-                "sort_key": "5550.0000",
                 "style": {
                   "background_color": "#E8F0FE",
                   "font_weight": "bold"
@@ -308,13 +281,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "1325.81"
                   }
                 ],
-                "sort_key": "1325.81",
                 "text": "1325.81",
                 "typed_value": {
                   "type": "number",

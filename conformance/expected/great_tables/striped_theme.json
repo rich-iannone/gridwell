@@ -41,13 +41,11 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "apricot"
                   }
                 ],
-                "sort_key": "apricot",
                 "style": {
                   "border": {
                     "top": {
@@ -64,13 +62,11 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "one"
                   }
                 ],
-                "sort_key": "one",
                 "style": {
                   "border": {
                     "top": {
@@ -87,13 +83,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "0.1111"
                   }
                 ],
-                "sort_key": "0.1111",
                 "style": {
                   "border": {
                     "top": {
@@ -110,13 +104,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-01-15"
                   }
                 ],
-                "sort_key": "2015-01-15",
                 "style": {
                   "border": {
                     "top": {
@@ -137,13 +129,11 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "banana"
                   }
                 ],
-                "sort_key": "banana",
                 "style": {
                   "background_color": "#EDF7FC",
                   "border": {
@@ -162,13 +152,11 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "two"
                   }
                 ],
-                "sort_key": "two",
                 "style": {
                   "background_color": "#EDF7FC",
                   "border": {
@@ -187,13 +175,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "2.222"
                   }
                 ],
-                "sort_key": "2.222",
                 "style": {
                   "background_color": "#EDF7FC",
                   "border": {
@@ -212,13 +198,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-02-15"
                   }
                 ],
-                "sort_key": "2015-02-15",
                 "style": {
                   "background_color": "#EDF7FC",
                   "border": {
@@ -241,13 +225,11 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "coconut"
                   }
                 ],
-                "sort_key": "coconut",
                 "style": {
                   "border": {
                     "top": {
@@ -264,13 +246,11 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "three"
                   }
                 ],
-                "sort_key": "three",
                 "style": {
                   "border": {
                     "top": {
@@ -287,13 +267,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "33.33"
                   }
                 ],
-                "sort_key": "33.33",
                 "style": {
                   "border": {
                     "top": {
@@ -310,13 +288,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-03-15"
                   }
                 ],
-                "sort_key": "2015-03-15",
                 "style": {
                   "border": {
                     "top": {
@@ -337,13 +313,11 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "durian"
                   }
                 ],
-                "sort_key": "durian",
                 "style": {
                   "background_color": "#EDF7FC",
                   "border": {
@@ -362,13 +336,11 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "four"
                   }
                 ],
-                "sort_key": "four",
                 "style": {
                   "background_color": "#EDF7FC",
                   "border": {
@@ -387,13 +359,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "444.4"
                   }
                 ],
-                "sort_key": "444.4",
                 "style": {
                   "background_color": "#EDF7FC",
                   "border": {
@@ -412,13 +382,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-04-15"
                   }
                 ],
-                "sort_key": "2015-04-15",
                 "style": {
                   "background_color": "#EDF7FC",
                   "border": {
@@ -458,13 +426,11 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "five"
                   }
                 ],
-                "sort_key": "five",
                 "style": {
                   "border": {
                     "top": {
@@ -481,13 +447,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "5550.0"
                   }
                 ],
-                "sort_key": "5550.0",
                 "style": {
                   "border": {
                     "top": {
@@ -504,13 +468,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-05-15"
                   }
                 ],
-                "sort_key": "2015-05-15",
                 "style": {
                   "border": {
                     "top": {
@@ -531,13 +493,11 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "fig"
                   }
                 ],
-                "sort_key": "fig",
                 "style": {
                   "background_color": "#EDF7FC",
                   "border": {
@@ -556,13 +516,11 @@
               {
                 "align": "left",
                 "col": 1,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "six"
                   }
                 ],
-                "sort_key": "six",
                 "style": {
                   "background_color": "#EDF7FC",
                   "border": {
@@ -600,13 +558,11 @@
               {
                 "align": "right",
                 "col": 3,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-06-15"
                   }
                 ],
-                "sort_key": "2015-06-15",
                 "style": {
                   "background_color": "#EDF7FC",
                   "border": {

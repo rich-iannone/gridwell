@@ -65,13 +65,11 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "apricot"
                   }
                 ],
-                "sort_key": "apricot",
                 "text": "apricot",
                 "typed_value": {
                   "type": "string",
@@ -81,13 +79,11 @@
               {
                 "align": "right",
                 "col": 1,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "0.1111"
                   }
                 ],
-                "sort_key": "0.1111",
                 "text": "0.1111",
                 "typed_value": {
                   "type": "number",
@@ -97,13 +93,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-01-15"
                   }
                 ],
-                "sort_key": "2015-01-15",
                 "text": "2015-01-15",
                 "typed_value": {
                   "type": "string",
@@ -117,7 +111,6 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "banana"
@@ -127,7 +120,6 @@
                     "mark_text": "3"
                   }
                 ],
-                "sort_key": "banana",
                 "text": "banana",
                 "typed_value": {
                   "type": "string",
@@ -137,13 +129,11 @@
               {
                 "align": "right",
                 "col": 1,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "2.2220"
                   }
                 ],
-                "sort_key": "2.2220",
                 "text": "2.2220",
                 "typed_value": {
                   "type": "number",
@@ -153,13 +143,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-02-15"
                   }
                 ],
-                "sort_key": "2015-02-15",
                 "text": "2015-02-15",
                 "typed_value": {
                   "type": "string",
@@ -173,13 +161,11 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "coconut"
                   }
                 ],
-                "sort_key": "coconut",
                 "text": "coconut",
                 "typed_value": {
                   "type": "string",
@@ -189,13 +175,11 @@
               {
                 "align": "right",
                 "col": 1,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "33.3300"
                   }
                 ],
-                "sort_key": "33.3300",
                 "text": "33.3300",
                 "typed_value": {
                   "type": "number",
@@ -205,13 +189,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-03-15"
                   }
                 ],
-                "sort_key": "2015-03-15",
                 "text": "2015-03-15",
                 "typed_value": {
                   "type": "string",
@@ -225,13 +207,11 @@
               {
                 "align": "left",
                 "col": 0,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "durian"
                   }
                 ],
-                "sort_key": "durian",
                 "text": "durian",
                 "typed_value": {
                   "type": "string",
@@ -241,13 +221,11 @@
               {
                 "align": "right",
                 "col": 1,
-                "data_type": "number",
                 "runs": [
                   {
                     "text": "444.4000"
                   }
                 ],
-                "sort_key": "444.4000",
                 "text": "444.4000",
                 "typed_value": {
                   "type": "number",
@@ -257,13 +235,11 @@
               {
                 "align": "right",
                 "col": 2,
-                "data_type": "string",
                 "runs": [
                   {
                     "text": "2015-04-15"
                   }
                 ],
-                "sort_key": "2015-04-15",
                 "text": "2015-04-15",
                 "typed_value": {
                   "type": "string",
