@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::content::ContentNode;
-use crate::keywords::{CellScope, RowRole, ValueType};
+use crate::keywords::{CellScope, RowRole, SummaryPlacement, ValueType};
 
 /// A table cell.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,10 +21,6 @@ pub struct Cell {
     pub is_placeholder: bool,
     #[serde(default)]
     pub scope: Option<CellScope>,
-    #[serde(default)]
-    pub sort_key: Option<serde_json::Value>,
-    #[serde(default)]
-    pub data_type: Option<ValueType>,
 }
 
 fn default_one() -> u32 {
@@ -69,6 +65,10 @@ pub struct RowGroup {
     pub rows: Vec<Row>,
     #[serde(default)]
     pub summary_rows: Vec<Row>,
+    /// Where the summary rows go: after the data rows, or before them (under the
+    /// label).
+    #[serde(default)]
+    pub summary_placement: SummaryPlacement,
 }
 
 /// The table header section.
