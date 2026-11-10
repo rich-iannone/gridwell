@@ -3,6 +3,7 @@ pub mod font_size;
 pub mod image;
 pub mod lang;
 pub mod length;
+pub mod link;
 pub mod xml;
 
 pub use color::Color;
