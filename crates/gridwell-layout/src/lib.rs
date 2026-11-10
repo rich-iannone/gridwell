@@ -50,7 +50,7 @@ use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{
     resolve_slots, Cell, CellScope, ColumnSpec, ColumnVisibility, HAlign, Keyword, RowParity,
-    RowRole, SelectorScope, Table, TextDirection, VMerge,
+    RowRole, SelectorScope, SummaryPlacement, Table, TextDirection, VMerge,
 };
 pub use style::{CellVAlign, ResolvedBorder, ResolvedStyle, Sides, Stroke};
 pub use text::{plain_text, transform_case};
@@ -78,16 +78,18 @@ pub struct ResolvedTable<'a> {
     pub head: Section<'a>,
     pub groups: Vec<Group<'a>>,
     pub footer: ResolvedFooter<'a>,
+    /// The rules of the default look, as `config.rules` change them, for the
+    /// formats that draw it.
+    pub rules: look::TableRules,
     /// See [`ResolvedTable::is_rtl`].
     rtl: bool,
 }
 
 impl<'a> ResolvedTable<'a> {
     /// Every section in document order: head, then each group's rows and summary
-    /// rows.
+    /// rows in display order ([`Group::sections`]).
     pub fn sections(&self) -> impl Iterator<Item = &Section<'a>> {
-        std::iter::once(&self.head)
-            .chain(self.groups.iter().flat_map(|g| [&g.rows, &g.summary_rows]))
+        std::iter::once(&self.head).chain(self.groups.iter().flat_map(Group::sections))
     }
 
     /// The style a style id names on its own (no cascade): for inline
@@ -129,8 +131,8 @@ impl<'a> ResolvedTable<'a> {
         );
         for g in &self.groups {
             out.extend(g.label.iter().map(|l| &*l.content));
-            for r in g.rows.rows.iter().chain(&g.summary_rows.rows) {
-                out.extend(r.cells().map(|c| &*c.content));
+            for s in g.sections() {
+                out.extend(s.rows.iter().flat_map(|r| r.cells().map(|c| &*c.content)));
             }
         }
         out.extend(self.footer.footnotes.iter().map(|n| &*n.content));
@@ -246,6 +248,20 @@ pub struct Group<'a> {
     pub label: Option<Line<'a>>,
     pub rows: Section<'a>,
     pub summary_rows: Section<'a>,
+    /// The summary rows come before the data rows (under the label), as
+    /// `summary_placement: top` says; otherwise after them.
+    pub summary_top: bool,
+}
+
+impl<'a> Group<'a> {
+    /// The group's data rows and summary rows, in display order (after its label).
+    pub fn sections(&self) -> [&Section<'a>; 2] {
+        if self.summary_top {
+            [&self.summary_rows, &self.rows]
+        } else {
+            [&self.rows, &self.summary_rows]
+        }
+    }
 }
 
 /// Which part of the table a section is.
@@ -562,6 +578,7 @@ pub fn resolve_with(table: &Table, opts: ResolveOptions) -> ResolvedTable<'_> {
                     .map(|l| line(table, opts, &l.content, l.style_id.as_deref())),
                 rows,
                 summary_rows: ctx.section(&g.summary_rows, SectionKind::Summary, 0),
+                summary_top: g.summary_placement == SummaryPlacement::Top,
             }
         })
         .collect();
@@ -621,6 +638,7 @@ pub fn resolve_with(table: &Table, opts: ResolveOptions) -> ResolvedTable<'_> {
         head,
         groups,
         footer,
+        rules: look::TableRules::new(table),
         rtl: false,
     };
     rt.rtl = rt.resolve_rtl();
