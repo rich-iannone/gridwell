@@ -281,6 +281,7 @@ const LATEX_PACKAGES: &str = "\
 \\usepackage{longtable}
 \\usepackage{tabularx}
 \\usepackage[normalem]{ulem}
+\\usepackage[hidelinks]{hyperref}
 ";
 
 /// `standalone` crops tightly to the table; `article` is the portable fallback

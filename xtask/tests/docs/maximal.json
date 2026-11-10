@@ -19,7 +19,21 @@
     "page_break_mode": "allow",
     "aria_label": "Scores",
     "aria_describedby": "notes",
-    "summary": "Scores by name"
+    "summary": "Scores by name",
+    "id": "scores",
+    "rules": {
+      "title": { "width": "2px", "style": "solid", "color": "#A8A8A8" },
+      "top": { "width": "3px", "style": "solid", "color": "#333333" },
+      "column_labels": { "width": "2px", "style": "dashed", "color": "#D3D3D3" },
+      "spanners": { "width": "1px", "style": "dotted", "color": "#D3D3D3" },
+      "group": { "width": "2px", "style": "solid", "color": "#D3D3D3" },
+      "rows": { "width": "0", "style": "none", "color": "#D3D3D3" },
+      "stub": { "width": "1px", "style": "solid", "color": "#D3D3D3" },
+      "summary": { "width": "3px", "style": "double", "color": "#D3D3D3" },
+      "grand_summary": { "width": "6px", "style": "double", "color": "#D3D3D3" },
+      "bottom": { "width": "3px", "style": "solid", "color": "#333333" },
+      "notes": { "width": "2px", "style": "hidden", "color": "#A8A8A8" }
+    }
   },
   "styles": {
     "defs": {
@@ -116,16 +130,16 @@
   },
   "header": {
     "title": {
-      "content": [{ "type": "text", "value": "Scores" }],
+      "content": [{ "type": "text", "value": "Scores", "href": "https://example.com/scores" }],
       "style_id": "s"
     },
     "subtitle": {
-      "content": [{ "type": "styled_text", "value": "Fall term", "style_id": "c" }],
+      "content": [{ "type": "styled_text", "value": "Fall term", "style_id": "c", "href": "mailto:registrar@example.com" }],
       "style_id": "c"
     },
     "extra_lines": [
       {
-        "content": [{ "type": "text", "value": "Preliminary" }],
+        "content": [{ "type": "text", "value": "Preliminary", "href": "https://example.com/scores" }],
         "style_id": "s"
       }
     ],
@@ -163,20 +177,18 @@
           "style_id": "s",
           "cells": [
             {
-              "content": [{ "type": "text", "value": "Name" }],
+              "content": [{ "type": "text", "value": "Name", "href": "https://example.com/scores" }],
               "typed_value": { "type": "string", "value": "Name" },
               "colspan": 1,
               "rowspan": 1,
               "style_id": "s",
               "is_stub": true,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": "name",
-              "data_type": "string"
+              "scope": "col"
             },
             {
               "content": [
-                { "type": "text", "value": "Score" },
+                { "type": "text", "value": "Score", "href": "https://example.com/scores" },
                 { "type": "line_break" },
                 { "type": "footnote_mark", "ref": "fn1", "mark_text": "1" }
               ],
@@ -186,9 +198,7 @@
               "style_id": "c",
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": "score",
-              "data_type": "string"
+              "scope": "col"
             }
           ]
         }
@@ -197,8 +207,9 @@
     "tbody": [
       {
         "group_id": "g1",
+        "summary_placement": "top",
         "label": {
-          "content": [{ "type": "text", "value": "Group 1" }],
+          "content": [{ "type": "text", "value": "Group 1", "href": "https://example.com/scores" }],
           "style_id": "s",
           "colspan": 2
         },
@@ -208,16 +219,14 @@
             "style_id": "c",
             "cells": [
               {
-                "content": [{ "type": "text", "value": "Alice" }],
+                "content": [{ "type": "text", "value": "Alice", "href": "https://example.com/scores" }],
                 "typed_value": { "type": "string", "value": "Alice" },
                 "colspan": 1,
                 "rowspan": 1,
                 "style_id": "s",
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "alice",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -236,9 +245,7 @@
                 "style_id": "c",
                 "is_stub": false,
                 "is_placeholder": false,
-                "scope": "col",
-                "sort_key": 9.5,
-                "data_type": "number"
+                "scope": "col"
               }
             ]
           }
@@ -249,28 +256,24 @@
             "style_id": "s",
             "cells": [
               {
-                "content": [{ "type": "text", "value": "Mean" }],
+                "content": [{ "type": "text", "value": "Mean", "href": "https://example.com/scores" }],
                 "typed_value": { "type": "string", "value": "Mean" },
                 "colspan": 1,
                 "rowspan": 1,
                 "style_id": "s",
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "mean",
-                "data_type": "string"
+                "scope": "row"
               },
               {
-                "content": [{ "type": "text", "value": "9.5" }],
+                "content": [{ "type": "text", "value": "9.5", "href": "https://example.com/scores" }],
                 "typed_value": { "type": "number", "value": 9.5 },
                 "colspan": 1,
                 "rowspan": 1,
                 "style_id": "c",
                 "is_stub": false,
                 "is_placeholder": false,
-                "scope": "col",
-                "sort_key": 9.5,
-                "data_type": "number"
+                "scope": "col"
               }
             ]
           }
@@ -283,13 +286,13 @@
       {
         "id": "fn1",
         "mark": "1",
-        "content": [{ "type": "text", "value": "Out of 10." }],
+        "content": [{ "type": "text", "value": "Out of 10.", "href": "https://example.com/scores" }],
         "style_id": "s"
       }
     ],
     "source_notes": [
       {
-        "content": [{ "type": "text", "value": "Source: the registrar." }],
+        "content": [{ "type": "text", "value": "Source: the registrar.", "href": "https://example.com/scores" }],
         "style_id": "c"
       }
     ]

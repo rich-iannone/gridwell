@@ -14,8 +14,8 @@ use std::path::{Path, PathBuf};
 
 use gridwell_ir::{
     BorderStyle, CellScope, FontStyle, FontWeight, HAlign, Keyword, Overflow, PageBreakMode,
-    RowParity, RowRole, SelectorScope, Table, TextDecoration, TextDirection, TextOverflow,
-    TextTransform, VAlign, ValidationRule, ValueType, WhiteSpace, WordBreak,
+    RowParity, RowRole, SelectorScope, SummaryPlacement, Table, TextDecoration, TextDirection,
+    TextOverflow, TextTransform, VAlign, ValidationRule, ValueType, WhiteSpace, WordBreak,
 };
 use serde_json::{json, Value};
 
@@ -236,6 +236,8 @@ fn code(cell: &str) -> Option<String> {
 const TYPES: &[(&str, &str)] = &[
     ("", "Table"),
     ("config", "Config"),
+    ("config.rules", "Rules"),
+    ("config.rules.*", "Border"),
     ("styles", "StylePalette"),
     ("styles.defs.*", "StyleDef"),
     ("styles.compositions.*", "StyleComposition"),
@@ -270,7 +272,6 @@ const TYPES: &[(&str, &str)] = &[
 const FREE: &[&str] = &[
     "extensions",
     "header.preheader_content",
-    "**.sort_key",
     "**.typed_value.value",
 ];
 
@@ -664,6 +665,8 @@ fn resolve(shape: &Shape, name: &str, previous: Option<&str>) -> (String, String
         Some("row") => "Row",
         Some("cell") => "Cell",
         Some("border.*") => "Border",
+        Some("config.rules.*") => "Border",
+        Some("table.tbody[]") => "RowGroup",
         Some("padding") => "Padding",
         Some("selector") => "ConditionalSelector",
         Some("typed_value") => "TypedValue",
@@ -765,6 +768,7 @@ fn keyword_of(ty: &str, key: &str) -> KeywordValues {
         ("ColumnSpec", "align") | ("StyleDef", "text_align") => kw::<HAlign>(),
         ("StyleDef", "vertical_align") => kw::<VAlign>(),
         ("Row", "role") => kw::<RowRole>(),
+        ("RowGroup", "summary_placement") => kw::<SummaryPlacement>(),
         ("Cell", "scope") => kw::<CellScope>(),
         ("Config", "page_break_mode") => kw::<PageBreakMode>(),
         ("Config", "dir") => kw::<TextDirection>(),
@@ -779,7 +783,7 @@ fn keyword_of(ty: &str, key: &str) -> KeywordValues {
         ("StyleDef", "text_overflow") => kw::<TextOverflow>(),
         ("ConditionalSelector", "row_parity") => kw::<RowParity>(),
         ("ConditionalSelector", "scope") => kw::<SelectorScope>(),
-        ("TypedValue", "type") | ("Cell", "data_type") => kw::<ValueType>(),
+        ("TypedValue", "type") => kw::<ValueType>(),
         _ => panic!("{ty}.{key} isn't a keyword field this test knows"),
     }
 }
