@@ -12,15 +12,21 @@
 //! padding, sizes and colors. Rules sit on row and column boundaries; a boundary
 //! takes the widest rule meeting there, and each cell's box includes half of each
 //! inner boundary's rule (all of an outer one), so cells still tile the table.
+//! The rules are the table's own (`config.rules` changes the look's): a dashed or
+//! dotted one is dashed, and a spanner rule that isn't solid is the spanner's
+//! bottom border rather than an inset line, as in HTML.
 
 use std::fmt::Write;
 use std::sync::Arc;
 
+use gridwell_core::link::link_url;
 use gridwell_core::xml::escape as escape_xml;
 use gridwell_core::{Image, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, RowRole, Table};
-use gridwell_layout::look::{BaseRules, EdgePart, OwnEdges, Pad, Rule as LookRule, LOOK};
+use gridwell_layout::look::{
+    stronger, BaseRules, EdgePart, LineStyle, OwnEdges, Pad, Rule as LookRule, LOOK,
+};
 use gridwell_layout::{
     resolve, CellVAlign, ResolvedBorder, ResolvedStyle, ResolvedTable, SectionKind, Sides,
 };
@@ -322,11 +328,21 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
                     bottom: borders.bottom.is_some(),
                     clears_top: cell.style.border_cleared.top,
                 };
-                let base_rules = if base {
+                let mut base_rules = if base {
                     rules.cell(edge_part, r, cell.col, cell.rowspan, own)
                 } else {
                     (None, None)
                 };
+                // A spanner rule that isn't solid is the spanner's bottom border,
+                // as in HTML (a solid one is drawn inset, inside the cell).
+                if let Some(s) = rt.rules.spanners {
+                    if base && part == Part::Spanner && !own.bottom && s.style != LineStyle::Solid {
+                        let below = &mut base_rules.1;
+                        if below.is_none_or(|b| stronger(&s, &b) != Some(false)) {
+                            *below = Some(s);
+                        }
+                    }
+                }
                 cells.push(PendingCell {
                     row: *nrows + r,
                     col: cell.col,
@@ -368,9 +384,9 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
             });
             nrows += 1;
         }
-        add_section(&group.rows, EdgePart::Rows(g), &mut nrows, &mut cells);
-        let summary = EdgePart::Summary(g);
-        add_section(&group.summary_rows, summary, &mut nrows, &mut cells);
+        for s in group.sections() {
+            add_section(s, EdgePart::of(g, s), &mut nrows, &mut cells);
+        }
     }
     debug_assert_eq!(rules.rows(), nrows);
     // The base rules each cell draws on its top and bottom edges.
@@ -388,9 +404,13 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     // right border and cell borders.
     let mut vthick = vec![0.0f64; ncols + 1];
     for (c, (top, bottom)) in cells.iter().zip(&base_rules) {
-        if base && c.stub && c.borders.right.is_none() {
+        if let Some(stub) = rt
+            .rules
+            .stub
+            .filter(|_| base && c.stub && c.borders.right.is_none())
+        {
             let v = c.col + c.colspan;
-            vthick[v] = vthick[v].max(look.section_rule.width_px);
+            vthick[v] = vthick[v].max(stub.width_px);
         }
         let w = |b: &Option<RuleLine>| b.as_ref().map_or(0.0, |b| b.width);
         hthick[c.row] = hthick[c.row].max(w(&c.borders.top)).max(rule_w(top));
@@ -638,12 +658,11 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
     // Lines without an alignment of their own (group labels, notes) start on the
     // left, or the right.
     let start = if rtl { Align::Right } else { Align::Left };
-    let outer = look.outer_rule;
     let mut y = 0.0;
-    if base && !heading.is_empty() {
+    if let Some(title) = rt.rules.title.filter(|_| base && !heading.is_empty()) {
         out.rules
-            .push(hline(0.0, table_width, outer.width_px / 2.0, &outer));
-        y = outer.width_px;
+            .push(hline(0.0, table_width, title.width_px / 2.0, &title));
+        y = title.width_px;
     }
     for (paragraphs, size, pad) in &heading {
         let lines = wrap_paragraphs(paragraphs, *size, table_width - pad.left - pad.right);
@@ -749,22 +768,26 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
         if let Some(rule) = base_bottom {
             out.rules.push(hline(x, x + w, rule_center(bb), rule));
         }
-        if cell.stub && cell.borders.right.is_none() {
+        if let Some(rule) = rt
+            .rules
+            .stub
+            .filter(|_| cell.stub && cell.borders.right.is_none())
+        {
             let rx = vcenter(vr);
-            let rule = look.section_rule;
             out.rules.push(RuleLine {
                 x1: rx,
                 y1: cy,
                 x2: rx,
                 y2: cy + h,
-                width: rule.width_px,
-                color: rule.color.to_css(),
-                double: false,
-                dash: None,
+                ..hline(0.0, 0.0, 0.0, &rule)
             });
         }
-        if cell.part == Part::Spanner {
-            let rule = look.spanner_rule;
+        let solid = |r: &LookRule| r.style == LineStyle::Solid;
+        if let Some(rule) = rt
+            .rules
+            .spanners
+            .filter(|r| cell.part == Part::Spanner && solid(r))
+        {
             let inset = look.spanner_rule_inset;
             let x1 = if cell.col == 0 { x } else { x + inset };
             let x2 = if cell.col + cell.colspan == ncols {
@@ -824,10 +847,10 @@ pub fn layout(table: &Table, config: &SvgConfig) -> Layout {
         });
         y += pad.top + h + pad.bottom;
     }
-    if base && !notes.is_empty() {
+    if let Some(rule) = rt.rules.notes.filter(|_| base && !notes.is_empty()) {
         out.rules
-            .push(hline(0.0, table_width, y + outer.width_px / 2.0, &outer));
-        y += outer.width_px;
+            .push(hline(0.0, table_width, y + rule.width_px / 2.0, &rule));
+        y += rule.width_px;
     }
 
     // A boundary between two cells is drawn by both (the bottom edge of one, the
@@ -892,8 +915,12 @@ fn hline(x1: f64, x2: f64, y: f64, rule: &LookRule) -> RuleLine {
         y2: y,
         width: rule.width_px,
         color: rule.color.to_css(),
-        double: rule.double,
-        dash: None,
+        double: rule.is_double(),
+        dash: match rule.style {
+            LineStyle::Dashed => Some(rule.width_px * 3.0),
+            LineStyle::Dotted => Some(rule.width_px),
+            LineStyle::Solid | LineStyle::Double => None,
+        },
     }
 }
 
@@ -942,15 +969,23 @@ fn content_runs(
     for node in nodes {
         let current = paragraphs.last_mut().unwrap();
         match node {
-            ContentNode::Text { value } => current.push(Run {
+            ContentNode::Text { value, href } => current.push(Run {
                 text: value.clone(),
-                style: base.clone(),
+                style: RunStyle {
+                    link: href.as_deref().and_then(link_url),
+                    ..base.clone()
+                },
             }),
-            ContentNode::StyledText { value, style_id } => {
+            ContentNode::StyledText {
+                value,
+                style_id,
+                href,
+            } => {
                 let mut style = base.clone();
                 if let Some(id) = style_id.as_deref() {
                     apply_style(&mut style, &rt.style(id), block_px);
                 }
+                style.link = href.as_deref().and_then(link_url);
                 current.push(Run {
                     text: value.clone(),
                     style,
@@ -1307,9 +1342,13 @@ fn text_length<'a>(runs: impl IntoIterator<Item = &'a Run>, width: f64) -> Strin
     }
 }
 
-/// One run of a line's `<text>`: its text, in a `<tspan>` if it is styled.
+/// One run of a line's `<text>`: its text, in a `<tspan>` if it is styled, in an
+/// `<a>` if it is a link.
 fn write_run(buf: &mut String, run: &Run, font_size: f64) -> Result<(), RenderError> {
     let s = &run.style;
+    if let Some(url) = &s.link {
+        write!(buf, "<a href=\"{}\">", escape_xml(url))?;
+    }
     let mut attrs = String::new();
     if s.bold {
         attrs.push_str(" font-weight=\"bold\"");
@@ -1343,6 +1382,9 @@ fn write_run(buf: &mut String, run: &Run, font_size: f64) -> Result<(), RenderEr
         buf.push_str(&escape_xml(&run.text));
     } else {
         write!(buf, "<tspan{attrs}>{}</tspan>", escape_xml(&run.text))?;
+    }
+    if s.link.is_some() {
+        buf.push_str("</a>");
     }
     Ok(())
 }

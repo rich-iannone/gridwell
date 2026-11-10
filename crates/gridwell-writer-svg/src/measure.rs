@@ -140,6 +140,8 @@ pub struct RunStyle {
     pub sup: bool,
     pub underline: bool,
     pub strike: bool,
+    /// The URL the run links to (see [`gridwell_core::link::link_url`]).
+    pub link: Option<String>,
     /// The run's own font size in px (`None`: the block's size).
     pub size: Option<f64>,
     /// The picture the run is (its text is U+FFFC OBJECT REPLACEMENT CHARACTER).
