@@ -31,12 +31,19 @@ pub const RELS: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?
   <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
 </Relationships>"#;
 
-/// `word/_rels/document.xml.rels`: the styles, and each image (id, target).
-pub fn document_rels(images: &[(String, &str)]) -> String {
+/// `word/_rels/document.xml.rels`: the styles, each image (id, target), and each
+/// link (id, URL), an external target.
+pub fn document_rels(images: &[(String, &str)], links: &[(String, &str)]) -> String {
     let mut rels = String::new();
     for (id, target) in images {
         rels.push_str(&format!(
             "\n  <Relationship Id=\"{id}\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"{target}\"/>"
+        ));
+    }
+    for (id, url) in links {
+        rels.push_str(&format!(
+            "\n  <Relationship Id=\"{id}\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink\" Target=\"{}\" TargetMode=\"External\"/>",
+            escape(url)
         ));
     }
     format!(
@@ -160,7 +167,7 @@ mod tests {
 </Types>"#
         );
         assert_eq!(
-            document_rels(&[]),
+            document_rels(&[], &[]),
             r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
@@ -181,7 +188,7 @@ mod tests {
                 .count(),
             1
         );
-        let rels = document_rels(&[("rIdImage1".into(), "media/image1.png")]);
+        let rels = document_rels(&[("rIdImage1".into(), "media/image1.png")], &[]);
         assert!(rels.contains(
             "Id=\"rIdImage1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"media/image1.png\""
         ));
