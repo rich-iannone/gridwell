@@ -207,3 +207,31 @@ fn group_labels_and_summaries() {
         [(true, false), (false, false)]
     );
 }
+
+#[test]
+fn summaries_at_the_top_come_first_and_edges_say_which_they_are() {
+    use super::Edge;
+    // Under the head, the first group's summary rows at the top; the data rows
+    // reach the bottom.
+    let t = styled(2)
+        .stub_cols(1)
+        .head(row(vec![cell("").style("tb"), cell("A")]))
+        .group(
+            gridwell_testkit::group(vec![row(vec![cell("x").stub(), cell("1").style("b")])])
+                .summary(vec![
+                    row(vec![cell("Total").stub(), cell("1")]).role("summary")
+                ])
+                .summary_top(),
+        )
+        .build();
+    let e = edges(&t);
+    assert!(e.top && e.head && e.bottom);
+    let at = |part, r, c| (e.carried_top(part, r, c), e.carried_bottom(part, r, c));
+    assert_eq!(at(Head, 0, 0), (None, None));
+    assert_eq!(at(Head, 0, 1), (Some(Edge::Top), Some(Edge::Head)));
+    // The summary row, not the data row, is under the head.
+    assert_eq!(at(Summary(0), 0, 0), (None, None));
+    assert_eq!(at(Summary(0), 0, 1), (Some(Edge::Head), None));
+    assert_eq!(at(Rows(0), 0, 0), (None, Some(Edge::Bottom)));
+    assert_eq!(at(Rows(0), 0, 1), (None, None));
+}
