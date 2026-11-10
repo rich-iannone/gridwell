@@ -79,6 +79,9 @@ No released gt has `as_ir()` yet, so today `"auto"` always uses gridwell's.
 | Row group column (`row_group_as_column = TRUE`) | The first stub column: each group's label is a stub cell spanning its rows, and the group has no label row. A summary row's label spans the other stub columns, beside an empty cell under the group's label (gt's HTML has the group's cell span its summary rows instead) |
 | Stubhead label (`tab_stubhead()`) | One head cell spanning the stub columns; a vector of labels gives each row stub column its own, with a blank one above a row group column |
 | Title/subtitle (`_heading`) | `header` block |
+| Summary rows (`summary_rows()`, `grand_summary_rows()`) | A group's `summary_rows`, and a last group without a label for the grand summary. A group whose summary rows are all on its top side (`side = "top"`) has them at the top (`summary_placement: "top"`); one with rows on both sides has them all at the bottom. A grand summary on the top side is a first group without a label, with its rows at the top |
+| Table id (`gt(id =)`) | `config.id`, which the HTML writer uses as its `table_id` when that option isn't set; an id that isn't an HTML id (empty, or with whitespace) is left out |
+| Border options (`tab_options(table.border.top.color = …)` and the like) | The table's [rules](../schema/config.qmd#rules), where changed from gt's defaults, as the [Great Tables guide](integration-great-tables.qmd#borders) describes for the same options; styles the IR has no rule for (`groove` and the like) are left out |
 | Source notes (`_source_notes`) | `footer.source_notes` |
 | Column alignment | `column_spec[].align` |
 | Column widths | `column_spec[].width` |
