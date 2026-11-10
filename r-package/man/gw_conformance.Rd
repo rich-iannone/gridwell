@@ -48,8 +48,8 @@ each include the ones before:
 \item L0 valid: the IR parses and validates.
 \item L1 structure: columns and stub, header lines, head rows and spans, groups
 and their labels, row roles, data and summary rows, cell text.
-\item L2 content: runs, footnote marks, typed values, \code{data_type}, \code{sort_key},
-\code{scope}, column and group ids, \code{lang} and \code{dir}.
+\item L2 content: runs, footnote marks, typed values, \code{scope},
+column and group ids, \code{lang} and \code{dir}.
 \item L3 styling: resolved styles; alignment; column, table and image sizes.
 }
 
