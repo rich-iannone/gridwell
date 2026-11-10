@@ -1,3 +1,4 @@
+use gridwell_core::link::link_url;
 use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table};
@@ -536,17 +537,17 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
                 }
             }
 
-            for r in 0..group.rows.rows.len() {
-                self.render_row(&group.rows, r);
-            }
-
-            if !group.summary_rows.is_empty() {
-                if self.config.booktabs {
+            // With booktabs, a rule between the data and summary rows (above the
+            // summary rows at the bottom even without data rows).
+            for (i, s) in group.sections().into_iter().enumerate() {
+                let between = !group.summary_rows.is_empty()
+                    && (!group.summary_top || !group.rows.is_empty());
+                if i == 1 && between && self.config.booktabs {
                     self.begin_row();
                     writeln!(self.buf, "\\cmidrule(lr){{1-{cols}}}").unwrap();
                 }
-                for r in 0..group.summary_rows.rows.len() {
-                    self.render_row(&group.summary_rows, r);
+                for r in 0..s.rows.len() {
+                    self.render_row(s, r);
                 }
             }
 
@@ -662,13 +663,20 @@ impl<'r, 'a> LatexRenderer<'r, 'a> {
         for node in nodes {
             let out = lines.last_mut().unwrap();
             match node {
-                ContentNode::Text { value } => out.push_str(&escape_latex(value)),
-                ContentNode::StyledText { value, style_id } => {
+                ContentNode::Text { value, href } => {
+                    out.push_str(&linked(&escape_latex(value), href))
+                }
+                ContentNode::StyledText {
+                    value,
+                    style_id,
+                    href,
+                } => {
                     let style = style_id
                         .as_deref()
                         .map(|id| self.rt.style(id))
                         .unwrap_or_default();
-                    out.push_str(&apply_inline_style(&escape_latex(value), &style));
+                    let text = apply_inline_style(&escape_latex(value), &style);
+                    out.push_str(&linked(&text, href));
                 }
                 ContentNode::LineBreak {} => lines.push(String::new()),
                 ContentNode::FootnoteMark { mark_text, .. } => {
@@ -880,6 +888,24 @@ fn apply_inline_style(content: &str, style: &ResolvedStyle) -> String {
 /// wrap the nested tabular that holds several lines.
 fn apply_block_style(content: &str, style: &ResolvedStyle) -> String {
     styled(content, style, false)
+}
+
+/// `text` as a link to `href` (`\href`, from `hyperref`), or as it is if it has
+/// none or it isn't a link (see [`gridwell_core::link`]). The URL's `%`, `#` and
+/// `&` are escaped, so it survives being read as an argument (by `tabularx`,
+/// `\multicolumn` or `\textcolor`); [`link_url`] leaves no other character TeX
+/// treats specially but `~`, `_` and `$`, which `\href` reads as they are.
+fn linked(text: &str, href: &Option<String>) -> String {
+    match href.as_deref().and_then(link_url) {
+        Some(url) => {
+            let url = url
+                .replace('%', "\\%")
+                .replace('#', "\\#")
+                .replace('&', "\\&");
+            format!("\\href{{{url}}}{{{text}}}")
+        }
+        None => text.to_string(),
+    }
 }
 
 /// Underline and strike-through (`ulem`, `\usepackage[normalem]{ulem}`: unlike
