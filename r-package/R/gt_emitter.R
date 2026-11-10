@@ -240,7 +240,6 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
             right <- !is_stub_cell &&
                 identical(boxhead$column_align[boxhead$var == var], "right")
             shown <- body[[var]][i]
-            missing <- length(shown) == 1 && is.na(shown)
             text <- .gw_body_text(shown)
             raw <- if (var %in% names(data)) data[[var]][orig] else NULL
             cell_style <- cell_styles$lookup(keys)
@@ -251,10 +250,7 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
                 style_id = cell_style,
                 is_stub = is_stub_cell,
                 # A stub cell heads its row, or the rows it spans (as gt has it).
-                scope = if (is_stub_cell) (if (rowspan > 1L) "rowgroup" else "row"),
-                data_type = .gw_dtype(raw),
-                # A missing value sorts as missing, not as the text "NA".
-                sort_key = if (nzchar(text) && !missing) tolower(text) else NULL
+                scope = if (is_stub_cell) (if (rowspan > 1L) "rowgroup" else "row")
             )
             typed <- if (is_stub_cell) NULL else .gw_typed_value(raw, text)
             if (!is.null(typed)) cell$typed_value <- typed
@@ -297,6 +293,12 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
         aria_describedby = NULL,
         summary = NULL
     )
+    table_id <- .gw_table_id(built)
+    if (!is.null(table_id)) config$id <- table_id
+    has_heading <- !is.null(header$title) || !is.null(header$subtitle)
+    has_footer <- length(footer$footnotes) > 0 || length(footer$source_notes) > 0
+    rules <- .gw_table_rules(built, has_heading, has_footer)
+    if (length(rules) > 0) config$rules <- rules
     # A locale set on the table (`gt(locale = ...)`) is its language; the
     # direction follows from the language, since the IR doesn't infer it.
     locale <- gt_obj[["_locale"]]$locale
@@ -731,7 +733,8 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
     })
 }
 
-# The body's row groups, then the grand summary (as a group of summary rows alone).
+# The body's row groups, then the grand summary (as a group of summary rows alone;
+# its rows at the top are a group before the others).
 # With a row group column (its cells' style ids by group id in `group_styles`),
 # the groups have no labels of their own.
 .gw_tbody <- function(built, rows, styles, marks, cell_styles, summaries, all_vars, stub,
@@ -745,9 +748,10 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
     # the group column is an empty cell there, styled as the group's label
     # (`group_style`), since the IR has no span from a group's rows into its
     # summary rows. A grand summary label is across the whole stub.
-    summary_rows <- function(id, role, row_style, group_style = NULL) {
+    summary_rows <- function(id, role, row_style, group_style = NULL, side = NULL) {
         df <- summaries[[id]]
         if (is.null(df)) return(list())
+        if (!is.null(side)) df <- df[.gw_summary_sides(df) == side, , drop = FALSE]
         first <- !is.null(stub$group) && length(stub$rows) > 0 && id != .gw_grand_summary_id
         span <- n_stub - first
         lapply(seq_len(nrow(df)), function(i) {
@@ -767,12 +771,22 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
             list(role = role, style_id = row_style, cells = cells)
         })
     }
-    grand <- summary_rows(.gw_grand_summary_id, "grand_summary_row", opts$grand_summary_row)
-    grand_group <- if (length(grand) > 0) {
-        list(list(group_id = NULL, label = NULL, rows = list(), summary_rows = grand))
+    # The grand summary rows at the top are a group above the others, the rest a
+    # group after them.
+    grand <- function(side) {
+        found <- summary_rows(
+            .gw_grand_summary_id, "grand_summary_row", opts$grand_summary_row, side = side
+        )
+        if (length(found) == 0) return(NULL)
+        group <- list(group_id = NULL, label = NULL, rows = list(), summary_rows = found)
+        if (side == "top") group$summary_placement <- "top"
+        list(group)
     }
+    grand_top <- grand("top")
+    grand_group <- grand("bottom")
     if (length(row_groups) == 0 || all(is.na(stub_df$group_id))) {
         return(c(
+            grand_top,
             list(list(group_id = NULL, label = NULL, rows = rows, summary_rows = list())),
             grand_group
         ))
@@ -789,7 +803,7 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
                 colspan = NULL
             )
         }
-        list(
+        group <- list(
             group_id = grp_id,
             label = label,
             rows = rows[idx],
@@ -797,8 +811,13 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
                 grp_id, "summary_row", opts$summary_row, group_styles[[grp_id]]
             )
         )
+        # A group has one placement: summary rows on both sides are all after its
+        # rows.
+        sides <- .gw_summary_sides(summaries[[grp_id]])
+        if (length(sides) > 0 && all(sides == "top")) group$summary_placement <- "top"
+        group
     })
-    c(groups, grand_group)
+    c(grand_top, groups, grand_group)
 }
 
 # ---- Summary rows -------------------------------------------------------------------
@@ -810,15 +829,21 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
 
 # gt's formatted summary rows, by group id (`.gw_grand_summary_id` for the grand
 # summary): data frames with `::rowname::` (the label) and one column per variable,
-# holding the text gt displays. Summaries placed at the top of a group (`side =
-# "top"`) are listed with the others: the IR has summary rows only after a group's
-# data rows.
+# holding the text gt displays, and `::side::` (`top` or `bottom`, from `side =`).
 .gw_summaries <- function(built) {
     if (length(built[["_summary"]]) == 0) return(list())
     get <- utils::getFromNamespace("dt_summary_df_get", "gt")
     display <- get(data = built)$summary_df_display_list
     if (is.null(display)) return(list())
     lapply(display, as.data.frame, stringsAsFactors = FALSE)
+}
+
+# The side of each of a summary data frame's rows (`bottom` when gt has none).
+.gw_summary_sides <- function(df) {
+    if (is.null(df) || nrow(df) == 0) return(character(0))
+    sides <- df[["::side::"]]
+    if (is.null(sides)) return(rep("bottom", nrow(df)))
+    ifelse(is.na(sides), "bottom", as.character(sides))
 }
 
 .gw_summary_text <- function(x) {
@@ -828,11 +853,87 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
 
 # ---- Table options ------------------------------------------------------------------
 
+# The table's id (`gt(id =)`), when it's one the IR takes (an HTML id: not empty,
+# no whitespace).
+.gw_table_id <- function(built) {
+    options <- built[["_options"]]
+    id <- options$value[[match("table_id", options$parameter)]]
+    if (is.character(id) && length(id) == 1 && !is.na(id) && nzchar(id) &&
+        !grepl("[[:space:]]", id)) {
+        id
+    }
+}
+
+# gt's border options drawn on each of gridwell's rules (`config.rules`), by the
+# start of their names (`<name>_style`, `_width`, `_color`), the outer one last.
+# Which ones are drawn on the table's top and bottom depends on whether there's a
+# heading and a footer: `table_border_top` is above the heading, or the table's top
+# without one (and `table_border_bottom` likewise). The same as the Python
+# emitter's `_rule_options`.
+.gw_rule_options <- function(has_heading, has_footer) {
+    list(
+        title = if (has_heading) "table_border_top",
+        top = c(
+            "column_labels_border_top",
+            if (has_heading) "heading_border_bottom" else "table_border_top"
+        ),
+        column_labels = c("table_body_border_top", "column_labels_border_bottom"),
+        spanners = "column_labels_border_bottom",
+        group = c("row_group_border_bottom", "row_group_border_top"),
+        rows = "table_body_hlines",
+        stub = "stub_border",
+        summary = "summary_row_border",
+        grand_summary = "grand_summary_row_border",
+        bottom = c("table_body_border_bottom", if (!has_footer) "table_border_bottom"),
+        notes = if (has_footer) "table_border_bottom"
+    )
+}
+
+.gw_rule_styles <- c("none", "hidden", "dotted", "dashed", "solid", "double")
+
+# The rules of the table's border options a user changed, as `config.rules`: each
+# option at gt's default is left out, so a rule changes only what the options
+# change (and the default look draws the rest). Where two options are drawn on one
+# rule, the outer one's changes win. Styles the IR has no rule for (`groove`, ...)
+# are left out.
+.gw_table_rules <- function(built, has_heading, has_footer) {
+    options <- built[["_options"]]
+    defaults <- gt::gt(data.frame(x = 1))[["_options"]]
+    changed <- function(name) {
+        i <- match(name, options$parameter)
+        if (is.na(i)) return(NULL)
+        v <- options$value[[i]]
+        d <- defaults$value[[match(name, defaults$parameter)]]
+        if (identical(v, d) || is.null(v) || length(v) == 0 || is.na(v[1])) NULL else v[1]
+    }
+    drawn <- .gw_rule_options(has_heading, has_footer)
+    rules <- list()
+    for (rule in names(drawn)) {
+        border <- list()
+        for (name in drawn[[rule]]) {
+            style <- changed(paste0(name, "_style"))
+            if (is.character(style) && tolower(style) %in% .gw_rule_styles) {
+                border$style <- tolower(style)
+            }
+            width <- changed(paste0(name, "_width"))
+            if (is.numeric(width)) {
+                border$width <- paste0(format(width), "px")
+            } else if (is.character(width) && nzchar(width)) {
+                border$width <- width
+            }
+            color <- changed(paste0(name, "_color"))
+            if (is.character(color) && nzchar(color)) border$color <- color
+        }
+        if (length(border) > 0) rules[[rule]] <- border
+    }
+    rules
+}
+
 # The table options a user changed (`tab_options()`, `opt_stylize()`,
 # `opt_row_striping()`) that the IR can express, as style ids for each part plus
 # the striping config. Options at gt's defaults are left out: gridwell's writers
-# supply their own default look. Outer border colors and hairline colors have no
-# IR equivalent yet.
+# supply their own default look. The border options are the table's rules
+# (`.gw_table_rules`).
 .gw_option_styles <- function(built, styles) {
     options <- built[["_options"]]
     defaults <- gt::gt(data.frame(x = 1))[["_options"]]
@@ -929,8 +1030,7 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
 }
 
 .gw_cell <- function(content, colspan = 1L, style_id = NULL, is_stub = FALSE,
-                     is_placeholder = FALSE, scope = NULL, data_type = NULL,
-                     sort_key = NULL, rowspan = 1L) {
+                     is_placeholder = FALSE, scope = NULL, rowspan = 1L) {
     list(
         content = content,
         colspan = as.integer(colspan),
@@ -938,9 +1038,7 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
         style_id = style_id,
         is_stub = is_stub,
         is_placeholder = is_placeholder,
-        scope = scope,
-        sort_key = sort_key,
-        data_type = data_type
+        scope = scope
     )
 }
 
@@ -1169,17 +1267,6 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
 # An `hms` time that is a time of day (not a duration of a day or more).
 .gw_is_clock_time <- function(raw) {
     inherits(raw, "hms") && as.numeric(raw) >= 0 && as.numeric(raw) < 86400
-}
-
-.gw_dtype <- function(raw) {
-    if (is.null(raw) || length(raw) == 0) return(NULL)
-    if (is.integer(raw)) return("integer")
-    if (is.numeric(raw)) return("number")
-    if (is.logical(raw)) return("boolean")
-    if (inherits(raw, "Date")) return("date")
-    if (inherits(raw, "POSIXt")) return("datetime")
-    if (!is.na(raw) && .gw_is_clock_time(raw)) return("time")
-    "string"
 }
 
 # Characters a display may separate thousands with ("." and "," also mark
