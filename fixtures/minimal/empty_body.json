@@ -47,9 +47,9 @@
           "role": "column_label",
           "style_id": null,
           "cells": [
-            { "content": [{ "type": "text", "value": "Name" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": "string" },
-            { "content": [{ "type": "text", "value": "Age" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": "integer" },
-            { "content": [{ "type": "text", "value": "City" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": "string" }
+            { "content": [{ "type": "text", "value": "Name" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col" },
+            { "content": [{ "type": "text", "value": "Age" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col" },
+            { "content": [{ "type": "text", "value": "City" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col" }
           ]
         }
       ]

@@ -49,11 +49,11 @@
           "role": "column_label",
           "style_id": null,
           "cells": [
-            { "content": [{ "type": "text", "value": "Fixed PX" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null },
-            { "content": [{ "type": "text", "value": "Percent" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null },
-            { "content": [{ "type": "text", "value": "Fractional" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null },
-            { "content": [{ "type": "text", "value": "2x Fractional" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null },
-            { "content": [{ "type": "text", "value": "Auto" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null }
+            { "content": [{ "type": "text", "value": "Fixed PX" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col" },
+            { "content": [{ "type": "text", "value": "Percent" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col" },
+            { "content": [{ "type": "text", "value": "Fractional" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col" },
+            { "content": [{ "type": "text", "value": "2x Fractional" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col" },
+            { "content": [{ "type": "text", "value": "Auto" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col" }
           ]
         }
       ]
@@ -67,21 +67,21 @@
           {
             "role": null, "style_id": null,
             "cells": [
-              { "content": [{ "type": "text", "value": "200px wide" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null },
-              { "content": [{ "type": "text", "value": "20% wide" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null },
-              { "content": [{ "type": "text", "value": "1fr" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null },
-              { "content": [{ "type": "text", "value": "2fr" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null },
-              { "content": [{ "type": "text", "value": "auto" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null }
+              { "content": [{ "type": "text", "value": "200px wide" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "20% wide" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "1fr" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "2fr" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "auto" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false }
             ]
           },
           {
             "role": null, "style_id": null,
             "cells": [
-              { "content": [{ "type": "text", "value": "content" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null },
-              { "content": [{ "type": "text", "value": "content" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null },
-              { "content": [{ "type": "text", "value": "content" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null },
-              { "content": [{ "type": "text", "value": "content" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null },
-              { "content": [{ "type": "text", "value": "content" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null }
+              { "content": [{ "type": "text", "value": "content" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "content" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "content" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "content" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "content" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false }
             ]
           }
         ],

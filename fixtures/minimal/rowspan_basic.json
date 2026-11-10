@@ -50,13 +50,13 @@
               "content": [{ "type": "text", "value": "Country" }],
               "colspan": 1, "rowspan": 1, "style_id": null,
               "is_stub": true, "is_placeholder": false,
-              "scope": "col", "sort_key": null, "data_type": "string"
+              "scope": "col"
             },
             {
               "content": [{ "type": "text", "value": "Value" }],
               "colspan": 1, "rowspan": 1, "style_id": null,
               "is_stub": false, "is_placeholder": false,
-              "scope": "col", "sort_key": null, "data_type": "number"
+              "scope": "col"
             }
           ]
         }
@@ -76,15 +76,13 @@
                 "content": [{ "type": "text", "value": "Japan" }],
                 "typed_value": { "type": "string", "value": "Japan" },
                 "colspan": 1, "rowspan": 2,
-                "style_id": null, "is_stub": true, "is_placeholder": false,
-                "data_type": "string", "sort_key": "japan"
+                "style_id": null, "is_stub": true, "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "100" }],
                 "typed_value": { "type": "number", "value": 100 },
                 "colspan": 1, "rowspan": 1,
-                "style_id": null, "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 100
+                "style_id": null, "is_stub": false, "is_placeholder": false
               }
             ]
           },
@@ -96,15 +94,13 @@
                 "content": [],
                 "typed_value": null,
                 "colspan": 1, "rowspan": 1,
-                "style_id": null, "is_stub": true, "is_placeholder": true,
-                "data_type": null, "sort_key": null
+                "style_id": null, "is_stub": true, "is_placeholder": true
               },
               {
                 "content": [{ "type": "text", "value": "110" }],
                 "typed_value": { "type": "number", "value": 110 },
                 "colspan": 1, "rowspan": 1,
-                "style_id": null, "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 110
+                "style_id": null, "is_stub": false, "is_placeholder": false
               }
             ]
           },
@@ -116,15 +112,13 @@
                 "content": [{ "type": "text", "value": "Korea" }],
                 "typed_value": { "type": "string", "value": "Korea" },
                 "colspan": 1, "rowspan": 1,
-                "style_id": null, "is_stub": true, "is_placeholder": false,
-                "data_type": "string", "sort_key": "korea"
+                "style_id": null, "is_stub": true, "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "80" }],
                 "typed_value": { "type": "number", "value": 80 },
                 "colspan": 1, "rowspan": 1,
-                "style_id": null, "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 80
+                "style_id": null, "is_stub": false, "is_placeholder": false
               }
             ]
           }

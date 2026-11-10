@@ -37,8 +37,8 @@
         {
           "role": "column_label", "style_id": null,
           "cells": [
-            { "content": [{ "type": "text", "value": "A" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null },
-            { "content": [{ "type": "text", "value": "B" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null }
+            { "content": [{ "type": "text", "value": "A" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col" },
+            { "content": [{ "type": "text", "value": "B" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col" }
           ]
         }
       ]
@@ -51,15 +51,15 @@
           {
             "role": null, "style_id": null,
             "cells": [
-              { "content": [{ "type": "text", "value": "OVERFLOW" }], "typed_value": null, "colspan": 1, "rowspan": 3, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null },
-              { "content": [{ "type": "text", "value": "ok" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null }
+              { "content": [{ "type": "text", "value": "OVERFLOW" }], "typed_value": null, "colspan": 1, "rowspan": 3, "style_id": null, "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "ok" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false }
             ]
           },
           {
             "role": null, "style_id": null,
             "cells": [
-              { "content": [], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": true, "data_type": null, "sort_key": null },
-              { "content": [{ "type": "text", "value": "ok" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": null, "sort_key": null }
+              { "content": [], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": true },
+              { "content": [{ "type": "text", "value": "ok" }], "typed_value": null, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false }
             ]
           }
         ],

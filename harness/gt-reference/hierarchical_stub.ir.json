@@ -17,7 +17,8 @@
     "page_break_mode": "avoid",
     "aria_label": null,
     "aria_describedby": null,
-    "summary": null
+    "summary": null,
+    "id": "hierarchical_stub"
   },
   "styles": {
     "defs": {
@@ -94,9 +95,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [],
@@ -105,9 +104,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -121,9 +118,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "colgroup",
-              "sort_key": null,
-              "data_type": null
+              "scope": "colgroup"
             },
             {
               "content": [],
@@ -132,9 +127,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": true,
-              "scope": null,
-              "sort_key": null,
-              "data_type": null
+              "scope": null
             }
           ]
         },
@@ -154,9 +147,7 @@
               "style_id": "gw_1",
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "colgroup",
-              "sort_key": null,
-              "data_type": null
+              "scope": "colgroup"
             },
             {
               "content": [],
@@ -165,9 +156,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": true,
-              "scope": null,
-              "sort_key": null,
-              "data_type": null
+              "scope": null
             },
             {
               "content": [
@@ -181,9 +170,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -197,9 +184,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             }
           ]
         }
@@ -235,9 +220,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "rowgroup",
-                "sort_key": "france",
-                "data_type": "string"
+                "scope": "rowgroup"
               },
               {
                 "content": [
@@ -251,9 +234,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "paris",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -268,8 +249,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "12",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 12
@@ -288,8 +267,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "140",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 140
@@ -308,9 +285,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": true,
-                "scope": null,
-                "sort_key": null,
-                "data_type": null
+                "scope": null
               },
               {
                 "content": [
@@ -324,9 +299,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "lyon",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -341,8 +314,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "4",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 4
@@ -361,8 +332,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "38",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 38
@@ -386,9 +355,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "germany",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -402,9 +369,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "berlin",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -419,8 +384,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "9",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 9
@@ -439,8 +402,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "95",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 95
@@ -480,9 +441,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "rowgroup",
-                "sort_key": "japan",
-                "data_type": "string"
+                "scope": "rowgroup"
               },
               {
                 "content": [
@@ -496,9 +455,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "tokyo",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -513,8 +470,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "20",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 20
@@ -533,8 +488,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "260",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 260
@@ -553,9 +506,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": true,
-                "scope": null,
-                "sort_key": null,
-                "data_type": null
+                "scope": null
               },
               {
                 "content": [
@@ -569,9 +520,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "osaka",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -586,8 +535,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "7",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 7
@@ -606,8 +553,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "81",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 81

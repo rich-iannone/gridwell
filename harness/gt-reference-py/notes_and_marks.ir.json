@@ -17,7 +17,8 @@
     "page_break_mode": "avoid",
     "aria_label": null,
     "aria_describedby": null,
-    "summary": null
+    "summary": null,
+    "id": "notes_and_marks"
   },
   "styles": {
     "defs": {
@@ -117,9 +118,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -138,9 +137,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -154,9 +151,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             }
           ]
         }
@@ -183,8 +178,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "apricot",
                 "typed_value": {
                   "type": "string",
                   "value": "apricot"
@@ -202,8 +195,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "0.1111",
                 "typed_value": {
                   "type": "number",
                   "value": 0.1111
@@ -221,8 +212,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2015-01-15",
                 "typed_value": {
                   "type": "string",
                   "value": "2015-01-15"
@@ -251,8 +240,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "banana",
                 "typed_value": {
                   "type": "string",
                   "value": "banana"
@@ -270,8 +257,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "2.222",
                 "typed_value": {
                   "type": "number",
                   "value": 2.222
@@ -289,8 +274,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2015-02-15",
                 "typed_value": {
                   "type": "string",
                   "value": "2015-02-15"
@@ -314,8 +297,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "coconut",
                 "typed_value": {
                   "type": "string",
                   "value": "coconut"
@@ -333,8 +314,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "33.33",
                 "typed_value": {
                   "type": "number",
                   "value": 33.33
@@ -352,8 +331,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2015-03-15",
                 "typed_value": {
                   "type": "string",
                   "value": "2015-03-15"
@@ -377,8 +354,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "durian",
                 "typed_value": {
                   "type": "string",
                   "value": "durian"
@@ -396,8 +371,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "444.4",
                 "typed_value": {
                   "type": "number",
                   "value": 444.4
@@ -415,8 +388,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2015-04-15",
                 "typed_value": {
                   "type": "string",
                   "value": "2015-04-15"

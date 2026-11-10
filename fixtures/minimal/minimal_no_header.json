@@ -73,9 +73,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": "string"
+              "scope": "col"
             },
             {
               "content": [{ "type": "text", "value": "Score" }],
@@ -84,9 +82,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": "number"
+              "scope": "col"
             }
           ]
         }
@@ -109,9 +105,7 @@
                 "rowspan": 1,
                 "style_id": null,
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "alice"
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "95" }],
@@ -120,9 +114,7 @@
                 "rowspan": 1,
                 "style_id": null,
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 95
+                "is_placeholder": false
               }
             ]
           },
@@ -137,9 +129,7 @@
                 "rowspan": 1,
                 "style_id": null,
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "bob"
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "87" }],
@@ -148,9 +138,7 @@
                 "rowspan": 1,
                 "style_id": null,
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 87
+                "is_placeholder": false
               }
             ]
           }

@@ -54,9 +54,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": null,
-              "sort_key": null,
-              "data_type": null
+              "scope": null
             },
             {
               "content": [{ "type": "text", "value": "Scores" }],
@@ -65,9 +63,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "colgroup",
-              "sort_key": null,
-              "data_type": null
+              "scope": "colgroup"
             },
             {
               "content": [],
@@ -76,9 +72,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": true,
-              "scope": null,
-              "sort_key": null,
-              "data_type": null
+              "scope": null
             }
           ]
         },
@@ -93,9 +87,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": "string"
+              "scope": "col"
             },
             {
               "content": [{ "type": "text", "value": "Q1" }],
@@ -104,9 +96,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": "number"
+              "scope": "col"
             },
             {
               "content": [{ "type": "text", "value": "Q2" }],
@@ -115,9 +105,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": "number"
+              "scope": "col"
             }
           ]
         }
@@ -137,22 +125,19 @@
                 "content": [{ "type": "text", "value": "Alice" }],
                 "typed_value": { "type": "string", "value": "Alice" },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "string", "sort_key": "alice"
+                "is_stub": false, "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "90" }],
                 "typed_value": { "type": "number", "value": 90 },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 90
+                "is_stub": false, "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "95" }],
                 "typed_value": { "type": "number", "value": 95 },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 95
+                "is_stub": false, "is_placeholder": false
               }
             ]
           },
@@ -164,22 +149,19 @@
                 "content": [{ "type": "text", "value": "Bob" }],
                 "typed_value": { "type": "string", "value": "Bob" },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "string", "sort_key": "bob"
+                "is_stub": false, "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "85" }],
                 "typed_value": { "type": "number", "value": 85 },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 85
+                "is_stub": false, "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "88" }],
                 "typed_value": { "type": "number", "value": 88 },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 88
+                "is_stub": false, "is_placeholder": false
               }
             ]
           }

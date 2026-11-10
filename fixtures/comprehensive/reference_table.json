@@ -437,9 +437,7 @@
               "style_id": "spanner_label",
               "is_stub": true,
               "is_placeholder": false,
-              "scope": null,
-              "sort_key": null,
-              "data_type": null
+              "scope": null
             },
             {
               "content": [],
@@ -448,9 +446,7 @@
               "style_id": "spanner_label",
               "is_stub": false,
               "is_placeholder": false,
-              "scope": null,
-              "sort_key": null,
-              "data_type": null
+              "scope": null
             },
             {
               "content": [{ "type": "text", "value": "Financials" }],
@@ -459,9 +455,7 @@
               "style_id": "spanner_label",
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "colgroup",
-              "sort_key": null,
-              "data_type": null
+              "scope": "colgroup"
             },
             {
               "content": [],
@@ -470,9 +464,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": true,
-              "scope": null,
-              "sort_key": null,
-              "data_type": null
+              "scope": null
             },
             {
               "content": [],
@@ -481,9 +473,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": true,
-              "scope": null,
-              "sort_key": null,
-              "data_type": null
+              "scope": null
             }
           ]
         },
@@ -498,9 +488,7 @@
               "style_id": "col_label_stub",
               "is_stub": true,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": "string"
+              "scope": "col"
             },
             {
               "content": [{ "type": "text", "value": "Year" }],
@@ -509,9 +497,7 @@
               "style_id": "col_label",
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": "integer"
+              "scope": "col"
             },
             {
               "content": [{ "type": "text", "value": "Revenue" }],
@@ -520,9 +506,7 @@
               "style_id": "col_label",
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": "number"
+              "scope": "col"
             },
             {
               "content": [{ "type": "text", "value": "Expenses" }],
@@ -531,9 +515,7 @@
               "style_id": "col_label",
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": "number"
+              "scope": "col"
             },
             {
               "content": [{ "type": "text", "value": "Profit" }],
@@ -542,9 +524,7 @@
               "style_id": "col_label",
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": "number"
+              "scope": "col"
             }
           ]
         }
@@ -571,9 +551,7 @@
                 "rowspan": 2,
                 "style_id": "body_stub",
                 "is_stub": true,
-                "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "united states"
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "2023" }],
@@ -582,9 +560,7 @@
                 "rowspan": 1,
                 "style_id": "body_year",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": 2023
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "1,250.3" }],
@@ -593,9 +569,7 @@
                 "rowspan": 1,
                 "style_id": "body_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 1250.3
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "980.2" }],
@@ -604,9 +578,7 @@
                 "rowspan": 1,
                 "style_id": "body_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 980.2
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "270.1" }],
@@ -615,9 +587,7 @@
                 "rowspan": 1,
                 "style_id": "body_profit",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 270.1
+                "is_placeholder": false
               }
             ]
           },
@@ -632,9 +602,7 @@
                 "rowspan": 1,
                 "style_id": null,
                 "is_stub": true,
-                "is_placeholder": true,
-                "data_type": null,
-                "sort_key": null
+                "is_placeholder": true
               },
               {
                 "content": [{ "type": "text", "value": "2024" }],
@@ -643,9 +611,7 @@
                 "rowspan": 1,
                 "style_id": "body_year",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": 2024
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "1,380.7" }],
@@ -654,9 +620,7 @@
                 "rowspan": 1,
                 "style_id": "body_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 1380.7
+                "is_placeholder": false
               },
               {
                 "content": [
@@ -668,9 +632,7 @@
                 "rowspan": 1,
                 "style_id": "body_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 1050.4
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "330.3" }],
@@ -679,9 +641,7 @@
                 "rowspan": 1,
                 "style_id": "body_profit",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 330.3
+                "is_placeholder": false
               }
             ]
           },
@@ -696,9 +656,7 @@
                 "rowspan": 1,
                 "style_id": "body_stub",
                 "is_stub": true,
-                "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "canada"
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "2024" }],
@@ -707,9 +665,7 @@
                 "rowspan": 1,
                 "style_id": "body_year",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": 2024
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "420.1" }],
@@ -718,9 +674,7 @@
                 "rowspan": 1,
                 "style_id": "body_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 420.1
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "310.6" }],
@@ -729,9 +683,7 @@
                 "rowspan": 1,
                 "style_id": "body_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 310.6
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "109.5" }],
@@ -740,9 +692,7 @@
                 "rowspan": 1,
                 "style_id": "body_profit",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 109.5
+                "is_placeholder": false
               }
             ]
           }
@@ -759,9 +709,7 @@
                 "rowspan": 1,
                 "style_id": "summary_label",
                 "is_stub": true,
-                "is_placeholder": false,
-                "data_type": null,
-                "sort_key": null
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "\u2014" }],
@@ -770,9 +718,7 @@
                 "rowspan": 1,
                 "style_id": "summary_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": null,
-                "sort_key": null
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "3,051.1" }],
@@ -781,9 +727,7 @@
                 "rowspan": 1,
                 "style_id": "summary_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 3051.1
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "2,341.2" }],
@@ -792,9 +736,7 @@
                 "rowspan": 1,
                 "style_id": "summary_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 2341.2
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "709.9" }],
@@ -803,9 +745,7 @@
                 "rowspan": 1,
                 "style_id": "summary_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 709.9
+                "is_placeholder": false
               }
             ]
           }
@@ -831,9 +771,7 @@
                 "rowspan": 2,
                 "style_id": "body_stub",
                 "is_stub": true,
-                "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "germany"
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "2023" }],
@@ -842,9 +780,7 @@
                 "rowspan": 1,
                 "style_id": "body_year",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": 2023
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "890.5" }],
@@ -853,9 +789,7 @@
                 "rowspan": 1,
                 "style_id": "body_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 890.5
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "720.1" }],
@@ -864,9 +798,7 @@
                 "rowspan": 1,
                 "style_id": "body_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 720.1
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "170.4" }],
@@ -875,9 +807,7 @@
                 "rowspan": 1,
                 "style_id": "body_profit",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 170.4
+                "is_placeholder": false
               }
             ]
           },
@@ -892,9 +822,7 @@
                 "rowspan": 1,
                 "style_id": null,
                 "is_stub": true,
-                "is_placeholder": true,
-                "data_type": null,
-                "sort_key": null
+                "is_placeholder": true
               },
               {
                 "content": [{ "type": "text", "value": "2024" }],
@@ -903,9 +831,7 @@
                 "rowspan": 1,
                 "style_id": "body_year",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": 2024
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "945.2" }],
@@ -914,9 +840,7 @@
                 "rowspan": 1,
                 "style_id": "body_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 945.2
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "780.3" }],
@@ -925,9 +849,7 @@
                 "rowspan": 1,
                 "style_id": "body_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 780.3
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "164.9" }],
@@ -936,9 +858,7 @@
                 "rowspan": 1,
                 "style_id": "body_profit",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 164.9
+                "is_placeholder": false
               }
             ]
           },
@@ -953,9 +873,7 @@
                 "rowspan": 1,
                 "style_id": "body_stub",
                 "is_stub": true,
-                "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "france"
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "2024" }],
@@ -964,9 +882,7 @@
                 "rowspan": 1,
                 "style_id": "body_year",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": 2024
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "610.8" }],
@@ -975,9 +891,7 @@
                 "rowspan": 1,
                 "style_id": "body_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 610.8
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "490.2" }],
@@ -986,9 +900,7 @@
                 "rowspan": 1,
                 "style_id": "body_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 490.2
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "120.6" }],
@@ -997,9 +909,7 @@
                 "rowspan": 1,
                 "style_id": "body_profit",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 120.6
+                "is_placeholder": false
               }
             ]
           }
@@ -1016,9 +926,7 @@
                 "rowspan": 1,
                 "style_id": "summary_label",
                 "is_stub": true,
-                "is_placeholder": false,
-                "data_type": null,
-                "sort_key": null
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "\u2014" }],
@@ -1027,9 +935,7 @@
                 "rowspan": 1,
                 "style_id": "summary_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": null,
-                "sort_key": null
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "2,446.5" }],
@@ -1038,9 +944,7 @@
                 "rowspan": 1,
                 "style_id": "summary_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 2446.5
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "1,990.6" }],
@@ -1049,9 +953,7 @@
                 "rowspan": 1,
                 "style_id": "summary_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 1990.6
+                "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "455.9" }],
@@ -1060,9 +962,7 @@
                 "rowspan": 1,
                 "style_id": "summary_numeric",
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": 455.9
+                "is_placeholder": false
               }
             ]
           }

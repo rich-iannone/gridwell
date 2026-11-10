@@ -17,7 +17,8 @@
     "page_break_mode": "avoid",
     "aria_label": null,
     "aria_describedby": null,
-    "summary": null
+    "summary": null,
+    "id": "summary_rows"
   },
   "styles": {
     "defs": {},
@@ -79,9 +80,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -95,9 +94,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -111,9 +108,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             }
           ]
         }
@@ -149,9 +144,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_1",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -166,8 +159,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "0.1",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 0.1
@@ -186,8 +177,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "49.950",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 49.95
@@ -211,9 +200,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_2",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -228,8 +215,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "2.2",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 2.2
@@ -248,8 +233,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "17.950",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 17.95
@@ -273,9 +256,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_3",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -290,8 +271,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "33.3",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 33.3
@@ -310,8 +289,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "1.390",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 1.39
@@ -335,9 +312,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_4",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -352,8 +327,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "444.4",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 444.4
@@ -372,8 +345,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "65100.000",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 65100
@@ -399,9 +370,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": null,
-                "data_type": null
+                "scope": "row"
               },
               {
                 "content": [
@@ -415,9 +384,7 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "scope": null,
-                "sort_key": null,
-                "data_type": null
+                "scope": null
               },
               {
                 "content": [
@@ -431,9 +398,7 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "scope": null,
-                "sort_key": null,
-                "data_type": null
+                "scope": null
               }
             ]
           }
@@ -468,9 +433,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_5",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -485,8 +448,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "5,550.0",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 5550
@@ -505,8 +466,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "1325.810",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 1325.81
@@ -530,9 +489,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_6",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -546,9 +503,7 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "scope": null,
-                "sort_key": "na",
-                "data_type": "number"
+                "scope": null
               },
               {
                 "content": [
@@ -563,8 +518,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "13.255",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 13.255
@@ -588,9 +541,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_7",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -605,8 +556,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "777,000.0",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 777000
@@ -624,9 +573,7 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "scope": null,
-                "sort_key": "na",
-                "data_type": "number"
+                "scope": null
               }
             ]
           },
@@ -646,9 +593,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_8",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -663,8 +608,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "8,880,000.0",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 8880000
@@ -683,8 +626,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "0.440",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 0.44
@@ -710,9 +651,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": null,
-                "data_type": null
+                "scope": "row"
               },
               {
                 "content": [
@@ -726,9 +665,7 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "scope": null,
-                "sort_key": null,
-                "data_type": null
+                "scope": null
               },
               {
                 "content": [
@@ -742,9 +679,7 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "scope": null,
-                "sort_key": null,
-                "data_type": null
+                "scope": null
               }
             ]
           }
@@ -771,9 +706,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": null,
-                "data_type": null
+                "scope": "row"
               },
               {
                 "content": [
@@ -787,9 +720,7 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "scope": null,
-                "sort_key": null,
-                "data_type": null
+                "scope": null
               },
               {
                 "content": [
@@ -803,9 +734,7 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "scope": null,
-                "sort_key": null,
-                "data_type": null
+                "scope": null
               }
             ]
           }

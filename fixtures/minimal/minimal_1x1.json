@@ -62,9 +62,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             }
           ]
         }
@@ -87,9 +85,7 @@
                 "rowspan": 1,
                 "style_id": null,
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "hello"
+                "is_placeholder": false
               }
             ]
           }

@@ -50,13 +50,13 @@
               "content": [{ "type": "text", "value": "Item" }],
               "colspan": 1, "rowspan": 1, "style_id": null,
               "is_stub": false, "is_placeholder": false,
-              "scope": "col", "sort_key": null, "data_type": "string"
+              "scope": "col"
             },
             {
               "content": [{ "type": "text", "value": "Price" }],
               "colspan": 1, "rowspan": 1, "style_id": null,
               "is_stub": false, "is_placeholder": false,
-              "scope": "col", "sort_key": null, "data_type": "number"
+              "scope": "col"
             }
           ]
         }
@@ -76,8 +76,7 @@
                 "content": [{ "type": "text", "value": "Widget" }],
                 "typed_value": { "type": "string", "value": "Widget" },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "string", "sort_key": "widget"
+                "is_stub": false, "is_placeholder": false
               },
               {
                 "content": [
@@ -86,8 +85,7 @@
                 ],
                 "typed_value": { "type": "number", "value": 9.99 },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 9.99
+                "is_stub": false, "is_placeholder": false
               }
             ]
           },
@@ -99,15 +97,13 @@
                 "content": [{ "type": "text", "value": "Gadget" }],
                 "typed_value": { "type": "string", "value": "Gadget" },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "string", "sort_key": "gadget"
+                "is_stub": false, "is_placeholder": false
               },
               {
                 "content": [{ "type": "text", "value": "$19.99" }],
                 "typed_value": { "type": "number", "value": 19.99 },
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": "number", "sort_key": 19.99
+                "is_stub": false, "is_placeholder": false
               }
             ]
           }

@@ -1,0 +1,48 @@
+{
+  "_comment": "INVALID: config.id has a space, so it can't be an HTML id.",
+  "_expect": [
+    "INVALID_TABLE_ID"
+  ],
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 1,
+    "header_rows": 0,
+    "body_rows": 1,
+    "stub_cols": 0,
+    "id": "my table"
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "column_spec": [
+    {
+      "id": "a",
+      "label": "A"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": []
+    },
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

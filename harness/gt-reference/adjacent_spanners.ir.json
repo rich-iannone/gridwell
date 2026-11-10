@@ -17,7 +17,8 @@
     "page_break_mode": "avoid",
     "aria_label": null,
     "aria_describedby": null,
-    "summary": null
+    "summary": null,
+    "id": "adjacent_spanners"
   },
   "styles": {
     "defs": {},
@@ -95,9 +96,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "colgroup",
-              "sort_key": null,
-              "data_type": null
+              "scope": "colgroup"
             },
             {
               "content": [],
@@ -106,9 +105,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": true,
-              "scope": null,
-              "sort_key": null,
-              "data_type": null
+              "scope": null
             },
             {
               "content": [
@@ -122,9 +119,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "colgroup",
-              "sort_key": null,
-              "data_type": null
+              "scope": "colgroup"
             },
             {
               "content": [],
@@ -133,9 +128,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": true,
-              "scope": null,
-              "sort_key": null,
-              "data_type": null
+              "scope": null
             }
           ]
         },
@@ -155,9 +148,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -171,9 +162,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -187,9 +176,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -203,9 +190,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             }
           ]
         }
@@ -233,8 +218,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "1",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 1
@@ -253,8 +236,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "3",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 3
@@ -273,8 +254,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "5",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 5
@@ -293,8 +272,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "7",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 7
@@ -319,8 +296,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "2",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 2
@@ -339,8 +314,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "4",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 4
@@ -359,8 +332,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "6",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 6
@@ -379,8 +350,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "8",
-                "data_type": "integer",
                 "typed_value": {
                   "type": "integer",
                   "value": 8

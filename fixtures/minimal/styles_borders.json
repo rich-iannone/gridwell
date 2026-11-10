@@ -96,9 +96,9 @@
           "role": "column_label",
           "style_id": null,
           "cells": [
-            { "content": [{ "type": "text", "value": "A" }], "colspan": 1, "rowspan": 1, "style_id": "border_heavy_bottom", "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null },
-            { "content": [{ "type": "text", "value": "B" }], "colspan": 1, "rowspan": 1, "style_id": "border_heavy_bottom", "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null },
-            { "content": [{ "type": "text", "value": "C" }], "colspan": 1, "rowspan": 1, "style_id": "border_heavy_bottom", "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null }
+            { "content": [{ "type": "text", "value": "A" }], "colspan": 1, "rowspan": 1, "style_id": "border_heavy_bottom", "is_stub": false, "is_placeholder": false, "scope": "col" },
+            { "content": [{ "type": "text", "value": "B" }], "colspan": 1, "rowspan": 1, "style_id": "border_heavy_bottom", "is_stub": false, "is_placeholder": false, "scope": "col" },
+            { "content": [{ "type": "text", "value": "C" }], "colspan": 1, "rowspan": 1, "style_id": "border_heavy_bottom", "is_stub": false, "is_placeholder": false, "scope": "col" }
           ]
         }
       ]
@@ -112,25 +112,25 @@
           {
             "role": null, "style_id": null,
             "cells": [
-              { "content": [{ "type": "text", "value": "all borders" }], "typed_value": { "type": "string", "value": "all borders" }, "colspan": 1, "rowspan": 1, "style_id": "border_all", "is_stub": false, "is_placeholder": false, "data_type": "string", "sort_key": null },
-              { "content": [{ "type": "text", "value": "all borders" }], "typed_value": { "type": "string", "value": "all borders" }, "colspan": 1, "rowspan": 1, "style_id": "border_all", "is_stub": false, "is_placeholder": false, "data_type": "string", "sort_key": null },
-              { "content": [{ "type": "text", "value": "all borders" }], "typed_value": { "type": "string", "value": "all borders" }, "colspan": 1, "rowspan": 1, "style_id": "border_all", "is_stub": false, "is_placeholder": false, "data_type": "string", "sort_key": null }
+              { "content": [{ "type": "text", "value": "all borders" }], "typed_value": { "type": "string", "value": "all borders" }, "colspan": 1, "rowspan": 1, "style_id": "border_all", "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "all borders" }], "typed_value": { "type": "string", "value": "all borders" }, "colspan": 1, "rowspan": 1, "style_id": "border_all", "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "all borders" }], "typed_value": { "type": "string", "value": "all borders" }, "colspan": 1, "rowspan": 1, "style_id": "border_all", "is_stub": false, "is_placeholder": false }
             ]
           },
           {
             "role": null, "style_id": null,
             "cells": [
-              { "content": [{ "type": "text", "value": "dashed" }], "typed_value": { "type": "string", "value": "dashed" }, "colspan": 1, "rowspan": 1, "style_id": "border_dashed", "is_stub": false, "is_placeholder": false, "data_type": "string", "sort_key": null },
-              { "content": [{ "type": "text", "value": "dashed" }], "typed_value": { "type": "string", "value": "dashed" }, "colspan": 1, "rowspan": 1, "style_id": "border_dashed", "is_stub": false, "is_placeholder": false, "data_type": "string", "sort_key": null },
-              { "content": [{ "type": "text", "value": "dashed" }], "typed_value": { "type": "string", "value": "dashed" }, "colspan": 1, "rowspan": 1, "style_id": "border_dashed", "is_stub": false, "is_placeholder": false, "data_type": "string", "sort_key": null }
+              { "content": [{ "type": "text", "value": "dashed" }], "typed_value": { "type": "string", "value": "dashed" }, "colspan": 1, "rowspan": 1, "style_id": "border_dashed", "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "dashed" }], "typed_value": { "type": "string", "value": "dashed" }, "colspan": 1, "rowspan": 1, "style_id": "border_dashed", "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "dashed" }], "typed_value": { "type": "string", "value": "dashed" }, "colspan": 1, "rowspan": 1, "style_id": "border_dashed", "is_stub": false, "is_placeholder": false }
             ]
           },
           {
             "role": null, "style_id": null,
             "cells": [
-              { "content": [{ "type": "text", "value": "none" }], "typed_value": { "type": "string", "value": "none" }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "string", "sort_key": null },
-              { "content": [{ "type": "text", "value": "none" }], "typed_value": { "type": "string", "value": "none" }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "string", "sort_key": null },
-              { "content": [{ "type": "text", "value": "none" }], "typed_value": { "type": "string", "value": "none" }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "data_type": "string", "sort_key": null }
+              { "content": [{ "type": "text", "value": "none" }], "typed_value": { "type": "string", "value": "none" }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "none" }], "typed_value": { "type": "string", "value": "none" }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false },
+              { "content": [{ "type": "text", "value": "none" }], "typed_value": { "type": "string", "value": "none" }, "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false }
             ]
           }
         ],

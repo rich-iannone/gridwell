@@ -17,7 +17,8 @@
     "page_break_mode": "avoid",
     "aria_label": null,
     "aria_describedby": null,
-    "summary": null
+    "summary": null,
+    "id": "groups_and_stub"
   },
   "styles": {
     "defs": {},
@@ -90,9 +91,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -106,9 +105,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -122,9 +119,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -138,9 +133,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             }
           ]
         }
@@ -176,9 +169,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_1",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -193,8 +184,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "apricot",
-                "data_type": "string",
                 "typed_value": {
                   "type": "string",
                   "value": "apricot"
@@ -213,8 +202,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "0.11",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 0.11
@@ -233,8 +220,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "$49.95",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 49.95
@@ -258,9 +243,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_2",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -275,8 +258,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "banana",
-                "data_type": "string",
                 "typed_value": {
                   "type": "string",
                   "value": "banana"
@@ -295,8 +276,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "2.22",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 2.22
@@ -315,8 +294,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "$17.95",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 17.95
@@ -340,9 +317,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_3",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -357,8 +332,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "coconut",
-                "data_type": "string",
                 "typed_value": {
                   "type": "string",
                   "value": "coconut"
@@ -377,8 +350,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "33.33",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 33.33
@@ -397,8 +368,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "$1.39",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 1.39
@@ -422,9 +391,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_4",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -439,8 +406,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "durian",
-                "data_type": "string",
                 "typed_value": {
                   "type": "string",
                   "value": "durian"
@@ -459,8 +424,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "444.40",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 444.4
@@ -479,8 +442,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "$65,100.00",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 65100
@@ -520,9 +481,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_5",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -536,9 +495,7 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "scope": null,
-                "sort_key": null,
-                "data_type": "string"
+                "scope": null
               },
               {
                 "content": [
@@ -553,8 +510,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "5,550.00",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 5550
@@ -573,8 +528,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "$1,325.81",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 1325.81
@@ -598,9 +551,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_6",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -615,8 +566,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "fig",
-                "data_type": "string",
                 "typed_value": {
                   "type": "string",
                   "value": "fig"
@@ -634,9 +583,7 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "scope": null,
-                "sort_key": "na",
-                "data_type": "number"
+                "scope": null
               },
               {
                 "content": [
@@ -651,8 +598,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "$13.26",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 13.26
@@ -676,9 +621,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_7",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -693,8 +636,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "grapefruit",
-                "data_type": "string",
                 "typed_value": {
                   "type": "string",
                   "value": "grapefruit"
@@ -713,8 +654,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "777,000.00",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 777000
@@ -732,9 +671,7 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "scope": null,
-                "sort_key": "na",
-                "data_type": "number"
+                "scope": null
               }
             ]
           },
@@ -754,9 +691,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "row",
-                "sort_key": "row_8",
-                "data_type": "string"
+                "scope": "row"
               },
               {
                 "content": [
@@ -771,8 +706,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "honeydew",
-                "data_type": "string",
                 "typed_value": {
                   "type": "string",
                   "value": "honeydew"
@@ -791,8 +724,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "8,880,000.00",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 8880000
@@ -811,8 +742,6 @@
                 "is_stub": false,
                 "is_placeholder": false,
                 "scope": null,
-                "sort_key": "$0.44",
-                "data_type": "number",
                 "typed_value": {
                   "type": "number",
                   "value": 0.44

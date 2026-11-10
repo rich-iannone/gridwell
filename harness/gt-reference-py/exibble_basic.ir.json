@@ -17,7 +17,8 @@
     "page_break_mode": "avoid",
     "aria_label": null,
     "aria_describedby": null,
-    "summary": null
+    "summary": null,
+    "id": "exibble_basic"
   },
   "styles": {
     "defs": {},
@@ -150,9 +151,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -166,9 +165,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -182,9 +179,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -198,9 +193,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -214,9 +207,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -230,9 +221,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -246,9 +235,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -262,9 +249,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -278,9 +263,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             }
           ]
         }
@@ -307,8 +290,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "0.1111",
                 "typed_value": {
                   "type": "number",
                   "value": 0.1111
@@ -326,8 +307,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "apricot",
                 "typed_value": {
                   "type": "string",
                   "value": "apricot"
@@ -345,8 +324,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "one",
                 "typed_value": {
                   "type": "string",
                   "value": "one"
@@ -364,8 +341,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2015-01-15",
                 "typed_value": {
                   "type": "string",
                   "value": "2015-01-15"
@@ -383,8 +358,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "13:35",
                 "typed_value": {
                   "type": "string",
                   "value": "13:35"
@@ -402,8 +375,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2018-01-01 02:22",
                 "typed_value": {
                   "type": "string",
                   "value": "2018-01-01 02:22"
@@ -421,8 +392,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "49.95",
                 "typed_value": {
                   "type": "number",
                   "value": 49.95
@@ -440,8 +409,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "row_1",
                 "typed_value": {
                   "type": "string",
                   "value": "row_1"
@@ -459,8 +426,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "grp_a",
                 "typed_value": {
                   "type": "string",
                   "value": "grp_a"
@@ -484,8 +449,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "2.222",
                 "typed_value": {
                   "type": "number",
                   "value": 2.222
@@ -503,8 +466,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "banana",
                 "typed_value": {
                   "type": "string",
                   "value": "banana"
@@ -522,8 +483,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "two",
                 "typed_value": {
                   "type": "string",
                   "value": "two"
@@ -541,8 +500,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2015-02-15",
                 "typed_value": {
                   "type": "string",
                   "value": "2015-02-15"
@@ -560,8 +517,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "14:40",
                 "typed_value": {
                   "type": "string",
                   "value": "14:40"
@@ -579,8 +534,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2018-02-02 14:33",
                 "typed_value": {
                   "type": "string",
                   "value": "2018-02-02 14:33"
@@ -598,8 +551,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "17.95",
                 "typed_value": {
                   "type": "number",
                   "value": 17.95
@@ -617,8 +568,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "row_2",
                 "typed_value": {
                   "type": "string",
                   "value": "row_2"
@@ -636,8 +585,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "grp_a",
                 "typed_value": {
                   "type": "string",
                   "value": "grp_a"
@@ -661,8 +608,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "33.33",
                 "typed_value": {
                   "type": "number",
                   "value": 33.33
@@ -680,8 +625,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "coconut",
                 "typed_value": {
                   "type": "string",
                   "value": "coconut"
@@ -699,8 +642,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "three",
                 "typed_value": {
                   "type": "string",
                   "value": "three"
@@ -718,8 +659,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2015-03-15",
                 "typed_value": {
                   "type": "string",
                   "value": "2015-03-15"
@@ -737,8 +676,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "15:45",
                 "typed_value": {
                   "type": "string",
                   "value": "15:45"
@@ -756,8 +693,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2018-03-03 03:44",
                 "typed_value": {
                   "type": "string",
                   "value": "2018-03-03 03:44"
@@ -775,8 +710,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "1.39",
                 "typed_value": {
                   "type": "number",
                   "value": 1.39
@@ -794,8 +727,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "row_3",
                 "typed_value": {
                   "type": "string",
                   "value": "row_3"
@@ -813,8 +744,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "grp_a",
                 "typed_value": {
                   "type": "string",
                   "value": "grp_a"
@@ -838,8 +767,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "444.4",
                 "typed_value": {
                   "type": "number",
                   "value": 444.4
@@ -857,8 +784,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "durian",
                 "typed_value": {
                   "type": "string",
                   "value": "durian"
@@ -876,8 +801,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "four",
                 "typed_value": {
                   "type": "string",
                   "value": "four"
@@ -895,8 +818,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2015-04-15",
                 "typed_value": {
                   "type": "string",
                   "value": "2015-04-15"
@@ -914,8 +835,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "16:50",
                 "typed_value": {
                   "type": "string",
                   "value": "16:50"
@@ -933,8 +852,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2018-04-04 15:55",
                 "typed_value": {
                   "type": "string",
                   "value": "2018-04-04 15:55"
@@ -952,8 +869,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "65100.0",
                 "typed_value": {
                   "type": "number",
                   "value": 65100.0
@@ -971,8 +886,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "row_4",
                 "typed_value": {
                   "type": "string",
                   "value": "row_4"
@@ -990,8 +903,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "grp_a",
                 "typed_value": {
                   "type": "string",
                   "value": "grp_a"
@@ -1015,8 +926,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "5550.0",
                 "typed_value": {
                   "type": "number",
                   "value": 5550.0
@@ -1033,9 +942,7 @@
                 "rowspan": 1,
                 "style_id": null,
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": null,
-                "sort_key": null
+                "is_placeholder": false
               },
               {
                 "content": [
@@ -1049,8 +956,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "five",
                 "typed_value": {
                   "type": "string",
                   "value": "five"
@@ -1068,8 +973,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2015-05-15",
                 "typed_value": {
                   "type": "string",
                   "value": "2015-05-15"
@@ -1087,8 +990,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "17:55",
                 "typed_value": {
                   "type": "string",
                   "value": "17:55"
@@ -1106,8 +1007,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2018-05-05 04:00",
                 "typed_value": {
                   "type": "string",
                   "value": "2018-05-05 04:00"
@@ -1125,8 +1024,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "1325.81",
                 "typed_value": {
                   "type": "number",
                   "value": 1325.81
@@ -1144,8 +1041,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "row_5",
                 "typed_value": {
                   "type": "string",
                   "value": "row_5"
@@ -1163,8 +1058,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "grp_b",
                 "typed_value": {
                   "type": "string",
                   "value": "grp_b"
@@ -1187,9 +1080,7 @@
                 "rowspan": 1,
                 "style_id": null,
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": null,
-                "sort_key": null
+                "is_placeholder": false
               },
               {
                 "content": [
@@ -1203,8 +1094,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "fig",
                 "typed_value": {
                   "type": "string",
                   "value": "fig"
@@ -1222,8 +1111,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "six",
                 "typed_value": {
                   "type": "string",
                   "value": "six"
@@ -1241,8 +1128,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2015-06-15",
                 "typed_value": {
                   "type": "string",
                   "value": "2015-06-15"
@@ -1259,9 +1144,7 @@
                 "rowspan": 1,
                 "style_id": null,
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": null,
-                "sort_key": null
+                "is_placeholder": false
               },
               {
                 "content": [
@@ -1275,8 +1158,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2018-06-06 16:11",
                 "typed_value": {
                   "type": "string",
                   "value": "2018-06-06 16:11"
@@ -1294,8 +1175,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "13.255",
                 "typed_value": {
                   "type": "number",
                   "value": 13.255
@@ -1313,8 +1192,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "row_6",
                 "typed_value": {
                   "type": "string",
                   "value": "row_6"
@@ -1332,8 +1209,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "grp_b",
                 "typed_value": {
                   "type": "string",
                   "value": "grp_b"
@@ -1357,8 +1232,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "777000.0",
                 "typed_value": {
                   "type": "number",
                   "value": 777000.0
@@ -1376,8 +1249,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "grapefruit",
                 "typed_value": {
                   "type": "string",
                   "value": "grapefruit"
@@ -1395,8 +1266,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "seven",
                 "typed_value": {
                   "type": "string",
                   "value": "seven"
@@ -1413,9 +1282,7 @@
                 "rowspan": 1,
                 "style_id": null,
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": null,
-                "sort_key": null
+                "is_placeholder": false
               },
               {
                 "content": [
@@ -1429,8 +1296,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "19:10",
                 "typed_value": {
                   "type": "string",
                   "value": "19:10"
@@ -1448,8 +1313,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2018-07-07 05:22",
                 "typed_value": {
                   "type": "string",
                   "value": "2018-07-07 05:22"
@@ -1466,9 +1329,7 @@
                 "rowspan": 1,
                 "style_id": null,
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": null,
-                "sort_key": null
+                "is_placeholder": false
               },
               {
                 "content": [
@@ -1482,8 +1343,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "row_7",
                 "typed_value": {
                   "type": "string",
                   "value": "row_7"
@@ -1501,8 +1360,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "grp_b",
                 "typed_value": {
                   "type": "string",
                   "value": "grp_b"
@@ -1526,8 +1383,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "8880000.0",
                 "typed_value": {
                   "type": "number",
                   "value": 8880000.0
@@ -1545,8 +1400,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "honeydew",
                 "typed_value": {
                   "type": "string",
                   "value": "honeydew"
@@ -1564,8 +1417,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "eight",
                 "typed_value": {
                   "type": "string",
                   "value": "eight"
@@ -1583,8 +1434,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "2015-08-15",
                 "typed_value": {
                   "type": "string",
                   "value": "2015-08-15"
@@ -1602,8 +1451,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "20:20",
                 "typed_value": {
                   "type": "string",
                   "value": "20:20"
@@ -1620,9 +1467,7 @@
                 "rowspan": 1,
                 "style_id": null,
                 "is_stub": false,
-                "is_placeholder": false,
-                "data_type": null,
-                "sort_key": null
+                "is_placeholder": false
               },
               {
                 "content": [
@@ -1636,8 +1481,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "number",
-                "sort_key": "0.44",
                 "typed_value": {
                   "type": "number",
                   "value": 0.44
@@ -1655,8 +1498,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "row_8",
                 "typed_value": {
                   "type": "string",
                   "value": "row_8"
@@ -1674,8 +1515,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "grp_b",
                 "typed_value": {
                   "type": "string",
                   "value": "grp_b"

@@ -46,8 +46,8 @@
           "role": "column_label",
           "style_id": null,
           "cells": [
-            { "content": [{ "type": "text", "value": "Label" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null },
-            { "content": [{ "type": "text", "value": "Content" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col", "sort_key": null, "data_type": null }
+            { "content": [{ "type": "text", "value": "Label" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col" },
+            { "content": [{ "type": "text", "value": "Content" }], "colspan": 1, "rowspan": 1, "style_id": null, "is_stub": false, "is_placeholder": false, "scope": "col" }
           ]
         }
       ]
@@ -65,8 +65,7 @@
                 "content": [{ "type": "text", "value": "Rich content" }],
                 "typed_value": null,
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": null, "sort_key": null
+                "is_stub": false, "is_placeholder": false
               },
               {
                 "content": [
@@ -78,8 +77,7 @@
                 ],
                 "typed_value": null,
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": null, "sort_key": null
+                "is_stub": false, "is_placeholder": false
               }
             ]
           },
@@ -90,8 +88,7 @@
                 "content": [{ "type": "text", "value": "Image cell" }],
                 "typed_value": null,
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": null, "sort_key": null
+                "is_stub": false, "is_placeholder": false
               },
               {
                 "content": [
@@ -100,8 +97,7 @@
                 ],
                 "typed_value": null,
                 "colspan": 1, "rowspan": 1, "style_id": null,
-                "is_stub": false, "is_placeholder": false,
-                "data_type": null, "sort_key": null
+                "is_stub": false, "is_placeholder": false
               }
             ]
           }

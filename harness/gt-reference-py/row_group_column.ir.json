@@ -17,7 +17,8 @@
     "page_break_mode": "avoid",
     "aria_label": null,
     "aria_describedby": null,
-    "summary": null
+    "summary": null,
+    "id": "row_group_column"
   },
   "styles": {
     "defs": {
@@ -102,9 +103,7 @@
               "style_id": "gw_1",
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "colgroup",
-              "sort_key": null,
-              "data_type": null
+              "scope": "colgroup"
             },
             {
               "content": [],
@@ -113,9 +112,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": true,
-              "scope": null,
-              "sort_key": null,
-              "data_type": null
+              "scope": null
             },
             {
               "content": [
@@ -129,9 +126,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             },
             {
               "content": [
@@ -145,9 +140,7 @@
               "style_id": null,
               "is_stub": false,
               "is_placeholder": false,
-              "scope": "col",
-              "sort_key": null,
-              "data_type": null
+              "scope": "col"
             }
           ]
         }
@@ -174,9 +167,7 @@
                 "style_id": "gw_2",
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "rowgroup",
-                "data_type": null,
-                "sort_key": null
+                "scope": "rowgroup"
               },
               {
                 "content": [
@@ -190,8 +181,6 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "paris",
                 "scope": "row"
               },
               {
@@ -206,8 +195,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": "12",
                 "typed_value": {
                   "type": "integer",
                   "value": 12
@@ -225,8 +212,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": "140",
                 "typed_value": {
                   "type": "integer",
                   "value": 140
@@ -245,9 +230,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": true,
-                "scope": null,
-                "data_type": null,
-                "sort_key": null
+                "scope": null
               },
               {
                 "content": [
@@ -261,8 +244,6 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "lyon",
                 "scope": "row"
               },
               {
@@ -277,8 +258,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": "4",
                 "typed_value": {
                   "type": "integer",
                   "value": 4
@@ -296,8 +275,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": "38",
                 "typed_value": {
                   "type": "integer",
                   "value": 38
@@ -316,9 +293,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": true,
-                "scope": null,
-                "data_type": null,
-                "sort_key": null
+                "scope": null
               },
               {
                 "content": [
@@ -332,8 +307,6 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "berlin",
                 "scope": "row"
               },
               {
@@ -348,8 +321,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": "9",
                 "typed_value": {
                   "type": "integer",
                   "value": 9
@@ -367,8 +338,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": "95",
                 "typed_value": {
                   "type": "integer",
                   "value": 95
@@ -399,9 +368,7 @@
                 "style_id": "gw_2",
                 "is_stub": true,
                 "is_placeholder": false,
-                "scope": "rowgroup",
-                "data_type": null,
-                "sort_key": null
+                "scope": "rowgroup"
               },
               {
                 "content": [
@@ -415,8 +382,6 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "tokyo",
                 "scope": "row"
               },
               {
@@ -431,8 +396,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": "20",
                 "typed_value": {
                   "type": "integer",
                   "value": 20
@@ -450,8 +413,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": "260",
                 "typed_value": {
                   "type": "integer",
                   "value": 260
@@ -470,9 +431,7 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": true,
-                "scope": null,
-                "data_type": null,
-                "sort_key": null
+                "scope": null
               },
               {
                 "content": [
@@ -486,8 +445,6 @@
                 "style_id": null,
                 "is_stub": true,
                 "is_placeholder": false,
-                "data_type": "string",
-                "sort_key": "osaka",
                 "scope": "row"
               },
               {
@@ -502,8 +459,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": "7",
                 "typed_value": {
                   "type": "integer",
                   "value": 7
@@ -521,8 +476,6 @@
                 "style_id": null,
                 "is_stub": false,
                 "is_placeholder": false,
-                "data_type": "integer",
-                "sort_key": "81",
                 "typed_value": {
                   "type": "integer",
                   "value": 81
