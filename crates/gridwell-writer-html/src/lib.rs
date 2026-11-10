@@ -30,8 +30,9 @@ pub struct HtmlWriterConfig {
     /// prefix (`{table_id}-`) of every id the writer makes (header cells, the
     /// title and subtitle), so they stay unique on a page holding several tables.
     /// The style block's rules are scoped to the container (`#{table_id} …`), so
-    /// such tables can't restyle each other either. Without one, the ids are
-    /// unprefixed and the rules apply page-wide.
+    /// such tables can't restyle each other either. Unset, the table's own id
+    /// (`config.id`) is used; without either, the ids are unprefixed and the rules
+    /// apply page-wide.
     pub table_id: Option<String>,
     /// Mark the table `data-quarto-disable-processing="true"`, as gt's
     /// `quarto.disable_processing`, so Quarto leaves it as written. Otherwise
