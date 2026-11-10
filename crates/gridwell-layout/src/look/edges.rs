@@ -10,14 +10,14 @@
 //!
 //! A cell carries the rule unless its style sets or removes that side, or (under
 //! the column labels) a cell across the edge from it sets its own border there.
-//! The head's edge is between the head cells reaching its bottom and the first
-//! row of the first group, unless that group starts with its label: a group
-//! label draws rules of its own, so it is never part of an edge. With no body, the
-//! head's bottom is the table's.
+//! The head's edge is between the head cells reaching its bottom and the row
+//! under the head, unless that is a group label: a group label draws rules of its
+//! own, so it is never part of an edge. With no body, the head's bottom is the
+//! table's.
 
-use std::collections::HashSet;
+use std::collections::HashMap;
 
-use crate::{ResolvedCell, ResolvedTable, Section};
+use crate::{ResolvedCell, ResolvedTable, Section, SectionKind};
 
 /// The part of the table a row is in.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -27,6 +27,28 @@ pub enum EdgePart {
     Rows(usize),
     /// Group `g`'s summary rows.
     Summary(usize),
+}
+
+impl EdgePart {
+    /// The part section `s` of group `g` is (the head, whatever `g`).
+    pub fn of(g: usize, s: &Section) -> Self {
+        match s.kind {
+            SectionKind::Head => EdgePart::Head,
+            SectionKind::Body => EdgePart::Rows(g),
+            SectionKind::Summary => EdgePart::Summary(g),
+        }
+    }
+}
+
+/// One of the table's edges that its cells may draw.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Edge {
+    /// The table's top.
+    Top,
+    /// The bottom of the column labels.
+    Head,
+    /// The table's bottom (also the head's, when the table has no body).
+    Bottom,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -45,8 +67,9 @@ pub struct EdgeRules {
     pub head: bool,
     /// The table's bottom is drawn by its last cells.
     pub bottom: bool,
-    /// (part, row in the part, column, side) of each cell carrying the rule.
-    carriers: HashSet<(EdgePart, usize, usize, Side)>,
+    /// (part, row in the part, column, side) of each cell carrying the rule, and
+    /// the edge it is on.
+    carriers: HashMap<(EdgePart, usize, usize, Side), Edge>,
 }
 
 /// A cell and where it starts.
@@ -112,31 +135,25 @@ impl EdgeRules {
             if group.label.is_some() {
                 parts.push(None);
             }
-            for (part, s) in [
-                (EdgePart::Rows(g), &group.rows),
-                (EdgePart::Summary(g), &group.summary_rows),
-            ] {
+            for s in group.sections() {
                 if !s.is_empty() {
-                    parts.push(Some((part, s)));
+                    parts.push(Some((EdgePart::of(g, s), s)));
                 }
             }
         }
         if let Some(&Some((part, s))) = parts.first() {
-            out.top = out.outer(&first_row(part, s), Side::Top);
+            out.top = out.outer(&first_row(part, s), Side::Top, Edge::Top);
         }
         if let Some(&Some((part, s))) = parts.last() {
-            out.bottom = out.outer(&last_row(part, s), Side::Bottom);
+            out.bottom = out.outer(&last_row(part, s), Side::Bottom, Edge::Bottom);
         }
         if parts.len() == 1 && !rt.head.is_empty() {
             // Only column labels: their bottom is the table's.
             out.head = out.bottom;
         } else if !rt.head.is_empty() {
             let upper = last_row(EdgePart::Head, &rt.head);
-            let lower = match rt.groups.first() {
-                Some(g) if g.label.is_none() && !g.rows.is_empty() => {
-                    first_row(EdgePart::Rows(0), &g.rows)
-                }
-                Some(g) if g.label.is_none() => first_row(EdgePart::Summary(0), &g.summary_rows),
+            let lower = match parts.get(1) {
+                Some(&Some((part, s))) => first_row(part, s),
                 _ => Vec::new(),
             };
             out.head = out.inner(&upper, &lower);
@@ -145,12 +162,13 @@ impl EdgeRules {
     }
 
     /// The table's top or bottom: whether its cells draw it.
-    fn outer(&mut self, cells: &[At], side: Side) -> bool {
+    fn outer(&mut self, cells: &[At], side: Side, edge: Edge) -> bool {
         if !cells.iter().any(|c| c.sets(side)) {
             return false;
         }
         for c in cells.iter().filter(|c| !c.sets(side) && !c.clears(side)) {
-            self.carriers.insert((c.part, c.row, c.cell.col, side));
+            self.carriers
+                .insert((c.part, c.row, c.cell.col, side), edge);
         }
         true
     }
@@ -169,23 +187,35 @@ impl EdgeRules {
                     && !c.clears(side)
                     && !across.iter().any(|a| a.overlaps(c) && a.sets(facing))
                 {
-                    self.carriers.insert((c.part, c.row, c.cell.col, side));
+                    self.carriers
+                        .insert((c.part, c.row, c.cell.col, side), Edge::Head);
                 }
             }
         }
         true
     }
 
-    /// Whether the cell starting at `row` and `col` of `part` draws the section
-    /// rule on its top edge (which is then one its cells draw).
+    /// Whether the cell starting at `row` and `col` of `part` draws the rule on
+    /// its top edge (which is then one its cells draw).
     pub fn carries_top(&self, part: EdgePart, row: usize, col: usize) -> bool {
-        self.carriers.contains(&(part, row, col, Side::Top))
+        self.carried_top(part, row, col).is_some()
     }
 
-    /// Whether the cell starting at `row` and `col` of `part` draws the section
-    /// rule on its bottom edge.
+    /// Whether the cell starting at `row` and `col` of `part` draws the rule on
+    /// its bottom edge.
     pub fn carries_bottom(&self, part: EdgePart, row: usize, col: usize) -> bool {
-        self.carriers.contains(&(part, row, col, Side::Bottom))
+        self.carried_bottom(part, row, col).is_some()
+    }
+
+    /// The edge whose rule the cell starting at `row` and `col` of `part` draws on
+    /// its top, if it carries one.
+    pub fn carried_top(&self, part: EdgePart, row: usize, col: usize) -> Option<Edge> {
+        self.carriers.get(&(part, row, col, Side::Top)).copied()
+    }
+
+    /// The edge whose rule the cell draws on its bottom, if it carries one.
+    pub fn carried_bottom(&self, part: EdgePart, row: usize, col: usize) -> Option<Edge> {
+        self.carriers.get(&(part, row, col, Side::Bottom)).copied()
     }
 }
 
