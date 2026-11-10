@@ -16,6 +16,8 @@
 //!   edges, where the spanner also has no outer padding.
 //! - [`Look::grand_summary_rule`]: above the first grand summary row.
 //!
+//! A table's `config.rules` change these rules ([`TableRules`]).
+//!
 //! A cell's own border replaces the rule on its edge. On the table's top and
 //! bottom and under the head, once a cell sets its own border, the edge is drawn by
 //! its cells ([`EdgeRules`]). [`BaseRules`] puts the rules on the row boundaries
@@ -27,17 +29,173 @@
 pub mod edges;
 pub mod rules;
 
-pub use edges::{EdgePart, EdgeRules};
-use gridwell_core::Color;
+pub use edges::{Edge, EdgePart, EdgeRules};
+use gridwell_core::{Color, Length};
+use gridwell_ir::{BorderStyle, Table};
 pub use rules::{BaseRules, OwnEdges};
 
 /// A horizontal or vertical line.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Rule {
+    /// Always positive and finite.
     pub width_px: f64,
     pub color: Color,
-    /// Two lines with a gap between (CSS `double`); otherwise solid.
-    pub double: bool,
+    pub style: LineStyle,
+}
+
+impl Rule {
+    /// Two lines with a gap between (CSS `double`).
+    pub fn is_double(&self) -> bool {
+        self.style == LineStyle::Double
+    }
+}
+
+/// How a rule is drawn.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LineStyle {
+    Solid,
+    Dashed,
+    Dotted,
+    /// Two lines with a gap between; only on rules at least 3px wide (CSS draws a
+    /// narrower one solid, and so does [`TableRules`]).
+    Double,
+}
+
+impl LineStyle {
+    /// The style's CSS name.
+    pub fn css(self) -> &'static str {
+        match self {
+            LineStyle::Solid => "solid",
+            LineStyle::Dashed => "dashed",
+            LineStyle::Dotted => "dotted",
+            LineStyle::Double => "double",
+        }
+    }
+
+    /// Where two rules meet, CSS's collapsed borders draw the stronger style of
+    /// two equally wide ones: double, then solid, dashed and dotted.
+    fn strength(self) -> u8 {
+        match self {
+            LineStyle::Double => 3,
+            LineStyle::Solid => 2,
+            LineStyle::Dashed => 1,
+            LineStyle::Dotted => 0,
+        }
+    }
+}
+
+/// The rules of one table: the default look's, each changed by the table's
+/// `config.rules`. A field a rule there sets replaces that field of the default
+/// (an invalid value changes nothing), and a `style` of `none` or `hidden`, or a
+/// width of 0, removes the rule (`None`). The names are `config.rules`'.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TableRules {
+    /// [`Look::outer_rule`] above the heading.
+    pub title: Option<Rule>,
+    /// [`Look::section_rule`] on the table's top.
+    pub top: Option<Rule>,
+    /// [`Look::section_rule`] under the column labels.
+    pub column_labels: Option<Rule>,
+    /// [`Look::spanner_rule`].
+    pub spanners: Option<Rule>,
+    /// [`Look::section_rule`] above and below each group label.
+    pub group: Option<Rule>,
+    /// [`Look::row_rule`].
+    pub rows: Option<Rule>,
+    /// [`Look::section_rule`] after the stub.
+    pub stub: Option<Rule>,
+    /// [`Look::section_rule`] between a group's summary rows and its data rows.
+    pub summary: Option<Rule>,
+    /// [`Look::grand_summary_rule`].
+    pub grand_summary: Option<Rule>,
+    /// [`Look::section_rule`] on the table's bottom.
+    pub bottom: Option<Rule>,
+    /// [`Look::outer_rule`] below the footer.
+    pub notes: Option<Rule>,
+}
+
+/// The default look's rules, which `config.rules` change.
+pub const DEFAULT_RULES: TableRules = TableRules {
+    title: Some(LOOK.outer_rule),
+    top: Some(LOOK.section_rule),
+    column_labels: Some(LOOK.section_rule),
+    spanners: Some(LOOK.spanner_rule),
+    group: Some(LOOK.section_rule),
+    rows: Some(LOOK.row_rule),
+    stub: Some(LOOK.section_rule),
+    summary: Some(LOOK.section_rule),
+    grand_summary: Some(LOOK.grand_summary_rule),
+    bottom: Some(LOOK.section_rule),
+    notes: Some(LOOK.outer_rule),
+};
+
+impl TableRules {
+    /// The table's rules. See the type's docs.
+    pub fn new(table: &Table) -> Self {
+        let mut out = DEFAULT_RULES;
+        let Some(set) = &table.config.rules else {
+            return out;
+        };
+        let pairs = [
+            (&mut out.title, &set.title),
+            (&mut out.top, &set.top),
+            (&mut out.column_labels, &set.column_labels),
+            (&mut out.spanners, &set.spanners),
+            (&mut out.group, &set.group),
+            (&mut out.rows, &set.rows),
+            (&mut out.stub, &set.stub),
+            (&mut out.summary, &set.summary),
+            (&mut out.grand_summary, &set.grand_summary),
+            (&mut out.bottom, &set.bottom),
+            (&mut out.notes, &set.notes),
+        ];
+        for (rule, border) in pairs {
+            if let (Some(r), Some(b)) = (rule.as_mut(), border) {
+                *rule = changed(*r, b);
+            }
+        }
+        out
+    }
+}
+
+/// `rule` with what `b` sets changed. See [`TableRules`].
+fn changed(mut rule: Rule, b: &gridwell_ir::style::Border) -> Option<Rule> {
+    match &b.style {
+        Some(BorderStyle::None | BorderStyle::Hidden) => return None,
+        Some(BorderStyle::Solid) => rule.style = LineStyle::Solid,
+        Some(BorderStyle::Dashed) => rule.style = LineStyle::Dashed,
+        Some(BorderStyle::Dotted) => rule.style = LineStyle::Dotted,
+        Some(BorderStyle::Double) => rule.style = LineStyle::Double,
+        Some(BorderStyle::Unknown(_)) | None => {}
+    }
+    let width = b.width.as_deref().and_then(|w| w.parse::<Length>().ok());
+    // In px, with em (and rem) of the look's font size.
+    let pt = LOOK.font_size_px * 0.75;
+    match width.and_then(|w| w.to_pt(pt, pt)).map(|pt| pt / 0.75) {
+        Some(0.0) => return None,
+        Some(px) if px > 0.0 && px.is_finite() => rule.width_px = px,
+        _ => {}
+    }
+    if let Some(c) = b.color.as_deref().and_then(|c| c.parse::<Color>().ok()) {
+        rule.color = c;
+    }
+    if rule.style == LineStyle::Double && rule.width_px < 3.0 {
+        rule.style = LineStyle::Solid;
+    }
+    Some(rule)
+}
+
+/// Where two rules meet, whether `a` is drawn over `b`, as CSS's collapsed borders
+/// decide: the wider wins, then the stronger style ([`LineStyle`]); `None` if
+/// neither does.
+pub fn stronger(a: &Rule, b: &Rule) -> Option<bool> {
+    if a.width_px != b.width_px {
+        Some(a.width_px > b.width_px)
+    } else if a.style != b.style {
+        Some(a.style.strength() > b.style.strength())
+    } else {
+        None
+    }
 }
 
 /// Padding around a box, in px.
@@ -100,7 +258,7 @@ const fn solid(width_px: f64, color: Color) -> Rule {
     Rule {
         width_px,
         color,
-        double: false,
+        style: LineStyle::Solid,
     }
 }
 
@@ -135,7 +293,7 @@ pub const LOOK: Look = Look {
     grand_summary_rule: Rule {
         width_px: 6.0,
         color: LIGHT,
-        double: true,
+        style: LineStyle::Double,
     },
 };
 
