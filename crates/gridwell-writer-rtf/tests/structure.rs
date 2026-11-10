@@ -159,6 +159,29 @@ fn merged_cells_are_outlined_once() {
 }
 
 #[test]
+fn every_row_is_placed_alike() {
+    // Every row at RTF's default place (left, not indented), where the title and
+    // notes start: a reader that places the table by one row (LibreOffice
+    // centers the whole table when a row is `\trqc`) or row by row (Word) puts
+    // it in one piece, under its title.
+    for ex in examples() {
+        let rtf = render_rtf(&ex.table()).unwrap();
+        let rows = cell_defs(&rtf);
+        assert!(!rows.is_empty(), "{}", ex.name);
+        for row in &rows {
+            for word in ["\\trq", "\\trleft"] {
+                assert!(
+                    !row[0].contains(word),
+                    "{}: a row placed by {word}: {}",
+                    ex.name,
+                    row[0]
+                );
+            }
+        }
+    }
+}
+
+#[test]
 fn every_piece_of_a_merged_cell_is_aligned() {
     let rtf = render_rtf(&styled_merge()).unwrap();
     let rows = cell_defs(&rtf);
