@@ -16,7 +16,7 @@ use gridwell_testkit::{
 /// Text of a cell's single text node.
 fn text(content: &[gridwell_ir::content::ContentNode]) -> String {
     match content {
-        [gridwell_ir::content::ContentNode::Text { value }] => value.clone(),
+        [gridwell_ir::content::ContentNode::Text { value, .. }] => value.clone(),
         _ => String::new(),
     }
 }
