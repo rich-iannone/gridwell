@@ -13,8 +13,8 @@
 //! | Tier | Checks |
 //! |---|---|
 //! | L0 valid | the IR parses, and validation finds no errors |
-//! | L1 structure | columns and stub; header lines; head rows and spans; groups and their labels; row roles; data and summary rows; cell text |
-//! | L2 content | runs (inline styles, line breaks, images, raw content), footnote marks (placement, order, `mark_text`) and each footnote's mark, typed values, `data_type`, `sort_key`, `scope`, column and group ids, `lang` and `dir` |
+//! | L1 structure | columns and stub; header lines; head rows and spans; groups and their labels; row roles; data and summary rows, and summary rows at the top; cell text |
+//! | L2 content | runs (inline styles, line breaks, images, raw content), footnote marks (placement, order, `mark_text`) and each footnote's mark, typed values, `scope`, column and group ids, `lang` and `dir` |
 //! | L3 styling | each cell's, line's and run's resolved style; alignment; column, table and image sizes |
 //!
 //! Each tier includes the ones below it: a table passes L2 if nothing differs at
@@ -405,8 +405,7 @@ fn plural(n: usize, what: &str) -> String {
 fn key_tier(key: &str) -> Tier {
     match key {
         "id" | "group_id" | "scope" | "runs" | "mark" | "footnote" | "mark_text" | "line_break"
-        | "image" | "raw" | "unknown" | "typed_value" | "data_type" | "sort_key" | "lang"
-        | "dir" => Tier::L2,
+        | "image" | "raw" | "unknown" | "typed_value" | "lang" | "dir" => Tier::L2,
         "style" | "align" | "align_char" | "width" | "min_width" | "max_width" | "height"
         | "table_width" => Tier::L3,
         _ => Tier::L1,
@@ -530,12 +529,18 @@ fn grid(table: &ValidatedTable<'_>) -> Value {
         .groups
         .iter()
         .map(|g| {
-            json!({
+            let mut group = json!({
                 "group_id": g.id,
                 "label": n.opt_line(g.label.as_ref()),
                 "rows": n.rows(&g.rows.rows, false),
                 "summary_rows": n.rows(&g.summary_rows.rows, false),
-            })
+            });
+            // Only when the summary rows are at the top, so a grid written before
+            // there was a placement still says the same.
+            if g.summary_top {
+                group["summary_placement"] = json!("top");
+            }
+            group
         })
         .collect();
     grid.insert("groups".into(), Value::Array(groups));
@@ -600,18 +605,11 @@ impl Normalizer<'_, '_> {
         }
         m.extend(self.content(&c.content, &c.style));
         m.insert("align".into(), json!(c.align.as_str()));
-        let cell = c.cell;
         if let Some(tv) = c.typed_value {
             m.insert(
                 "typed_value".into(),
                 json!({"type": tv.value_type.as_str(), "value": canonical(&tv.value)}),
             );
-        }
-        if let Some(t) = &cell.data_type {
-            m.insert("data_type".into(), json!(t.as_str()));
-        }
-        if let Some(k) = &cell.sort_key {
-            m.insert("sort_key".into(), canonical(k));
         }
         Value::Object(m)
     }
@@ -631,10 +629,14 @@ impl Normalizer<'_, '_> {
         let mut runs: Vec<Value> = Vec::new();
         for node in nodes {
             let run = match node {
-                ContentNode::Text { value } => text_run(value, None),
-                ContentNode::StyledText { value, style_id } => {
+                ContentNode::Text { value, href } => text_run(value, None, href),
+                ContentNode::StyledText {
+                    value,
+                    style_id,
+                    href,
+                } => {
                     let style = style_id.as_deref().map(|id| self.r.style(id));
-                    text_run(value, style.as_ref().and_then(style_value))
+                    text_run(value, style.as_ref().and_then(style_value), href)
                 }
                 ContentNode::LineBreak {} => json!({"line_break": true}),
                 ContentNode::FootnoteMark {
@@ -672,9 +674,14 @@ impl Normalizer<'_, '_> {
             if run.get("text").and_then(Value::as_str) == Some("") && run.get("raw").is_none() {
                 continue;
             }
-            // Text in one style is one run, however it's split into nodes.
+            // Text in one style (and link) is one run, however it's split into
+            // nodes.
             if let (Some(last), Some(text)) = (runs.last_mut(), run.get("text")) {
-                if is_text_run(last) && is_text_run(&run) && last.get("style") == run.get("style") {
+                if is_text_run(last)
+                    && is_text_run(&run)
+                    && last.get("style") == run.get("style")
+                    && last.get("href") == run.get("href")
+                {
                     let joined = format!(
                         "{}{}",
                         last["text"].as_str().unwrap_or(""),
@@ -690,18 +697,25 @@ impl Normalizer<'_, '_> {
     }
 }
 
-fn text_run(value: &str, style: Option<Value>) -> Value {
+/// A text run; its `href` as the URL writers link to, when it is a link.
+fn text_run(value: &str, style: Option<Value>, href: &Option<String>) -> Value {
     let mut m = Map::new();
     m.insert("text".into(), json!(value));
     if let Some(s) = style {
         m.insert("style".into(), s);
     }
+    if let Some(url) = href.as_deref().and_then(gridwell_core::link::link_url) {
+        m.insert("href".into(), json!(url));
+    }
     Value::Object(m)
 }
 
 fn is_text_run(run: &Value) -> bool {
-    run.as_object()
-        .is_some_and(|m| m.contains_key("text") && m.keys().all(|k| k == "text" || k == "style"))
+    run.as_object().is_some_and(|m| {
+        m.contains_key("text")
+            && m.keys()
+                .all(|k| matches!(k.as_str(), "text" | "style" | "href"))
+    })
 }
 
 /// The text a reader sees (L1): text nodes and line breaks, without footnote
@@ -711,7 +725,7 @@ fn text(nodes: &[ContentNode]) -> String {
     let mut s = String::new();
     for node in nodes {
         match node {
-            ContentNode::Text { value } | ContentNode::StyledText { value, .. } => {
+            ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. } => {
                 s.push_str(value)
             }
             ContentNode::LineBreak {} => s.push('\n'),
@@ -1091,6 +1105,17 @@ mod tests {
         );
         // The stubhead isn't a stub cell: the column says it's the stub's.
         assert_eq!(grid["head"][0]["cells"][0], json!({"col": 0, "text": "A"}));
+        // Where the summary rows are: said only when at the top, and checked at L1.
+        assert!(grid["groups"][0].get("summary_placement").is_none());
+        let mut top = ir.clone();
+        top["table"]["tbody"][0]["summary_placement"] = json!("top");
+        let t = grid_of(&top, Tier::L1);
+        assert_eq!(t["grid"]["groups"][0]["summary_placement"], "top");
+        let r = check(&table(&top), &g, None).unwrap();
+        assert_eq!(statuses(&r), ["pass", "fail", "not checked", "not checked"]);
+        assert_eq!(r.differences[0].path, "groups[0].summary_placement");
+        top["table"]["tbody"][0]["summary_placement"] = json!("bottom");
+        assert!(check(&table(&top), &g, None).unwrap().passed());
     }
 
     #[test]
@@ -1124,10 +1149,8 @@ mod tests {
     fn integral_numbers_are_integers() {
         let mut a = base();
         body_cell(&mut a, 0, 0)["typed_value"] = json!({"type": "number", "value": 5550});
-        body_cell(&mut a, 0, 0)["sort_key"] = json!(5550);
         let mut b = base();
         body_cell(&mut b, 0, 0)["typed_value"] = json!({"type": "number", "value": 5550.0});
-        body_cell(&mut b, 0, 0)["sort_key"] = json!(5550.0);
         assert_eq!(grid_of(&a, Tier::L2), grid_of(&b, Tier::L2));
         let mut c = base();
         body_cell(&mut c, 0, 0)["typed_value"] = json!({"type": "number", "value": 5550.5});
