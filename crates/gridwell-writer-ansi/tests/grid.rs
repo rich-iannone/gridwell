@@ -10,14 +10,21 @@ use gridwell_testkit::{cell, column, examples, group, row, CellExt, ColumnExt, T
 use gridwell_writer_ansi::render_ansi;
 use unicode_width::UnicodeWidthStr;
 
-/// Remove the SGR sequences (`ESC [ … m`) the writer emits.
-fn strip_sgr(s: &str) -> String {
+/// Remove the escapes the writer emits: SGR sequences (`ESC [ … m`) and OSC 8
+/// hyperlinks (`ESC ] 8 ; ; URL ESC \\`).
+fn strip_escapes(s: &str) -> String {
     let mut out = String::new();
     let mut chars = s.chars().peekable();
     while let Some(c) = chars.next() {
         if c == '\x1b' && chars.peek() == Some(&'[') {
             for d in chars.by_ref() {
                 if d == 'm' {
+                    break;
+                }
+            }
+        } else if c == '\x1b' && chars.peek() == Some(&']') {
+            while let Some(d) = chars.next() {
+                if d == '\x1b' && chars.next_if_eq(&'\\').is_some() {
                     break;
                 }
             }
@@ -39,7 +46,7 @@ fn positions(line: &str, chars: &[char]) -> Vec<usize> {
 }
 
 fn check(name: &str, table: &Table) {
-    let out = strip_sgr(&render_ansi(table).unwrap());
+    let out = strip_escapes(&render_ansi(table).unwrap());
     let lines: Vec<&str> = out.lines().collect();
     let Some(top) = lines.iter().position(|l| l.starts_with('┌')) else {
         // No grid (every column hidden).
@@ -89,7 +96,7 @@ fn check(name: &str, table: &Table) {
     }
     // Spans merge columns; they never invent new ones: every bar sits on a
     // boundary of the same grid drawn without spans.
-    let unspanned = strip_sgr(&render_ansi(&without_spans(table)).unwrap());
+    let unspanned = strip_escapes(&render_ansi(&without_spans(table)).unwrap());
     let top_rule = unspanned.lines().find(|l| l.starts_with('┌')).unwrap();
     let boundaries = positions(top_rule, &['┌', '┬', '┐']);
     for line in &lines[top..=bottom] {
@@ -176,7 +183,7 @@ fn spanning_text_too_long_for_its_columns_is_truncated() {
                 row(vec![cell("a"), cell("b")]),
             ])
             .build();
-        let out = strip_sgr(&render_ansi(&table).unwrap());
+        let out = strip_escapes(&render_ansi(&table).unwrap());
         assert!(out.contains('…'), "{out}");
         check(text, &table);
     }
@@ -193,8 +200,8 @@ fn control_characters_never_reach_the_terminal() {
         .source_note(evil)
         .build();
     let out = render_ansi(&table).unwrap();
-    // The only escapes left are the writer's own SGR sequences.
-    let stripped = strip_sgr(&out);
+    // The only escapes left are the writer's own.
+    let stripped = strip_escapes(&out);
     assert!(
         !stripped.chars().any(|c| c.is_control() && c != '\n'),
         "control characters leaked: {stripped:?}"
@@ -262,7 +269,7 @@ fn footer_marks_match_the_marks_in_cells() {
         ])])])
         .footnote("fn1", "1", "SD = standard deviation.")
         .build();
-    let out = strip_sgr(&render_ansi(&table).unwrap());
+    let out = strip_escapes(&render_ansi(&table).unwrap());
     assert!(out.contains("Mean¹"), "{out}");
     assert!(out.contains("  ¹ SD = standard deviation."), "{out}");
     let ascii = AnsiWriter::with_config(AnsiConfig {
@@ -271,7 +278,7 @@ fn footer_marks_match_the_marks_in_cells() {
     })
     .render(&table)
     .unwrap();
-    let ascii = strip_sgr(&ascii);
+    let ascii = strip_escapes(&ascii);
     assert!(ascii.contains("Mean1"), "{ascii}");
     assert!(ascii.contains("  1 SD = standard deviation."), "{ascii}");
 }
