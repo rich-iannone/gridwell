@@ -161,6 +161,7 @@ fn hiding_any_column_holds_invariants_and_leaks_nothing() {
                 if !c.is_placeholder && c.colspan == 1 {
                     c.content = vec![ContentNode::Text {
                         value: "HIDDEN_LEAK".into(),
+                        href: None,
                     }];
                 }
             }
@@ -791,4 +792,99 @@ fn under_the_head_the_other_cells_carry_the_rule() {
     assert!((one.text.x - (one.x + 0.5 + 5.0)).abs() < EPS, "{one:?}");
     assert!(l.rules.iter().all(|r| r.x1 != r.x2 || r.color != LIGHT));
     assert_ok(check("head edge", &t));
+}
+
+#[test]
+fn the_tables_rules_are_drawn_and_a_removed_one_is_not() {
+    use gridwell_testkit::{placeholder, CellExt, RowExt};
+    let t = |rules: serde_json::Value| {
+        TableBuilder::new(3)
+            .stub_cols(1)
+            .title("T")
+            .head(
+                row(vec![cell(""), cell("Group").colspan(2), placeholder()]).role("spanner_label"),
+            )
+            .head(row(vec![cell("S"), cell("A"), cell("B")]))
+            .body(vec![
+                row(vec![cell("r").stub(), cell("1"), cell("2")]),
+                row(vec![cell("s").stub(), cell("3"), cell("4")]),
+            ])
+            .source_note("src")
+            .config(|c| c.rules = Some(serde_json::from_value(rules).unwrap()))
+            .build()
+    };
+    let l = layout(
+        &t(serde_json::json!({
+            "title": { "style": "none" },
+            "notes": { "width": "0" },
+            "stub": { "style": "dotted", "width": "3px", "color": "#00FF00" },
+            "rows": { "style": "dashed", "color": "#0000FF" },
+            "spanners": { "style": "double", "width": "3px", "color": "#FF0000" },
+        })),
+        &SvgConfig::default(),
+    );
+    assert!(hrules(&l, OUTER, 2.0).is_empty(), "{:?}", l.rules);
+    // The stub's rule, dotted: a 3px dash and gap.
+    let stub: Vec<_> = l.rules.iter().filter(|r| r.x1 == r.x2).collect();
+    assert_eq!(stub.len(), 2, "{stub:?}");
+    assert!(stub
+        .iter()
+        .all(|r| r.color == "#00FF00" && r.dash == Some(3.0) && r.width == 3.0));
+    // Between the body rows, dashed (3 times the width).
+    let rows = hrules(&l, "#0000FF", 1.0);
+    assert_eq!(rows.len(), 3, "a segment per cell: {rows:?}");
+    assert!(rows.iter().all(|r| r.dash == Some(3.0) && !r.double));
+    // A double spanner rule is the spanner's bottom border: not inset, on the
+    // boundary under it, which is as thick as it is.
+    let spanner = l
+        .cells
+        .iter()
+        .find(|c| c.text.lines.first().is_some_and(|x| x.text() == "Group"))
+        .unwrap();
+    let sr = hrules(&l, "#FF0000", 3.0);
+    assert_eq!(sr.len(), 1, "{sr:?}");
+    let edge = spanner.y + spanner.height;
+    assert!(sr[0].double && (sr[0].y1 - edge).abs() < EPS, "{sr:?}");
+    assert!((sr[0].x1 - spanner.x).abs() < EPS);
+    assert!((sr[0].x2 - (spanner.x + spanner.width)).abs() < EPS);
+    let a = l
+        .cells
+        .iter()
+        .find(|c| c.text.lines.first().is_some_and(|x| x.text() == "A"))
+        .unwrap();
+    assert!(a.text.y - a.y >= 1.5 - EPS, "room for half the rule: {a:?}");
+    assert_ok(check(
+        "rules",
+        &t(serde_json::json!({ "top": { "width": "5px" } })),
+    ));
+}
+
+#[test]
+fn summaries_at_the_top_are_laid_out_first() {
+    use gridwell_testkit::{CellExt, RowExt};
+    let t = TableBuilder::new(2)
+        .stub_cols(1)
+        .head(row(vec![cell(""), cell("A")]))
+        .group(
+            gridwell_testkit::labeled_group("G", vec![row(vec![cell("r").stub(), cell("1")])])
+                .summary(vec![
+                    row(vec![cell("Total").stub(), cell("1")]).role("summary_row")
+                ])
+                .summary_top(),
+        )
+        .build();
+    let l = layout(&t, &SvgConfig::default());
+    let y = |text: &str| {
+        l.cells
+            .iter()
+            .find(|c| c.text.lines.first().is_some_and(|x| x.text() == text))
+            .unwrap()
+            .y
+    };
+    assert!(y("G") < y("Total") && y("Total") < y("r"));
+    // The summary rule is below the summary rows.
+    let below = y("r");
+    let at = hrules(&l, LIGHT, 2.0);
+    assert!(at.iter().any(|r| (r.y1 - below).abs() < EPS), "{at:?}");
+    assert_ok(check("summary top", &t));
 }
