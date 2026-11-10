@@ -13,7 +13,7 @@ pub fn plain_text(nodes: &[ContentNode], line_break: &str) -> String {
     let mut out = String::new();
     for node in nodes {
         match node {
-            ContentNode::Text { value } | ContentNode::StyledText { value, .. } => {
+            ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. } => {
                 out.push_str(value)
             }
             ContentNode::LineBreak {} => out.push_str(line_break),
@@ -60,12 +60,16 @@ pub fn transform_case<'a>(
         .iter()
         .zip(&transforms)
         .map(|(node, t)| match node {
-            ContentNode::Text { value } => ContentNode::Text {
+            ContentNode::Text { value, .. } => ContentNode::Text {
                 value: case(value, t.as_ref(), &mut in_word),
+                href: None,
             },
-            ContentNode::StyledText { value, style_id } => ContentNode::StyledText {
+            ContentNode::StyledText {
+                value, style_id, ..
+            } => ContentNode::StyledText {
                 value: case(value, t.as_ref(), &mut in_word),
                 style_id: style_id.clone(),
+                href: None,
             },
             ContentNode::LineBreak {} => {
                 in_word = false;
@@ -188,7 +192,7 @@ mod tests {
         nodes
             .iter()
             .filter_map(|n| match n {
-                ContentNode::Text { value } | ContentNode::StyledText { value, .. } => {
+                ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. } => {
                     Some(value.as_str())
                 }
                 _ => None,
