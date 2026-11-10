@@ -1,9 +1,13 @@
+use gridwell_core::link::link_url;
 use gridwell_core::{Color, ImageFormat};
 use gridwell_ir::cell::TypedValue;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table, ValueType};
 use gridwell_layout::unsupported::Place;
-use gridwell_layout::{resolve, CellVAlign, ResolvedBorder, ResolvedStyle, ResolvedTable, Section};
+use gridwell_layout::{
+    resolve, CellVAlign, ResolvedBorder, ResolvedStyle, ResolvedTable, Section, SectionKind,
+};
+use gridwell_ooxml::{package, Part};
 use rust_xlsxwriter::{
     ColNum, DocProperties, ExcelDateTime, FormatAlign, FormatBorder, FormatPattern, FormatScript,
     FormatUnderline, RowNum, Workbook, Worksheet, XlsxError,
@@ -23,12 +27,75 @@ pub enum RenderError {
     Zip(#[from] zip::result::ZipError),
     #[error("io error: {0}")]
     Io(#[from] std::io::Error),
+    #[error("packaging error: {0}")]
+    Package(#[from] gridwell_ooxml::PackageError),
 }
 
 /// Render the full .xlsx ZIP file as bytes.
 pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
-    let (mut workbook, _) = workbook(&resolve(table))?;
-    Ok(workbook.save_to_buffer()?)
+    let (mut workbook, _, linked) = workbook(&resolve(table))?;
+    let bytes = workbook.save_to_buffer()?;
+    if linked {
+        restore_links(&bytes)
+    } else {
+        Ok(bytes)
+    }
+}
+
+/// Excel's limit on a link's URL, before its `#` and after it.
+const MAX_URL_CHARS: usize = 2_080;
+
+/// Whether a link's URL is within Excel's limit, before its `#` and after it.
+pub(crate) fn url_fits(url: &str) -> bool {
+    let (before, after) = url.split_once('#').unwrap_or((url, ""));
+    before.len() <= MAX_URL_CHARS && after.len() <= MAX_URL_CHARS
+}
+
+/// What a link's URL ([`gridwell_core::link::link_url`], so ASCII) is written
+/// with in place of the characters rust_xlsxwriter would escape again (a `%`
+/// becoming `%25`, unless the URL has one of a few escapes): characters of
+/// Unicode's private use area, which it leaves as they are.
+const LINK_STAND_INS: [(char, char); 3] = [('%', '\u{E000}'), ('[', '\u{E001}'), (']', '\u{E002}')];
+
+/// The package with each link's URL as it was given: the stand-ins
+/// ([`LINK_STAND_INS`]) put back in the sheet's relationships (the URLs before
+/// their `#`) and its `<hyperlinks>` (the part after, and the URL shown for a
+/// cell that isn't a string). Nothing else in those parts holds them: text is in
+/// the shared strings.
+fn restore_links(bytes: &[u8]) -> Result<Vec<u8>, RenderError> {
+    let restore = |s: &str| {
+        let mut s = s.to_string();
+        for (ch, stand_in) in LINK_STAND_INS {
+            s = s.replace(stand_in, ch.encode_utf8(&mut [0; 4]));
+        }
+        s
+    };
+    let mut zip = zip::ZipArchive::new(Cursor::new(bytes))?;
+    let mut parts: Vec<(String, Vec<u8>)> = Vec::with_capacity(zip.len());
+    for i in 0..zip.len() {
+        let mut part = zip.by_index(i)?;
+        let name = part.name().to_string();
+        let mut data = Vec::new();
+        part.read_to_end(&mut data)?;
+        match name.as_str() {
+            "xl/worksheets/_rels/sheet1.xml.rels" => {
+                data = restore(&String::from_utf8_lossy(&data)).into_bytes();
+            }
+            "xl/worksheets/sheet1.xml" => {
+                let xml = String::from_utf8_lossy(&data);
+                if let (Some(start), Some(end)) =
+                    (xml.find("<hyperlinks>"), xml.find("</hyperlinks>"))
+                {
+                    let fixed = restore(&xml[start..end]);
+                    data = format!("{}{fixed}{}", &xml[..start], &xml[end..]).into_bytes();
+                }
+            }
+            _ => {}
+        }
+        parts.push((name, data));
+    }
+    let parts: Vec<Part> = parts.iter().map(|(n, d)| Part::new(n, d)).collect();
+    Ok(package(&parts)?)
 }
 
 /// Render only the sheet XML content (for snapshot testing).
@@ -81,7 +148,9 @@ pub(crate) struct Losses {
 /// What rendering `rt` loses (nothing if it can't be rendered at all: that is
 /// an error, not a warning).
 pub(crate) fn losses(rt: &ResolvedTable) -> Losses {
-    workbook(rt).map(|(_, losses)| losses).unwrap_or_default()
+    workbook(rt)
+        .map(|(_, losses, _)| losses)
+        .unwrap_or_default()
 }
 
 /// A cell format, converted to a `rust_xlsxwriter::Format` when written.
@@ -366,7 +435,7 @@ impl FontKey {
 }
 
 /// The workbook and what it loses of the table's text.
-fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
+fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses, bool), RenderError> {
     let mut workbook = Workbook::new();
     // The same table always makes the same file: the creation date is fixed
     // (the zip epoch, as the other OOXML writers' timestamps), not "now".
@@ -425,6 +494,7 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
         col_px,
         rtl: rt.is_rtl(),
         losses: Losses::default(),
+        linked: false,
     };
 
     // Title and subtitle lines.
@@ -474,8 +544,9 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
                     Place::GroupLabel(g),
                 )?;
             }
-            sheet.section(rt, &group.rows, false, Some(g))?;
-            sheet.section(rt, &group.summary_rows, true, Some(g))?;
+            for s in group.sections() {
+                sheet.section(rt, s, s.kind == SectionKind::Summary, Some(g))?;
+            }
         }
     }
 
@@ -491,11 +562,13 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
                     text: note.mark.to_string(),
                     font: font.clone(),
                     superscript: true,
+                    link: None,
                 },
                 RichRun {
                     text: " ".into(),
                     font: font.clone(),
                     superscript: false,
+                    link: None,
                 },
             ];
             runs.extend(rich(rt, &note.content, font));
@@ -517,8 +590,8 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses), RenderError> {
         }
     }
 
-    let losses = sheet.losses;
-    Ok((workbook, losses))
+    let (losses, linked) = (sheet.losses, sheet.linked);
+    Ok((workbook, losses, linked))
 }
 
 fn col_num(col: usize) -> Result<ColNum, XlsxError> {
@@ -543,9 +616,33 @@ struct Sheet<'w> {
     col_px: Vec<u32>,
     rtl: bool,
     losses: Losses,
+    /// Whether a cell links somewhere (see [`restore_links`]).
+    linked: bool,
 }
 
 impl Sheet<'_> {
+    /// Link the cell at `(r, c)` to `url`, before its content is written (which
+    /// replaces the text rust_xlsxwriter writes with the link, but not the link).
+    /// The URL's `%`, `[` and `]` are written as stand-ins, which
+    /// rust_xlsxwriter leaves as they are, and put back by [`restore_links`]. A
+    /// URL over Excel's 2,080 characters (before or after its `#`) isn't written.
+    fn link(&mut self, r: RowNum, c: ColNum, url: &str) -> Result<(), RenderError> {
+        if !url_fits(url) {
+            return Ok(());
+        }
+        let stand_in: String = url
+            .chars()
+            .map(|ch| match LINK_STAND_INS.iter().find(|(c, _)| *c == ch) {
+                Some((_, s)) => *s,
+                None => ch,
+            })
+            .collect();
+        self.ws
+            .write_url(r, c, rust_xlsxwriter::Url::new(stand_in))?;
+        self.linked = true;
+        Ok(())
+    }
+
     fn format(&mut self, f: &Format) -> rust_xlsxwriter::Format {
         self.formats
             .entry(f.clone())
@@ -615,6 +712,7 @@ impl Sheet<'_> {
                             ..FontKey::of(&format)
                         },
                         superscript: false,
+                        link: None,
                     });
                 }
                 let pic = picture(&cell.content, font_pt(&cell.style));
@@ -652,6 +750,9 @@ impl Sheet<'_> {
                     let f = self.format(&Format { num_fmt, ..format });
                     self.merge(row, cell.col, last_row, last_col, &f)?;
                     let (r, c) = (row_num(row)?, col_num(cell.col)?);
+                    if let Some(url) = runs.iter().find_map(|r| r.link.clone()) {
+                        self.link(r, c, &url)?;
+                    }
                     match value {
                         Value::Number(v) => self.ws.write_number_with_format(r, c, v, &f)?,
                         Value::Boolean(b) => self.ws.write_boolean_with_format(r, c, b, &f)?,
@@ -732,6 +833,9 @@ impl Sheet<'_> {
                 self.ws.write_blank(r, c, &f)?;
             }
             return Ok(());
+        }
+        if let Some(url) = runs.iter().find_map(|r| r.link.clone()) {
+            self.link(r, c, &url)?;
         }
         let font = FontKey::of(format);
         if runs.iter().all(|r| r.font == font && !r.superscript) {
@@ -853,7 +957,7 @@ pub(crate) fn picture(nodes: &[ContentNode], font_pt: f64) -> Option<Picture> {
     let mut found = None;
     for node in nodes {
         match node {
-            ContentNode::Text { value } | ContentNode::StyledText { value, .. }
+            ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. }
                 if value.trim().is_empty() => {}
             ContentNode::Image {
                 src,
@@ -1064,7 +1168,7 @@ fn plain_display(nodes: &[ContentNode]) -> Option<String> {
     nodes
         .iter()
         .map(|n| match n {
-            ContentNode::Text { value } => Some(value.as_str()),
+            ContentNode::Text { value, .. } => Some(value.as_str()),
             _ => None,
         })
         .collect()
@@ -1076,6 +1180,8 @@ struct RichRun {
     text: String,
     font: FontKey,
     superscript: bool,
+    /// The URL the run links to (see [`gridwell_core::link::link_url`]).
+    link: Option<String>,
 }
 
 /// Content as runs: styled text gets the cell's font with its style laid over,
@@ -1086,11 +1192,20 @@ fn rich(rt: &ResolvedTable, nodes: &[ContentNode], font: FontKey) -> Vec<RichRun
         text,
         font: font.clone(),
         superscript: false,
+        link: None,
     };
     let mut runs = Vec::new();
     for node in nodes {
         match node {
-            ContentNode::StyledText { value, style_id } => {
+            ContentNode::Text { value, href } => runs.push(RichRun {
+                link: href.as_deref().and_then(link_url),
+                ..plain(value.clone())
+            }),
+            ContentNode::StyledText {
+                value,
+                style_id,
+                href,
+            } => {
                 let style = style_id
                     .as_deref()
                     .map(|id| rt.style(id))
@@ -1099,12 +1214,14 @@ fn rich(rt: &ResolvedTable, nodes: &[ContentNode], font: FontKey) -> Vec<RichRun
                     text: value.clone(),
                     font: font.clone().with(&style),
                     superscript: false,
+                    link: href.as_deref().and_then(link_url),
                 });
             }
             ContentNode::FootnoteMark { mark_text, .. } => runs.push(RichRun {
                 text: mark_text.clone(),
                 font: font.clone(),
                 superscript: true,
+                link: None,
             }),
             other => runs.push(plain(content_to_text(std::slice::from_ref(other)))),
         }
