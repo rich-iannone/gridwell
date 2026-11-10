@@ -357,7 +357,7 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 let total_width: u32 = self.col_widths.iter().sum();
                 writeln!(
                     self.buf,
-                    "\\trowd{}\\trqc{borders}{fill}\\cellx{total_width}\n\\pard\\intbl{}{{{BOLD}{fmt} {text}}}\\cell\n\\row",
+                    "\\trowd{}{borders}{fill}\\cellx{total_width}\n\\pard\\intbl{}{{{BOLD}{fmt} {text}}}\\cell\n\\row",
                     self.row_dir(),
                     self.line_dir(),
                 )
