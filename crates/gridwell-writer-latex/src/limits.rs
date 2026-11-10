@@ -2,7 +2,7 @@
 
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, Table};
-use gridwell_layout::unsupported::{find, find_table, Check, TableCheck, Unsupported};
+use gridwell_layout::unsupported::{find, find_table, Check, TableCheck, Unsupported, TABLE_RULES};
 use gridwell_layout::{resolve, CellVAlign, ResolvedCell, ResolvedTable};
 
 use crate::render::{monospace, BASE_PT};
@@ -98,6 +98,7 @@ fn tall(rt: &ResolvedTable, c: &ResolvedCell) -> bool {
 pub fn unsupported(table: &Table) -> Vec<Unsupported> {
     let rt = resolve(table);
     let mut found = find_table(&rt, TABLE_CHECKS);
+    found.extend(find_table(&rt, &[TABLE_RULES]));
     found.extend(find(&rt, CHECKS));
     found
 }
