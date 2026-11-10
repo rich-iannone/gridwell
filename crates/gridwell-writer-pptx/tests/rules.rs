@@ -336,3 +336,110 @@ fn outer_rules_are_drawn_above_a_heading_and_below_notes() {
     assert!(l[0].1 < y);
     assert!(l[1].1 > y + rows.iter().sum::<u32>());
 }
+
+/// The `prstDash` of the cell's border on `side`, if it has one.
+fn dash<'a>(tc: &'a str, side: &str) -> Option<&'a str> {
+    let start = tc.find(&format!("<a:ln{side} "))?;
+    let el = &tc[start..start + tc[start..].find(&format!("</a:ln{side}>")).unwrap()];
+    el.split("<a:prstDash val=\"").nth(1)?.split('"').next()
+}
+
+#[test]
+fn the_tables_rules_replace_the_looks() {
+    let rules = json!({
+        "top": { "style": "none" },
+        "rows": { "style": "dashed", "color": "#0000FF" },
+        "stub": { "style": "dotted", "width": "3px", "color": "#00FF00" },
+        "grand_summary": { "width": "0" },
+        "bottom": { "style": "double", "width": "4px" },
+        "title": { "width": "4px", "style": "dashed" },
+    });
+    let mut t = structured();
+    t.config.rules = Some(serde_json::from_value(rules).unwrap());
+    t.header = TableBuilder::new(1).title("T").build().header;
+    let xml = slide(&t);
+    let rows = cells(&xml);
+    let at = |r: usize, c: usize, side| line(rows[r][c], side);
+    let dash_at = |r: usize, c: usize, side| dash(rows[r][c], side);
+    let blue = Some((9525, false, "0000FF".into()));
+    for c in 0..2 {
+        // No top rule; the row rule dashed and blue.
+        assert_eq!(at(0, c, "T"), None);
+        assert_eq!(at(3, c, "T"), blue);
+        assert_eq!(dash_at(3, c, "T"), Some("dash"));
+        // The grand summary's rule removed, there is none there (as in HTML).
+        assert_eq!(at(4, c, "T"), None);
+        assert_eq!(at(4, c, "B"), Some((38100, true, "D3D3D3".into())));
+        assert_eq!(dash_at(4, c, "B"), None);
+    }
+    assert_eq!(at(2, 0, "R"), Some((28575, false, "00FF00".into())));
+    assert_eq!(dash(rows[2][0], "R"), Some("sysDot"));
+    // The title's rule, a dashed line shape.
+    let l = lines(&xml);
+    assert_eq!(l.len(), 1, "{l:?}");
+    assert_eq!(l[0].3, 38100);
+    assert!(xml.contains("srgbClr val=\"A8A8A8\"/></a:solidFill><a:prstDash val=\"dash\"/></a:ln>"));
+
+    // Removed, the title's rule and its room are gone.
+    let mut none = t.clone();
+    none.config.rules =
+        Some(serde_json::from_value(json!({ "title": { "style": "none" } })).unwrap());
+    let xml = slide(&none);
+    assert!(lines(&xml).is_empty());
+}
+
+#[test]
+fn a_spanner_rule_that_is_not_solid_is_the_spanners_bottom_border() {
+    let mut t = spanners(None);
+    t.config.rules = Some(
+        serde_json::from_value(json!({ "spanners": { "style": "dotted", "color": "#FF0000" } }))
+            .unwrap(),
+    );
+    let xml = slide(&t);
+    assert!(lines(&xml).is_empty(), "no inset lines");
+    let rows = cells(&xml);
+    assert_eq!(rows[0].len(), 4);
+    for (c, (&spanner, &label)) in rows[0].iter().zip(&rows[1]).enumerate() {
+        assert_eq!(line(spanner, "B"), red(), "{c}");
+        assert_eq!(dash(spanner, "B"), Some("sysDot"));
+        assert_eq!(line(label, "B"), section(), "{c}");
+    }
+}
+
+#[test]
+fn summaries_at_the_top_come_first_with_the_summary_rule_below() {
+    let t = TableBuilder::new(2)
+        .stub_cols(1)
+        .head(row(vec![cell("").stub(), cell("B")]).role("column_label"))
+        .group(
+            labeled_group("G", vec![row(vec![cell("x").stub(), cell("1")])])
+                .summary(vec![
+                    row(vec![cell("Sum").stub(), cell("1")]).role("summary")
+                ])
+                .summary_top(),
+        )
+        .build();
+    let xml = slide(&t);
+    let rows = cells(&xml);
+    assert_eq!(rows.len(), 4);
+    assert!(rows[2][0].contains(">Sum<") && rows[3][0].contains(">x<"));
+    let at = |r: usize, c: usize, side| line(rows[r][c], side);
+    for c in 0..2 {
+        assert_eq!((at(2, c, "T"), at(2, c, "B")), (section(), section()));
+        // Both sides of a boundary draw its rule.
+        assert_eq!((at(3, c, "T"), at(3, c, "B")), (section(), section()));
+    }
+    // The summary row's own border is its own.
+    let t = TableBuilder::new(1)
+        .style_def("red", sides("solid", &["bottom"]))
+        .group(
+            group(vec![row(vec![cell("x")])])
+                .summary(vec![row(vec![cell("Sum").style("red")]).role("summary")])
+                .summary_top(),
+        )
+        .build();
+    let xml = slide(&t);
+    let rows = cells(&xml);
+    assert_eq!(line(rows[0][0], "B"), red());
+    assert_eq!(line(rows[1][0], "T"), None);
+}

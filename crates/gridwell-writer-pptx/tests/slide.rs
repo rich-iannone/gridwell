@@ -132,7 +132,9 @@ fn shapes_stack_without_overlap() {
             assert!(a.1 + a.2 <= b.1, "{}: {} overlaps {}", ex.name, a.0, b.0);
         }
         // The outer rules: one ending where the title starts, one starting where
-        // the notes end, each across the table; none above a table without a title.
+        // the notes end, each across the table (unless `config.rules` removes
+        // it); none above a table without a title.
+        let outer = gridwell_layout::look::TableRules::new(&t);
         let (all, lines) = (boxes(&xml), rules(&xml));
         let table = all.iter().find(|b| b.name == "Table");
         let rule_at = |y: u64| {
@@ -143,8 +145,18 @@ fn shapes_stack_without_overlap() {
         };
         let top = |name: &str| all.iter().find(|b| b.name == name).map(|b| b.y);
         let bottom = |name: &str| all.iter().find(|b| b.name == name).map(|b| b.y + b.cy);
-        assert_eq!(top("Title").is_some_and(rule_at), header, "{}", ex.name);
-        assert_eq!(bottom("Notes").is_some_and(rule_at), notes, "{}", ex.name);
+        assert_eq!(
+            top("Title").is_some_and(rule_at),
+            header && outer.title.is_some(),
+            "{}",
+            ex.name
+        );
+        assert_eq!(
+            bottom("Notes").is_some_and(rule_at),
+            notes && outer.notes.is_some(),
+            "{}",
+            ex.name
+        );
         if !header {
             assert!(!top("Table").is_some_and(rule_at), "{}", ex.name);
         }
