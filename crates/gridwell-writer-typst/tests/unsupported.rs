@@ -69,9 +69,10 @@ fn double_borders_are_reported() {
 }
 
 #[test]
-fn the_corpus_has_one_gap() {
-    // Every corpus table but `borders-double` is expressed whole; there every
-    // cell is outlined double.
+fn the_corpus_has_two_gaps() {
+    // Every corpus table but two is expressed whole: in `borders-double` every
+    // cell is outlined double, and `custom-rules` has rules of its own (Typst
+    // draws its own).
     for ex in gridwell_testkit::examples() {
         let found = unsupported(&ex.table());
         match ex.name {
@@ -79,6 +80,11 @@ fn the_corpus_has_one_gap() {
                 assert_eq!(found.len(), 1);
                 assert_eq!(found[0].feature, "border-double");
                 assert_eq!(found[0].places.len(), 9);
+            }
+            "custom-rules" => {
+                assert_eq!(found.len(), 1);
+                assert_eq!(found[0].feature, "table-rules");
+                assert_eq!(found[0].places, [Place::Table]);
             }
             _ => assert_eq!(found, [], "{}", ex.name),
         }
