@@ -44,6 +44,25 @@ an italic cell, title or note is upright, except in Pandoc and Quarto (`Emph` ca
 undone). Underline and strike-through are different: as in CSS, a run adds them to
 its cell's but can't remove them.
 
+## Links
+
+A text run with an [`href`](../schema/index.qmd#content-nodes) is a link to it. Only
+`http`, `https` and `mailto` URLs are links: a run with any other `href` (in IR that
+wasn't validated) is drawn as plain text. Each format writes the URL in ASCII, with
+its scheme lowercased and what a URL can't hold as it is percent-encoded
+(`https://例え.jp` is `https://%E4%BE%8B%E3%81%88.jp`).
+
+| Format | A link is |
+|--------|-----------|
+| HTML, SVG | An `<a href>` around the run |
+| LaTeX | `\href` (add `\usepackage{hyperref}`) |
+| Typst | `#link` |
+| RTF | A `HYPERLINK` field |
+| DOCX, PPTX | A hyperlink on the run, its URL in the part's relationships |
+| Pandoc, Quarto | A `Link` |
+| XLSX | The cell's hyperlink: a cell links as a whole, to its first link. Other links in it, and a URL longer than Excel's 2,080 characters (before or after its `#`), link nowhere and are reported as the unsupported feature `link` |
+| ANSI | With `color`, an OSC 8 hyperlink, which a terminal without them shows as text. A cell or line links as a whole, to its first link, and other links in it are reported as `link` |
+
 ## Raw HTML
 
 A [`raw`](../schema/index.qmd#raw-markup) node with HTML is written as it is by
@@ -63,8 +82,10 @@ runs, and with the [`raw` option](writer-options.qmd#options-of-every-format) of
   items start with a bullet, or their number in an `ol`.
 - `img` is an image, drawn as an image node is: only a `data:` URI, and nothing is
   fetched.
-- Other elements keep their text (a link shows its text); comments, `script`,
-  `style` and hidden elements are dropped. Character references are decoded.
+- `a` with an `href` that is a [link](#links) links its text, as a run's `href`
+  does; with any other `href` it is plain text.
+- Other elements keep their text; comments, `script`, `style` and hidden elements
+  are dropped. Character references are decoded.
 
 A run's style draws as a `styled_text` run's would, so what each format does with
 it is in the notes below (ANSI, for one, draws plain text). Content with raw markup
@@ -264,8 +285,9 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   one edge is drawn: the wider, then double, solid, dashed, dotted, then the one above
   or to the left. No packages beyond those below.
 - Required packages: `booktabs`, `multirow`, `longtable` (long tables), `tabularx`
-  (`fr` columns), `xcolor` with the `table` option, and `ulem` with `normalem`
-  (`\usepackage[normalem]{ulem}`, so `\emph` keeps its meaning). `tabularx` reads its
+  (`fr` columns), `xcolor` with the `table` option, `ulem` with `normalem`
+  (`\usepackage[normalem]{ulem}`, so `\emph` keeps its meaning), and `hyperref`
+  ([links](#links)), loaded last as usual. `tabularx` reads its
   body as an argument, so raw LaTeX in a table with `fr` columns can't use `\verb`
 - Special characters escaped: `& % $ # _ { } ~ ^ \`, and `< > |` (which print as
   other glyphs in the default OT1 encoding)
