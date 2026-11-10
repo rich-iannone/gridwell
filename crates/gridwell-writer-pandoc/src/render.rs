@@ -3,6 +3,7 @@
 //! The building blocks are public so the Quarto writer, which wraps the same table
 //! in a cross-referenceable `Div`, shares them instead of copying them.
 
+use gridwell_core::link::link_url;
 use gridwell_core::Length;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{HAlign, Keyword, Table};
@@ -137,10 +138,9 @@ fn bodies(rt: &ResolvedTable) -> Value {
                 _ => Vec::new(),
             };
             let rows: Vec<Value> = g
-                .rows
-                .rows
-                .iter()
-                .chain(&g.summary_rows.rows)
+                .sections()
+                .into_iter()
+                .flat_map(|s| &s.rows)
                 .map(|r| row(rt, r))
                 .collect();
             json!([null_attr(), rt.stub_cols, head, rows])
@@ -270,17 +270,30 @@ fn words(value: &str) -> Vec<Value> {
     out
 }
 
+/// `inlines` as a `Link` to `href`, or as they are if it has none or it isn't a
+/// link (see [`gridwell_core::link`]).
+fn linked(href: &Option<String>, inlines: Vec<Value>) -> Vec<Value> {
+    match href.as_deref().and_then(link_url) {
+        Some(url) => vec![json!({"t": "Link", "c": [null_attr(), inlines, [url, ""]]})],
+        None => inlines,
+    }
+}
+
 pub fn inlines(rt: &ResolvedTable, nodes: &[ContentNode]) -> Vec<Value> {
     let mut out = Vec::new();
     for node in nodes {
         match node {
-            ContentNode::Text { value } => out.extend(words(value)),
-            ContentNode::StyledText { value, style_id } => {
+            ContentNode::Text { value, href } => out.extend(linked(href, words(value))),
+            ContentNode::StyledText {
+                value,
+                style_id,
+                href,
+            } => {
                 let style = style_id
                     .as_deref()
                     .map(|id| rt.style(id))
                     .unwrap_or_default();
-                out.extend(styled(&style, words(value)));
+                out.extend(linked(href, styled(&style, words(value))));
             }
             ContentNode::LineBreak {} => out.push(json!({"t": "LineBreak"})),
             ContentNode::FootnoteMark { mark_text, .. } => out.push(json!({
