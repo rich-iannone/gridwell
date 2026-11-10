@@ -11,8 +11,8 @@
 #' - L0 valid: the IR parses and validates.
 #' - L1 structure: columns and stub, header lines, head rows and spans, groups
 #'   and their labels, row roles, data and summary rows, cell text.
-#' - L2 content: runs, footnote marks, typed values, `data_type`, `sort_key`,
-#'   `scope`, column and group ids, `lang` and `dir`.
+#' - L2 content: runs, footnote marks, typed values, `scope`,
+#'   column and group ids, `lang` and `dir`.
 #' - L3 styling: resolved styles; alignment; column, table and image sizes.
 #'
 #' An emitter's tests can check it against the expected grids in gridwell's
