@@ -49,11 +49,16 @@ pub enum ValidationRule {
     /// `styles.defs` and `styles.compositions`: a reference to it would be
     /// ambiguous.
     DuplicateId,
+    /// A text run's `href` is not an `http`, `https` or `mailto` URL (see
+    /// [`gridwell_core::link`]): other schemes could run code or open local files.
+    InvalidHref,
+    /// `config.id` is not an HTML id: it is empty or has whitespace.
+    InvalidTableId,
 }
 
 impl ValidationRule {
     /// Every rule, in the order declared.
-    pub const ALL: [ValidationRule; 22] = [
+    pub const ALL: [ValidationRule; 24] = [
         ValidationRule::IrVersion,
         ValidationRule::ColCount,
         ValidationRule::RowCount,
@@ -76,6 +81,8 @@ impl ValidationRule {
         ValidationRule::InvalidStyleId,
         ValidationRule::InvalidLang,
         ValidationRule::DuplicateId,
+        ValidationRule::InvalidHref,
+        ValidationRule::InvalidTableId,
     ];
 
     /// The rule's documented identifier, e.g. `SPAN_OVERFLOW_RIGHT` (the same string
@@ -104,6 +111,8 @@ impl ValidationRule {
             ValidationRule::InvalidStyleId => "INVALID_STYLE_ID",
             ValidationRule::InvalidLang => "INVALID_LANG",
             ValidationRule::DuplicateId => "DUPLICATE_ID",
+            ValidationRule::InvalidHref => "INVALID_HREF",
+            ValidationRule::InvalidTableId => "INVALID_TABLE_ID",
         }
     }
 }
@@ -1138,15 +1147,6 @@ fn validate_keywords(table: &Table, errors: &mut Vec<ValidationError>) {
                     errors,
                 );
                 check_lazy(
-                    cell.data_type.as_ref(),
-                    || of("data_type"),
-                    section,
-                    row_group,
-                    at.0,
-                    at.1,
-                    errors,
-                );
-                check_lazy(
                     cell.typed_value.as_ref().map(|tv| &tv.value_type),
                     || of("typed_value.type"),
                     section,
@@ -1186,6 +1186,19 @@ fn validate_keywords(table: &Table, errors: &mut Vec<ValidationError>) {
         None,
         errors,
     );
+    if let Some(rules) = &table.config.rules {
+        for (name, rule) in rules.iter() {
+            check(
+                rule.as_ref().and_then(|r| r.style.as_ref()),
+                &format!("config.rules.{name}.style"),
+                "config",
+                None,
+                None,
+                None,
+                errors,
+            );
+        }
+    }
 
     for (i, col) in table.column_spec.iter().enumerate() {
         check(
@@ -1239,6 +1252,15 @@ fn validate_keywords(table: &Table, errors: &mut Vec<ValidationError>) {
 
     check_rows(&table.table.thead.rows, "thead", None, errors);
     for (g, group) in table.table.tbody.iter().enumerate() {
+        check(
+            Some(&group.summary_placement),
+            &format!("the summary_placement of tbody group {g}"),
+            "tbody",
+            Some(g as u32),
+            None,
+            None,
+            errors,
+        );
         check_rows(&group.rows, "tbody", Some(g as u32), errors);
         check_rows(&group.summary_rows, "tbody_summary", Some(g as u32), errors);
     }
@@ -1275,6 +1297,8 @@ mod tests {
             ValidationRule::InvalidStyleId => 19,
             ValidationRule::InvalidLang => 20,
             ValidationRule::DuplicateId => 21,
+            ValidationRule::InvalidHref => 22,
+            ValidationRule::InvalidTableId => 23,
         };
         for (i, rule) in ValidationRule::ALL.into_iter().enumerate() {
             assert_eq!(position(rule), i, "{rule}");
