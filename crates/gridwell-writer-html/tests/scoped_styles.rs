@@ -122,3 +122,31 @@ fn tables_on_one_page_dont_restyle_each_other() {
         }
     }
 }
+
+/// The table's own id (`config.id`) is the `table_id` when the option is unset:
+/// the same output, scoped the same way. The option wins over it.
+#[test]
+fn the_tables_own_id_is_the_default_table_id() {
+    for ex in examples() {
+        let mut t = ex.table();
+        t.config.id = Some("own".into());
+        assert_eq!(
+            render(&t, None),
+            render(&ex.table(), Some("own")),
+            "{}",
+            ex.name
+        );
+        assert_eq!(
+            render(&t, Some("opt")),
+            render(&ex.table(), Some("opt")),
+            "{}",
+            ex.name
+        );
+    }
+    // One that isn't an HTML id (in IR that wasn't validated) is left out.
+    let mut t = examples()[0].table();
+    for bad in ["", "a b"] {
+        t.config.id = Some(bad.into());
+        assert_eq!(render(&t, None), render(&examples()[0].table(), None));
+    }
+}

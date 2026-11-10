@@ -255,16 +255,20 @@ fn an_edge_with_a_cell_border_is_drawn_by_its_cells() {
             .unwrap_or_else(|| panic!("no {text}:\n{html}"))
     };
     assert!(!line("A").contains("_rule_"), "{}", line("A"));
-    assert!(line("B").contains("gw_rule_bottom"), "{}", line("B"));
+    assert!(line("B").contains("gw_rule_head"), "{}", line("B"));
     // "1" faces "A"'s border; "2" carries the rule too.
     assert!(!line("1").contains("_rule_"), "{}", line("1"));
-    assert!(line("2").contains("class=\"gw_rule_top\""), "{}", line("2"));
+    assert!(
+        line("2").contains("class=\"gw_rule_head\""),
+        "{}",
+        line("2")
+    );
     // The markup doesn't depend on the base stylesheet.
     let bare = render(&head_edge_table(false), false, false, "gw");
-    assert!(bare.contains("gw_cells_head") && bare.contains("gw_rule_top"));
+    assert!(bare.contains("gw_cells_head") && bare.contains("gw_rule_head"));
 
     let html = without_base(&render(&head_edge_table(true), true, false, "zz"));
-    assert!(html.contains("zz_cells_head") && html.contains("zz_rule_bottom"));
+    assert!(html.contains("zz_cells_head") && html.contains("zz_rule_head"));
     assert!(html.contains("<td class=\"zz_style-t\" headers=\"col_0\">1</td>"));
 
     // Inline styles have no base stylesheet to switch off.
@@ -282,4 +286,85 @@ fn an_edge_with_a_cell_border_is_drawn_by_its_cells() {
         let html = without_base(&render(&ex.table(), true, false, "gw"));
         assert!(!html.contains("gw_cells_"), "{}", ex.name);
     }
+}
+
+#[test]
+fn summaries_at_the_top_come_first_and_mark_their_end() {
+    use gridwell_testkit::{cell, group, labeled_group, row, CellExt, RowExt, TableBuilder};
+    let sum = |label: &str, role: &str| row(vec![cell(label).stub(), cell("9")]).role(role);
+    let t = TableBuilder::new(2)
+        .stub_cols(1)
+        .head(row(vec![cell(""), cell("A")]))
+        .group(
+            group(vec![])
+                .summary(vec![sum("All", "grand_summary")])
+                .summary_top(),
+        )
+        .group(
+            labeled_group("Gee", vec![row(vec![cell("x").stub(), cell("1")])])
+                .summary(vec![sum("Sum", "summary"), sum("Max", "summary")])
+                .summary_top(),
+        )
+        .build();
+    let html = render(&t, true, false, "gw");
+    let at = |text: &str| {
+        html.find(&format!(">{text}</"))
+            .unwrap_or_else(|| panic!("no {text}:\n{html}"))
+    };
+    let label = html.find("Gee").unwrap();
+    assert!(at("All") < label && label < at("Sum") && at("Sum") < at("Max"));
+    assert!(at("Max") < at("x"), "{html}");
+    for (class, n) in [
+        (
+            "<tr class=\"gw_grand_summary gw_summary_top gw_summary_end\">",
+            1,
+        ),
+        ("<tr class=\"gw_summary gw_summary_top\">", 1),
+        ("<tr class=\"gw_summary gw_summary_top gw_summary_end\">", 1),
+    ] {
+        assert_eq!(html.matches(class).count(), n, "{class}\n{html}");
+    }
+    // At the bottom, summary rows have no marks.
+    let ex = examples().into_iter().find(|e| e.name == "group-summary");
+    let bottom = without_base(&render(&ex.unwrap().table(), true, false, "gw"));
+    assert!(bottom.contains("gw_summary") && !bottom.contains("_summary_top"));
+    assert!(!bottom.contains("_summary_end"), "{bottom}");
+}
+
+#[test]
+fn the_tables_rules_are_its_base_rules() {
+    use gridwell_testkit::{cell, labeled_group, row, TableBuilder};
+    let t = TableBuilder::new(1)
+        .head(row(vec![cell("A")]))
+        .group(labeled_group("G", vec![row(vec![cell("1")])]))
+        .config(|c| {
+            c.rules = Some(
+                serde_json::from_value(serde_json::json!({
+                    "group": { "width": "3px", "style": "dotted", "color": "#123456" },
+                    "rows": { "style": "none" },
+                }))
+                .unwrap(),
+            );
+        })
+        .build();
+    let html = render(&t, true, false, "gw");
+    assert!(
+        html.contains(
+            ":where(.gw_group_label) { border-top: 3px dotted #123456; \
+             border-bottom: 3px dotted #123456 }"
+        ),
+        "{html}"
+    );
+    assert!(
+        html.contains(":where(.gw_table td, .gw_table th) { padding: 8px 5px; border-top: none }")
+    );
+    // Only the base stylesheet changes.
+    let plain = TableBuilder::new(1)
+        .head(row(vec![cell("A")]))
+        .group(labeled_group("G", vec![row(vec![cell("1")])]))
+        .build();
+    assert_eq!(
+        without_base(&html),
+        without_base(&render(&plain, true, false, "gw"))
+    );
 }
