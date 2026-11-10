@@ -1395,6 +1395,20 @@ r0 [A ][B ][C ][D ][E ]
 }
 
 #[test]
+fn grid_draws_summary_rows_at_the_top_first() {
+    let path = fixture("comprehensive/reference_table.json");
+    let mut ir: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+    ir["table"]["tbody"][0]["summary_placement"] = serde_json::json!("top");
+    let o = with_stdin(&["grid"], ir.to_string().as_bytes());
+    assert!(o.status.success(), "{}", stderr(&o));
+    let out = stdout(&o);
+    let at = |s: &str| out.find(s).unwrap_or_else(|| panic!("{s}: {out}"));
+    assert!(at("tbody group 0 summary (top): 1 row") < at("tbody group 0 \"North America\""));
+    assert!(at("tbody group 1 \"Europe\"") < at("tbody group 1 summary: 1 row"));
+}
+
+#[test]
 fn grid_draws_span_errors_where_they_are() {
     let grid = |rel: &str| {
         let o = bin().arg("grid").arg(fixture(rel)).output().unwrap();
