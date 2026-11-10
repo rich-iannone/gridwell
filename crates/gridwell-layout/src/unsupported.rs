@@ -101,6 +101,18 @@ impl Part<'_> {
         })
     }
 
+    /// The URL each linked run links to, as writers write it
+    /// ([`gridwell_core::link::link_url`]): runs whose `href` isn't a link are
+    /// left out.
+    pub fn links(&self) -> impl Iterator<Item = String> + '_ {
+        self.content.iter().filter_map(|n| match n {
+            ContentNode::Text { href, .. } | ContentNode::StyledText { href, .. } => {
+                href.as_deref().and_then(gridwell_core::link::link_url)
+            }
+            _ => None,
+        })
+    }
+
     /// The `src` of each image in the content.
     pub fn images(&self) -> impl Iterator<Item = &str> + '_ {
         self.content.iter().filter_map(|n| match n {
@@ -127,8 +139,9 @@ impl ResolvedTable<'_> {
         cells(&mut out, &self.head, None);
         for (g, group) in self.groups.iter().enumerate() {
             out.extend(group.label.iter().map(|l| line(Place::GroupLabel(g), l)));
-            cells(&mut out, &group.rows, Some(g));
-            cells(&mut out, &group.summary_rows, Some(g));
+            for s in group.sections() {
+                cells(&mut out, s, Some(g));
+            }
         }
         out.extend(self.footer.footnotes.iter().enumerate().map(|(i, n)| Part {
             place: Place::Footnote(i),
@@ -178,6 +191,15 @@ pub struct Check {
     pub reason: &'static str,
     pub uses: fn(&ResolvedTable, &Part) -> bool,
 }
+
+/// `config.rules` changing the default look's rules ([`crate::look`]), for a
+/// format whose writer draws rules of its own (all but HTML, SVG and PPTX).
+pub const TABLE_RULES: TableCheck = TableCheck {
+    feature: "table-rules",
+    reason: "`config.rules` changes the rules of gridwell's default look, which this format \
+             doesn't draw: its rules are its own",
+    uses: |rt| rt.rules != crate::look::DEFAULT_RULES,
+};
 
 /// A feature of the table as a whole (its language, its direction), and how to
 /// tell the table uses it.
