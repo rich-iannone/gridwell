@@ -3,7 +3,7 @@
 use gridwell_core::{Image, ImageFormat};
 use gridwell_ir::Table;
 use gridwell_layout::resolve;
-use gridwell_layout::unsupported::{find, find_table, Check, TableCheck, Unsupported};
+use gridwell_layout::unsupported::{find, find_table, Check, TableCheck, Unsupported, TABLE_RULES};
 
 const TABLE_CHECKS: &[TableCheck] = &[TableCheck {
     feature: "lang",
@@ -28,6 +28,7 @@ const CHECKS: &[Check] = &[Check {
 pub fn unsupported(table: &Table) -> Vec<Unsupported> {
     let rt = resolve(table);
     let mut found = find_table(&rt, TABLE_CHECKS);
+    found.extend(find_table(&rt, &[TABLE_RULES]));
     found.extend(find(&rt, CHECKS));
     found
 }

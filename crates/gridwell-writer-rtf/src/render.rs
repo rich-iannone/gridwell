@@ -1,3 +1,4 @@
+use gridwell_core::link::link_url;
 use gridwell_core::{Color, Image, ImageFormat};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table, VMerge};
@@ -226,18 +227,25 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
         let mut out = String::new();
         for node in nodes {
             match node {
-                ContentNode::Text { value } => out.push_str(&escape_rtf(value)),
-                ContentNode::StyledText { value, style_id } => {
+                ContentNode::Text { value, href } => {
+                    out.push_str(&linked(&escape_rtf(value), href))
+                }
+                ContentNode::StyledText {
+                    value,
+                    style_id,
+                    href,
+                } => {
                     let style = style_id
                         .as_deref()
                         .map(|id| self.rt.style(id))
                         .unwrap_or_default();
                     let fmt = self.char_format(&style);
-                    if fmt.is_empty() {
-                        out.push_str(&escape_rtf(value));
+                    let text = if fmt.is_empty() {
+                        escape_rtf(value)
                     } else {
-                        write!(out, "{{{fmt} {}}}", escape_rtf(value)).unwrap();
-                    }
+                        format!("{{{fmt} {}}}", escape_rtf(value))
+                    };
+                    out.push_str(&linked(&text, href));
                 }
                 ContentNode::LineBreak {} => out.push_str("\\line "),
                 ContentNode::FootnoteMark { mark_text, .. } => {
@@ -355,8 +363,9 @@ impl<'r, 'a> RtfRenderer<'r, 'a> {
                 )
                 .unwrap();
             }
-            self.write_section(&group.rows, false);
-            self.write_section(&group.summary_rows, false);
+            for s in group.sections() {
+                self.write_section(s, false);
+            }
         }
     }
 
@@ -550,6 +559,18 @@ fn pict(src: &str, alt: Option<&str>, width: Option<&str>, height: Option<&str>)
     }
     out.push('}');
     Some(out)
+}
+
+/// `text` as a link to `href` (a `HYPERLINK` field showing `text`), or as it is if
+/// it has none or it isn't a link (see [`gridwell_core::link`]). [`link_url`]
+/// leaves no `"`, `\` or brace to escape in the field instruction.
+fn linked(text: &str, href: &Option<String>) -> String {
+    match href.as_deref().and_then(link_url) {
+        Some(url) => {
+            format!("{{\\field{{\\*\\fldinst{{HYPERLINK \"{url}\"}}}}{{\\fldrslt{{{text}}}}}}}")
+        }
+        None => text.to_string(),
+    }
 }
 
 /// Escape text for RTF: control words for `\`, `{`, `}`; non-ASCII as `\uN?` with
