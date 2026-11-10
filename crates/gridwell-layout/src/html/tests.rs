@@ -10,6 +10,7 @@ fn raw(value: &str) -> ContentNode {
 fn text(value: &str) -> ContentNode {
     ContentNode::Text {
         value: value.into(),
+        href: None,
     }
 }
 
@@ -19,11 +20,20 @@ fn show(nodes: &[ContentNode]) -> String {
     let mut out = String::new();
     for n in nodes {
         match n {
-            ContentNode::Text { value } => out.push_str(value),
-            ContentNode::StyledText { value, style_id } => {
+            ContentNode::Text { value, href: None } => out.push_str(value),
+            ContentNode::Text {
+                value,
+                href: Some(href),
+            } => out.push_str(&format!("[{value}|→{href}]")),
+            ContentNode::StyledText {
+                value,
+                style_id,
+                href,
+            } => {
                 let id = style_id.as_deref().unwrap_or("");
                 let decls = id.strip_prefix(STYLE_PREFIX).unwrap_or(id);
-                out.push_str(&format!("[{value}|{decls}]"));
+                let to = href.as_deref().map(|h| format!("→{h}")).unwrap_or_default();
+                out.push_str(&format!("[{value}|{decls}{to}]"));
             }
             ContentNode::LineBreak {} => out.push('⏎'),
             ContentNode::Image {
@@ -201,8 +211,45 @@ fn what_a_browser_hides_is_dropped() {
 }
 
 #[test]
+fn links_link_their_text() {
+    assert_eq!(
+        lowered(r#"see <a href="https://x.org/?a=1&amp;b=2">the <b>docs</b></a>."#),
+        "see [the |→https://x.org/?a=1&b=2][docs|font-weight:bold;→https://x.org/?a=1&b=2]."
+    );
+    // Attribute white space is trimmed, as a browser does; the scheme is
+    // matched ignoring case.
+    assert_eq!(
+        lowered(r#"<A HREF=" MAILTO:a@b.c ">mail</A>"#),
+        "[mail|→MAILTO:a@b.c]"
+    );
+    // A run ends where its link does.
+    assert_eq!(
+        lowered(r#"<a href="https://a.org">a</a><a href="https://b.org">b</a>c"#),
+        "[a|→https://a.org][b|→https://b.org]c"
+    );
+    // The innermost `a` wins; one without a link links nothing.
+    assert_eq!(
+        lowered(r#"<a href="https://a.org">a<a href="https://b.org">b</a><a>c</a></a>"#),
+        "[a|→https://a.org][b|→https://b.org]c"
+    );
+    // Only http, https and mailto: the text of any other stays as it is.
+    for bad in [
+        "javascript:alert(1)",
+        "JaVaScRiPt:alert(1)",
+        "java&#9;script:alert(1)",
+        "&#106;avascript:alert(1)",
+        "data:text/html,x",
+        "/relative",
+        "#anchor",
+        "",
+    ] {
+        assert_eq!(lowered(&format!(r#"<a href="{bad}">t</a>"#)), "t", "{bad}");
+    }
+    assert_eq!(lowered("<a>t</a>"), "t");
+}
+
+#[test]
 fn everything_else_keeps_its_text() {
-    assert_eq!(lowered(r#"<a href="https://x.org">link</a>"#), "link");
     assert_eq!(lowered("<custom-tag x=1>t</custom-tag>"), "t");
     assert_eq!(lowered("a < b > c"), "a < b > c");
     assert_eq!(lowered("<q>quoted</q>"), "\u{201C}quoted\u{201D}");
