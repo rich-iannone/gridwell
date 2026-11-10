@@ -74,7 +74,7 @@ fn want_of(content: &[ContentNode]) -> Want {
     let mut out = String::new();
     for n in content {
         match n {
-            ContentNode::Text { value } | ContentNode::StyledText { value, .. } => {
+            ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. } => {
                 out.push_str(value)
             }
             ContentNode::FootnoteMark { mark_text, .. } => out.push_str(mark_text),
@@ -170,8 +170,14 @@ pub fn expected(table: &Table) -> Expected {
                 }],
             ));
         }
-        push(section(&g.rows));
-        push(section(&g.summary_rows));
+        // In display order.
+        if g.summary_placement == gridwell_ir::SummaryPlacement::Top {
+            push(section(&g.summary_rows));
+            push(section(&g.rows));
+        } else {
+            push(section(&g.rows));
+            push(section(&g.summary_rows));
+        }
     }
     let header_lines = table.header.as_ref().map_or(0, |h| {
         usize::from(h.title.is_some()) + usize::from(h.subtitle.is_some()) + h.extra_lines.len()
