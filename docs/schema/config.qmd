@@ -29,6 +29,8 @@ The `config` block contains table-level metadata used for validation and renderi
 | `aria_label` | string? | `null` | HTML: the table's accessible name (`aria-label`), in place of the title |
 | `aria_describedby` | string? | `null` | HTML: the ids of the elements that describe the table (`aria-describedby`), in place of the subtitle |
 | `summary` | string? | `null` | HTML: a `<caption>` for the table, which then names it in place of the title |
+| `id` | string? | `null` | The table's id, as gt's `gt(id =)` and Great Tables' `GT(id=)`: not empty and without whitespace ([`INVALID_TABLE_ID`](validation.qmd#structural-rules)). HTML uses it as the writer's [`table_id`](../guide/writer-options.qmd) when that option isn't set |
+| `rules` | Rules? | `null` | The table's own rules, each in place of one of the default look's ([below](#rules)) |
 
 ## Row striping
 
@@ -70,6 +72,57 @@ How each format expresses this is listed under [output formats](../guide/output-
     "body_rows": 4,
     "lang": "ar",
     "dir": "rtl"
+  }
+}
+```
+
+## Rules
+
+The formats that draw gridwell's own look (HTML, SVG and PPTX) put rules on the
+table: lines above and below the heading, under the column labels and the spanners,
+around group labels, between rows, after the stub, and above summary rows. `rules`
+changes them. Each field is a [border](styles.qmd#borders) whose `width`, `style` and `color`
+replace those of the default rule it names, so a field left out keeps the default.
+A `style` of `none` or `hidden`, or a `width` of `0`, removes the rule. A `double`
+rule narrower than 3px is drawn solid, as CSS does. A value that isn't valid is
+reported ([`INVALID_LENGTH`](validation.qmd#lengths), [`INVALID_COLOR`](validation.qmd#colors),
+[`UNKNOWN_VALUE`](validation.qmd#keyword-values)) and changes nothing.
+
+<!-- ir-fields: Rules -->
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `title` | Border? | `null` | Above the heading, when the table has one (default 2px solid `#A8A8A8`) |
+| `top` | Border? | `null` | The table's top: under the heading, above the column labels (2px solid `#D3D3D3`) |
+| `column_labels` | Border? | `null` | Under the column labels (2px solid `#D3D3D3`) |
+| `spanners` | Border? | `null` | Under each spanner label (2px solid `#D3D3D3`) |
+| `group` | Border? | `null` | Above and below each group label (2px solid `#D3D3D3`) |
+| `rows` | Border? | `null` | Between body rows (1px solid `#D3D3D3`) |
+| `stub` | Border? | `null` | After the stub: right of it, or left in a right-to-left table (2px solid `#D3D3D3`) |
+| `summary` | Border? | `null` | Between a group's summary rows and its data rows (2px solid `#D3D3D3`) |
+| `grand_summary` | Border? | `null` | Between the grand summary rows and the rows next to them (6px double `#D3D3D3`) |
+| `bottom` | Border? | `null` | The table's bottom: above the footer (2px solid `#D3D3D3`) |
+| `notes` | Border? | `null` | Below the footer, when the table has one (2px solid `#A8A8A8`) |
+
+Where two rules fall on one line, as the rule under a group's label and the one
+above its summary rows when they are at the top, the wider is drawn, and of two as
+wide the stronger style (double, then solid, dashed and dotted), as CSS's collapsed
+borders do. A cell's own border still replaces the rule on its edge.
+The other formats draw rules of their own, so a table whose `rules` change the look
+is reported to them as the unsupported feature `table-rules` and drawn without the
+change.
+
+```json
+{
+  "config": {
+    "table_cols": 3,
+    "header_rows": 1,
+    "body_rows": 4,
+    "rules": {
+      "top": { "width": "3px", "color": "#333333" },
+      "rows": { "style": "none" },
+      "bottom": { "width": "3px", "color": "#333333" }
+    }
   }
 }
 ```
