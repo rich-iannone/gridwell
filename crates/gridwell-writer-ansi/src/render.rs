@@ -1,7 +1,8 @@
+use gridwell_core::link::link_url;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{HAlign, Table};
 use gridwell_layout::{
-    resolve, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, Section, Slot,
+    resolve, ResolvedCell, ResolvedRow, ResolvedStyle, ResolvedTable, Section, SectionKind, Slot,
 };
 use std::fmt::Write;
 use thiserror::Error;
@@ -143,6 +144,26 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
         content_to_text(nodes, self.config.box_drawing)
     }
 
+    /// The URL a cell or line links to as a whole: its first link, written as an
+    /// OSC 8 hyperlink, which terminals that don't know them ignore. `None`
+    /// without `color`, as it is an escape sequence.
+    fn link(&self, nodes: &[ContentNode]) -> Option<String> {
+        if !self.config.color {
+            return None;
+        }
+        nodes.iter().find_map(|n| match n {
+            ContentNode::Text { href, .. } | ContentNode::StyledText { href, .. } => {
+                href.as_deref().and_then(link_url)
+            }
+            _ => None,
+        })
+    }
+
+    /// A line's text, linked as a whole (see [`link`](Self::link)).
+    fn linked_text(&self, nodes: &[ContentNode]) -> String {
+        hyperlink(&self.text(nodes), self.link(nodes).as_deref())
+    }
+
     /// Width of `span` columns starting at `col`, including the separators between
     /// them.
     fn span_width(&self, col: usize, span: usize) -> usize {
@@ -164,7 +185,8 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
     fn render_grid(&mut self) -> Result<(), RenderError> {
         let rt = self.rt;
         // The grid is a stack of bands with a rule between each pair: the head,
-        // then per group its label, its rows and its summary rows.
+        // then per group its label, its rows and its summary rows (in display
+        // order: the summary rows first if they are at the top).
         let mut bands = Vec::new();
         if !rt.head.is_empty() {
             bands.push(Band::Rows(&rt.head, true));
@@ -173,11 +195,10 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
             if let Some(label) = &group.label {
                 bands.push(Band::Label(&label.content));
             }
-            if !group.rows.is_empty() {
-                bands.push(Band::Rows(&group.rows, false));
-            }
-            if !group.summary_rows.is_empty() {
-                bands.push(Band::Rows(&group.summary_rows, true));
+            for s in group.sections() {
+                if !s.is_empty() {
+                    bands.push(Band::Rows(s, s.kind == SectionKind::Summary));
+                }
             }
         }
 
@@ -191,7 +212,8 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
                 Band::Rows(section, strong) => self.write_section(section, *strong)?,
                 Band::Label(content) => {
                     let text = self.text(content);
-                    self.write_group_label(&text)?;
+                    let link = self.link(content);
+                    self.write_group_label(&text, link.as_deref())?;
                 }
             }
             above = last;
@@ -222,12 +244,12 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
     fn render_title(&mut self) -> Result<(), RenderError> {
         let header = &self.rt.header;
         if let Some(title) = &header.title {
-            let text = self.text(&title.content);
+            let text = self.linked_text(&title.content);
             let (open, close) = self.bold();
             writeln!(self.buf, "{open}{text}{close}")?;
         }
         if let Some(subtitle) = &header.subtitle {
-            let text = self.text(&subtitle.content);
+            let text = self.linked_text(&subtitle.content);
             writeln!(self.buf, "{text}")?;
         }
         Ok(())
@@ -294,8 +316,10 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
                     let width = self.span_width(col, cell.colspan);
                     let text = cell_text(cell, self.config.box_drawing);
                     let (open, close) = self.escapes(&cell.style, strong);
+                    let link = self.link(&cell.content);
                     self.buf.push_str(&open);
-                    self.buf.push_str(&fit(&text, width, &cell.align));
+                    self.buf
+                        .push_str(&fit(&text, width, &cell.align, link.as_deref()));
                     self.buf.push_str(close);
                 }
                 Slot::CoveredV {
@@ -361,12 +385,12 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
         (open, close)
     }
 
-    fn write_group_label(&mut self, text: &str) -> Result<(), RenderError> {
+    fn write_group_label(&mut self, text: &str, link: Option<&str>) -> Result<(), RenderError> {
         let inner = self.span_width(0, self.col_widths.len());
         self.buf.push_str(self.bc.v);
         let (open, close) = self.bold();
         self.buf.push_str(open);
-        self.buf.push_str(&fit(text, inner, &HAlign::Left));
+        self.buf.push_str(&fit(text, inner, &HAlign::Left, link));
         self.buf.push_str(close);
         self.buf.push_str(self.bc.v);
         self.buf.push('\n');
@@ -375,7 +399,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
 
     fn render_footnotes(&mut self) -> Result<(), RenderError> {
         for note in &self.rt.footer.footnotes {
-            let text = self.text(&note.content);
+            let text = self.linked_text(&note.content);
             let mark = if self.config.box_drawing {
                 superscript(note.mark)
             } else {
@@ -385,7 +409,7 @@ impl<'r, 'a> AnsiRenderer<'r, 'a> {
             writeln!(self.buf, "  {mark} {text}")?;
         }
         for note in &self.rt.footer.source_notes {
-            let text = self.text(&note.content);
+            let text = self.linked_text(&note.content);
             writeln!(self.buf, "  {text}")?;
         }
         Ok(())
@@ -504,9 +528,30 @@ fn cell_text(cell: &ResolvedCell, superscript_marks: bool) -> String {
     text
 }
 
+/// `text` as an OSC 8 hyperlink to `url` (an ASCII URL without control
+/// characters: [`link_url`]'s), or as it is.
+fn hyperlink(text: &str, url: Option<&str>) -> String {
+    match url {
+        Some(url) if !text.is_empty() => format!("\x1b]8;;{url}\x1b\\{text}\x1b]8;;\x1b\\"),
+        _ => text.to_string(),
+    }
+}
+
 /// `text` laid out in exactly `width` terminal columns: one space of padding on
-/// each side, aligned, and truncated with `…` if it doesn't fit.
-fn fit(text: &str, width: usize, align: &HAlign) -> String {
+/// each side, aligned, and truncated with `…` if it doesn't fit; the text (not
+/// its padding) linked to `url`.
+fn fit(text: &str, width: usize, align: &HAlign, url: Option<&str>) -> String {
+    let (left, shown, right) = fit_parts(text, width, align);
+    format!(
+        "{}{}{}",
+        " ".repeat(left),
+        hyperlink(&shown, url),
+        " ".repeat(right)
+    )
+}
+
+/// [`fit`]'s spaces on the left, text shown, and spaces on the right.
+fn fit_parts(text: &str, width: usize, align: &HAlign) -> (usize, String, usize) {
     let inner = width.saturating_sub(2);
     let mut shown = String::new();
     let mut used = 0;
@@ -531,7 +576,7 @@ fn fit(text: &str, width: usize, align: &HAlign) -> String {
         HAlign::Center => pad / 2,
         _ => pad.min(1),
     };
-    format!("{}{shown}{}", " ".repeat(left), " ".repeat(pad - left))
+    (left, shown, pad - left)
 }
 
 #[cfg(test)]
