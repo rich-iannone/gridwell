@@ -1,3 +1,4 @@
+use gridwell_core::link::link_url;
 use gridwell_core::xml::escape as escape_xml;
 use gridwell_core::{Color, Image, ImageFormat, LanguageTag};
 use gridwell_ir::content::ContentNode;
@@ -33,8 +34,11 @@ pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
         .zip(&names)
         .map(|(m, name)| (m.rel_id(), name.as_str()))
         .collect();
+    let links: Vec<(String, &str)> = (media.links.iter().enumerate())
+        .map(|(i, url)| (link_rel_id(i), url.as_str()))
+        .collect();
     let content_types = xml::content_types(&formats);
-    let document_rels = xml::document_rels(&rels);
+    let document_rels = xml::document_rels(&rels, &links);
     let styles_xml = render_styles_xml(table);
     let paths: Vec<String> = names.iter().map(|n| format!("word/{n}")).collect();
     let mut parts = vec![
@@ -50,12 +54,18 @@ pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
     Ok(package(&parts)?)
 }
 
-/// The images the document embeds, each once (`word/media/imageN.ext`), and how
-/// many drawings show them.
+/// The images the document embeds, each once (`word/media/imageN.ext`), how
+/// many drawings show them, and the URLs it links to, each once.
 #[derive(Default)]
 struct Media {
     images: Vec<MediaImage>,
     drawings: u32,
+    links: Vec<String>,
+}
+
+/// The relationship id of the `i`th (0-based) link.
+fn link_rel_id(i: usize) -> String {
+    format!("rIdLink{}", i + 1)
 }
 
 struct MediaImage {
@@ -90,6 +100,18 @@ impl Media {
         let id = m.rel_id();
         self.images.push(m);
         id
+    }
+
+    /// The relationship id of a link to `url`, adding it if new.
+    fn link(&mut self, url: String) -> String {
+        let i = match self.links.iter().position(|u| *u == url) {
+            Some(i) => i,
+            None => {
+                self.links.push(url);
+                self.links.len() - 1
+            }
+        };
+        link_rel_id(i)
     }
 }
 
@@ -257,8 +279,9 @@ fn write_table(buf: &mut String, rt: &ResolvedTable, media: &mut Media) -> Resul
         if let Some(label) = &group.label {
             write_group_label_row(buf, rt, media, label, &col_widths)?;
         }
-        write_section(buf, rt, media, &group.rows, &col_widths, false)?;
-        write_section(buf, rt, media, &group.summary_rows, &col_widths, false)?;
+        for s in group.sections() {
+            write_section(buf, rt, media, s, &col_widths, false)?;
+        }
     }
 
     buf.push_str("</w:tbl>\n");
@@ -497,13 +520,21 @@ fn write_content(
 ) -> Result<(), RenderError> {
     for node in nodes {
         match node {
-            ContentNode::Text { value } => write_run(buf, value, fmt)?,
-            ContentNode::StyledText { value, style_id } => {
+            ContentNode::Text { value, href } => {
+                linked(buf, media, href, |buf| write_run(buf, value, fmt))?
+            }
+            ContentNode::StyledText {
+                value,
+                style_id,
+                href,
+            } => {
                 let style = style_id
                     .as_deref()
                     .map(|id| rt.style(id))
                     .unwrap_or_default();
-                write_run(buf, value, fmt.with(&style))?;
+                linked(buf, media, href, |buf| {
+                    write_run(buf, value, fmt.with(&style))
+                })?;
             }
             ContentNode::LineBreak {} => buf.push_str("<w:r><w:br/></w:r>"),
             ContentNode::FootnoteMark { mark_text, .. } => {
@@ -535,6 +566,25 @@ fn write_content(
         }
     }
     Ok(())
+}
+
+/// The runs `write` writes, in a `w:hyperlink` to `href` if it is a link (see
+/// [`gridwell_core::link`]).
+fn linked(
+    buf: &mut String,
+    media: &mut Media,
+    href: &Option<String>,
+    write: impl FnOnce(&mut String) -> Result<(), RenderError>,
+) -> Result<(), RenderError> {
+    match href.as_deref().and_then(link_url) {
+        Some(url) => {
+            write!(buf, "<w:hyperlink r:id=\"{}\">", media.link(url))?;
+            write(buf)?;
+            buf.push_str("</w:hyperlink>");
+            Ok(())
+        }
+        None => write(buf),
+    }
 }
 
 /// An image Word can embed: a PNG, JPEG or GIF `data:` URI (an SVG needs a
