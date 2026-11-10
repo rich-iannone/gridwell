@@ -1,7 +1,7 @@
 use gridwell_core::{Color, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{is_valid_style_id, CellScope, HAlign, Keyword, RowRole, Table, TextDirection};
-use gridwell_layout::look::{EdgePart, EdgeRules};
+use gridwell_layout::look::{BaseRules, Edge, EdgePart};
 use gridwell_layout::{
     resolve_with, AlignPad, ResolveOptions, ResolvedBorder, ResolvedCell, ResolvedRow,
     ResolvedStyle, ResolvedTable, Section, SectionKind, Sides, Slot,
@@ -52,9 +52,10 @@ struct HtmlRenderer<'r, 'a> {
     svg_prefix: Option<String>,
     /// Summary rows written so far, which number their cells' SVG ids.
     summary_rows: usize,
-    /// The table's edges its cells draw (classes `{prefix}_cells_*` on the
-    /// table, `{prefix}_rule_*` on the cells carrying the rule).
-    edges: EdgeRules,
+    /// The base look's rules: on the table's edges its cells draw, classes
+    /// `{prefix}_cells_*` on the table and `{prefix}_rule_*` on the cells carrying
+    /// the rule.
+    base: BaseRules,
 }
 
 /// The ids made before the body (in this order, as Great Tables makes them): the
@@ -180,7 +181,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             head_ids: HeadIds::default(),
             svg_prefix: None,
             summary_rows: 0,
-            edges: EdgeRules::new(rt),
+            base: BaseRules::new(rt),
         };
         r.head_ids = HeadIds::new(rt, &mut r.ids);
         if !config.inline_styles {
@@ -427,7 +428,11 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         // The base look first: zero specificity, so everything below wins.
         if self.config.base_styles {
             let rtl = self.table.config.dir == Some(TextDirection::Rtl);
-            for line in crate::base::rules(&p, rtl, &scope) {
+            let rules = crate::base::Rules {
+                table: self.rt.rules,
+                edges: [Edge::Top, Edge::Head, Edge::Bottom].map(|e| self.base.edge(e)),
+            };
+            for line in crate::base::rules(&p, rtl, &scope, &rules) {
                 self.write_line(&line);
             }
         }
@@ -543,7 +548,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         let mut classes = vec![format!("{p}_table")];
         // Edges drawn by the cells: the table's and the head's rules are off there.
         if !self.config.inline_styles {
-            let e = &self.edges;
+            let e = self.base.edges();
             for (on, edge) in [(e.top, "top"), (e.head, "head"), (e.bottom, "bottom")] {
                 if on {
                     classes.push(format!("{p}_cells_{edge}"));
@@ -631,7 +636,7 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
         self.write_line("<thead>");
         self.push_indent();
         for (r, row) in rt.head.rows.iter().enumerate() {
-            self.render_row(row, SectionKind::Head, EdgePart::Head, RowIds::Head(r));
+            self.render_row(row, SectionKind::Head, EdgePart::Head, RowIds::Head(r), &[]);
         }
         self.pop_indent();
         self.write_line("</thead>");
@@ -674,8 +679,10 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
             }
 
             let id = group_id.as_deref();
-            self.render_section(&group.rows, EdgePart::Rows(g), id, &key);
-            self.render_section(&group.summary_rows, EdgePart::Summary(g), id, &key);
+            for s in group.sections() {
+                let top = group.summary_top && s.kind == SectionKind::Summary;
+                self.render_section(s, EdgePart::of(g, s), id, &key, top);
+            }
 
             self.pop_indent();
             self.write_line("</tbody>");
@@ -713,12 +720,15 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
     /// `summary-{group}-{label}`, or `grand-summary-{label}`), and each other cell
     /// lists its headers: the group's label (`group_id`; not for a grand summary),
     /// the stub cells covering its row, and the spanners and column labels over it.
+    /// Summary rows at the top (`top`) have class `{prefix}_summary_top`, and the
+    /// last of them `{prefix}_summary_end`, for their rules.
     fn render_section(
         &mut self,
         section: &Section,
         part: EdgePart,
         group_id: Option<&str>,
         key: &str,
+        top: bool,
     ) {
         let mut stubs: HashMap<(usize, usize), String> = HashMap::new();
         for (r, row) in section.rows.iter().enumerate() {
@@ -776,13 +786,32 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                 headers: &headers,
                 svg_row,
             };
-            self.render_row(row, section.kind, part, ids);
+            let marks: &[&str] = match (top, r + 1 == section.rows.len()) {
+                (false, _) => &[],
+                (true, false) => &["summary_top"],
+                (true, true) => &["summary_top", "summary_end"],
+            };
+            self.render_row(row, section.kind, part, ids, marks);
         }
     }
 
-    fn render_row(&mut self, row: &ResolvedRow, kind: SectionKind, part: EdgePart, ids: RowIds) {
+    /// A row; `marks` are part names it has as classes after its own.
+    fn render_row(
+        &mut self,
+        row: &ResolvedRow,
+        kind: SectionKind,
+        part: EdgePart,
+        ids: RowIds,
+        marks: &[&str],
+    ) {
         let row_class = match row_part(row, kind) {
-            Some(part) => self.part_attrs(part, &row.row.style_id),
+            Some(part) => {
+                let mut part = self.part_class(part);
+                for m in marks {
+                    part = format!("{part} {}", self.part_class(m));
+                }
+                self.part_attrs_for(&part, &row.row.style_id)
+            }
             None => self.style_class_attr(&row.row.style_id),
         };
         self.write_line(&format!("<tr{row_class}>"));
@@ -838,11 +867,17 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
                 RowIds::Head(r) | RowIds::Body { r, .. } => *r,
             };
             let p = &self.config.class_prefix;
-            if self.edges.carries_top(edge_part, r, cell.col) {
-                classes.push(format!("{p}_rule_top"));
-            }
-            if self.edges.carries_bottom(edge_part, r, cell.col) {
-                classes.push(format!("{p}_rule_bottom"));
+            let edges = self.base.edges();
+            let carried = [
+                edges.carried_top(edge_part, r, cell.col),
+                edges.carried_bottom(edge_part, r, cell.col),
+            ];
+            for edge in carried.into_iter().flatten() {
+                classes.push(match edge {
+                    Edge::Top => format!("{p}_rule_top"),
+                    Edge::Head => format!("{p}_rule_head"),
+                    Edge::Bottom => format!("{p}_rule_bottom"),
+                });
             }
             if let Some(a) = align {
                 classes.push(format!("{}__al_{a}", self.config.class_prefix));
@@ -1030,36 +1065,47 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
     fn render_content_nodes_inline(&mut self, nodes: &[ContentNode]) {
         for node in nodes {
             match node {
-                ContentNode::Text { value } => {
-                    let _ = write!(self.buf, "{}", escape_html(value));
-                }
-                ContentNode::StyledText { value, style_id } => {
+                ContentNode::Text { value, href } => match link(href) {
+                    Some(url) => {
+                        let _ = write!(self.buf, "<a href=\"{url}\">{}</a>", escape_html(value));
+                    }
+                    None => {
+                        let _ = write!(self.buf, "{}", escape_html(value));
+                    }
+                },
+                ContentNode::StyledText {
+                    value,
+                    style_id,
+                    href,
+                } => {
+                    // A link is the run's element itself (`<a>` for `<span>`), so its
+                    // style colors the underline too.
+                    let (tag, href) = match link(href) {
+                        Some(url) => ("a", format!(" href=\"{url}\"")),
+                        None => ("span", String::new()),
+                    };
+                    let value = escape_html(value);
                     if let Some(ref id) = style_id {
                         // A run without a class (one lowered from raw HTML, its
                         // style not in the table's) gets its style inline.
                         let class = self.style_class(id).filter(|_| !self.config.inline_styles);
                         if let Some(class) = class {
-                            let _ = write!(
-                                self.buf,
-                                "<span class=\"{class}\">{}</span>",
-                                escape_html(value)
-                            );
+                            let _ =
+                                write!(self.buf, "<{tag}{href} class=\"{class}\">{value}</{tag}>");
                         } else {
                             let style = self.rt.style(id);
                             if !style.is_empty() {
-                                let css = style_css(&style);
+                                let css = escape_attr(&style_css(&style));
                                 let _ = write!(
                                     self.buf,
-                                    "<span style=\"{}\">{}</span>",
-                                    escape_attr(&css),
-                                    escape_html(value)
+                                    "<{tag}{href} style=\"{css}\">{value}</{tag}>"
                                 );
                             } else {
-                                let _ = write!(self.buf, "<span>{}</span>", escape_html(value));
+                                let _ = write!(self.buf, "<{tag}{href}>{value}</{tag}>");
                             }
                         }
                     } else {
-                        let _ = write!(self.buf, "<span>{}</span>", escape_html(value));
+                        let _ = write!(self.buf, "<{tag}{href}>{value}</{tag}>");
                     }
                 }
                 ContentNode::LineBreak {} => {
@@ -1128,7 +1174,11 @@ impl<'r, 'a> HtmlRenderer<'r, 'a> {
     /// the part's class plus the style's class (or, with inline styles, the part's
     /// class and the style's `style` attribute).
     fn part_attrs(&self, part: &str, style_id: &Option<String>) -> String {
-        let part = self.part_class(part);
+        self.part_attrs_for(&self.part_class(part), style_id)
+    }
+
+    /// [`Self::part_attrs`] with the part's classes already made.
+    fn part_attrs_for(&self, part: &str, style_id: &Option<String>) -> String {
         match style_id.as_deref().and_then(|id| self.style_class(id)) {
             Some(class) if !self.config.inline_styles => format!(" class=\"{part} {class}\""),
             _ => format!(" class=\"{part}\"{}", self.style_class_attr(style_id)),
@@ -1179,6 +1229,19 @@ pub fn render(table: &Table, config: &HtmlWriterConfig) -> Result<String, Render
         lower_html: false,
     };
     let rt = resolve_with(table, opts);
+    // The table's own id, unless the option sets one; one that isn't an HTML id
+    // (in IR that wasn't validated) is left out.
+    let own_id = match (&config.table_id, &table.config.id) {
+        (None, Some(id)) if crate::check_table_id(Some(id)).is_ok() => Some(id),
+        _ => None,
+    };
+    if let Some(id) = own_id {
+        let config = HtmlWriterConfig {
+            table_id: Some(id.clone()),
+            ..config.clone()
+        };
+        return HtmlRenderer::new(&rt, &config).render();
+    }
     HtmlRenderer::new(&rt, config).render()
 }
 
@@ -1414,9 +1477,17 @@ fn escape_attr(s: &str) -> String {
         .replace('"', "&quot;")
 }
 
+/// The URL written for a run's `href`, escaped for an attribute, or `None` if it
+/// has none or it isn't a link (see [`gridwell_core::link`]).
+fn link(href: &Option<String>) -> Option<String> {
+    href.as_deref()
+        .and_then(gridwell_core::link::link_url)
+        .map(|url| escape_attr(&url))
+}
+
 fn single_text_content(nodes: &[ContentNode]) -> Option<&str> {
     if nodes.len() == 1 {
-        if let ContentNode::Text { value } = &nodes[0] {
+        if let ContentNode::Text { value, href: None } = &nodes[0] {
             return Some(value);
         }
     }
