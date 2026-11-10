@@ -61,6 +61,8 @@ Each must trigger a specific validation error.
 | `placeholder_has_content.json` | `SPAN_PLACEHOLDER_HAS_CONTENT` — placeholder cell not empty |
 | `summary_no_stub.json` | `SUMMARY_REQUIRES_STUB` — summary row with stub_cols=0 |
 | `ir_version_unknown_major.json` | `IR_VERSION` — `ir_version` is `"2.0"`, a major version gridwell doesn't read |
+| `invalid_href.json` | `INVALID_HREF` — a text run's `href` is a `javascript:` URL |
+| `invalid_table_id.json` | `INVALID_TABLE_ID` — `config.id` has a space |
 
 ## Adding New Fixtures
 
