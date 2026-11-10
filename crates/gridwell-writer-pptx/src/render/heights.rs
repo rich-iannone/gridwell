@@ -8,7 +8,7 @@
 use std::convert::Infallible;
 
 use gridwell_layout::measure::clusters;
-use gridwell_layout::{ResolvedCell, ResolvedTable, Section, Slot};
+use gridwell_layout::{ResolvedCell, ResolvedTable, Section, SectionKind, Slot};
 
 use super::widths::{breaks, run_size, EMU_PER_PT, INSET_PT};
 use super::{cell_fmt, for_each_run, label_fmt, pad_fmt, Para, Run, BASE_PT};
@@ -38,8 +38,9 @@ pub(super) fn row_heights(rt: &ResolvedTable, col_widths: &[u32]) -> Vec<u32> {
             let _ = for_each_run(rt, &label.content, label_fmt(label), &mut |r| w.add(r));
             rows.push(w.height() + 2.0 * INSET_V_PT);
         }
-        section_heights(rt, &g.rows, false, &cols, &mut rows);
-        section_heights(rt, &g.summary_rows, true, &cols, &mut rows);
+        for s in g.sections() {
+            section_heights(rt, s, s.kind != SectionKind::Body, &cols, &mut rows);
+        }
     }
     rows.into_iter().map(emu).collect()
 }
@@ -576,8 +577,9 @@ mod tests {
                     assert!(rows[at] >= with_insets(line(BASE_PT)) - 1e-3);
                     at += 1;
                 }
-                check(&g.rows, false, &mut at);
-                check(&g.summary_rows, true, &mut at);
+                for s in g.sections() {
+                    check(s, s.kind != SectionKind::Body, &mut at);
+                }
             }
             assert_eq!(at, rows.len(), "{}", ex.name);
         }

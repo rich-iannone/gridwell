@@ -1,15 +1,17 @@
-//! The rules of the default look ([`gridwell_layout::look`]), as HTML draws them.
+//! The table's rules (the default look's, [`gridwell_layout::look`], as
+//! `config.rules` changes them), as HTML draws them.
 //! The rules on row boundaries and right of the stub become cell borders, so they
 //! move with the table. Lines a cell border can't draw are line shapes: the outer
 //! rules above the heading and below the notes (which are text boxes of their
-//! own), and the spanner rules (inset from their cell's ends, so neighboring
-//! spanners' rules stay apart).
+//! own), and the solid spanner rules (inset from their cell's ends, so neighboring
+//! spanners' rules stay apart; any other spanner rule is the spanner's bottom
+//! border, as in HTML).
 
 use std::fmt::Write;
 
 use gridwell_ir::{BorderStyle, RowRole};
-use gridwell_layout::look::{BaseRules, EdgePart, OwnEdges, Rule, LOOK};
-use gridwell_layout::{ResolvedTable, Section, Sides, Slot, Stroke};
+use gridwell_layout::look::{stronger, BaseRules, EdgePart, LineStyle, OwnEdges, Rule, LOOK};
+use gridwell_layout::{ResolvedCell, ResolvedTable, Section, SectionKind, Sides, Slot, Stroke};
 
 use super::{RenderError, BASE_PT};
 
@@ -24,10 +26,11 @@ const EMU_PER_PX: f64 = 9525.0;
 /// A rule as a cell border.
 fn stroke(rule: Rule) -> Stroke {
     Stroke {
-        style: if rule.double {
-            BorderStyle::Double
-        } else {
-            BorderStyle::Solid
+        style: match rule.style {
+            LineStyle::Solid => BorderStyle::Solid,
+            LineStyle::Dashed => BorderStyle::Dashed,
+            LineStyle::Dotted => BorderStyle::Dotted,
+            LineStyle::Double => BorderStyle::Double,
         },
         width_pt: rule.width_px * 0.75,
         color: Some(rule.color),
@@ -71,10 +74,20 @@ pub(super) fn cell_strokes(rt: &ResolvedTable, rules: Option<&BaseRules>) -> Vec
                         clears_top: cell.style.border_cleared.top,
                     };
                     let (top, bottom) = rules.cell(part, origin, cell.col, cell.rowspan, edges);
+                    let mut bottom = bottom;
+                    // A spanner rule that isn't solid is the spanner's bottom
+                    // border, as in HTML (a solid one is an inset line).
+                    if let Some(sp) = rt.rules.spanners.filter(|sp| {
+                        sp.style != LineStyle::Solid && !edges.bottom && is_spanner(s, r, cell)
+                    }) {
+                        if bottom.is_none_or(|b| stronger(&sp, &b) != Some(false)) {
+                            bottom = Some(sp);
+                        }
+                    }
                     rule.top = top.map(stroke);
                     rule.bottom = bottom.map(stroke);
                     if cell.is_stub && part != EdgePart::Head {
-                        rule.right = Some(stroke(LOOK.section_rule));
+                        rule.right = rt.rules.stub.map(stroke);
                     }
                 }
                 o.push(strokes.masked(outline));
@@ -106,13 +119,9 @@ pub(super) fn cell_strokes(rt: &ResolvedTable, rules: Option<&BaseRules>) -> Vec
             };
             base.push(vec![rule; ncols]);
         }
-        section(EdgePart::Rows(g), &group.rows, &mut own, &mut base);
-        section(
-            EdgePart::Summary(g),
-            &group.summary_rows,
-            &mut own,
-            &mut base,
-        );
+        for s in group.sections() {
+            section(EdgePart::of(g, s), s, &mut own, &mut base);
+        }
     }
     // The table's own borders win: a base rule is drawn only where the position
     // across the edge has no border of its own facing it.
@@ -165,8 +174,17 @@ pub(super) fn rule_emu(rule: Rule) -> u32 {
     (rule.width_px * EMU_PER_PX).round() as u32
 }
 
-/// The rule under each spanner label: a spanner row's cells with content, outside
-/// the stub, at the cell's bottom (above the rule on the boundary), inset
+/// Whether `cell`, in row `r` of `section`, is a spanner label with a rule under
+/// it: a spanner row's cell with content, outside the stub.
+fn is_spanner(section: &Section, r: usize, cell: &ResolvedCell) -> bool {
+    section.kind == SectionKind::Head
+        && section.rows[r].role == Some(RowRole::SpannerLabel)
+        && !cell.content.is_empty()
+        && !cell.is_stub
+}
+
+/// The solid rule under each spanner label ([`is_spanner`]), at the cell's
+/// bottom (above the rule on the boundary), inset
 /// [`LOOK.spanner_rule_inset`](gridwell_layout::look::Look::spanner_rule_inset)
 /// at each end but the table's edges. The table's top left is at `origin`.
 pub(super) fn spanner_lines(
@@ -176,7 +194,9 @@ pub(super) fn spanner_lines(
     row_heights: &[u32],
     (table_x, table_y): (u32, u32),
 ) -> Vec<Line> {
-    let rule = LOOK.spanner_rule;
+    let Some(rule) = rt.rules.spanners.filter(|r| r.style == LineStyle::Solid) else {
+        return Vec::new();
+    };
     let w = rule_emu(rule);
     let inset = (LOOK.spanner_rule_inset * EMU_PER_PX).round() as u32;
     let ncols = col_widths.len();
@@ -184,11 +204,8 @@ pub(super) fn spanner_lines(
     let edge = |n: usize| col_widths.iter().take(n).sum::<u32>();
     let mut out = Vec::new();
     for (r, row) in rt.head.rows.iter().enumerate() {
-        if row.role != Some(RowRole::SpannerLabel) {
-            continue;
-        }
         for cell in row.cells() {
-            if cell.content.is_empty() || cell.is_stub {
+            if !is_spanner(&rt.head, r, cell) {
                 continue;
             }
             let end = cell.col + cell.colspan;
@@ -234,13 +251,22 @@ pub(super) fn spanner_lines(
 pub(super) fn write_line(buf: &mut String, id: u32, line: &Line) -> Result<(), RenderError> {
     let Line { x, y, width, rule } = *line;
     let w = rule_emu(rule);
-    let cmpd = if rule.double { " cmpd=\"dbl\"" } else { "" };
+    let cmpd = if rule.is_double() {
+        " cmpd=\"dbl\""
+    } else {
+        ""
+    };
+    let dash = match rule.style {
+        LineStyle::Dashed => "<a:prstDash val=\"dash\"/>",
+        LineStyle::Dotted => "<a:prstDash val=\"sysDot\"/>",
+        LineStyle::Solid | LineStyle::Double => "",
+    };
     writeln!(
         buf,
         "<p:cxnSp><p:nvCxnSpPr><p:cNvPr id=\"{id}\" name=\"Rule {id}\"/><p:cNvCxnSpPr/><p:nvPr/></p:nvCxnSpPr>\
          <p:spPr><a:xfrm><a:off x=\"{x}\" y=\"{y}\"/><a:ext cx=\"{width}\" cy=\"0\"/></a:xfrm>\
          <a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom>\
-         <a:ln w=\"{w}\" cap=\"flat\"{cmpd}><a:solidFill><a:srgbClr val=\"{}\"/></a:solidFill></a:ln>\
+         <a:ln w=\"{w}\" cap=\"flat\"{cmpd}><a:solidFill><a:srgbClr val=\"{}\"/></a:solidFill>{dash}</a:ln>\
          </p:spPr></p:cxnSp>",
         rule.color.to_rrggbb()
     )?;

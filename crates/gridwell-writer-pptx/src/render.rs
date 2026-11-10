@@ -1,10 +1,12 @@
+use gridwell_core::link::link_url;
 use gridwell_core::xml::escape as escape_xml;
 use gridwell_core::Color;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table};
-use gridwell_layout::look::{BaseRules, LOOK};
+use gridwell_layout::look::{BaseRules, Rule};
 use gridwell_layout::{
-    resolve, CellVAlign, ResolvedCell, ResolvedStyle, ResolvedTable, Section, Sides, Stroke,
+    resolve, CellVAlign, ResolvedCell, ResolvedStyle, ResolvedTable, Section, SectionKind, Sides,
+    Stroke,
 };
 use gridwell_ooxml::{package, Part};
 use std::fmt::Write;
@@ -27,7 +29,14 @@ pub enum RenderError {
 
 /// Render the full .pptx ZIP file as bytes.
 pub fn render(table: &Table, config: &PptxConfig) -> Result<Vec<u8>, RenderError> {
-    let slide_xml = render_slide_xml(table, config)?;
+    let rt = resolve(table);
+    let mut slide_xml = String::with_capacity(8192);
+    let mut links = Links::default();
+    write_slide_xml(&mut slide_xml, &rt, &mut links, config)?;
+    let links: Vec<(String, &str)> = (links.0.iter().enumerate())
+        .map(|(i, url)| (format!("rIdLink{}", i + 1), url.as_str()))
+        .collect();
+    let slide_rels = xml::slide_rels(&links);
 
     Ok(package(&[
         Part::new("[Content_Types].xml", xml::CONTENT_TYPES),
@@ -35,7 +44,7 @@ pub fn render(table: &Table, config: &PptxConfig) -> Result<Vec<u8>, RenderError
         Part::new("ppt/presentation.xml", xml::PRESENTATION),
         Part::new("ppt/_rels/presentation.xml.rels", xml::PRESENTATION_RELS),
         Part::new("ppt/slides/slide1.xml", slide_xml.as_str()),
-        Part::new("ppt/slides/_rels/slide1.xml.rels", xml::SLIDE_RELS),
+        Part::new("ppt/slides/_rels/slide1.xml.rels", slide_rels.as_str()),
         Part::new("ppt/slideLayouts/slideLayout1.xml", xml::SLIDE_LAYOUT),
         Part::new(
             "ppt/slideLayouts/_rels/slideLayout1.xml.rels",
@@ -54,7 +63,7 @@ pub fn render(table: &Table, config: &PptxConfig) -> Result<Vec<u8>, RenderError
 pub fn render_slide_xml(table: &Table, config: &PptxConfig) -> Result<String, RenderError> {
     let rt = resolve(table);
     let mut buf = String::with_capacity(8192);
-    write_slide_xml(&mut buf, &rt, config)?;
+    write_slide_xml(&mut buf, &rt, &mut Links::default(), config)?;
     Ok(buf)
 }
 
@@ -63,6 +72,7 @@ pub fn render_slide_xml(table: &Table, config: &PptxConfig) -> Result<String, Re
 fn write_slide_xml(
     buf: &mut String,
     rt: &ResolvedTable,
+    links: &mut Links,
     config: &PptxConfig,
 ) -> Result<(), RenderError> {
     buf.push_str(r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>"#);
@@ -136,15 +146,13 @@ fn write_slide_xml(
     // The look's outer rules: above the heading and below the notes, across the
     // table and the boxes' text.
     let rules = config.base_styles.then(|| BaseRules::new(rt));
-    let outer = LOOK.outer_rule;
-    let outer_h = |on: bool| {
-        if on && rules.is_some() {
-            rules::rule_emu(outer)
-        } else {
-            0
-        }
-    };
-    let (top_rule, bottom_rule) = (outer_h(!heading.is_empty()), outer_h(!notes.is_empty()));
+    let outer = |rule: Option<Rule>, on: bool| rule.filter(|_| on && rules.is_some());
+    let title_rule = outer(rt.rules.title, !heading.is_empty());
+    let notes_rule = outer(rt.rules.notes, !notes.is_empty());
+    let (top_rule, bottom_rule) = (
+        title_rule.map_or(0, rules::rule_emu),
+        notes_rule.map_or(0, rules::rule_emu),
+    );
     let (rule_x, rule_w) = rule_span(rt, (box_x, box_w, need), table_x, table_w);
     let total = [
         top_rule,
@@ -159,21 +167,31 @@ fn write_slide_xml(
     .fold(0u32, u32::saturating_add);
     let mut y = (SLIDE_H.saturating_sub(total) / 2).max(MARGIN_EMU);
     let mut lines = Vec::new();
-    let mut outer_line = |y: u32, h: u32| {
-        if h > 0 {
+    let mut outer_line = |y: u32, rule: Option<Rule>| {
+        if let Some(rule) = rule {
             lines.push(Line {
                 x: rule_x,
-                y: y.saturating_add(h / 2),
+                y: y.saturating_add(rules::rule_emu(rule) / 2),
                 width: rule_w,
-                rule: outer,
+                rule,
             });
         }
     };
 
-    outer_line(y, top_rule);
+    outer_line(y, title_rule);
     y = y.saturating_add(top_rule);
     if !heading.is_empty() {
-        write_text_box(buf, rt, 3, "Title", (box_x, box_w), y, header_h, &heading)?;
+        write_text_box(
+            buf,
+            rt,
+            links,
+            3,
+            "Title",
+            (box_x, box_w),
+            y,
+            header_h,
+            &heading,
+        )?;
         y = y
             .saturating_add(header_h)
             .saturating_add(gap(header_h, table_h.saturating_add(notes_h)));
@@ -181,7 +199,16 @@ fn write_slide_xml(
     let mut spanners = Vec::new();
     if !rt.is_empty() {
         let strokes = rules::cell_strokes(rt, rules.as_ref());
-        write_table_frame(buf, rt, &col_widths, &row_heights, &strokes, table_x, y)?;
+        write_table_frame(
+            buf,
+            rt,
+            links,
+            &col_widths,
+            &row_heights,
+            &strokes,
+            table_x,
+            y,
+        )?;
         if let Some(rules) = &rules {
             spanners = rules::spanner_lines(rt, rules, &col_widths, &row_heights, (table_x, y));
         }
@@ -190,10 +217,20 @@ fn write_slide_xml(
             .saturating_add(gap(table_h, notes_h));
     }
     if !notes.is_empty() {
-        write_text_box(buf, rt, 4, "Notes", (box_x, box_w), y, notes_h, &notes)?;
+        write_text_box(
+            buf,
+            rt,
+            links,
+            4,
+            "Notes",
+            (box_x, box_w),
+            y,
+            notes_h,
+            &notes,
+        )?;
         y = y.saturating_add(notes_h);
     }
-    outer_line(y, bottom_rule);
+    outer_line(y, notes_rule);
     // Drawn over the table: after it.
     for (id, line) in (5..).zip(lines.iter().chain(&spanners)) {
         rules::write_line(buf, id, line)?;
@@ -304,6 +341,7 @@ fn rule_span(
 fn write_text_box(
     buf: &mut String,
     rt: &ResolvedTable,
+    links: &mut Links,
     id: u32,
     name: &str,
     (x, width): (u32, u32),
@@ -320,7 +358,7 @@ fn write_text_box(
     )?;
     for para in paras {
         open_paragraph(buf, rt, None);
-        if !write_runs(buf, rt, |f| para.for_each_run(rt, f))? {
+        if !write_runs(buf, rt, links, |f| para.for_each_run(rt, f))? {
             buf.push_str("<a:endParaRPr/>");
         }
         buf.push_str("</a:p>");
@@ -345,9 +383,11 @@ fn open_paragraph(buf: &mut String, rt: &ResolvedTable, algn: Option<&str>) {
 
 /// The table's graphic frame, as wide as its columns and as tall as its rows, each
 /// position with its borders from `strokes` ([`rules::cell_strokes`]).
+#[allow(clippy::too_many_arguments)]
 fn write_table_frame(
     buf: &mut String,
     rt: &ResolvedTable,
+    links: &mut Links,
     col_widths: &[u32],
     row_heights: &[u32],
     strokes: &[Vec<Strokes>],
@@ -388,14 +428,15 @@ fn write_table_frame(
             .next()
             .map_or((1, &[][..]), |(h, s)| (h, s.as_slice()))
     };
-    write_section(buf, rt, &rt.head, true, &mut next)?;
+    write_section(buf, rt, links, &rt.head, true, &mut next)?;
     for group in &rt.groups {
         if let Some(label) = &group.label {
             let (h, strokes) = next();
-            write_group_label_row(buf, rt, label, col_widths.len(), h, strokes)?;
+            write_group_label_row(buf, rt, links, label, col_widths.len(), h, strokes)?;
         }
-        write_section(buf, rt, &group.rows, false, &mut next)?;
-        write_section(buf, rt, &group.summary_rows, true, &mut next)?;
+        for s in group.sections() {
+            write_section(buf, rt, links, s, s.kind != SectionKind::Body, &mut next)?;
+        }
     }
 
     buf.push_str("</a:tbl>\n");
@@ -430,6 +471,7 @@ fn drawn_strokes(rt: &ResolvedTable, strokes: &[Strokes], col: usize) -> Strokes
 fn write_section<'s>(
     buf: &mut String,
     rt: &ResolvedTable,
+    links: &mut Links,
     section: &Section,
     strong: bool,
     next: &mut dyn FnMut() -> (u32, &'s [Strokes]),
@@ -441,7 +483,7 @@ fn write_section<'s>(
         for v in 0..ncols {
             let col = visual(rt, ncols, v);
             let strokes = drawn_strokes(rt, strokes, col);
-            write_slot(buf, rt, section, (r, col), &strokes, strong)?;
+            write_slot(buf, rt, links, section, (r, col), &strokes, strong)?;
         }
         buf.push_str("</a:tr>\n");
     }
@@ -455,6 +497,7 @@ fn write_section<'s>(
 fn write_slot(
     buf: &mut String,
     rt: &ResolvedTable,
+    links: &mut Links,
     section: &Section,
     (row, col): (usize, usize),
     strokes: &Sides<Option<Stroke>>,
@@ -493,9 +536,9 @@ fn write_slot(
     };
     open_paragraph(buf, rt, algn);
     let fmt = cell_fmt(cell, strong);
-    let mut wrote = write_content(buf, rt, &cell.content, fmt)?;
+    let mut wrote = write_content(buf, rt, links, &cell.content, fmt)?;
     if let Some(pad) = cell.align_pad {
-        wrote |= write_run(buf, rt, &pad.text(), pad_fmt(fmt))?;
+        wrote |= write_run(buf, rt, links, &pad.text(), pad_fmt(fmt))?;
     }
     if !wrote {
         buf.push_str("<a:endParaRPr/>");
@@ -598,6 +641,8 @@ struct Fmt<'s> {
     font: Option<&'s str>,
     /// Drawn without a fill: invisible, keeping its room.
     hidden: bool,
+    /// The run's `href`, a link if it is one (see [`gridwell_core::link`]).
+    href: Option<&'s str>,
 }
 
 impl<'s> Fmt<'s> {
@@ -625,10 +670,11 @@ impl<'s> Fmt<'s> {
 fn write_content(
     buf: &mut String,
     rt: &ResolvedTable,
+    links: &mut Links,
     nodes: &[ContentNode],
     fmt: Fmt,
 ) -> Result<bool, RenderError> {
-    write_runs(buf, rt, |f| for_each_run(rt, nodes, fmt, f))
+    write_runs(buf, rt, links, |f| for_each_run(rt, nodes, fmt, f))
 }
 
 /// The runs `runs` gives, as `<a:r>`s and `<a:br/>`s. Returns whether anything
@@ -636,12 +682,13 @@ fn write_content(
 fn write_runs(
     buf: &mut String,
     rt: &ResolvedTable,
+    links: &mut Links,
     runs: impl FnOnce(&mut dyn FnMut(Run) -> Result<(), RenderError>) -> Result<(), RenderError>,
 ) -> Result<bool, RenderError> {
     let mut wrote = false;
     runs(&mut |run| {
         wrote |= match run {
-            Some((text, fmt)) => write_run(buf, rt, text, fmt)?,
+            Some((text, fmt)) => write_run(buf, rt, links, text, fmt)?,
             None => {
                 buf.push_str("<a:br/>");
                 true
@@ -665,13 +712,27 @@ fn for_each_run<E>(
 ) -> Result<(), E> {
     for node in nodes {
         match node {
-            ContentNode::Text { value } => f(Some((value, fmt)))?,
-            ContentNode::StyledText { value, style_id } => {
+            ContentNode::Text { value, href } => f(Some((
+                value,
+                Fmt {
+                    href: href.as_deref(),
+                    ..fmt
+                },
+            )))?,
+            ContentNode::StyledText {
+                value,
+                style_id,
+                href,
+            } => {
                 let style = style_id
                     .as_deref()
                     .map(|id| rt.style(id))
                     .unwrap_or_default();
-                f(Some((value, fmt.with(&style))))?
+                let fmt = Fmt {
+                    href: href.as_deref(),
+                    ..fmt.with(&style)
+                };
+                f(Some((value, fmt)))?
             }
             ContentNode::LineBreak {} => f(None)?,
             ContentNode::FootnoteMark { mark_text, .. } => f(Some((
@@ -692,10 +753,29 @@ fn for_each_run<E>(
     Ok(())
 }
 
+/// The URLs the slide links to, each once, in the order they are first written.
+#[derive(Default)]
+struct Links(Vec<String>);
+
+impl Links {
+    /// The relationship id of a link to `url`, adding it if new.
+    fn id(&mut self, url: String) -> String {
+        let i = match self.0.iter().position(|u| *u == url) {
+            Some(i) => i,
+            None => {
+                self.0.push(url);
+                self.0.len() - 1
+            }
+        };
+        format!("rIdLink{}", i + 1)
+    }
+}
+
 /// One `<a:r>`, in the table's language (`en-US` unless it has one).
 fn write_run(
     buf: &mut String,
     rt: &ResolvedTable,
+    links: &mut Links,
     text: &str,
     fmt: Fmt,
 ) -> Result<bool, RenderError> {
@@ -722,10 +802,12 @@ fn write_run(
     if fmt.superscript {
         buf.push_str(" baseline=\"30000\"");
     }
-    if fmt.color.is_none() && fmt.font.is_none() && !fmt.hidden {
+    let link = fmt.href.and_then(link_url).map(|url| links.id(url));
+    if fmt.color.is_none() && fmt.font.is_none() && !fmt.hidden && link.is_none() {
         buf.push_str("/>");
     } else {
-        // CT_TextCharacterProperties is a sequence: the fill, then the fonts.
+        // CT_TextCharacterProperties is a sequence: the fill, the fonts, then the
+        // link.
         buf.push('>');
         if fmt.hidden {
             buf.push_str("<a:noFill/>");
@@ -742,6 +824,9 @@ fn write_run(
                 buf,
                 "<a:latin typeface=\"{f}\"/><a:ea typeface=\"{f}\"/><a:cs typeface=\"{f}\"/>"
             )?;
+        }
+        if let Some(id) = link {
+            write!(buf, "<a:hlinkClick r:id=\"{id}\"/>")?;
         }
         buf.push_str("</a:rPr>");
     }
@@ -778,6 +863,7 @@ fn write_merged_cell(
 fn write_group_label_row(
     buf: &mut String,
     rt: &ResolvedTable,
+    links: &mut Links,
     label: &gridwell_layout::Line,
     num_cols: usize,
     height: u32,
@@ -793,7 +879,7 @@ fn write_group_label_row(
     buf.push('>');
     buf.push_str("<a:txBody><a:bodyPr/><a:lstStyle/>");
     open_paragraph(buf, rt, None);
-    if !write_content(buf, rt, &label.content, label_fmt(label))? {
+    if !write_content(buf, rt, links, &label.content, label_fmt(label))? {
         buf.push_str("<a:endParaRPr/>");
     }
     buf.push_str("</a:p></a:txBody>");
