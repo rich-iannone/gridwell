@@ -97,7 +97,7 @@ pub fn id_text(nodes: &[ContentNode]) -> String {
     let mut out = String::new();
     for node in nodes {
         match node {
-            ContentNode::Text { value } | ContentNode::StyledText { value, .. } => {
+            ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. } => {
                 out.push_str(value)
             }
             ContentNode::LineBreak {} => out.push(' '),
@@ -114,7 +114,7 @@ pub fn id_text(nodes: &[ContentNode]) -> String {
 /// so it labels nothing and gets no id.
 pub fn is_blank(nodes: &[ContentNode]) -> bool {
     nodes.iter().all(|node| match node {
-        ContentNode::Text { value } | ContentNode::StyledText { value, .. } => {
+        ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. } => {
             value.trim().is_empty()
         }
         ContentNode::LineBreak {} => true,
