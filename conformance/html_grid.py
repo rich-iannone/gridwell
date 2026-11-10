@@ -230,8 +230,16 @@ def head_rows(rows: list[Element]) -> list[dict]:
 
 
 def body_groups(tbody: Element) -> list[dict]:
+    """The groups of a table body: its row groups, then the grand summary (as a
+    group of summary rows alone). Summary rows above all of a group's rows are at
+    its top (`summary_placement`), and grand summary rows above every group are a
+    group of their own at the top, as the emitters write them."""
     groups: list[dict] = []
     grand: dict | None = None
+    grand_top: dict | None = None
+    # Whether each group (by id) has data rows, and summary rows after them.
+    has_rows: dict[int, bool] = {}
+    below: dict[int, bool] = {}
     # Rows of cells, with the group (and list) each belongs to, so spans are placed
     # over the whole body as the HTML does.
     rows: list[tuple[list, list[Element], str | None]] = []
@@ -243,6 +251,16 @@ def body_groups(tbody: Element) -> list[dict]:
             continue
         classes = set().union(*(c.classes for c in cells)) | tr.classes
         if "gt_grand_summary_row" in classes:
+            if not groups:
+                if grand_top is None:
+                    grand_top = {
+                        "label": None,
+                        "rows": [],
+                        "summary_placement": "top",
+                        "summary_rows": [],
+                    }
+                rows.append((grand_top["summary_rows"], cells, "grand_summary_row"))
+                continue
             if grand is None:
                 grand = {"label": None, "rows": [], "summary_rows": []}
             rows.append((grand["summary_rows"], cells, "grand_summary_row"))
@@ -250,10 +268,13 @@ def body_groups(tbody: Element) -> list[dict]:
         # A group's label in a row group column (`row_group_as_column`) starts it.
         if not groups or any(STUB_GROUP in c.classes for c in cells):
             groups.append({"label": None, "rows": [], "summary_rows": []})
+        g = id(groups[-1])
         if "gt_summary_row" in classes:
             rows.append((groups[-1]["summary_rows"], cells, "summary_row"))
+            below[g] = below.get(g, False) or has_rows.get(g, False)
         else:
             rows.append((groups[-1]["rows"], cells, None))
+            has_rows[g] = True
     for (target, _, role), placed in zip(rows, place([c for _, c, _ in rows])):
         entries = [
             cell_entry(
@@ -268,9 +289,13 @@ def body_groups(tbody: Element) -> list[dict]:
         if role:
             row["role"] = role
         target.append(row)
+    for group in groups:
+        g = id(group)
+        if group["summary_rows"] and has_rows.get(g) and not below.get(g):
+            group["summary_placement"] = "top"
     if grand is not None:
         groups.append(grand)
-    return groups
+    return ([grand_top] if grand_top is not None else []) + groups
 
 
 def grid(html: str) -> dict:
