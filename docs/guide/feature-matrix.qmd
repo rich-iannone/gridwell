@@ -41,6 +41,7 @@ Which IR features each stable writer expresses (the [experimental](output-format
 | raw-html | a `raw` HTML node's markup (`<b>`, `<i>`, a `style` attribute's `color`) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | lang | `config.lang`, the table's language | ✓ | ⊘<sup>6</sup> | ✓ | ✗<sup>7</sup> | ✓ | ⊘<sup>8</sup> | ✓ |
 | rtl | `config.dir: rtl`, columns and text right to left | ✓ | ⊘<sup>9</sup> | ✓ | ✓ | ✓ | ✓ | ✓ |
+| table-rules | `config.rules`, the default look's rules changed (here the rule between body rows: 3px, dashed, red) | ✓ | ✗<sup>10</sup> | ✗<sup>10</sup> | ✗<sup>10</sup> | ✗<sup>10</sup> | ✗<sup>10</sup> | ✓ |
 
 **Notes**
 
@@ -53,5 +54,6 @@ Which IR features each stable writer expresses (the [experimental](output-format
 7. RTF names a language by its Windows language id (`\lang`), which the writer doesn't yet map language tags to
 8. a spreadsheet's cells have no language
 9. right to left needs the bidirectional support of babel or polyglossia, set up in the document's preamble; the table is written left to right
+10. `config.rules` changes the rules of gridwell's default look, which this format doesn't draw: its rules are its own
 
 Structure — spans, hidden columns, stub columns, hidden column labels, group labels and summary rows — is verified separately for every writer by the grid invariant: each output is read back as a grid and compared with the IR's.
