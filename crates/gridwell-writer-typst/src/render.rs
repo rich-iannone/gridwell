@@ -1,3 +1,4 @@
+use gridwell_core::link::link_url;
 use gridwell_core::{Color, FontSize, Image, ImageFormat, LanguageTag, Length};
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table};
@@ -183,13 +184,15 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
                 self.line("table.hline(stroke: 0.5pt),");
             }
 
-            for row in &group.rows.rows {
-                self.render_row(row, false);
-            }
-
-            if !group.summary_rows.is_empty() {
-                self.line("table.hline(stroke: 0.3pt),");
-                for row in &group.summary_rows.rows {
+            // A line between the data and summary rows (above the summary rows
+            // at the bottom even without data rows).
+            for (i, s) in group.sections().into_iter().enumerate() {
+                let between = !group.summary_rows.is_empty()
+                    && (!group.summary_top || !group.rows.is_empty());
+                if i == 1 && between {
+                    self.line("table.hline(stroke: 0.3pt),");
+                }
+                for row in &s.rows {
                     self.render_row(row, false);
                 }
             }
@@ -306,13 +309,20 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
         let mut out = String::new();
         for node in nodes {
             match node {
-                ContentNode::Text { value } => out.push_str(&escape_typst(value)),
-                ContentNode::StyledText { value, style_id } => {
+                ContentNode::Text { value, href } => {
+                    out.push_str(&linked(&escape_typst(value), href))
+                }
+                ContentNode::StyledText {
+                    value,
+                    style_id,
+                    href,
+                } => {
                     let style = style_id
                         .as_deref()
                         .map(|id| self.rt.style(id))
                         .unwrap_or_default();
-                    out.push_str(&text_style(&escape_typst(value), &style, false));
+                    let text = text_style(&escape_typst(value), &style, false);
+                    out.push_str(&linked(&text, href));
                 }
                 ContentNode::LineBreak {} => out.push_str("\\ "),
                 ContentNode::FootnoteMark { mark_text, .. } => {
@@ -587,6 +597,16 @@ fn typst_image(
 }
 
 // ─── Escaping ───
+
+/// `text` as a link to `href` (`#link`), or as it is if it has none or it isn't a
+/// link (see [`gridwell_core::link`]). [`link_url`] leaves no `"` or `\\` to escape
+/// in the string.
+fn linked(text: &str, href: &Option<String>) -> String {
+    match href.as_deref().and_then(link_url) {
+        Some(url) => format!("#link(\"{url}\")[{text}]"),
+        None => text.to_string(),
+    }
+}
 
 /// Escape text for Typst markup so it renders verbatim.
 ///

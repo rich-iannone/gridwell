@@ -3,7 +3,7 @@
 use gridwell_core::Image;
 use gridwell_ir::{BorderStyle, Table};
 use gridwell_layout::resolve;
-use gridwell_layout::unsupported::{find, Check, Unsupported};
+use gridwell_layout::unsupported::{find, find_table, Check, Unsupported, TABLE_RULES};
 
 use crate::render::BASE_PT;
 
@@ -29,5 +29,8 @@ const CHECKS: &[Check] = &[
 
 /// The features of `table` that its Typst output can't express, and where.
 pub fn unsupported(table: &Table) -> Vec<Unsupported> {
-    find(&resolve(table), CHECKS)
+    let rt = resolve(table);
+    let mut found = find_table(&rt, &[TABLE_RULES]);
+    found.extend(find(&rt, CHECKS));
+    found
 }
