@@ -63,6 +63,12 @@ This gridwell reads IR 1:
   parse as IR 1, a parse error saying the version is why.
 - **Anything else** (`"1"`, `"1.0.0"`, `" 1.0"`) is an `IR_VERSION` error.
 
+::: {.callout-note}
+IR 1.0 is a **release candidate**. Until gridwell's first release, and the gt and
+Great Tables emitters that write it, it may still change in a way that IR written
+now doesn't survive. After that it is frozen: IR 1 only grows, by minor versions.
+:::
+
 ## Content Nodes
 
 Cell content is an array of content nodes, each an object whose `type` says which:
@@ -71,14 +77,17 @@ Cell content is an array of content nodes, each an object whose `type` says whic
 
 | Type           | Fields              | Description                |
 |----------------|---------------------|----------------------------|
-| `text`         | `value`             | Plain text                 |
-| `styled_text`  | `value`, `style_id` | Text with a style applied (`style_id` may be `null`) |
+| `text`         | `value`, `href`     | Plain text; `href` makes it a [link](../guide/output-formats.qmd#links) |
+| `styled_text`  | `value`, `style_id`, `href` | Text with a style applied (`style_id` may be `null`) |
 | `line_break`   | —                   | Line break within cell     |
 | `footnote_mark`| `ref`, `mark_text`  | A footnote's mark: `ref` is the footnote's `id`, `mark_text` what is shown |
 | `image`        | `src`, `alt`, `width`, `height` | Inline image ([below](#images)); `alt`, `width` and `height` may be `null` |
 | `raw`          | `format`, `value`   | Markup for one format ([below](#raw-markup)) |
 
-Every field is required except those that may be `null`. A node of a `type` this
+Every field is required except those that may be `null`, and `href`, which is
+left out of a run that isn't a link. Only `http`, `https` and `mailto` URLs are
+links ([`INVALID_HREF`](validation.qmd#structural-rules)), since a `javascript:` or
+`file:` one could run code or open a local file when it is followed. A node of a `type` this
 gridwell doesn't know parses, so a newer minor version can add node types: it is
 drawn as nothing, and written back with all its fields when the IR is serialized
 again.
