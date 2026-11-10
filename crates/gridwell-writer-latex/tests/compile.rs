@@ -51,6 +51,7 @@ fn document(engine: &str, body: &str) -> String {
          \\usepackage{{booktabs,multirow,longtable,tabularx}}\n\
          \\usepackage[normalem]{{ulem}}\n\
          \\usepackage[table]{{xcolor}}\n\
+         \\usepackage[hidelinks]{{hyperref}}\n\
          \\setlength{{\\parindent}}{{0pt}}\n\
          \\begin{{document}}\n{body}\n\\end{{document}}\n"
     )
@@ -141,7 +142,7 @@ fn span_layouts_compile_and_show_every_cell() {
             let mut table_rows = t.to_rows();
             for r in &mut table_rows {
                 for c in &mut r.cells {
-                    if let [gridwell_ir::content::ContentNode::Text { value }] =
+                    if let [gridwell_ir::content::ContentNode::Text { value, .. }] =
                         c.content.as_mut_slice()
                     {
                         *value = format!("t{i}{value}");
@@ -186,6 +187,7 @@ fn hidden_columns_never_reach_the_pdf() {
                 if !c.is_placeholder && c.colspan == 1 {
                     c.content = vec![gridwell_ir::content::ContentNode::Text {
                         value: "HIDDENLEAK".into(),
+                        href: None,
                     }];
                 }
             }
@@ -413,7 +415,7 @@ fn bordered_span_layouts_compile_in_every_mode() {
             for (i, t) in tilings(rows, cols).into_iter().enumerate() {
                 let mut table_rows = t.to_rows();
                 for (n, c) in table_rows.iter_mut().flat_map(|r| &mut r.cells).enumerate() {
-                    if let [gridwell_ir::content::ContentNode::Text { value }] =
+                    if let [gridwell_ir::content::ContentNode::Text { value, .. }] =
                         c.content.as_mut_slice()
                     {
                         *value = format!("t{i}{value}");
