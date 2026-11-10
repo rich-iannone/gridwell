@@ -190,13 +190,10 @@ def test_missing_values_show_what_great_tables_shows():
     cells = [c for r in ir["table"]["tbody"][0]["rows"] for c in r["cells"]]
     texts = ["".join(n["value"] for n in c["content"]) for c in cells]
     assert texts == shown
-    # The missing ones (char row 5, num row 6) sort as missing and have no typed
-    # value.
-    missing = [cells[8], cells[11]]
-    for c in missing:
-        assert c["sort_key"] is None
-        assert "typed_value" not in c
-    assert all(c["sort_key"] is not None for i, c in enumerate(cells) if i not in (8, 11))
+    # The missing ones (char row 5, num row 6) have no typed value; the others do.
+    assert all(("typed_value" in c) == (i not in (8, 11)) for i, c in enumerate(cells))
+    # Cells have no sort key or data type (IR 1.0 has neither).
+    assert not any("sort_key" in c or "data_type" in c for c in cells)
 
 
 def make_typed_gt():
@@ -553,6 +550,10 @@ def test_header_ids_are_great_tables_ids(table_id):
     # The container has the table's id.
     if table_id is not None:
         assert ours.startswith('<div id="sales"')
+    # The id is the IR's, so a render without the option has it too.
+    assert gridwell.gt_to_dict(gt_obj)["config"].get("id") == table_id
+    plain = gridwell.Table.from_json(gridwell.gt_to_ir(gt_obj)).render_html()
+    assert _header_ids(plain) == theirs
 
 
 @pytest.mark.parametrize(
@@ -834,10 +835,7 @@ def test_body_cells_are_the_html_great_tables_draws():
     # The stub is a row header; nothing else has a scope.
     assert [r[0]["scope"] for r in rows] == ["row", "row"]
     assert not any("scope" in c for r in rows for c in r[1:])
-    # The text shown sorts and is the typed value, not the markup.
-    assert [c["sort_key"] for c in rows[0]] == [
-        "a < b & c", "md it para two", "1.23 × 10⁻⁴", "m² s₁", None, "& x", None
-    ]
+    # The text shown is the typed value, not the markup.
     assert rows[0][1]["typed_value"] == {"type": "string", "value": "md it para two"}
     assert rows[0][3]["typed_value"] == {"type": "string", "value": "m² s₁"}
     # A number in scientific notation is the number (its superscripts read).
