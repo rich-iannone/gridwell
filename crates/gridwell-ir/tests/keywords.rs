@@ -29,8 +29,7 @@ fn base() -> Value {
                                   "cells": [cell("A"), { "content": [{ "type": "text", "value": "B" }], "scope": "col" }] }] },
             "tbody": [{
                 "rows": [{ "cells": [cell("x"), { "content": [{ "type": "text", "value": "1" }],
-                                                  "typed_value": { "type": "integer", "value": 1 },
-                                                  "data_type": "integer" }] }],
+                                                  "typed_value": { "type": "integer", "value": 1 } }] }],
                 "summary_rows": [{ "role": "summary_row", "cells": [cell("Total"), cell("1")] }]
             }]
         }
@@ -159,12 +158,6 @@ fn every_keyword_field_reports_unknown_values() {
             Box::new(|v| {
                 v["table"]["tbody"][0]["rows"][0]["cells"][1]["typed_value"]["type"] =
                     json!("bignum")
-            }),
-        ),
-        (
-            "the data_type of the cell at tbody group 0 (row=0, col=1)",
-            Box::new(|v| {
-                v["table"]["tbody"][0]["rows"][0]["cells"][1]["data_type"] = json!("bignum")
             }),
         ),
         (
