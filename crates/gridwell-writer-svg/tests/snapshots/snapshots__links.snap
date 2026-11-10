@@ -1,0 +1,27 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: out
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="303" height="169" viewBox="0 0 303 169">
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
+<rect x="0" y="0" width="79.43" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="79.43" height="2" fill="#D3D3D3"/>
+<rect x="79.43" y="0" width="222.68" height="2" fill="#D3D3D3"/>
+<rect x="79.43" y="31.75" width="222.68" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="79.43" height="1" fill="#D3D3D3"/>
+<rect x="79.43" y="68.5" width="222.68" height="1" fill="#D3D3D3"/>
+<rect x="0" y="104.25" width="79.43" height="1" fill="#D3D3D3"/>
+<rect x="0" y="140" width="79.43" height="2" fill="#D3D3D3"/>
+<rect x="79.43" y="104.25" width="222.68" height="1" fill="#D3D3D3"/>
+<rect x="79.43" y="140" width="222.68" height="2" fill="#D3D3D3"/>
+<rect x="0" y="166.88" width="302.11" height="2" fill="#A8A8A8"/>
+<text x="5" y="21.84" font-size="16px" textLength="66.83" xml:space="preserve">Resource</text>
+<text x="84.43" y="21.84" font-size="16px" textLength="45.4" xml:space="preserve">Where</text>
+<text x="5" y="56.59" font-size="16px" textLength="36.26" xml:space="preserve">Docs</text>
+<text x="84.43" y="56.59" font-size="16px" textLength="137.65" xml:space="preserve"><a href="https://example.com/docs?a=1&amp;b=2">example.com/docs</a></text>
+<text x="5" y="92.34" font-size="16px" textLength="55.92" xml:space="preserve">Contact</text>
+<text x="84.43" y="92.34" font-size="16px" textLength="206.61" xml:space="preserve">Write to <a href="mailto:team@example.com">team@example.com</a></text>
+<text x="5" y="128.09" font-size="16px" textLength="47.11" xml:space="preserve">Report</text>
+<text x="84.43" y="128.09" font-size="16px" textLength="113.13" xml:space="preserve"><a href="https://example.org/r%C3%A9sum%C3%A9/100%25#top"><tspan font-weight="bold">Résumé (100%)</tspan></a></text>
+<text x="5" y="159.36" font-size="14.4px" textLength="101.86" xml:space="preserve">Source: <a href="https://example.com/gridwell">gridwell</a></text>
+</svg>

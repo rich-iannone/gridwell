@@ -1,0 +1,52 @@
+---
+source: crates/gridwell-writer-rtf/tests/snapshots.rs
+expression: out
+---
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}}
+{\colortbl ;\red0\green0\blue0;\red255\green255\blue255;}
+\pard{\b\ab\fs36 Rules of our own}\par
+\par
+\trowd\trhdr\cellx2160\cellx6480
+\pard\intbl\plain\b\ab \cell
+\pard\intbl\plain\qc\b\ab Amount\cell
+\row
+\trowd\trhdr\cellx2160\cellx4320\cellx6480
+\pard\intbl\plain\b\ab Item\cell
+\pard\intbl\plain\b\ab 2024\cell
+\pard\intbl\plain\b\ab 2025\cell
+\row
+\trowd\trqc\cellx6480
+\pard\intbl{\b\ab Fruit}\cell
+\row
+\trowd\cellx2160\cellx4320\cellx6480
+\pard\intbl\plain Apples\cell
+\pard\intbl\plain 10\cell
+\pard\intbl\plain 12\cell
+\row
+\trowd\cellx2160\cellx4320\cellx6480
+\pard\intbl\plain Pears\cell
+\pard\intbl\plain 20\cell
+\pard\intbl\plain 18\cell
+\row
+\trowd\cellx2160\cellx4320\cellx6480
+\pard\intbl\plain Subtotal\cell
+\pard\intbl\plain 30\cell
+\pard\intbl\plain 30\cell
+\row
+\trowd\trqc\cellx6480
+\pard\intbl{\b\ab Nuts}\cell
+\row
+\trowd\cellx2160\cellx4320\cellx6480
+\pard\intbl\plain Almonds\cell
+\pard\intbl\plain 5\cell
+\pard\intbl\plain 7\cell
+\row
+\trowd\cellx2160\cellx4320\cellx6480
+\pard\intbl\plain Total\cell
+\pard\intbl\plain 35\cell
+\pard\intbl\plain 37\cell
+\row
+\par
+\pard{\fs18 Made up.}\par
+}

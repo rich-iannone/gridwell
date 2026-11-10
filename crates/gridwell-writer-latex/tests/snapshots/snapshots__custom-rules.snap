@@ -1,0 +1,27 @@
+---
+source: crates/gridwell-writer-latex/tests/snapshots.rs
+expression: out
+---
+{\large\bfseries Rules of our own}\\
+\begin{tabular}{lll}
+\toprule
+ & \multicolumn{2}{c}{Amount} \\
+\cmidrule(lr){2-3}
+Item & 2024 & 2025 \\
+\midrule
+\multicolumn{3}{l}{\bfseries Fruit} \\
+\midrule
+Apples & 10 & 12 \\
+Pears & 20 & 18 \\
+\cmidrule(lr){1-3}
+Subtotal & 30 & 30 \\
+\midrule
+\multicolumn{3}{l}{\bfseries Nuts} \\
+\midrule
+Almonds & 5 & 7 \\
+\cmidrule(lr){1-3}
+Total & 35 & 37 \\
+\bottomrule
+\end{tabular}
+
+{\footnotesize Made up.}\\

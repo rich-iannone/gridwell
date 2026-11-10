@@ -1,0 +1,66 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: out
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="167" height="379" viewBox="0 0 167 379">
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
+<rect x="0" y="31.44" width="74.4" height="3" fill="#333333"/>
+<rect x="74.4" y="31.44" width="92.44" height="3" fill="#333333"/>
+<line x1="74.4" y1="66.19" x2="166.84" y2="66.19" stroke="#333333" stroke-width="2" stroke-dasharray="2 2"/>
+<rect x="0" y="96.94" width="74.4" height="2" fill="#333333"/>
+<rect x="74.4" y="96.94" width="46.47" height="2" fill="#333333"/>
+<rect x="120.87" y="96.94" width="45.97" height="2" fill="#333333"/>
+<line x1="0" y1="134.19" x2="74.4" y2="134.19" stroke="#D3D3D3" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="73.9" y="134.19" width="1" height="35.25" fill="#D3D3D3"/>
+<line x1="74.4" y1="134.19" x2="120.87" y2="134.19" stroke="#D3D3D3" stroke-width="1" stroke-dasharray="3 3"/>
+<line x1="120.87" y1="134.19" x2="166.84" y2="134.19" stroke="#D3D3D3" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="73.9" y="169.44" width="1" height="36.25" fill="#D3D3D3"/>
+<rect x="0" y="204.19" width="74.4" height="1" fill="#D3D3D3"/>
+<rect x="0" y="206.19" width="74.4" height="1" fill="#D3D3D3"/>
+<line x1="0" y1="242.44" x2="74.4" y2="242.44" stroke="#D3D3D3" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="73.9" y="205.69" width="1" height="36.75" fill="#D3D3D3"/>
+<rect x="74.4" y="204.19" width="46.47" height="1" fill="#D3D3D3"/>
+<rect x="74.4" y="206.19" width="46.47" height="1" fill="#D3D3D3"/>
+<line x1="74.4" y1="242.44" x2="120.87" y2="242.44" stroke="#D3D3D3" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="120.87" y="204.19" width="45.97" height="1" fill="#D3D3D3"/>
+<rect x="120.87" y="206.19" width="45.97" height="1" fill="#D3D3D3"/>
+<line x1="120.87" y1="242.44" x2="166.84" y2="242.44" stroke="#D3D3D3" stroke-width="1" stroke-dasharray="3 3"/>
+<line x1="0" y1="278.19" x2="74.4" y2="278.19" stroke="#D3D3D3" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="73.9" y="278.19" width="1" height="36.25" fill="#D3D3D3"/>
+<line x1="74.4" y1="278.19" x2="120.87" y2="278.19" stroke="#D3D3D3" stroke-width="1" stroke-dasharray="3 3"/>
+<line x1="120.87" y1="278.19" x2="166.84" y2="278.19" stroke="#D3D3D3" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="0" y="313.44" width="74.4" height="2" fill="#333333"/>
+<rect x="0" y="350.19" width="74.4" height="3" fill="#333333"/>
+<rect x="73.9" y="314.44" width="1" height="38.75" fill="#D3D3D3"/>
+<rect x="74.4" y="313.44" width="46.47" height="2" fill="#333333"/>
+<rect x="74.4" y="350.19" width="46.47" height="3" fill="#333333"/>
+<rect x="120.87" y="313.44" width="45.97" height="2" fill="#333333"/>
+<rect x="120.87" y="350.19" width="45.97" height="3" fill="#333333"/>
+<rect x="0" y="96.94" width="166.84" height="2" fill="#333333"/>
+<line x1="0" y1="134.19" x2="166.84" y2="134.19" stroke="#D3D3D3" stroke-width="1" stroke-dasharray="3 3"/>
+<line x1="0" y1="242.44" x2="166.84" y2="242.44" stroke="#D3D3D3" stroke-width="1" stroke-dasharray="3 3"/>
+<line x1="0" y1="278.19" x2="166.84" y2="278.19" stroke="#D3D3D3" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="83.42" y="22.55" font-size="20px" text-anchor="middle" textLength="149.07" xml:space="preserve">Rules of our own</text>
+<text x="122.87" y="54.28" font-size="16px" text-anchor="middle" textLength="56.48" xml:space="preserve">Amount</text>
+<text x="5" y="87.03" font-size="16px" textLength="32.1" xml:space="preserve">Item</text>
+<text x="79.9" y="87.03" font-size="16px" textLength="35.97" xml:space="preserve">2024</text>
+<text x="125.87" y="87.03" font-size="16px" textLength="35.97" xml:space="preserve">2025</text>
+<text x="5" y="157.53" font-size="16px" textLength="49.04" xml:space="preserve">Apples</text>
+<text x="79.9" y="157.53" font-size="16px" textLength="17.98" xml:space="preserve">10</text>
+<text x="125.87" y="157.53" font-size="16px" textLength="17.98" xml:space="preserve">12</text>
+<text x="5" y="192.28" font-size="16px" textLength="40.96" xml:space="preserve">Pears</text>
+<text x="79.9" y="192.28" font-size="16px" textLength="17.98" xml:space="preserve">20</text>
+<text x="125.87" y="192.28" font-size="16px" textLength="17.98" xml:space="preserve">18</text>
+<text x="5" y="230.03" font-size="16px" textLength="59.49" xml:space="preserve">Subtotal</text>
+<text x="79.9" y="230.03" font-size="16px" textLength="17.98" xml:space="preserve">30</text>
+<text x="125.87" y="230.03" font-size="16px" textLength="17.98" xml:space="preserve">30</text>
+<text x="5" y="301.53" font-size="16px" textLength="63.6" xml:space="preserve">Almonds</text>
+<text x="79.9" y="301.53" font-size="16px" textLength="8.99" xml:space="preserve">5</text>
+<text x="125.87" y="301.53" font-size="16px" textLength="8.99" xml:space="preserve">7</text>
+<text x="5" y="338.28" font-size="16px" textLength="36.5" xml:space="preserve">Total</text>
+<text x="79.9" y="338.28" font-size="16px" textLength="17.98" xml:space="preserve">35</text>
+<text x="125.87" y="338.28" font-size="16px" textLength="17.98" xml:space="preserve">37</text>
+<text x="5" y="121.78" font-size="16px" textLength="32.21" xml:space="preserve">Fruit</text>
+<text x="5" y="265.78" font-size="16px" textLength="33.73" xml:space="preserve">Nuts</text>
+<text x="5" y="370.55" font-size="14.4px" textLength="59.55" xml:space="preserve">Made up.</text>
+</svg>

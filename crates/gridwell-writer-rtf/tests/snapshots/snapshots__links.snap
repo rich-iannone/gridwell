@@ -1,0 +1,26 @@
+---
+source: crates/gridwell-writer-rtf/tests/snapshots.rs
+expression: out
+---
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}}
+{\colortbl ;\red0\green0\blue0;\red255\green255\blue255;}
+\trowd\trhdr\cellx2160\cellx4320
+\pard\intbl\plain\b\ab Resource\cell
+\pard\intbl\plain\b\ab Where\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl\plain Docs\cell
+\pard\intbl\plain {\field{\*\fldinst{HYPERLINK "https://example.com/docs?a=1&b=2"}}{\fldrslt{example.com/docs}}}\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl\plain Contact\cell
+\pard\intbl\plain Write to {\field{\*\fldinst{HYPERLINK "mailto:team@example.com"}}{\fldrslt{team@example.com}}}\cell
+\row
+\trowd\cellx2160\cellx4320
+\pard\intbl\plain Report\cell
+\pard\intbl\plain {\field{\*\fldinst{HYPERLINK "https://example.org/r%C3%A9sum%C3%A9/100%25#top"}}{\fldrslt{{\b\ab R\u233?sum\u233? (100%)}}}}\cell
+\row
+\par
+\pard{\fs18 Source: {\field{\*\fldinst{HYPERLINK "https://example.com/gridwell"}}{\fldrslt{gridwell}}}}\par
+}

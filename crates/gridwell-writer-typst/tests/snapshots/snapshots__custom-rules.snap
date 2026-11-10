@@ -1,0 +1,45 @@
+---
+source: crates/gridwell-writer-typst/tests/snapshots.rs
+expression: out
+---
+#align(left)[#text(size: 16pt, weight: "bold")[Rules of our own]]
+#table(
+  columns: (auto, auto, auto,),
+  align: (left, left, left,),
+  stroke: none,
+  table.header(
+    [],
+    table.cell(colspan: 2, align: center)[#text(weight: "bold")[Amount]#place(bottom + center, dy: 5pt, line(length: 100%, stroke: 0.5pt))],
+    [#text(weight: "bold")[Item]],
+    [#text(weight: "bold")[2024]],
+    [#text(weight: "bold")[2025]],
+    table.hline(stroke: 0.5pt),
+  ),
+  table.hline(stroke: 0.5pt),
+  table.cell(colspan: 3, fill: luma(240))[#text(weight: "bold")[Fruit]],
+  table.hline(stroke: 0.5pt),
+  [Apples],
+  [10],
+  [12],
+  [Pears],
+  [20],
+  [18],
+  table.hline(stroke: 0.3pt),
+  [Subtotal],
+  [30],
+  [30],
+  table.hline(stroke: 0.3pt),
+  table.hline(stroke: 0.5pt),
+  table.cell(colspan: 3, fill: luma(240))[#text(weight: "bold")[Nuts]],
+  table.hline(stroke: 0.5pt),
+  [Almonds],
+  [5],
+  [7],
+  table.hline(stroke: 0.3pt),
+  table.hline(stroke: 0.3pt),
+  [Total],
+  [35],
+  [37],
+)
+
+#text(size: 9pt, fill: luma(100))[Made up\.]

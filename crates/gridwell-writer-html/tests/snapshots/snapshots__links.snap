@@ -1,0 +1,45 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <style>
+    .gw_table .gw__al_left { text-align: left }
+    .gw_style-bold { font-weight: bold }
+  </style>
+  <table class="gw_table">
+    <thead>
+      <tr class="gw_col_labels">
+        <th class="gw_col_label gw__al_left" id="col_0">Resource</th>
+        <th class="gw_col_label gw__al_left" id="col_1">Where</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td headers="col_0">Docs</td>
+        <td headers="col_1">
+          <a href="https://example.com/docs?a=1&amp;b=2">example.com/docs</a>
+        </td>
+      </tr>
+      <tr>
+        <td headers="col_0">Contact</td>
+        <td headers="col_1">
+          Write to <a href="mailto:team@example.com">team@example.com</a>
+        </td>
+      </tr>
+      <tr>
+        <td headers="col_0">Report</td>
+        <td headers="col_1">
+          <a href="https://example.org/r%C3%A9sum%C3%A9/100%25#top" class="gw_style-bold">Résumé (100%)</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="gw_footer">
+    <div class="gw_source_notes">
+      <p class="gw_source_note">
+        Source: <a href="https://example.com/gridwell">gridwell</a>
+      </p>
+    </div>
+  </div>
+</div>

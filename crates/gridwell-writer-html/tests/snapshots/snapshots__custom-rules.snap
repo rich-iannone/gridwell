@@ -1,0 +1,74 @@
+---
+source: crates/gridwell-writer-html/tests/snapshots.rs
+expression: out
+---
+<div class="gw_container">
+  <style>
+    .gw_table .gw__al_center { text-align: center }
+    .gw_table .gw__al_left { text-align: left }
+  </style>
+  <div class="gw_title" id="title" role="heading" aria-level="1">
+    Rules of our own
+  </div>
+  <table class="gw_table" aria-labelledby="title">
+    <thead>
+      <tr class="gw_spanners">
+        <th class="gw_stubhead gw__al_left"></th>
+        <th class="gw_spanner gw__al_center" scope="colgroup" colspan="2" id="Amount">Amount</th>
+      </tr>
+      <tr class="gw_col_labels">
+        <th class="gw_stubhead gw__al_left" id="Item">Item</th>
+        <th class="gw_col_label gw__al_left" id="col_1">2024</th>
+        <th class="gw_col_label gw__al_left" id="col_2">2025</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th colspan="3" scope="colgroup" class="gw_group_label gw__al_left" id="fruit">
+          Fruit
+        </th>
+      </tr>
+      <tr>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-1">Apples</th>
+        <td headers="fruit stub-1 Amount col_1">10</td>
+        <td headers="fruit stub-1 Amount col_2">12</td>
+      </tr>
+      <tr>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-2">Pears</th>
+        <td headers="fruit stub-2 Amount col_1">20</td>
+        <td headers="fruit stub-2 Amount col_2">18</td>
+      </tr>
+      <tr class="gw_summary">
+        <th class="gw_stub gw__al_left" scope="row" id="summary-fruit-Subtotal">Subtotal</th>
+        <td headers="fruit summary-fruit-Subtotal Amount col_1">30</td>
+        <td headers="fruit summary-fruit-Subtotal Amount col_2">30</td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <th colspan="3" scope="colgroup" class="gw_group_label gw__al_left" id="nuts">
+          Nuts
+        </th>
+      </tr>
+      <tr>
+        <th class="gw_stub gw__al_left" scope="row" id="stub-3">Almonds</th>
+        <td headers="nuts stub-3 Amount col_1">5</td>
+        <td headers="nuts stub-3 Amount col_2">7</td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr class="gw_grand_summary">
+        <th class="gw_stub gw__al_left" scope="row" id="grand-summary-Total">Total</th>
+        <td headers="grand-summary-Total Amount col_1">35</td>
+        <td headers="grand-summary-Total Amount col_2">37</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="gw_footer">
+    <div class="gw_source_notes">
+      <p class="gw_source_note">
+        Made up.
+      </p>
+    </div>
+  </div>
+</div>

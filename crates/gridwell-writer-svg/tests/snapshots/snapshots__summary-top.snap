@@ -1,0 +1,61 @@
+---
+source: crates/gridwell-writer-svg/tests/snapshots.rs
+expression: out
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="367" viewBox="0 0 140 367">
+<style>svg { font-family: Roboto, Helvetica, Arial, &#39;Liberation Sans&#39;, Arimo, sans-serif; font-size: 16px; fill: #333333; } rect { shape-rendering: crispEdges; }</style>
+<rect x="0" y="0" width="71.94" height="2" fill="#D3D3D3"/>
+<rect x="0" y="31.75" width="71.94" height="2" fill="#D3D3D3"/>
+<rect x="71.94" y="0" width="67.86" height="2" fill="#D3D3D3"/>
+<rect x="71.94" y="31.75" width="67.86" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="71.94" height="2" fill="#D3D3D3"/>
+<rect x="0" y="72.5" width="71.94" height="2" fill="#D3D3D3"/>
+<rect x="70.94" y="32.75" width="2" height="38.75" fill="#D3D3D3"/>
+<rect x="71.94" y="68.5" width="67.86" height="2" fill="#D3D3D3"/>
+<rect x="71.94" y="72.5" width="67.86" height="2" fill="#D3D3D3"/>
+<rect x="0" y="109.25" width="71.94" height="2" fill="#D3D3D3"/>
+<rect x="0" y="146" width="71.94" height="2" fill="#D3D3D3"/>
+<rect x="70.94" y="110.25" width="2" height="36.75" fill="#D3D3D3"/>
+<rect x="71.94" y="109.25" width="67.86" height="2" fill="#D3D3D3"/>
+<rect x="71.94" y="146" width="67.86" height="2" fill="#D3D3D3"/>
+<rect x="70.94" y="147" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="0" y="182.75" width="71.94" height="1" fill="#D3D3D3"/>
+<rect x="0" y="218.5" width="71.94" height="2" fill="#D3D3D3"/>
+<rect x="70.94" y="183.25" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="71.94" y="182.75" width="67.86" height="1" fill="#D3D3D3"/>
+<rect x="71.94" y="218.5" width="67.86" height="2" fill="#D3D3D3"/>
+<rect x="0" y="255.25" width="71.94" height="2" fill="#D3D3D3"/>
+<rect x="0" y="292" width="71.94" height="2" fill="#D3D3D3"/>
+<rect x="70.94" y="256.25" width="2" height="36.75" fill="#D3D3D3"/>
+<rect x="71.94" y="255.25" width="67.86" height="2" fill="#D3D3D3"/>
+<rect x="71.94" y="292" width="67.86" height="2" fill="#D3D3D3"/>
+<rect x="70.94" y="293" width="2" height="36.25" fill="#D3D3D3"/>
+<rect x="0" y="328.75" width="71.94" height="1" fill="#D3D3D3"/>
+<rect x="0" y="364.5" width="71.94" height="2" fill="#D3D3D3"/>
+<rect x="70.94" y="329.25" width="2" height="37.25" fill="#D3D3D3"/>
+<rect x="71.94" y="328.75" width="67.86" height="1" fill="#D3D3D3"/>
+<rect x="71.94" y="364.5" width="67.86" height="2" fill="#D3D3D3"/>
+<rect x="0" y="68.5" width="139.8" height="2" fill="#D3D3D3"/>
+<rect x="0" y="72.5" width="139.8" height="2" fill="#D3D3D3"/>
+<rect x="0" y="109.25" width="139.8" height="2" fill="#D3D3D3"/>
+<rect x="0" y="218.5" width="139.8" height="2" fill="#D3D3D3"/>
+<rect x="0" y="255.25" width="139.8" height="2" fill="#D3D3D3"/>
+<text x="5" y="21.84" font-size="16px" textLength="32.1" xml:space="preserve">Item</text>
+<text x="77.94" y="21.84" font-size="16px" textLength="56.48" xml:space="preserve">Amount</text>
+<text x="5" y="56.59" font-size="16px" textLength="36.5" xml:space="preserve">Total</text>
+<text x="77.94" y="56.59" font-size="16px" textLength="17.98" xml:space="preserve">70</text>
+<text x="5" y="134.09" font-size="16px" textLength="59.49" xml:space="preserve">Subtotal</text>
+<text x="77.94" y="134.09" font-size="16px" textLength="17.98" xml:space="preserve">30</text>
+<text x="5" y="170.84" font-size="16px" textLength="26.37" xml:space="preserve">Jan</text>
+<text x="77.94" y="170.84" font-size="16px" textLength="17.98" xml:space="preserve">10</text>
+<text x="5" y="206.59" font-size="16px" textLength="26.31" xml:space="preserve">Feb</text>
+<text x="77.94" y="206.59" font-size="16px" textLength="17.98" xml:space="preserve">20</text>
+<text x="5" y="280.09" font-size="16px" textLength="59.49" xml:space="preserve">Subtotal</text>
+<text x="77.94" y="280.09" font-size="16px" textLength="17.98" xml:space="preserve">40</text>
+<text x="5" y="316.84" font-size="16px" textLength="24.84" xml:space="preserve">Apr</text>
+<text x="77.94" y="316.84" font-size="16px" textLength="17.98" xml:space="preserve">15</text>
+<text x="5" y="352.59" font-size="16px" textLength="30.24" xml:space="preserve">May</text>
+<text x="77.94" y="352.59" font-size="16px" textLength="17.98" xml:space="preserve">25</text>
+<text x="5" y="97.34" font-size="16px" textLength="20" xml:space="preserve">Q1</text>
+<text x="5" y="243.34" font-size="16px" textLength="20" xml:space="preserve">Q2</text>
+</svg>
