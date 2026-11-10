@@ -1,12 +1,16 @@
 //! INVALID_COLOR and INVALID_LENGTH: every color and length in the IR parses, and
 //! each length uses a form that makes sense for its field (no `fr` padding, no
 //! negative widths, …). INVALID_LANG: `config.lang` is a well-formed language tag.
+//! INVALID_HREF: every link is one gridwell writes. INVALID_TABLE_ID: `config.id`
+//! is an HTML id.
 
 use crate::cell::Row;
 use crate::content::ContentNode;
+use crate::style::Border;
 use crate::style::StyleDef;
 use crate::validation::{cell_place, ValidationError, ValidationRule};
 use crate::Table;
+use gridwell_core::link::href_problem;
 use gridwell_core::{Color, FontSize, LanguageTag, Length};
 
 /// Which length forms a field accepts beyond plain non-negative absolute/relative
@@ -200,21 +204,46 @@ impl Checker<'_> {
                 ("left", &border.left),
             ] {
                 let Some(b) = b else { continue };
-                let bf = |name: &str| f(&format!("border.{side}.{name}"));
-                self.length(b.width.as_ref(), &bf("width"), LengthKind::BORDER, at);
-                self.color(b.color.as_ref(), &bf("color"), at);
+                self.border(b, &f(&format!("border.{side}")), at);
             }
         }
     }
 
-    /// Check the image nodes of `nodes`; `field` makes a field's name from its path
-    /// in the content (`content[0].width`).
+    /// A border's width and color; `path` names the border.
+    fn border(&mut self, b: &Border, path: &str, at: At) {
+        let f = |name: &str| format!("{path}.{name}");
+        self.length(b.width.as_ref(), &f("width"), LengthKind::BORDER, at);
+        self.color(b.color.as_ref(), &f("color"), at);
+    }
+
+    /// Check the image nodes and links of `nodes`; `field` makes a field's name
+    /// from its path in the content (`content[0].width`).
     fn content(&mut self, nodes: &[ContentNode], field: &dyn Fn(&str) -> String, at: At) {
         for (i, node) in nodes.iter().enumerate() {
-            if let ContentNode::Image { width, height, .. } = node {
-                let f = |name: &str| field(&format!("content[{i}].{name}"));
-                self.length(width.as_ref(), &f("width"), LengthKind::SIZE, at);
-                self.length(height.as_ref(), &f("height"), LengthKind::SIZE, at);
+            let f = |name: &str| field(&format!("content[{i}].{name}"));
+            match node {
+                ContentNode::Image { width, height, .. } => {
+                    self.length(width.as_ref(), &f("width"), LengthKind::SIZE, at);
+                    self.length(height.as_ref(), &f("height"), LengthKind::SIZE, at);
+                }
+                ContentNode::Text {
+                    href: Some(href), ..
+                }
+                | ContentNode::StyledText {
+                    href: Some(href), ..
+                } => {
+                    if let Some(why) = href_problem(href) {
+                        self.errors.push(at.error(
+                            ValidationRule::InvalidHref,
+                            format!(
+                                "{} is {href:?}, which is not a link gridwell writes: {why} \
+                                 (expected an http, https or mailto URL)",
+                                f("href")
+                            ),
+                        ));
+                    }
+                }
+                _ => {}
             }
         }
     }
@@ -258,6 +287,25 @@ pub(crate) fn validate_values(table: &Table, errors: &mut Vec<ValidationError>) 
                 ValidationRule::InvalidLang,
                 format!("config.lang is \"{lang}\", which is not a language tag: {why}"),
             ));
+        }
+    }
+
+    if let Some(id) = &cfg.id {
+        if id.is_empty() || id.chars().any(char::is_whitespace) {
+            ck.errors.push(config.error(
+                ValidationRule::InvalidTableId,
+                format!(
+                    "config.id is {id:?}, which is not an HTML id (it must not be empty \
+                     or have whitespace)"
+                ),
+            ));
+        }
+    }
+    if let Some(rules) = &cfg.rules {
+        for (name, rule) in rules.iter() {
+            if let Some(rule) = rule {
+                ck.border(rule, &format!("config.rules.{name}"), config);
+            }
         }
     }
 
