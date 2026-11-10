@@ -15,8 +15,13 @@
 //!
 //! The few one-sided rules (the stub's rule, the spanner rules' ends) are mirrored
 //! for a right-to-left table (`dir: rtl`), whose first column is on the right.
+//!
+//! The rules are the table's own ([`TableRules`]: the look's, as `config.rules`
+//! change them); a rule it removes is `none`. A spanner rule that isn't solid is
+//! the spanner's bottom border, not inset (an inset line is a background, which
+//! can only be solid).
 
-use gridwell_layout::look::{Pad, Rule, LOOK};
+use gridwell_layout::look::{Edge, LineStyle, Pad, Rule, TableRules, LOOK};
 
 /// A length in CSS: `0` without a unit, otherwise px.
 fn px(v: f64) -> String {
@@ -50,10 +55,41 @@ fn pad(p: &Pad) -> String {
     }
 }
 
-/// A CSS border value.
-fn rule(r: &Rule) -> String {
-    let style = if r.double { "double" } else { "solid" };
-    format!("{} {style} {}", px(r.width_px), r.color.to_css())
+/// A CSS border value: `none` for no rule.
+fn rule(r: &Option<Rule>) -> String {
+    match r {
+        Some(r) => format!("{} {} {}", px(r.width_px), r.style.css(), r.color.to_css()),
+        None => "none".to_string(),
+    }
+}
+
+/// The rules of one table, for its base stylesheet.
+#[derive(Debug, Clone, Copy)]
+pub struct Rules {
+    pub table: TableRules,
+    /// The rule on each edge its cells may draw ([`gridwell_layout::look::BaseRules::edge`]):
+    /// the table's top, the head's bottom, the table's bottom.
+    pub edges: [Option<Rule>; 3],
+}
+
+impl Rules {
+    /// The default look's rules.
+    #[cfg(test)]
+    pub fn look() -> Self {
+        let section = Some(LOOK.section_rule);
+        Self {
+            table: gridwell_layout::look::DEFAULT_RULES,
+            edges: [section; 3],
+        }
+    }
+
+    fn edge(&self, e: Edge) -> &Option<Rule> {
+        &self.edges[match e {
+            Edge::Top => 0,
+            Edge::Head => 1,
+            Edge::Bottom => 2,
+        }]
+    }
 }
 
 /// Selector list `selector` scoped to the table's container `scope` (its id
@@ -77,9 +113,9 @@ pub fn scoped(scope: &str, p: &str, selector: &str) -> String {
         .join(", ")
 }
 
-/// The base rules for class prefix `p`, one per line, in order, scoped to the
-/// container `scope` (see [`scoped`]); `rtl` mirrors them.
-pub fn rules(p: &str, rtl: bool, scope: &str) -> Vec<String> {
+/// The base rules for class prefix `p` and a table's `rules`, one per line, in
+/// order, scoped to the container `scope` (see [`scoped`]); `rtl` mirrors them.
+pub fn rules(p: &str, rtl: bool, scope: &str, rules: &Rules) -> Vec<String> {
     // The table's start and end sides.
     let (start, end) = if rtl {
         ("right", "left")
@@ -90,12 +126,14 @@ pub fn rules(p: &str, rtl: bool, scope: &str) -> Vec<String> {
     let w = |selector: &str, decls: &str| {
         format!(":where({}) {{ {decls} }}", scoped(scope, p, selector))
     };
-    let outer = rule(&l.outer_rule);
-    let section = rule(&l.section_rule);
-    let spanner_color = l.spanner_rule.color.to_css();
-    let spanner_width = px(l.spanner_rule.width_px);
+    let r = &rules.table;
     let inset = l.spanner_rule_inset;
-    vec![
+    // An inset spanner rule is a background line; any other is a border.
+    let spanner = match r.spanners {
+        Some(s) if s.style == LineStyle::Solid => Some((s.color.to_css(), px(s.width_px))),
+        _ => None,
+    };
+    let mut out = vec![
         // The container shrinks to the table and is centered, so the heading and
         // footer are as wide as the table (gt puts both inside its table).
         w(
@@ -116,7 +154,7 @@ pub fn rules(p: &str, rtl: bool, scope: &str) -> Vec<String> {
                 ".{p}_title:first-of-type, .{p}_subtitle:first-of-type, \
                  .{p}_header_line:first-of-type"
             ),
-            &format!("border-top: {outer}"),
+            &format!("border-top: {}", rule(&r.title)),
         ),
         w(
             &format!(".{p}_title"),
@@ -146,7 +184,9 @@ pub fn rules(p: &str, rtl: bool, scope: &str) -> Vec<String> {
             &format!(".{p}_table"),
             &format!(
                 "border-collapse: collapse; margin: 0; width: 100%; \
-                 border-top: {section}; border-bottom: {section}"
+                 border-top: {}; border-bottom: {}",
+                rule(&r.top),
+                rule(&r.bottom)
             ),
         ),
         // An edge drawn by its cells ([`gridwell_layout::look::EdgeRules`]): the
@@ -158,8 +198,14 @@ pub fn rules(p: &str, rtl: bool, scope: &str) -> Vec<String> {
             &format!(
                 "padding: {}; border-top: {}",
                 pad(&l.cell_pad),
-                rule(&l.row_rule)
+                rule(&r.rows)
             ),
+        ),
+        // The first body row has no row rule: it is at the table's top or under
+        // the head, whose rules are the table's and the head's.
+        w(
+            &format!(".{p}_table > tbody:first-of-type > tr:first-child > *"),
+            "border-top: none",
         ),
         // Column labels are normal weight (not the browser's bold), unless a row
         // style says otherwise.
@@ -173,81 +219,136 @@ pub fn rules(p: &str, rtl: bool, scope: &str) -> Vec<String> {
         w(&format!(".{p}_table thead tr"), "vertical-align: bottom"),
         w(
             &format!(".{p}_table thead"),
-            &format!("border-bottom: {section}"),
+            &format!("border-bottom: {}", rule(&r.column_labels)),
+        ),
+        // Without a body, the head's bottom is the table's.
+        w(
+            &format!(".{p}_table thead:last-child"),
+            "border-bottom: none",
         ),
         w(&format!(".{p}_cells_head thead"), "border-bottom: none"),
-        // Under such a head, the first row has no hairline (it would beat a thinner
-        // border of the cell above).
-        w(
-            &format!(".{p}_cells_head thead + tbody > tr:first-child > *"),
-            "border-top: none",
-        ),
-        w(&format!(".{p}_rule_top"), &format!("border-top: {section}")),
-        w(
-            &format!(".{p}_rule_bottom"),
-            &format!("border-bottom: {section}"),
-        ),
+    ];
+    if let Some((color, width)) = &spanner {
         // A spanner's rule is inset at each end, so neighboring spanners' rules
         // don't run together; in the first and last column the spanner has no
         // outer padding and its rule runs to the table's edge, as in gt (a
         // background line: a border can't be inset).
-        w(
-            &format!(".{p}_spanner"),
-            &format!(
-                "padding: {}; background-image: linear-gradient({spanner_color}, \
-                 {spanner_color}); background-size: calc(100% - {}) {spanner_width}; \
-                 background-position: bottom center; background-repeat: no-repeat",
-                pad(&l.spanner_pad),
-                px(2.0 * inset)
+        out.extend([
+            w(
+                &format!(".{p}_spanner"),
+                &format!(
+                    "padding: {}; background-image: linear-gradient({color}, {color}); \
+                     background-size: calc(100% - {}) {width}; \
+                     background-position: bottom center; background-repeat: no-repeat",
+                    pad(&l.spanner_pad),
+                    px(2.0 * inset)
+                ),
             ),
-        ),
-        w(
-            &format!(".{p}_spanner:first-child"),
-            &format!(
-                "padding-{start}: 0; background-size: calc(100% - {}) {spanner_width}; \
-                 background-position: bottom {start}",
-                px(inset)
+            w(
+                &format!(".{p}_spanner:first-child"),
+                &format!(
+                    "padding-{start}: 0; background-size: calc(100% - {}) {width}; \
+                     background-position: bottom {start}",
+                    px(inset)
+                ),
             ),
-        ),
-        w(
-            &format!(".{p}_spanner:last-child"),
-            &format!(
-                "padding-{end}: 0; background-size: calc(100% - {}) {spanner_width}; \
-                 background-position: bottom {end}",
-                px(inset)
+            w(
+                &format!(".{p}_spanner:last-child"),
+                &format!(
+                    "padding-{end}: 0; background-size: calc(100% - {}) {width}; \
+                     background-position: bottom {end}",
+                    px(inset)
+                ),
             ),
-        ),
-        w(
-            &format!(".{p}_spanner:first-child:last-child"),
-            &format!("background-size: 100% {spanner_width}"),
-        ),
+            w(
+                &format!(".{p}_spanner:first-child:last-child"),
+                &format!("background-size: 100% {width}"),
+            ),
+        ]);
+    } else {
+        out.extend([
+            w(
+                &format!(".{p}_spanner"),
+                &format!(
+                    "padding: {}; border-bottom: {}",
+                    pad(&l.spanner_pad),
+                    rule(&r.spanners)
+                ),
+            ),
+            w(
+                &format!(".{p}_spanner:first-child"),
+                &format!("padding-{start}: 0"),
+            ),
+            w(
+                &format!(".{p}_spanner:last-child"),
+                &format!("padding-{end}: 0"),
+            ),
+        ]);
+    }
+    let group = rule(&r.group);
+    let (summary, grand) = (rule(&r.summary), rule(&r.grand_summary));
+    out.extend([
         w(
             &format!(".{p}_group_label"),
-            &format!("border-top: {section}; border-bottom: {section}"),
+            &format!("border-top: {group}; border-bottom: {group}"),
         ),
-        w(&format!(".{p}_stub"), &format!("border-{end}: {section}")),
-        // A group's summary rows start under a section rule.
+        w(
+            &format!(".{p}_stub"),
+            &format!("border-{end}: {}", rule(&r.stub)),
+        ),
+        // A group's summary rows start under a section rule...
         w(
             &format!(
                 "tbody > tr.{p}_summary:first-child > *, \
                  tr:not(.{p}_summary) + tr.{p}_summary > *"
             ),
-            &format!("border-top: {section}"),
+            &format!("border-top: {summary}"),
         ),
-        // The first grand summary row gets gt's double rule.
+        // ...and grand summary rows under gt's double rule, unless they open the
+        // table (at the top).
         w(
             &format!(
-                "tbody > tr.{p}_grand_summary:first-child > *, \
-                 tr:not(.{p}_grand_summary) + tr.{p}_grand_summary > *"
+                "tbody > tr.{p}_grand_summary:first-child:not(.{p}_summary_top) > *, \
+                 tr:not(.{p}_grand_summary) + tr.{p}_grand_summary:not(.{p}_summary_top) > *"
             ),
-            &format!("border-top: {}", rule(&l.grand_summary_rule)),
+            &format!("border-top: {grand}"),
+        ),
+        // Summary rows at the top end with the rule.
+        w(
+            &format!("tr.{p}_summary_end > *"),
+            &format!("border-bottom: {summary}"),
+        ),
+        w(
+            &format!("tr.{p}_grand_summary.{p}_summary_end > *"),
+            &format!("border-bottom: {grand}"),
+        ),
+        // An edge's rule, on the cells carrying it (after every rule they would
+        // otherwise draw there).
+        w(
+            &format!(".{p}_rule_top"),
+            &format!("border-top: {}", rule(rules.edge(Edge::Top))),
+        ),
+        w(
+            &format!("thead .{p}_rule_head"),
+            &format!("border-bottom: {}", rule(rules.edge(Edge::Head))),
+        ),
+        w(
+            &format!("tbody .{p}_rule_head"),
+            &format!("border-top: {}", rule(rules.edge(Edge::Head))),
+        ),
+        w(
+            &format!(".{p}_rule_bottom"),
+            &format!("border-bottom: {}", rule(rules.edge(Edge::Bottom))),
         ),
         // Numbers line up.
         w(
             &format!(".{p}_table tbody .{p}__al_right"),
             "font-variant-numeric: tabular-nums",
         ),
-        w(&format!(".{p}_footer"), &format!("border-bottom: {outer}")),
+        w(
+            &format!(".{p}_footer"),
+            &format!("border-bottom: {}", rule(&r.notes)),
+        ),
         w(
             &format!(".{p}_footnote, .{p}_source_note"),
             &format!(
@@ -270,7 +371,8 @@ pub fn rules(p: &str, rtl: bool, scope: &str) -> Vec<String> {
             &format!(".{p}_footnote_mark a"),
             "color: inherit; text-decoration: none",
         ),
-    ]
+    ]);
+    out
 }
 
 #[cfg(test)]
@@ -297,7 +399,10 @@ mod tests {
 
     #[test]
     fn rtl_mirrors_exactly_the_one_sided_rules() {
-        let (ltr, rtl) = (rules("gw", false, ""), rules("gw", true, ""));
+        let (ltr, rtl) = (
+            rules("gw", false, "", &Rules::look()),
+            rules("gw", true, "", &Rules::look()),
+        );
         assert_eq!(ltr.len(), rtl.len());
         let mirror = |s: &str| {
             s.replace("left", "\0")
@@ -322,7 +427,7 @@ mod tests {
     #[test]
     fn edge_rules_come_after_the_rules_they_override() {
         // Every rule has zero specificity: the later of two wins.
-        let rules = rules("gw", false, "");
+        let rules = rules("gw", false, "", &Rules::look());
         let at = |selector: &str| {
             rules
                 .iter()
@@ -332,23 +437,84 @@ mod tests {
         assert!(at(".gw_cells_top") > at(".gw_table"));
         assert!(at(".gw_cells_bottom") > at(".gw_table"));
         assert!(at(".gw_cells_head thead") > at(".gw_table thead"));
-        let first_row = at(".gw_cells_head thead + tbody > tr:first-child > *");
+        assert!(at(".gw_table thead:last-child") > at(".gw_table thead"));
+        let first_row = at(".gw_table > tbody:first-of-type > tr:first-child > *");
         assert!(first_row > at(".gw_table td, .gw_table th"));
-        for carried in [at(".gw_rule_top"), at(".gw_rule_bottom")] {
+        // Group labels' and summaries' own rules win over the first row's.
+        assert!(first_row < at(".gw_group_label"));
+        let summary = at("tbody > tr.gw_summary:first-child > *, \
+                          tr:not(.gw_summary) + tr.gw_summary > *");
+        assert!(first_row < summary);
+        assert!(at("tr.gw_grand_summary.gw_summary_end > *") > at("tr.gw_summary_end > *"));
+        for carried in [
+            at(".gw_rule_top"),
+            at("thead .gw_rule_head"),
+            at("tbody .gw_rule_head"),
+            at(".gw_rule_bottom"),
+        ] {
             assert!(carried > at(".gw_table thead th") && carried > first_row);
-            // Group labels' and summaries' own rules still win.
-            assert!(carried < at(".gw_group_label"));
-            assert!(
-                carried
-                    < at("tbody > tr.gw_summary:first-child > *, \
-                          tr:not(.gw_summary) + tr.gw_summary > *")
-            );
+            // An edge's cells draw its rule over their summary rules.
+            assert!(carried > summary && carried > at("tr.gw_grand_summary.gw_summary_end > *"));
         }
     }
 
     #[test]
+    fn the_rules_are_the_tables() {
+        use gridwell_layout::look::LineStyle;
+        let mut r = Rules::look();
+        let red = Rule {
+            width_px: 3.0,
+            color: "red".parse().unwrap(),
+            style: LineStyle::Dashed,
+        };
+        r.table.group = Some(red);
+        r.table.rows = None;
+        r.edges[1] = Some(red);
+        let css = rules("gw", false, "", &r);
+        let decls = |selector: &str| {
+            let start = format!(":where({selector}) {{ ");
+            let line = css.iter().find(|l| l.starts_with(&start)).unwrap();
+            line[start.len()..line.len() - 2].to_string()
+        };
+        let dashed = red;
+        let red = "3px dashed #FF0000";
+        assert!(css
+            .iter()
+            .all(|l| !l.contains("#FF0000") || l.contains(red)));
+        assert_eq!(
+            decls(".gw_group_label"),
+            format!("border-top: {red}; border-bottom: {red}")
+        );
+        assert_eq!(
+            decls(".gw_table td, .gw_table th"),
+            "padding: 8px 5px; border-top: none"
+        );
+        assert_eq!(decls("tbody .gw_rule_head"), format!("border-top: {red}"));
+        assert_eq!(decls(".gw_rule_top"), "border-top: 2px solid #D3D3D3");
+        // A spanner rule that isn't solid is a border.
+        assert!(decls(".gw_spanner").contains("background-image"));
+        r.table.spanners = Some(dashed);
+        let css = rules("gw", false, "", &r);
+        let spanner = css
+            .iter()
+            .find(|l| l.starts_with(":where(.gw_spanner) {"))
+            .unwrap();
+        assert!(
+            !spanner.contains("background") && spanner.contains(red),
+            "{spanner}"
+        );
+        r.table.spanners = None;
+        let css = rules("gw", false, "", &r);
+        assert!(css.iter().all(|l| !l.contains("background")));
+        assert!(css.iter().any(|l| l.contains("border-bottom: none")));
+    }
+
+    #[test]
     fn a_scope_prefixes_every_selector() {
-        let (bare, scoped) = (rules("gw", false, ""), rules("gw", false, "#t"));
+        let (bare, scoped) = (
+            rules("gw", false, "", &Rules::look()),
+            rules("gw", false, "#t", &Rules::look()),
+        );
         assert_eq!(bare.len(), scoped.len());
         for (b, s) in bare.iter().zip(&scoped) {
             let selectors = |r: &str| {
@@ -379,7 +545,7 @@ mod tests {
     #[test]
     fn no_rule_misses_the_row_headers() {
         // A stub is a `<th>` in the body: a rule naming `td` must name `th` too.
-        for line in rules("gw", false, "") {
+        for line in rules("gw", false, "", &Rules::look()) {
             let selector = line.split('{').next().unwrap();
             let names = |tag: &str| {
                 selector
