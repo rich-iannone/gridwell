@@ -96,6 +96,8 @@ test_that("typed numbers are read off their display, as the Python emitter reads
     expect_equal(read("1.5K", 1500), 1500)
     expect_equal(read("451.20‰", 0.4512), 0.4512)
     expect_equal(read("1.23 × 10⁻⁴", 0.000123), 0.000123)
+    # Non-breaking spaces, as gt writes them.
+    expect_equal(read("1.23\u00a0×\u00a010⁻⁴", 0.000123), 0.000123)
     expect_equal(read("1.23e-04", 0.000123), 0.000123)
     expect_equal(read("−1.2%", -0.012), -0.012)
     expect_equal(read("(10%)", -0.1), -0.1)
