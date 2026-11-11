@@ -16,6 +16,14 @@ import gridwell
 TEXT_FORMATS = ["html", "latex", "typst", "rtf", "svg", "ansi", "pandoc", "quarto"]
 BINARY_FORMATS = ["docx", "xlsx", "pptx"]
 
+# The " × " of scientific notation as Great Tables writes it: since its #983 (after
+# 1.1.0), with non-breaking spaces, as gt does.
+TIMES = (
+    "\xa0×\xa0"
+    if "&nbsp;×" in GT(pd.DataFrame({"x": [1e-4]})).fmt_scientific("x").as_raw_html()
+    else " × "
+)
+
 
 def make_simple_gt():
     """Simple GT with no grouping or stub."""
@@ -325,9 +333,9 @@ def test_typed_values_are_the_numbers_any_display_shows():
     shown = [["".join(n["value"] for n in c["content"]) for c in r["cells"]] for r in rows]
     typed = [[c.get("typed_value") for c in r["cells"]] for r in rows]
     assert shown == [
-        ["1.234,50", "1\u202f234,50", "45.1%", "$49.95", "$49.95", "€49,95", "1.23 × 10⁻⁴",
+        ["1.234,50", "1\u202f234,50", "45.1%", "$49.95", "$49.95", "€49,95", f"1.23{TIMES}10⁻⁴",
          "1.23M", "+1,234.50", "1,234.50 kg", "1,234", "1,234.000"],
-        ["−98.765,43", "0,25", "−1.2%", "−$5.00", "($5.00)", "−€5,00", "1.23 × 10⁵",
+        ["−98.765,43", "0,25", "−1.2%", "−$5.00", "($5.00)", "−€5,00", f"1.23{TIMES}10⁵",
          "0.50", "−2.00", "2.00 kg", "−5", "1.234"],
     ]
     number = lambda v: {"type": "number", "value": v}  # noqa: E731
@@ -382,6 +390,8 @@ def test_typed_values_are_the_numbers_any_display_shows():
         ("1.5K", 1500, 1500.0),
         ("451.20‰", 0.4512, 0.4512),
         ("1.23 × 10^-4", 0.000123, 0.000123),
+        # Non-breaking spaces, as gt writes them (and Great Tables after 1.1.0).
+        ("1.23\xa0×\xa010⁻⁴", 0.000123, 0.000123),
         ("1.23e-04", 0.000123, 0.000123),
         ("(10%)", -0.1, -0.1),
         ("CA$1,250", 1250, 1250.0),
@@ -807,8 +817,8 @@ def test_body_cells_are_the_html_great_tables_draws():
     ]
     # Superscripts in Unicode characters; the mark after the text, as Great Tables
     # places it (the HTML isn't a number).
-    assert runs(ir, rows[0][2]["content"]) == [("1.23 × 10⁻⁴", None), ("^1", "fn1")]
-    assert runs(ir, rows[1][2]["content"]) == [("1.23 × 10⁴", None)]
+    assert runs(ir, rows[0][2]["content"]) == [(f"1.23{TIMES}10⁻⁴", None), ("^1", "fn1")]
+    assert runs(ir, rows[1][2]["content"]) == [(f"1.23{TIMES}10⁴", None)]
     assert runs(ir, rows[0][3]["content"]) == [("m² s₁", None)]
     assert [r[4]["content"] for r in rows] == [
         [{"type": "image", "src": f"https://example.invalid/{f}.png", "alt": "", "height": "20px"}]
@@ -851,7 +861,7 @@ def test_body_html_is_valid_ir_every_format_draws():
         assert table.render(fmt), fmt
     html = table.render("html")
     assert "<svg width='8'><svg/><text>T</text></svg>" in html
-    assert "1.23 × 10⁻⁴" in html and "&lt;b&gt;not bold&lt;/b&gt;" in html
+    assert f"1.23{TIMES}10⁻⁴" in html and "&lt;b&gt;not bold&lt;/b&gt;" in html
     ansi = table.render("ansi")
     assert "m² s₁" in ansi and "a < b & c" in ansi
     for fmt in BINARY_FORMATS:
