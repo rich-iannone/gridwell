@@ -3,6 +3,7 @@ footnote marks in cells, and the table options' styles, against what Great Table
 draws (its HTML)."""
 
 import json
+import re
 from html.parser import HTMLParser
 
 import pytest
@@ -233,6 +234,29 @@ def test_every_location_is_styled_and_marked_as_great_tables_draws_it():
     assert len(refs) == 16
     assert all(marks[n["ref"]] == n["mark_text"].rstrip(",") for n in refs)
     assert gridwell.Table(json.dumps(ir)).validate() == []
+
+
+def _version(v):
+    """A Great Tables version's first three numbers (`1.1.1.dev3+g…` is (1, 1, 1))."""
+    return tuple(int(n) for n in re.match(r"(\d+)\.(\d+)\.(\d+)", v).groups())
+
+
+def test_source_notes_on_one_line_are_styled_too():
+    gt_obj = (
+        GT(exibble[["num"]].head(1))
+        .tab_source_note("One.")
+        .tab_source_note("Two.")
+        .tab_options(source_notes_multiline=False)
+        .tab_style(style.text(color="#00000B"), loc.source_notes())
+        .tab_style(style.text(transform="uppercase"), loc.footer())
+    )
+    styled = {"color": "#00000B", "text_transform": "uppercase"}
+    # Two notes in the IR, each styled, as gt styles them.
+    assert emitted(gt_obj)[1]["source_notes"] == [(["One."], styled), (["Two."], styled)]
+    ((tokens, theirs),) = drawn(gt_obj)["source_notes"]
+    assert tokens == ["One. Two."]
+    # Great Tables draws the line styled too since its fix (1.1.0 drew it without).
+    assert theirs == ({} if _version(great_tables.__version__) <= (1, 1, 0) else styled)
 
 
 def _nodes(ir):
