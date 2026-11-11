@@ -1121,8 +1121,9 @@ def _shown_footnotes(built: Any) -> list[dict[str, Any]]:
 def _build_footer(built: Any, shown: list[dict[str, Any]], decor: _Decor) -> dict:
     """Build the footer section: the footnotes shown (`_shown_footnotes`), then the
     source notes. Each footnote is styled by `loc.footer()` and `loc.footnotes()`,
-    each source note by `loc.footer()` and `loc.source_notes()` (only when they're
-    on lines of their own, as Great Tables styles them)."""
+    each source note by `loc.footer()` and `loc.source_notes()`, on lines of their
+    own or not (as gt does; Great Tables 1.1.0 and before dropped the styles of
+    source notes on one line)."""
     fn_style = decor.style_id(decor.styles("LocFooter") + decor.styles("LocFootnotes"))
     fn_list = []
     for i, fn in enumerate(shown):
@@ -1137,12 +1138,7 @@ def _build_footer(built: Any, shown: list[dict[str, Any]], decor: _Decor) -> dic
             "style_id": fn_style,
         })
 
-    multiline = getattr(getattr(built._options, "source_notes_multiline", None), "value", True)
-    sn_style = (
-        decor.style_id(decor.styles("LocFooter") + decor.styles("LocSourceNotes"))
-        if multiline
-        else None
-    )
+    sn_style = decor.style_id(decor.styles("LocFooter") + decor.styles("LocSourceNotes"))
     sn_list = []
     for sn in built._source_notes:
         sn_list.append({
