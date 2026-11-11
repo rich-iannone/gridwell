@@ -4,7 +4,7 @@
   "case": "striped_theme",
   "producer": {
     "package": "great_tables",
-    "version": "1.1.0"
+    "version": "1.1.1.dev1021+g018350394"
   },
   "source": {
     "L1": "harness/gt-reference-py/striped_theme.gt.html (Great Tables' HTML)",

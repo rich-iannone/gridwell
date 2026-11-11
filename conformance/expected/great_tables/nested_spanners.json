@@ -4,7 +4,7 @@
   "case": "nested_spanners",
   "producer": {
     "package": "great_tables",
-    "version": "1.1.0"
+    "version": "1.1.1.dev1021+g018350394"
   },
   "source": {
     "L1": "harness/gt-reference-py/nested_spanners.gt.html (Great Tables' HTML)",

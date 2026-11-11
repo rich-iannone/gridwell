@@ -4,7 +4,7 @@
   "case": "notes_and_marks",
   "producer": {
     "package": "great_tables",
-    "version": "1.1.0"
+    "version": "1.1.1.dev1021+g018350394"
   },
   "source": {
     "L1": "harness/gt-reference-py/notes_and_marks.gt.html (Great Tables' HTML)",
