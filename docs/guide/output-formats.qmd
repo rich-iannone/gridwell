@@ -450,7 +450,20 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
   A typed cell whose display no format reproduces (`<0.001`, `yes`, `Q1 2024`, a
   footnote mark) stays text.
 - Merge regions via `<mergeCells>`. Every cell a merge covers has the spanning
-  cell's format, so its borders and fill reach the region's edges
+  cell's format, with the borders on its sides of the region's outline, so the
+  borders and fill reach the region's edges; the region's first cell has the whole
+  outline
+- Cell borders: solid, dashed, dotted and double, `thin` up to 1.5px, `medium` up to
+  2.5px and `thick` above. A border without a color is in the cell's text color
+- The same rules as HTML's default look, from one shared spec, as cell borders: the
+  table's top and bottom, the rules under the column labels and around group labels,
+  between rows, right of the stub and the double rule above the grand summary; the
+  gray rules above the title and below the notes, across the table; and the rules
+  under spanners (unbroken between neighboring spanners, since a border can't stop
+  short of its cell's ends). The table's own borders still win: a cell's own border
+  replaces the rule on that edge. The sheet's gridlines are hidden, so the rules
+  stand alone. `base_styles: false` leaves only the table's own borders, over the
+  gridlines
 - Styles in `xl/styles.xml` (fonts, fills, borders, number formats; a cell with no
   font of its own is in Calibri). Text is in the shared-string table, as rich text
   where a cell mixes formatting (each run with its full font)
