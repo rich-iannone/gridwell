@@ -285,6 +285,7 @@ dependencies = [
  "gridwell-layout",
  "gridwell-ooxml",
  "rust_xlsxwriter",
+ "serde",
  "thiserror",
  "zip",
 ]
