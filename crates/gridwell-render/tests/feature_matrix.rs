@@ -880,7 +880,7 @@ fn gap(feature: &str, format: &str) -> Option<Gap> {
         ("lang", "latex" | "xlsx") => Limit,
         ("lang", "rtf") => Todo,
         ("rtl", "latex") => Limit,
-        ("table-rules", "latex" | "typst" | "rtf" | "docx" | "xlsx") => Todo,
+        ("table-rules", "latex" | "typst" | "rtf" | "docx") => Todo,
         _ => return None,
     })
 }
@@ -1099,7 +1099,7 @@ fn writers_warn_of_their_gaps() {
         }
     }
     assert!(wrong.is_empty(), "{}", wrong.join("\n"));
-    assert_eq!(warned, 14);
+    assert_eq!(warned, 13);
 }
 
 /// The probes' columns have no width; a column with one (fixed, `%`, `fr`) must
