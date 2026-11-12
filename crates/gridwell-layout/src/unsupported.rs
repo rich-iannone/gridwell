@@ -193,7 +193,7 @@ pub struct Check {
 }
 
 /// `config.rules` changing the default look's rules ([`crate::look`]), for a
-/// format whose writer draws rules of its own (all but HTML, SVG and PPTX).
+/// format whose writer draws rules of its own (all but HTML, SVG, PPTX and XLSX).
 pub const TABLE_RULES: TableCheck = TableCheck {
     feature: "table-rules",
     reason: "`config.rules` changes the rules of gridwell's default look, which this format \
