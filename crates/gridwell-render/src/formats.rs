@@ -309,9 +309,9 @@ define_format!(
     Xlsx, "xlsx", "Microsoft Excel workbook", Binary, "xlsx",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     experimental: false,
-    options: NoOptions,
+    options: gridwell_writer_xlsx::XlsxConfig,
     check: ok,
-    render: |t, _| gridwell_writer_xlsx::render_xlsx(t),
+    render: |t, o| gridwell_writer_xlsx::XlsxWriter::with_config(o).render(t),
     unsupported: gridwell_writer_xlsx::unsupported,
 );
 #[cfg(feature = "pptx")]
