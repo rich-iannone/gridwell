@@ -1,11 +1,12 @@
 //! Cell formats in `styles.xml`: borders map to SpreadsheetML line styles by width
 //! and kind, carry their color, and are shared between cells that use the same
-//! edges.
+//! edges. (Without the default look's rules, which would add edges of their
+//! own: `rules.rs` tests those.)
 
 use gridwell_ir::style::BorderSet;
 use gridwell_ir::StyleDef;
 use gridwell_testkit::{border, cell, row, CellExt, TableBuilder};
-use gridwell_writer_xlsx::XlsxWriter;
+use gridwell_writer_xlsx::{XlsxConfig, XlsxWriter};
 
 fn styles_for(bottom: Option<(&str, &str, &str)>, left: Option<(&str, &str, &str)>) -> String {
     let edge = |e: Option<(&str, &str, &str)>| e.map(|(w, s, c)| border(w, s, c));
@@ -24,7 +25,9 @@ fn styles_for(bottom: Option<(&str, &str, &str)>, left: Option<(&str, &str, &str
         )
         .body(vec![row(vec![cell("x").style("b"), cell("y").style("b")])])
         .build();
-    XlsxWriter::new().render_styles_xml(&t).unwrap()
+    XlsxWriter::with_config(XlsxConfig { base_styles: false })
+        .render_styles_xml(&t)
+        .unwrap()
 }
 
 #[test]
