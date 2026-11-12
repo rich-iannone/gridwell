@@ -138,6 +138,10 @@ test_that("gw_render_xlsx produces ZIP bytes", {
     data <- gw_render_xlsx(tbl)
     expect_true(is.raw(data))
     expect_equal(data[1:4], charToRaw("PK\x03\x04"))
+    # Without the default look's rules: a different workbook.
+    bare <- gw_render_xlsx(tbl, base_styles = FALSE)
+    expect_equal(bare[1:4], charToRaw("PK\x03\x04"))
+    expect_false(identical(bare, data))
 })
 
 test_that("gw_render_pptx produces ZIP bytes", {
