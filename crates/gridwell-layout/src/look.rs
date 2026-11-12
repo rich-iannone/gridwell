@@ -1,6 +1,6 @@
 //! The default look: gridwell's base styling for formats that draw their own rules
-//! and spacing (HTML's base stylesheet, SVG, PPTX), modeled on gt's defaults. One set of
-//! numbers, so the formats can't drift apart.
+//! and spacing (HTML's base stylesheet, SVG, PPTX; XLSX draws its rules), modeled
+//! on gt's defaults. One set of numbers, so the formats can't drift apart.
 //!
 //! It is chosen by table structure, never by data, and always yields to the table's
 //! own styles. Where each rule goes:
@@ -21,18 +21,21 @@
 //! A cell's own border replaces the rule on its edge. On the table's top and
 //! bottom and under the head, once a cell sets its own border, the edge is drawn by
 //! its cells ([`EdgeRules`]). [`BaseRules`] puts the rules on the row boundaries
-//! and says which cells draw them.
+//! and says which cells draw them; [`cell_strokes`] gives every position its
+//! borders, for formats that draw the rules as cell borders.
 //!
 //! Column labels are normal weight (not bold), heading lines are centered, and the
 //! table is as wide as its widest heading or footer line.
 
 pub mod edges;
 pub mod rules;
+pub mod strokes;
 
 pub use edges::{Edge, EdgePart, EdgeRules};
 use gridwell_core::{Color, Length};
 use gridwell_ir::{BorderStyle, Table};
 pub use rules::{BaseRules, OwnEdges};
+pub use strokes::{cell_strokes, is_spanner, rule_stroke, SpannerRules, Strokes};
 
 /// A horizontal or vertical line.
 #[derive(Debug, Clone, Copy, PartialEq)]
