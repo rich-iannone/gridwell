@@ -706,6 +706,7 @@ dependencies = [
  "gridwell-testkit",
  "insta",
  "rust_xlsxwriter",
+ "serde",
  "serde_json",
  "thiserror",
  "zip",
