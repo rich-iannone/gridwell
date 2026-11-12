@@ -5,15 +5,15 @@ expression: lines(&xml)
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
 <dimension ref="A1:B6"/>
-<sheetViews><sheetView tabSelected="1" workbookViewId="0"/></sheetViews>
+<sheetViews><sheetView showGridLines="0" tabSelected="1" workbookViewId="0"/></sheetViews>
 <sheetFormatPr defaultRowHeight="15"/>
 <cols><col min="1" max="2" width="12" customWidth="1"/></cols>
 <sheetData>
 <row r="1" spans="1:2"><c r="A1" s="2" t="s"><v>0</v></c><c r="B1" s="2" t="s"><v>1</v></c></row>
-<row r="2" spans="1:2"><c r="A2" t="s"><v>2</v></c><c r="B2" t="s"><v>3</v></c></row>
-<row r="3" spans="1:2"><c r="A3" t="s"><v>4</v></c><c r="B3" t="s"><v>5</v></c></row>
-<row r="4" spans="1:2"><c r="A4" t="s"><v>6</v></c><c r="B4" t="s"><v>7</v></c></row>
-<row r="6" spans="1:2"><c r="A6" t="s"><v>8</v></c></row>
+<row r="2" spans="1:2"><c r="A2" s="3" t="s"><v>2</v></c><c r="B2" s="3" t="s"><v>3</v></c></row>
+<row r="3" spans="1:2"><c r="A3" s="4" t="s"><v>4</v></c><c r="B3" s="4" t="s"><v>5</v></c></row>
+<row r="4" spans="1:2"><c r="A4" s="5" t="s"><v>6</v></c><c r="B4" s="5" t="s"><v>7</v></c></row>
+<row r="6" spans="1:2"><c r="A6" s="6" t="s"><v>8</v></c><c r="B6" s="6"/></row>
 </sheetData><hyperlinks><hyperlink ref="B2" r:id="rId1"/><hyperlink ref="B3" r:id="rId2"/><hyperlink ref="B4" r:id="rId3" location="top" display="https://example.org/r%C3%A9sum%C3%A9/100%25"/><hyperlink ref="A6" r:id="rId4"/></hyperlinks>
 <pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
 </worksheet>
@@ -40,16 +40,25 @@ expression: lines(&xml)
 <fill><patternFill patternType="none"/></fill>
 <fill><patternFill patternType="gray125"/></fill>
 </fills>
-<borders count="1">
+<borders count="6">
 <border><left/><right/><top/><bottom/><diagonal/></border>
+<border><left/><right/><top style="medium"><color rgb="FFD3D3D3"/></top><bottom style="medium"><color rgb="FFD3D3D3"/></bottom><diagonal/></border>
+<border><left/><right/><top style="medium"><color rgb="FFD3D3D3"/></top><bottom/><diagonal/></border>
+<border><left/><right/><top style="thin"><color rgb="FFD3D3D3"/></top><bottom/><diagonal/></border>
+<border><left/><right/><top style="thin"><color rgb="FFD3D3D3"/></top><bottom style="medium"><color rgb="FFD3D3D3"/></bottom><diagonal/></border>
+<border><left/><right/><top/><bottom style="medium"><color rgb="FFA8A8A8"/></bottom><diagonal/></border>
 </borders>
 <cellStyleXfs count="2">
 <xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>
 <xf numFmtId="0" fontId="1" fillId="0" borderId="0" applyNumberFormat="0" applyFill="0" applyBorder="0" applyAlignment="0" applyProtection="0"><alignment vertical="top"/><protection locked="0"/></xf></cellStyleXfs>
-<cellXfs count="3">
+<cellXfs count="7">
 <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
 <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="1" applyAlignment="1" applyProtection="1"/>
-<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+<xf numFmtId="0" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"/>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1"/>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="3" xfId="0" applyBorder="1"/>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="4" xfId="0" applyBorder="1"/>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="5" xfId="0" applyBorder="1"/>
 </cellXfs>
 <cellStyles count="2"><cellStyle name="Hyperlink" xfId="1" builtinId="8"/><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
 <dxfs count="0"/>
