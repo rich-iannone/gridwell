@@ -369,7 +369,7 @@ impl PyTable {
         self.binary(py, "docx", options.map(|d| d.as_any()))
     }
 
-    /// Render the table to an XLSX file (returns bytes). Options: raw.
+    /// Render the table to an XLSX file (returns bytes). Options: base_styles, raw.
     #[pyo3(signature = (**options))]
     fn render_xlsx<'py>(
         &self,
