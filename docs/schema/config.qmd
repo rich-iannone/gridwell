@@ -78,10 +78,10 @@ How each format expresses this is listed under [output formats](../guide/output-
 
 ## Rules
 
-The formats that draw gridwell's own look (HTML, SVG and PPTX) put rules on the
-table: lines above and below the heading, under the column labels and the spanners,
-around group labels, between rows, after the stub, and above summary rows. `rules`
-changes them. Each field is a [border](styles.qmd#borders) whose `width`, `style` and `color`
+The formats that draw gridwell's own rules (HTML, SVG and PPTX, with the rest of
+its look, and XLSX) put rules on the table: lines above and below the heading, under
+the column labels and the spanners, around group labels, between rows, after the
+stub, and above summary rows. `rules` changes them. Each field is a [border](styles.qmd#borders) whose `width`, `style` and `color`
 replace those of the default rule it names, so a field left out keeps the default.
 A `style` of `none` or `hidden`, or a `width` of `0`, removes the rule. A `double`
 rule narrower than 3px is drawn solid, as CSS does. A value that isn't valid is
