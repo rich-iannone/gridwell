@@ -59,7 +59,7 @@ gridwell convert table.json --to html --options '{"raw": false}'
 
 ## Options by format
 
-RTF, Pandoc, DOCX and XLSX have no options of their own; they accept only `raw`
+RTF, Pandoc and DOCX have no options of their own; they accept only `raw`
 (or no options at all).
 
 ### `html`
@@ -116,6 +116,12 @@ RTF, Pandoc, DOCX and XLSX have no options of their own; they accept only `raw`
 |---|---|---|---|
 | `table_id` | string or `null` | `null` | Cross-reference id; the wrapper `Div` gets id `tbl-<table_id>` |
 | `extra_attrs` | list of `[key, value]` pairs | `[]` | Extra attributes on the wrapper `Div` |
+
+### `xlsx`
+
+| Option | Type | Default | Meaning |
+|---|---|---|---|
+| `base_styles` | boolean | `true` | Draw the rules of gridwell's default look as cell borders, the same as HTML's base stylesheet (gt's rules: the table's top and bottom, under the column labels, between rows, around group labels, right of the stub, under spanners, above the title and below the notes, and a double rule above the grand summary), and hide the sheet's gridlines; the table's own borders still win. `false`: only the table's own borders, over the gridlines |
 
 ### `pptx`
 
