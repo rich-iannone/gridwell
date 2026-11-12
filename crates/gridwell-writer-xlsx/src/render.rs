@@ -3,9 +3,10 @@ use gridwell_core::{Color, ImageFormat};
 use gridwell_ir::cell::TypedValue;
 use gridwell_ir::content::ContentNode;
 use gridwell_ir::{BorderStyle, HAlign, Table, ValueType};
+use gridwell_layout::look::{cell_strokes, rule_stroke, BaseRules, Rule, SpannerRules, Strokes};
 use gridwell_layout::unsupported::Place;
 use gridwell_layout::{
-    resolve, CellVAlign, ResolvedBorder, ResolvedStyle, ResolvedTable, Section, SectionKind,
+    resolve, CellVAlign, ResolvedStyle, ResolvedTable, Section, SectionKind, Stroke,
 };
 use gridwell_ooxml::{package, Part};
 use rust_xlsxwriter::{
@@ -18,6 +19,7 @@ use thiserror::Error;
 
 use crate::date::Moment;
 use crate::number::NumFmt;
+use crate::XlsxConfig;
 
 #[derive(Debug, Error)]
 pub enum RenderError {
@@ -32,8 +34,8 @@ pub enum RenderError {
 }
 
 /// Render the full .xlsx ZIP file as bytes.
-pub fn render(table: &Table) -> Result<Vec<u8>, RenderError> {
-    let (mut workbook, _, linked) = workbook(&resolve(table))?;
+pub fn render(table: &Table, config: &XlsxConfig) -> Result<Vec<u8>, RenderError> {
+    let (mut workbook, _, linked) = workbook(&resolve(table), config)?;
     let bytes = workbook.save_to_buffer()?;
     if linked {
         restore_links(&bytes)
@@ -99,31 +101,34 @@ fn restore_links(bytes: &[u8]) -> Result<Vec<u8>, RenderError> {
 }
 
 /// Render only the sheet XML content (for snapshot testing).
-pub fn render_sheet_xml(table: &Table) -> Result<String, RenderError> {
-    package_part(table, "xl/worksheets/sheet1.xml")
+pub fn render_sheet_xml(table: &Table, config: &XlsxConfig) -> Result<String, RenderError> {
+    package_part(table, config, "xl/worksheets/sheet1.xml")
 }
 
 /// Render only the styles part (for testing): the cell formats the sheet uses.
-pub fn render_styles_xml(table: &Table) -> Result<String, RenderError> {
-    package_part(table, "xl/styles.xml")
+pub fn render_styles_xml(table: &Table, config: &XlsxConfig) -> Result<String, RenderError> {
+    package_part(table, config, "xl/styles.xml")
 }
 
 /// Render only the drawing part (for testing): the images drawn over cells;
 /// empty when there are none (the package then has no such part).
-pub fn render_drawing_xml(table: &Table) -> Result<String, RenderError> {
-    package_part(table, "xl/drawings/drawing1.xml")
+pub fn render_drawing_xml(table: &Table, config: &XlsxConfig) -> Result<String, RenderError> {
+    package_part(table, config, "xl/drawings/drawing1.xml")
 }
 
 /// Render only the shared-string table (for testing): the sheet's strings; empty
 /// when the sheet has none (the package then has no such part).
-pub fn render_shared_strings_xml(table: &Table) -> Result<String, RenderError> {
-    package_part(table, "xl/sharedStrings.xml")
+pub fn render_shared_strings_xml(
+    table: &Table,
+    config: &XlsxConfig,
+) -> Result<String, RenderError> {
+    package_part(table, config, "xl/sharedStrings.xml")
 }
 
 /// One part of the rendered package, as text ("" if the package has no such
 /// part).
-fn package_part(table: &Table, name: &str) -> Result<String, RenderError> {
-    let mut zip = zip::ZipArchive::new(Cursor::new(render(table)?))?;
+fn package_part(table: &Table, config: &XlsxConfig, name: &str) -> Result<String, RenderError> {
+    let mut zip = zip::ZipArchive::new(Cursor::new(render(table, config)?))?;
     let mut text = String::new();
     match zip.by_name(name) {
         Ok(mut part) => part.read_to_string(&mut text)?,
@@ -146,9 +151,9 @@ pub(crate) struct Losses {
 }
 
 /// What rendering `rt` loses (nothing if it can't be rendered at all: that is
-/// an error, not a warning).
+/// an error, not a warning). Text is the same whatever the options.
 pub(crate) fn losses(rt: &ResolvedTable) -> Losses {
-    workbook(rt)
+    workbook(rt, &XlsxConfig::default())
         .map(|(_, losses, _)| losses)
         .unwrap_or_default()
 }
@@ -173,8 +178,8 @@ struct Format {
     align: Option<FormatAlign>,
     /// Vertical alignment; `None` is Excel's bottom.
     valign: Option<FormatAlign>,
-    /// Border edges: left, right, top, bottom.
-    border: [Option<Edge>; 4],
+    /// Border edges: left, right, top, bottom (see [`Format::with_borders`]).
+    border: Borders,
     /// Wrap text: set for text with line breaks, which Excel shows only when
     /// wrapping is on.
     wrap: bool,
@@ -198,6 +203,9 @@ fn pad_code(pad: &gridwell_layout::AlignPad) -> String {
     mark.chain(digits).flat_map(|c| ['_', c]).collect()
 }
 
+/// A cell's border edges: left, right, top, bottom.
+type Borders = [Option<Edge>; 4];
+
 /// One drawn border edge: a SpreadsheetML line style and an optional color
 /// (`None`: automatic, i.e. black).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -206,16 +214,15 @@ struct Edge {
     color: Option<Color>,
 }
 
+/// The size relative border widths resolve against: Excel's default 11pt.
+const BASE_PT: f64 = 11.0;
+
 impl Edge {
     /// SpreadsheetML has named line weights, not widths: up to 1.5px is `thin`,
     /// up to 2.5px `medium`, wider `thick`; dashed lines have thin and medium
     /// forms; dotted and double have one each.
-    fn from(b: &ResolvedBorder) -> Self {
-        let px = b
-            .width
-            .as_ref()
-            .and_then(|w| w.to_pt(11.0, 11.0))
-            .map_or(1.0, |pt| pt / 0.75);
+    fn from(b: &Stroke) -> Self {
+        let px = b.width_pt / 0.75;
         let weight = if px <= 1.5 {
             0
         } else if px <= 2.5 {
@@ -236,6 +243,14 @@ impl Edge {
             style,
             color: b.color.filter(|c| !c.is_transparent()).map(|c| c.flatten()),
         }
+    }
+
+    /// A position's edges ([`cell_strokes`]): in a right-to-left table its left
+    /// is the start, which is what SpreadsheetML's `left` is in a right-to-left
+    /// sheet (shown mirrored), so they are written as they are.
+    fn sides(s: &Strokes) -> Borders {
+        let edge = |e: &Option<Stroke>| e.as_ref().map(Edge::from);
+        [edge(&s.left), edge(&s.right), edge(&s.top), edge(&s.bottom)]
     }
 }
 
@@ -270,28 +285,26 @@ impl Format {
         }
     }
 
-    /// A cell's format: `new` plus its border edges. In a right-to-left sheet,
-    /// which Excel shows mirrored, a border's `left` and `right` are the cell's
-    /// start and end, so borders (which are physical) swap. Horizontal `left` and
+    /// A cell's format: `new`, in a right-to-left sheet. Horizontal `left` and
     /// `right` stay physical even then (ECMA-376, `ST_HorizontalAlignment`), but
     /// general alignment starts text on the right, so a left-aligned cell says
     /// so.
     fn cell(style: &ResolvedStyle, bold: bool, align: &HAlign, rtl: bool) -> Self {
-        let b = &style.border;
-        let edge = |e: &Option<ResolvedBorder>| e.as_ref().map(Edge::from);
-        let (left, right) = if rtl {
-            (&b.right, &b.left)
-        } else {
-            (&b.left, &b.right)
-        };
         let base = Self::new(style, bold, align);
         Self {
-            border: [edge(left), edge(right), edge(&b.top), edge(&b.bottom)],
             align: match (align, rtl) {
                 (HAlign::Right | HAlign::Center | HAlign::Justify, _) | (_, false) => base.align,
                 (_, true) => Some(FormatAlign::Left),
             },
             ..base
+        }
+    }
+
+    /// This format with a position's border edges ([`Edge::sides`]).
+    fn with_borders(self, strokes: Option<&Strokes>) -> Self {
+        Self {
+            border: strokes.map(Edge::sides).unwrap_or_default(),
+            ..self
         }
     }
 
@@ -435,7 +448,10 @@ impl FontKey {
 }
 
 /// The workbook and what it loses of the table's text.
-fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses, bool), RenderError> {
+fn workbook(
+    rt: &ResolvedTable,
+    config: &XlsxConfig,
+) -> Result<(Workbook, Losses, bool), RenderError> {
     let mut workbook = Workbook::new();
     // The same table always makes the same file: the creation date is fixed
     // (the zip epoch, as the other OOXML writers' timestamps), not "now".
@@ -448,6 +464,37 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses, bool), RenderError>
     if rt.is_rtl() {
         ws.set_right_to_left(true);
     }
+    // The default look's rules, as cell borders. The sheet's gridlines would
+    // blur them (the rule between rows is a gray close to theirs).
+    let rules = config.base_styles.then(|| BaseRules::new(rt));
+    if rules.is_some() {
+        ws.set_screen_gridlines(false);
+    }
+    // Every position's borders, a row of them for each of the table's rows.
+    let strokes = if rt.is_empty() {
+        Vec::new()
+    } else {
+        cell_strokes(rt, rules.as_ref(), BASE_PT, SpannerRules::Borders)
+    };
+    // The outer rules, above the heading and below the notes: across the table.
+    let ncols = rt.columns.len().max(1);
+    let outer = |rule: Option<Rule>, top: bool| {
+        let stroke = rule.filter(|_| rules.is_some()).map(rule_stroke);
+        let s = if top {
+            Strokes {
+                top: stroke,
+                ..Strokes::default()
+            }
+        } else {
+            Strokes {
+                bottom: stroke,
+                ..Strokes::default()
+            }
+        };
+        vec![s; ncols]
+    };
+    let title_rule = outer(rt.rules.title, true);
+    let notes_rule = outer(rt.rules.notes, false);
 
     // Column widths, in characters of the default font (7px each): a column's
     // own, or 12 (`None`) and room for the widest image drawn alone in one of
@@ -497,41 +544,46 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses, bool), RenderError>
         linked: false,
     };
 
-    // Title and subtitle lines.
+    // Title and subtitle lines, the title rule over the first.
     let header = &rt.header;
-    if let Some(title) = &header.title {
-        let f = Format::new(&title.style, true, &HAlign::Left);
-        sheet.text_row(
-            rich(rt, &title.content, FontKey::of(&f)),
-            picture(&title.content, font_pt(&title.style)),
-            f,
-            false,
-            Place::Title,
-        )?;
-    }
-    if let Some(line) = &header.subtitle {
-        let f = Format::new(&line.style, false, &HAlign::Left);
-        sheet.text_row(
-            rich(rt, &line.content, FontKey::of(&f)),
-            picture(&line.content, font_pt(&line.style)),
-            f,
-            false,
-            Place::Subtitle,
-        )?;
-    }
-    for (i, line) in header.extra_lines.iter().enumerate() {
-        let f = Format::new(&line.style, false, &HAlign::Left);
+    let heading = header
+        .title
+        .iter()
+        .map(|line| (line, true, Place::Title))
+        .chain(
+            header
+                .subtitle
+                .iter()
+                .map(|line| (line, false, Place::Subtitle)),
+        )
+        .chain(
+            header
+                .extra_lines
+                .iter()
+                .enumerate()
+                .map(|(i, line)| (line, false, Place::HeaderLine(i))),
+        );
+    for (i, (line, bold, place)) in heading.enumerate() {
+        let f = Format::new(&line.style, bold, &HAlign::Left);
         sheet.text_row(
             rich(rt, &line.content, FontKey::of(&f)),
             picture(&line.content, font_pt(&line.style)),
             f,
             false,
-            Place::HeaderLine(i),
+            if i == 0 { &title_rule } else { &[] },
+            place,
         )?;
     }
 
     if !rt.is_empty() {
-        sheet.section(rt, &rt.head, true, None)?;
+        // The table's rows in display order, as `strokes` has them.
+        let mut rows = strokes.as_slice();
+        let mut take = |n: usize| {
+            let (these, rest) = rows.split_at(n.min(rows.len()));
+            rows = rest;
+            these
+        };
+        sheet.section(rt, &rt.head, true, None, take(rt.head.rows.len()))?;
         for (g, group) in rt.groups.iter().enumerate() {
             if let Some(label) = &group.label {
                 // One cell merged across every column.
@@ -541,17 +593,27 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses, bool), RenderError>
                     picture(&label.content, font_pt(&label.style)),
                     f,
                     rt.columns.len() > 1,
+                    take(1).first().map_or(&[], Vec::as_slice),
                     Place::GroupLabel(g),
                 )?;
             }
             for s in group.sections() {
-                sheet.section(rt, s, s.kind == SectionKind::Summary, Some(g))?;
+                let strong = s.kind == SectionKind::Summary;
+                sheet.section(rt, s, strong, Some(g), take(s.rows.len()))?;
             }
         }
     }
 
-    // Notes, each block after a blank row.
+    // Notes, each block after a blank row, the notes rule under the last.
     let footer = &rt.footer;
+    let last_note = footer.footnotes.len() + footer.source_notes.len();
+    let note_rule = |n: usize| -> &[Strokes] {
+        if n + 1 == last_note {
+            &notes_rule
+        } else {
+            &[]
+        }
+    };
     if !footer.footnotes.is_empty() {
         sheet.row += 1;
         for (i, note) in footer.footnotes.iter().enumerate() {
@@ -573,7 +635,7 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses, bool), RenderError>
             ];
             runs.extend(rich(rt, &note.content, font));
             // The mark goes with the note's text: an image here shows its alt.
-            sheet.text_row(runs, None, f, false, Place::Footnote(i))?;
+            sheet.text_row(runs, None, f, false, note_rule(i), Place::Footnote(i))?;
         }
     }
     if !footer.source_notes.is_empty() {
@@ -585,6 +647,7 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses, bool), RenderError>
                 picture(&note.content, font_pt(&note.style)),
                 f,
                 false,
+                note_rule(footer.footnotes.len() + i),
                 Place::SourceNote(i),
             )?;
         }
@@ -592,6 +655,26 @@ fn workbook(rt: &ResolvedTable) -> Result<(Workbook, Losses, bool), RenderError>
 
     let (losses, linked) = (sheet.losses, sheet.linked);
     Ok((workbook, losses, linked))
+}
+
+/// The borders on the outline of a cell `rows` by `cols` positions, from the
+/// positions on it (`at(dr, dc)`, from the cell's first): its first's top and
+/// start, its last column's end and its last row's bottom.
+fn outline<'s>(
+    at: impl Fn(usize, usize) -> Option<&'s Strokes>,
+    rows: usize,
+    cols: usize,
+) -> Strokes {
+    let side = |dr: usize, dc: usize, get: fn(&Strokes) -> &Option<Stroke>| {
+        at(dr, dc).and_then(|s| get(s).clone())
+    };
+    let (last_row, last_col) = (rows.saturating_sub(1), cols.saturating_sub(1));
+    Strokes {
+        top: side(0, 0, |s| &s.top),
+        left: side(0, 0, |s| &s.left),
+        right: side(0, last_col, |s| &s.right),
+        bottom: side(last_row, 0, |s| &s.bottom),
+    }
 }
 
 fn col_num(col: usize) -> Result<ColNum, XlsxError> {
@@ -651,13 +734,16 @@ impl Sheet<'_> {
     }
 
     /// A row with one text cell in column A (`merged`: across every column), or
-    /// with `pic` drawn over it.
+    /// with `pic` drawn over it, and `edges` the borders of the row's positions
+    /// from column A (those outside the cell are blank).
+    #[allow(clippy::too_many_arguments)]
     fn text_row(
         &mut self,
         mut runs: Vec<RichRun>,
         pic: Option<Picture>,
         mut f: Format,
         merged: bool,
+        edges: &[Strokes],
         place: Place,
     ) -> Result<(), RenderError> {
         let row = self.row;
@@ -676,7 +762,16 @@ impl Sheet<'_> {
         }
         self.set_height(row, height)?;
         let last = if merged { self.col_chars.len() - 1 } else { 0 };
+        f = f.with_borders(Some(&outline(|_, c| edges.get(c), 1, last + 1)));
         self.write_text(row, 0, row, last, &mut runs, &f, place)?;
+        self.cover(row, 0, row, last, &f, |_, c| edges.get(c))?;
+        for (c, e) in edges.iter().enumerate().skip(last + 1) {
+            let blank = Format::default().with_borders(Some(e));
+            if blank != Format::default() {
+                let x = self.format(&blank);
+                self.ws.write_blank(row_num(row)?, col_num(c)?, &x)?;
+            }
+        }
         if let Some(pic) = &pic {
             self.draw(row, 0, last, Some(height), pic, &f)?;
         }
@@ -684,21 +779,28 @@ impl Sheet<'_> {
         Ok(())
     }
 
-    /// A section's rows. Each cell sits at its visible column; a spanning cell
-    /// is merged over the positions it covers.
+    /// A section's rows, `strokes` their positions' borders. Each cell sits at
+    /// its visible column; a spanning cell is merged over the positions it
+    /// covers.
     fn section(
         &mut self,
         rt: &ResolvedTable,
         section: &Section,
         strong: bool,
         group: Option<usize>,
+        strokes: &[Vec<Strokes>],
     ) -> Result<(), RenderError> {
         for (i, r) in section.rows.iter().enumerate() {
             let row = self.row;
             let mut height = 0.0f64;
             let mut pics = Vec::new();
             for cell in r.cells() {
-                let mut format = Format::cell(&cell.style, strong, &cell.align, rt.is_rtl());
+                // A position's borders, `dr` rows under the cell's first.
+                let edges = |dr: usize, c: usize| strokes.get(i + dr).and_then(|r| r.get(c));
+                let at = |dr: usize, c: usize| edges(dr, cell.col + c);
+                let format = Format::cell(&cell.style, strong, &cell.align, rt.is_rtl());
+                let mut format =
+                    format.with_borders(Some(&outline(at, cell.rowspan, cell.colspan)));
                 let mut runs = rich(rt, &cell.content, FontKey::of(&format));
                 // Aligned on a character: the padding as figure and punctuation
                 // spaces, undecorated, after the text (a number's format
@@ -747,8 +849,10 @@ impl Sheet<'_> {
                             None => {}
                         }
                     }
-                    let f = self.format(&Format { num_fmt, ..format });
+                    let format = Format { num_fmt, ..format };
+                    let f = self.format(&format);
                     self.merge(row, cell.col, last_row, last_col, &f)?;
+                    self.cover(row, cell.col, last_row, last_col, &format, edges)?;
                     let (r, c) = (row_num(row)?, col_num(cell.col)?);
                     if let Some(url) = runs.iter().find_map(|r| r.link.clone()) {
                         self.link(r, c, &url)?;
@@ -766,6 +870,7 @@ impl Sheet<'_> {
                     col: cell.grid_col,
                 };
                 self.write_text(row, cell.col, last_row, last_col, &mut runs, &format, place)?;
+                self.cover(row, cell.col, last_row, last_col, &format, edges)?;
                 if let Some(pic) = pic {
                     // A spanned cell's height isn't known yet: its image sits
                     // at the top.
@@ -783,7 +888,8 @@ impl Sheet<'_> {
     }
 
     /// Merge a spanning cell's range, which gives every position in it the
-    /// cell's format (so its borders and fill reach the range's edges).
+    /// cell's format (so its fill reaches the range's edges; [`Sheet::cover`]
+    /// then gives each position its own borders).
     fn merge(
         &mut self,
         row: usize,
@@ -801,6 +907,36 @@ impl Sheet<'_> {
                 "",
                 f,
             )?;
+        }
+        Ok(())
+    }
+
+    /// After a merge, which gives every position in it the spanning cell's
+    /// format `f`: each position but the first its own borders (`edges(dr, c)`,
+    /// `dr` rows under `row`, at column `c`), as Excel draws a merged cell's
+    /// outline from the positions on it. The first has the whole outline's
+    /// ([`outline`]), for readers that draw a merged cell's borders from it.
+    #[allow(clippy::too_many_arguments)]
+    fn cover<'s>(
+        &mut self,
+        row: usize,
+        col: usize,
+        last_row: usize,
+        last_col: usize,
+        f: &Format,
+        edges: impl Fn(usize, usize) -> Option<&'s Strokes>,
+    ) -> Result<(), RenderError> {
+        for r in row..=last_row {
+            for c in col..=last_col {
+                if (r, c) == (row, col) {
+                    continue;
+                }
+                let here = f.clone().with_borders(edges(r - row, c));
+                if here != *f {
+                    let x = self.format(&here);
+                    self.ws.write_blank(row_num(r)?, col_num(c)?, &x)?;
+                }
+            }
         }
         Ok(())
     }
