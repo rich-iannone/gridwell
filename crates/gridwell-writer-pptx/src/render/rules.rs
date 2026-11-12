@@ -9,155 +9,23 @@
 
 use std::fmt::Write;
 
-use gridwell_ir::{BorderStyle, RowRole};
-use gridwell_layout::look::{stronger, BaseRules, EdgePart, LineStyle, OwnEdges, Rule, LOOK};
-use gridwell_layout::{ResolvedCell, ResolvedTable, Section, SectionKind, Sides, Slot, Stroke};
+use gridwell_layout::look::{is_spanner, BaseRules, LineStyle, Rule, SpannerRules, LOOK};
+use gridwell_layout::ResolvedTable;
 
 use super::{RenderError, BASE_PT};
 
-/// A position's borders: `lnL`, `lnR`, `lnT`, `lnB`. In a right-to-left table
-/// the left is the start (drawn on the right): the writer mirrors them as it
-/// writes the columns as they are seen.
-pub(super) type Strokes = Sides<Option<Stroke>>;
+// A position's borders: `lnL`, `lnR`, `lnT`, `lnB`. In a right-to-left table
+// the left is the start (drawn on the right): the writer mirrors them as it
+// writes the columns as they are seen.
+pub(super) use gridwell_layout::look::Strokes;
 
 /// EMU per px: 0.75pt, 12700 EMU each.
 const EMU_PER_PX: f64 = 9525.0;
 
-/// A rule as a cell border.
-fn stroke(rule: Rule) -> Stroke {
-    Stroke {
-        style: match rule.style {
-            LineStyle::Solid => BorderStyle::Solid,
-            LineStyle::Dashed => BorderStyle::Dashed,
-            LineStyle::Dotted => BorderStyle::Dotted,
-            LineStyle::Double => BorderStyle::Double,
-        },
-        width_pt: rule.width_px * 0.75,
-        color: Some(rule.color),
-    }
-}
-
-/// Every position's borders, a row of `ncols` for each of the table's rows in
-/// display order (the head's, then each group's label, data rows and summary
-/// rows). A position draws the borders of the cell covering it on the sides that
-/// lie on that cell's outline: the cell's own, and with `rules`, the base rules
-/// ([`BaseRules::cell`], and the stub's right) where neither the cell nor the
-/// position across the edge draws its own.
+/// Every position's borders ([`gridwell_layout::look::cell_strokes`]); a solid
+/// spanner rule is an inset line ([`spanner_lines`]).
 pub(super) fn cell_strokes(rt: &ResolvedTable, rules: Option<&BaseRules>) -> Vec<Vec<Strokes>> {
-    let ncols = rt.columns.len();
-    let rtl = rt.is_rtl();
-    // Each position's own borders, and the base rules it would draw.
-    let mut own: Vec<Vec<Strokes>> = Vec::new();
-    let mut base: Vec<Vec<Strokes>> = Vec::new();
-    let section = |part: EdgePart, s: &Section, own: &mut Vec<_>, base: &mut Vec<_>| {
-        for r in 0..s.rows.len() {
-            let (mut o, mut b) = (Vec::with_capacity(ncols), Vec::with_capacity(ncols));
-            for col in 0..ncols {
-                let Some((cell, outline)) = s.covering(r, col) else {
-                    o.push(Strokes::default());
-                    b.push(Strokes::default());
-                    continue;
-                };
-                // In a right-to-left table the left and right are the cell's start
-                // and end: the strokes are mirrored, before the mask (a span's start
-                // edge is its outline's left).
-                let strokes = cell.style.strokes(BASE_PT).mirrored(rtl);
-                let mut rule = Strokes::default();
-                if let Some(rules) = rules {
-                    let origin = match s.rows[r].slots.get(col) {
-                        Some(Slot::CoveredV { origin_row, .. }) => *origin_row,
-                        _ => r,
-                    };
-                    let edges = OwnEdges {
-                        top: strokes.top.is_some(),
-                        bottom: strokes.bottom.is_some(),
-                        clears_top: cell.style.border_cleared.top,
-                    };
-                    let (top, bottom) = rules.cell(part, origin, cell.col, cell.rowspan, edges);
-                    let mut bottom = bottom;
-                    // A spanner rule that isn't solid is the spanner's bottom
-                    // border, as in HTML (a solid one is an inset line).
-                    if let Some(sp) = rt.rules.spanners.filter(|sp| {
-                        sp.style != LineStyle::Solid && !edges.bottom && is_spanner(s, r, cell)
-                    }) {
-                        if bottom.is_none_or(|b| stronger(&sp, &b) != Some(false)) {
-                            bottom = Some(sp);
-                        }
-                    }
-                    rule.top = top.map(stroke);
-                    rule.bottom = bottom.map(stroke);
-                    if cell.is_stub && part != EdgePart::Head {
-                        rule.right = rt.rules.stub.map(stroke);
-                    }
-                }
-                o.push(strokes.masked(outline));
-                b.push(rule.masked(outline));
-            }
-            own.push(o);
-            base.push(b);
-        }
-    };
-    section(EdgePart::Head, &rt.head, &mut own, &mut base);
-    for (g, group) in rt.groups.iter().enumerate() {
-        if let Some(label) = &group.label {
-            // The label spans every column: the first position takes the start
-            // edge, the last the end, and every position the top and bottom.
-            let strokes = label.style.strokes(BASE_PT).mirrored(rtl);
-            let piece = |c: usize| Sides {
-                left: c == 0,
-                right: c + 1 == ncols,
-                ..Sides::ALL
-            };
-            own.push((0..ncols).map(|c| strokes.masked(piece(c))).collect());
-            let r = own.len() - 1;
-            debug_assert!(rules.is_none_or(|rules| rules.label_row(g) == Some(r)));
-            let at = |b: usize| rules.and_then(|rules| rules.boundary.get(b).copied().flatten());
-            let rule = Strokes {
-                top: at(r).map(stroke),
-                bottom: at(r + 1).map(stroke),
-                ..Strokes::default()
-            };
-            base.push(vec![rule; ncols]);
-        }
-        for s in group.sections() {
-            section(EdgePart::of(g, s), s, &mut own, &mut base);
-        }
-    }
-    // The table's own borders win: a base rule is drawn only where the position
-    // across the edge has no border of its own facing it.
-    let mut out = Vec::with_capacity(own.len());
-    for (r, (o_row, b_row)) in own.iter().zip(base).enumerate() {
-        let row = o_row
-            .iter()
-            .zip(b_row)
-            .enumerate()
-            .map(|(c, (o, b))| {
-                let across = |side: Option<&Strokes>, get: fn(&Strokes) -> &Option<Stroke>| {
-                    side.is_some_and(|s| get(s).is_some())
-                };
-                let above = r.checked_sub(1).and_then(|r| own[r].get(c));
-                let below = own.get(r + 1).and_then(|row| row.get(c));
-                let next = o_row.get(c + 1);
-                Strokes {
-                    top: o
-                        .top
-                        .clone()
-                        .or(b.top.filter(|_| !across(above, |s| &s.bottom))),
-                    bottom: o
-                        .bottom
-                        .clone()
-                        .or(b.bottom.filter(|_| !across(below, |s| &s.top))),
-                    right: o
-                        .right
-                        .clone()
-                        .or(b.right.filter(|_| !across(next, |s| &s.left))),
-                    left: o.left.clone(),
-                }
-            })
-            .collect();
-        out.push(row);
-    }
-    out
+    gridwell_layout::look::cell_strokes(rt, rules, BASE_PT, SpannerRules::UnlessSolid)
 }
 
 /// A straight line: from `x` to `x + width` at `y` (its center), in EMU.
@@ -172,15 +40,6 @@ pub(super) struct Line {
 /// A rule's width in EMU.
 pub(super) fn rule_emu(rule: Rule) -> u32 {
     (rule.width_px * EMU_PER_PX).round() as u32
-}
-
-/// Whether `cell`, in row `r` of `section`, is a spanner label with a rule under
-/// it: a spanner row's cell with content, outside the stub.
-fn is_spanner(section: &Section, r: usize, cell: &ResolvedCell) -> bool {
-    section.kind == SectionKind::Head
-        && section.rows[r].role == Some(RowRole::SpannerLabel)
-        && !cell.content.is_empty()
-        && !cell.is_stub
 }
 
 /// The solid rule under each spanner label ([`is_spanner`]), at the cell's
