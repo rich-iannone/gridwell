@@ -5,7 +5,7 @@
 
 use gridwell_ir::StyleDef;
 use gridwell_testkit::{cell, cell_content, line_break, row, text, CellExt, TableBuilder};
-use gridwell_writer_xlsx::XlsxWriter;
+use gridwell_writer_xlsx::{XlsxConfig, XlsxWriter};
 
 /// The `<row …>` start tag of row `r` (1-based).
 fn row_tag(sheet: &str, r: usize) -> &str {
@@ -106,28 +106,54 @@ fn rows_allow_for_lines_that_wrap_at_the_column_width() {
     assert!(h >= 3.0 * 15.0, "{h}: {}", row_tag(&sheet, 2));
 }
 
-/// A merged cell's format is on every position it covers, so its border and
-/// fill reach the range's edges. Its bottom alignment is Excel's default: no
-/// `vertical`.
+/// A merged cell's format is on every position it covers, each with the
+/// borders on its sides of the outline, so the border reaches the range's edges
+/// in Excel (which draws them from the positions on the outline); the first
+/// position has the whole outline, for readers that draw it from there. Its
+/// bottom alignment is Excel's default: no `vertical`.
 #[test]
-fn a_merged_cell_formats_its_whole_range() {
+fn a_merged_cell_borders_its_outline() {
     let t = gridwell_testkit::examples::styled_merge();
-    let w = XlsxWriter::new();
+    let w = XlsxWriter::with_config(XlsxConfig { base_styles: false });
     let (sheet, styles) = (
         w.render_sheet_xml(&t).unwrap(),
         w.render_styles_xml(&t).unwrap(),
     );
     // Head, group label, then `M` (A3:B4) beside `c` and `d`.
     assert!(sheet.contains("<mergeCell ref=\"A3:B4\"/>"), "{sheet}");
-    let m = xf_of(&sheet, &styles, "A3");
-    assert!(m.contains("applyBorder=\"1\""), "{m}");
-    for covered in ["B3", "A4", "B4"] {
-        assert_eq!(xf_of(&sheet, &styles, covered), m, "{covered}: {sheet}");
+    let thick = |side: &str| format!("<{side} style=\"thick\"><color rgb=\"FF00AA00\"/></{side}>");
+    for (at, sides) in [
+        ("A3", &["left", "right", "top", "bottom"][..]),
+        ("B3", &["right", "top"]),
+        ("A4", &["left", "bottom"]),
+        ("B4", &["right", "bottom"]),
+    ] {
+        let b = border_of(&sheet, &styles, at);
+        for side in ["left", "right", "top", "bottom"] {
+            assert_eq!(
+                b.contains(&thick(side)),
+                sides.contains(&side),
+                "{at} {side}: {b}"
+            );
+        }
     }
-    for plain in ["A3", "C3", "C4", "A2"] {
+    for plain in ["A3", "B3", "A4", "B4", "C3", "C4", "A2"] {
         assert!(
             !xf_of(&sheet, &styles, plain).contains("vertical="),
             "{plain}"
         );
     }
+}
+
+/// The `<border>` (in `borders`) a cell's format points at.
+fn border_of<'a>(sheet: &str, styles: &'a str, cell_ref: &str) -> &'a str {
+    let xf = xf_of(sheet, styles, cell_ref);
+    let id: usize = xf
+        .split("borderId=\"")
+        .nth(1)
+        .and_then(|s| s[..s.find('"')?].parse().ok())
+        .unwrap_or(0);
+    let borders = &styles[styles.find("<borders").unwrap()..];
+    let b = borders.split("<border>").nth(id + 1).unwrap();
+    &b[..b.find("</border>").unwrap()]
 }
