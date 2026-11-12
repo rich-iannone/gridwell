@@ -235,6 +235,8 @@ fn bad_options_are_invalid_options_errors() {
         ("quarto", json!({ "extra_attrs": "nope" }), "invalid type"),
         ("rtf", json!({ "anything": 1 }), "unknown field"),
         ("docx", json!({ "anything": 1 }), "unknown field"),
+        ("xlsx", json!({ "base_styles": 1 }), "invalid type"),
+        ("xlsx", json!({ "anything": 1 }), "unknown field"),
         ("pptx", json!({ "base_styles": 1 }), "invalid type"),
         ("pptx", json!({ "anything": 1 }), "unknown field"),
     ];
@@ -519,8 +521,8 @@ fn the_options_check_catches_wrong_pages() {
         ),
         // A wrong "no options" sentence.
         (
-            "RTF, Pandoc, DOCX and XLSX",
             "RTF, Pandoc and DOCX",
+            "RTF and Pandoc",
             "have no options, but",
         ),
     ];
