@@ -17,6 +17,7 @@ gridwell-layout = { workspace = true }
 gridwell-ooxml = { workspace = true }
 thiserror = { workspace = true }
 rust_xlsxwriter = { workspace = true }
+serde = { workspace = true }
 zip = { workspace = true }
 
 [dev-dependencies]
