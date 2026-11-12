@@ -2,9 +2,7 @@
 
 use gridwell_ir::Table;
 use gridwell_layout::resolve;
-use gridwell_layout::unsupported::{
-    find, find_table, Check, Place, TableCheck, Unsupported, TABLE_RULES,
-};
+use gridwell_layout::unsupported::{find, find_table, Check, Place, TableCheck, Unsupported};
 
 use crate::render::{font_pt, losses, picture, url_fits};
 
@@ -46,7 +44,6 @@ const CHECKS: &[Check] = &[
 pub fn unsupported(table: &Table) -> Vec<Unsupported> {
     let rt = resolve(table);
     let mut found = find_table(&rt, TABLE_CHECKS);
-    found.extend(find_table(&rt, &[TABLE_RULES]));
     found.extend(find(&rt, CHECKS));
     let lost = losses(&rt);
     for (feature, reason, places) in [
