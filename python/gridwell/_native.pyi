@@ -192,8 +192,8 @@ class Table:
     def render_docx(self, *, raw: bool = True) -> bytes:
         """Render the table to a DOCX file (returns bytes). Options: raw."""
 
-    def render_xlsx(self, *, raw: bool = True) -> bytes:
-        """Render the table to an XLSX file (returns bytes). Options: raw."""
+    def render_xlsx(self, *, base_styles: bool = True, raw: bool = True) -> bytes:
+        """Render the table to an XLSX file (returns bytes). Options: base_styles, raw."""
 
     def render_pptx(self, *, base_styles: bool = True, raw: bool = True) -> bytes:
         """Render the table to a PPTX file (returns bytes). Options: base_styles, raw."""
