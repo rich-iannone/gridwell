@@ -41,7 +41,7 @@ Which IR features each stable writer expresses (the [experimental](output-format
 | raw-html | a `raw` HTML node's markup (`<b>`, `<i>`, a `style` attribute's `color`) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | lang | `config.lang`, the table's language | ✓ | ⊘<sup>6</sup> | ✓ | ✗<sup>7</sup> | ✓ | ⊘<sup>8</sup> | ✓ |
 | rtl | `config.dir: rtl`, columns and text right to left | ✓ | ⊘<sup>9</sup> | ✓ | ✓ | ✓ | ✓ | ✓ |
-| table-rules | `config.rules`, the default look's rules changed (here the rule between body rows: 3px, dashed, red) | ✓ | ✗<sup>10</sup> | ✗<sup>10</sup> | ✗<sup>10</sup> | ✗<sup>10</sup> | ✗<sup>10</sup> | ✓ |
+| table-rules | `config.rules`, the default look's rules changed (here the rule between body rows: 3px, dashed, red) | ✓ | ✗<sup>10</sup> | ✗<sup>10</sup> | ✗<sup>10</sup> | ✗<sup>10</sup> | ✓ | ✓ |
 
 **Notes**
 
