@@ -154,7 +154,6 @@ fn the_corpus_warns_only_of_its_borders_its_rtl_table_and_its_image() {
                 ("rtf", "table-rules"),
                 ("ansi", "table-rules"),
                 ("docx", "table-rules"),
-                ("xlsx", "table-rules"),
             ],
             "rtl-table" => &[
                 ("latex", "lang"),
