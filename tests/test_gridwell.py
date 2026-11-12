@@ -179,6 +179,9 @@ def test_render_xlsx():
     data = table.render_xlsx()
     assert isinstance(data, bytes)
     assert data[:4] == b"PK\x03\x04"
+    # Without the default look's rules: a different workbook.
+    bare = table.render_xlsx(base_styles=False)
+    assert bare[:4] == b"PK\x03\x04" and bare != data
 
 
 def test_render_pptx():
