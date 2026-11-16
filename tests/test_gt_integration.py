@@ -1071,3 +1071,232 @@ def test_a_row_group_column_renders_in_every_format(fmt):
         assert table.render_binary(fmt)[:4] == b"PK\x03\x04"
     else:
         assert "G1" in table.render(fmt)
+
+
+# ─── Stub indents and the table's width ───
+# (gridwell's own emitter: Great Tables' has its own tests of these.)
+
+
+def own_ir(gt_obj):
+    return gridwell.gt_to_dict(gt_obj, emitter="gridwell")
+
+
+def defs_of(ir, style_id):
+    return ir["styles"]["defs"].get(style_id, {}) if style_id else {}
+
+
+def stub_indents(ir):
+    """Each data row's primary stub cell as (text, its indent)."""
+    out = []
+    for group in ir["table"]["tbody"]:
+        for row in group["rows"]:
+            cell = [c for c in row["cells"] if c["is_stub"] and not c["is_placeholder"]][-1]
+            text = "".join(n.get("value", "") for n in cell["content"])
+            out.append((text, defs_of(ir, cell["style_id"]).get("indent")))
+    return out
+
+
+def html_indents(gt_obj):
+    """Each stub cell in Great Tables' HTML as (text, its `gt_indent_*` level)."""
+    found = re.findall(
+        r'<th [^>]*class="([^"]*\bgt_stub\b[^"]*)"[^>]*>([^<]*)</th>', gt_obj.as_raw_html()
+    )
+    levels = [re.search(r"\bgt_indent_(\d)\b", cls) for cls, _ in found]
+    return [(text, int(m.group(1)) if m else 0) for (_, text), m in zip(found, levels)]
+
+
+needs_indents = pytest.mark.skipif(
+    not hasattr(GT, "tab_stub_indent"), reason="tab_stub_indent() is in Great Tables 1.0+"
+)
+
+
+@needs_indents
+def test_a_stub_indent_is_the_level_times_the_indent_length():
+    df = pd.DataFrame({"r": ["a", "b", "c", "d"], "g": ["x", "x", "y", "y"], "v": [1, 2, 3, 4]})
+    gt_obj = (
+        GT(df, rowname_col="r", groupname_col="g")
+        .tab_stub_indent(rows=[1], indent=3)
+        .tab_stub_indent(rows=[3], indent=5)
+        .summary_rows(fns={"Sum": lambda x: x[["v"]].sum()})
+    )
+    ir = own_ir(gt_obj)
+    assert stub_indents(ir) == [("a", None), ("b", "15px"), ("c", None), ("d", "25px")]
+    # As Great Tables indents them (its classes, `calc(5px * 3)` in its CSS); not summary rows.
+    assert html_indents(gt_obj) == [("a", 0), ("b", 3), ("Sum", 0), ("c", 0), ("d", 5), ("Sum", 0)]
+    assert "gt_indent_3 { text-indent: calc(5px * 3); }" in gt_obj.as_raw_html()
+    summaries = [c for g in ir["table"]["tbody"] for r in g["summary_rows"] for c in r["cells"]]
+    assert not any("indent" in defs_of(ir, c["style_id"]) for c in summaries)
+    # Body cells aren't indented.
+    body = [c for g in ir["table"]["tbody"] for r in g["rows"] for c in r["cells"][1:]]
+    assert not any("indent" in defs_of(ir, c["style_id"]) for c in body)
+    # gridwell's HTML indents the cell.
+    html = gridwell.Table(json.dumps(ir)).render_html()
+    assert "text-indent: 15px" in html and "text-indent: 25px" in html
+
+
+@needs_indents
+@pytest.mark.parametrize(
+    "length,expected",
+    [
+        ("10px", ["20px", "50px"]),
+        (8, ["16px", "40px"]),
+        ("1.5em", ["3em", "7.5em"]),
+        ("0.3rem", ["0.6rem", "1.5rem"]),
+        ("2%", ["4%", "10%"]),
+        # A length the IR can't take: no indent.
+        ("calc(1em + 2px)", [None, None]),
+        ("-3px", [None, None]),
+    ],
+)
+def test_a_stub_indent_takes_the_indent_length_option(length, expected):
+    gt_obj = (
+        GT(pd.DataFrame({"r": ["a", "b"], "v": [1, 2]}), rowname_col="r")
+        .tab_stub_indent(rows=[0], indent=2)
+        .tab_stub_indent(rows=[1], indent=5)
+        .tab_options(stub_indent_length=length)
+    )
+    ir = own_ir(gt_obj)
+    assert [indent for _, indent in stub_indents(ir)] == expected
+    assert gridwell.Table(json.dumps(ir)).validate() == []
+
+
+@needs_indents
+def test_a_stub_indent_is_under_tab_style():
+    gt_obj = (
+        GT(pd.DataFrame({"r": ["a", "b"], "v": [1, 2]}), rowname_col="r")
+        .tab_stub_indent(rows=[0, 1], indent=2)
+        .tab_style(great_tables.style.text(weight="bold"), great_tables.loc.stub(rows=[0]))
+        .tab_style(great_tables.style.css("text-indent: 3em"), great_tables.loc.stub(rows=[1]))
+    )
+    ir = own_ir(gt_obj)
+    first, second = (defs_of(ir, r["cells"][0]["style_id"]) for r in ir["table"]["tbody"][0]["rows"])
+    assert first == {"font_weight": "bold", "indent": "10px"}
+    # The cell's own style wins, as its `style` attribute does over the class in the HTML.
+    assert second == {"indent": "3em"}
+
+
+@needs_indents
+def test_only_the_primary_stub_column_is_indented():
+    ir = own_ir(
+        GT(stub_data(), rowname_col=["o", "i"], groupname_col="g").tab_stub_indent(rows=[0, 2], indent=1)
+    )
+    assert stub_indents(ir) == [("p", "5px"), ("q", None), ("r", "5px"), ("s", None), ("t", None)]
+    outer = [
+        defs_of(ir, r["cells"][0]["style_id"])
+        for g in ir["table"]["tbody"]
+        for r in g["rows"]
+        if not r["cells"][0]["is_placeholder"]
+    ]
+    assert not any("indent" in d for d in outer)
+
+
+@pytest.mark.parametrize(
+    "width,expected",
+    [
+        ("500px", "500px"),
+        (500, "500px"),
+        (12.5, "12.5px"),
+        ("50%", "50%"),
+        ("30em", "30em"),
+        # Left to gridwell: the default, and widths the IR doesn't take.
+        ("auto", None),
+        ("AUTO", None),
+        ("calc(100% - 2em)", None),
+        ("-5px", None),
+    ],
+)
+def test_a_table_width_set_is_the_tables_width(width, expected):
+    ir = own_ir(GT(exibble[["num", "char"]].head(2)).tab_options(table_width=width))
+    assert ir["config"]["table_width"] == expected
+    html = gridwell.Table(json.dumps(ir)).render_html()
+    assert ('<table class="gw_table" style="width: ' in html) == (expected is not None)
+    if expected is not None:
+        assert f"width: {expected}" in html
+
+
+def test_column_widths_are_the_columns_not_the_tables():
+    # Great Tables gives a table whose columns all have a width in pixels their sum as its
+    # width; the IR has the columns' widths only, and gridwell sizes the table.
+    ir = own_ir(GT(exibble[["num", "char"]].head(2)).cols_width(num="100px", char="200px"))
+    assert ir["config"]["table_width"] is None
+    assert [c["width"] for c in ir["column_spec"]] == ["100px", "200px"]
+
+
+# ─── Tables on polars ───
+
+
+def polars_twin(df):
+    """`df` as a polars DataFrame (missing values as nulls), without pyarrow."""
+    pl = pytest.importorskip("polars")
+    return pl.DataFrame({c: [None if pd.isna(v) else v for v in df[c]] for c in df.columns})
+
+
+def make_exibble_gt(df):
+    return (
+        GT(df, rowname_col="row", groupname_col="group")
+        .tab_header("Title", "Subtitle")
+        .tab_spanner("Spanner", ["num", "char"])
+        .fmt_number("num", decimals=2)
+        .fmt_currency("currency")
+        .fmt_date("date", date_style="iso")
+        .sub_missing()
+        .tab_style(great_tables.style.fill("red"), great_tables.loc.body(columns="num", rows=[0, 2]))
+        .tab_source_note("Source")
+    )
+
+
+@pytest.mark.parametrize("build", [make_exibble_gt, GT], ids=["formatted", "raw"])
+def test_a_table_on_polars_is_its_pandas_twins(build):
+    gt_polars, gt_pandas = build(polars_twin(exibble)), build(exibble)
+    on_polars, on_pandas = own_ir(gt_polars), own_ir(gt_pandas)
+    # Columns are aligned as Great Tables aligns them, which can differ between the two
+    # (Great Tables 1.1.0 aligns pandas' object columns of date strings at the right).
+    for gt_obj, ir in ((gt_polars, on_polars), (gt_pandas, on_pandas)):
+        aligns = {c.var: c.column_align for c in gt_obj._boxhead}
+        assert [c["align"] for c in ir["column_spec"]] == [aligns[c["id"]] for c in ir["column_spec"]]
+        for c in ir["column_spec"]:
+            del c["align"]
+    assert on_polars == on_pandas
+    assert gridwell.Table(json.dumps(own_ir(gt_polars))).validate() == []
+
+
+def test_polars_cells_are_what_great_tables_shows_typed_by_their_dtype():
+    import datetime as dt
+
+    pl = pytest.importorskip("polars")
+    df = pl.DataFrame({
+        "i": [1, None], "f": [1.5, None], "b": [True, None], "s": ["a", None],
+        "d": [dt.date(2024, 1, 2), None], "ts": [dt.datetime(2024, 1, 2, 3, 4, 5, 123456), None],
+        "t": [dt.time(1, 2, 3), None], "dur": [dt.timedelta(seconds=5), None],
+        "u8": pl.Series([7, None], dtype=pl.UInt8),
+        "dec": pl.Series(["1.25", None]).cast(pl.Decimal(10, 2)),
+    })
+    gt_obj = GT(df)
+    ir = own_ir(gt_obj)
+    cells = [c for r in ir["table"]["tbody"][0]["rows"] for c in r["cells"]]
+    texts = ["".join(n["value"] for n in c["content"]) for c in cells]
+    assert texts == re.findall(r"<td[^>]*>([^<]*)</td>", gt_obj.as_raw_html())
+    assert [c.get("typed_value") for c in cells[:10]] == [
+        {"type": "integer", "value": 1},
+        {"type": "number", "value": 1.5},
+        {"type": "boolean", "value": True},
+        {"type": "string", "value": "a"},
+        {"type": "date", "value": "2024-01-02"},
+        {"type": "datetime", "value": "2024-01-02T03:04:05.123456"},
+        {"type": "time", "value": "01:02:03"},
+        # A duration isn't a time of day.
+        {"type": "string", "value": "0:00:05"},
+        {"type": "integer", "value": 7},
+        {"type": "number", "value": 1.25},
+    ]
+    # Nulls have no typed value.
+    assert all("typed_value" not in c for c in cells[10:])
+
+
+def test_a_duration_is_its_text():
+    gt_obj = GT(pd.DataFrame({"d": pd.to_timedelta(["5s", "1 day"])}))
+    rows = own_ir(gt_obj)["table"]["tbody"][0]["rows"]
+    shown = re.findall(r"<td[^>]*>([^<]*)</td>", gt_obj.as_raw_html())
+    assert [r["cells"][0]["typed_value"] for r in rows] == [
+        {"type": "string", "value": text} for text in shown
+    ]
