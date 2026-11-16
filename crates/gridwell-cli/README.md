@@ -5,7 +5,7 @@ LaTeX, Typst, RTF, SVG, the terminal, the Pandoc and Quarto ASTs, and Word, Exce
 and PowerPoint files.
 
 ```bash
-cargo install gridwell-cli
+cargo install --locked --git https://github.com/rich-iannone/gridwell gridwell-cli
 
 gridwell convert table.json --to latex
 gridwell convert table.json -o table.docx
@@ -14,9 +14,11 @@ gridwell inspect table.json
 gridwell formats
 ```
 
-`gridwell fmt` writes IR in canonical form, and `gridwell grid` draws the grid of
-cells that spans are checked against. Every command is described in the
+`gridwell fmt` writes IR in canonical form, `gridwell grid` draws the grid of cells
+that spans are checked against, and `gridwell schema` prints the IR's JSON Schema.
+Every command is described in the
 [documentation](https://rich-iannone.github.io/gridwell/guide/cli.html). The Rust
-library is the [`gridwell`](https://crates.io/crates/gridwell) crate.
+library is the [`gridwell`](https://rich-iannone.github.io/gridwell/api/rust.html)
+crate.
 
 License: MIT.
