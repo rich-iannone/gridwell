@@ -30,7 +30,7 @@
 //! a [`RenderError::UnknownFormat`]) and its writer isn't built, so
 //!
 //! ```toml
-//! gridwell = { version = "0.1", default-features = false, features = ["html"] }
+//! gridwell = { git = "https://github.com/rich-iannone/gridwell", default-features = false, features = ["html"] }
 //! ```
 //!
 //! builds the HTML writer alone.
