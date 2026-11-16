@@ -1,0 +1,35 @@
+name: Dry run (Python release)
+
+# Everything a Python release does except publishing: builds, tests and checks the
+# wheels and the sdist (`wheels.yml`), and reports whether the version could be
+# published. Run it from the Actions tab before tagging `py-vX.Y.Z`; the files are
+# left as artifacts of the run.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dist:
+    uses: ./.github/workflows/wheels.yml
+
+  version:
+    name: Check the version is unpublished
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        run: python3 .github/scripts/release_version.py
+      # PyPI never accepts the same version twice, so a release of this version
+      # would fail.
+      - env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' "https://pypi.org/pypi/gridwell/$VERSION/json")
+          if [ "$status" = 200 ]; then
+            echo "::error::gridwell $VERSION is already on PyPI; bump the version"
+            exit 1
+          fi
+          echo "gridwell $VERSION is not on PyPI yet; a release would tag py-v$VERSION"

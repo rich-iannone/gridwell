@@ -1,26 +1,35 @@
 name: Wheels
 
 # The Python wheels for every supported platform and the sdist, each installed and
-# tested on the platform it is for. Nothing is published: the wheels and the sdist
-# are the run's artifacts. Run it by hand (Actions → Wheels → Run workflow) or by
-# pushing a `v*` tag; a pull request that changes the packaging runs it too.
+# tested on the platform it is for, then checked the way PyPI will check them.
+# Nothing is published here: the wheels and the sdist are the run's artifacts.
+# `release-python.yml` calls this before publishing, and `dry-run-python.yml` (run
+# it by hand) calls it to try a release, so both test exactly what a release would
+# upload. A pull request that changes the packaging runs it too.
 #
 # One abi3 wheel per platform covers CPython 3.10 and later (not the free-threaded
 # builds, which can't load abi3 modules).
 
 on:
-  workflow_dispatch:
-  push:
-    tags: ["v*"]
+  workflow_call:
   pull_request:
     branches: [main]
     paths:
       - ".github/workflows/wheels.yml"
+      - ".github/workflows/release-python.yml"
+      - ".github/workflows/dry-run-python.yml"
+      - ".github/scripts/release_version.py"
       - "pyproject.toml"
+      - "python/README.md"
 
+permissions:
+  contents: read
+
+# A newer push to a pull request replaces its run; a release's run is never
+# cancelled.
 concurrency:
   group: wheels-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   CARGO_TERM_COLOR: always
@@ -173,3 +182,26 @@ jobs:
         env:
           GRIDWELL_REQUIRE_MYPY: "1"
         run: python -m pytest -p no:cacheprovider -rs "$GITHUB_WORKSPACE/tests"
+
+  # The files PyPI would get: one wheel per platform and the sdist, with metadata
+  # (the README among it) that PyPI accepts and renders. `--strict` fails on
+  # warnings too, such as a missing long description.
+  check:
+    name: Check the distributions
+    needs: [build, sdist]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: twine check
+        run: |
+          ls -l dist
+          python -m pip install --upgrade pip twine
+          python -m twine check --strict dist/*
+          test "$(find dist -name '*.whl' | wc -l)" -eq 4
+          test "$(find dist -name '*.tar.gz' | wc -l)" -eq 1
