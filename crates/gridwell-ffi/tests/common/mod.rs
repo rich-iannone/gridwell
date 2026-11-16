@@ -45,9 +45,8 @@ pub fn build_shared_lib() -> Result<PathBuf, String> {
                 ));
             }
             let stdout = String::from_utf8_lossy(&out.stdout);
-            let lib = shared_lib(&stdout).ok_or_else(|| {
-                format!("cargo built no gridwell_ffi shared library:\n{stdout}")
-            })?;
+            let lib = shared_lib(&stdout)
+                .ok_or_else(|| format!("cargo built no gridwell_ffi shared library:\n{stdout}"))?;
             Ok(lib.parent().unwrap().to_path_buf())
         })
         .clone()
