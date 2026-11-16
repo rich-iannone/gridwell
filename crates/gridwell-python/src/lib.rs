@@ -212,10 +212,11 @@ impl PyTable {
     }
 
     /// What the table's output will lack, as messages: first that the table is
-    /// a newer minor IR version than this gridwell reads, if it is; then the
-    /// features a format can't express, and where, for one format by name, or
-    /// every format (`None`). Empty if the table is expressed whole. A warning
-    /// doesn't stop the table rendering.
+    /// a newer minor IR version than this gridwell reads, if it is; then what of
+    /// the table this gridwell leaves out (`[IGNORED_VALUE]`, `[IGNORED_SELECTOR]`);
+    /// then the features a format can't express, and where, for one format by
+    /// name, or every format (`None`). Empty if the table is expressed whole. A
+    /// warning doesn't stop the table rendering.
     ///
     /// Raises `InvalidTableError` for invalid IR, and `ValueError` for an
     /// unknown format.
