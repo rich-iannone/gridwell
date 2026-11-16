@@ -303,9 +303,31 @@ its GHCR settings.
   (manylinux2014), macOS universal2 and Windows x86_64, one abi3 wheel each, plus
   the sdist. It tests each wheel on its platform with Python 3.10 (bare) and 3.14
   (`[gt]`). The universal2 wheel is tested on both an arm64 and an Intel Mac, and
-  the sdist is installed from source and tested. It runs by hand, on `v*` tags,
-  and on pull requests that change it or `pyproject.toml`. It publishes nothing;
-  the wheels are the run's artifacts.
+  the sdist is installed from source and tested. A `check` job then runs `twine
+  check --strict` on the files (the metadata and README as PyPI renders them) and
+  counts them: four wheels and one sdist. It publishes nothing; the files are the
+  run's artifacts. The two release workflows below call it, and pull requests run
+  it when they change it, the release workflows, `pyproject.toml` or the PyPI
+  README (`python/README.md`).
+- **`dry-run-python.yml`** (by hand only) is a Python release without the
+  publishing: `wheels.yml`, plus a check that the version isn't on PyPI yet.
+- **`release-python.yml`** publishes to PyPI on a `py-v*` tag. It checks the tag
+  is `py-v` and the version, which Cargo.toml, `pyproject.toml` and
+  `python/gridwell/__init__.py` must agree on (`.github/scripts/release_version.py`,
+  tested by `tests/test_release_version.py`), runs `wheels.yml`, and uploads its
+  files with the API token in the repository secret `PYPI_API_TOKEN`. To release:
+
+  1. Bump the version in the three files, if it isn't bumped yet, and let CI pass.
+  2. Run the dry run (Actions → Dry run (Python release) → Run workflow).
+  3. Tag and push: `git tag py-v0.1.0 && git push origin py-v0.1.0`.
+  4. Once PyPI has it, publish a GitHub Release on the tag with the notes:
+     `gh release create py-v0.1.0 --title "gridwell 0.1.0 (Python)" --notes-file
+     notes.md`. The Releases are the changelog (the package's Changelog link).
+
+  **One-time setup:** add `PYPI_API_TOKEN` under *Settings → Secrets and variables
+  → Actions*. A token scoped to one project can only be made once the project is
+  on PyPI, so the first release needs an account-wide token; replace it with a
+  `gridwell`-only one afterwards.
 - **`r-universe.yml`** (by hand only) commits the same source package `r-check`
   checks to the `r-universe` branch, for r-universe to build from (the package in
   `r-package/` can't be built on its own). The registry entry, in the
