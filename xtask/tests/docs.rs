@@ -53,6 +53,7 @@ fn pages() -> Vec<(String, String)> {
         "crates/gridwell/README.md",
         "crates/gridwell-cli/README.md",
         "conformance/README.md",
+        "python/README.md",
     ] {
         out.push((rel.to_string(), read(rel)));
     }
@@ -1676,7 +1677,7 @@ fn the_docs_name_the_experimental_formats_the_registry_marks() {
     );
 
     // The READMEs.
-    for rel in ["README.md", "crates/gridwell/README.md"] {
+    for rel in ["README.md", "crates/gridwell/README.md", "python/README.md"] {
         assert_eq!(
             listed_before(&page(rel), " are experimental for now", rel),
             experimental,
