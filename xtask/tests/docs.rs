@@ -984,6 +984,17 @@ fn messages() -> BTreeSet<String> {
             }
         },
         |v| v["ir_version"] = json!("1.3"),
+        |v| {
+            v["ir_version"] = json!("1.3");
+            v["config"]["lang"] = json!("fr_CA");
+        },
+        |v| {
+            v["styles"]["conditionals"] = json!([{
+                "id": "c",
+                "selector": { "row_parity": "odd", "col_parity": "even" },
+                "style": {}
+            }])
+        },
         |v| v["table"]["tbody"][0]["rows"][1]["cells"][0]["style_id"] = json!("bold"),
         |v| {
             let note = json!({ "id": "n", "mark": "1", "content": [] });
@@ -1231,6 +1242,15 @@ fn fits(example: &Value, model: &Value, path: &str) -> Result<(), String> {
             None => Err(format!("`{}` isn't a field", join(path, k))),
         }),
         (Value::Array(e), Value::Array(m)) => e.iter().try_for_each(|item| {
+            // A node of a type a newer version may add has any fields, and its
+            // fallback is content.
+            let ty = item.get("type").and_then(Value::as_str);
+            if path.ends_with("content") && ty.is_some_and(|t| !CONTENT_TYPES.contains(&t)) {
+                return match item.get("fallback") {
+                    Some(fallback) if !fallback.is_null() => fits(fallback, model, path),
+                    _ => Ok(()),
+                };
+            }
             let model_item = item_model(item, m, path)
                 .ok_or_else(|| format!("`{path}` has no items to compare with"))?;
             fits(item, model_item, &format!("{path}[]"))
@@ -1448,6 +1468,23 @@ fn the_example_check_catches_mistakes() {
         false,
     )
     .unwrap();
+    // A node of a later type has any fields, but its fallback is checked.
+    let later =
+        |fallback: Value| json!({ "content": [{ "type": "later", "n": 1, "fallback": fallback }] });
+    check_example(&later(json!([{ "type": "text", "value": "x" }])), false).unwrap();
+    check_example(&later(Value::Null), false).unwrap();
+    assert!(check_example(&later(json!([{ "type": "text", "valu": "x" }])), false).is_err());
+    // A misspelled field gridwell ignores: only the docs check finds it.
+    assert!(check_example(
+        &later(json!([{ "type": "text", "value": "x", "hreff": "https://x.org/" }])),
+        false
+    )
+    .is_err());
+    assert!(check_example(
+        &later(json!([{ "type": "image", "src": "x", "width": "-1px" }])),
+        false
+    )
+    .is_err());
 }
 
 // --- Links --------------------------------------------------------------------------
