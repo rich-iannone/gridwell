@@ -385,6 +385,29 @@ fn formats_lists_every_format() {
 }
 
 #[test]
+fn schema_prints_the_ir_schema() {
+    let o = bin().arg("schema").output().unwrap();
+    assert!(
+        o.status.success() && stderr(&o).is_empty(),
+        "{}",
+        stderr(&o)
+    );
+    assert_eq!(stdout(&o), gridwell_ir::JSON_SCHEMA);
+    let schema: serde_json::Value = serde_json::from_slice(&o.stdout).unwrap();
+    assert_eq!(
+        schema["$id"],
+        format!(
+            "https://rich-iannone.github.io/gridwell/schema/ir-{}.schema.json",
+            gridwell_ir::IR_VERSION
+        )
+    );
+    assert_eq!(
+        schema["title"],
+        format!("gridwell IR {}", gridwell_ir::IR_VERSION)
+    );
+}
+
+#[test]
 fn formats_json_matches_the_registry() {
     let o = bin().args(["formats", "--json"]).output().unwrap();
     assert!(o.status.success(), "{}", stderr(&o));
@@ -877,8 +900,8 @@ fn an_invalid_newer_minor_version_says_its_version() {
     ir["ir_version"] = serde_json::json!("1.3");
     ir["config"]["table_cols"] = serde_json::json!(2);
     let path = write_json("newer-minor-invalid", &ir);
-    let note = "(the table is IR 1.3, newer than the IR 1.0 this gridwell reads: an error \
-                may be something a newer IR version added)";
+    let note = "(the table is IR 1.3, newer than the IR 1.0 this gridwell reads; what a \
+                newer IR version added isn't an error, and is left out)";
     for args in [vec!["validate"], vec!["convert", "-t", "html"]] {
         let o = bin().args(&args).arg(&path).output().unwrap();
         assert_clean_failure(&o);
@@ -1592,7 +1615,8 @@ fn every_command_is_documented() {
             "inspect",
             "grid",
             "conformance",
-            "formats"
+            "formats",
+            "schema"
         ]
     );
     let guide = std::fs::read_to_string(repo("docs/guide/cli.qmd")).unwrap();
