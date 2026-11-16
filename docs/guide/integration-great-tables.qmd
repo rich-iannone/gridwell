@@ -58,19 +58,20 @@ ir_dict = gridwell.gt_to_dict(gt)  # returns dict
 
 ### Which converter
 
-The converter is moving into Great Tables, as `GT.as_ir()`, since it reads Great
-Tables' internals and Great Tables can keep it in step with them. Until every Great
-Tables has it, gridwell keeps its own copy. `emitter` picks one:
+The converter is moving into Great Tables, as `GT.as_gridwell()`, since it reads
+Great Tables' internals and Great Tables can keep it in step with them. Until every
+Great Tables has it, gridwell keeps its own copy. `emitter` picks one:
 
 - `"auto"` (the default): Great Tables' when the installed Great Tables has
-  `GT.as_ir()`, and gridwell's otherwise. If Great Tables' raises, or gives an IR major
-  version this gridwell can't read, gridwell's is used with a `UserWarning` saying why.
+  `GT.as_gridwell()`, and gridwell's otherwise. If Great Tables' raises, or gives an
+  IR major version this gridwell can't read, gridwell's is used with a `UserWarning`
+  saying why.
 - `"upstream"`: Great Tables', raising if there is none or it can't be used.
 - `"gridwell"`: gridwell's.
 
 Great Tables' own needs no pandas (a table on polars converts as it is); gridwell's
-needs pandas, from the `gt` extra. No released Great Tables has `GT.as_ir()` yet, so
-today `"auto"` always uses gridwell's.
+needs pandas, from the `gt` extra. No released Great Tables has `GT.as_gridwell()`
+yet, so today `"auto"` always uses gridwell's.
 
 ## What Gets Converted
 
