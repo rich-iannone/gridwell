@@ -34,8 +34,10 @@ def build_ir(gt_obj: GT) -> dict[str, Any]:
     """The IR of a GT object, as a dict."""
     from great_tables._utils_render_html import cast_frame_to_string, replace_null_frame
 
-    # Build the GT to resolve formats
-    built = gt_obj._build_data("html")._render_formats("html")
+    # The table as Great Tables builds it for HTML: formats rendered, columns merged and
+    # text transformed. (Rendering the formats again would put back the formatted
+    # values of merged and transformed cells.)
+    built = gt_obj._build_data("html")
 
     # Resolve cell text: formatted values override raw data
     str_orig = cast_frame_to_string(built._tbl_data)
