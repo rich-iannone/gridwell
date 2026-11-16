@@ -4,7 +4,8 @@
 #   <name>.gt.html   gt's own HTML (`as_raw_html(inline_css = FALSE)`), the look
 #                    gridwell's HTML is measured against
 #   <name>.ir.json   the same table as gridwell IR (`gridwell::gt_to_ir()`: gt's own
-#                    `as_ir()` when the installed gt has it, else gridwell's copy)
+#                    `as_gridwell()` when the installed gt has it, else gridwell's
+#                    copy)
 # and manifest.json (case descriptions, the R, gt and gridwell versions used, and
 # which emitter wrote the IR).
 #
