@@ -8,11 +8,12 @@ title: "Rust API"
 its root (`gridwell::render`, `gridwell::save`, `gridwell::warnings`,
 `gridwell::REGISTRY`, …, as in `gridwell-render` below), the IR as `gridwell::ir`
 (with `gridwell::Table` at the root), the resolved layout as `gridwell::layout`, and
-each writer under its format's name (`gridwell::html`, `gridwell::latex`, …).
+each writer under its format's name (`gridwell::html`, `gridwell::latex`, …). The
+crates aren't on crates.io yet, so depend on the repository:
 
 ```toml
 [dependencies]
-gridwell = "0.1"
+gridwell = { git = "https://github.com/rich-iannone/gridwell" }
 ```
 
 ```rust
@@ -30,7 +31,7 @@ asking for it by name is an `UnknownFormat` error; `gridwell::display_html` need
 
 ```toml
 [dependencies]
-gridwell = { version = "0.1", default-features = false, features = ["html", "latex"] }
+gridwell = { git = "https://github.com/rich-iannone/gridwell", default-features = false, features = ["html", "latex"] }
 ```
 
 `gridwell-render` has the same features. The CLI, the C library and the Python and R
@@ -85,7 +86,8 @@ A valid table can still use a feature a format can't express.
 for one format, or every format with `None`, each with the format, the feature, its
 places and the reason; like `render`, it fails for invalid IR or an unknown format.
 A table of a newer minor IR version (`Table::is_newer_minor`) gets a
-`Warning::NewerIrVersion` first.
+`Warning::NewerIrVersion` first, then a `Warning::Ignored` for each thing this
+gridwell leaves out of the table (`Table::readable`).
 A writer reports its own through `Writer::unsupported`.
 
 ```rust
