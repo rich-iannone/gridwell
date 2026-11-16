@@ -94,6 +94,7 @@ yet, so today `"auto"` always uses gridwell's.
 | Column alignment | `column_spec[].align` |
 | Column widths | `column_spec[].width` |
 | Formatted values | Cell `content`: the content of the HTML Great Tables puts in the cell, read as labels are, so `fmt_*()` output that is HTML (`fmt_markdown()`, `fmt_units()`, `fmt_scientific()`, `fmt_image()`, nanoplots) is drawn as formatted, and other values are their text. |
+| Merged columns (`cols_merge()`) and `text_transform()` | Cells as Great Tables shows them: merged (the columns merged in are hidden) and transformed |
 | Typed values | Cell `typed_value` (below) |
 
 A cell's [typed value](../schema/table-data.qmd#typed-values) is what a spreadsheet
