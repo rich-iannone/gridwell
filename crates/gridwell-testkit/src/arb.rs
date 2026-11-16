@@ -270,6 +270,7 @@ pub fn arb_valid_ir() -> impl Strategy<Value = Table> {
                         ConditionalSelector {
                             row_parity: Some(if parity % 2 == 0 { "odd" } else { "even" }.into()),
                             scope: Some(["tbody", "thead", "table"][parity as usize % 3].into()),
+                            ..Default::default()
                         },
                         StyleDef {
                             color: Some("rgb(0 100 0)".into()),
