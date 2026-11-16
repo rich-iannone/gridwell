@@ -7,8 +7,11 @@ them, and formats, inspects and draws them for debugging.
 
 ## Installation
 
+The CLI isn't on crates.io yet; install it from the repository (this needs Rust
+1.85 or later):
+
 ```bash
-cargo install gridwell-cli
+cargo install --locked --git https://github.com/rich-iannone/gridwell gridwell-cli
 ```
 
 ## Commands
@@ -19,8 +22,8 @@ Convert a table IR JSON file to an output format. The input is validated first; 
 is invalid, the validation errors are printed to stderr, nothing is written, and the
 exit code is 1. If the table uses a feature the format can't express, a
 [warning](../schema/validation.qmd#warnings) saying where is printed to stderr after
-the output is written, as is one for a table of a newer minor IR version; neither
-changes the exit code.
+the output is written, as is one for a table of a newer minor IR version and one for
+each thing of the table this gridwell leaves out; none changes the exit code.
 
 ```bash
 gridwell convert [OPTIONS] --to <FORMAT> [INPUT]
@@ -274,6 +277,16 @@ fails L1 (checked to L3)
 2 differences:
   L2 groups[0].rows[0].cells[0].runs[0].text: expected "1.111e-01", got "0.1111"
   L1 groups[0].rows[0].cells[0].text: expected "1.111e-01", got "0.1111"
+```
+
+### `gridwell schema`
+
+Print the [JSON Schema](../schema/index.qmd#json-schema) of the IR this gridwell
+writes, for an editor or another language's validator to check IR against.
+Redirect it to a file (`> ir-1.0.schema.json`) to keep it.
+
+```bash
+gridwell schema
 ```
 
 ## Format Values
