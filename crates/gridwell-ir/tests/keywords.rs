@@ -232,10 +232,12 @@ fn wrong_json_type_for_a_keyword_is_still_a_parse_error() {
 
 #[test]
 fn aliases_parse_to_the_value_they_name() {
-    assert_eq!(
-        HAlign::ALIASES,
-        &[("start", "left"), ("centre", "center"), ("end", "right")]
-    );
+    assert_eq!(HAlign::ALIASES, &[("centre", "center")]);
+    // `start` and `end` aren't aliases: in a right-to-left table they'd mean
+    // right and left.
+    for v in ["start", "end"] {
+        assert!(!HAlign::parse(v).is_known(), "{v}");
+    }
     for (alias, canon) in HAlign::ALIASES {
         assert_eq!(HAlign::parse(alias).as_str(), *canon);
         assert!(HAlign::ALLOWED.contains(canon));
