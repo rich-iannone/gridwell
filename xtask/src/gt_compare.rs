@@ -52,7 +52,7 @@ pub const GT: Source = Source {
         ("R", "r_version"),
         ("gt", "gt_version"),
         ("gridwell", "gridwell_version"),
-        // gt's own emitter (`gt::as_ir()`) or gridwell's copy.
+        // gt's own emitter (`gt::as_gridwell()`) or gridwell's copy.
         ("IR by", "ir_emitter"),
     ],
 };
@@ -71,7 +71,7 @@ pub const GREAT_TABLES: Source = Source {
         ("Python", "python_version"),
         ("Great Tables", "great_tables_version"),
         ("gridwell", "gridwell_version"),
-        // Great Tables' own emitter (`GT.as_ir()`) or gridwell's copy.
+        // Great Tables' own emitter (`GT.as_gridwell()`) or gridwell's copy.
         ("IR by", "ir_emitter"),
     ],
 };
