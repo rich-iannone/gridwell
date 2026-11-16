@@ -553,7 +553,27 @@ def edge_tables() -> dict:
         .tab_header(title=html("A&nbsp;B &amp; C&#x2014;D"))
         .tab_source_note(md("line one\n\nline two"))
         .tab_source_note(html("<p>x</p><br>y<br><br><div>z</div><p></p>")),
+        **merged_tables(),
         **stub_tables(),
+    }
+
+
+def merged_tables() -> dict:
+    """A Great Tables table with merged and transformed columns (none before 0.22)."""
+    from great_tables import GT, exibble, loc
+
+    if not (hasattr(GT, "cols_merge") and hasattr(GT, "text_transform")):
+        return {}
+    return {
+        "merged and transformed columns": GT(
+            exibble[["num", "char", "currency", "row", "group"]].head(4), rowname_col="row",
+            groupname_col="group",
+        )
+        .fmt_currency("currency")
+        .cols_merge(["num", "char"], pattern="{0} / {1}")
+        .text_transform(loc.body(columns="currency"), lambda x: "X" + x)
+        .text_transform(loc.stub(), lambda x: x.upper())
+        .text_transform(loc.row_groups(), lambda x: "G:" + x),
     }
 
 
