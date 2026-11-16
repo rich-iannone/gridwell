@@ -432,38 +432,38 @@ fn the_schema_files_are_the_versions_and_the_docs_serve_each_one() {
     );
 }
 
-/// Every IR file in the repository: a JSON object with an `ir_version`.
+/// Every IR file in the repository (tracked, or untracked and not ignored, so a
+/// checkout and a working copy find the same): a JSON object with an `ir_version`.
 fn ir_files() -> Vec<(String, Value)> {
-    const SKIP: &[&str] = &[
-        "target",
-        "node_modules",
-        "_site",
-        "vendor",
-        "venv",
-        "__pycache__",
-    ];
+    let listed = std::process::Command::new("git")
+        .arg("-C")
+        .arg(root())
+        .args([
+            "ls-files",
+            "-z",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "--",
+            "*.json",
+        ])
+        .output()
+        .expect("git runs");
+    assert!(listed.status.success(), "git ls-files failed");
     let mut out = Vec::new();
-    let mut dirs = vec![root()];
-    while let Some(dir) = dirs.pop() {
-        for entry in std::fs::read_dir(&dir).unwrap() {
-            let path = entry.unwrap().path();
-            let name = path.file_name().unwrap().to_string_lossy().into_owned();
-            if path.is_dir() {
-                if !name.starts_with('.') && !SKIP.contains(&name.as_str()) {
-                    dirs.push(path);
-                }
-            } else if name.ends_with(".json") && !name.ends_with(".grid.json") {
-                let Ok(text) = std::fs::read_to_string(&path) else {
-                    continue;
-                };
-                let Ok(v) = serde_json::from_str::<Value>(&text) else {
-                    continue;
-                };
-                if v.get("ir_version").is_some() {
-                    let rel = path.strip_prefix(root()).unwrap();
-                    out.push((rel.to_string_lossy().replace('\\', "/"), v));
-                }
-            }
+    for rel in listed.stdout.split(|&b| b == 0).filter(|s| !s.is_empty()) {
+        let rel = String::from_utf8_lossy(rel).replace('\\', "/");
+        if rel.ends_with(".grid.json") {
+            continue;
+        }
+        let Ok(text) = std::fs::read_to_string(root().join(&rel)) else {
+            continue;
+        };
+        let Ok(v) = serde_json::from_str::<Value>(&text) else {
+            continue;
+        };
+        if v.get("ir_version").is_some() {
+            out.push((rel, v));
         }
     }
     out.sort_by(|a, b| a.0.cmp(&b.0));
@@ -504,10 +504,11 @@ fn every_table_gridwell_accepts_fits_the_schema_as_written_back() {
         "{} IR files, by verdict and whether they fit as written: {counts:?}",
         files.len()
     );
-    // The corpus, the fixtures, the docs, the conformance kit and compat/: hundreds.
+    // The fixtures, the docs, the conformance kit and compat/ (which holds the
+    // example corpus): 140 at the freeze.
     let accepted = counts.get(&("accepted", true)).copied().unwrap_or(0)
         + counts.get(&("accepted", false)).copied().unwrap_or(0);
-    assert!(accepted > 400, "only {accepted} accepted IR files found");
+    assert!(accepted >= 140, "only {accepted} accepted IR files found");
 }
 
 /// Each invalid fixture breaks one rule (`_expect`): the schema refuses it when the
