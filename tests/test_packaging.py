@@ -1,6 +1,8 @@
-"""Packaging: the core package must work without the optional `gt` dependencies."""
+"""Packaging: the core package must work without the optional `gt` dependencies, and
+the metadata PyPI shows is complete."""
 
 import importlib.metadata
+import re
 import subprocess
 import sys
 import textwrap
@@ -167,3 +169,23 @@ def test_distribution_metadata():
     requires = importlib.metadata.requires("gridwell") or []
     assert all("extra ==" in r for r in requires), requires
     assert "gt" in (meta.get_all("Provides-Extra") or [])
+    # The PyPI page: the README, as Markdown, and links to the project.
+    assert meta["Description-Content-Type"].startswith("text/markdown"), meta
+    assert meta["Description"].lstrip().startswith("# gridwell"), meta["Description"][:80]
+    urls = dict(u.split(", ", 1) for u in meta.get_all("Project-URL") or [])
+    for name in ("Documentation", "Repository", "Issues", "Changelog"):
+        assert urls.get(name, "").startswith("https://"), urls
+    assert meta["Author-email"], meta
+
+
+README = Path(__file__).parent.parent / "python" / "README.md"
+
+
+def test_the_pypi_readme_links_are_absolute():
+    """PyPI has no repository to resolve a relative link against."""
+    if not README.is_file():
+        pytest.skip("no checkout here")
+    links = re.findall(r"\]\(([^)]*)\)", README.read_text(encoding="utf-8"))
+    assert links
+    relative = [link for link in links if not link.startswith(("https://", "mailto:"))]
+    assert not relative, relative
