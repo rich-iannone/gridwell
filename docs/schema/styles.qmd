@@ -195,7 +195,12 @@ compositions don't chain.
 | `row_parity` | `odd`, `even` | rows numbered from 1, as in CSS `:nth-child(odd)`: data rows count across all groups, head rows within the head, summary rows within their group |
 | | absent | every row in scope |
 
-Unknown values match nothing (and are reported as `UNKNOWN_VALUE`).
+An unknown value is an `UNKNOWN_VALUE` error, except in a table of a newer minor
+version, where the style applies to no row ([warned
+for](validation.qmd#a-newer-minor-version)). So does a selector with a field this
+gridwell doesn't know, in a table of any version: a newer version may narrow
+selectors with new fields, and a style that matched more rows than meant would be
+worse than none. It is warned for as `IGNORED_SELECTOR`.
 
 ## Color Values
 
