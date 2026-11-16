@@ -1,0 +1,67 @@
+{
+  "_comment": "INVALID: a string typed value that is a number, and a duration that isn't ISO 8601.",
+  "_expect": [
+    "INVALID_TYPED_VALUE"
+  ],
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 2,
+    "header_rows": 0,
+    "body_rows": 1,
+    "stub_cols": 0
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "column_spec": [
+    {
+      "id": "a",
+      "label": "A"
+    },
+    {
+      "id": "b",
+      "label": "B"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": []
+    },
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "12"
+                  }
+                ],
+                "typed_value": {
+                  "type": "string",
+                  "value": 12
+                }
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1:30"
+                  }
+                ],
+                "typed_value": {
+                  "type": "duration",
+                  "value": "1:30"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
