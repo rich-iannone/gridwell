@@ -2,21 +2,29 @@
 //! each length uses a form that makes sense for its field (no `fr` padding, no
 //! negative widths, …). INVALID_LANG: `config.lang` is a well-formed language tag.
 //! INVALID_HREF: every link is one gridwell writes. INVALID_TABLE_ID: `config.id`
-//! is an HTML id.
+//! is an HTML id. INVALID_TYPED_VALUE: a `string` or `duration` typed value is in
+//! its form.
+//!
+//! In a table of a newer minor IR version, a color, length or font size that
+//! doesn't parse, and a link of another scheme, aren't errors: they may be what the
+//! newer version added, and [`Table::readable`](crate::Table::readable) leaves them
+//! out. The problem functions here are shared with it, so both say the same.
 
-use crate::cell::Row;
-use crate::content::ContentNode;
+use crate::cell::{Row, TypedValue};
+use crate::content::{ContentNode, UnknownNode};
+use crate::keywords::ValueType;
 use crate::style::Border;
 use crate::style::StyleDef;
 use crate::validation::{cell_place, ValidationError, ValidationRule};
 use crate::Table;
-use gridwell_core::link::href_problem;
+use gridwell_core::link::{href_problem, OTHER_SCHEME};
 use gridwell_core::{Color, FontSize, LanguageTag, Length};
+use serde_json::Value;
 
 /// Which length forms a field accepts beyond plain non-negative absolute/relative
 /// lengths (`px pt em rem in cm mm`).
 #[derive(Clone, Copy)]
-struct LengthKind {
+pub(crate) struct LengthKind {
     percent: bool,
     fr: bool,
     auto: bool,
@@ -25,29 +33,29 @@ struct LengthKind {
 
 impl LengthKind {
     /// Column widths: anything but negative.
-    const COLUMN_WIDTH: Self = Self {
+    pub(crate) const COLUMN_WIDTH: Self = Self {
         percent: true,
         fr: true,
         auto: true,
         negative: false,
     };
     /// Table, container and image sizes.
-    const SIZE: Self = Self {
+    pub(crate) const SIZE: Self = Self {
         fr: false,
         ..Self::COLUMN_WIDTH
     };
     /// min/max widths and padding.
-    const EXTENT: Self = Self {
+    pub(crate) const EXTENT: Self = Self {
         auto: false,
         ..Self::SIZE
     };
     /// `text-indent` may be negative (a hanging indent).
-    const INDENT: Self = Self {
+    pub(crate) const INDENT: Self = Self {
         negative: true,
         ..Self::EXTENT
     };
     /// Border widths: CSS has no percentage border width.
-    const BORDER: Self = Self {
+    pub(crate) const BORDER: Self = Self {
         percent: false,
         ..Self::EXTENT
     };
@@ -78,6 +86,139 @@ impl LengthKind {
             l if l.is_negative() && !self.negative => Some("it is negative"),
             _ => None,
         }
+    }
+}
+
+/// Why `v` isn't a color, as a message naming `field`; `None` if it is one.
+pub(crate) fn color_problem(v: &str, field: impl FnOnce() -> String) -> Option<String> {
+    v.parse::<Color>().is_err().then(|| {
+        format!(
+            "{} is \"{v}\", which is not a color (expected a CSS named color, \
+             #RGB/#RGBA/#RRGGBB/#RRGGBBAA, rgb()/rgba(), hsl()/hsla(), or transparent)",
+            field()
+        )
+    })
+}
+
+/// Why `v` isn't a length of `kind`, as a message naming `field`; `None` if it is
+/// one.
+pub(crate) fn length_problem(
+    v: &str,
+    kind: LengthKind,
+    field: impl FnOnce() -> String,
+) -> Option<String> {
+    let why = match v.parse::<Length>() {
+        Ok(l) => kind.problem(&l)?,
+        Err(_) => "it does not parse",
+    };
+    Some(format!(
+        "{} is \"{v}\", which is not valid here: {why} (expected {})",
+        field(),
+        kind.expected()
+    ))
+}
+
+/// Why `v` isn't a font size, as a message naming `field`; `None` if it is one.
+pub(crate) fn font_size_problem(v: &str, field: impl FnOnce() -> String) -> Option<String> {
+    v.parse::<FontSize>().is_err().then(|| {
+        format!(
+            "{} is \"{v}\", which is not a font size (expected a non-negative \
+             length, a percentage, or one of: xx-small, x-small, small, medium, \
+             large, x-large, xx-large, xxx-large, smaller, larger)",
+            field()
+        )
+    })
+}
+
+/// Why `href` isn't a link gridwell writes, as a message naming `field`, and
+/// whether that's only its scheme; `None` if it is one.
+pub(crate) fn href_message(href: &str, field: impl FnOnce() -> String) -> Option<(String, bool)> {
+    let why = href_problem(href)?;
+    let message = format!(
+        "{} is {href:?}, which is not a link gridwell writes: {why} \
+         (expected an http, https or mailto URL)",
+        field()
+    );
+    Some((message, why == OTHER_SCHEME))
+}
+
+/// Whether `s` is an ISO 8601 duration: `P`, then years, months, weeks and days
+/// (`nY nM nW nD`), then `T` and hours, minutes and seconds (`nH nM nS`, the
+/// seconds perhaps with a fraction), each part optional but in that order, at least
+/// one in all and at least one after a `T`; perhaps a `-` first. `PT1H30M`,
+/// `P1DT12H`, `PT0.5S`, `-P1Y`.
+pub(crate) fn is_iso_duration(s: &str) -> bool {
+    /// The number of parts in `s`, each digits (with a fraction only before `S`)
+    /// and a designator from `order`, in its order; `None` if `s` isn't that.
+    fn parts(mut s: &str, order: &[u8]) -> Option<usize> {
+        let (mut n, mut next) = (0, 0);
+        while !s.is_empty() {
+            let digits = s.bytes().take_while(u8::is_ascii_digit).count();
+            let mut end = digits;
+            if s[end..].starts_with('.') {
+                let fraction = s[end + 1..].bytes().take_while(u8::is_ascii_digit).count();
+                if fraction == 0 {
+                    return None;
+                }
+                end += 1 + fraction;
+            }
+            let designator = *s.as_bytes().get(end)?;
+            let at = order[next..].iter().position(|&d| d == designator)? + next;
+            if digits == 0 || (end > digits && designator != b'S') {
+                return None;
+            }
+            (n, next, s) = (n + 1, at + 1, &s[end + 1..]);
+        }
+        Some(n)
+    }
+    let s = s.strip_prefix('-').unwrap_or(s);
+    let Some(s) = s.strip_prefix('P') else {
+        return false;
+    };
+    let (date, time) = match s.split_once('T') {
+        Some((date, time)) => (date, Some(time)),
+        None => (s, None),
+    };
+    let Some(date) = parts(date, b"YMWD") else {
+        return false;
+    };
+    match time.map(|t| parts(t, b"HMS")) {
+        None => date > 0,
+        Some(Some(time)) => time > 0,
+        Some(None) => false,
+    }
+}
+
+/// Why a typed value isn't in its type's form, as a message naming `field` (its
+/// `value`); `None` if it is (or its type has no form checked).
+fn typed_value_problem(tv: &TypedValue, field: impl FnOnce() -> String) -> Option<String> {
+    let kind = |v: &Value| match v {
+        Value::Null => "null",
+        Value::Bool(_) => "a boolean",
+        Value::Number(_) => "a number",
+        Value::String(_) => "a string",
+        Value::Array(_) => "an array",
+        Value::Object(_) => "an object",
+    };
+    match (&tv.value_type, &tv.value) {
+        (ValueType::String, Value::String(_)) => None,
+        (ValueType::String, v) => Some(format!(
+            "{} is {}, but a string value is a JSON string",
+            field(),
+            kind(v)
+        )),
+        (ValueType::Duration, Value::String(d)) if is_iso_duration(d) => None,
+        (ValueType::Duration, Value::String(d)) => Some(format!(
+            "{} is {d:?}, which is not an ISO 8601 duration (such as \"PT1H30M\")",
+            field()
+        )),
+        (ValueType::Duration, v) => Some(format!(
+            "{} is {}, but a duration value is an ISO 8601 duration string (such as \
+             \"PT1H30M\")",
+            field(),
+            kind(v)
+        )),
+        _ => None,
     }
 }
 
@@ -114,51 +255,39 @@ impl<'a> At<'a> {
 
 struct Checker<'e> {
     errors: &'e mut Vec<ValidationError>,
+    /// The table is a newer minor IR version: what it may have added isn't an
+    /// error (see the module docs).
+    newer: bool,
 }
 
 impl Checker<'_> {
     fn color(&mut self, value: Option<&String>, field: &str, at: At) {
-        let Some(v) = value else { return };
-        if v.parse::<Color>().is_err() {
-            self.errors.push(at.error(
-                ValidationRule::InvalidColor,
-                format!(
-                    "{field} is \"{v}\", which is not a color (expected a CSS named color, \
-                     #RGB/#RGBA/#RRGGBB/#RRGGBBAA, rgb()/rgba(), hsl()/hsla(), or transparent)"
-                ),
-            ));
+        let Some(v) = value.filter(|_| !self.newer) else {
+            return;
+        };
+        if let Some(message) = color_problem(v, || field.to_string()) {
+            self.errors
+                .push(at.error(ValidationRule::InvalidColor, message));
         }
     }
 
     fn length(&mut self, value: Option<&String>, field: &str, kind: LengthKind, at: At) {
-        let Some(v) = value else { return };
-        let why = match v.parse::<Length>() {
-            Ok(l) => match kind.problem(&l) {
-                Some(why) => why,
-                None => return,
-            },
-            Err(_) => "it does not parse",
+        let Some(v) = value.filter(|_| !self.newer) else {
+            return;
         };
-        self.errors.push(at.error(
-            ValidationRule::InvalidLength,
-            format!(
-                "{field} is \"{v}\", which is not valid here: {why} (expected {})",
-                kind.expected()
-            ),
-        ));
+        if let Some(message) = length_problem(v, kind, || field.to_string()) {
+            self.errors
+                .push(at.error(ValidationRule::InvalidLength, message));
+        }
     }
 
     fn font_size(&mut self, value: Option<&String>, field: &str, at: At) {
-        let Some(v) = value else { return };
-        if v.parse::<FontSize>().is_err() {
-            self.errors.push(at.error(
-                ValidationRule::InvalidLength,
-                format!(
-                    "{field} is \"{v}\", which is not a font size (expected a non-negative \
-                     length, a percentage, or one of: xx-small, x-small, small, medium, \
-                     large, x-large, xx-large, xxx-large, smaller, larger)"
-                ),
-            ));
+        let Some(v) = value.filter(|_| !self.newer) else {
+            return;
+        };
+        if let Some(message) = font_size_problem(v, || field.to_string()) {
+            self.errors
+                .push(at.error(ValidationRule::InvalidLength, message));
         }
     }
 
@@ -216,11 +345,18 @@ impl Checker<'_> {
         self.color(b.color.as_ref(), &f("color"), at);
     }
 
-    /// Check the image nodes and links of `nodes`; `field` makes a field's name
-    /// from its path in the content (`content[0].width`).
+    /// Check the image nodes and links of `nodes`, and of their fallbacks;
+    /// `field` makes a field's name from its path in the content
+    /// (`content[0].width`).
     fn content(&mut self, nodes: &[ContentNode], field: &dyn Fn(&str) -> String, at: At) {
+        self.nodes(nodes, "content", field, at);
+    }
+
+    /// [`content`](Self::content) for the nodes at `path` (`content`,
+    /// `content[0].fallback`).
+    fn nodes(&mut self, nodes: &[ContentNode], path: &str, field: &dyn Fn(&str) -> String, at: At) {
         for (i, node) in nodes.iter().enumerate() {
-            let f = |name: &str| field(&format!("content[{i}].{name}"));
+            let f = |name: &str| field(&format!("{path}[{i}].{name}"));
             match node {
                 ContentNode::Image { width, height, .. } => {
                     self.length(width.as_ref(), &f("width"), LengthKind::SIZE, at);
@@ -232,17 +368,17 @@ impl Checker<'_> {
                 | ContentNode::StyledText {
                     href: Some(href), ..
                 } => {
-                    if let Some(why) = href_problem(href) {
-                        self.errors.push(at.error(
-                            ValidationRule::InvalidHref,
-                            format!(
-                                "{} is {href:?}, which is not a link gridwell writes: {why} \
-                                 (expected an http, https or mailto URL)",
-                                f("href")
-                            ),
-                        ));
+                    if let Some((message, scheme)) = href_message(href, || f("href")) {
+                        if !(scheme && self.newer) {
+                            self.errors
+                                .push(at.error(ValidationRule::InvalidHref, message));
+                        }
                     }
                 }
+                ContentNode::Unknown(UnknownNode {
+                    fallback: Some(fallback),
+                    ..
+                }) => self.nodes(fallback, &format!("{path}[{i}].fallback"), field, at),
                 _ => {}
             }
         }
@@ -259,13 +395,22 @@ impl Checker<'_> {
                 };
                 let of = |path: &str| format!("{path} of {}", cell_place(section, row_group, r, c));
                 self.content(&cell.content, &of, at);
+                if let Some(tv) = &cell.typed_value {
+                    if let Some(message) = typed_value_problem(tv, || of("typed_value.value")) {
+                        self.errors
+                            .push(at.error(ValidationRule::InvalidTypedValue, message));
+                    }
+                }
             }
         }
     }
 }
 
 pub(crate) fn validate_values(table: &Table, errors: &mut Vec<ValidationError>) {
-    let mut ck = Checker { errors };
+    let mut ck = Checker {
+        errors,
+        newer: table.is_newer_minor(),
+    };
 
     let config = At::section("config");
     let cfg = &table.config;
