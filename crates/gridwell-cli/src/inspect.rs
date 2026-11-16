@@ -52,7 +52,8 @@ impl Stats {
         let mut content = BTreeMap::new();
         let mut uses = |style_id: Option<&String>, nodes: &[ContentNode]| {
             used.extend(style_id.cloned());
-            for node in nodes {
+            // A fallback's nodes too: they're drawn in place of their node.
+            ContentNode::walk(nodes, &mut |node| {
                 *content.entry(node_type(node)).or_insert(0) += 1;
                 if let ContentNode::StyledText {
                     style_id: Some(id), ..
@@ -60,7 +61,7 @@ impl Stats {
                 {
                     used.insert(id.clone());
                 }
-            }
+            });
         };
 
         let header = table.header.as_ref();
@@ -297,13 +298,7 @@ fn node_type(node: &ContentNode) -> String {
         ContentNode::FootnoteMark { .. } => "footnote_mark",
         ContentNode::Image { .. } => "image",
         ContentNode::Raw { .. } => "raw",
-        ContentNode::Unknown(m) => {
-            return m
-                .get("type")
-                .and_then(Value::as_str)
-                .unwrap_or_default()
-                .to_string()
-        }
+        ContentNode::Unknown(n) => n.type_name(),
     }
     .to_string()
 }
