@@ -1,7 +1,7 @@
-"""Delegation: `gt_to_ir()` uses Great Tables' own emitter (`GT.as_ir()`) when the
+"""Delegation: `gt_to_ir()` uses Great Tables' own emitter (`GT.as_gridwell()`) when the
 installed Great Tables has one, and gridwell's copy otherwise.
 
-No released Great Tables has `as_ir()` yet, so these tests give `GT` one.
+No released Great Tables has `as_gridwell()` yet, so these tests give `GT` one.
 """
 
 import json
@@ -47,18 +47,18 @@ def ours(table):
 
 
 @pytest.fixture
-def give_as_ir(monkeypatch):
-    """Give `GT` an `as_ir()` that returns `result` (or raises it), recording calls."""
+def give_as_gridwell(monkeypatch):
+    """Give `GT` an `as_gridwell()` that returns `result` (or raises it), recording calls."""
     calls = []
 
     def give(result):
-        def as_ir(self):
+        def as_gridwell(self):
             calls.append(self)
             if isinstance(result, BaseException):
                 raise result
             return result
 
-        monkeypatch.setattr(GT, "as_ir", as_ir, raising=False)
+        monkeypatch.setattr(GT, "as_gridwell", as_gridwell, raising=False)
         return calls
 
     return give
@@ -74,13 +74,13 @@ def no_warnings():
 # ─── Without an upstream emitter ───
 
 
-def test_great_tables_has_no_as_ir_yet(table):
+def test_great_tables_has_no_as_gridwell_yet(table):
     # When one lands, these tests still hold; the reference sets then switch (make.py).
     assert not has_upstream(table)
 
 
-def test_an_as_ir_that_isnt_a_method_isnt_used(table, ours, monkeypatch, no_warnings):
-    monkeypatch.setattr(GT, "as_ir", "1.0", raising=False)
+def test_an_as_gridwell_that_isnt_a_method_isnt_used(table, ours, monkeypatch, no_warnings):
+    monkeypatch.setattr(GT, "as_gridwell", "1.0", raising=False)
     assert not has_upstream(table)
     assert gridwell.gt_to_ir(table) == ours
 
@@ -90,17 +90,17 @@ def test_auto_uses_gridwells_own_without_a_warning(table, ours, no_warnings):
     assert gridwell.gt_to_dict(table) == json.loads(ours)
 
 
-def test_upstream_without_as_ir_raises(table):
+def test_upstream_without_as_gridwell_raises(table):
     for convert in (gridwell.gt_to_ir, gridwell.gt_to_dict):
-        with pytest.raises(RuntimeError, match=r"Great Tables .* has no GT\.as_ir\(\)"):
+        with pytest.raises(RuntimeError, match=r"Great Tables .* has no GT\.as_gridwell\(\)"):
             convert(table, emitter="upstream")
 
 
 # ─── With one ───
 
 
-def test_auto_uses_as_ir_when_there(table, give_as_ir, no_warnings):
-    calls = give_as_ir(upstream_ir())
+def test_auto_uses_as_gridwell_when_there(table, give_as_gridwell, no_warnings):
+    calls = give_as_gridwell(upstream_ir())
     assert has_upstream(table)
     # Its JSON as it is, and the same parsed.
     assert gridwell.gt_to_ir(table) == upstream_ir()
@@ -109,28 +109,28 @@ def test_auto_uses_as_ir_when_there(table, give_as_ir, no_warnings):
     assert calls == [table] * 3
 
 
-def test_tables_made_from_a_gt_use_as_ir(table, give_as_ir, no_warnings):
-    give_as_ir(upstream_ir())
+def test_tables_made_from_a_gt_use_as_gridwell(table, give_as_gridwell, no_warnings):
+    give_as_gridwell(upstream_ir())
     for made in (gridwell.Table(table), gridwell.Table.from_gt(table)):
         assert made.validate() == []
         assert "From Great Tables" in made.render_html()
 
 
-def test_gridwell_ignores_as_ir(table, ours, give_as_ir, no_warnings):
-    calls = give_as_ir(upstream_ir())
+def test_gridwell_ignores_as_gridwell(table, ours, give_as_gridwell, no_warnings):
+    calls = give_as_gridwell(upstream_ir())
     assert gridwell.gt_to_ir(table, emitter="gridwell") == ours
     assert gridwell.gt_to_dict(table, emitter="gridwell") == json.loads(ours)
     assert calls == []
 
 
 @pytest.mark.parametrize("version", ["1.0", "1.1", "1.10", "01.0"])
-def test_any_ir_1_minor_is_used(table, give_as_ir, no_warnings, version):
-    give_as_ir(upstream_ir(version))
+def test_any_ir_1_minor_is_used(table, give_as_gridwell, no_warnings, version):
+    give_as_gridwell(upstream_ir(version))
     assert json.loads(gridwell.gt_to_ir(table))["ir_version"] == version
 
 
-def test_a_newer_minor_is_used_and_its_table_warns(table, give_as_ir):
-    give_as_ir(upstream_ir("1.4"))
+def test_a_newer_minor_is_used_and_its_table_warns(table, give_as_gridwell):
+    give_as_gridwell(upstream_ir("1.4"))
     with pytest.warns(UserWarning) as record:
         made = gridwell.Table(table)
     assert [str(w.message) for w in record] == [
@@ -162,9 +162,9 @@ BAD = {
 
 
 @pytest.mark.parametrize("case", list(BAD))
-def test_auto_warns_and_uses_its_own_for_a_bad_result(table, ours, give_as_ir, case):
+def test_auto_warns_and_uses_its_own_for_a_bad_result(table, ours, give_as_gridwell, case):
     result, reason = BAD[case]
-    give_as_ir(result)
+    give_as_gridwell(result)
     with pytest.warns(UserWarning, match=reason + r".*; converted with gridwell's own emitter"):
         assert gridwell.gt_to_ir(table) == ours
     with pytest.warns(UserWarning, match=reason):
@@ -174,16 +174,16 @@ def test_auto_warns_and_uses_its_own_for_a_bad_result(table, ours, give_as_ir, c
 
 
 @pytest.mark.parametrize("case", list(BAD))
-def test_upstream_raises_for_a_bad_result(table, give_as_ir, case):
+def test_upstream_raises_for_a_bad_result(table, give_as_gridwell, case):
     result, reason = BAD[case]
-    give_as_ir(result)
+    give_as_gridwell(result)
     for convert in (gridwell.gt_to_ir, gridwell.gt_to_dict):
         with pytest.raises(ValueError, match=reason):
             convert(table, emitter="upstream")
 
 
-def test_an_error_in_as_ir(table, ours, give_as_ir):
-    give_as_ir(KeyError("no such column"))
+def test_an_error_in_as_gridwell(table, ours, give_as_gridwell):
+    give_as_gridwell(KeyError("no such column"))
     with pytest.warns(UserWarning, match=r"'no such column'; converted with gridwell's own"):
         assert gridwell.gt_to_ir(table) == ours
     # Its own error, as raised.
@@ -191,14 +191,14 @@ def test_an_error_in_as_ir(table, ours, give_as_ir):
         gridwell.gt_to_ir(table, emitter="upstream")
 
 
-def test_only_exceptions_are_caught(table, give_as_ir):
-    give_as_ir(KeyboardInterrupt())
+def test_only_exceptions_are_caught(table, give_as_gridwell):
+    give_as_gridwell(KeyboardInterrupt())
     with pytest.raises(KeyboardInterrupt):
         gridwell.gt_to_ir(table)
 
 
-def test_the_warning_points_at_the_caller(table, give_as_ir):
-    give_as_ir(upstream_ir("2.0"))
+def test_the_warning_points_at_the_caller(table, give_as_gridwell):
+    give_as_gridwell(upstream_ir("2.0"))
     for convert in (gridwell.gt_to_ir, gridwell.gt_to_dict):
         with pytest.warns(UserWarning) as caught:
             convert(table)
@@ -208,8 +208,8 @@ def test_the_warning_points_at_the_caller(table, give_as_ir):
 # ─── Arguments ───
 
 
-def test_an_unknown_emitter_is_a_value_error(table, give_as_ir):
-    calls = give_as_ir(upstream_ir())
+def test_an_unknown_emitter_is_a_value_error(table, give_as_gridwell):
+    calls = give_as_gridwell(upstream_ir())
     for convert in (gridwell.gt_to_ir, gridwell.gt_to_dict):
         for emitter in ("great_tables", "Auto", "", None):
             with pytest.raises(ValueError, match="emitter must be one of 'auto', 'upstream', 'gridwell'"):
@@ -217,8 +217,8 @@ def test_an_unknown_emitter_is_a_value_error(table, give_as_ir):
     assert calls == []
 
 
-def test_anything_but_a_gt_is_a_type_error(give_as_ir):
-    give_as_ir(upstream_ir())
+def test_anything_but_a_gt_is_a_type_error(give_as_gridwell):
+    give_as_gridwell(upstream_ir())
     for convert in (gridwell.gt_to_ir, gridwell.gt_to_dict):
         for emitter in ("auto", "upstream", "gridwell"):
             for other in (exibble, upstream_ir(), None):

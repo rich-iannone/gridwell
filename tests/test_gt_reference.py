@@ -56,7 +56,7 @@ same_gt = pytest.mark.skipif(
 
 def test_the_references_use_great_tables_own_emitter_once_there_is_one():
     # make.py uses it when there is one; references made before need regenerating
-    # (with any Great Tables version: the first with `as_ir()` is a newer one).
+    # (with any Great Tables version: the first with `as_gridwell()` is a newer one).
     upstream = has_upstream(next(iter(CASES.values()))["build"]())
     assert EMITTER == ("upstream" if upstream else "gridwell"), "regenerate with make.py"
 

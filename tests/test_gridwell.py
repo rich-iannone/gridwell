@@ -653,8 +653,8 @@ def test_an_invalid_newer_minor_version_says_its_version():
         table = gridwell.Table(_versioned("1.3", config={"table_cols": 9}))
     with pytest.raises(
         gridwell.InvalidTableError,
-        match=r"\(the table is IR 1\.3, newer than the IR 1\.0 this gridwell reads: "
-        r"an error may be something a newer IR version added\)$",
+        match=r"\(the table is IR 1\.3, newer than the IR 1\.0 this gridwell reads; "
+        r"what a newer IR version added isn't an error, and is left out\)$",
     ):
         table.render_html()
 

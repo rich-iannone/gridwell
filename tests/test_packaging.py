@@ -116,7 +116,7 @@ WITHOUT_PANDAS = textwrap.dedent(
         raise AssertionError("gt_to_ir() should have raised ImportError")
 
     ir = open(sys.argv[1]).read()
-    GT.as_ir = lambda self: ir
+    GT.as_gridwell = lambda self: ir
     assert gridwell.gt_to_ir(table) == ir
     assert gridwell.gt_to_dict(table) == json.loads(ir)
     assert gridwell.Table(table).validate() == []
