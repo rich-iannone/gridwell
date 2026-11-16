@@ -17,14 +17,18 @@ import copy
 import datetime as dt
 import html
 import json
+import numbers
 import re
 import unicodedata
 from html.parser import HTMLParser
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any
 
-import numpy as np
-import pandas as pd
+# The copy comes with pandas (the `gt` extra; `_gt._own()` says what to install
+# without it). Tables are read through Great Tables' own data functions, so a
+# table on polars converts too.
+import pandas  # noqa: F401
+from great_tables._tbl_data import _get_cell, _get_column_dtype, is_na, n_rows
 
 if TYPE_CHECKING:
     from great_tables import GT
@@ -71,7 +75,7 @@ def build_ir(gt_obj: GT) -> dict[str, Any]:
     thead = _build_thead(all_cols, stub, built, decor)
 
     # Build config
-    n_body_rows = len(tbl_data)
+    n_body_rows = n_rows(tbl_data)
     config = _build_config(n_cols, len(thead["rows"]), n_body_rows, stub_cols, built)
 
     # Build tbody (with row groups)
@@ -133,9 +137,14 @@ def _build_config(
     }
     # (Great Tables' stripe isn't the IR's default one: striping is a conditional
     # style, `_option_styles`, and `row_striping` stays off.)
+    # A width the user set (`tab_options(table_width=)`), when it's one the IR takes;
+    # Great Tables' own widths for tables whose columns all have one are left to gridwell.
+    width = getattr(getattr(built._options, "table_width", None), "value", None)
+    if isinstance(width, str) and width.lower() != "auto" and _IMAGE_SIZE.fullmatch(width):
+        config["table_width"] = width
     # A locale set on the table (`GT(locale=...)`) is its language; the
     # direction follows from the language, since the IR doesn't infer it.
-    locale = getattr(getattr(built, "_locale", None), "_locale", None)
+    locale =getattr(getattr(built, "_locale", None), "_locale", None)
     if locale:
         lang = locale.replace("_", "-")
         config["locale"] = lang
@@ -500,7 +509,7 @@ def _same_spanner(a: Any, b: Any, lowest: bool) -> bool:
 
 
 def _build_tbody(
-    tbl_data: pd.DataFrame,
+    tbl_data: Any,
     all_cols: list,
     built: Any,
     stub: _Stub,
@@ -538,7 +547,7 @@ def _build_tbody(
     if has_groups and group_rows:
         listed = [(grp, [int(idx) for idx in grp.indices]) for grp in group_rows]
     else:
-        listed = [(None, list(range(len(tbl_data))))]
+        listed = [(None, list(range(n_rows(tbl_data))))]
     spans = _stub_spans(tbl_data, stub, listed)
 
     groups = []
@@ -591,7 +600,7 @@ def _summary_sides(summaries: Any, group_id: str | None) -> list[str]:
 
 
 def _stub_spans(
-    tbl_data: pd.DataFrame, stub: _Stub, listed: list[tuple[Any, list[int]]]
+    tbl_data: Any, stub: _Stub, listed: list[tuple[Any, list[int]]]
 ) -> list[list[tuple[int, list[int]]]]:
     """For each data row as shown, each stub column's (rowspan, rows covered): a
     rowspan of 0 for a cell covered by one above.
@@ -604,7 +613,7 @@ def _stub_spans(
     spans = [[(1, [idx]) for _ in names] for idx, _ in order]
     if len(names) < 2:
         return spans
-    values = [[str(tbl_data[var].iloc[idx]) for var in names] for idx, _ in order]
+    values = [[str(_get_cell(tbl_data, idx, var)) for var in names] for idx, _ in order]
     for level in range(len(names) - 1):
         start = 0
         for j in range(1, len(order) + 1):
@@ -792,7 +801,7 @@ def _summary_rows(
 
 
 def _build_row(
-    tbl_data: pd.DataFrame,
+    tbl_data: Any,
     row_idx: int,
     shown: int,
     all_cols: list,
@@ -809,9 +818,13 @@ def _build_row(
     Styles and footnotes are found by the row's index in the data, as Great
     Tables finds them. A stub cell spanning rows has the stub's (`loc.stub()`)
     for its column in any of them (a style once), and those for no column in
-    its first; footnotes for no column are on the primary column."""
+    its first; footnotes for no column are on the primary column.
+
+    The primary column's cell is indented by `tab_stub_indent()`, under any
+    `tab_style()` on it, as Great Tables indents it (with a class)."""
     cells = [] if lead is None else [lead]
     n_stub = len(stub.cols)
+    indent = decor.options.stub_indent(getattr(built._stub.rows[row_idx], "indent", 0))
     for i, col in enumerate(all_cols):
         if lead is not None and i == 0:
             continue
@@ -819,12 +832,12 @@ def _build_row(
         var = col.var
         styles = decor.styles("LocBody", lambda x: x.rownum == row_idx and x.colname == var)
         rowspan = 1
+        primary = is_stub and col is stub.primary
         if is_stub:
             rowspan, covered = spans[i - (n_stub - len(stub.rows))]
             if rowspan == 0:
                 cells.append(_body_placeholder(is_stub=True))
                 continue
-            primary = col is stub.primary
             notes = decor.notes(
                 "LocStub",
                 lambda x: (x.colname is None and primary and x.rownum == row_idx)
@@ -840,7 +853,9 @@ def _build_row(
             styles += labels
         else:
             notes = decor.notes("LocBody", lambda x: x.colname == var and x.rownum == row_idx)
-        style_id = decor.style_id(styles, decor.options.data_cell(is_stub, shown))
+        style_id = decor.style_id(
+            styles, decor.options.data_cell(is_stub, shown), indent if primary else {}
+        )
         if col.var == _SUMMARY_STUB:
             # The stub added for summary rows is empty in the data rows.
             cells.append({
@@ -853,17 +868,18 @@ def _build_row(
                 "scope": "row",
             })
             continue
-        value = tbl_data[col.var].iloc[row_idx]
+        value = _get_cell(tbl_data, row_idx, col.var)
         # The HTML Great Tables puts in the cell (`str()` of the built body: a
         # formatted value, or the data escaped), missing values included: GT shows
         # those as text too ("None", "nan").
-        missing = bool(pd.isna(value))
+        missing = bool(is_na(tbl_data, value))
         label = _HtmlLabel(str(value))
         text = _plain(label)
 
         # The value's type, from the original data
-        orig_val = built._tbl_data[col.var].iloc[row_idx]
-        data_type = _infer_data_type(orig_val, col.var, built._tbl_data.dtypes)
+        orig_val = _get_cell(built._tbl_data, row_idx, col.var)
+        orig_missing = bool(is_na(built._tbl_data, orig_val))
+        data_type = _infer_data_type(orig_val, _column_kind(built._tbl_data, col.var))
 
         cell = {
             "content": decor.with_marks(label, notes),
@@ -877,7 +893,7 @@ def _build_row(
         if is_stub:
             # A stub cell heads its row, or the rows it spans (as Great Tables has it).
             cell["scope"] = "rowgroup" if rowspan > 1 else "row"
-        if not is_stub and text and not missing and not pd.isna(orig_val):
+        if not is_stub and text and not missing and not orig_missing:
             typed = _typed_value(orig_val, text, data_type)
             if typed is not None:
                 cell["typed_value"] = typed
@@ -891,29 +907,47 @@ def _build_row(
     }
 
 
-def _infer_data_type(value: Any, col_name: str, dtypes: Any) -> str | None:
-    """Infer the IR value type (`typed_value.type`) from a pandas value/dtype."""
-    if pd.isna(value):
-        return None
+# A column's kind (`_column_kind`) by the start of its dtype's name, in pandas,
+# polars or pyarrow ("Int64", "int64[pyarrow]", "Datetime(time_unit='us', ...)").
+_COLUMN_KINDS = [
+    ("boolean", re.compile(r"bool")),
+    ("number", re.compile(r"u?int\d|float|double|decimal|halffloat")),
+    ("datetime", re.compile(r"datetime|timestamp")),
+    ("date", re.compile(r"date")),
+    ("time", re.compile(r"time(?!delta)")),
+]
 
-    dtype = dtypes.get(col_name)
-    if dtype is not None:
-        dtype_str = str(dtype)
-        if "float" in dtype_str:
-            return "number"
-        elif "int" in dtype_str:
-            return "integer"
-        elif "datetime" in dtype_str:
-            return "datetime"
-        elif "bool" in dtype_str:
-            return "boolean"
+
+def _column_kind(frame: Any, var: str) -> str | None:
+    """The kind of a column, from its dtype (as Great Tables' `_get_column_kind()`
+    has it, which released Great Tables don't have): `number`, `boolean`,
+    `datetime`, `date` or `time`, or `None` for another (a string, an object,
+    a category or a duration)."""
+    name = str(_get_column_dtype(frame, var)).lower()
+    for kind, pattern in _COLUMN_KINDS:
+        if pattern.match(name):
+            return kind
+    return None
+
+
+def _infer_data_type(value: Any, kind: str | None) -> str:
+    """The IR value type (`typed_value.type`) of a value that isn't missing, from its
+    column's kind (`_column_kind()`) and, for a column of another kind, the value
+    itself. A number is an integer if its value is one (`numbers.Integral`, which
+    NumPy's integers are too).
+
+    A duration is a string, the text shown (as gt's emitter has it)."""
+    if kind == "number":
+        return "integer" if _is_integer(value) else "number"
+    if kind is not None:
+        return kind
 
     # Heuristic from value (a bool is an int, and a datetime a date)
-    if isinstance(value, (bool, np.bool_)):
+    if _is_bool(value):
         return "boolean"
-    elif isinstance(value, (int, np.integer)):
+    elif _is_integer(value):
         return "integer"
-    elif isinstance(value, (float, np.floating)):
+    elif isinstance(value, numbers.Real):
         return "number"
     elif isinstance(value, dt.datetime):
         return "datetime"
@@ -923,6 +957,18 @@ def _infer_data_type(value: Any, col_name: str, dtypes: Any) -> str | None:
         return "time"
 
     return "string"
+
+
+def _is_bool(value: Any) -> bool:
+    """Whether a value is a bool, Python's or NumPy's (`numpy.bool_`, which isn't an int)."""
+    cls = type(value)
+    return isinstance(value, bool) or (
+        cls.__module__ == "numpy" and cls.__name__ in ("bool", "bool_")
+    )
+
+
+def _is_integer(value: Any) -> bool:
+    return isinstance(value, numbers.Integral) and not _is_bool(value)
 
 
 # Characters a display may separate thousands with ("." and "," also mark
@@ -1076,7 +1122,7 @@ def _shown_number(text: str, raw: Any) -> tuple[str, int, bool] | None:
     return (("-" if negative else "") + digits, power, plain_int)
 
 
-def _typed_value(value: Any, text: str, data_type: str | None) -> dict | None:
+def _typed_value(value: Any, text: str, data_type: str) -> dict | None:
     """The cell's typed value, as the R emitter gives it.
 
     A number is the number displayed, so a spreadsheet holds what the table
@@ -1097,11 +1143,9 @@ def _typed_value(value: Any, text: str, data_type: str | None) -> dict | None:
         return {"type": "number", "value": float(f"{digits}e{power}") + 0.0}
     if data_type == "boolean":
         return {"type": "boolean", "value": bool(value)}
-    if data_type == "datetime":
-        stamp = pd.Timestamp(value)
-        if stamp.tzinfo is not None:
-            stamp = stamp.tz_localize(None)
-        return {"type": "datetime", "value": stamp.isoformat()}
+    if data_type == "datetime" and isinstance(value, dt.datetime):
+        # (A pandas Timestamp is a datetime, and keeps its nanoseconds here.)
+        return {"type": "datetime", "value": value.replace(tzinfo=None).isoformat()}
     if data_type == "date" and isinstance(value, dt.date):
         return {"type": "date", "value": value.isoformat()}
     if data_type == "time" and isinstance(value, dt.time):
@@ -1270,6 +1314,8 @@ _SCRIPTS = {
 }
 # An image size the IR takes: a non-negative length, a percentage or `auto`.
 _IMAGE_SIZE = re.compile(r"auto|0|\+?(\d+\.?\d*|\.\d+)(px|pt|rem|em|in|cm|mm|%)", re.I)
+# A non-negative length the IR takes, as its number and unit.
+_LENGTH = re.compile(r"(\d+\.?\d*|\.\d+)(px|pt|rem|em|in|cm|mm|%)", re.I)
 
 # A line of lowered HTML: (text, style) runs and content nodes (images, raw SVG).
 _Line = list[Any]
@@ -1668,6 +1714,7 @@ class _OptionStyles:
                 "selector": {"row_parity": "even", "scope": "tbody"},
                 "style": self._stripe,
             })
+        self._indent_length = raw("stub_indent_length")
 
     def _fill(self, background: str) -> dict[str, Any]:
         """A fill, with the text color Great Tables gives it (the table's dark or
@@ -1681,6 +1728,18 @@ class _OptionStyles:
             # A color Great Tables can't read: no text color for it.
             pass
         return style
+
+    def stub_indent(self, level: Any) -> dict[str, Any]:
+        """The indent of a stub cell at `tab_stub_indent()` level `level` (1 to 5), the
+        level times `stub_indent_length`, as Great Tables' `gt_indent_*` classes have it;
+        none at level 0 (or before Great Tables 1.0, which has no indents), or for a
+        length the IR doesn't take."""
+        found = _LENGTH.fullmatch(str(self._indent_length).strip())
+        if not isinstance(level, int) or not 1 <= level <= 5 or found is None:
+            return {}
+        number, unit = found.groups()
+        length = f"{float(number) * level:.4f}".rstrip("0").rstrip(".")
+        return {"indent": f"{length}{unit}"}
 
     def data_cell(self, is_stub: bool, shown: int) -> dict[str, Any]:
         """The options' definition for a data row's cell, the `shown`-th row shown."""
