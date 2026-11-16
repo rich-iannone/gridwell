@@ -51,7 +51,10 @@ fn an_unknown_node_is_written_back_whole() {
     assert_eq!(content[0], json!({ "type": "text", "value": "x" }));
     // And the parsed node holds the whole object.
     match node(future.clone()).unwrap() {
-        ContentNode::Unknown(m) => assert_eq!(Value::Object(m), future),
+        ContentNode::Unknown(n) => {
+            assert_eq!(Value::Object(n.fields), future);
+            assert!(n.fallback.is_none());
+        }
         other => panic!("{other:?}"),
     }
 }
