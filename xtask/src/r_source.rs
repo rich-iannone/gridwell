@@ -8,8 +8,9 @@
 //! everything it needs:
 //!
 //! - the workspace crates the glue crate uses, in `src/rust/crates/<name>`: their
-//!   `src/` and a manifest written from `cargo metadata`, with the workspace
-//!   inheritance resolved and no dev-dependencies;
+//!   `src/`, the files it includes (`include_str!`, `include_bytes!`), and a
+//!   manifest written from `cargo metadata`, with the workspace inheritance resolved
+//!   and no dev-dependencies;
 //! - the glue crate's manifest, pointing at them and made its own workspace;
 //! - every crates.io dependency, vendored from the same `Cargo.lock`, in
 //!   `src/rust/vendor.tar.xz`, with `src/rust/vendor-config.toml` pointing cargo at
@@ -79,10 +80,16 @@ pub fn run(root: &Path, out: Option<PathBuf>) -> Result<String, String> {
         let src_rel = src
             .strip_prefix(root)
             .map_err(|_| format!("{} is outside the repository", src.display()))?;
-        for rel in git_files(root, &src_rel.to_string_lossy())? {
+        let files = git_files(root, &src_rel.to_string_lossy())?;
+        for rel in &files {
             let dest = dir
                 .join("src")
                 .join(rel.strip_prefix(src_rel).expect("listed under src"));
+            copy(&root.join(rel), &dest)?;
+        }
+        let crate_rel = src_rel.parent().expect("src is in the crate");
+        for rel in included(root, crate_rel, &files)? {
+            let dest = dir.join(rel.strip_prefix(crate_rel).expect("checked in included"));
             copy(&root.join(&rel), &dest)?;
         }
         let origin = local.dir.join("Cargo.toml");
@@ -236,6 +243,76 @@ fn local_packages(metadata: &Value) -> Result<Vec<Local>, String> {
 
 /// Every file git knows under `dir` (tracked, or untracked and not ignored) that
 /// exists, relative to `root`.
+/// The files outside `src/` that a crate's sources include (`include_str!("…")`,
+/// `include_bytes!("…")`), relative to `root`: each must be in the crate, and named
+/// by a string literal, so that the bundled crate builds.
+fn included(root: &Path, crate_rel: &Path, sources: &[PathBuf]) -> Result<Vec<PathBuf>, String> {
+    let mut out = BTreeSet::new();
+    for rel in sources
+        .iter()
+        .filter(|r| r.extension().is_some_and(|e| e == "rs"))
+    {
+        let text = read(&root.join(rel))?;
+        for (at, _) in text.match_indices("include_") {
+            let rest = &text[at + "include_".len()..];
+            let Some(rest) = ["str!(", "bytes!("]
+                .iter()
+                .find_map(|m| rest.strip_prefix(m))
+            else {
+                continue;
+            };
+            let named = rest
+                .trim_start()
+                .strip_prefix('"')
+                .and_then(|r| r.split_once('"'))
+                .map(|(lit, _)| lit)
+                .filter(|lit| !lit.contains('\\'));
+            let Some(lit) = named else {
+                return Err(format!(
+                    "{}: an include_str!/include_bytes! not of a plain string literal \
+                     can't be bundled",
+                    rel.display()
+                ));
+            };
+            let target = normalize(&rel.parent().expect("a file").join(lit));
+            if !target.starts_with(crate_rel) {
+                return Err(format!(
+                    "{}: includes {lit}, outside its crate ({})",
+                    rel.display(),
+                    crate_rel.display()
+                ));
+            }
+            if !root.join(&target).is_file() {
+                return Err(format!(
+                    "{}: includes {lit}, which is missing",
+                    rel.display()
+                ));
+            }
+            if !target.starts_with(crate_rel.join("src")) {
+                out.insert(target);
+            }
+        }
+    }
+    Ok(out.into_iter().collect())
+}
+
+/// `path` with its `.` and `..` parts resolved (without the file system).
+fn normalize(path: &Path) -> PathBuf {
+    let mut out = PathBuf::new();
+    for part in path.components() {
+        match part {
+            std::path::Component::CurDir => {}
+            std::path::Component::ParentDir => {
+                if !out.pop() {
+                    out.push("..");
+                }
+            }
+            other => out.push(other),
+        }
+    }
+    out
+}
+
 fn git_files(root: &Path, dir: &str) -> Result<Vec<PathBuf>, String> {
     let mut cmd = Command::new("git");
     cmd.arg("-C")
@@ -783,5 +860,39 @@ path = \"src/lib.rs\"
         assert!(out.join("src/rust").is_dir());
 
         std::fs::remove_dir_all(&base).unwrap();
+    }
+
+    #[test]
+    fn included_files_outside_src_are_bundled_and_others_refused() {
+        let root = std::env::temp_dir().join(format!("gridwell-r-included-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let krate = Path::new("crates/k");
+        let lib = krate.join("src/lib.rs");
+        let check = |code: &str| {
+            write(&root.join(&lib), code).unwrap();
+            included(&root, krate, std::slice::from_ref(&lib))
+        };
+        write(&root.join("crates/k/schema/a.json"), "{}").unwrap();
+        write(&root.join("crates/k/src/b.txt"), "").unwrap();
+        write(&root.join("crates/other/c.txt"), "").unwrap();
+
+        assert_eq!(
+            check(
+                "const A: &str = include_str!(\"../schema/a.json\");\n\
+                 const B: &[u8] = include_bytes!( \"./b.txt\");\n\
+                 // include_ files by name only: not a macro.\n"
+            )
+            .unwrap(),
+            [PathBuf::from("crates/k/schema/a.json")],
+            "a file outside src/ is bundled; one in src/ is already"
+        );
+        let err = check("include_str!(\"../../other/c.txt\")").unwrap_err();
+        assert!(err.contains("outside its crate"), "{err}");
+        let err = check("include_str!(\"../schema/gone.json\")").unwrap_err();
+        assert!(err.contains("missing"), "{err}");
+        let err = check("include_str!(concat!(env!(\"OUT_DIR\"), \"/x\"))").unwrap_err();
+        assert!(err.contains("plain string literal"), "{err}");
+
+        std::fs::remove_dir_all(&root).unwrap();
     }
 }
