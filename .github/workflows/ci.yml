@@ -243,7 +243,9 @@ jobs:
           python -m pip install --upgrade pip
           whl=$(ls dist/*.whl)
           if [ "${{ matrix.variant }}" = gt ]; then
-            python -m pip install "gridwell[gt] @ file://$PWD/$whl" pytest mypy
+            # polars for the tests of tables on polars (not in the extra: Great Tables
+            # takes either).
+            python -m pip install "gridwell[gt] @ file://$PWD/$whl" pytest mypy polars
           else
             python -m pip install "$whl" pytest mypy
             # The core variant must really lack the optional dependencies.
