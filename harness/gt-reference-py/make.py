@@ -5,8 +5,8 @@ For each case in conformance/cases.py this writes, into this directory:
     <name>.gt.html   Great Tables' own HTML (`as_raw_html()`), the look gridwell's
                      HTML is measured against
     <name>.ir.json   the same table as gridwell IR (`gridwell.gt_to_ir()`: Great
-                     Tables' own `GT.as_ir()` when the installed Great Tables has
-                     it, else gridwell's copy)
+                     Tables' own `GT.as_gridwell()` when the installed Great
+                     Tables has it, else gridwell's copy)
 
 and manifest.json (case descriptions, the Python, Great Tables and gridwell versions
 used, and which emitter wrote the IR).
