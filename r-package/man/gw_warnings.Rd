@@ -25,5 +25,9 @@ table uses it, and what's drawn instead. A warning doesn't stop rendering.
 }
 \details{
 A table of a newer minor IR version than this gridwell reads gets a warning
-first, for any format: what that version added is left out.
+first, for any format: what that version added is left out. Then comes a
+warning for each thing this gridwell leaves out of the table: a value it
+doesn't know in a newer minor version's table (\code{IGNORED_VALUE}), or a
+conditional style whose selector has a field it doesn't know
+(\code{IGNORED_SELECTOR}).
 }
