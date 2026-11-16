@@ -7,10 +7,13 @@ use crate::style::Border;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub table_cols: u32,
+    /// The number of rows in `thead`, checked (`ROW_COUNT`) when given.
     #[serde(default)]
-    pub header_rows: u32,
+    pub header_rows: Option<u32>,
+    /// The number of data rows in `tbody` (summary rows not counted), checked
+    /// (`ROW_COUNT`) when given.
     #[serde(default)]
-    pub body_rows: u32,
+    pub body_rows: Option<u32>,
     #[serde(default)]
     pub stub_cols: u32,
 
@@ -115,6 +118,23 @@ impl Rules {
             ("grand_summary", &self.grand_summary),
             ("bottom", &self.bottom),
             ("notes", &self.notes),
+        ]
+    }
+
+    /// [`iter`](Self::iter), to change.
+    pub fn iter_mut(&mut self) -> [(&'static str, &mut Option<Border>); 11] {
+        [
+            ("title", &mut self.title),
+            ("top", &mut self.top),
+            ("column_labels", &mut self.column_labels),
+            ("spanners", &mut self.spanners),
+            ("group", &mut self.group),
+            ("rows", &mut self.rows),
+            ("stub", &mut self.stub),
+            ("summary", &mut self.summary),
+            ("grand_summary", &mut self.grand_summary),
+            ("bottom", &mut self.bottom),
+            ("notes", &mut self.notes),
         ]
     }
 }
