@@ -1,18 +1,19 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use crate::keywords::{
     BorderStyle, FontStyle, FontWeight, HAlign, Overflow, RowParity, SelectorScope, TextDecoration,
     TextOverflow, TextTransform, VAlign, WhiteSpace, WordBreak,
 };
 
-/// The style palette: definitions, compositions, and conditionals.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// The style palette: definitions, compositions, and conditionals. Definitions and
+/// compositions are kept sorted by id, so a table always writes the same JSON.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct StylePalette {
     #[serde(default)]
-    pub defs: HashMap<String, StyleDef>,
+    pub defs: BTreeMap<String, StyleDef>,
     #[serde(default)]
-    pub compositions: HashMap<String, StyleComposition>,
+    pub compositions: BTreeMap<String, StyleComposition>,
     #[serde(default)]
     pub conditionals: Vec<ConditionalStyle>,
 }
@@ -114,10 +115,15 @@ pub struct ConditionalStyle {
 }
 
 /// Selector for conditional styles.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ConditionalSelector {
     #[serde(default)]
     pub row_parity: Option<RowParity>,
     #[serde(default)]
     pub scope: Option<SelectorScope>,
+    /// The fields this gridwell doesn't read, kept as written (a newer IR version
+    /// may narrow a selector with them). A selector with any matches no row
+    /// ([`Table::readable`](crate::Table::readable)), and is written back whole.
+    #[serde(flatten)]
+    pub other: serde_json::Map<String, serde_json::Value>,
 }
