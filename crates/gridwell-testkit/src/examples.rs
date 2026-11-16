@@ -1075,6 +1075,7 @@ fn conditional_striping() -> Table {
             ConditionalSelector {
                 row_parity: Some("odd".into()),
                 scope: Some("body".into()),
+                ..Default::default()
             },
             odd,
         )
