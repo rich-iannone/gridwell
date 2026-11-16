@@ -34,6 +34,7 @@ READMES = [
     "crates/gridwell/README.md",
     "crates/gridwell-cli/README.md",
     "conformance/README.md",
+    "python/README.md",
 ]
 SKIP = "<!-- docs-check: skip -->"
 NEEDS_GT = re.compile(r"\b(gt|GT|great_tables|exibble)\b")
