@@ -96,9 +96,9 @@ keyword! {
     /// Horizontal alignment of a column (`column_spec[].align`) or of text
     /// (`text_align`). `Char` aligns on `align_char` (e.g. a decimal point).
     HAlign {
-        Left = "left" | "start",
+        Left = "left",
         Center = "center" | "centre",
-        Right = "right" | "end",
+        Right = "right",
         Justify = "justify",
         Char = "char",
     }
