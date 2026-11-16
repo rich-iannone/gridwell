@@ -69,8 +69,8 @@ Great Tables has it, gridwell keeps its own copy. `emitter` picks one:
 - `"upstream"`: Great Tables', raising if there is none or it can't be used.
 - `"gridwell"`: gridwell's.
 
-Great Tables' own needs no pandas (a table on polars converts as it is); gridwell's
-needs pandas, from the `gt` extra. No released Great Tables has `GT.as_gridwell()`
+Great Tables' own needs no pandas; gridwell's needs pandas, from the `gt` extra.
+Either converts a table on polars as it is. No released Great Tables has `GT.as_gridwell()`
 yet, so today `"auto"` always uses gridwell's.
 
 ## What Gets Converted
@@ -81,6 +81,7 @@ yet, so today `"auto"` always uses gridwell's.
 | Spanners (`tab_spanner()`, any number of levels) | `spanner_label` rows above the column labels, drawn as Great Tables draws them |
 | Row groups | `tbody` array with group labels |
 | Stub column | Cells with `is_stub: true` and `scope: "row"` (row headers, as in Great Tables' HTML), always aligned left |
+| Stub indents (`tab_stub_indent()`) | The stub cell's `indent`: its level times `stub_indent_length` (`15px` at level 3), as Great Tables indents it, under any `tab_style()` on the cell. In a stub of several columns, the innermost column is indented |
 | A stub of several columns (`rowname_col=["region", "city"]`) | One stub column each, outermost first. Where an outer column's value is the same in consecutive rows of a group (and so are the columns to its left), the rows share one cell spanning them (`rowspan`, `scope: "rowgroup"`), merged in the order the rows are shown |
 | Row group column (`tab_options(row_group_as_column=True)`) | The first stub column: each group's label is a stub cell spanning its rows (`scope: "rowgroup"`), and the group has no label row |
 | Stubhead label (`tab_stubhead()`) | One head cell spanning the stub columns (blank without one); a list of labels (`tab_stubhead(["A", "B"])`) gives each row stub column its own, with a blank one above a row group column |
@@ -93,6 +94,7 @@ yet, so today `"auto"` always uses gridwell's.
 | `md()` and `html()` labels | The content of the HTML Great Tables makes of them: text with bold, italic, underline, strike-through and code runs, line breaks, superscripts and subscripts in Unicode characters where every character has one (`m²`), images (`<img>`, their `src` copied, never read) and SVG as raw HTML (other markup is dropped and its text kept) |
 | Column alignment | `column_spec[].align` |
 | Column widths | `column_spec[].width` |
+| Table width (`tab_options(table_width=)`) | `config.table_width`, for a length (`600px`, `80%`, `30em`); the default `"auto"` and widths the IR has no equivalent for (`calc(...)`) are left to gridwell |
 | Formatted values | Cell `content`: the content of the HTML Great Tables puts in the cell, read as labels are, so `fmt_*()` output that is HTML (`fmt_markdown()`, `fmt_units()`, `fmt_scientific()`, `fmt_image()`, nanoplots) is drawn as formatted, and other values are their text. |
 | Merged columns (`cols_merge()`) and `text_transform()` | Cells as Great Tables shows them: merged (the columns merged in are hidden) and transformed |
 | Typed values | Cell `typed_value` (below) |
@@ -115,6 +117,9 @@ table shows it:
 - Booleans, and `datetime.date`, `datetime.datetime` (or pandas `Timestamp`) and
   `datetime.time` values are typed; a date or time is written without its time
   zone, as the wall-clock time the table shows. Dates held as strings stay strings.
+- A column's type decides where it has one (a polars `Date` or `Int64`, a pandas
+  `datetime64`); a column of mixed objects is typed by each value. A duration
+  (`timedelta`) stays text.
 
 ## Language and direction
 
