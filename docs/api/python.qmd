@@ -65,8 +65,9 @@ if errors:
 A valid table can still use a feature a format can't express. `table.warnings(format)`
 lists those [warnings](../schema/validation.qmd#warnings) for one format, or every
 format with no argument; it raises like `render` for invalid IR or an unknown format.
-A table of a newer minor IR version is warned for first, and parsing one gives a
-`UserWarning` too.
+A table of a newer minor IR version is warned for first, then what this gridwell leaves
+out of the table ([`IGNORED_VALUE`, `IGNORED_SELECTOR`](../schema/validation.qmd#a-newer-minor-version)),
+and parsing a newer minor version gives a `UserWarning` too.
 
 ```python
 for w in table.warnings("latex"):  # returns list[str]
@@ -148,9 +149,9 @@ html = table.render_html()
 ir_json = gridwell.gt_to_ir(gt)  # the IR itself
 ```
 
-`gt_to_ir()` and `gt_to_dict()` use Great Tables' own converter, `GT.as_ir()`, once
-the installed Great Tables has one, and gridwell's copy until then; pass
-`emitter="upstream"` or `emitter="gridwell"` to choose. See [Great Tables
+`gt_to_ir()` and `gt_to_dict()` use Great Tables' own converter,
+`GT.as_gridwell()`, once the installed Great Tables has one, and gridwell's copy
+until then; pass `emitter="upstream"` or `emitter="gridwell"` to choose. See [Great Tables
 Integration](../guide/integration-great-tables.qmd).
 
 ## Conformance
