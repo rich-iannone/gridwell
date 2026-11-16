@@ -5,10 +5,10 @@
 #' runs, spanners become spanner rows, footnote marks are placed in the cells
 #' they annotate, and `tab_style()` styles become IR styles.
 #'
-#' The converter is moving into gt, as `gt::as_ir()`. With `emitter = "auto"`
-#' it is used when the installed gt has it, and gridwell's own copy otherwise,
-#' or when gt's fails or gives an IR version this gridwell can't read (with a
-#' warning saying why).
+#' The converter is moving into gt, as `gt::as_gridwell()`. With
+#' `emitter = "auto"` it is used when the installed gt has it, and gridwell's
+#' own copy otherwise, or when gt's fails or gives an IR version this gridwell
+#' can't read (with a warning saying why).
 #'
 #' @param gt_obj A `gt_tbl` object from the gt package.
 #' @param emitter Which converter to use: `"auto"` (the default), `"upstream"`
@@ -51,26 +51,26 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
     if (emitter == "gridwell") {
         return(NULL)
     }
-    as_ir <- .gw_upstream_emitter()
-    if (is.null(as_ir)) {
+    as_gridwell <- .gw_upstream_emitter()
+    if (is.null(as_gridwell)) {
         if (emitter == "upstream") {
-            stop("gt ", utils::packageVersion("gt"), " has no `as_ir()`; use ",
+            stop("gt ", utils::packageVersion("gt"), " has no `as_gridwell()`; use ",
                  "`emitter = \"gridwell\"`.", call. = FALSE)
         }
         return(NULL)
     }
     if (emitter == "upstream") {
-        return(.gw_checked_ir(as_ir(gt_obj)))
+        return(.gw_checked_ir(as_gridwell(gt_obj)))
     }
-    tryCatch(.gw_checked_ir(as_ir(gt_obj)), error = function(e) {
+    tryCatch(.gw_checked_ir(as_gridwell(gt_obj)), error = function(e) {
         warning(conditionMessage(e), "; converted with gridwell's own emitter instead",
                 call. = FALSE)
         NULL
     })
 }
 
-# gt's `as_ir()`, or NULL if the installed gt has none.
-.gw_upstream_emitter <- function(pkg = "gt", name = "as_ir") {
+# gt's `as_gridwell()`, or NULL if the installed gt has none.
+.gw_upstream_emitter <- function(pkg = "gt", name = "as_gridwell") {
     if (!requireNamespace(pkg, quietly = TRUE) || !name %in% getNamespaceExports(pkg)) {
         return(NULL)
     }
@@ -78,28 +78,28 @@ gt_to_ir_list <- function(gt_obj, emitter = c("auto", "upstream", "gridwell")) {
     if (is.function(f)) f else NULL
 }
 
-# `list(json, ir)` for what `gt::as_ir()` gave, if it's IR this gridwell reads.
+# `list(json, ir)` for what `gt::as_gridwell()` gave, if it's IR this gridwell reads.
 .gw_checked_ir <- function(json) {
     if (!is.character(json) || length(json) != 1L || is.na(json)) {
-        stop("gt::as_ir() gave ", .gw_show(json), ", not a JSON string", call. = FALSE)
+        stop("gt::as_gridwell() gave ", .gw_show(json), ", not a JSON string", call. = FALSE)
     }
     # parse_json(), not fromJSON(): it never reads a file or URL the string names.
     ir <- tryCatch(
         jsonlite::parse_json(json, simplifyVector = FALSE),
         error = function(e) {
-            stop("gt::as_ir() gave JSON that doesn't parse (", trimws(conditionMessage(e)), ")",
-                 call. = FALSE)
+            stop("gt::as_gridwell() gave JSON that doesn't parse (",
+                 trimws(conditionMessage(e)), ")", call. = FALSE)
         }
     )
     version <- if (is.list(ir)) ir[["ir_version"]]
     if (!is.character(version) || length(version) != 1L ||
         !grepl("^[0-9]+\\.[0-9]+\\z", version, perl = TRUE)) {
-        stop("gt::as_ir() gave an ir_version of ", .gw_show(version), ", not MAJOR.MINOR",
+        stop("gt::as_gridwell() gave an ir_version of ", .gw_show(version), ", not MAJOR.MINOR",
              call. = FALSE)
     }
     major <- sub("^0*([0-9]+)\\..*", "\\1", version)
     if (major != .gw_ir_major) {
-        stop("gt::as_ir() gives IR ", version, ", and this gridwell reads IR ", .gw_ir_major,
+        stop("gt::as_gridwell() gives IR ", version, ", and this gridwell reads IR ", .gw_ir_major,
              ".x (a newer gridwell may read it)", call. = FALSE)
     }
     list(json = json, ir = ir)
