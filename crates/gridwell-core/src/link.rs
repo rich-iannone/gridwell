@@ -3,6 +3,10 @@
 //! `data:`, `file:`, `vbscript:`) could run code or open a local file when someone
 //! follows it in the output.
 
+/// The [`href_problem`] of a link of another scheme: the one problem a newer IR
+/// version may mean a link to have (a scheme it adds).
+pub const OTHER_SCHEME: &str = "its scheme is not http, https or mailto";
+
 /// Why `href` isn't a link gridwell writes, or `None` if it is one: an absolute
 /// `http` or `https` URL with a host, or a `mailto` URL with an address, without
 /// whitespace or control characters (the scheme is matched ignoring case).
@@ -24,7 +28,7 @@ pub fn href_problem(href: &str) -> Option<&'static str> {
     } else if scheme.eq_ignore_ascii_case("mailto") {
         (rest.is_empty()).then_some("it has no address")
     } else {
-        Some("its scheme is not http, https or mailto")
+        Some(OTHER_SCHEME)
     }
 }
 
