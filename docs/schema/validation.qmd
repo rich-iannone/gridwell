@@ -25,7 +25,7 @@ and when errors are serialized.
 | Rule | Description |
 |------|-------------|
 | `COL_COUNT` | Every row (header, data and summary) has exactly `config.table_cols` cell objects; spanned positions hold placeholders |
-| `ROW_COUNT` | `thead` has `config.header_rows` rows; data rows (not summary rows) total `config.body_rows` |
+| `ROW_COUNT` | `thead` has `config.header_rows` rows, and data rows (not summary rows) total `config.body_rows`: each checked when it is given |
 | `COLSPEC_LENGTH` | `column_spec` has `config.table_cols` entries |
 | `STUB_CONTIGUOUS` | The stub is a block at the left: `config.stub_cols` is at most `config.table_cols`, and no cell flagged `is_stub` starts to the right of the stub columns |
 | `STYLE_REFS_VALID` | Every `style_id` refers to a style definition or composition, wherever it appears: header lines, columns, rows, cells, group labels, notes and `styled_text` nodes. A composition's `extends` refers to a definition (not a composition) |
@@ -39,6 +39,7 @@ and when errors are serialized.
 | `INVALID_LANG` | `config.lang` is not a well-formed BCP 47 language tag: subtags of ASCII letters and digits separated by `-` (`fr-CA`, not `fr_CA`), as in `ar`, `zh-Hant-TW`, `es-419` or a private-use `x-…` tag |
 | `INVALID_HREF` | A text run's `href` is not a link gridwell writes: an absolute `http` or `https` URL with a host, or a `mailto` URL with an address, without whitespace or control characters (the scheme matched ignoring case). Other schemes, such as `javascript:`, `data:` and `file:`, could run code or open a local file when the link is followed |
 | `INVALID_TABLE_ID` | `config.id` is not an HTML id: it is empty or has whitespace |
+| `INVALID_TYPED_VALUE` | A cell's `typed_value` isn't in its type's form: a `string` value that isn't a JSON string, or a `duration` value that isn't an ISO 8601 duration string (`"PT1H30M"`) |
 
 ## Span Rules
 
@@ -60,11 +61,13 @@ summary rows. A span never crosses a section.
 Keyword fields are matched ignoring case and surrounding whitespace, and the aliases
 below are accepted. An unrecognized value still parses: it is kept verbatim (and
 round-trips unchanged) and reported as `UNKNOWN_VALUE`, so every bad value is listed
-at once. Known values are written back in their canonical spelling.
+at once. Known values are written back in their canonical spelling. In a table of a
+[newer minor version](#a-newer-minor-version), a value this gridwell doesn't know
+isn't an error: it may be one that version added.
 
 | Field | Allowed values (aliases) |
 |-------|--------------------------|
-| `column_spec[].align`, `text_align` | `left` (`start`), `center` (`centre`), `right` (`end`), `justify`, `char` |
+| `column_spec[].align`, `text_align` | `left`, `center` (`centre`), `right`, `justify`, `char` |
 | `vertical_align` | `top`, `middle`, `bottom`, `baseline`, `super`, `sub` |
 | `row.role` | `column_label`, `spanner_label`, `summary_row` (`summary`), `grand_summary_row` (`grand_summary`) |
 | `cell.scope` | `col`, `colgroup`, `row`, `rowgroup` |
@@ -155,12 +158,13 @@ or a field's path, such as `column_spec[1].width` or `footer.footnotes[0]`.
 [IR_VERSION] ir_version is "2.0", IR 2, and this gridwell reads only IR 1.x (a newer gridwell may read it)
 ```
 
-When the table is of a newer minor version, the errors end with a note: an error may
-be something that version added (a keyword value this gridwell doesn't know is
-`UNKNOWN_VALUE`).
+When the table is of a newer minor version, the errors end with a note. What that
+version may have added (a keyword value, a length unit, a color form or a link
+scheme) isn't an error there, so the errors listed are errors to a gridwell that
+reads it too.
 
 ```text
-(the table is IR 1.3, newer than the IR 1.0 this gridwell reads: an error may be something a newer IR version added)
+(the table is IR 1.3, newer than the IR 1.0 this gridwell reads; what a newer IR version added isn't an error, and is left out)
 ```
 
 ## Warnings
@@ -214,6 +218,32 @@ that version added. It is warned for first, for any format, with the rule id
 
 ```text
 [NEWER_IR_VERSION] the table is IR 1.3, newer than the IR 1.0 this gridwell reads: anything a newer IR version added is left out (a newer gridwell may render it)
+```
+
+A newer version may add keyword values, length units, color forms and link schemes,
+so in its tables a value this gridwell doesn't know isn't an error. It is read as
+unset: an optional field is left out, one with a default takes it, a link's text is
+drawn without the link, and a typed value of an unknown type is left out. A
+conditional style whose selector has an unknown value applies to no row. Each is
+warned for, after the version, with the rule id `IGNORED_VALUE` and the error it
+would be in a table of this version:
+
+```text
+[IGNORED_VALUE] column_spec[0].align is "diagonal", which is not one of: left, center, right, justify, char; the default, left, is used
+```
+
+In a table of IR 1.0 or an older minor, the same value is an error. Some things are
+read the same way in a table of any version, since a newer one may add them:
+
+- A **field** this gridwell doesn't know is ignored, without a warning.
+- A **content node** of a type this gridwell doesn't know is drawn as its `fallback`
+  ([content nodes](index.qmd#content-nodes)), or as nothing, without a warning.
+- A conditional style's **selector** with a field this gridwell doesn't know would
+  narrow the rows it matches in a way this gridwell can't, so the style applies to no
+  row. It is warned for with the rule id `IGNORED_SELECTOR`:
+
+```text
+[IGNORED_SELECTOR] styles.conditionals[0].selector has a field this gridwell doesn't read ("col_parity"); the conditional style applies to no row
 ```
 
 Python and R also warn when they parse such a table (a `UserWarning`, an R
