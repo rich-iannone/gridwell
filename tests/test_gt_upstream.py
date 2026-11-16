@@ -65,6 +65,12 @@ def give_as_gridwell(monkeypatch):
 
 
 @pytest.fixture
+def without_as_gridwell(monkeypatch):
+    """A Great Tables without `as_gridwell()`, even where the installed one has it."""
+    monkeypatch.delattr(GT, "as_gridwell", raising=False)
+
+
+@pytest.fixture
 def no_warnings():
     with warnings.catch_warnings():
         warnings.simplefilter("error")
@@ -85,12 +91,12 @@ def test_an_as_gridwell_that_isnt_a_method_isnt_used(table, ours, monkeypatch, n
     assert gridwell.gt_to_ir(table) == ours
 
 
-def test_auto_uses_gridwells_own_without_a_warning(table, ours, no_warnings):
+def test_auto_uses_gridwells_own_without_a_warning(table, ours, without_as_gridwell, no_warnings):
     assert gridwell.gt_to_ir(table) == ours
     assert gridwell.gt_to_dict(table) == json.loads(ours)
 
 
-def test_upstream_without_as_gridwell_raises(table):
+def test_upstream_without_as_gridwell_raises(table, without_as_gridwell):
     for convert in (gridwell.gt_to_ir, gridwell.gt_to_dict):
         with pytest.raises(RuntimeError, match=r"Great Tables .* has no GT\.as_gridwell\(\)"):
             convert(table, emitter="upstream")
