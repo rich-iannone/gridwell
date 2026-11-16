@@ -2,6 +2,7 @@ pub mod cell;
 pub mod config;
 pub mod content;
 pub mod keywords;
+mod readable;
 pub mod span;
 pub mod style;
 pub mod validation;
@@ -10,16 +11,18 @@ pub mod version;
 pub mod visibility;
 
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 use thiserror::Error;
 
 pub use cell::{Cell, Row, RowGroup, TableBody, TableHead};
 pub use config::Config;
-pub use content::ContentNode;
+pub use content::{ContentNode, UnknownNode};
 pub use keywords::{
     BorderStyle, CellScope, FontStyle, FontWeight, HAlign, Keyword, Overflow, PageBreakMode,
     RowParity, RowRole, SelectorScope, SummaryPlacement, TextDecoration, TextDirection,
     TextOverflow, TextTransform, VAlign, ValueType, WhiteSpace, WordBreak,
 };
+pub use readable::{Ignored, Readable};
 pub use span::{resolve_slots, vmerge_layout, MergeCell, Slot, VMerge};
 pub use style::{StyleDef, StylePalette};
 pub use validation::{
@@ -27,6 +30,14 @@ pub use validation::{
 };
 pub use version::{IrVersion, IR_VERSION};
 pub use visibility::ColumnVisibility;
+
+/// The JSON Schema (draft 2020-12) of IR [`IR_VERSION`], as an emitter should write
+/// it (`schema/ir-1.0.schema.json`, also published at its `$id`). It accepts every
+/// IR 1.0 table this gridwell accepts, as [`Table::to_json`] writes it, and every
+/// table it accepts parses (a table of a newer minor version may hold values it
+/// doesn't list). What it can't express, such as whether a style id is defined or
+/// whether the spans fit, [`Table::validate`] checks.
+pub const JSON_SCHEMA: &str = include_str!("../schema/ir-1.0.schema.json");
 
 /// Parse error for IR JSON.
 #[derive(Debug, Error)]
@@ -49,6 +60,7 @@ pub enum ParseError {
 pub struct Table {
     pub ir_version: String,
     pub config: Config,
+    #[serde(default)]
     pub styles: StylePalette,
     #[serde(default)]
     pub header: Option<Header>,
@@ -92,10 +104,63 @@ impl Table {
     }
 
     /// The table as a [`ValidatedTable`] if it passes validation, otherwise every
-    /// error found.
+    /// error found. It holds the table as this gridwell reads it
+    /// ([`readable`](Self::readable)).
     pub fn validated(&self) -> Result<ValidatedTable<'_>, InvalidTable> {
         self.ensure_valid()?;
-        Ok(ValidatedTable { table: self })
+        let Readable { table, ignored } = self.readable();
+        Ok(ValidatedTable { table, ignored })
+    }
+
+    /// Every content list of the table: header lines, cells, group labels and
+    /// notes, in document order.
+    pub fn contents(&self) -> impl Iterator<Item = &[ContentNode]> {
+        fn cells(rows: &[Row]) -> impl Iterator<Item = &[ContentNode]> {
+            rows.iter()
+                .flat_map(|r| r.cells.iter().map(|c| &c.content[..]))
+        }
+        let header = self.header.iter().flat_map(|h| {
+            let lines = h.title.iter().chain(&h.subtitle).chain(&h.extra_lines);
+            lines.map(|l| &l.content[..])
+        });
+        let head = cells(&self.table.thead.rows);
+        let body = self.table.tbody.iter().flat_map(move |g| {
+            let label = g.label.iter().map(|l| &l.content[..]);
+            label.chain(cells(&g.rows)).chain(cells(&g.summary_rows))
+        });
+        let footer = self.footer.iter().flat_map(|f| {
+            let notes = f.footnotes.iter().map(|n| &n.content[..]);
+            notes.chain(f.source_notes.iter().map(|n| &n.content[..]))
+        });
+        header.chain(head).chain(body).chain(footer)
+    }
+
+    /// [`contents`](Self::contents), to change.
+    pub fn contents_mut(&mut self) -> impl Iterator<Item = &mut Vec<ContentNode>> {
+        fn cells(rows: &mut [Row]) -> impl Iterator<Item = &mut Vec<ContentNode>> {
+            rows.iter_mut()
+                .flat_map(|r| r.cells.iter_mut().map(|c| &mut c.content))
+        }
+        let header = self.header.iter_mut().flat_map(|h| {
+            let lines = h
+                .title
+                .iter_mut()
+                .chain(&mut h.subtitle)
+                .chain(&mut h.extra_lines);
+            lines.map(|l| &mut l.content)
+        });
+        let head = cells(&mut self.table.thead.rows);
+        let body = self.table.tbody.iter_mut().flat_map(|g| {
+            let label = g.label.iter_mut().map(|l| &mut l.content);
+            label
+                .chain(cells(&mut g.rows))
+                .chain(cells(&mut g.summary_rows))
+        });
+        let footer = self.footer.iter_mut().flat_map(|f| {
+            let notes = f.footnotes.iter_mut().map(|n| &mut n.content);
+            notes.chain(f.source_notes.iter_mut().map(|n| &mut n.content))
+        });
+        header.chain(head).chain(body).chain(footer)
     }
 
     /// `Ok(())` if the table passes validation, otherwise every error found.
@@ -129,19 +194,27 @@ fn unknown_major(json: &str) -> Option<ParseError> {
     Some(ParseError::UnknownMajorVersion { version, message })
 }
 
-/// A table that has passed validation (with the default [`Limits`]).
+/// A table that has passed validation (with the default [`Limits`]), as this
+/// gridwell reads it ([`Table::readable`]).
 ///
 /// The only way to get one is [`Table::validated`], so an API that takes a
-/// `ValidatedTable` cannot be handed malformed IR. Derefs to the [`Table`].
-#[derive(Debug, Clone, Copy)]
+/// `ValidatedTable` cannot be handed malformed IR, nor what this gridwell doesn't
+/// read. Derefs to the [`Table`].
+#[derive(Debug, Clone)]
 pub struct ValidatedTable<'a> {
-    table: &'a Table,
+    table: Cow<'a, Table>,
+    ignored: Vec<Ignored>,
 }
 
-impl<'a> ValidatedTable<'a> {
-    /// The underlying table.
-    pub fn table(&self) -> &'a Table {
-        self.table
+impl ValidatedTable<'_> {
+    /// The table, without what this gridwell doesn't read.
+    pub fn table(&self) -> &Table {
+        &self.table
+    }
+
+    /// What was left out of it, which a warning should list.
+    pub fn ignored(&self) -> &[Ignored] {
+        &self.ignored
     }
 }
 
@@ -149,7 +222,7 @@ impl std::ops::Deref for ValidatedTable<'_> {
     type Target = Table;
 
     fn deref(&self) -> &Table {
-        self.table
+        &self.table
     }
 }
 
