@@ -206,3 +206,42 @@ fn another_major_version_fails_to_parse_or_validate() {
     );
     unsafe { gridwell_free_error(err) };
 }
+
+#[test]
+fn a_newline_a_warning_quotes_from_the_ir_keeps_it_on_one_line() {
+    let mut ir: serde_json::Value =
+        serde_json::from_str(&fixture("minimal/minimal_1x1.json")).unwrap();
+    ir["ir_version"] = serde_json::json!("1.3");
+    ir["column_spec"][0]["align"] = serde_json::json!("in\nside");
+    ir["styles"]["conditionals"] = serde_json::json!([
+        { "id": "c", "selector": { "col\nparity": "even" }, "style": {} }
+    ]);
+    let json = ir.to_string();
+    // A message of the Rust API's has the newline (or the test would be vacuous).
+    let found =
+        gridwell_render::warnings(&gridwell_ir::Table::from_json(&json).unwrap(), Some("html"))
+            .unwrap();
+    assert!(
+        found.iter().any(|w| w.to_string().contains('\n')),
+        "{found:?}"
+    );
+    let want: Vec<String> = found
+        .iter()
+        .map(|w| w.to_string().replace('\n', "\\n"))
+        .collect();
+    let table = parse(&json);
+    let text = warnings(table, Some("html")).unwrap();
+    assert_eq!(text, want.join("\n"));
+    let lines: Vec<&str> = text.split('\n').collect();
+    assert_eq!(lines.len(), 3, "{text}");
+    assert!(lines[0].starts_with("[NEWER_IR_VERSION] "), "{text}");
+    assert!(
+        lines[1].starts_with("[IGNORED_VALUE] ") && lines[1].contains("\"in\\nside\""),
+        "{text}"
+    );
+    assert!(
+        lines[2].starts_with("[IGNORED_SELECTOR] ") && lines[2].contains("col\\nparity"),
+        "{text}"
+    );
+    unsafe { gridwell_free_table(table) };
+}
