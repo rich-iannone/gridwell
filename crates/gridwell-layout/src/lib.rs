@@ -695,16 +695,30 @@ fn line<'a>(
 }
 
 /// `content` with raw HTML lowered and `text_transform` applied (as `opts`
-/// says), `style` being the cell's or line's.
+/// says), `style` being the cell's or line's. Nodes of a newer IR version's types
+/// are dropped: they are drawn as nothing, so no writer sees them, and content
+/// with one reads as the content without it (a text-only cell stays text-only,
+/// an image cell stays a picture).
 fn transformed<'a>(
     table: &Table,
     opts: ResolveOptions,
     content: &'a [ContentNode],
     style: &ResolvedStyle,
 ) -> Cow<'a, [ContentNode]> {
-    let content = match opts.lower_html {
-        true => html::lower(content),
+    let content = match content.iter().any(|n| matches!(n, ContentNode::Unknown(_))) {
+        true => Cow::Owned(
+            content
+                .iter()
+                .filter(|n| !matches!(n, ContentNode::Unknown(_)))
+                .cloned()
+                .collect(),
+        ),
         false => Cow::Borrowed(content),
+    };
+    let content = match (opts.lower_html, content) {
+        (true, Cow::Borrowed(c)) => html::lower(c),
+        (true, Cow::Owned(c)) => Cow::Owned(html::lower(&c).into_owned()),
+        (false, c) => c,
     };
     if !opts.transform_text {
         return content;
