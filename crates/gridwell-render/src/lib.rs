@@ -50,7 +50,7 @@ mod formats;
 
 use std::path::{Path, PathBuf};
 
-use gridwell_ir::{InvalidTable, Table, ValidatedTable};
+use gridwell_ir::{Ignored, InvalidTable, Table, ValidatedTable};
 use serde_json::Value;
 use thiserror::Error;
 
@@ -215,6 +215,9 @@ pub enum Warning {
         /// The table's `ir_version`.
         version: String,
     },
+    /// Something in the table this gridwell doesn't read, left out of the output
+    /// ([`Table::readable`]).
+    Ignored(Ignored),
     /// A feature a format can't express.
     Unsupported(UnsupportedFeature),
 }
@@ -227,6 +230,7 @@ impl Warning {
     pub fn rule(&self) -> &'static str {
         match self {
             Warning::NewerIrVersion { .. } => Self::NEWER_IR_VERSION,
+            Warning::Ignored(i) => i.rule(),
             Warning::Unsupported(_) => UnsupportedFeature::RULE,
         }
     }
@@ -235,14 +239,15 @@ impl Warning {
     pub fn as_unsupported(&self) -> Option<&UnsupportedFeature> {
         match self {
             Warning::Unsupported(u) => Some(u),
-            Warning::NewerIrVersion { .. } => None,
+            Warning::NewerIrVersion { .. } | Warning::Ignored(_) => None,
         }
     }
 }
 
 impl std::fmt::Display for Warning {
     /// `[NEWER_IR_VERSION] the table is IR 1.2, newer than the IR 1.0 this
-    /// gridwell reads: …`, or an [`UnsupportedFeature`]'s message.
+    /// gridwell reads: …`, or an [`Ignored`]'s or [`UnsupportedFeature`]'s
+    /// message.
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Warning::NewerIrVersion { version } => write!(
@@ -253,6 +258,7 @@ impl std::fmt::Display for Warning {
                 Self::NEWER_IR_VERSION,
                 gridwell_ir::IR_VERSION
             ),
+            Warning::Ignored(i) => i.fmt(f),
             Warning::Unsupported(u) => u.fmt(f),
         }
     }
@@ -301,9 +307,10 @@ impl std::fmt::Display for UnsupportedFeature {
 }
 
 /// Validate `table`, then list what its output will lack: first that the table
-/// is a newer minor IR version, if it is; then the features it uses that
-/// `format` can't express (every format's, in registry order, for `None`). A
-/// valid table with warnings still renders.
+/// is a newer minor IR version, if it is; then what this gridwell doesn't read
+/// in it, in document order; then the features it uses that `format` can't
+/// express (every format's, in registry order, for `None`). A valid table with
+/// warnings still renders.
 pub fn warnings(table: &Table, format: Option<&str>) -> Result<Vec<Warning>, RenderError> {
     let writers = match format {
         Some(name) => vec![find(name)?],
@@ -313,8 +320,10 @@ pub fn warnings(table: &Table, format: Option<&str>) -> Result<Vec<Warning>, Ren
     let version = table.is_newer_minor().then(|| Warning::NewerIrVersion {
         version: table.ir_version.clone(),
     });
+    let ignored = validated.ignored().iter().cloned().map(Warning::Ignored);
     Ok(version
         .into_iter()
+        .chain(ignored)
         .chain(writers.into_iter().flat_map(|w| {
             w.unsupported(&validated).into_iter().map(move |u| {
                 Warning::Unsupported(UnsupportedFeature {
