@@ -54,11 +54,15 @@ pub enum ValidationRule {
     InvalidHref,
     /// `config.id` is not an HTML id: it is empty or has whitespace.
     InvalidTableId,
+    /// A cell's typed value isn't in its type's form: a `string` value that isn't a
+    /// JSON string, or a `duration` value that isn't an ISO 8601 duration string
+    /// (`"PT1H30M"`).
+    InvalidTypedValue,
 }
 
 impl ValidationRule {
     /// Every rule, in the order declared.
-    pub const ALL: [ValidationRule; 24] = [
+    pub const ALL: [ValidationRule; 25] = [
         ValidationRule::IrVersion,
         ValidationRule::ColCount,
         ValidationRule::RowCount,
@@ -83,6 +87,7 @@ impl ValidationRule {
         ValidationRule::DuplicateId,
         ValidationRule::InvalidHref,
         ValidationRule::InvalidTableId,
+        ValidationRule::InvalidTypedValue,
     ];
 
     /// The rule's documented identifier, e.g. `SPAN_OVERFLOW_RIGHT` (the same string
@@ -113,6 +118,7 @@ impl ValidationRule {
             ValidationRule::DuplicateId => "DUPLICATE_ID",
             ValidationRule::InvalidHref => "INVALID_HREF",
             ValidationRule::InvalidTableId => "INVALID_TABLE_ID",
+            ValidationRule::InvalidTypedValue => "INVALID_TYPED_VALUE",
         }
     }
 }
@@ -130,8 +136,9 @@ impl fmt::Display for ValidationRule {
 pub struct InvalidTable {
     pub errors: Vec<ValidationError>,
     /// The table's `ir_version` when it is a newer minor version than this
-    /// gridwell reads ([`IrVersion::is_newer_minor`](crate::IrVersion::is_newer_minor)): an error may be something
-    /// the newer minors added.
+    /// gridwell reads ([`IrVersion::is_newer_minor`](crate::IrVersion::is_newer_minor)). What the newer
+    /// minors added isn't an error there ([`Table::readable`](crate::Table::readable) leaves it out), so
+    /// the errors are errors to a gridwell that reads that version too.
     pub newer_ir_version: Option<String>,
 }
 
@@ -145,7 +152,7 @@ impl InvalidTable {
         self.newer_ir_version.as_ref().map(|version| {
             format!(
                 "(the table is IR {version}, newer than the IR {IR_VERSION} this gridwell \
-                 reads: an error may be something a newer IR version added)"
+                 reads; what a newer IR version added isn't an error, and is left out)"
             )
         })
     }
@@ -249,7 +256,11 @@ pub fn validate_with_limits(table: &Table, limits: &Limits) -> Vec<ValidationErr
     validate_stub_contiguous(table, &mut errors);
     validate_spans(table, &mut errors);
     validate_placeholder_content(table, &mut errors);
-    validate_keywords(table, &mut errors);
+    // A newer minor IR version may add keyword values: they aren't errors there,
+    // and `Table::readable` leaves them out.
+    if !table.is_newer_minor() {
+        validate_keywords(table, &mut errors);
+    }
     crate::value_checks::validate_values(table, &mut errors);
 
     errors
@@ -344,38 +355,39 @@ fn validate_colspec_length(table: &Table, errors: &mut Vec<ValidationError>) {
     }
 }
 
-/// ROW_COUNT: thead row count == config.header_rows
+/// ROW_COUNT: thead row count == config.header_rows, when given
 fn validate_header_row_count(table: &Table, errors: &mut Vec<ValidationError>) {
-    let actual = table.table.thead.rows.len() as u32;
-    if actual != table.config.header_rows {
+    let Some(expected) = table.config.header_rows else {
+        return;
+    };
+    let actual = table.table.thead.rows.len() as u64;
+    if actual != u64::from(expected) {
         errors.push(ValidationError {
             rule: ValidationRule::RowCount,
             section: "thead".to_string(),
             row_group: None,
             row: None,
             col: None,
-            message: format!(
-                "thead has {} rows but config.header_rows is {}",
-                actual, table.config.header_rows
-            ),
+            message: format!("thead has {actual} rows but config.header_rows is {expected}"),
         });
     }
 }
 
-/// ROW_COUNT: total body data rows == config.body_rows (summary rows not counted)
+/// ROW_COUNT: total body data rows == config.body_rows (summary rows not counted),
+/// when given
 fn validate_body_row_count(table: &Table, errors: &mut Vec<ValidationError>) {
-    let actual: u32 = table.table.tbody.iter().map(|g| g.rows.len() as u32).sum();
-    if actual != table.config.body_rows {
+    let Some(expected) = table.config.body_rows else {
+        return;
+    };
+    let actual: u64 = table.table.tbody.iter().map(|g| g.rows.len() as u64).sum();
+    if actual != u64::from(expected) {
         errors.push(ValidationError {
             rule: ValidationRule::RowCount,
             section: "tbody".to_string(),
             row_group: None,
             row: None,
             col: None,
-            message: format!(
-                "tbody has {} data rows but config.body_rows is {}",
-                actual, table.config.body_rows
-            ),
+            message: format!("tbody has {actual} data rows but config.body_rows is {expected}"),
         });
     }
 }
@@ -705,7 +717,8 @@ fn validate_style_refs(table: &Table, errors: &mut Vec<ValidationError>) {
                 ),
             ));
         }
-        for node in part.content {
+        // A fallback's nodes too: they're drawn in place of their node.
+        ContentNode::walk(part.content, &mut |node| {
             if let ContentNode::StyledText {
                 style_id: Some(id), ..
             } = node
@@ -721,7 +734,7 @@ fn validate_style_refs(table: &Table, errors: &mut Vec<ValidationError>) {
                     ));
                 }
             }
-        }
+        });
     });
 }
 
@@ -735,7 +748,7 @@ fn validate_footnote_refs(table: &Table, errors: &mut Vec<ValidationError>) {
         .unwrap_or_default();
 
     for_each_part(table, |part| {
-        for node in part.content {
+        ContentNode::walk(part.content, &mut |node| {
             if let ContentNode::FootnoteMark { reference, .. } = node {
                 if !footnote_ids.contains(reference.as_str()) {
                     errors.push(part.error(
@@ -748,7 +761,7 @@ fn validate_footnote_refs(table: &Table, errors: &mut Vec<ValidationError>) {
                     ));
                 }
             }
-        }
+        });
     });
 }
 
@@ -957,6 +970,22 @@ fn validate_placeholder_content(table: &Table, errors: &mut Vec<ValidationError>
 }
 
 /// UNKNOWN_VALUE: every keyword field holds a known value.
+/// Why `value` isn't one of its keyword's values, as a message naming `field`;
+/// `None` if it is one.
+pub(crate) fn keyword_problem<K: crate::keywords::Keyword>(
+    value: &K,
+    field: impl FnOnce() -> String,
+) -> Option<String> {
+    (!value.is_known()).then(|| {
+        format!(
+            "{} is \"{}\", which is not one of: {}",
+            field(),
+            value.as_str(),
+            K::ALLOWED.join(", ")
+        )
+    })
+}
+
 fn validate_keywords(table: &Table, errors: &mut Vec<ValidationError>) {
     use crate::cell::Row;
     use crate::keywords::Keyword;
@@ -971,18 +1000,14 @@ fn validate_keywords(table: &Table, errors: &mut Vec<ValidationError>) {
         col: Option<u32>,
         errors: &mut Vec<ValidationError>,
     ) {
-        if let Some(v) = value.filter(|v| !v.is_known()) {
+        if let Some(message) = value.and_then(|v| keyword_problem(v, || field.to_string())) {
             errors.push(ValidationError {
                 rule: ValidationRule::UnknownValue,
                 section: section.to_string(),
                 row_group,
                 row,
                 col,
-                message: format!(
-                    "{field} is \"{}\", which is not one of: {}",
-                    v.as_str(),
-                    K::ALLOWED.join(", ")
-                ),
+                message,
             });
         }
     }
@@ -1299,6 +1324,7 @@ mod tests {
             ValidationRule::DuplicateId => 21,
             ValidationRule::InvalidHref => 22,
             ValidationRule::InvalidTableId => 23,
+            ValidationRule::InvalidTypedValue => 24,
         };
         for (i, rule) in ValidationRule::ALL.into_iter().enumerate() {
             assert_eq!(position(rule), i, "{rule}");
