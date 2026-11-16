@@ -35,7 +35,7 @@ structure, content, and styling.
 |-------|------|---------|-------------|
 | `ir_version` | string | required | The IR version, `"1.0"` ([below](#versions)) |
 | `config` | [Config](config.qmd) | required | Table-level configuration |
-| `styles` | [StylePalette](styles.qmd#the-palette) | required | The style palette (`{}` for none) |
+| `styles` | [StylePalette](styles.qmd#the-palette) | `{"defs": {}, "compositions": {}, "conditionals": []}` | The style palette: left out, or `{}`, for none |
 | `header` | [Header](header.qmd)? | `null` | Title, subtitle and extra header lines |
 | `column_spec` | array of [ColumnSpec](columns.qmd) | required | One entry per column |
 | `table` | [TableBlock](table-data.qmd) | required | The column labels and the body |
@@ -55,19 +55,91 @@ This gridwell reads IR 1:
 - **IR 1.0** is read as it is.
 - **A newer minor version** (`"1.3"`) is read and rendered, with a
   [`NEWER_IR_VERSION` warning](validation.qmd#a-newer-minor-version): what that
-  version added is left out. A field this gridwell doesn't know is ignored; a keyword
-  value it doesn't know is an `UNKNOWN_VALUE` error, whose report notes the table's
-  version.
+  version added is left out. A field this gridwell doesn't know is ignored, and a
+  keyword value, length unit, color form or link scheme it doesn't know is read as
+  unset, with an `IGNORED_VALUE` warning.
 - **Another major version** (`"2.0"`, `"0.9"`) is refused: an
   [`IR_VERSION`](validation.qmd#version) validation error, or, when the JSON doesn't
   parse as IR 1, a parse error saying the version is why.
 - **Anything else** (`"1"`, `"1.0.0"`, `" 1.0"`) is an `IR_VERSION` error.
 
 ::: {.callout-note}
-IR 1.0 is a **release candidate**. Until gridwell's first release, and the gt and
-Great Tables emitters that write it, it may still change in a way that IR written
-now doesn't survive. After that it is frozen: IR 1 only grows, by minor versions.
+IR 1.0 is a **release candidate**. It is frozen once the gt and Great Tables
+emitters write it, not with gridwell's first release: until then it may still change
+in a way that IR written now doesn't survive. Once it is frozen, IR 1 only grows, by
+minor versions.
 :::
+
+### IR versions
+
+| Version | Status | Schema | What it adds |
+|---------|--------|--------|--------------|
+| 1.0 | release candidate | [`ir-1.0.schema.json`](ir-1.0.schema.json) | The first version |
+
+### What a minor version may change
+
+A minor version only adds, so that a gridwell that reads IR 1.0 reads every 1.x
+table, and draws it without what is new:
+
+- **New fields**, each optional, with a default that does what the earlier version
+  did without it. A table written before the field existed reads the same, and an
+  older gridwell ignores the field.
+- **New content node types**, for content whose loss leaves the rest readable. An
+  older gridwell draws a node it doesn't know as the node's `fallback`, so a producer
+  can say what to draw in its place ([below](#content-nodes)), or as nothing.
+- **New keyword values, length units, color forms and link schemes.** An older
+  gridwell reads a value it doesn't know, in a table of the newer version, as unset:
+  the field is left out or takes its default, and a link's text is drawn without it.
+- **New selector fields**, which narrow the rows a conditional style matches. An
+  older gridwell applies a style whose selector has a field it doesn't know to no
+  row, since it can't tell which rows the field leaves out.
+
+An older gridwell warns of each value and selector it leaves out
+([`IGNORED_VALUE`, `IGNORED_SELECTOR`](validation.qmd#a-newer-minor-version)).
+
+A minor version never removes or renames a field, makes an optional one required
+or a required one optional, changes a default, or changes what a value already means. Nor does it relax a
+validation rule: a table that breaks one is invalid to every gridwell that reads IR 1.
+A table that uses a newer minor's additions says so in its `ir_version`, since an
+older gridwell reads a new value as an error in a table of its own version. One that
+uses none of them can keep the earlier version.
+
+Two changes would relax a rule, so they are left to IR 2, if they are made at all: a
+span from a group's data rows into its summary rows (as gt's HTML draws a group
+column's cell over them), and a composition that extends another composition.
+
+## JSON Schema
+
+The IR has a [JSON Schema](https://json-schema.org/) (draft 2020-12), for editors and
+for validators in other languages:
+[`ir-1.0.schema.json`](ir-1.0.schema.json), at
+`https://rich-iannone.github.io/gridwell/schema/ir-1.0.schema.json`.
+`gridwell schema` prints it too. A table can name it in a `"$schema"` field, which
+gridwell ignores like any field it doesn't know.
+
+The schema describes the IR as an emitter should write it. Every table gridwell
+accepts fits it, as gridwell writes it back, and every table that fits it parses. It
+differs from gridwell in three ways:
+
+- **Keywords** are listed in their canonical spelling (`"center"`, `"line-through"`).
+  gridwell also reads them in any case, with spaces around them, and reads their
+  aliases (`"centre"`, `"strikethrough"`).
+- **What depends on the rest of the table** is left to
+  [validation](validation.qmd): whether a style id is defined, whether the spans
+  fit, whether `config` matches the rows and columns, and the other structural
+  rules. So are color names and the numbers in `rgb()` and `hsl()`: the schema
+  checks a color's form.
+- **Fields it doesn't list** are allowed, as gridwell ignores them, and so are
+  content nodes of types it doesn't list. A table of a later IR 1.x version may also
+  hold keyword values and forms the 1.0 schema doesn't list, which gridwell reads
+  as unset: check it against its own version's schema.
+
+One difference it can't express: JSON Schema counts `1.0` and `1e2` as integers, and
+gridwell reads a count (`table_cols`, `colspan`, …) only when it is written as a whole
+number (`1`, `100`).
+
+Each later minor version gets a schema of its own, which accepts everything the
+earlier ones do.
 
 ## Content Nodes
 
@@ -87,10 +159,24 @@ Cell content is an array of content nodes, each an object whose `type` says whic
 Every field is required except those that may be `null`, and `href`, which is
 left out of a run that isn't a link. Only `http`, `https` and `mailto` URLs are
 links ([`INVALID_HREF`](validation.qmd#structural-rules)), since a `javascript:` or
-`file:` one could run code or open a local file when it is followed. A node of a `type` this
-gridwell doesn't know parses, so a newer minor version can add node types: it is
-drawn as nothing, and written back with all its fields when the IR is serialized
-again.
+`file:` one could run code or open a local file when it is followed.
+
+A node of a `type` this gridwell doesn't know parses, so a newer minor version can
+add node types. It may have a `fallback`, an array of content nodes drawn in its
+place by a gridwell that doesn't know its type: a producer writing a node of a newer
+type can give, say, the text it stands for. Without one (or with `null`), the node is
+drawn as nothing. A fallback is validated like any content, and may itself hold
+nodes of unknown types, drawn as their fallbacks. The node is written back with all
+its fields when the IR is serialized again.
+
+```json
+{
+  "content": [
+    { "type": "sparkline", "values": [3, 5, 2],
+      "fallback": [{ "type": "text", "value": "3, 5, 2" }] }
+  ]
+}
+```
 
 ## Raw markup
 
