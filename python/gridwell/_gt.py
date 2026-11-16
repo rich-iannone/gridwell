@@ -1,6 +1,6 @@
 """Convert a Great Tables `GT` to gridwell IR.
 
-The emitter is moving into Great Tables, as `GT.as_ir()`. When the installed Great
+The emitter is moving into Great Tables, as `GT.as_gridwell()`. When the installed Great
 Tables has it, it is used; otherwise gridwell's own copy (`_gt_emitter`) is.
 """
 
@@ -29,7 +29,7 @@ def gt_to_ir(gt_obj: GT, emitter: Emitter = "auto") -> str:
     gt_obj : great_tables.GT
         A Great Tables GT object.
     emitter : {"auto", "upstream", "gridwell"}
-        Which converter to use. "auto" uses Great Tables' own (`GT.as_ir()`) when the
+        Which converter to use. "auto" uses Great Tables' own (`GT.as_gridwell()`) when the
         installed Great Tables has one, and gridwell's otherwise, or when Great
         Tables' fails or gives an IR version this gridwell can't read (with a
         warning saying why). "upstream" uses Great Tables' and raises if it can't;
@@ -68,8 +68,8 @@ def gt_to_dict(gt_obj: GT, emitter: Emitter = "auto") -> dict[str, Any]:
 
 
 def has_upstream(gt_obj: GT) -> bool:
-    """Whether Great Tables converts this table itself (`GT.as_ir()`)."""
-    return callable(getattr(type(gt_obj), "as_ir", None))
+    """Whether Great Tables converts this table itself (`GT.as_gridwell()`)."""
+    return callable(getattr(type(gt_obj), "as_gridwell", None))
 
 
 def _upstream(gt_obj: GT, emitter: str) -> tuple[str, dict[str, Any]] | None:
@@ -83,11 +83,11 @@ def _upstream(gt_obj: GT, emitter: str) -> tuple[str, dict[str, Any]] | None:
     if not has_upstream(gt_obj):
         if emitter == "upstream":
             raise RuntimeError(
-                f"Great Tables {_version()} has no GT.as_ir(); use emitter='gridwell'"
+                f"Great Tables {_version()} has no GT.as_gridwell(); use emitter='gridwell'"
             )
         return None
     try:
-        text = gt_obj.as_ir()  # type: ignore[attr-defined]
+        text = gt_obj.as_gridwell()  # type: ignore[attr-defined]
         return text, _checked(text)
     except Exception as e:
         if emitter == "upstream":
@@ -101,20 +101,20 @@ def _upstream(gt_obj: GT, emitter: str) -> tuple[str, dict[str, Any]] | None:
 
 
 def _checked(text: Any) -> dict[str, Any]:
-    """The IR `GT.as_ir()` gave, parsed, if it's IR this gridwell reads."""
+    """The IR `GT.as_gridwell()` gave, parsed, if it's IR this gridwell reads."""
     if not isinstance(text, str):
-        raise ValueError(f"GT.as_ir() gave a {type(text).__name__}, not a JSON string")
+        raise ValueError(f"GT.as_gridwell() gave a {type(text).__name__}, not a JSON string")
     try:
         ir = json.loads(text)
     except ValueError as e:
-        raise ValueError(f"GT.as_ir() gave JSON that doesn't parse ({e})") from None
+        raise ValueError(f"GT.as_gridwell() gave JSON that doesn't parse ({e})") from None
     version = ir.get("ir_version") if isinstance(ir, dict) else None
     found = re.fullmatch(r"([0-9]+)\.[0-9]+", version) if isinstance(version, str) else None
     if found is None:
-        raise ValueError(f"GT.as_ir() gave an ir_version of {version!r}, not MAJOR.MINOR")
+        raise ValueError(f"GT.as_gridwell() gave an ir_version of {version!r}, not MAJOR.MINOR")
     if int(found[1]) != IR_MAJOR:
         raise ValueError(
-            f"GT.as_ir() gives IR {version}, and this gridwell reads IR {IR_MAJOR}.x "
+            f"GT.as_gridwell() gives IR {version}, and this gridwell reads IR {IR_MAJOR}.x "
             "(a newer gridwell may read it)"
         )
     return ir
