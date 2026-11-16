@@ -234,8 +234,10 @@ you need.
 gridwell's IR is a JSON description of a finished table: its cells' text, already
 formatted, with the table's spans, styles, title and notes. A tool that writes it gets
 every format gridwell has. The [IR schema](https://rich-iannone.github.io/gridwell/schema/)
-describes it, and the [conformance kit](conformance/README.md) checks an emitter's IR
-against the tables it should make.
+describes it, with a [JSON Schema](https://rich-iannone.github.io/gridwell/schema/ir-1.0.schema.json)
+(`gridwell schema` prints it) to check IR against in any language, and the
+[conformance kit](conformance/README.md) checks an emitter's IR against the tables it
+should make.
 
 ## Formats
 
