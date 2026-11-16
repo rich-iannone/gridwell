@@ -6,6 +6,7 @@ use crate::keywords::{CellScope, RowRole, SummaryPlacement, ValueType};
 /// A table cell.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Cell {
+    #[serde(default)]
     pub content: Vec<ContentNode>,
     #[serde(default)]
     pub typed_value: Option<TypedValue>,
