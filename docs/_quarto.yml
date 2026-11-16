@@ -1,6 +1,10 @@
 project:
   type: website
   output-dir: _site
+  # The IR's JSON Schema, served at its `$id` (a copy of
+  # crates/gridwell-ir/schema/; xtask/tests/schema.rs keeps them the same).
+  resources:
+    - schema/*.schema.json
 
 website:
   title: "Gridwell"
