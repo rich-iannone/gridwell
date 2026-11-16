@@ -56,17 +56,17 @@ ir_list <- gt_to_ir_list(tbl)
 
 ### Which converter
 
-The converter is moving into gt, as `gt::as_ir()`, since it reads gt's internals and
-gt can keep it in step with them. Until every gt has it, gridwell keeps its own copy.
-`emitter` picks one:
+The converter is moving into gt, as `gt::as_gridwell()`, since it reads gt's
+internals and gt can keep it in step with them. Until every gt has it, gridwell keeps
+its own copy. `emitter` picks one:
 
-- `"auto"` (the default): gt's when the installed gt has `as_ir()`, and gridwell's
-  otherwise. If gt's fails, or gives an IR major version this gridwell can't read,
+- `"auto"` (the default): gt's when the installed gt has `as_gridwell()`, and
+  gridwell's otherwise. If gt's fails, or gives an IR major version this gridwell can't read,
   gridwell's is used with a warning saying why.
 - `"upstream"`: gt's, with an error if there is none or it can't be used.
 - `"gridwell"`: gridwell's.
 
-No released gt has `as_ir()` yet, so today `"auto"` always uses gridwell's.
+No released gt has `as_gridwell()` yet, so today `"auto"` always uses gridwell's.
 
 ## What Gets Converted
 
