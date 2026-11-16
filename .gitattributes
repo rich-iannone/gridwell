@@ -7,3 +7,5 @@ docs/guide/feature-matrix.qmd text eol=lf
 *.qmd text eol=lf
 *.md text eol=lf
 docs/examples/*.json text eol=lf
+# The IR compatibility corpus: its MANIFEST hashes the files with LF line ends.
+compat/** text eol=lf
