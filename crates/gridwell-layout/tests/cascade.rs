@@ -57,10 +57,7 @@ fn each_layer_overrides_only_what_it_sets() {
         )
         .conditional(
             "cond",
-            ConditionalSelector {
-                row_parity: None,
-                scope: None,
-            },
+            ConditionalSelector::default(),
             StyleDef {
                 color: Some("#000002".into()),
                 text_transform: Some("uppercase".into()),
@@ -219,6 +216,7 @@ fn conditionals_match_scope_and_css_parity() {
             ConditionalSelector {
                 row_parity: parity.map(Into::into),
                 scope: scope.map(Into::into),
+                ..Default::default()
             },
             StyleDef {
                 color: Some(color.into()),
@@ -279,10 +277,7 @@ fn conditionals_match_scope_and_css_parity() {
 
 #[test]
 fn later_conditionals_override_earlier_ones() {
-    let sel = || ConditionalSelector {
-        row_parity: None,
-        scope: None,
-    };
+    let sel = ConditionalSelector::default;
     let t = TableBuilder::new(1)
         .conditional(
             "a",
