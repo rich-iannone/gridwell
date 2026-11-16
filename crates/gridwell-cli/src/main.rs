@@ -112,6 +112,9 @@ enum Command {
         #[arg(long)]
         json: bool,
     },
+
+    /// Print the JSON Schema of the IR this gridwell writes
+    Schema,
 }
 
 #[derive(Subcommand)]
@@ -181,6 +184,7 @@ fn main() {
             json,
         }) => cmd_check(input, expected, tier, json),
         Command::Formats { json } => cmd_formats(json),
+        Command::Schema => print!("{}", gridwell_ir::JSON_SCHEMA),
     }
 }
 
