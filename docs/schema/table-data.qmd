@@ -106,7 +106,7 @@ optional summary rows. A table without groups puts its rows in one group with no
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `content` | array of [content nodes](index.qmd#content-nodes) | required | What the cell shows (empty for a placeholder) |
+| `content` | array of [content nodes](index.qmd#content-nodes) | `[]` | What the cell shows (empty for a placeholder) |
 | `typed_value` | TypedValue? | `null` | The value behind the display ([below](#typed-values)) |
 | `colspan` | integer | `1` | Columns the cell spans (≥ 1) |
 | `rowspan` | integer | `1` | Rows the cell spans (≥ 1), within its section |
@@ -126,18 +126,32 @@ optional summary rows. A table without groups puts its rows in one group with no
 | `type` | keyword | required | `"string"`, `"number"`, `"integer"`, `"boolean"`, `"date"`, `"datetime"`, `"time"` or `"duration"` (aliases in [Keyword values](validation.qmd#keyword-values)) |
 | `value` | any | required | The value |
 
-Writers that keep values (XLSX) read `value` as:
+Each type's `value` is written as below. A missing value (`NA`, `None`, `NaN`) has
+no `typed_value`: the cell leaves it out, and `content` shows what the producer
+shows for it.
 
 | `type`                 | `value`                                             |
 |------------------------|-----------------------------------------------------|
+| `string`               | a JSON string                                       |
 | `number`, `integer`    | a JSON number                                       |
 | `boolean`              | `true` or `false`                                   |
 | `date`                 | an ISO 8601 date string: `"2024-03-15"`             |
 | `datetime`             | `"2024-03-15T14:30:00"` (or a space for the `T`; seconds and their fraction optional; no offset) |
 | `time`                 | `"14:30:00"` (seconds and their fraction optional)  |
+| `duration`             | an ISO 8601 duration string: `"PT1H30M"`, `"P2DT12H"`, `"PT0.5S"`, `"-P1Y"` |
 
-The value is what the cell holds; `content` is still what it shows. A value in
-another form is kept as text.
+A `string` value that isn't a JSON string, or a `duration` value that isn't an ISO
+8601 duration string, is an [`INVALID_TYPED_VALUE`](validation.qmd#structural-rules)
+error. A duration is `P`, then years, months, weeks and days (`nY`, `nM`, `nW`,
+`nD`), then `T` and hours, minutes and seconds (`nH`, `nM`, `nS`), each part
+optional but in that order, at least one in all and at least one after a `T`. Only
+the seconds may have a fraction (with a `.`), and a `-` before the `P` makes it
+negative.
+
+Writers that keep values (XLSX) read the value as the cell's: a number, a boolean,
+or a date, date-time or time, as a spreadsheet does. The value is what the cell
+holds; `content` is still what it shows. A string, a duration, and a value in
+another form are kept as text.
 
 ```json
 { "content": [{"type": "text", "value": "Mar 15, 2024"}],
