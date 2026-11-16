@@ -287,7 +287,9 @@ pub unsafe extern "C" fn gridwell_render_binary_with_options(
 
 /// What a table's output will lack, one message per line (separated by "\n",
 /// no trailing newline): first a `[NEWER_IR_VERSION]` message if the table is a
-/// newer minor IR version than this gridwell reads, then an
+/// newer minor IR version than this gridwell reads, then an `[IGNORED_VALUE]` or
+/// `[IGNORED_SELECTOR]` message for each thing in it this gridwell doesn't read
+/// (a newline in a value it quotes is written `\n`), then an
 /// `[UNSUPPORTED_FEATURE]` message for each feature the named format can't
 /// express, or every format's in the order of `gridwell_format_names()` when
 /// `format` is null. An empty string (`len` 0, `text` non-null) when the table
@@ -334,7 +336,11 @@ pub unsafe extern "C" fn gridwell_warnings(
         };
         match gridwell_render::warnings(table, format) {
             Ok(found) => {
-                let lines: Vec<String> = found.iter().map(|w| w.to_string()).collect();
+                // One per line, so a newline a message quotes from the IR is escaped.
+                let lines: Vec<String> = found
+                    .iter()
+                    .map(|w| w.to_string().replace('\n', "\\n"))
+                    .collect();
                 text_result(lines.join("\n"))
             }
             Err(e) => {
