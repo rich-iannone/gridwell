@@ -1,8 +1,8 @@
 # Conformance kit
 
-The table IR is written by emitters gridwell doesn't own: gt's `as_ir()` (R) and
-Great Tables' `GT.as_ir()` (Python), with gridwell's own copies as a fallback
-until those ship. This directory is what an emitter's tests check it against:
+The table IR is written by emitters gridwell doesn't own: gt's `as_gridwell()` (R)
+and Great Tables' `GT.as_gridwell()` (Python), with gridwell's own copies as a
+fallback until those ship. This directory is what an emitter's tests check it against:
 a set of tables, and for each, what its IR must say.
 
 Two correct emitters can write the same table very differently: other style ids,
