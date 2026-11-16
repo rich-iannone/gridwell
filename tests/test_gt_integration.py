@@ -2,6 +2,7 @@
 
 import importlib
 import json
+import re
 
 import pytest
 
@@ -866,6 +867,51 @@ def test_body_html_is_valid_ir_every_format_draws():
     assert "m² s₁" in ansi and "a < b & c" in ansi
     for fmt in BINARY_FORMATS:
         assert table.render_binary(fmt)[:4] == b"PK\x03\x04", fmt
+
+
+@pytest.mark.skipif(
+    not (hasattr(GT, "cols_merge") and hasattr(GT, "text_transform")),
+    reason="Great Tables before 0.22 has no cols_merge() and text_transform()",
+)
+def test_merged_and_transformed_cells_are_what_great_tables_shows():
+    from great_tables import loc
+
+    # The table is built once, as Great Tables builds it for its HTML: rendering the
+    # formats again would put back the values of merged and transformed cells.
+    gt_obj = (
+        GT(exibble[["num", "char", "currency", "row", "group"]].head(3), rowname_col="row",
+           groupname_col="group")
+        .fmt_currency("currency")
+        .cols_merge(["num", "char"], pattern="{0} / {1}")
+        .text_transform(loc.body(columns="currency"), lambda x: "X" + x)
+        .text_transform(loc.stub(), lambda x: x.upper())
+        .text_transform(loc.row_groups(), lambda x: "G:" + x)
+        .text_transform(loc.column_labels(columns="currency"), lambda x: x.upper())
+    )
+    ir = gridwell.gt_to_dict(gt_obj, emitter="gridwell")
+    def text(nodes):
+        return "".join(n.get("value", "") for n in nodes)
+
+    (head,) = ir["table"]["thead"]["rows"]
+    (group,) = ir["table"]["tbody"]
+    shown = [
+        [text(c["content"]) for c in head["cells"]],
+        [text(group["label"]["content"])],
+        *([text(c["content"]) for c in r["cells"]] for r in group["rows"]),
+    ]
+    assert shown == [
+        ["", "num", "CURRENCY"],
+        ["G:grp_a"],
+        ["ROW_1", "0.1111 / apricot", "X$49.95"],
+        ["ROW_2", "2.222 / banana", "X$17.95"],
+        ["ROW_3", "33.33 / coconut", "X$1.39"],
+    ]
+    # Great Tables' HTML shows the same, in the same order.
+    assert re.findall(r"<t[hd][^>]*>([^<]*)</t[hd]>", gt_obj.as_raw_html()) == [
+        text for row in shown for text in row
+    ]
+    # The merged cells aren't the number of their first column.
+    assert [c.get("typed_value") for r in group["rows"] for c in r["cells"][1:2]] == [None] * 3
 
 
 def test_superscripts_are_the_characters_gridwells_writers_draw():
