@@ -275,7 +275,7 @@ test_that("the gt reference IR in harness/gt-reference is up to date", {
 
 test_that("the gt reference IR uses gt's own emitter once there is one", {
     # make.R uses it when there is one; references made before need regenerating
-    # (with any gt version: the first with `as_ir()` is a newer one).
+    # (with any gt version: the first with `as_gridwell()` is a newer one).
     ref_dir <- file.path(testthat::test_path(), "..", "..", "..", "harness", "gt-reference")
     skip_if_not(dir.exists(ref_dir), "not in a source checkout")
     manifest <- jsonlite::fromJSON(file.path(ref_dir, "manifest.json"), simplifyVector = FALSE)

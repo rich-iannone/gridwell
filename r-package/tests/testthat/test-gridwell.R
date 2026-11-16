@@ -274,8 +274,8 @@ test_that("an invalid newer minor IR version table says its version", {
     expect_error(
         gw_render_html(tbl),
         paste0(
-            "(the table is IR 1.3, newer than the IR 1.0 this gridwell reads: ",
-            "an error may be something a newer IR version added)"
+            "(the table is IR 1.3, newer than the IR 1.0 this gridwell reads; ",
+            "what a newer IR version added isn't an error, and is left out)"
         ),
         fixed = TRUE
     )

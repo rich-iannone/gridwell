@@ -1,5 +1,5 @@
-# Delegation: gt_to_ir() uses gt's own emitter (gt::as_ir()) when the installed gt
-# has one, and gridwell's copy otherwise. No released gt has as_ir() yet, so these
+# Delegation: gt_to_ir() uses gt's own emitter (gt::as_gridwell()) when the installed gt
+# has one, and gridwell's copy otherwise. No released gt has as_gridwell() yet, so these
 # tests give gridwell one.
 
 skip_if_not_installed("gt")
@@ -28,18 +28,18 @@ upstream_ir <- function(version = "1.0", title = "From gt") {
 
 the_table <- function() gt::gt(gt::exibble[1:3, ]) |> gt::tab_header(title = "From gridwell")
 
-# Give gridwell a gt::as_ir() that returns `result` (or signals it, for a
+# Give gridwell a gt::as_gridwell() that returns `result` (or signals it, for a
 # condition), recording the tables it's called with.
-give_as_ir <- function(result, env = parent.frame()) {
+give_as_gridwell <- function(result, env = parent.frame()) {
     calls <- new.env()
     calls$tables <- list()
-    as_ir <- function(data) {
+    as_gridwell <- function(data) {
         calls$tables[[length(calls$tables) + 1]] <- data
         if (inherits(result, "error")) stop(result)
         if (inherits(result, "condition")) signalCondition(result)
         result
     }
-    local_mocked_bindings(.gw_upstream_emitter = function(...) as_ir, .package = "gridwell",
+    local_mocked_bindings(.gw_upstream_emitter = function(...) as_gridwell, .package = "gridwell",
                           .env = env)
     calls
 }
@@ -48,13 +48,16 @@ ours <- function(tbl) as.character(gt_to_ir(tbl, emitter = "gridwell"))
 
 # ---- Without an upstream emitter ----
 
-test_that("gt has no as_ir() yet, and gridwell finds one that's there", {
+test_that("gt has no as_gridwell() yet, and gridwell finds one that's there", {
     # When gt gains one, these tests still hold; the reference set then switches.
     expect_null(gridwell:::.gw_upstream_emitter())
+    # The tests below mock the lookup, so this pins what it looks for.
+    expect_identical(formals(gridwell:::.gw_upstream_emitter),
+                     as.pairlist(alist(pkg = "gt", name = "as_gridwell")))
     expect_identical(gridwell:::.gw_upstream_emitter("jsonlite", "toJSON"), jsonlite::toJSON)
     # Not exported, not there, or not a function.
     expect_null(gridwell:::.gw_upstream_emitter("jsonlite", "asJSON"))
-    expect_null(gridwell:::.gw_upstream_emitter("gridwell.no.such.package", "as_ir"))
+    expect_null(gridwell:::.gw_upstream_emitter("gridwell.no.such.package", "as_gridwell"))
     expect_null(gridwell:::.gw_upstream_emitter("base", "pi"))
 })
 
@@ -66,18 +69,18 @@ test_that("auto uses gridwell's own without a warning", {
     expect_identical(gt_to_ir_list(tbl), gt_to_ir_list(tbl, emitter = "gridwell"))
 })
 
-test_that("upstream without as_ir() is an error", {
+test_that("upstream without as_gridwell() is an error", {
     for (convert in list(gt_to_ir, gt_to_ir_list)) {
         expect_error(convert(the_table(), emitter = "upstream"),
-                     "^gt [0-9.]+ has no `as_ir\\(\\)`; use `emitter = \"gridwell\"`")
+                     "^gt [0-9.]+ has no `as_gridwell\\(\\)`; use `emitter = \"gridwell\"`")
     }
 })
 
 # ---- With one ----
 
-test_that("auto uses as_ir() when there", {
+test_that("auto uses as_gridwell() when there", {
     tbl <- the_table()
-    calls <- give_as_ir(upstream_ir())
+    calls <- give_as_gridwell(upstream_ir())
     expect_no_warning(json <- gt_to_ir(tbl))
     # Its JSON as it is, and the same parsed.
     expect_identical(as.character(json), as.character(upstream_ir()))
@@ -88,19 +91,19 @@ test_that("auto uses as_ir() when there", {
     for (seen in calls$tables) expect_identical(seen, tbl)
 })
 
-test_that("tables made from a gt table use as_ir()", {
-    give_as_ir(upstream_ir())
+test_that("tables made from a gt table use as_gridwell()", {
+    give_as_gridwell(upstream_ir())
     expect_no_warning(tbl <- as_gw_table(the_table()))
     expect_identical(gw_validate(tbl), character(0))
     expect_match(gw_render_html(tbl), "From gt")
     expect_match(gw_render_html(the_table()), "From gt")
 })
 
-test_that("gridwell ignores as_ir()", {
+test_that("gridwell ignores as_gridwell()", {
     tbl <- the_table()
     expected <- ours(tbl)
     expected_list <- gt_to_ir_list(tbl, emitter = "gridwell")
-    calls <- give_as_ir(upstream_ir())
+    calls <- give_as_gridwell(upstream_ir())
     expect_identical(as.character(gt_to_ir(tbl, emitter = "gridwell")), expected)
     expect_identical(gt_to_ir_list(tbl, emitter = "gridwell"), expected_list)
     expect_length(calls$tables, 0)
@@ -108,14 +111,14 @@ test_that("gridwell ignores as_ir()", {
 
 test_that("any IR 1 minor version is used", {
     for (version in c("1.0", "1.1", "1.10", "01.0")) {
-        give_as_ir(upstream_ir(version))
+        give_as_gridwell(upstream_ir(version))
         expect_no_warning(ir <- gt_to_ir_list(the_table()))
         expect_identical(ir$ir_version, version)
     }
 })
 
 test_that("a newer minor version is used, and its table warns", {
-    give_as_ir(upstream_ir("1.4"))
+    give_as_gridwell(upstream_ir("1.4"))
     expect_no_warning(ir <- gt_to_ir(the_table()))
     expect_warning(
         tbl <- as_gw_table(the_table()),
@@ -159,7 +162,7 @@ test_that("auto warns and uses its own for a bad result", {
     expected <- ours(tbl)
     expected_list <- gt_to_ir_list(tbl, emitter = "gridwell")
     for (case in names(bad)) {
-        give_as_ir(bad[[case]][[1]])
+        give_as_gridwell(bad[[case]][[1]])
         reason <- bad[[case]][[2]]
         expect_warning(json <- gt_to_ir(tbl),
                        paste0(reason, ".*; converted with gridwell's own emitter instead$"),
@@ -174,7 +177,7 @@ test_that("auto warns and uses its own for a bad result", {
 
 test_that("upstream errors for a bad result", {
     for (case in names(bad)) {
-        give_as_ir(bad[[case]][[1]])
+        give_as_gridwell(bad[[case]][[1]])
         for (convert in list(gt_to_ir, gt_to_ir_list)) {
             expect_error(convert(the_table(), emitter = "upstream"), bad[[case]][[2]],
                          label = case)
@@ -182,9 +185,9 @@ test_that("upstream errors for a bad result", {
     }
 })
 
-test_that("an error in as_ir()", {
+test_that("an error in as_gridwell()", {
     tbl <- the_table()
-    give_as_ir(simpleError("no such column"))
+    give_as_gridwell(simpleError("no such column"))
     w <- expect_warning(json <- gt_to_ir(tbl),
                         "^no such column; converted with gridwell's own emitter instead$")
     # Not from a gridwell internal.
@@ -195,7 +198,8 @@ test_that("an error in as_ir()", {
 })
 
 test_that("only errors are caught", {
-    give_as_ir(structure(class = c("interrupt", "condition"), list(message = "", call = NULL)))
+    give_as_gridwell(structure(class = c("interrupt", "condition"),
+                               list(message = "", call = NULL)))
     # It reaches the caller's handlers. (A real one would stop there; this one goes on
     # to give the condition, which isn't IR.)
     expect_condition(suppressWarnings(gt_to_ir(the_table())), class = "interrupt")
@@ -204,7 +208,7 @@ test_that("only errors are caught", {
 # ---- Arguments ----
 
 test_that("an unknown emitter is an error", {
-    calls <- give_as_ir(upstream_ir())
+    calls <- give_as_gridwell(upstream_ir())
     for (convert in list(gt_to_ir, gt_to_ir_list)) {
         for (emitter in c("great_tables", "Auto", "")) {
             expect_error(convert(the_table(), emitter = emitter), "should be one of")
@@ -214,7 +218,7 @@ test_that("an unknown emitter is an error", {
 })
 
 test_that("anything but a gt table is an error", {
-    give_as_ir(upstream_ir())
+    give_as_gridwell(upstream_ir())
     for (convert in list(gt_to_ir, gt_to_ir_list)) {
         for (emitter in c("auto", "upstream", "gridwell")) {
             for (other in list(gt::exibble, upstream_ir(), NULL)) {
