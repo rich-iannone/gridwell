@@ -177,17 +177,16 @@ fn code(mut n: usize) -> String {
 fn excerpt(content: &[ContentNode]) -> String {
     const MAX: usize = 24;
     let mut text = String::new();
-    for node in content {
-        match node {
-            ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. } => {
-                text.push_str(value)
-            }
-            ContentNode::FootnoteMark { mark_text, .. } => text.push_str(mark_text),
-            ContentNode::LineBreak {} => text.push(' '),
-            ContentNode::Image { alt, .. } => text.push_str(alt.as_deref().unwrap_or("[image]")),
-            ContentNode::Raw { .. } | ContentNode::Unknown(_) => {}
+    // A fallback's nodes are walked as they're drawn: in place of their node.
+    ContentNode::walk(content, &mut |node| match node {
+        ContentNode::Text { value, .. } | ContentNode::StyledText { value, .. } => {
+            text.push_str(value)
         }
-    }
+        ContentNode::FootnoteMark { mark_text, .. } => text.push_str(mark_text),
+        ContentNode::LineBreak {} => text.push(' '),
+        ContentNode::Image { alt, .. } => text.push_str(alt.as_deref().unwrap_or("[image]")),
+        ContentNode::Raw { .. } | ContentNode::Unknown(_) => {}
+    });
     if text.chars().count() > MAX {
         text = text.chars().take(MAX - 3).collect();
         text.push_str("...");
