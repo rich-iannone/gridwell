@@ -386,6 +386,7 @@ fn features() -> Vec<Feature> {
                         ConditionalSelector {
                             row_parity: Some("even".into()),
                             scope: Some("tbody".into()),
+                            ..Default::default()
                         },
                         def(|d| d.background_color = Some("#123456".into())),
                     )
