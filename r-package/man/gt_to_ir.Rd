@@ -22,8 +22,8 @@ runs, spanners become spanner rows, footnote marks are placed in the cells
 they annotate, and \code{tab_style()} styles become IR styles.
 }
 \details{
-The converter is moving into gt, as \code{gt::as_ir()}. With \code{emitter = "auto"}
-it is used when the installed gt has it, and gridwell's own copy otherwise,
-or when gt's fails or gives an IR version this gridwell can't read (with a
-warning saying why).
+The converter is moving into gt, as \code{gt::as_gridwell()}. With
+\code{emitter = "auto"} it is used when the installed gt has it, and gridwell's
+own copy otherwise, or when gt's fails or gives an IR version this gridwell
+can't read (with a warning saying why).
 }
