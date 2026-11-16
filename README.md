@@ -1,226 +1,335 @@
 # gridwell
 
-**Render publication-quality tables to any format from a single declarative IR.**
+[![PyPI](https://img.shields.io/pypi/v/gridwell.svg)](https://pypi.org/project/gridwell/)
+[![Python versions](https://img.shields.io/pypi/pyversions/gridwell.svg)](https://pypi.org/project/gridwell/)
+[![CI](https://github.com/rich-iannone/gridwell/actions/workflows/ci.yml/badge.svg)](https://github.com/rich-iannone/gridwell/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Gridwell is a Rust library (with a CLI, a C ABI, and Python/R bindings) that takes a
-rich table **Intermediate Representation (IR)** and writes it to many output formats
-with high fidelity. It's a *universal table-rendering backend*: any upstream tool can
-emit the IR and get consistent output as HTML, LaTeX, Typst, RTF, SVG, terminal text,
-Pandoc/Quarto AST, or Office documents (Word / Excel / PowerPoint).
+**Make a table once. Get it as HTML, LaTeX, Typst, RTF, Word, Excel, PowerPoint and
+more.**
 
-The main idea underlying this is *decide once, render everywhere*. Upstream tools
-already know how to build and format a table so they shouldn't each reimplement a
-LaTeX or .docx writer. Gridwell is envisioned as being the shared rendering layer that
-turns one description into every feasible format for tables.
+gridwell renders tables. Give it a [Great Tables](https://posit-dev.github.io/great-tables/)
+table in Python or a [gt](https://gt.rstudio.com/) table in R, with its title,
+formatting and styles, and it writes that same table to eleven formats: web pages,
+LaTeX and Typst documents, RTF, SVG, the terminal, the Pandoc and Quarto ASTs, and
+real Word, Excel and PowerPoint files. Titles stay titles, formatted numbers stay
+formatted, and the Excel file holds numbers you can sum, not text.
 
-## Goals
+Its engine is written in Rust, and the Python package, the R package and the
+command-line tool all share it, so a table comes out the same whichever you use. Any
+other tool can use it too, by describing its tables in gridwell's IR, a JSON format.
 
-1. **Single source of truth**: one IR captures everything needed to render a table.
-2. **High-fidelity output**: each writer targets the full capability of its format
-rather than a lowest-common-denominator.
-3. **Extensibility**: a versioned schema with optional extension namespaces, so the
-IR can grow without breaking consumers.
-4. **Performance**: a Rust core aimed at extremely fast rendering for typical tables.
-5. **Testability**: the same corpus drives textual snapshots for every writer and a
-visual regression gate (see [Testing](#testing)).
-6. **Language-agnostic**: a C ABI with first-class Python (PyO3) and R
-(extendr) bindings.
+- **Documentation:** <https://rich-iannone.github.io/gridwell/>: a user guide, the
+  IR's full schema and the API reference.
+- **Gallery:** <https://rich-iannone.github.io/gridwell/gallery/>: every example table
+  in every format, as each format's own viewer draws it.
+- **Release notes:** [GitHub Releases](https://github.com/rich-iannone/gridwell/releases).
 
-## Output formats
+> **Status: alpha.** The API and the IR may change between releases.
 
-Gridwell renders the same IR to eleven targets spanning the web, typesetting,
-word-processing, and the terminal, so one table description can serve
-documentation, print, and office workflows alike. They fall into two groups by the
-kind of artifact produced: **text** formats return a string you can inline or write
-to a file, while the **packaged** OOXML formats return bytes — a ZIP of XML parts.
-(OOXML content is itself XML text; it's the zipped `.docx`/`.xlsx`/`.pptx` container
-that makes the output binary.)
+## Installation
 
-| | Formats |
-|---|---|
-| **Text** | HTML · LaTeX · Typst · RTF · SVG · ANSI (terminal) · Pandoc AST · Quarto |
-| **Packaged (OOXML)** | Word `.docx` · Excel `.xlsx` · PowerPoint `.pptx` |
+### Python
+
+```bash
+pip install gridwell
+pip install "gridwell[gt]"    # with the Great Tables integration
+```
+
+There are wheels for Python ≥ 3.10 on Linux, macOS and Windows. Elsewhere pip builds
+gridwell from source, which needs a [Rust toolchain](https://rustup.rs/) (≥ 1.85).
+
+### R
+
+The R package isn't on CRAN yet. Install it from a clone of this repository (this
+needs Rust ≥ 1.85):
+
+```bash
+git clone https://github.com/rich-iannone/gridwell.git
+R CMD INSTALL gridwell/r-package
+```
+
+### Command line
+
+```bash
+cargo install --locked --git https://github.com/rich-iannone/gridwell gridwell-cli
+```
+
+### Rust
+
+The crates aren't on crates.io yet, so depend on the repository:
+
+```toml
+[dependencies]
+gridwell = { git = "https://github.com/rich-iannone/gridwell" }
+```
+
+## Usage
+
+### Python, with Great Tables
+
+Make a table with Great Tables as you always would, then hand it to `gridwell.Table`:
+
+```python
+import pandas as pd
+from great_tables import GT
+import gridwell
+
+cities = pd.DataFrame({
+    "city": ["Toronto", "Montréal", "Calgary", "Ottawa", "Edmonton"],
+    "province": ["Ontario", "Quebec", "Alberta", "Ontario", "Alberta"],
+    "population": [2794356, 1762949, 1306784, 1017449, 1010899],
+    "area": [631.1, 364.7, 820.6, 2788.2, 765.6],
+})
+
+gt = (
+    GT(cities, rowname_col="city")
+    .tab_header(title="Canada's largest cities", subtitle="2021 census")
+    .fmt_integer(columns="population")
+    .fmt_number(columns="area", decimals=1)
+    .cols_label(province="Province", population="Population", area="Area (km²)")
+)
+
+table = gridwell.Table(gt)
+
+table.save("cities.docx")   # Word
+table.save("cities.xlsx")   # Excel
+table.save("cities.pptx")   # PowerPoint
+table.save("cities.tex")    # LaTeX; the format comes from the extension
+```
+
+In a notebook, `table` shows as HTML. In a terminal, `print(table)` draws it:
+
+```python
+>>> print(table)
+Canada's largest cities
+2021 census
+┌────────────┬────────────┬────────────┬────────────┐
+│            │ Province   │ Population │ Area (km²) │
+├────────────┼────────────┼────────────┼────────────┤
+│ Toronto    │ Ontario    │  2,794,356 │      631.1 │
+│ Montréal   │ Quebec     │  1,762,949 │      364.7 │
+│ Calgary    │ Alberta    │  1,306,784 │      820.6 │
+│ Ottawa     │ Ontario    │  1,017,449 │    2,788.2 │
+│ Edmonton   │ Alberta    │  1,010,899 │      765.6 │
+└────────────┴────────────┴────────────┴────────────┘
+```
+
+Text formats can also come back as strings, to put in a document of your own:
+
+```python
+>>> print(table.render_latex())
+{\large\bfseries Canada's largest cities}\\
+{\small 2021 census}\\[6pt]
+\begin{tabular}{llrr}
+\toprule
+ & Province & Population & Area (km²) \\
+\midrule
+Toronto & Ontario & 2,794,356 & 631.1 \\
+Montréal & Quebec & 1,762,949 & 364.7 \\
+Calgary & Alberta & 1,306,784 & 820.6 \\
+Ottawa & Ontario & 1,017,449 & 2,788.2 \\
+Edmonton & Alberta & 1,010,899 & 765.6 \\
+\bottomrule
+\end{tabular}
+<BLANKLINE>
+```
+
+### R, with gt
+
+The R package works the same way with gt tables. Every `gw_*` function takes one:
+
+```r
+library(gt)
+library(gridwell)
+
+cities <- data.frame(
+  city = c("Toronto", "Montréal", "Calgary", "Ottawa", "Edmonton"),
+  province = c("Ontario", "Quebec", "Alberta", "Ontario", "Alberta"),
+  population = c(2794356, 1762949, 1306784, 1017449, 1010899),
+  area = c(631.1, 364.7, 820.6, 2788.2, 765.6)
+)
+
+gt_cities <- gt(cities, rowname_col = "city") |>
+  tab_header(title = "Canada's largest cities", subtitle = "2021 census") |>
+  fmt_integer(columns = population) |>
+  fmt_number(columns = area, decimals = 1) |>
+  cols_label(province = "Province", population = "Population", area = "Area (km²)")
+
+gw_save(gt_cities, "cities.docx")
+gw_save(gt_cities, "cities.xlsx")
+html <- gw_render_html(gt_cities)
+```
+
+`as_gw_table()` converts a gt table once, and the result prints as text in the
+console:
+
+```r
+as_gw_table(gt_cities)
+#> <gw_table: 4 columns, 5 rows, titled "Canada's largest cities">
+#>
+#> Canada's largest cities
+#> 2021 census
+#> ┌────────────┬────────────┬────────────┬────────────┐
+#> │            │ Province   │ Population │ Area (km²) │
+#> ├────────────┼────────────┼────────────┼────────────┤
+#> │ Toronto    │ Ontario    │  2,794,356 │      631.1 │
+#> │ Montréal   │ Quebec     │  1,762,949 │      364.7 │
+#> │ Calgary    │ Alberta    │  1,306,784 │      820.6 │
+#> │ Ottawa     │ Ontario    │  1,017,449 │    2,788.2 │
+#> │ Edmonton   │ Alberta    │  1,010,899 │      765.6 │
+#> └────────────┴────────────┴────────────┴────────────┘
+```
+
+In R Markdown and Quarto, a `gw_table` that a chunk returns is shown in the
+document's own format: HTML, LaTeX (PDF) or Typst.
+
+### The command line
+
+The `gridwell` command converts a table's IR, such as
+[`hello.json`](docs/examples/hello.json), to any format:
+
+```bash
+$ gridwell convert hello.json --to typst
+#table(
+  columns: (auto, auto,),
+  align: (left, right,),
+  stroke: none,
+  table.header(
+    [#text(weight: "bold")[Name]],
+    [#text(weight: "bold")[Score]],
+    table.hline(stroke: 0.5pt),
+  ),
+  [Alice],
+  [95],
+  [Bob],
+  [87],
+)
+```
+
+```bash
+gridwell convert hello.json -o hello.docx   # the format comes from the extension
+gridwell validate hello.json                # check the IR
+gridwell formats                            # list the formats and their options
+```
+
+### Rust
+
+```rust
+let json = std::fs::read_to_string("table.json")?;
+let table = gridwell::Table::from_json(&json)?;
+
+// By format name, with the format's options as JSON
+let html = gridwell::render(&table, "html", None)?;
+
+// Straight to a file, the format from the extension
+gridwell::save(&table, std::path::Path::new("table.docx"), None, None)?;
+```
+
+Each format is a cargo feature, all on by default, so you can build only the formats
+you need.
+
+### From any other tool
+
+gridwell's IR is a JSON description of a finished table: its cells' text, already
+formatted, with the table's spans, styles, title and notes. A tool that writes it gets
+every format gridwell has. The [IR schema](https://rich-iannone.github.io/gridwell/schema/)
+describes it, and the [conformance kit](conformance/README.md) checks an emitter's IR
+against the tables it should make.
+
+## Formats
+
+| Format | Name | Extension |
+|---|---|---|
+| HTML | `html` | `.html` |
+| LaTeX | `latex` | `.tex` |
+| Typst | `typst` | `.typ` |
+| RTF | `rtf` | `.rtf` |
+| SVG | `svg` | `.svg` |
+| Terminal text | `ansi` | `.txt` |
+| Pandoc AST | `pandoc` | `.json` |
+| Quarto | `quarto` | `.json` |
+| Word | `docx` | `.docx` |
+| Excel | `xlsx` | `.xlsx` |
+| PowerPoint | `pptx` | `.pptx` |
+
+Saving to a file takes the format from the extension, except for `.json`, which could
+be Pandoc or Quarto: name the format for those.
 
 SVG, ANSI, Pandoc and Quarto are experimental for now: their output is
 valid and has every cell, but their styling is best-effort and may change between
 releases.
 
-Each format is an independent `gridwell-writer-*` crate and a cargo feature of the
-`gridwell` crate, so Rust users can build only the formats they need.
+Each format has options, such as the HTML writer's CSS class prefix or whether the
+Excel writer adds its base styles. The [writer options](https://rich-iannone.github.io/gridwell/guide/writer-options.html)
+page lists them, and the [feature matrix](https://rich-iannone.github.io/gridwell/guide/feature-matrix.html)
+shows what each format can express.
 
-## The IR
+## How it works
 
-The IR is a declarative, versioned, JSON description of a fully-resolved table. Here
-are its defining characteristics:
+gridwell draws a firm line between *deciding* how a table looks and *rendering* it:
 
-- **Rendering-oriented, not computational.** It carries already-decided presentation
-(formatted values, resolved styles), not formulas or data sources.
-- **A materialized grid.** Every row has exactly `config.table_cols` cells, and a
-cell's index *is* its starting column. Spans are explicit: a `colspan(N)` cell is
-followed by `N−1` placeholder cells; `rowspan` places placeholders at the same index
-in later rows. A validator materializes the grid to catch overlaps, gaps, and
-overflows before rendering.
-- **Versioned and open at the edges.** Has an `ir_version` field, an `extensions`
-blob, and an open content-node enum: a node type a reader doesn't know still parses
-(drawn as nothing, and kept with all its fields) rather than failing the table.
+- **The table tool decides**: the data, the number and date formatting, the locale,
+  and which styles go on which cells. It writes all of that into the IR.
+- **gridwell renders** that IR, as faithfully as each format allows. It doesn't
+  reformat values or interpret the data.
 
-Here is the top-level shape of the IR:
-
-```jsonc
-{
-  "ir_version": "1.0",
-  "config":      { "table_cols": 3, "stub_cols": 1, "row_striping": false, ... },
-  "styles":      { "defs": {}, "compositions": {}, "conditionals": [] },
-  "header":      { "title": ..., "subtitle": ... },
-  "column_spec": [ { "id": "col_0", "align": "left", "width": "auto", ... } ],
-  "table":       { "thead": { "rows": [...] }, "tbody": [ /* row groups */ ] },
-  "footer":      { "footnotes": [...], "source_notes": [...] },
-  "extensions":  {}
-}
-```
-
-Cells carry rich `content` (text, styled text, line breaks, footnote marks, images,
-raw per-format markup) plus an optional `typed_value` (which is the raw value + type)
-that sits alongside the display text (see the design contract).
-
-The full schema is in the [documentation site](https://rich-iannone.github.io/gridwell/schema/).
-
-## Architecture
-
-Gridwell is a hub-and-spoke pipeline: every input is parsed into one validated
-in-memory table, which then fans out to independent per-format writers, all exposed
-through a common set of language surfaces. Keeping that hub narrow is what decouples
-inputs from outputs — a new source or a new output format can be added without
-touching the others.
+The one deliberate extra is a cell's typed value: the raw number, date or boolean
+behind its formatted text, so that Excel cells can hold real values while every other
+format shows the formatted text.
 
 ```
-        Upstream producers
-  Great Tables (Py) · gt (R) · your code
-                  |
-                  │  emit IR (JSON)
-                  ▼
+  Great Tables (Python) · gt (R) · your tool
+                    │
+                    │  IR (JSON)
+                    ▼
 ┌──────────────────────────────────────────────┐
-│                  gridwell (Rust)             │
+│              gridwell (Rust)                 │
 │                                              │
-│   parse ──▶     Table      ──▶  validate     │
-│  (gridwell-ir)      │                        │
-│                     ▼                        │
-│     ┌───────────────────────────────────┐    │
-│     │        one writer per format      │    │
-│     │  html latex typst rtf svg ansi    │    │
-│     │  pandoc quarto docx xlsx pptx     │    │
-│     └───────────────────────────────────┘    │
-│                     │                        │
-│        C ABI · PyO3 · extendr · CLI          │
+│      parse ──▶ validate ──▶ lay out          │
+│                                │             │
+│                                ▼             │
+│        one writer per format: html latex     │
+│        typst rtf svg ansi pandoc quarto      │
+│        docx xlsx pptx                        │
+│                                              │
+│     Python · R · CLI · C ABI · Rust crate    │
 └──────────────────────────────────────────────┘
-                  │
-                  ▼
-      HTML / PDF / DOCX / XLSX / … output
+                    │
+                    ▼
+       HTML, PDF, Word, Excel, PowerPoint, …
 ```
 
-Here, **Table** is the in-memory, validated `gridwell_ir::Table`. It's the single
-representation that every input funnels into and every writer reads from (not a
-separate artifact as it's the same schema as the IR JSON, just parsed and checked).
+## Development
 
-The workspace is a set of small, focused crates:
+The repository holds the Rust workspace, the Python and R packages and the docs:
 
-```
-crates/
-  gridwell/               the crate to depend on: all below, a feature per format
-  gridwell-ir/            IR types, serde (de)serialization, and the validator
-  gridwell-core/          shared primitives: lengths, colors, font sizes, language
-                          tags, `data:` images, XML escaping
-  gridwell-layout/        the resolved grid, spans and styles every writer renders
-  gridwell-render/        the format registry: every format by name, options as JSON
-  gridwell-writer-html/    ─┐
-  gridwell-writer-latex/    │
-  gridwell-writer-typst/    │
-  gridwell-writer-rtf/      │  one crate per output format
-  gridwell-writer-svg/      ├─ (IR → format string, or → bytes for OOXML)
-  gridwell-writer-ansi/     │
-  gridwell-writer-pandoc/   │
-  gridwell-writer-quarto/   │
-  gridwell-writer-docx/     │
-  gridwell-writer-xlsx/     │
-  gridwell-writer-pptx/    ─┘
-  gridwell-ooxml/         the zip packaging the DOCX, XLSX and PPTX writers share
-  gridwell-ffi/           C ABI surface (cdylib / staticlib)
-  gridwell-python/        Python bindings (PyO3, built with maturin)
-  gridwell-cli/           `gridwell` command-line tool
-  gridwell-testkit/       shared example corpus + a builder DSL for the IR
-python/                   Python package sources (`gridwell`, built with maturin)
-r-package/                R package (extendr; Rust glue in r-package/src/rust)
-xtask/                    visual test harness (render gallery + image diff), the docs
-                          checks, and the R source package build
-conformance/              conformance kit for emitters: cases, expected grids, docs
-docs/                     Quarto documentation site
-harness/                  pinned renderer toolchain + goldens for visual tests
-```
-
-### Design contract: who does what
-
-Gridwell draws a firm line between *deciding* and *rendering*:
-
-- **Upstream resolves** the data, number/date formatting, locale, and which styles
-apply to which cells, then, the fully-baked IR is emitted.
-- **Gridwell renders** that IR faithfully to each target and it does not re-run
-formatting logic or interpret data.
-
-The one deliberate extra is a cell's `typed_value`: the raw typed value (e.g. a
-number, boolean, or date) that travels alongside the human-readable `content`, so
-value-aware targets (Excel cells, sortable HTML) can use the real value while every
-other target uses the pre-formatted text.
-
-> A secondary mode, planned for after 0.1, would lift existing **HTML+CSS** (the kind that Great Tables/gt
-> already produce) back into the IR, enabling format conversion without upstream
-> changes.
-
-## Language bindings
-
-| Surface | How |
+| Path | What's there |
 |---|---|
-| **Rust** | the `gridwell` crate: `gridwell::Table::from_json`, then `gridwell::render(&table, "html", None)` or `gridwell::save`; one cargo feature per format |
-| **CLI** | `gridwell convert -t <format> [input] [-o out]`, `gridwell validate`, `gridwell formats`, `gridwell conformance` |
-| **Python** | PyO3 module built with maturin: `gridwell.Table(ir_or_gt)`, shown as HTML in notebooks |
-| **R** | extendr wrapper: `gw_*` functions taking a `gw_table`, gt table or IR JSON; prints in the console, knits into R Markdown and Quarto |
+| `crates/gridwell/` | the crate to depend on, with a cargo feature per format |
+| `crates/gridwell-ir/` | the IR's types, its JSON (de)serialization and the validator |
+| `crates/gridwell-layout/` | the resolved grid, spans and styles every writer renders |
+| `crates/gridwell-writer-*/` | one crate per format |
+| `crates/gridwell-cli/` | the `gridwell` command |
+| `crates/gridwell-python/`, `python/` | the Python package (PyO3, built with maturin) |
+| `r-package/` | the R package (extendr) |
+| `crates/gridwell-ffi/` | the C ABI |
+| `crates/gridwell-testkit/` | the example tables every test uses, and a builder for the IR |
+| `conformance/` | the conformance kit for IR emitters |
+| `docs/` | the documentation site (Quarto) |
+| `harness/`, `xtask/` | the visual test harness and the docs checks |
 
 ```bash
-# Render an IR JSON file to each format
-gridwell convert table.json -t html                 # text -> stdout
-gridwell convert table.json -t latex -o table.tex
-gridwell convert table.json -t docx  -o table.docx  # binary -> file
-gridwell validate table.json                        # structural checks
+cargo test                     # every crate, with each writer's snapshots
+pip install maturin && maturin develop --release && pytest
+cargo xtask gallery            # render every example to every format
+open harness/gallery/index.html
 ```
 
-In Rust, the [`gridwell-testkit`](crates/gridwell-testkit/src/builder.rs) builder is
-the ergonomic way to construct valid IR without hand-writing JSON.
-
-## Testing
-
-The same example corpus (defined once in `gridwell-testkit`) feeds two layers:
-
-- **Textual snapshots**: every writer renders every example and asserts an `insta`
-snapshot; the committed `.snap` files are the accepted baseline, reviewed with
-`cargo insta review`.
-- **Visual harness**: `cargo xtask gallery` renders each example to each format,
-rasterizes to PNGs, and builds a browsable gallery; a perceptual image diff gates
-every rasterized format (HTML, SVG, Typst, LaTeX, RTF, DOCX, XLSX, PPTX) against committed goldens produced in a pinned
-Docker toolchain.
-
-See [`harness/README.md`](harness/README.md) for the full workflow.
-
-```bash
-cargo test                 # unit/validation tests + all writer snapshots
-cargo xtask gallery        # build the local render gallery (harness/gallery/index.html)
-```
-
-## Status & docs
-
-Gridwell is under active development. User-facing documentation (the guide, the
-full IR schema, the API reference, and rendered demos) is published at
-<https://rich-iannone.github.io/gridwell/>, built from the Quarto sources in
-[`docs/`](docs/) via CI.
+Every writer renders every example table to a committed snapshot, and a visual gate
+compares the rendered images of each format with committed goldens. The
+[harness README](harness/README.md) has the details, and what CI runs.
 
 ## License
 
-MIT. See [`LICENSE`](LICENSE).
+MIT. See [LICENSE](LICENSE).
