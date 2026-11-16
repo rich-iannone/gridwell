@@ -1,0 +1,135 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "left",
+        "id": "col_1"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [
+      {
+        "mark": "*",
+        "runs": [
+          {
+            "text": "Estimated value."
+          }
+        ],
+        "text": "Estimated value."
+      }
+    ],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Rich content"
+                  }
+                ],
+                "text": "Rich content"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "Normal text, bold text"
+                  },
+                  {
+                    "line_break": true
+                  },
+                  {
+                    "text": "second line with "
+                  },
+                  {
+                    "footnote": 1,
+                    "mark_text": "*"
+                  }
+                ],
+                "text": "Normal text, bold text\nsecond line with"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Image cell"
+                  }
+                ],
+                "text": "Image cell"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "Trend: "
+                  },
+                  {
+                    "image": {
+                      "alt": "sparkline",
+                      "height": "16px",
+                      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==",
+                      "width": "60px"
+                    }
+                  }
+                ],
+                "text": "Trend:"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Label"
+              }
+            ],
+            "scope": "col",
+            "text": "Label"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Content"
+              }
+            ],
+            "scope": "col",
+            "text": "Content"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

@@ -1,0 +1,403 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 4,
+    "header_rows": 1,
+    "body_rows": 3,
+    "stub_cols": 1,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "lang": null,
+    "dir": null,
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null,
+    "id": null,
+    "rules": null
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "header": {
+    "title": {
+      "content": [
+        {
+          "type": "text",
+          "value": "Reaction rate constants"
+        }
+      ],
+      "style_id": null
+    },
+    "subtitle": null,
+    "extra_lines": [],
+    "preheader_content": null
+  },
+  "column_spec": [
+    {
+      "id": "col_0",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "Compound"
+    },
+    {
+      "id": "col_1",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "k (s⁻¹)"
+    },
+    {
+      "id": "col_2",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "T (K)"
+    },
+    {
+      "id": "col_3",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "Ea (kJ/mol)"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Compound"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": true,
+              "is_placeholder": false,
+              "scope": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "k (s⁻¹)"
+                },
+                {
+                  "type": "footnote_mark",
+                  "ref": "fn1",
+                  "mark_text": "a"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "T (K)"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Ea (kJ/mol)"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": null
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "A"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1.2×10³"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "298"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "52.3"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "B"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "3.4×10²"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "298"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "61.0"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "C"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "8.9×10¹"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "310"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "70.8"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          }
+        ],
+        "summary_rows": [],
+        "summary_placement": "bottom"
+      }
+    ]
+  },
+  "footer": {
+    "footnotes": [
+      {
+        "id": "fn1",
+        "mark": "a",
+        "content": [
+          {
+            "type": "text",
+            "value": "Measured under pseudo-first-order conditions."
+          }
+        ],
+        "style_id": null
+      }
+    ],
+    "source_notes": [
+      {
+        "content": [
+          {
+            "type": "text",
+            "value": "Source: laboratory notebook, 2026."
+          }
+        ],
+        "style_id": null
+      }
+    ]
+  },
+  "extensions": null
+}

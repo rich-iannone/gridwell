@@ -1,0 +1,123 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "right",
+        "id": "col_1"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Alice"
+                  }
+                ],
+                "text": "Alice",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Alice"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "95"
+                  }
+                ],
+                "text": "95",
+                "typed_value": {
+                  "type": "number",
+                  "value": 95
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Bob"
+                  }
+                ],
+                "text": "Bob",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Bob"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "87"
+                  }
+                ],
+                "text": "87",
+                "typed_value": {
+                  "type": "number",
+                  "value": 87
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Name"
+              }
+            ],
+            "scope": "col",
+            "text": "Name"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Score"
+              }
+            ],
+            "scope": "col",
+            "text": "Score"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

@@ -1,0 +1,317 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "stub": true
+      },
+      {
+        "align": "left",
+        "id": "col_1"
+      },
+      {
+        "align": "left",
+        "id": "col_2"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": "fruit",
+        "label": {
+          "runs": [
+            {
+              "text": "Fruit"
+            }
+          ],
+          "text": "Fruit"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Apples"
+                  }
+                ],
+                "stub": true,
+                "text": "Apples"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "10"
+                  }
+                ],
+                "text": "10"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "12"
+                  }
+                ],
+                "text": "12"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Pears"
+                  }
+                ],
+                "stub": true,
+                "text": "Pears"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "20"
+                  }
+                ],
+                "text": "20"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "18"
+                  }
+                ],
+                "text": "18"
+              }
+            ]
+          }
+        ],
+        "summary_rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Subtotal"
+                  }
+                ],
+                "stub": true,
+                "text": "Subtotal"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "30"
+                  }
+                ],
+                "text": "30"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "30"
+                  }
+                ],
+                "text": "30"
+              }
+            ],
+            "role": "summary_row"
+          }
+        ]
+      },
+      {
+        "group_id": "nuts",
+        "label": {
+          "runs": [
+            {
+              "text": "Nuts"
+            }
+          ],
+          "text": "Nuts"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Almonds"
+                  }
+                ],
+                "stub": true,
+                "text": "Almonds"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "5"
+                  }
+                ],
+                "text": "5"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "7"
+                  }
+                ],
+                "text": "7"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [],
+        "summary_rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Total"
+                  }
+                ],
+                "stub": true,
+                "text": "Total"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "35"
+                  }
+                ],
+                "text": "35"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "37"
+                  }
+                ],
+                "text": "37"
+              }
+            ],
+            "role": "grand_summary_row"
+          }
+        ]
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [],
+            "text": ""
+          },
+          {
+            "align": "center",
+            "col": 1,
+            "colspan": 2,
+            "runs": [
+              {
+                "text": "Amount"
+              }
+            ],
+            "scope": "colgroup",
+            "text": "Amount"
+          }
+        ],
+        "role": "spanner_label"
+      },
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Item"
+              }
+            ],
+            "text": "Item"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "2024"
+              }
+            ],
+            "text": "2024"
+          },
+          {
+            "align": "left",
+            "col": 2,
+            "runs": [
+              {
+                "text": "2025"
+              }
+            ],
+            "text": "2025"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [
+      {
+        "runs": [
+          {
+            "text": "Made up."
+          }
+        ],
+        "text": "Made up."
+      }
+    ],
+    "subtitle": null,
+    "title": {
+      "runs": [
+        {
+          "text": "Rules of our own"
+        }
+      ],
+      "text": "Rules of our own"
+    }
+  },
+  "tier": "L3"
+}

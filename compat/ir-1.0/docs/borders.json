@@ -1,0 +1,109 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 3,
+    "header_rows": 1,
+    "body_rows": 1
+  },
+  "styles": {
+    "defs": {
+      "rule": {
+        "border": {
+          "bottom": {
+            "width": "3px",
+            "style": "double",
+            "color": "black"
+          }
+        }
+      }
+    }
+  },
+  "column_spec": [
+    {
+      "id": "item"
+    },
+    {
+      "id": "q1",
+      "align": "right"
+    },
+    {
+      "id": "q2",
+      "align": "right"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Item"
+                }
+              ],
+              "style_id": "rule",
+              "scope": "col"
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Q1"
+                }
+              ],
+              "style_id": "rule",
+              "scope": "col"
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Q2"
+                }
+              ],
+              "style_id": "rule",
+              "scope": "col"
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Widgets"
+                  }
+                ]
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "120"
+                  }
+                ]
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "135"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

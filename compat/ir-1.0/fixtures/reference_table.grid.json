@@ -1,0 +1,1665 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "min_width": "120px",
+        "stub": true
+      },
+      {
+        "align": "center",
+        "id": "col_1"
+      },
+      {
+        "align": "right",
+        "id": "col_2"
+      },
+      {
+        "align": "right",
+        "id": "col_3"
+      },
+      {
+        "align": "right",
+        "id": "col_4"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [
+      {
+        "mark": "1",
+        "runs": [
+          {
+            "text": "Includes one-time restructuring charge."
+          }
+        ],
+        "style": {
+          "color": "#666666",
+          "font_size": "11px",
+          "font_style": "normal",
+          "font_weight": "normal",
+          "padding": {
+            "bottom": "4px",
+            "left": "8px",
+            "right": "8px",
+            "top": "4px"
+          },
+          "text_align": "left"
+        },
+        "text": "Includes one-time restructuring charge."
+      }
+    ],
+    "groups": [
+      {
+        "group_id": "grp_north_america",
+        "label": {
+          "runs": [
+            {
+              "text": "North America"
+            }
+          ],
+          "style": {
+            "background_color": "#F0F0F0",
+            "border": {
+              "bottom": {
+                "color": "#D3D3D3",
+                "style": "solid",
+                "width": "1px"
+              },
+              "top": {
+                "color": "#D3D3D3",
+                "style": "solid",
+                "width": "1px"
+              }
+            },
+            "color": "#333333",
+            "font_size": "13px",
+            "font_style": "normal",
+            "font_weight": "bold",
+            "padding": {
+              "bottom": "6px",
+              "left": "8px",
+              "right": "8px",
+              "top": "6px"
+            },
+            "text_align": "left",
+            "vertical_align": "middle"
+          },
+          "text": "North America"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "rowspan": 2,
+                "runs": [
+                  {
+                    "text": "United States"
+                  }
+                ],
+                "stub": true,
+                "style": {
+                  "color": "#333333",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "12px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "left",
+                  "vertical_align": "middle"
+                },
+                "text": "United States",
+                "typed_value": {
+                  "type": "string",
+                  "value": "United States"
+                }
+              },
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2023"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "center",
+                  "vertical_align": "middle"
+                },
+                "text": "2023",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 2023
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "1,250.3"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "1,250.3",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1250.3
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "980.2"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "980.2",
+                "typed_value": {
+                  "type": "number",
+                  "value": 980.2
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "270.1"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "270.1",
+                "typed_value": {
+                  "type": "number",
+                  "value": 270.1
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2024"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "center",
+                  "vertical_align": "middle"
+                },
+                "text": "2024",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 2024
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "1,380.7"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "1,380.7",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1380.7
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "1,050.4"
+                  },
+                  {
+                    "footnote": 1,
+                    "mark_text": "1"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "1,050.4",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1050.4
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "330.3"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "330.3",
+                "typed_value": {
+                  "type": "number",
+                  "value": 330.3
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Canada"
+                  }
+                ],
+                "stub": true,
+                "style": {
+                  "color": "#333333",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "12px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "left",
+                  "vertical_align": "middle"
+                },
+                "text": "Canada",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Canada"
+                }
+              },
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2024"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "center",
+                  "vertical_align": "middle"
+                },
+                "text": "2024",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 2024
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "420.1"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "420.1",
+                "typed_value": {
+                  "type": "number",
+                  "value": 420.1
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "310.6"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "310.6",
+                "typed_value": {
+                  "type": "number",
+                  "value": 310.6
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "109.5"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "109.5",
+                "typed_value": {
+                  "type": "number",
+                  "value": 109.5
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Total"
+                  }
+                ],
+                "stub": true,
+                "style": {
+                  "background_color": "#FAFAFA",
+                  "border": {
+                    "top": {
+                      "color": "#D3D3D3",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#555555",
+                  "font_size": "13px",
+                  "font_style": "italic",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "12px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "left",
+                  "vertical_align": "middle"
+                },
+                "text": "Total"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "—"
+                  }
+                ],
+                "style": {
+                  "background_color": "#FAFAFA",
+                  "border": {
+                    "top": {
+                      "color": "#D3D3D3",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#555555",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "—"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "3,051.1"
+                  }
+                ],
+                "style": {
+                  "background_color": "#FAFAFA",
+                  "border": {
+                    "top": {
+                      "color": "#D3D3D3",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#555555",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "3,051.1",
+                "typed_value": {
+                  "type": "number",
+                  "value": 3051.1
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2,341.2"
+                  }
+                ],
+                "style": {
+                  "background_color": "#FAFAFA",
+                  "border": {
+                    "top": {
+                      "color": "#D3D3D3",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#555555",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "2,341.2",
+                "typed_value": {
+                  "type": "number",
+                  "value": 2341.2
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "709.9"
+                  }
+                ],
+                "style": {
+                  "background_color": "#FAFAFA",
+                  "border": {
+                    "top": {
+                      "color": "#D3D3D3",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#555555",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "709.9",
+                "typed_value": {
+                  "type": "number",
+                  "value": 709.9
+                }
+              }
+            ],
+            "role": "summary_row"
+          }
+        ]
+      },
+      {
+        "group_id": "grp_europe",
+        "label": {
+          "runs": [
+            {
+              "text": "Europe"
+            }
+          ],
+          "style": {
+            "background_color": "#F0F0F0",
+            "border": {
+              "bottom": {
+                "color": "#D3D3D3",
+                "style": "solid",
+                "width": "1px"
+              },
+              "top": {
+                "color": "#D3D3D3",
+                "style": "solid",
+                "width": "1px"
+              }
+            },
+            "color": "#333333",
+            "font_size": "13px",
+            "font_style": "normal",
+            "font_weight": "bold",
+            "padding": {
+              "bottom": "6px",
+              "left": "8px",
+              "right": "8px",
+              "top": "6px"
+            },
+            "text_align": "left",
+            "vertical_align": "middle"
+          },
+          "text": "Europe"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "rowspan": 2,
+                "runs": [
+                  {
+                    "text": "Germany"
+                  }
+                ],
+                "stub": true,
+                "style": {
+                  "color": "#333333",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "12px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "left",
+                  "vertical_align": "middle"
+                },
+                "text": "Germany",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Germany"
+                }
+              },
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2023"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "center",
+                  "vertical_align": "middle"
+                },
+                "text": "2023",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 2023
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "890.5"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "890.5",
+                "typed_value": {
+                  "type": "number",
+                  "value": 890.5
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "720.1"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "720.1",
+                "typed_value": {
+                  "type": "number",
+                  "value": 720.1
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "170.4"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "170.4",
+                "typed_value": {
+                  "type": "number",
+                  "value": 170.4
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2024"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "center",
+                  "vertical_align": "middle"
+                },
+                "text": "2024",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 2024
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "945.2"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "945.2",
+                "typed_value": {
+                  "type": "number",
+                  "value": 945.2
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "780.3"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "780.3",
+                "typed_value": {
+                  "type": "number",
+                  "value": 780.3
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "164.9"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "164.9",
+                "typed_value": {
+                  "type": "number",
+                  "value": 164.9
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "France"
+                  }
+                ],
+                "stub": true,
+                "style": {
+                  "color": "#333333",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "12px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "left",
+                  "vertical_align": "middle"
+                },
+                "text": "France",
+                "typed_value": {
+                  "type": "string",
+                  "value": "France"
+                }
+              },
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2024"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "center",
+                  "vertical_align": "middle"
+                },
+                "text": "2024",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 2024
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "610.8"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "610.8",
+                "typed_value": {
+                  "type": "number",
+                  "value": 610.8
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "490.2"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "normal",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "490.2",
+                "typed_value": {
+                  "type": "number",
+                  "value": 490.2
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "120.6"
+                  }
+                ],
+                "style": {
+                  "color": "#333333",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "120.6",
+                "typed_value": {
+                  "type": "number",
+                  "value": 120.6
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Total"
+                  }
+                ],
+                "stub": true,
+                "style": {
+                  "background_color": "#FAFAFA",
+                  "border": {
+                    "top": {
+                      "color": "#D3D3D3",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#555555",
+                  "font_size": "13px",
+                  "font_style": "italic",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "12px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "left",
+                  "vertical_align": "middle"
+                },
+                "text": "Total"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "—"
+                  }
+                ],
+                "style": {
+                  "background_color": "#FAFAFA",
+                  "border": {
+                    "top": {
+                      "color": "#D3D3D3",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#555555",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "—"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "2,446.5"
+                  }
+                ],
+                "style": {
+                  "background_color": "#FAFAFA",
+                  "border": {
+                    "top": {
+                      "color": "#D3D3D3",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#555555",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "2,446.5",
+                "typed_value": {
+                  "type": "number",
+                  "value": 2446.5
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "1,990.6"
+                  }
+                ],
+                "style": {
+                  "background_color": "#FAFAFA",
+                  "border": {
+                    "top": {
+                      "color": "#D3D3D3",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#555555",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "1,990.6",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1990.6
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "455.9"
+                  }
+                ],
+                "style": {
+                  "background_color": "#FAFAFA",
+                  "border": {
+                    "top": {
+                      "color": "#D3D3D3",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#555555",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "13px",
+                  "font_style": "normal",
+                  "font_weight": "bold",
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "8px",
+                    "right": "8px",
+                    "top": "4px"
+                  },
+                  "text_align": "right",
+                  "vertical_align": "middle"
+                },
+                "text": "455.9",
+                "typed_value": {
+                  "type": "number",
+                  "value": 455.9
+                }
+              }
+            ],
+            "role": "summary_row"
+          }
+        ]
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "center",
+            "col": 0,
+            "runs": [],
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#A8A8A8",
+                  "style": "solid",
+                  "width": "1px"
+                }
+              },
+              "color": "#333333",
+              "font_size": "13px",
+              "font_style": "normal",
+              "font_weight": "bold",
+              "padding": {
+                "bottom": "4px",
+                "left": "8px",
+                "right": "8px",
+                "top": "4px"
+              },
+              "text_align": "center",
+              "vertical_align": "bottom"
+            },
+            "text": ""
+          },
+          {
+            "align": "center",
+            "col": 1,
+            "runs": [],
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#A8A8A8",
+                  "style": "solid",
+                  "width": "1px"
+                }
+              },
+              "color": "#333333",
+              "font_size": "13px",
+              "font_style": "normal",
+              "font_weight": "bold",
+              "padding": {
+                "bottom": "4px",
+                "left": "8px",
+                "right": "8px",
+                "top": "4px"
+              },
+              "text_align": "center",
+              "vertical_align": "bottom"
+            },
+            "text": ""
+          },
+          {
+            "align": "center",
+            "col": 2,
+            "colspan": 3,
+            "runs": [
+              {
+                "text": "Financials"
+              }
+            ],
+            "scope": "colgroup",
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#A8A8A8",
+                  "style": "solid",
+                  "width": "1px"
+                }
+              },
+              "color": "#333333",
+              "font_size": "13px",
+              "font_style": "normal",
+              "font_weight": "bold",
+              "padding": {
+                "bottom": "4px",
+                "left": "8px",
+                "right": "8px",
+                "top": "4px"
+              },
+              "text_align": "center",
+              "vertical_align": "bottom"
+            },
+            "text": "Financials"
+          }
+        ],
+        "role": "spanner_label"
+      },
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Country"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#000000",
+                  "style": "solid",
+                  "width": "2px"
+                }
+              },
+              "color": "#333333",
+              "font_size": "13px",
+              "font_style": "normal",
+              "font_weight": "bold",
+              "padding": {
+                "bottom": "4px",
+                "left": "8px",
+                "right": "8px",
+                "top": "4px"
+              },
+              "text_align": "left",
+              "vertical_align": "bottom"
+            },
+            "text": "Country"
+          },
+          {
+            "align": "center",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Year"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#000000",
+                  "style": "solid",
+                  "width": "2px"
+                }
+              },
+              "color": "#333333",
+              "font_size": "13px",
+              "font_style": "normal",
+              "font_weight": "bold",
+              "padding": {
+                "bottom": "4px",
+                "left": "8px",
+                "right": "8px",
+                "top": "4px"
+              },
+              "text_align": "center",
+              "vertical_align": "bottom"
+            },
+            "text": "Year"
+          },
+          {
+            "align": "center",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Revenue"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#000000",
+                  "style": "solid",
+                  "width": "2px"
+                }
+              },
+              "color": "#333333",
+              "font_size": "13px",
+              "font_style": "normal",
+              "font_weight": "bold",
+              "padding": {
+                "bottom": "4px",
+                "left": "8px",
+                "right": "8px",
+                "top": "4px"
+              },
+              "text_align": "center",
+              "vertical_align": "bottom"
+            },
+            "text": "Revenue"
+          },
+          {
+            "align": "center",
+            "col": 3,
+            "runs": [
+              {
+                "text": "Expenses"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#000000",
+                  "style": "solid",
+                  "width": "2px"
+                }
+              },
+              "color": "#333333",
+              "font_size": "13px",
+              "font_style": "normal",
+              "font_weight": "bold",
+              "padding": {
+                "bottom": "4px",
+                "left": "8px",
+                "right": "8px",
+                "top": "4px"
+              },
+              "text_align": "center",
+              "vertical_align": "bottom"
+            },
+            "text": "Expenses"
+          },
+          {
+            "align": "center",
+            "col": 4,
+            "runs": [
+              {
+                "text": "Profit"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#000000",
+                  "style": "solid",
+                  "width": "2px"
+                }
+              },
+              "color": "#333333",
+              "font_size": "13px",
+              "font_style": "normal",
+              "font_weight": "bold",
+              "padding": {
+                "bottom": "4px",
+                "left": "8px",
+                "right": "8px",
+                "top": "4px"
+              },
+              "text_align": "center",
+              "vertical_align": "bottom"
+            },
+            "text": "Profit"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [
+      {
+        "runs": [
+          {
+            "text": "Source: Internal finance database, June 2025."
+          }
+        ],
+        "style": {
+          "color": "#666666",
+          "font_size": "11px",
+          "font_style": "normal",
+          "font_weight": "normal",
+          "padding": {
+            "bottom": "4px",
+            "left": "8px",
+            "right": "8px",
+            "top": "4px"
+          },
+          "text_align": "left"
+        },
+        "text": "Source: Internal finance database, June 2025."
+      }
+    ],
+    "subtitle": {
+      "runs": [
+        {
+          "text": "Fiscal years 2023–2024 (in millions USD)"
+        }
+      ],
+      "style": {
+        "color": "#666666",
+        "font_size": "14px",
+        "font_style": "normal",
+        "font_weight": "normal",
+        "padding": {
+          "bottom": "8px",
+          "left": "8px",
+          "right": "8px",
+          "top": "0px"
+        },
+        "text_align": "left"
+      },
+      "text": "Fiscal years 2023–2024 (in millions USD)"
+    },
+    "title": {
+      "runs": [
+        {
+          "text": "Regional Sales Performance"
+        }
+      ],
+      "style": {
+        "color": "#333333",
+        "font_size": "18px",
+        "font_style": "normal",
+        "font_weight": "bold",
+        "padding": {
+          "bottom": "0px",
+          "left": "8px",
+          "right": "8px",
+          "top": "4px"
+        },
+        "text_align": "left"
+      },
+      "text": "Regional Sales Performance"
+    }
+  },
+  "tier": "L3"
+}

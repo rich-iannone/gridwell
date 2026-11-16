@@ -1,0 +1,260 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "stub": true
+      },
+      {
+        "align": "right",
+        "id": "col_1"
+      },
+      {
+        "align": "right",
+        "id": "col_2"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": "grp_order",
+        "label": {
+          "runs": [
+            {
+              "text": "Order #1234"
+            }
+          ],
+          "text": "Order #1234"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Apples"
+                  }
+                ],
+                "stub": true,
+                "text": "Apples",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Apples"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "5"
+                  }
+                ],
+                "text": "5",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 5
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "$7.50"
+                  }
+                ],
+                "text": "$7.50",
+                "typed_value": {
+                  "type": "number",
+                  "value": 7.5
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Bread"
+                  }
+                ],
+                "stub": true,
+                "text": "Bread",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Bread"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2"
+                  }
+                ],
+                "text": "2",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 2
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "$8.00"
+                  }
+                ],
+                "text": "$8.00",
+                "typed_value": {
+                  "type": "number",
+                  "value": 8
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Total"
+                  }
+                ],
+                "stub": true,
+                "style": {
+                  "background_color": "#F5F5F5",
+                  "border": {
+                    "top": {
+                      "color": "#CCCCCC",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#555555",
+                  "font_style": "italic",
+                  "font_weight": "bold"
+                },
+                "text": "Total"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "7"
+                  }
+                ],
+                "style": {
+                  "background_color": "#F5F5F5",
+                  "border": {
+                    "top": {
+                      "color": "#CCCCCC",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#555555",
+                  "font_style": "italic",
+                  "font_weight": "bold"
+                },
+                "text": "7",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 7
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "$15.50"
+                  }
+                ],
+                "style": {
+                  "background_color": "#F5F5F5",
+                  "border": {
+                    "top": {
+                      "color": "#CCCCCC",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#555555",
+                  "font_style": "italic",
+                  "font_weight": "bold"
+                },
+                "text": "$15.50",
+                "typed_value": {
+                  "type": "number",
+                  "value": 15.5
+                }
+              }
+            ],
+            "role": "summary_row"
+          }
+        ]
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Item"
+              }
+            ],
+            "scope": "col",
+            "text": "Item"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Qty"
+              }
+            ],
+            "scope": "col",
+            "text": "Qty"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Total"
+              }
+            ],
+            "scope": "col",
+            "text": "Total"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

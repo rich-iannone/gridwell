@@ -1,0 +1,166 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "stub": true
+      },
+      {
+        "align": "left",
+        "id": "col_1"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Alpha"
+                  }
+                ],
+                "stub": true,
+                "text": "Alpha"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "10"
+                  }
+                ],
+                "text": "10"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Beta"
+                  }
+                ],
+                "stub": true,
+                "text": "Beta"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "20"
+                  }
+                ],
+                "text": "20"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Gamma"
+                  }
+                ],
+                "stub": true,
+                "text": "Gamma"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "30"
+                  }
+                ],
+                "text": "30"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [],
+        "summary_rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Total"
+                  }
+                ],
+                "stub": true,
+                "text": "Total"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "60"
+                  }
+                ],
+                "text": "60"
+              }
+            ],
+            "role": "grand_summary_row"
+          }
+        ]
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Item"
+              }
+            ],
+            "text": "Item"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Amount"
+              }
+            ],
+            "text": "Amount"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

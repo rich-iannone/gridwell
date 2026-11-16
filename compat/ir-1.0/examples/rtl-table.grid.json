@@ -1,0 +1,295 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "right",
+        "id": "country",
+        "stub": true
+      },
+      {
+        "align": "left",
+        "id": "y2023"
+      },
+      {
+        "align": "left",
+        "id": "y2024"
+      }
+    ],
+    "dir": "rtl",
+    "extra_lines": [],
+    "footnotes": [
+      {
+        "mark": "1",
+        "runs": [
+          {
+            "text": "تقديرات أولية."
+          }
+        ],
+        "text": "تقديرات أولية."
+      }
+    ],
+    "groups": [
+      {
+        "group_id": "الخليج",
+        "label": {
+          "runs": [
+            {
+              "text": "الخليج"
+            }
+          ],
+          "text": "الخليج"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "السعودية"
+                  }
+                ],
+                "stub": true,
+                "text": "السعودية"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "120.5"
+                  }
+                ],
+                "text": "120.5"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "131.2"
+                  },
+                  {
+                    "footnote": 1,
+                    "mark_text": "1"
+                  }
+                ],
+                "text": "131.2"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "الإمارات"
+                  }
+                ],
+                "stub": true,
+                "text": "الإمارات"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "98.1"
+                  }
+                ],
+                "text": "98.1"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "104.7"
+                  }
+                ],
+                "text": "104.7"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "شمال_أفريقيا",
+        "label": {
+          "runs": [
+            {
+              "text": "شمال أفريقيا"
+            }
+          ],
+          "text": "شمال أفريقيا"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "مصر"
+                  }
+                ],
+                "stub": true,
+                "text": "مصر"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "75.3"
+                  }
+                ],
+                "text": "75.3"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "80.9"
+                  }
+                ],
+                "text": "80.9"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "المغرب"
+                  }
+                ],
+                "stub": true,
+                "text": "المغرب"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "40.2"
+                  }
+                ],
+                "text": "40.2"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "43.8"
+                  }
+                ],
+                "text": "43.8"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "right",
+            "col": 0,
+            "runs": [],
+            "text": ""
+          },
+          {
+            "align": "center",
+            "col": 1,
+            "colspan": 2,
+            "runs": [
+              {
+                "text": "الإيرادات"
+              }
+            ],
+            "scope": "colgroup",
+            "text": "الإيرادات"
+          }
+        ],
+        "role": "spanner_label"
+      },
+      {
+        "cells": [
+          {
+            "align": "right",
+            "col": 0,
+            "runs": [
+              {
+                "text": "البلد"
+              }
+            ],
+            "text": "البلد"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "2023"
+              }
+            ],
+            "text": "2023"
+          },
+          {
+            "align": "left",
+            "col": 2,
+            "runs": [
+              {
+                "text": "2024"
+              }
+            ],
+            "text": "2024"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "lang": "ar",
+    "source_notes": [
+      {
+        "runs": [
+          {
+            "text": "المصدر: بيانات تجريبية."
+          }
+        ],
+        "text": "المصدر: بيانات تجريبية."
+      }
+    ],
+    "subtitle": {
+      "runs": [
+        {
+          "text": "بملايين الدولارات"
+        }
+      ],
+      "text": "بملايين الدولارات"
+    },
+    "title": {
+      "runs": [
+        {
+          "text": "المبيعات حسب البلد"
+        }
+      ],
+      "text": "المبيعات حسب البلد"
+    }
+  },
+  "tier": "L3"
+}

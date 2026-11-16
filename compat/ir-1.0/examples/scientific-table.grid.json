@@ -1,0 +1,251 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "stub": true
+      },
+      {
+        "align": "right",
+        "id": "col_1"
+      },
+      {
+        "align": "right",
+        "id": "col_2"
+      },
+      {
+        "align": "right",
+        "id": "col_3"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [
+      {
+        "mark": "a",
+        "runs": [
+          {
+            "text": "Measured under pseudo-first-order conditions."
+          }
+        ],
+        "text": "Measured under pseudo-first-order conditions."
+      }
+    ],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "A"
+                  }
+                ],
+                "stub": true,
+                "text": "A"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "1.2×10³"
+                  }
+                ],
+                "text": "1.2×10³"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "298"
+                  }
+                ],
+                "text": "298"
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "52.3"
+                  }
+                ],
+                "text": "52.3"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "B"
+                  }
+                ],
+                "stub": true,
+                "text": "B"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "3.4×10²"
+                  }
+                ],
+                "text": "3.4×10²"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "298"
+                  }
+                ],
+                "text": "298"
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "61.0"
+                  }
+                ],
+                "text": "61.0"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "C"
+                  }
+                ],
+                "stub": true,
+                "text": "C"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "8.9×10¹"
+                  }
+                ],
+                "text": "8.9×10¹"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "310"
+                  }
+                ],
+                "text": "310"
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "70.8"
+                  }
+                ],
+                "text": "70.8"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Compound"
+              }
+            ],
+            "text": "Compound"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "k (s⁻¹)"
+              },
+              {
+                "footnote": 1,
+                "mark_text": "a"
+              }
+            ],
+            "text": "k (s⁻¹)"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "T (K)"
+              }
+            ],
+            "text": "T (K)"
+          },
+          {
+            "align": "right",
+            "col": 3,
+            "runs": [
+              {
+                "text": "Ea (kJ/mol)"
+              }
+            ],
+            "text": "Ea (kJ/mol)"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [
+      {
+        "runs": [
+          {
+            "text": "Source: laboratory notebook, 2026."
+          }
+        ],
+        "text": "Source: laboratory notebook, 2026."
+      }
+    ],
+    "subtitle": null,
+    "title": {
+      "runs": [
+        {
+          "text": "Reaction rate constants"
+        }
+      ],
+      "text": "Reaction rate constants"
+    }
+  },
+  "tier": "L3"
+}

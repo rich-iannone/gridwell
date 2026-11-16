@@ -1,0 +1,284 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "stub": true
+      },
+      {
+        "align": "right",
+        "id": "col_1"
+      },
+      {
+        "align": "right",
+        "id": "col_2"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": "grp_asia",
+        "label": {
+          "runs": [
+            {
+              "text": "Asia"
+            }
+          ],
+          "text": "Asia"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Tokyo"
+                  }
+                ],
+                "stub": true,
+                "text": "Tokyo",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Tokyo"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "13.96"
+                  }
+                ],
+                "text": "13.96",
+                "typed_value": {
+                  "type": "number",
+                  "value": 13.96
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "2,194"
+                  }
+                ],
+                "text": "2,194",
+                "typed_value": {
+                  "type": "number",
+                  "value": 2194
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Seoul"
+                  }
+                ],
+                "stub": true,
+                "text": "Seoul",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Seoul"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "9.74"
+                  }
+                ],
+                "text": "9.74",
+                "typed_value": {
+                  "type": "number",
+                  "value": 9.74
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "605"
+                  }
+                ],
+                "text": "605",
+                "typed_value": {
+                  "type": "number",
+                  "value": 605
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "grp_europe",
+        "label": {
+          "runs": [
+            {
+              "text": "Europe"
+            }
+          ],
+          "text": "Europe"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "London"
+                  }
+                ],
+                "stub": true,
+                "text": "London",
+                "typed_value": {
+                  "type": "string",
+                  "value": "London"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "8.98"
+                  }
+                ],
+                "text": "8.98",
+                "typed_value": {
+                  "type": "number",
+                  "value": 8.98
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "1,572"
+                  }
+                ],
+                "text": "1,572",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1572
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Paris"
+                  }
+                ],
+                "stub": true,
+                "text": "Paris",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Paris"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2.16"
+                  }
+                ],
+                "text": "2.16",
+                "typed_value": {
+                  "type": "number",
+                  "value": 2.16
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "105"
+                  }
+                ],
+                "text": "105",
+                "typed_value": {
+                  "type": "number",
+                  "value": 105
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "City"
+              }
+            ],
+            "scope": "col",
+            "text": "City"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Pop (M)"
+              }
+            ],
+            "scope": "col",
+            "text": "Pop (M)"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Area (km²)"
+              }
+            ],
+            "scope": "col",
+            "text": "Area (km²)"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

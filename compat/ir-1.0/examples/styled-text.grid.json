@@ -1,0 +1,91 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "left",
+        "id": "col_1"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Rust"
+                  }
+                ],
+                "text": "Rust"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "A "
+                  },
+                  {
+                    "style": {
+                      "color": "#8E44AD",
+                      "font_style": "italic"
+                    },
+                    "text": "systems"
+                  },
+                  {
+                    "text": " language."
+                  }
+                ],
+                "text": "A systems language."
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Term"
+              }
+            ],
+            "text": "Term"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Note"
+              }
+            ],
+            "text": "Note"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

@@ -1,0 +1,139 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "center",
+        "id": "col_1"
+      },
+      {
+        "align": "right",
+        "id": "col_2"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "aaa"
+                  }
+                ],
+                "text": "aaa"
+              },
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "bbb"
+                  }
+                ],
+                "text": "bbb"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "ccc"
+                  }
+                ],
+                "text": "ccc"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "d"
+                  }
+                ],
+                "text": "d"
+              },
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "e"
+                  }
+                ],
+                "text": "e"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "f"
+                  }
+                ],
+                "text": "f"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Left"
+              }
+            ],
+            "text": "Left"
+          },
+          {
+            "align": "center",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Center"
+              }
+            ],
+            "text": "Center"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Right"
+              }
+            ],
+            "text": "Right"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

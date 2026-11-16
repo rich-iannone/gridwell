@@ -1,0 +1,371 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "stub": true
+      },
+      {
+        "align": "left",
+        "id": "col_1"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": "group_1",
+        "label": {
+          "runs": [
+            {
+              "text": "Group 1"
+            }
+          ],
+          "text": "Group 1"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "k1a"
+                  }
+                ],
+                "stub": true,
+                "text": "k1a"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "10"
+                  }
+                ],
+                "text": "10"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "k1b"
+                  }
+                ],
+                "stub": true,
+                "text": "k1b"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "20"
+                  }
+                ],
+                "text": "20"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "group_2",
+        "label": {
+          "runs": [
+            {
+              "text": "Group 2"
+            }
+          ],
+          "text": "Group 2"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "k2a"
+                  }
+                ],
+                "stub": true,
+                "text": "k2a"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "20"
+                  }
+                ],
+                "text": "20"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "k2b"
+                  }
+                ],
+                "stub": true,
+                "text": "k2b"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "40"
+                  }
+                ],
+                "text": "40"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "group_3",
+        "label": {
+          "runs": [
+            {
+              "text": "Group 3"
+            }
+          ],
+          "text": "Group 3"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "k3a"
+                  }
+                ],
+                "stub": true,
+                "text": "k3a"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "30"
+                  }
+                ],
+                "text": "30"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "k3b"
+                  }
+                ],
+                "stub": true,
+                "text": "k3b"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "60"
+                  }
+                ],
+                "text": "60"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "group_4",
+        "label": {
+          "runs": [
+            {
+              "text": "Group 4"
+            }
+          ],
+          "text": "Group 4"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "k4a"
+                  }
+                ],
+                "stub": true,
+                "text": "k4a"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "40"
+                  }
+                ],
+                "text": "40"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "k4b"
+                  }
+                ],
+                "stub": true,
+                "text": "k4b"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "80"
+                  }
+                ],
+                "text": "80"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "group_5",
+        "label": {
+          "runs": [
+            {
+              "text": "Group 5"
+            }
+          ],
+          "text": "Group 5"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "k5a"
+                  }
+                ],
+                "stub": true,
+                "text": "k5a"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "50"
+                  }
+                ],
+                "text": "50"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "k5b"
+                  }
+                ],
+                "stub": true,
+                "text": "k5b"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "100"
+                  }
+                ],
+                "text": "100"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Key"
+              }
+            ],
+            "text": "Key"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Value"
+              }
+            ],
+            "text": "Value"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

@@ -1,0 +1,160 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "name"
+      },
+      {
+        "align": "right",
+        "id": "q1"
+      },
+      {
+        "align": "right",
+        "id": "q2"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Alice"
+                  }
+                ],
+                "text": "Alice"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "95"
+                  }
+                ],
+                "text": "95"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "91"
+                  }
+                ],
+                "text": "91"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Bob"
+                  }
+                ],
+                "text": "Bob"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "87"
+                  }
+                ],
+                "text": "87"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "90"
+                  }
+                ],
+                "text": "90"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "rowspan": 2,
+            "runs": [
+              {
+                "text": "Name"
+              }
+            ],
+            "scope": "col",
+            "text": "Name"
+          },
+          {
+            "align": "center",
+            "col": 1,
+            "colspan": 2,
+            "runs": [
+              {
+                "text": "Scores"
+              }
+            ],
+            "scope": "colgroup",
+            "text": "Scores"
+          }
+        ],
+        "role": "spanner_label"
+      },
+      {
+        "cells": [
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Q1"
+              }
+            ],
+            "scope": "col",
+            "text": "Q1"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Q2"
+              }
+            ],
+            "scope": "col",
+            "text": "Q2"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

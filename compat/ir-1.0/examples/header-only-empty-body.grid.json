@@ -1,0 +1,77 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "left",
+        "id": "col_1"
+      },
+      {
+        "align": "left",
+        "id": "col_2"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "A"
+              }
+            ],
+            "text": "A"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "B"
+              }
+            ],
+            "text": "B"
+          },
+          {
+            "align": "left",
+            "col": 2,
+            "runs": [
+              {
+                "text": "C"
+              }
+            ],
+            "text": "C"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": {
+      "runs": [
+        {
+          "text": "Empty"
+        }
+      ],
+      "text": "Empty"
+    }
+  },
+  "tier": "L3"
+}

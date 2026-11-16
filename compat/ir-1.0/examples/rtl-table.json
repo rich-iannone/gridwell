@@ -1,0 +1,458 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 3,
+    "header_rows": 2,
+    "body_rows": 4,
+    "stub_cols": 1,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "ar",
+    "lang": "ar",
+    "dir": "rtl",
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null,
+    "id": null,
+    "rules": null
+  },
+  "styles": {
+    "defs": {},
+    "compositions": {},
+    "conditionals": []
+  },
+  "header": {
+    "title": {
+      "content": [
+        {
+          "type": "text",
+          "value": "المبيعات حسب البلد"
+        }
+      ],
+      "style_id": null
+    },
+    "subtitle": {
+      "content": [
+        {
+          "type": "text",
+          "value": "بملايين الدولارات"
+        }
+      ],
+      "style_id": null
+    },
+    "extra_lines": [],
+    "preheader_content": null
+  },
+  "column_spec": [
+    {
+      "id": "country",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "البلد"
+    },
+    {
+      "id": "y2023",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "2023"
+    },
+    {
+      "id": "y2024",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "2024"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "spanner_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": true,
+              "is_placeholder": false,
+              "scope": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "الإيرادات"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 2,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "colgroup"
+            },
+            {
+              "content": [],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null
+            }
+          ]
+        },
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "البلد"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": true,
+              "is_placeholder": false,
+              "scope": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "2023"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "2024"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": null
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "group_id": "الخليج",
+        "label": {
+          "content": [
+            {
+              "type": "text",
+              "value": "الخليج"
+            }
+          ],
+          "style_id": null,
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "السعودية"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "120.5"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "131.2"
+                  },
+                  {
+                    "type": "footnote_mark",
+                    "ref": "prelim",
+                    "mark_text": "1"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "الإمارات"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "98.1"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "104.7"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          }
+        ],
+        "summary_rows": [],
+        "summary_placement": "bottom"
+      },
+      {
+        "group_id": "شمال_أفريقيا",
+        "label": {
+          "content": [
+            {
+              "type": "text",
+              "value": "شمال أفريقيا"
+            }
+          ],
+          "style_id": null,
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "مصر"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "75.3"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "80.9"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "المغرب"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "40.2"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "43.8"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          }
+        ],
+        "summary_rows": [],
+        "summary_placement": "bottom"
+      }
+    ]
+  },
+  "footer": {
+    "footnotes": [
+      {
+        "id": "prelim",
+        "mark": "1",
+        "content": [
+          {
+            "type": "text",
+            "value": "تقديرات أولية."
+          }
+        ],
+        "style_id": null
+      }
+    ],
+    "source_notes": [
+      {
+        "content": [
+          {
+            "type": "text",
+            "value": "المصدر: بيانات تجريبية."
+          }
+        ],
+        "style_id": null
+      }
+    ]
+  },
+  "extensions": null
+}

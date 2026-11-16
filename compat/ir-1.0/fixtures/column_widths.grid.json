@@ -1,0 +1,219 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "max_width": "300px",
+        "min_width": "100px",
+        "width": "200px"
+      },
+      {
+        "align": "left",
+        "id": "col_1",
+        "width": "20%"
+      },
+      {
+        "align": "left",
+        "id": "col_2",
+        "width": "1fr"
+      },
+      {
+        "align": "left",
+        "id": "col_3",
+        "width": "2fr"
+      },
+      {
+        "align": "left",
+        "id": "col_4"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "200px wide"
+                  }
+                ],
+                "text": "200px wide"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "20% wide"
+                  }
+                ],
+                "text": "20% wide"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "1fr"
+                  }
+                ],
+                "text": "1fr"
+              },
+              {
+                "align": "left",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2fr"
+                  }
+                ],
+                "text": "2fr"
+              },
+              {
+                "align": "left",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "auto"
+                  }
+                ],
+                "text": "auto"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "content"
+                  }
+                ],
+                "text": "content"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "content"
+                  }
+                ],
+                "text": "content"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "content"
+                  }
+                ],
+                "text": "content"
+              },
+              {
+                "align": "left",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "content"
+                  }
+                ],
+                "text": "content"
+              },
+              {
+                "align": "left",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "content"
+                  }
+                ],
+                "text": "content"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Fixed PX"
+              }
+            ],
+            "scope": "col",
+            "text": "Fixed PX"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Percent"
+              }
+            ],
+            "scope": "col",
+            "text": "Percent"
+          },
+          {
+            "align": "left",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Fractional"
+              }
+            ],
+            "scope": "col",
+            "text": "Fractional"
+          },
+          {
+            "align": "left",
+            "col": 3,
+            "runs": [
+              {
+                "text": "2x Fractional"
+              }
+            ],
+            "scope": "col",
+            "text": "2x Fractional"
+          },
+          {
+            "align": "left",
+            "col": 4,
+            "runs": [
+              {
+                "text": "Auto"
+              }
+            ],
+            "scope": "col",
+            "text": "Auto"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "table_width": "100%",
+    "title": null
+  },
+  "tier": "L3"
+}

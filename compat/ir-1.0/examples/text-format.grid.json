@@ -1,0 +1,213 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "left",
+        "id": "col_1"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "underline"
+                  }
+                ],
+                "text": "underline"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "Underlined"
+                  }
+                ],
+                "style": {
+                  "text_decoration": "underline"
+                },
+                "text": "Underlined"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "line-through"
+                  }
+                ],
+                "text": "line-through"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "Struck out"
+                  }
+                ],
+                "style": {
+                  "text_decoration": "line-through"
+                },
+                "text": "Struck out"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "18px"
+                  }
+                ],
+                "text": "18px"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "Larger text"
+                  }
+                ],
+                "style": {
+                  "font_size": "18px"
+                },
+                "text": "Larger text"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "smaller"
+                  }
+                ],
+                "text": "smaller"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "Smaller text"
+                  }
+                ],
+                "style": {
+                  "font_size": "smaller"
+                },
+                "text": "Smaller text"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "inline"
+                  }
+                ],
+                "text": "inline"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "Plain, "
+                  },
+                  {
+                    "style": {
+                      "text_decoration": "underline"
+                    },
+                    "text": "underlined"
+                  },
+                  {
+                    "text": ", "
+                  },
+                  {
+                    "style": {
+                      "text_decoration": "line-through"
+                    },
+                    "text": "struck"
+                  },
+                  {
+                    "text": " and "
+                  },
+                  {
+                    "style": {
+                      "font_size": "18px"
+                    },
+                    "text": "large"
+                  }
+                ],
+                "text": "Plain, underlined, struck and large"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Format"
+              }
+            ],
+            "text": "Format"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Sample"
+              }
+            ],
+            "text": "Sample"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

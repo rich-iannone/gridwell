@@ -1,0 +1,133 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "width": "120px"
+      },
+      {
+        "align": "left",
+        "id": "col_1",
+        "width": "25%"
+      },
+      {
+        "align": "left",
+        "id": "col_2",
+        "width": "1fr"
+      },
+      {
+        "align": "left",
+        "id": "col_3"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "120px"
+                  }
+                ],
+                "text": "120px"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "25%"
+                  }
+                ],
+                "text": "25%"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "1fr"
+                  }
+                ],
+                "text": "1fr"
+              },
+              {
+                "align": "left",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "auto"
+                  }
+                ],
+                "text": "auto"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Fixed"
+              }
+            ],
+            "text": "Fixed"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Percent"
+              }
+            ],
+            "text": "Percent"
+          },
+          {
+            "align": "left",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Fraction"
+              }
+            ],
+            "text": "Fraction"
+          },
+          {
+            "align": "left",
+            "col": 3,
+            "runs": [
+              {
+                "text": "Auto"
+              }
+            ],
+            "text": "Auto"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "table_width": "100%",
+    "title": null
+  },
+  "tier": "L3"
+}

@@ -1,0 +1,398 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 2,
+    "header_rows": 1,
+    "body_rows": 5,
+    "stub_cols": 0,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "lang": null,
+    "dir": null,
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null,
+    "id": null,
+    "rules": null
+  },
+  "styles": {
+    "defs": {
+      "big": {
+        "font_family": null,
+        "font_size": "18px",
+        "font_weight": null,
+        "font_style": null,
+        "color": null,
+        "background_color": null,
+        "text_align": null,
+        "vertical_align": null,
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": null,
+        "border": null,
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "small": {
+        "font_family": null,
+        "font_size": "smaller",
+        "font_weight": null,
+        "font_style": null,
+        "color": null,
+        "background_color": null,
+        "text_align": null,
+        "vertical_align": null,
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": null,
+        "border": null,
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "u": {
+        "font_family": null,
+        "font_size": null,
+        "font_weight": null,
+        "font_style": null,
+        "color": null,
+        "background_color": null,
+        "text_align": null,
+        "vertical_align": null,
+        "text_transform": null,
+        "text_decoration": "underline",
+        "white_space": null,
+        "padding": null,
+        "border": null,
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      },
+      "s": {
+        "font_family": null,
+        "font_size": null,
+        "font_weight": null,
+        "font_style": null,
+        "color": null,
+        "background_color": null,
+        "text_align": null,
+        "vertical_align": null,
+        "text_transform": null,
+        "text_decoration": "line-through",
+        "white_space": null,
+        "padding": null,
+        "border": null,
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      }
+    },
+    "compositions": {},
+    "conditionals": []
+  },
+  "header": null,
+  "column_spec": [
+    {
+      "id": "col_0",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "col_0"
+    },
+    {
+      "id": "col_1",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "col_1"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Format"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Sample"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": null
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "underline"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Underlined"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "u",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "line-through"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Struck out"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "s",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "18px"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Larger text"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "big",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "smaller"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Smaller text"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": "small",
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "inline"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Plain, "
+                  },
+                  {
+                    "type": "styled_text",
+                    "value": "underlined",
+                    "style_id": "u"
+                  },
+                  {
+                    "type": "text",
+                    "value": ", "
+                  },
+                  {
+                    "type": "styled_text",
+                    "value": "struck",
+                    "style_id": "s"
+                  },
+                  {
+                    "type": "text",
+                    "value": " and "
+                  },
+                  {
+                    "type": "styled_text",
+                    "value": "large",
+                    "style_id": "big"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          }
+        ],
+        "summary_rows": [],
+        "summary_placement": "bottom"
+      }
+    ]
+  },
+  "footer": null,
+  "extensions": null
+}

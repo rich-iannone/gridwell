@@ -1,0 +1,98 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "left",
+        "id": "col_1"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Users"
+                  }
+                ],
+                "text": "Users"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "1,024"
+                  }
+                ],
+                "text": "1,024"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Metric"
+              }
+            ],
+            "text": "Metric"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Value"
+              }
+            ],
+            "text": "Value"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [
+      {
+        "runs": [
+          {
+            "text": "Source: internal analytics."
+          }
+        ],
+        "text": "Source: internal analytics."
+      },
+      {
+        "runs": [
+          {
+            "text": "Collected June 2026."
+          }
+        ],
+        "text": "Collected June 2026."
+      }
+    ],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

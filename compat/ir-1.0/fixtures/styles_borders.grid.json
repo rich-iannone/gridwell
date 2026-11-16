@@ -1,0 +1,443 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "center",
+        "id": "col_1"
+      },
+      {
+        "align": "right",
+        "id": "col_2"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "all borders"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "bottom": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    },
+                    "left": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    },
+                    "right": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    },
+                    "top": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "6px",
+                    "right": "6px",
+                    "top": "4px"
+                  }
+                },
+                "text": "all borders",
+                "typed_value": {
+                  "type": "string",
+                  "value": "all borders"
+                }
+              },
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "all borders"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "bottom": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    },
+                    "left": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    },
+                    "right": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    },
+                    "top": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "6px",
+                    "right": "6px",
+                    "top": "4px"
+                  }
+                },
+                "text": "all borders",
+                "typed_value": {
+                  "type": "string",
+                  "value": "all borders"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "all borders"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "bottom": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    },
+                    "left": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    },
+                    "right": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    },
+                    "top": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "6px",
+                    "right": "6px",
+                    "top": "4px"
+                  }
+                },
+                "text": "all borders",
+                "typed_value": {
+                  "type": "string",
+                  "value": "all borders"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "dashed"
+                  }
+                ],
+                "style": {
+                  "background_color": "#F9F9F9",
+                  "border": {
+                    "bottom": {
+                      "color": "#999999",
+                      "style": "dashed",
+                      "width": "1px"
+                    },
+                    "left": {
+                      "color": "#999999",
+                      "style": "dashed",
+                      "width": "1px"
+                    },
+                    "right": {
+                      "color": "#999999",
+                      "style": "dashed",
+                      "width": "1px"
+                    },
+                    "top": {
+                      "color": "#999999",
+                      "style": "dashed",
+                      "width": "1px"
+                    }
+                  },
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "6px",
+                    "right": "6px",
+                    "top": "4px"
+                  }
+                },
+                "text": "dashed",
+                "typed_value": {
+                  "type": "string",
+                  "value": "dashed"
+                }
+              },
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "dashed"
+                  }
+                ],
+                "style": {
+                  "background_color": "#F9F9F9",
+                  "border": {
+                    "bottom": {
+                      "color": "#999999",
+                      "style": "dashed",
+                      "width": "1px"
+                    },
+                    "left": {
+                      "color": "#999999",
+                      "style": "dashed",
+                      "width": "1px"
+                    },
+                    "right": {
+                      "color": "#999999",
+                      "style": "dashed",
+                      "width": "1px"
+                    },
+                    "top": {
+                      "color": "#999999",
+                      "style": "dashed",
+                      "width": "1px"
+                    }
+                  },
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "6px",
+                    "right": "6px",
+                    "top": "4px"
+                  }
+                },
+                "text": "dashed",
+                "typed_value": {
+                  "type": "string",
+                  "value": "dashed"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "dashed"
+                  }
+                ],
+                "style": {
+                  "background_color": "#F9F9F9",
+                  "border": {
+                    "bottom": {
+                      "color": "#999999",
+                      "style": "dashed",
+                      "width": "1px"
+                    },
+                    "left": {
+                      "color": "#999999",
+                      "style": "dashed",
+                      "width": "1px"
+                    },
+                    "right": {
+                      "color": "#999999",
+                      "style": "dashed",
+                      "width": "1px"
+                    },
+                    "top": {
+                      "color": "#999999",
+                      "style": "dashed",
+                      "width": "1px"
+                    }
+                  },
+                  "padding": {
+                    "bottom": "4px",
+                    "left": "6px",
+                    "right": "6px",
+                    "top": "4px"
+                  }
+                },
+                "text": "dashed",
+                "typed_value": {
+                  "type": "string",
+                  "value": "dashed"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "none"
+                  }
+                ],
+                "text": "none",
+                "typed_value": {
+                  "type": "string",
+                  "value": "none"
+                }
+              },
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "none"
+                  }
+                ],
+                "text": "none",
+                "typed_value": {
+                  "type": "string",
+                  "value": "none"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "none"
+                  }
+                ],
+                "text": "none",
+                "typed_value": {
+                  "type": "string",
+                  "value": "none"
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "A"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#333333",
+                  "style": "double",
+                  "width": "3px"
+                }
+              },
+              "font_weight": "bold",
+              "padding": {
+                "bottom": "4px",
+                "left": "6px",
+                "right": "6px",
+                "top": "4px"
+              }
+            },
+            "text": "A"
+          },
+          {
+            "align": "center",
+            "col": 1,
+            "runs": [
+              {
+                "text": "B"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#333333",
+                  "style": "double",
+                  "width": "3px"
+                }
+              },
+              "font_weight": "bold",
+              "padding": {
+                "bottom": "4px",
+                "left": "6px",
+                "right": "6px",
+                "top": "4px"
+              }
+            },
+            "text": "B"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "C"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#333333",
+                  "style": "double",
+                  "width": "3px"
+                }
+              },
+              "font_weight": "bold",
+              "padding": {
+                "bottom": "4px",
+                "left": "6px",
+                "right": "6px",
+                "top": "4px"
+              }
+            },
+            "text": "C"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

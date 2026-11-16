@@ -1,0 +1,388 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "stub": true
+      },
+      {
+        "align": "right",
+        "id": "col_1"
+      },
+      {
+        "align": "right",
+        "id": "col_2"
+      },
+      {
+        "align": "right",
+        "id": "col_3"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [
+      {
+        "mark": "1",
+        "runs": [
+          {
+            "text": "Includes one-time restructuring charge."
+          }
+        ],
+        "text": "Includes one-time restructuring charge."
+      }
+    ],
+    "groups": [
+      {
+        "group_id": "north_america",
+        "label": {
+          "runs": [
+            {
+              "text": "North America"
+            }
+          ],
+          "text": "North America"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "rowspan": 2,
+                "runs": [
+                  {
+                    "text": "United States"
+                  }
+                ],
+                "stub": true,
+                "text": "United States"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2023"
+                  }
+                ],
+                "text": "2023"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "1,250.3"
+                  }
+                ],
+                "text": "1,250.3"
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "270.1"
+                  },
+                  {
+                    "footnote": 1,
+                    "mark_text": "1"
+                  }
+                ],
+                "text": "270.1"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2024"
+                  }
+                ],
+                "text": "2024"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "1,380.7"
+                  }
+                ],
+                "text": "1,380.7"
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "330.3"
+                  }
+                ],
+                "text": "330.3"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Canada"
+                  }
+                ],
+                "stub": true,
+                "text": "Canada"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2024"
+                  }
+                ],
+                "text": "2024"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "420.1"
+                  }
+                ],
+                "text": "420.1"
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "109.5"
+                  }
+                ],
+                "text": "109.5"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "europe",
+        "label": {
+          "runs": [
+            {
+              "text": "Europe"
+            }
+          ],
+          "text": "Europe"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Germany"
+                  }
+                ],
+                "stub": true,
+                "text": "Germany"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2024"
+                  }
+                ],
+                "text": "2024"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "945.2"
+                  }
+                ],
+                "text": "945.2"
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "164.9"
+                  }
+                ],
+                "text": "164.9"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "France"
+                  }
+                ],
+                "stub": true,
+                "text": "France"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2024"
+                  }
+                ],
+                "text": "2024"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "610.8"
+                  }
+                ],
+                "text": "610.8"
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "120.6"
+                  }
+                ],
+                "text": "120.6"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [],
+            "text": ""
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [],
+            "text": ""
+          },
+          {
+            "align": "center",
+            "col": 2,
+            "colspan": 2,
+            "runs": [
+              {
+                "text": "Financials"
+              }
+            ],
+            "scope": "colgroup",
+            "text": "Financials"
+          }
+        ],
+        "role": "spanner_label"
+      },
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Country"
+              }
+            ],
+            "text": "Country"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Year"
+              }
+            ],
+            "text": "Year"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Revenue"
+              }
+            ],
+            "text": "Revenue"
+          },
+          {
+            "align": "right",
+            "col": 3,
+            "runs": [
+              {
+                "text": "Profit"
+              }
+            ],
+            "text": "Profit"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [
+      {
+        "runs": [
+          {
+            "text": "Source: Internal finance database, June 2026."
+          }
+        ],
+        "text": "Source: Internal finance database, June 2026."
+      }
+    ],
+    "subtitle": {
+      "runs": [
+        {
+          "text": "Fiscal years 2023–2024 (in millions USD)"
+        }
+      ],
+      "text": "Fiscal years 2023–2024 (in millions USD)"
+    },
+    "title": {
+      "runs": [
+        {
+          "text": "Regional Sales Performance"
+        }
+      ],
+      "text": "Regional Sales Performance"
+    }
+  },
+  "tier": "L3"
+}

@@ -1,0 +1,179 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "stub": true
+      },
+      {
+        "align": "left",
+        "id": "col_1",
+        "stub": true
+      },
+      {
+        "align": "left",
+        "id": "col_2"
+      },
+      {
+        "align": "left",
+        "id": "col_3"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "East"
+                  }
+                ],
+                "stub": true,
+                "text": "East"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "NYC"
+                  }
+                ],
+                "stub": true,
+                "text": "NYC"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "60"
+                  }
+                ],
+                "text": "60"
+              },
+              {
+                "align": "left",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "3%"
+                  }
+                ],
+                "text": "3%"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "West"
+                  }
+                ],
+                "stub": true,
+                "text": "West"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "LA"
+                  }
+                ],
+                "stub": true,
+                "text": "LA"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "50"
+                  }
+                ],
+                "text": "50"
+              },
+              {
+                "align": "left",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2%"
+                  }
+                ],
+                "text": "2%"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Region"
+              }
+            ],
+            "text": "Region"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "City"
+              }
+            ],
+            "text": "City"
+          },
+          {
+            "align": "left",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Sales"
+              }
+            ],
+            "text": "Sales"
+          },
+          {
+            "align": "left",
+            "col": 3,
+            "runs": [
+              {
+                "text": "Growth"
+              }
+            ],
+            "text": "Growth"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

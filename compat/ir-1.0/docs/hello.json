@@ -1,0 +1,46 @@
+{
+  "ir_version": "1.0",
+  "config": { "table_cols": 2, "header_rows": 1, "body_rows": 2 },
+  "styles": {},
+  "column_spec": [
+    { "id": "name", "align": "left" },
+    { "id": "score", "align": "right" }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "cells": [
+            { "content": [{ "type": "text", "value": "Name" }], "scope": "col" },
+            { "content": [{ "type": "text", "value": "Score" }], "scope": "col" }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              { "content": [{ "type": "text", "value": "Alice" }] },
+              {
+                "content": [{ "type": "text", "value": "95" }],
+                "typed_value": { "type": "number", "value": 95 }
+              }
+            ]
+          },
+          {
+            "cells": [
+              { "content": [{ "type": "text", "value": "Bob" }] },
+              {
+                "content": [{ "type": "text", "value": "87" }],
+                "typed_value": { "type": "number", "value": 87 }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

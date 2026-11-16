@@ -1,0 +1,233 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "stub": true
+      },
+      {
+        "align": "left",
+        "id": "col_1"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": "q1",
+        "label": {
+          "runs": [
+            {
+              "text": "Q1"
+            }
+          ],
+          "text": "Q1"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Jan"
+                  }
+                ],
+                "stub": true,
+                "text": "Jan"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "10"
+                  }
+                ],
+                "text": "10"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Feb"
+                  }
+                ],
+                "stub": true,
+                "text": "Feb"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "20"
+                  }
+                ],
+                "text": "20"
+              }
+            ]
+          }
+        ],
+        "summary_rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Subtotal"
+                  }
+                ],
+                "stub": true,
+                "text": "Subtotal"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "30"
+                  }
+                ],
+                "text": "30"
+              }
+            ],
+            "role": "summary_row"
+          }
+        ]
+      },
+      {
+        "group_id": "q2",
+        "label": {
+          "runs": [
+            {
+              "text": "Q2"
+            }
+          ],
+          "text": "Q2"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Apr"
+                  }
+                ],
+                "stub": true,
+                "text": "Apr"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "15"
+                  }
+                ],
+                "text": "15"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "May"
+                  }
+                ],
+                "stub": true,
+                "text": "May"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "25"
+                  }
+                ],
+                "text": "25"
+              }
+            ]
+          }
+        ],
+        "summary_rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Subtotal"
+                  }
+                ],
+                "stub": true,
+                "text": "Subtotal"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "40"
+                  }
+                ],
+                "text": "40"
+              }
+            ],
+            "role": "summary_row"
+          }
+        ]
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Item"
+              }
+            ],
+            "text": "Item"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Amount"
+              }
+            ],
+            "text": "Amount"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

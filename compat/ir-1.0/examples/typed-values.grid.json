@@ -1,0 +1,163 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "right",
+        "id": "col_1"
+      },
+      {
+        "align": "left",
+        "id": "col_2"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Alice"
+                  }
+                ],
+                "text": "Alice",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Alice"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "90"
+                  }
+                ],
+                "text": "90",
+                "typed_value": {
+                  "type": "number",
+                  "value": 90
+                }
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "yes"
+                  }
+                ],
+                "text": "yes",
+                "typed_value": {
+                  "type": "boolean",
+                  "value": true
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Bob"
+                  }
+                ],
+                "text": "Bob",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Bob"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "85"
+                  }
+                ],
+                "text": "85",
+                "typed_value": {
+                  "type": "number",
+                  "value": 85
+                }
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "no"
+                  }
+                ],
+                "text": "no",
+                "typed_value": {
+                  "type": "boolean",
+                  "value": false
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Name"
+              }
+            ],
+            "text": "Name"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Score"
+              }
+            ],
+            "text": "Score"
+          },
+          {
+            "align": "left",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Active"
+              }
+            ],
+            "text": "Active"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

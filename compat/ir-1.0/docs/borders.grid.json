@@ -1,0 +1,135 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "item"
+      },
+      {
+        "align": "right",
+        "id": "q1"
+      },
+      {
+        "align": "right",
+        "id": "q2"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Widgets"
+                  }
+                ],
+                "text": "Widgets"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "120"
+                  }
+                ],
+                "text": "120"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "135"
+                  }
+                ],
+                "text": "135"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Item"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#000000",
+                  "style": "double",
+                  "width": "3px"
+                }
+              }
+            },
+            "text": "Item"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Q1"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#000000",
+                  "style": "double",
+                  "width": "3px"
+                }
+              }
+            },
+            "text": "Q1"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Q2"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "border": {
+                "bottom": {
+                  "color": "#000000",
+                  "style": "double",
+                  "width": "3px"
+                }
+              }
+            },
+            "text": "Q2"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

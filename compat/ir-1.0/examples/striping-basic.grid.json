@@ -1,0 +1,225 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "left",
+        "id": "col_1"
+      },
+      {
+        "align": "left",
+        "id": "col_2"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "1"
+                  }
+                ],
+                "text": "1"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2"
+                  }
+                ],
+                "text": "2"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "3"
+                  }
+                ],
+                "text": "3"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "4"
+                  }
+                ],
+                "style": {
+                  "background_color": "#8080800D"
+                },
+                "text": "4"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "5"
+                  }
+                ],
+                "style": {
+                  "background_color": "#8080800D"
+                },
+                "text": "5"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "6"
+                  }
+                ],
+                "style": {
+                  "background_color": "#8080800D"
+                },
+                "text": "6"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "7"
+                  }
+                ],
+                "text": "7"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "8"
+                  }
+                ],
+                "text": "8"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "9"
+                  }
+                ],
+                "text": "9"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "10"
+                  }
+                ],
+                "style": {
+                  "background_color": "#8080800D"
+                },
+                "text": "10"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "11"
+                  }
+                ],
+                "style": {
+                  "background_color": "#8080800D"
+                },
+                "text": "11"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "12"
+                  }
+                ],
+                "style": {
+                  "background_color": "#8080800D"
+                },
+                "text": "12"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "A"
+              }
+            ],
+            "text": "A"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "B"
+              }
+            ],
+            "text": "B"
+          },
+          {
+            "align": "left",
+            "col": 2,
+            "runs": [
+              {
+                "text": "C"
+              }
+            ],
+            "text": "C"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

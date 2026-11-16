@@ -1,0 +1,202 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "left",
+        "id": "col_1"
+      },
+      {
+        "align": "left",
+        "id": "col_2"
+      },
+      {
+        "align": "left",
+        "id": "col_3"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "1"
+                  }
+                ],
+                "text": "1"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2"
+                  }
+                ],
+                "text": "2"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "3"
+                  }
+                ],
+                "text": "3"
+              },
+              {
+                "align": "left",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "4"
+                  }
+                ],
+                "text": "4"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "5"
+                  }
+                ],
+                "text": "5"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "6"
+                  }
+                ],
+                "text": "6"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "7"
+                  }
+                ],
+                "text": "7"
+              },
+              {
+                "align": "left",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "8"
+                  }
+                ],
+                "text": "8"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "center",
+            "col": 0,
+            "colspan": 2,
+            "runs": [
+              {
+                "text": "Group A"
+              }
+            ],
+            "scope": "colgroup",
+            "text": "Group A"
+          },
+          {
+            "align": "center",
+            "col": 2,
+            "colspan": 2,
+            "runs": [
+              {
+                "text": "Group B"
+              }
+            ],
+            "scope": "colgroup",
+            "text": "Group B"
+          }
+        ],
+        "role": "spanner_label"
+      },
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "A1"
+              }
+            ],
+            "text": "A1"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "A2"
+              }
+            ],
+            "text": "A2"
+          },
+          {
+            "align": "left",
+            "col": 2,
+            "runs": [
+              {
+                "text": "B1"
+              }
+            ],
+            "text": "B1"
+          },
+          {
+            "align": "left",
+            "col": 3,
+            "runs": [
+              {
+                "text": "B2"
+              }
+            ],
+            "text": "B2"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

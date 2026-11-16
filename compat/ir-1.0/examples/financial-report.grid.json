@@ -1,0 +1,248 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "stub": true
+      },
+      {
+        "align": "right",
+        "id": "col_1"
+      },
+      {
+        "align": "right",
+        "id": "col_2"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Revenue"
+                  }
+                ],
+                "stub": true,
+                "text": "Revenue"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "$1,200"
+                  }
+                ],
+                "text": "$1,200"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "$1,350"
+                  }
+                ],
+                "text": "$1,350"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "COGS"
+                  }
+                ],
+                "stub": true,
+                "text": "COGS"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "$700"
+                  }
+                ],
+                "style": {
+                  "background_color": "#8080800D"
+                },
+                "text": "$700"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "$760"
+                  }
+                ],
+                "style": {
+                  "background_color": "#8080800D"
+                },
+                "text": "$760"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Opex"
+                  }
+                ],
+                "stub": true,
+                "text": "Opex"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "$300"
+                  }
+                ],
+                "text": "$300"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "$320"
+                  }
+                ],
+                "text": "$320"
+              }
+            ]
+          }
+        ],
+        "summary_rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Net income"
+                  }
+                ],
+                "stub": true,
+                "style": {
+                  "background_color": "#F5F5F5",
+                  "font_weight": "bold"
+                },
+                "text": "Net income"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "$200"
+                  }
+                ],
+                "style": {
+                  "background_color": "#F5F5F5",
+                  "font_weight": "bold"
+                },
+                "text": "$200"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "$270"
+                  }
+                ],
+                "style": {
+                  "background_color": "#F5F5F5",
+                  "font_weight": "bold"
+                },
+                "text": "$270"
+              }
+            ],
+            "role": "summary_row"
+          }
+        ]
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Line item"
+              }
+            ],
+            "text": "Line item"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Q1"
+              }
+            ],
+            "text": "Q1"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Q2"
+              }
+            ],
+            "text": "Q2"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [
+      {
+        "runs": [
+          {
+            "text": "Unaudited management figures."
+          }
+        ],
+        "text": "Unaudited management figures."
+      }
+    ],
+    "subtitle": null,
+    "title": {
+      "runs": [
+        {
+          "text": "Quarterly P&L"
+        }
+      ],
+      "text": "Quarterly P&L"
+    }
+  },
+  "tier": "L3"
+}

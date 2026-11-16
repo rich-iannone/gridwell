@@ -1,0 +1,137 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "right",
+        "id": "col_1"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [
+      {
+        "mark": "1",
+        "runs": [
+          {
+            "text": "Price valid through end of quarter."
+          }
+        ],
+        "text": "Price valid through end of quarter."
+      }
+    ],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Widget"
+                  }
+                ],
+                "text": "Widget",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Widget"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "$9.99"
+                  },
+                  {
+                    "footnote": 1,
+                    "mark_text": "1"
+                  }
+                ],
+                "text": "$9.99",
+                "typed_value": {
+                  "type": "number",
+                  "value": 9.99
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Gadget"
+                  }
+                ],
+                "text": "Gadget",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Gadget"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "$19.99"
+                  }
+                ],
+                "text": "$19.99",
+                "typed_value": {
+                  "type": "number",
+                  "value": 19.99
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Item"
+              }
+            ],
+            "scope": "col",
+            "text": "Item"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Price"
+              }
+            ],
+            "scope": "col",
+            "text": "Price"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

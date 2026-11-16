@@ -1,0 +1,122 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "stub": true
+      },
+      {
+        "align": "left",
+        "id": "col_1"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [
+      {
+        "mark": "*",
+        "runs": [
+          {
+            "text": "Fictional; illustrative only."
+          }
+        ],
+        "text": "Fictional; illustrative only."
+      }
+    ],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Atlantis"
+                  },
+                  {
+                    "footnote": 1,
+                    "mark_text": "*"
+                  }
+                ],
+                "stub": true,
+                "text": "Atlantis"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "N/A"
+                  }
+                ],
+                "text": "N/A"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Utopia"
+                  }
+                ],
+                "stub": true,
+                "text": "Utopia"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "999"
+                  }
+                ],
+                "text": "999"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Country"
+              }
+            ],
+            "text": "Country"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "GDP"
+              }
+            ],
+            "text": "GDP"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

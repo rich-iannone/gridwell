@@ -1,0 +1,84 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [
+      {
+        "mark": "†",
+        "runs": [
+          {
+            "text": "See runbook section 4."
+          }
+        ],
+        "text": "See runbook section 4."
+      }
+    ],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Status: "
+                  },
+                  {
+                    "style": {
+                      "color": "#E67E22",
+                      "font_weight": "bold"
+                    },
+                    "text": "degraded"
+                  },
+                  {
+                    "line_break": true
+                  },
+                  {
+                    "text": "Retry advised"
+                  },
+                  {
+                    "footnote": 1,
+                    "mark_text": "†"
+                  }
+                ],
+                "text": "Status: degraded\nRetry advised"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Message"
+              }
+            ],
+            "text": "Message"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

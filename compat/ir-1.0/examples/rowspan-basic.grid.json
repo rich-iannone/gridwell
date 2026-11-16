@@ -1,0 +1,123 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0",
+        "stub": true
+      },
+      {
+        "align": "right",
+        "id": "col_1"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "rowspan": 2,
+                "runs": [
+                  {
+                    "text": "Japan"
+                  }
+                ],
+                "stub": true,
+                "text": "Japan"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "100"
+                  }
+                ],
+                "text": "100"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "110"
+                  }
+                ],
+                "text": "110"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Korea"
+                  }
+                ],
+                "stub": true,
+                "text": "Korea"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "80"
+                  }
+                ],
+                "text": "80"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Country"
+              }
+            ],
+            "text": "Country"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Value"
+              }
+            ],
+            "text": "Value"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

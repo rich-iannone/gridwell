@@ -1,0 +1,128 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "left",
+        "id": "col_1"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [
+      {
+        "mark": "1",
+        "runs": [
+          {
+            "text": "Re-run confirmed."
+          }
+        ],
+        "text": "Re-run confirmed."
+      }
+    ],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "A"
+                  }
+                ],
+                "text": "A"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "pass"
+                  },
+                  {
+                    "footnote": 1,
+                    "mark_text": "1"
+                  }
+                ],
+                "text": "pass"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "B"
+                  }
+                ],
+                "text": "B"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "fail"
+                  }
+                ],
+                "text": "fail"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Test"
+              }
+            ],
+            "text": "Test"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Result"
+              }
+            ],
+            "text": "Result"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [
+      {
+        "runs": [
+          {
+            "text": "Source: CI pipeline."
+          }
+        ],
+        "text": "Source: CI pipeline."
+      }
+    ],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

@@ -1,0 +1,60 @@
+{
+  "ir_version": "1.0",
+  "config": { "table_cols": 3, "page_break_mode": "force-between-groups" },
+  "column_spec": [
+    { "id": "task", "align": "left" },
+    { "id": "took", "align": "right" },
+    { "id": "note" }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "column_label",
+          "cells": [
+            { "content": [{ "type": "text", "value": "Task" }], "scope": "col" },
+            { "content": [{ "type": "text", "value": "Took" }], "scope": "col" },
+            { "scope": "col" }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              {
+                "content": [{ "type": "text", "value": "Build" }],
+                "typed_value": { "type": "string", "value": "Build" }
+              },
+              {
+                "content": [{ "type": "text", "value": "1h 30m" }],
+                "typed_value": { "type": "duration", "value": "PT1H30M" }
+              },
+              {
+                "content": [
+                  {
+                    "type": "sparkline",
+                    "values": [3, 5, 2],
+                    "fallback": [
+                      { "type": "text", "value": "3, 5, 2 " },
+                      { "type": "text", "value": "(log)", "href": "https://example.com/log" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "cells": [
+              { "content": [{ "type": "text", "value": "Test" }] },
+              { "content": [{ "type": "text", "value": "NA" }] },
+              { "content": [{ "type": "gauge", "value": 0.4 }] }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

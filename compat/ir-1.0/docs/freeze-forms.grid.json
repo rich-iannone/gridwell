@@ -1,0 +1,146 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "task"
+      },
+      {
+        "align": "right",
+        "id": "took"
+      },
+      {
+        "align": "left",
+        "id": "note"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Build"
+                  }
+                ],
+                "text": "Build",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Build"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "1h 30m"
+                  }
+                ],
+                "text": "1h 30m",
+                "typed_value": {
+                  "type": "duration",
+                  "value": "PT1H30M"
+                }
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "3, 5, 2 "
+                  },
+                  {
+                    "href": "https://example.com/log",
+                    "text": "(log)"
+                  }
+                ],
+                "text": "3, 5, 2 (log)"
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Test"
+                  }
+                ],
+                "text": "Test"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "NA"
+                  }
+                ],
+                "text": "NA"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [],
+                "text": ""
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "Task"
+              }
+            ],
+            "scope": "col",
+            "text": "Task"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "Took"
+              }
+            ],
+            "scope": "col",
+            "text": "Took"
+          },
+          {
+            "align": "left",
+            "col": 2,
+            "runs": [],
+            "scope": "col",
+            "text": ""
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

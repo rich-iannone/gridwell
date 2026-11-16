@@ -1,0 +1,790 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "name",
+        "max_width": "200px",
+        "min_width": "50px",
+        "stub": true,
+        "width": "120px"
+      },
+      {
+        "align": "right",
+        "align_char": ".",
+        "id": "score",
+        "max_width": "50%",
+        "min_width": "40px",
+        "width": "1fr"
+      }
+    ],
+    "dir": "ltr",
+    "extra_lines": [
+      {
+        "runs": [
+          {
+            "href": "https://example.com/scores",
+            "text": "Preliminary"
+          }
+        ],
+        "style": {
+          "background_color": "#F0F0F0",
+          "border": {
+            "bottom": {
+              "color": "#0000FF",
+              "style": "double",
+              "width": "2px"
+            },
+            "left": {
+              "color": "#4682B4",
+              "style": "dotted",
+              "width": "1px"
+            },
+            "right": {
+              "color": "#FF0000",
+              "style": "dashed",
+              "width": "1px"
+            },
+            "top": {
+              "color": "#000000",
+              "style": "solid",
+              "width": "1px"
+            }
+          },
+          "color": "#333333",
+          "font_family": "Georgia, serif",
+          "font_size": "12px",
+          "font_style": "italic",
+          "font_weight": "bold",
+          "indent": "1em",
+          "max_width": "200px",
+          "min_width": "10px",
+          "overflow": "hidden",
+          "padding": {
+            "bottom": "3px",
+            "left": "4px",
+            "right": "2px",
+            "top": "1px"
+          },
+          "text_align": "right",
+          "text_decoration": "underline",
+          "text_overflow": "ellipsis",
+          "text_transform": "uppercase",
+          "vertical_align": "middle",
+          "white_space": "nowrap",
+          "word_break": "break-word"
+        },
+        "text": "Preliminary"
+      }
+    ],
+    "footnotes": [
+      {
+        "mark": "1",
+        "runs": [
+          {
+            "href": "https://example.com/scores",
+            "text": "Out of 10."
+          }
+        ],
+        "style": {
+          "background_color": "#F0F0F0",
+          "border": {
+            "bottom": {
+              "color": "#0000FF",
+              "style": "double",
+              "width": "2px"
+            },
+            "left": {
+              "color": "#4682B4",
+              "style": "dotted",
+              "width": "1px"
+            },
+            "right": {
+              "color": "#FF0000",
+              "style": "dashed",
+              "width": "1px"
+            },
+            "top": {
+              "color": "#000000",
+              "style": "solid",
+              "width": "1px"
+            }
+          },
+          "color": "#333333",
+          "font_family": "Georgia, serif",
+          "font_size": "12px",
+          "font_style": "italic",
+          "font_weight": "bold",
+          "indent": "1em",
+          "max_width": "200px",
+          "min_width": "10px",
+          "overflow": "hidden",
+          "padding": {
+            "bottom": "3px",
+            "left": "4px",
+            "right": "2px",
+            "top": "1px"
+          },
+          "text_align": "right",
+          "text_decoration": "underline",
+          "text_overflow": "ellipsis",
+          "text_transform": "uppercase",
+          "vertical_align": "middle",
+          "white_space": "nowrap",
+          "word_break": "break-word"
+        },
+        "text": "Out of 10."
+      }
+    ],
+    "groups": [
+      {
+        "group_id": "g1",
+        "label": {
+          "runs": [
+            {
+              "href": "https://example.com/scores",
+              "text": "Group 1"
+            }
+          ],
+          "style": {
+            "background_color": "#F0F0F0",
+            "border": {
+              "bottom": {
+                "color": "#0000FF",
+                "style": "double",
+                "width": "2px"
+              },
+              "left": {
+                "color": "#4682B4",
+                "style": "dotted",
+                "width": "1px"
+              },
+              "right": {
+                "color": "#FF0000",
+                "style": "dashed",
+                "width": "1px"
+              },
+              "top": {
+                "color": "#000000",
+                "style": "solid",
+                "width": "1px"
+              }
+            },
+            "color": "#333333",
+            "font_family": "Georgia, serif",
+            "font_size": "12px",
+            "font_style": "italic",
+            "font_weight": "bold",
+            "indent": "1em",
+            "max_width": "200px",
+            "min_width": "10px",
+            "overflow": "hidden",
+            "padding": {
+              "bottom": "3px",
+              "left": "4px",
+              "right": "2px",
+              "top": "1px"
+            },
+            "text_align": "right",
+            "text_decoration": "underline",
+            "text_overflow": "ellipsis",
+            "text_transform": "uppercase",
+            "vertical_align": "middle",
+            "white_space": "nowrap",
+            "word_break": "break-word"
+          },
+          "text": "Group 1"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "href": "https://example.com/scores",
+                    "text": "Alice"
+                  }
+                ],
+                "scope": "row",
+                "stub": true,
+                "style": {
+                  "background_color": "#F0F0F0",
+                  "border": {
+                    "bottom": {
+                      "color": "#0000FF",
+                      "style": "double",
+                      "width": "2px"
+                    },
+                    "left": {
+                      "color": "#4682B4",
+                      "style": "dotted",
+                      "width": "1px"
+                    },
+                    "right": {
+                      "color": "#FF0000",
+                      "style": "dashed",
+                      "width": "1px"
+                    },
+                    "top": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#333333",
+                  "font_family": "Georgia, serif",
+                  "font_size": "12px",
+                  "font_style": "italic",
+                  "font_weight": "bold",
+                  "indent": "1em",
+                  "max_width": "200px",
+                  "min_width": "10px",
+                  "overflow": "hidden",
+                  "padding": {
+                    "bottom": "3px",
+                    "left": "4px",
+                    "right": "2px",
+                    "top": "1px"
+                  },
+                  "text_align": "right",
+                  "text_decoration": "underline",
+                  "text_overflow": "ellipsis",
+                  "text_transform": "uppercase",
+                  "vertical_align": "middle",
+                  "white_space": "nowrap",
+                  "word_break": "break-word"
+                },
+                "text": "Alice",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Alice"
+                }
+              },
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "raw": "html",
+                    "text": "<b>9.5</b>"
+                  },
+                  {
+                    "image": {
+                      "alt": "dot",
+                      "height": "1em",
+                      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E",
+                      "width": "1em"
+                    }
+                  }
+                ],
+                "scope": "col",
+                "style": {
+                  "background_color": "#00000000",
+                  "border": {
+                    "bottom": {
+                      "style": "none"
+                    },
+                    "left": {
+                      "style": "none"
+                    },
+                    "right": {
+                      "style": "none"
+                    },
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#111111",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "10px",
+                  "font_style": "normal",
+                  "font_weight": "600",
+                  "indent": "0px",
+                  "max_width": "100%",
+                  "min_width": "0px",
+                  "overflow": "visible",
+                  "padding": {
+                    "bottom": "0px",
+                    "left": "0px",
+                    "right": "0px",
+                    "top": "0px"
+                  },
+                  "text_align": "center",
+                  "text_decoration": "none",
+                  "text_overflow": "clip",
+                  "text_transform": "none",
+                  "vertical_align": "top",
+                  "white_space": "normal",
+                  "word_break": "normal"
+                },
+                "text": "",
+                "typed_value": {
+                  "type": "number",
+                  "value": 9.5
+                }
+              }
+            ]
+          }
+        ],
+        "summary_placement": "top",
+        "summary_rows": [
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "href": "https://example.com/scores",
+                    "text": "Mean"
+                  }
+                ],
+                "scope": "row",
+                "stub": true,
+                "style": {
+                  "background_color": "#F0F0F0",
+                  "border": {
+                    "bottom": {
+                      "color": "#0000FF",
+                      "style": "double",
+                      "width": "2px"
+                    },
+                    "left": {
+                      "color": "#4682B4",
+                      "style": "dotted",
+                      "width": "1px"
+                    },
+                    "right": {
+                      "color": "#FF0000",
+                      "style": "dashed",
+                      "width": "1px"
+                    },
+                    "top": {
+                      "color": "#000000",
+                      "style": "solid",
+                      "width": "1px"
+                    }
+                  },
+                  "color": "#333333",
+                  "font_family": "Georgia, serif",
+                  "font_size": "12px",
+                  "font_style": "italic",
+                  "font_weight": "bold",
+                  "indent": "1em",
+                  "max_width": "200px",
+                  "min_width": "10px",
+                  "overflow": "hidden",
+                  "padding": {
+                    "bottom": "3px",
+                    "left": "4px",
+                    "right": "2px",
+                    "top": "1px"
+                  },
+                  "text_align": "right",
+                  "text_decoration": "underline",
+                  "text_overflow": "ellipsis",
+                  "text_transform": "uppercase",
+                  "vertical_align": "middle",
+                  "white_space": "nowrap",
+                  "word_break": "break-word"
+                },
+                "text": "Mean",
+                "typed_value": {
+                  "type": "string",
+                  "value": "Mean"
+                }
+              },
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "href": "https://example.com/scores",
+                    "text": "9.5"
+                  }
+                ],
+                "scope": "col",
+                "style": {
+                  "background_color": "#00000000",
+                  "border": {
+                    "bottom": {
+                      "style": "none"
+                    },
+                    "left": {
+                      "style": "none"
+                    },
+                    "right": {
+                      "style": "none"
+                    },
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#111111",
+                  "font_family": "Courier New, monospace",
+                  "font_size": "10px",
+                  "font_style": "normal",
+                  "font_weight": "600",
+                  "indent": "0px",
+                  "max_width": "100%",
+                  "min_width": "0px",
+                  "overflow": "visible",
+                  "padding": {
+                    "bottom": "0px",
+                    "left": "0px",
+                    "right": "0px",
+                    "top": "0px"
+                  },
+                  "text_align": "center",
+                  "text_decoration": "none",
+                  "text_overflow": "clip",
+                  "text_transform": "none",
+                  "vertical_align": "top",
+                  "white_space": "normal",
+                  "word_break": "normal"
+                },
+                "text": "9.5",
+                "typed_value": {
+                  "type": "number",
+                  "value": 9.5
+                }
+              }
+            ],
+            "role": "summary_row"
+          }
+        ]
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "right",
+            "col": 0,
+            "runs": [
+              {
+                "href": "https://example.com/scores",
+                "text": "Name"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "background_color": "#F0F0F0",
+              "border": {
+                "bottom": {
+                  "color": "#0000FF",
+                  "style": "double",
+                  "width": "2px"
+                },
+                "left": {
+                  "color": "#4682B4",
+                  "style": "dotted",
+                  "width": "1px"
+                },
+                "right": {
+                  "color": "#FF0000",
+                  "style": "dashed",
+                  "width": "1px"
+                },
+                "top": {
+                  "color": "#000000",
+                  "style": "solid",
+                  "width": "1px"
+                }
+              },
+              "color": "#333333",
+              "font_family": "Georgia, serif",
+              "font_size": "12px",
+              "font_style": "italic",
+              "font_weight": "bold",
+              "indent": "1em",
+              "max_width": "200px",
+              "min_width": "10px",
+              "overflow": "hidden",
+              "padding": {
+                "bottom": "3px",
+                "left": "4px",
+                "right": "2px",
+                "top": "1px"
+              },
+              "text_align": "right",
+              "text_decoration": "underline",
+              "text_overflow": "ellipsis",
+              "text_transform": "uppercase",
+              "vertical_align": "middle",
+              "white_space": "nowrap",
+              "word_break": "break-word"
+            },
+            "text": "Name",
+            "typed_value": {
+              "type": "string",
+              "value": "Name"
+            }
+          },
+          {
+            "align": "center",
+            "col": 1,
+            "runs": [
+              {
+                "href": "https://example.com/scores",
+                "text": "Score"
+              },
+              {
+                "line_break": true
+              },
+              {
+                "footnote": 1,
+                "mark_text": "1"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "background_color": "#00000000",
+              "border": {
+                "bottom": {
+                  "style": "none"
+                },
+                "left": {
+                  "style": "none"
+                },
+                "right": {
+                  "style": "none"
+                },
+                "top": {
+                  "style": "none"
+                }
+              },
+              "color": "#111111",
+              "font_family": "Courier New, monospace",
+              "font_size": "10px",
+              "font_style": "normal",
+              "font_weight": "600",
+              "indent": "0px",
+              "max_width": "100%",
+              "min_width": "0px",
+              "overflow": "visible",
+              "padding": {
+                "bottom": "0px",
+                "left": "0px",
+                "right": "0px",
+                "top": "0px"
+              },
+              "text_align": "center",
+              "text_decoration": "none",
+              "text_overflow": "clip",
+              "text_transform": "none",
+              "vertical_align": "top",
+              "white_space": "normal",
+              "word_break": "normal"
+            },
+            "text": "Score",
+            "typed_value": {
+              "type": "string",
+              "value": "Score"
+            }
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "lang": "fr-CA",
+    "source_notes": [
+      {
+        "runs": [
+          {
+            "href": "https://example.com/scores",
+            "text": "Source: the registrar."
+          }
+        ],
+        "style": {
+          "background_color": "#00000000",
+          "border": {
+            "bottom": {
+              "style": "none"
+            },
+            "left": {
+              "style": "none"
+            },
+            "right": {
+              "style": "none"
+            },
+            "top": {
+              "style": "none"
+            }
+          },
+          "color": "#111111",
+          "font_family": "Courier New, monospace",
+          "font_size": "10px",
+          "font_style": "normal",
+          "font_weight": "600",
+          "indent": "0px",
+          "max_width": "100%",
+          "min_width": "0px",
+          "overflow": "visible",
+          "padding": {
+            "bottom": "0px",
+            "left": "0px",
+            "right": "0px",
+            "top": "0px"
+          },
+          "text_align": "center",
+          "text_decoration": "none",
+          "text_overflow": "clip",
+          "text_transform": "none",
+          "vertical_align": "top",
+          "white_space": "normal",
+          "word_break": "normal"
+        },
+        "text": "Source: the registrar."
+      }
+    ],
+    "subtitle": {
+      "runs": [
+        {
+          "href": "mailto:registrar@example.com",
+          "style": {
+            "background_color": "#00000000",
+            "border": {
+              "bottom": {
+                "style": "none"
+              },
+              "left": {
+                "style": "none"
+              },
+              "right": {
+                "style": "none"
+              },
+              "top": {
+                "style": "none"
+              }
+            },
+            "color": "#111111",
+            "font_family": "Courier New, monospace",
+            "font_size": "10px",
+            "font_style": "normal",
+            "font_weight": "600",
+            "indent": "0px",
+            "max_width": "100%",
+            "min_width": "0px",
+            "overflow": "visible",
+            "padding": {
+              "bottom": "0px",
+              "left": "0px",
+              "right": "0px",
+              "top": "0px"
+            },
+            "text_align": "center",
+            "text_decoration": "none",
+            "text_overflow": "clip",
+            "text_transform": "none",
+            "vertical_align": "top",
+            "white_space": "normal",
+            "word_break": "normal"
+          },
+          "text": "Fall term"
+        }
+      ],
+      "style": {
+        "background_color": "#00000000",
+        "border": {
+          "bottom": {
+            "style": "none"
+          },
+          "left": {
+            "style": "none"
+          },
+          "right": {
+            "style": "none"
+          },
+          "top": {
+            "style": "none"
+          }
+        },
+        "color": "#111111",
+        "font_family": "Courier New, monospace",
+        "font_size": "10px",
+        "font_style": "normal",
+        "font_weight": "600",
+        "indent": "0px",
+        "max_width": "100%",
+        "min_width": "0px",
+        "overflow": "visible",
+        "padding": {
+          "bottom": "0px",
+          "left": "0px",
+          "right": "0px",
+          "top": "0px"
+        },
+        "text_align": "center",
+        "text_decoration": "none",
+        "text_overflow": "clip",
+        "text_transform": "none",
+        "vertical_align": "top",
+        "white_space": "normal",
+        "word_break": "normal"
+      },
+      "text": "Fall term"
+    },
+    "table_width": "100%",
+    "title": {
+      "runs": [
+        {
+          "href": "https://example.com/scores",
+          "text": "Scores"
+        }
+      ],
+      "style": {
+        "background_color": "#F0F0F0",
+        "border": {
+          "bottom": {
+            "color": "#0000FF",
+            "style": "double",
+            "width": "2px"
+          },
+          "left": {
+            "color": "#4682B4",
+            "style": "dotted",
+            "width": "1px"
+          },
+          "right": {
+            "color": "#FF0000",
+            "style": "dashed",
+            "width": "1px"
+          },
+          "top": {
+            "color": "#000000",
+            "style": "solid",
+            "width": "1px"
+          }
+        },
+        "color": "#333333",
+        "font_family": "Georgia, serif",
+        "font_size": "12px",
+        "font_style": "italic",
+        "font_weight": "bold",
+        "indent": "1em",
+        "max_width": "200px",
+        "min_width": "10px",
+        "overflow": "hidden",
+        "padding": {
+          "bottom": "3px",
+          "left": "4px",
+          "right": "2px",
+          "top": "1px"
+        },
+        "text_align": "right",
+        "text_decoration": "underline",
+        "text_overflow": "ellipsis",
+        "text_transform": "uppercase",
+        "vertical_align": "middle",
+        "white_space": "nowrap",
+        "word_break": "break-word"
+      },
+      "text": "Scores"
+    }
+  },
+  "tier": "L3"
+}

@@ -1,0 +1,129 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "col_0"
+      },
+      {
+        "align": "center",
+        "id": "col_1"
+      },
+      {
+        "align": "right",
+        "id": "col_2"
+      },
+      {
+        "align": "justify",
+        "id": "col_3"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "left"
+                  }
+                ],
+                "text": "left"
+              },
+              {
+                "align": "center",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "center"
+                  }
+                ],
+                "text": "center"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "right"
+                  }
+                ],
+                "text": "right"
+              },
+              {
+                "align": "justify",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "justified text here"
+                  }
+                ],
+                "text": "justified text here"
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "L"
+              }
+            ],
+            "text": "L"
+          },
+          {
+            "align": "center",
+            "col": 1,
+            "runs": [
+              {
+                "text": "C"
+              }
+            ],
+            "text": "C"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "R"
+              }
+            ],
+            "text": "R"
+          },
+          {
+            "align": "justify",
+            "col": 3,
+            "runs": [
+              {
+                "text": "J"
+              }
+            ],
+            "text": "J"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  },
+  "tier": "L3"
+}

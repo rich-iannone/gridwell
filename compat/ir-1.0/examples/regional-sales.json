@@ -1,0 +1,637 @@
+{
+  "ir_version": "1.0",
+  "config": {
+    "table_cols": 4,
+    "header_rows": 2,
+    "body_rows": 5,
+    "stub_cols": 1,
+    "row_striping": false,
+    "row_striping_include_stub": false,
+    "row_striping_include_body": false,
+    "column_labels_hidden": false,
+    "table_width": null,
+    "container_width": null,
+    "container_height": null,
+    "container_overflow": null,
+    "locale": "en-US",
+    "lang": null,
+    "dir": null,
+    "page_break_mode": "avoid",
+    "aria_label": null,
+    "aria_describedby": null,
+    "summary": null,
+    "id": null,
+    "rules": null
+  },
+  "styles": {
+    "defs": {
+      "num": {
+        "font_family": null,
+        "font_size": null,
+        "font_weight": null,
+        "font_style": null,
+        "color": null,
+        "background_color": null,
+        "text_align": "right",
+        "vertical_align": null,
+        "text_transform": null,
+        "text_decoration": null,
+        "white_space": null,
+        "padding": null,
+        "border": null,
+        "indent": null,
+        "word_break": null,
+        "overflow": null,
+        "text_overflow": null,
+        "min_width": null,
+        "max_width": null
+      }
+    },
+    "compositions": {},
+    "conditionals": []
+  },
+  "header": {
+    "title": {
+      "content": [
+        {
+          "type": "text",
+          "value": "Regional Sales Performance"
+        }
+      ],
+      "style_id": null
+    },
+    "subtitle": {
+      "content": [
+        {
+          "type": "text",
+          "value": "Fiscal years 2023–2024 (in millions USD)"
+        }
+      ],
+      "style_id": null
+    },
+    "extra_lines": [],
+    "preheader_content": null
+  },
+  "column_spec": [
+    {
+      "id": "col_0",
+      "align": "left",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "Country"
+    },
+    {
+      "id": "col_1",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "Year"
+    },
+    {
+      "id": "col_2",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "Revenue"
+    },
+    {
+      "id": "col_3",
+      "align": "right",
+      "align_char": null,
+      "width": "auto",
+      "min_width": null,
+      "max_width": null,
+      "style_id": null,
+      "hidden": false,
+      "label": "Profit"
+    }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "spanner_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": true,
+              "is_placeholder": false,
+              "scope": null
+            },
+            {
+              "content": [],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Financials"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 2,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": "colgroup"
+            },
+            {
+              "content": [],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": true,
+              "scope": null
+            }
+          ]
+        },
+        {
+          "role": "column_label",
+          "style_id": null,
+          "cells": [
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Country"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": true,
+              "is_placeholder": false,
+              "scope": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Year"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Revenue"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "value": "Profit"
+                }
+              ],
+              "typed_value": null,
+              "colspan": 1,
+              "rowspan": 1,
+              "style_id": null,
+              "is_stub": false,
+              "is_placeholder": false,
+              "scope": null
+            }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "group_id": "north_america",
+        "label": {
+          "content": [
+            {
+              "type": "text",
+              "value": "North America"
+            }
+          ],
+          "style_id": null,
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "United States"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 2,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2023"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1,250.3"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "270.1"
+                  },
+                  {
+                    "type": "footnote_mark",
+                    "ref": "fn1",
+                    "mark_text": "1"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": true,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2024"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "1,380.7"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "330.3"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Canada"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2024"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "420.1"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "109.5"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          }
+        ],
+        "summary_rows": [],
+        "summary_placement": "bottom"
+      },
+      {
+        "group_id": "europe",
+        "label": {
+          "content": [
+            {
+              "type": "text",
+              "value": "Europe"
+            }
+          ],
+          "style_id": null,
+          "colspan": null
+        },
+        "rows": [
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "Germany"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2024"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "945.2"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "164.9"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          },
+          {
+            "role": null,
+            "style_id": null,
+            "cells": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "France"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": true,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "2024"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "610.8"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              },
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "value": "120.6"
+                  }
+                ],
+                "typed_value": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "style_id": null,
+                "is_stub": false,
+                "is_placeholder": false,
+                "scope": null
+              }
+            ]
+          }
+        ],
+        "summary_rows": [],
+        "summary_placement": "bottom"
+      }
+    ]
+  },
+  "footer": {
+    "footnotes": [
+      {
+        "id": "fn1",
+        "mark": "1",
+        "content": [
+          {
+            "type": "text",
+            "value": "Includes one-time restructuring charge."
+          }
+        ],
+        "style_id": null
+      }
+    ],
+    "source_notes": [
+      {
+        "content": [
+          {
+            "type": "text",
+            "value": "Source: Internal finance database, June 2026."
+          }
+        ],
+        "style_id": null
+      }
+    ]
+  },
+  "extensions": null
+}

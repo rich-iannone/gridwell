@@ -1,0 +1,52 @@
+{
+  "ir_version": "1.0",
+  "config": { "table_cols": 3, "header_rows": 2, "body_rows": 2 },
+  "styles": {},
+  "column_spec": [
+    { "id": "name", "align": "left" },
+    { "id": "q1", "align": "right" },
+    { "id": "q2", "align": "right" }
+  ],
+  "table": {
+    "thead": {
+      "rows": [
+        {
+          "role": "spanner_label",
+          "cells": [
+            { "content": [{ "type": "text", "value": "Name" }], "rowspan": 2, "scope": "col" },
+            { "content": [{ "type": "text", "value": "Scores" }], "colspan": 2, "scope": "colgroup" },
+            { "content": [], "is_placeholder": true }
+          ]
+        },
+        {
+          "role": "column_label",
+          "cells": [
+            { "content": [], "is_placeholder": true },
+            { "content": [{ "type": "text", "value": "Q1" }], "scope": "col" },
+            { "content": [{ "type": "text", "value": "Q2" }], "scope": "col" }
+          ]
+        }
+      ]
+    },
+    "tbody": [
+      {
+        "rows": [
+          {
+            "cells": [
+              { "content": [{ "type": "text", "value": "Alice" }] },
+              { "content": [{ "type": "text", "value": "95" }] },
+              { "content": [{ "type": "text", "value": "91" }] }
+            ]
+          },
+          {
+            "cells": [
+              { "content": [{ "type": "text", "value": "Bob" }] },
+              { "content": [{ "type": "text", "value": "87" }] },
+              { "content": [{ "type": "text", "value": "90" }] }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
