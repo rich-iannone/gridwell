@@ -29,3 +29,6 @@ gridwell-writer-quarto = { workspace = true }
 gridwell-writer-docx = { workspace = true }
 gridwell-writer-xlsx = { workspace = true }
 gridwell-writer-pptx = { workspace = true }
+# Checks the IR's JSON Schema (tests/schema.rs). Without its default features, which
+# fetch remote and local `$ref`s and bring a TLS stack.
+jsonschema = { version = "0.61", default-features = false }
