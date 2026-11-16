@@ -247,8 +247,8 @@ fn an_invalid_newer_minor_version_table_says_its_version() {
     assert_eq!(e.newer_ir_version.as_deref(), Some("1.3"));
     assert!(
         e.to_string().ends_with(
-            "\n(the table is IR 1.3, newer than the IR 1.0 this gridwell reads: an error \
-             may be something a newer IR version added)"
+            "\n(the table is IR 1.3, newer than the IR 1.0 this gridwell reads; what a \
+             newer IR version added isn't an error, and is left out)"
         ),
         "{e}"
     );
