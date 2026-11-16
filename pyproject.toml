@@ -6,10 +6,22 @@ build-backend = "maturin"
 name = "gridwell"
 version = "0.1.0"
 description = "Fast multi-format table rendering from a declarative IR"
+# The PyPI page. Links in it must be absolute: PyPI has no repository to resolve
+# relative ones against.
+readme = "python/README.md"
 license = { text = "MIT" }
+authors = [{ name = "Richard Iannone", email = "riannone@me.com" }]
+maintainers = [{ name = "Richard Iannone", email = "riannone@me.com" }]
 requires-python = ">=3.10"
 dependencies = []
+keywords = ["table", "tables", "rendering", "html", "latex", "typst", "docx", "xlsx", "great-tables"]
 classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: 3",
@@ -21,7 +33,16 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: MIT License",
     "Topic :: Text Processing :: Markup",
+    "Typing :: Typed",
 ]
+
+[project.urls]
+Homepage = "https://rich-iannone.github.io/gridwell/"
+Documentation = "https://rich-iannone.github.io/gridwell/"
+Repository = "https://github.com/rich-iannone/gridwell"
+Issues = "https://github.com/rich-iannone/gridwell/issues"
+# The GitHub Releases' notes are the changelog.
+Changelog = "https://github.com/rich-iannone/gridwell/releases"
 
 [project.optional-dependencies]
 # Great Tables -> IR emitter (gridwell.gt_to_ir / gt_to_dict).
