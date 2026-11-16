@@ -1,6 +1,6 @@
 """gridwell's own copy of the Great Tables emitter: a GT object to gridwell IR.
 
-Used when the installed Great Tables has no `GT.as_ir()` (see `_gt`). It reads
+Used when the installed Great Tables has no `GT.as_gridwell()` (see `_gt`). It reads
 Great Tables internals, which is why Great Tables is taking it over.
 
 Styles and footnote marks follow Great Tables' HTML (`_utils_render_html`): each
