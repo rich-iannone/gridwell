@@ -19,7 +19,7 @@ use gridwell_ir::{
     Cell, ColumnSpec, Footer, Footnote, HAlign, Header, HeaderLine, PageBreakMode, Row, RowGroup,
     SourceNote, StylePalette, Table, TableBlock,
 };
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 // ─────────────────────────── content helpers ───────────────────────────
 
@@ -361,8 +361,8 @@ impl TableBuilder {
             cols,
             config: default_config(cols),
             styles: StylePalette {
-                defs: HashMap::new(),
-                compositions: HashMap::new(),
+                defs: BTreeMap::new(),
+                compositions: BTreeMap::new(),
                 conditionals: vec![],
             },
             header: None,
@@ -546,8 +546,8 @@ impl TableBuilder {
     pub fn build(mut self) -> Table {
         // Derive counts from what was added so validation passes.
         self.config.table_cols = self.cols;
-        self.config.header_rows = self.thead_rows.len() as u32;
-        self.config.body_rows = self.groups.iter().map(|g| g.rows.len() as u32).sum();
+        self.config.header_rows = Some(self.thead_rows.len() as u32);
+        self.config.body_rows = Some(self.groups.iter().map(|g| g.rows.len() as u32).sum());
 
         // Auto-generate a default column spec if the author didn't supply one.
         if self.column_spec.is_empty() {
@@ -586,8 +586,8 @@ impl TableBuilder {
 fn default_config(cols: u32) -> Config {
     Config {
         table_cols: cols,
-        header_rows: 0,
-        body_rows: 0,
+        header_rows: None,
+        body_rows: None,
         stub_cols: 0,
         row_striping: false,
         row_striping_include_stub: false,
