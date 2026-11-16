@@ -63,6 +63,7 @@ Each must trigger a specific validation error.
 | `ir_version_unknown_major.json` | `IR_VERSION` — `ir_version` is `"2.0"`, a major version gridwell doesn't read |
 | `invalid_href.json` | `INVALID_HREF` — a text run's `href` is a `javascript:` URL |
 | `invalid_table_id.json` | `INVALID_TABLE_ID` — `config.id` has a space |
+| `invalid_typed_value.json` | `INVALID_TYPED_VALUE` — a `string` typed value that's a number, and a `duration` that isn't ISO 8601 |
 
 ## Adding New Fixtures
 
