@@ -17,18 +17,19 @@ gridwell::save(&table, std::path::Path::new("table.docx"), None, None)?;
 
 Every format is a cargo feature named as the format is (`html`, `latex`, `typst`,
 `rtf`, `svg`, `ansi`, `pandoc`, `quarto`, `docx`, `xlsx`, `pptx`), all on by
-default. To build only the formats you need:
+default. The crates aren't on crates.io yet, so depend on the repository. To build
+only the formats you need:
 
 ```toml
 [dependencies]
-gridwell = { version = "0.1", default-features = false, features = ["html", "latex"] }
+gridwell = { git = "https://github.com/rich-iannone/gridwell", default-features = false, features = ["html", "latex"] }
 ```
 
 `svg`, `ansi`, `pandoc` and `quarto` are experimental for now: their output
 is valid and has every cell, but their styling is best-effort and may change between
 releases (`Writer::experimental()` says which formats are).
 
-The IR, the CLI (`cargo install gridwell-cli`) and the Python and R packages are
-described in the [documentation](https://rich-iannone.github.io/gridwell/).
+The IR, the CLI and the Python and R packages are described in the
+[documentation](https://rich-iannone.github.io/gridwell/).
 
 License: MIT.
