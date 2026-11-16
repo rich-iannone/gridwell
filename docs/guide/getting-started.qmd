@@ -6,13 +6,14 @@ title: "Getting Started"
 
 ### Rust (as a library)
 
-Add the `gridwell` crate to your `Cargo.toml`:
+The crates aren't on crates.io yet, so add the `gridwell` crate to your
+`Cargo.toml` from the repository:
 
 ```toml
 [dependencies]
-gridwell = "0.1"
+gridwell = { git = "https://github.com/rich-iannone/gridwell" }
 # or only the formats you need:
-# gridwell = { version = "0.1", default-features = false, features = ["html", "latex"] }
+# gridwell = { git = "https://github.com/rich-iannone/gridwell", default-features = false, features = ["html", "latex"] }
 ```
 
 Each format is a [cargo feature](../api/rust.qmd#features), all on by default.
@@ -39,7 +40,7 @@ checkout of the repository, make it with `cargo xtask r-source` and then
 ### CLI Tool
 
 ```bash
-cargo install gridwell-cli
+cargo install --locked --git https://github.com/rich-iannone/gridwell gridwell-cli
 ```
 
 Or build from source:
