@@ -51,16 +51,20 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
         self.indent_level = self.indent_level.saturating_sub(1);
     }
 
+    /// The table is one block, so wherever it is placed (included among a
+    /// document's paragraphs, or in a figure) it stands apart from the text before
+    /// and after it. Its set rules apply to it alone: the language and direction,
+    /// and the alignment of its parts, which go on the heading lines' side, as on a
+    /// page of their own (a figure would otherwise center each one).
     fn render(mut self) -> Result<String, RenderError> {
+        if let Some(set) = text_settings(self.rt) {
+            self.line(&format!("#set text({set})"));
+        }
+        self.line(&format!("#set align({})", self.lead()));
         self.render_title();
         self.render_table();
         self.render_footnotes();
-        // The language and direction are set for the table only: in a content
-        // block, which scopes the set rule.
-        match text_settings(self.rt) {
-            Some(set) => Ok(format!("#[\n#set text({set})\n{}]\n", self.buf)),
-            None => Ok(self.buf),
-        }
+        Ok(format!("#block[\n{}]\n", self.buf))
     }
 
     /// Where the heading lines go: the start side when a direction is set (the
@@ -76,28 +80,48 @@ impl<'r, 'a> TypstRenderer<'r, 'a> {
     // ─── Title / Subtitle / header lines ───
 
     /// The title (bold, 16pt), then the subtitle and extra header lines (12pt,
-    /// gray). A line's style is laid over those defaults.
+    /// gray). A line's style is laid over those defaults. They are a sticky block,
+    /// which Typst keeps on the page where the table starts (Typst 0.13 and later:
+    /// 0.12 takes the argument but lets a table leave the block behind). Below it
+    /// is the last line's paragraph spacing (1.2em at its size), which a block
+    /// would otherwise replace with its own (1.2em at the text's).
     fn render_title(&mut self) {
         let header = &self.rt.header;
+        let size = |style: &ResolvedStyle, default: &str| {
+            let size = style.font_size.as_ref().and_then(typst_font_size);
+            size.unwrap_or_else(|| default.to_string())
+        };
+        let mut lines = Vec::new();
+        let mut last_size = String::new();
         if let Some(title) = &header.title {
             let text = self.content(&title.content);
             if !text.is_empty() {
                 let styled = line_style(&text, &title.style, true, &[("size", "16pt")]);
-                self.line(&format!("#align({})[{styled}]", self.lead()));
+                lines.push(format!("#align({})[{styled}]", self.lead()));
+                last_size = size(&title.style, "16pt");
             }
         }
-        let mut lines = false;
+        let mut below = false;
         for line in header.subtitle.iter().chain(&header.extra_lines) {
             let text = self.content(&line.content);
             if !text.is_empty() {
                 let styled = line_style(&text, &line.style, false, SUBTITLE);
-                self.line(&format!("#align({})[{styled}]", self.lead()));
-                lines = true;
+                lines.push(format!("#align({})[{styled}]", self.lead()));
+                last_size = size(&line.style, "12pt");
+                below = true;
             }
         }
-        if lines {
-            self.line("#v(6pt)");
+        if lines.is_empty() {
+            return;
         }
+        if below {
+            lines.push("#v(6pt)".into());
+        }
+        self.line(&format!("#block(sticky: true, below: 1.2 * {last_size})["));
+        for line in &lines {
+            self.line(line);
+        }
+        self.line("]");
     }
 
     // ─── Table ───
