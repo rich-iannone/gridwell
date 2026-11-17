@@ -284,8 +284,10 @@ its GHCR settings.
     as the harness image, plus Poppler).
   - `msrv` runs `cargo check` on Rust 1.85, the `rust-version` floor.
   - `python-wheel` builds one abi3 wheel. `python-test` installs it on Python
-    3.10–3.14, both bare (`core`, which must lack pandas) and with `[gt]`, and runs
-    pytest outside the checkout so the installed wheel is what's tested.
+    3.10–3.14, both bare (`core`, which must lack pandas) and with `[gt]`, plus
+    once on 3.10 with the oldest Great Tables the `gt` extra allows (`gt-floor`,
+    the floor read from the wheel's metadata), and runs pytest outside the checkout
+    so the installed wheel is what's tested.
     `GRIDWELL_REQUIRE_MYPY` makes the type-stub checks (stubtest, mypy on usage)
     mandatory.
   - `r` runs `R CMD INSTALL` of `r-package` plus the testthat suite.
@@ -320,9 +322,11 @@ its GHCR settings.
   1. Bump the version in the three files, if it isn't bumped yet, and let CI pass.
   2. Run the dry run (Actions → Dry run (Python release) → Run workflow).
   3. Tag and push: `git tag py-v0.1.0 && git push origin py-v0.1.0`.
-  4. Once PyPI has it, publish a GitHub Release on the tag with the notes:
+  4. Once PyPI has it, publish a GitHub Release on the tag, with the version's
+     section of `CHANGELOG.md` as its notes:
+     `python3 .github/scripts/release_version.py --notes notes.md`, then
      `gh release create py-v0.1.0 --title "gridwell 0.1.0 (Python)" --notes-file
-     notes.md`. The Releases are the changelog (the package's Changelog link).
+     notes.md`.
 
   **One-time setup:** add `PYPI_API_TOKEN` under *Settings → Secrets and variables
   → Actions*. A token scoped to one project can only be made once the project is
