@@ -228,6 +228,10 @@ jobs:
         # core: bare `pip install gridwell` (no pandas / great_tables)
         # gt:   `pip install 'gridwell[gt]'`
         variant: [core, gt]
+        # gt-floor: as gt, with the oldest Great Tables the `gt` extra allows.
+        include:
+          - python: "3.10"
+            variant: gt-floor
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -242,7 +246,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           whl=$(ls dist/*.whl)
-          if [ "${{ matrix.variant }}" = gt ]; then
+          if [ "${{ matrix.variant }}" != core ]; then
             # polars for the tests of tables on polars (not in the extra: Great Tables
             # takes either).
             python -m pip install "gridwell[gt] @ file://$PWD/$whl" pytest mypy polars
@@ -250,6 +254,14 @@ jobs:
             python -m pip install "$whl" pytest mypy
             # The core variant must really lack the optional dependencies.
             python -c "import importlib.util as u, sys; sys.exit(any(u.find_spec(m) for m in ('pandas', 'great_tables')))"
+          fi
+          if [ "${{ matrix.variant }}" = gt-floor ]; then
+            # The floor as the installed wheel states it, so it can't drift from
+            # pyproject.toml.
+            floor=$(python -c "import importlib.metadata as m, re; print(*{f for r in m.requires('gridwell') for f in re.findall(r'^great-tables>=([0-9.]+)', r)})")
+            test -n "$floor"
+            python -m pip install "great-tables==$floor"
+            python -c "import great_tables, sys; print(great_tables.__version__); sys.exit(great_tables.__version__ != '$floor')"
           fi
       # Run from outside the checkout so `import gridwell` resolves to the installed
       # wheel, not the python/ source tree.
