@@ -1,7 +1,7 @@
 # Changelog
 
-What changed in each gridwell release. The Python package is released to PyPI on a
-`py-vX.Y.Z` tag, and each release's notes on GitHub are its section here.
+What changed in each gridwell release. The Python package is released to PyPI from
+a GitHub Release on a `py-vX.Y.Z` tag.
 
 ## 0.1.0
 
