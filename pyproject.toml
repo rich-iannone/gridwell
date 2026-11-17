@@ -41,17 +41,17 @@ Homepage = "https://rich-iannone.github.io/gridwell/"
 Documentation = "https://rich-iannone.github.io/gridwell/"
 Repository = "https://github.com/rich-iannone/gridwell"
 Issues = "https://github.com/rich-iannone/gridwell/issues"
-# The GitHub Releases' notes are the changelog.
-Changelog = "https://github.com/rich-iannone/gridwell/releases"
+Changelog = "https://github.com/rich-iannone/gridwell/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
-# Great Tables -> IR emitter (gridwell.gt_to_ir / gt_to_dict).
-gt = ["great-tables>=0.17", "pandas>=2"]
+# Great Tables -> IR emitter (gridwell.gt_to_ir / gt_to_dict). 1.1.0 is the oldest
+# Great Tables gridwell's emitter works with; CI tests it (ci.yml, the gt-floor job).
+gt = ["great-tables>=1.1.0", "pandas>=2"]
 
 [dependency-groups]
 # mypy runs the stub checks in tests/test_typing.py.
 test = ["pytest>=8", "mypy>=1.13"]
-test-gt = ["pytest>=8", "mypy>=1.13", "great-tables>=0.17", "pandas>=2"]
+test-gt = ["pytest>=8", "mypy>=1.13", "great-tables>=1.1.0", "pandas>=2"]
 
 [tool.maturin]
 manifest-path = "crates/gridwell-python/Cargo.toml"
