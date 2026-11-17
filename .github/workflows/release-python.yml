@@ -1,21 +1,23 @@
 name: Release (Python)
 
-# Publishes gridwell to PyPI on a version tag (`py-v0.1.0`, matching the version in
-# Cargo.toml, pyproject.toml and python/gridwell/__init__.py), once the wheels and
-# the sdist have been built, tested and checked (`wheels.yml`). To try all of that
-# without publishing, run `dry-run-python.yml` first.
+# Publishes gridwell to PyPI when a GitHub Release is published on a version tag
+# (`py-v0.1.0`, matching the version in Cargo.toml, pyproject.toml and
+# python/gridwell/__init__.py), once the wheels and the sdist have been built,
+# tested and checked (`wheels.yml`). To try all of that without publishing, run
+# `dry-run-python.yml` first.
 #
-# Once PyPI has the release, publish a GitHub Release on the tag with the version's
-# section of CHANGELOG.md as its notes (`python3 .github/scripts/release_version.py
-# --notes notes.md`, then `gh release create py-v0.1.0 --title "gridwell 0.1.0
-# (Python)" --notes-file notes.md`). The version check refuses a version that
-# CHANGELOG.md has no section for.
+# To release, draft a new Release on GitHub: a new tag `py-v0.1.0` on main, the
+# title, and the release notes as the description; then publish it. Publishing the
+# Release creates the tag and starts this workflow. The version check refuses a tag
+# that doesn't match the version, or a version that CHANGELOG.md has no section
+# for; then nothing is uploaded, and the Release and its tag can be deleted and
+# made again.
 #
 # Publishing uses a PyPI API token in the repository secret `PYPI_API_TOKEN`.
 
 on:
-  push:
-    tags: ["py-v*"]
+  release:
+    types: [published]
 
 permissions:
   contents: read
