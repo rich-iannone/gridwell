@@ -5,9 +5,11 @@ name: Release (Python)
 # the sdist have been built, tested and checked (`wheels.yml`). To try all of that
 # without publishing, run `dry-run-python.yml` first.
 #
-# Once PyPI has the release, publish a GitHub Release on the tag with its notes
-# (`gh release create py-v0.1.0 --title "gridwell 0.1.0 (Python)" --notes-file
-# notes.md`). The Releases are the changelog (the package's Changelog link).
+# Once PyPI has the release, publish a GitHub Release on the tag with the version's
+# section of CHANGELOG.md as its notes (`python3 .github/scripts/release_version.py
+# --notes notes.md`, then `gh release create py-v0.1.0 --title "gridwell 0.1.0
+# (Python)" --notes-file notes.md`). The version check refuses a version that
+# CHANGELOG.md has no section for.
 #
 # Publishing uses a PyPI API token in the repository secret `PYPI_API_TOKEN`.
 
