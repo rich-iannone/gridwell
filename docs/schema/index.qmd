@@ -64,17 +64,17 @@ This gridwell reads IR 1:
 - **Anything else** (`"1"`, `"1.0.0"`, `" 1.0"`) is an `IR_VERSION` error.
 
 ::: {.callout-note}
-IR 1.0 is a **release candidate**. It is frozen once the gt and Great Tables
-emitters write it, not with gridwell's first release: until then it may still change
-in a way that IR written now doesn't survive. Once it is frozen, IR 1 only grows, by
-minor versions.
+IR 1.0 is **frozen**. Great Tables' own emitter and gridwell's converters for gt and
+Great Tables write it, and a table written in IR 1.0 reads the same in every later
+gridwell that reads IR 1. IR 1 only grows, by
+[minor versions](#what-a-minor-version-may-change).
 :::
 
 ### IR versions
 
 | Version | Status | Schema | What it adds |
 |---------|--------|--------|--------------|
-| 1.0 | release candidate | [`ir-1.0.schema.json`](ir-1.0.schema.json) | The first version |
+| 1.0 | frozen | [`ir-1.0.schema.json`](ir-1.0.schema.json) | The first version |
 
 ### What a minor version may change
 

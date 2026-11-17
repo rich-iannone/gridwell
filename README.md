@@ -25,7 +25,8 @@ other tool can use it too, by describing its tables in gridwell's IR, a JSON for
   in every format, as each format's own viewer draws it.
 - **Release notes:** [GitHub Releases](https://github.com/rich-iannone/gridwell/releases).
 
-> **Status: alpha.** The API and the IR may change between releases.
+> **Status: alpha.** The API may change between releases. The IR is frozen at 1.0:
+> from here it only grows, by minor versions.
 
 ## Installation
 
