@@ -20,7 +20,8 @@ pip install gridwell
 pip install "gridwell[gt]"    # with the Great Tables integration
 ```
 
-`import gridwell` needs nothing else; the `gt` extra adds Great Tables and pandas.
+`import gridwell` needs nothing else; the `gt` extra adds pandas and Great Tables 1.1.0 or
+newer.
 
 Wheels cover Python ≥ 3.10 on Linux (x86_64, aarch64), macOS (Intel, Apple silicon)
 and Windows (x86_64). Elsewhere, and on free-threaded Python builds, pip builds from
