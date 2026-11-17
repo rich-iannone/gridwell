@@ -8,8 +8,7 @@ Cargo.toml (every crate's), the project version in pyproject.toml (the wheels') 
 and exits 1.
 
 CHANGELOG.md must have a section for the version (`## 0.1.0`), which isn't empty.
-With `--notes FILE`, writes that section, without its heading, to FILE: the GitHub
-Release's notes.
+With `--notes FILE`, writes that section, without its heading, to FILE.
 
     python3 .github/scripts/release_version.py [--tag py-v0.1.0] [--notes notes.md]
 """
