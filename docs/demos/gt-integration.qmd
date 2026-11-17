@@ -1158,6 +1158,8 @@ row\_8 & honeydew & 8,880,000.00 & \$0.44 \\
 
 <!-- gridwell convert harness/gt-reference-py/groups_and_stub.ir.json --to typst -->
 ```typst
+#block[
+#set align(left)
 #table(
   columns: (auto, auto, auto, auto,),
   align: (left, left, right, right,),
@@ -1209,6 +1211,7 @@ row\_8 & honeydew & 8,880,000.00 & \$0.44 \\
   [8\,880\,000\.00],
   [\$0\.44],
 )
+]
 ```
 
 ### SVG
