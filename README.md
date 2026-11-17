@@ -193,6 +193,8 @@ The `gridwell` command converts a table's IR, such as
 
 ```bash
 $ gridwell convert hello.json --to typst
+#block[
+#set align(left)
 #table(
   columns: (auto, auto,),
   align: (left, right,),
@@ -207,6 +209,7 @@ $ gridwell convert hello.json --to typst
   [Bob],
   [87],
 )
+]
 ```
 
 ```bash
