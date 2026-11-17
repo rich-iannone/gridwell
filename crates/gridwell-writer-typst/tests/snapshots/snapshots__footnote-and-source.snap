@@ -2,6 +2,8 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
+#block[
+#set align(left)
 #table(
   columns: (auto, auto,),
   align: (left, left,),
@@ -20,3 +22,4 @@ expression: out
 #text(size: 9pt)[#super[1] Re\-run confirmed\.]
 
 #text(size: 9pt, fill: luma(100))[Source\: CI pipeline\.]
+]

@@ -2,6 +2,8 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
+#block[
+#set align(left)
 #block(width: 100%, table(
   columns: (30pt, 1fr,),
   align: (right, left,),
@@ -16,3 +18,4 @@ expression: out
   [2],
   [Another spanning description here\.],
 ))
+]

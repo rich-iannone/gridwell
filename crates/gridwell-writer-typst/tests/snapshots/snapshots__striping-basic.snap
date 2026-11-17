@@ -2,6 +2,8 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
+#block[
+#set align(left)
 #table(
   columns: (auto, auto, auto,),
   align: (left, left, left,),
@@ -25,3 +27,4 @@ expression: out
   table.cell(fill: rgb("#8080800D"))[11],
   table.cell(fill: rgb("#8080800D"))[12],
 )
+]

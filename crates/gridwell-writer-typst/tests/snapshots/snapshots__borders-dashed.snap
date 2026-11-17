@@ -2,6 +2,8 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
+#block[
+#set align(left)
 #table(
   columns: (auto, auto, auto,),
   align: (left, left, left,),
@@ -19,3 +21,4 @@ expression: out
   table.cell(stroke: (thickness: 0.75pt, paint: rgb("#333333"), dash: "dashed"))[5],
   table.cell(stroke: (thickness: 0.75pt, paint: rgb("#333333"), dash: "dashed"))[6],
 )
+]

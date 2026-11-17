@@ -2,9 +2,13 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
+#block[
+#set align(left)
+#block(sticky: true, below: 1.2 * 12pt)[
 #align(left)[#text(size: 16pt, weight: "bold")[Regional Sales Performance]]
 #align(left)[#text(size: 12pt, fill: luma(100))[Fiscal years 2023–2024 \(in millions USD\)]]
 #v(6pt)
+]
 #table(
   columns: (auto, auto, auto, auto,),
   align: (left, right, right, right,),
@@ -50,3 +54,4 @@ expression: out
 #text(size: 9pt)[#super[1] Includes one\-time restructuring charge\.]
 
 #text(size: 9pt, fill: luma(100))[Source\: Internal finance database\, June 2026\.]
+]

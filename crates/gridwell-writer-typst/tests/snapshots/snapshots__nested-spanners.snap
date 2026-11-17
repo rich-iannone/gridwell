@@ -2,6 +2,8 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
+#block[
+#set align(left)
 #table(
   columns: (auto, auto, auto, auto,),
   align: (left, left, left, left,),
@@ -24,3 +26,4 @@ expression: out
   [7],
   [8],
 )
+]

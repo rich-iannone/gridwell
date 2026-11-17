@@ -2,6 +2,8 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
+#block[
+#set align(left)
 #block(width: 300pt, table(
   columns: (1fr, 1fr, 1fr,),
   align: (left, left, left,),
@@ -16,3 +18,4 @@ expression: out
   [2],
   [3],
 ))
+]

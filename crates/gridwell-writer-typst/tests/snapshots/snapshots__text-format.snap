@@ -2,6 +2,8 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
+#block[
+#set align(left)
 #table(
   columns: (auto, auto,),
   align: (left, left,),
@@ -22,3 +24,4 @@ expression: out
   [inline],
   [Plain\, #underline[underlined]\, #strike[struck] and #text(size: 13.5pt)[large]],
 )
+]

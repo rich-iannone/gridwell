@@ -2,7 +2,11 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
+#block[
+#set align(left)
+#block(sticky: true, below: 1.2 * 16pt)[
 #align(left)[#text(size: 16pt, weight: "bold")[Sequence]]
+]
 #table(
   columns: (auto, auto, auto,),
   align: (left, left, left,),
@@ -314,3 +318,4 @@ expression: out
   [198],
   [9801],
 )
+]

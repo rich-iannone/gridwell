@@ -2,6 +2,8 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
+#block[
+#set align(left)
 #table(
   columns: (auto, auto,),
   align: (left, left,),
@@ -16,3 +18,4 @@ expression: out
   [Ice],
   table.cell(fill: rgb("#2980B9"))[#text(fill: rgb("#FFFFFF"))[cold]],
 )
+]

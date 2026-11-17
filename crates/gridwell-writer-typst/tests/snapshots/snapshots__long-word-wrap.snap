@@ -2,6 +2,8 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
+#block[
+#set align(left)
 #table(
   columns: (75pt, 90pt,),
   align: (left, left,),
@@ -14,3 +16,4 @@ expression: out
   [URL],
   [https\:\/\/example\.com\/very\/long\/path\/that\/should\/not\/break\/nicely\?query\=1],
 )
+]

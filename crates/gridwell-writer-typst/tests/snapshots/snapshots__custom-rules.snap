@@ -2,7 +2,11 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
+#block[
+#set align(left)
+#block(sticky: true, below: 1.2 * 16pt)[
 #align(left)[#text(size: 16pt, weight: "bold")[Rules of our own]]
+]
 #table(
   columns: (auto, auto, auto,),
   align: (left, left, left,),
@@ -43,3 +47,4 @@ expression: out
 )
 
 #text(size: 9pt, fill: luma(100))[Made up\.]
+]

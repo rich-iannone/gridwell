@@ -2,7 +2,11 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
+#block[
+#set align(left)
+#block(sticky: true, below: 1.2 * 16pt)[
 #align(left)[#text(size: 16pt, weight: "bold")[販売実績]]
+]
 #table(
   columns: (auto, auto,),
   align: (left, left,),
@@ -17,3 +21,4 @@ expression: out
   [大阪],
   [980],
 )
+]

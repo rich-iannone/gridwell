@@ -2,11 +2,14 @@
 source: crates/gridwell-writer-typst/tests/snapshots.rs
 expression: out
 ---
-#[
+#block[
 #set text(lang: "ar", dir: rtl)
+#set align(start)
+#block(sticky: true, below: 1.2 * 12pt)[
 #align(start)[#text(size: 16pt, weight: "bold")[المبيعات حسب البلد]]
 #align(start)[#text(size: 12pt, fill: luma(100))[بملايين الدولارات]]
 #v(6pt)
+]
 #table(
   columns: (auto, auto, auto,),
   align: (right, left, left,),
