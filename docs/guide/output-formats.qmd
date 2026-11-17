@@ -136,7 +136,7 @@ side, which is the right in a right-to-left table.
 |--------|--------|---------------|
 | HTML | `lang` on the container, and on `<html>` in a standalone document (else the `locale`) | `dir` on the container (`auto` too, left to the browser). With `rtl` or `auto`, every alignment is written out, since the browser's default is the start |
 | LaTeX | ⊘ warned: the document's language, set up in its preamble | ⊘ warned: written left to right |
-| Typst | `#set text(lang:, region:)` around the table | `#set text(dir: rtl)` around the table; heading lines `#align(start)` |
+| Typst | `#set text(lang:, region:)` in the table's block | `#set text(dir: rtl)` in the table's block; its parts `#set align(start)` |
 | RTF | ⊘ warned: no `\lang` id for the tag yet | `\rtlrow` rows and `\rtlpar` paragraphs; `\ql`/`\qr` are physical; cell borders swap |
 | SVG | `xml:lang` on the drawing | The drawing is mirrored, and every line of text is `direction="rtl"` |
 | ANSI | not written | ⊘ warned: drawn left to right |
@@ -302,6 +302,13 @@ unvalidated IR, it gives such a style a generated `gw__s<n>` class instead.
 
 ### Typst
 
+- A fragment (no page setup) that is one `#block`, so it can be `#include`d anywhere in
+  a document (in Quarto, from a raw `{=typst}` block) or put in a `#figure`. Its set
+  rules stay inside it, and the text after it starts a paragraph of its own. Its
+  heading lines and notes line up with the table's left edge (with a direction, its
+  start), in a figure too, which centers the table. The heading lines are a sticky
+  block, which Typst 0.13 and later keeps on the page where the table starts (0.12
+  can leave them on the page before)
 - Uses Typst's `#table()` function with named parameters
 - `table.cell(colspan: N, rowspan: N)` for spans
 - A column spanner (a column-label cell with more column-label rows below it) is
