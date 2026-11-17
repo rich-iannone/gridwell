@@ -1368,9 +1368,13 @@ which the Preview has. The ANSI tab is drawn without color (`"color": false`).
 
 <!-- gridwell convert fixtures/comprehensive/reference_table.json --to typst -->
 ```typst
+#block[
+#set align(left)
+#block(sticky: true, below: 1.2 * 10.5pt)[
 #align(left)[#text(weight: "bold", style: "normal", size: 13.5pt, fill: rgb("#333333"))[Regional Sales Performance]]
 #align(left)[#text(weight: "regular", style: "normal", size: 10.5pt, fill: rgb("#666666"))[Fiscal years 2023–2024 \(in millions USD\)]]
 #v(6pt)
+]
 #table(
   columns: (auto, auto, auto, auto, auto,),
   align: (left, center, right, right, right,),
@@ -1438,6 +1442,7 @@ which the Preview has. The ANSI tab is drawn without color (`"color": false`).
 #text(weight: "regular", style: "normal", size: 8.25pt, fill: rgb("#666666"))[#super[1] Includes one\-time restructuring charge\.]
 
 #text(weight: "regular", style: "normal", size: 8.25pt, fill: rgb("#666666"))[Source\: Internal finance database\, June 2025\.]
+]
 ```
 
 ### SVG
