@@ -331,6 +331,8 @@ Bob & 85 & 88 \\
 
 <!-- gridwell convert fixtures/minimal/colspan_basic.json --to typst -->
 ```typst
+#block[
+#set align(left)
 #table(
   columns: (auto, auto, auto,),
   align: (left, right, right,),
@@ -350,6 +352,7 @@ Bob & 85 & 88 \\
   [85],
   [88],
 )
+]
 ```
 
 ### SVG
@@ -639,6 +642,8 @@ Korea & 80 \\
 
 <!-- gridwell convert fixtures/minimal/rowspan_basic.json --to typst -->
 ```typst
+#block[
+#set align(left)
 #table(
   columns: (auto, auto,),
   align: (left, right,),
@@ -654,6 +659,7 @@ Korea & 80 \\
   [Korea],
   [80],
 )
+]
 ```
 
 ### SVG
