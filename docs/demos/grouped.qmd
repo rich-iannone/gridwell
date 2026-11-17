@@ -308,6 +308,8 @@ Paris & 2.16 & 105 \\
 
 <!-- gridwell convert fixtures/minimal/row_group_multiple.json --to typst -->
 ```typst
+#block[
+#set align(left)
 #table(
   columns: (auto, auto, auto,),
   align: (left, right, right,),
@@ -338,6 +340,7 @@ Paris & 2.16 & 105 \\
   [2\.16],
   [105],
 )
+]
 ```
 
 ### SVG
