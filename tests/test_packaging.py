@@ -189,3 +189,20 @@ def test_the_pypi_readme_links_are_absolute():
     assert links
     relative = [link for link in links if not link.startswith(("https://", "mailto:"))]
     assert not relative, relative
+
+
+def test_the_docs_give_the_great_tables_floor():
+    """The oldest Great Tables the `gt` extra allows, as the docs state it."""
+    floors = {
+        found
+        for r in importlib.metadata.requires("gridwell") or []
+        for found in re.findall(r"^great-tables>=([0-9.]+)\s*;", r)
+    }
+    assert len(floors) == 1, floors
+    (floor,) = floors
+    docs = [README, README.parent.parent / "docs" / "guide" / "integration-great-tables.qmd"]
+    if not all(path.is_file() for path in docs):
+        pytest.skip("no checkout here")
+    for path in docs:
+        text = " ".join(path.read_text(encoding="utf-8").split())
+        assert f"Great Tables {floor} or newer" in text, path
