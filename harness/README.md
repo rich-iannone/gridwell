@@ -313,20 +313,19 @@ its GHCR settings.
   README (`python/README.md`).
 - **`dry-run-python.yml`** (by hand only) is a Python release without the
   publishing: `wheels.yml`, plus a check that the version isn't on PyPI yet.
-- **`release-python.yml`** publishes to PyPI on a `py-v*` tag. It checks the tag
-  is `py-v` and the version, which Cargo.toml, `pyproject.toml` and
+- **`release-python.yml`** publishes to PyPI when a GitHub Release is published on
+  a `py-v*` tag. It checks the tag is `py-v` and the version, which Cargo.toml, `pyproject.toml` and
   `python/gridwell/__init__.py` must agree on (`.github/scripts/release_version.py`,
   tested by `tests/test_release_version.py`), runs `wheels.yml`, and uploads its
   files with the API token in the repository secret `PYPI_API_TOKEN`. To release:
 
   1. Bump the version in the three files, if it isn't bumped yet, and let CI pass.
   2. Run the dry run (Actions → Dry run (Python release) → Run workflow).
-  3. Tag and push: `git tag py-v0.1.0 && git push origin py-v0.1.0`.
-  4. Once PyPI has it, publish a GitHub Release on the tag, with the version's
-     section of `CHANGELOG.md` as its notes:
-     `python3 .github/scripts/release_version.py --notes notes.md`, then
-     `gh release create py-v0.1.0 --title "gridwell 0.1.0 (Python)" --notes-file
-     notes.md`.
+  3. Draft a new Release on GitHub (*Releases → Draft a new release*): a new tag
+     `py-v0.1.0` on `main`, the title (`gridwell 0.1.0 (Python)`) and the release
+     notes. Publishing it creates the tag and runs the workflow. If the version
+     check fails, nothing is uploaded: delete the Release and the tag, fix, and
+     publish again.
 
   **One-time setup:** add `PYPI_API_TOKEN` under *Settings → Secrets and variables
   → Actions*. A token scoped to one project can only be made once the project is
