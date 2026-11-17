@@ -1,6 +1,5 @@
 """Integration tests: Great Tables GT -> gridwell IR -> all output formats."""
 
-import importlib
 import json
 import re
 
@@ -630,13 +629,6 @@ def make_footnoted_gt():
     )
 
 
-@pytest.mark.skipif(
-    not hasattr(
-        importlib.import_module("great_tables._utils_render_html"),
-        "_process_footnotes_for_display",
-    ),
-    reason="Great Tables before 1.0 doesn't show footnotes",
-)
 def test_footnotes_are_the_ones_great_tables_shows_with_its_marks():
     gt_obj = make_footnoted_gt()
     shown = _footnotes_shown(gt_obj.as_raw_html())
@@ -869,10 +861,6 @@ def test_body_html_is_valid_ir_every_format_draws():
         assert table.render_binary(fmt)[:4] == b"PK\x03\x04", fmt
 
 
-@pytest.mark.skipif(
-    not (hasattr(GT, "cols_merge") and hasattr(GT, "text_transform")),
-    reason="Great Tables before 0.22 has no cols_merge() and text_transform()",
-)
 def test_merged_and_transformed_cells_are_what_great_tables_shows():
     from great_tables import loc
 
@@ -1105,12 +1093,6 @@ def html_indents(gt_obj):
     return [(text, int(m.group(1)) if m else 0) for (_, text), m in zip(found, levels)]
 
 
-needs_indents = pytest.mark.skipif(
-    not hasattr(GT, "tab_stub_indent"), reason="tab_stub_indent() is in Great Tables 1.0+"
-)
-
-
-@needs_indents
 def test_a_stub_indent_is_the_level_times_the_indent_length():
     df = pd.DataFrame({"r": ["a", "b", "c", "d"], "g": ["x", "x", "y", "y"], "v": [1, 2, 3, 4]})
     gt_obj = (
@@ -1134,7 +1116,6 @@ def test_a_stub_indent_is_the_level_times_the_indent_length():
     assert "text-indent: 15px" in html and "text-indent: 25px" in html
 
 
-@needs_indents
 @pytest.mark.parametrize(
     "length,expected",
     [
@@ -1160,7 +1141,6 @@ def test_a_stub_indent_takes_the_indent_length_option(length, expected):
     assert gridwell.Table(json.dumps(ir)).validate() == []
 
 
-@needs_indents
 def test_a_stub_indent_is_under_tab_style():
     gt_obj = (
         GT(pd.DataFrame({"r": ["a", "b"], "v": [1, 2]}), rowname_col="r")
@@ -1175,7 +1155,6 @@ def test_a_stub_indent_is_under_tab_style():
     assert second == {"indent": "3em"}
 
 
-@needs_indents
 def test_only_the_primary_stub_column_is_indented():
     ir = own_ir(
         GT(stub_data(), rowname_col=["o", "i"], groupname_col="g").tab_stub_indent(rows=[0, 2], indent=1)
