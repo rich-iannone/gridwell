@@ -222,6 +222,8 @@ Hello \\
 
 <!-- gridwell convert fixtures/minimal/minimal_1x1.json --to typst -->
 ```typst
+#block[
+#set align(left)
 #table(
   columns: (auto,),
   align: (left,),
@@ -232,6 +234,7 @@ Hello \\
   ),
   [Hello],
 )
+]
 ```
 
 ### SVG
