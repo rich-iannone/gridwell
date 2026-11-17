@@ -9,3 +9,6 @@ docs/guide/feature-matrix.qmd text eol=lf
 docs/examples/*.json text eol=lf
 # The IR compatibility corpus: its MANIFEST hashes the files with LF line ends.
 compat/** text eol=lf
+# The conformance kit's expected grids, as conformance/make.py writes them (LF):
+# its test compares their bytes.
+conformance/expected/** text eol=lf
