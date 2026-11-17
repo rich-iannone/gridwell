@@ -3,6 +3,16 @@
 What changed in each gridwell release. The Python package is released to PyPI from
 a GitHub Release on a `py-vX.Y.Z` tag.
 
+## Unreleased
+
+### Formats
+
+- A Typst table is one block, so it can be `#include`d in a document (such as a
+  Quarto document's raw Typst block): the text after it no longer runs on from its
+  last note. In a figure, its title and notes line up with the table instead of
+  being centered, and its title and subtitle stay on the page where the table starts
+  (with Typst 0.13 or newer). On a page of its own it looks as before.
+
 ## 0.1.0
 
 The first release: the Python package, on PyPI. The R package, the `gridwell`
