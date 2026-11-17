@@ -23,7 +23,7 @@ other tool can use it too, by describing its tables in gridwell's IR, a JSON for
   IR's full schema and the API reference.
 - **Gallery:** <https://rich-iannone.github.io/gridwell/gallery/>: every example table
   in every format, as each format's own viewer draws it.
-- **Changes:** [CHANGELOG.md](CHANGELOG.md), also the notes of each
+- **Changes:** [CHANGELOG.md](CHANGELOG.md), and the notes of each
   [GitHub Release](https://github.com/rich-iannone/gridwell/releases).
 
 > **Status: alpha.** The API may change between releases. The IR is frozen at 1.0:
