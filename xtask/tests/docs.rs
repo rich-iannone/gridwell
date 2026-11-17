@@ -50,6 +50,7 @@ fn pages() -> Vec<(String, String)> {
     }
     for rel in [
         "README.md",
+        "CHANGELOG.md",
         "crates/gridwell/README.md",
         "crates/gridwell-cli/README.md",
         "conformance/README.md",
