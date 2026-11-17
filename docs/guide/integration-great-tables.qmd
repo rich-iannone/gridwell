@@ -7,7 +7,8 @@ GT objects to all 11 output formats from Python.
 
 ## Installation
 
-The Great Tables integration needs the optional `gt` extra (Great Tables and pandas):
+The Great Tables integration needs the optional `gt` extra (Great Tables 1.1.0 or newer,
+and pandas):
 
 ```bash
 pip install 'gridwell[gt]'
