@@ -148,7 +148,9 @@ jobs:
           lib=$(python -c "import gridwell._native as n; print(n.__file__)")
           archs=$(lipo -archs "$lib")
           echo "$lib: $archs"
-          case " $archs " in *" x86_64 "*" arm64 "*|*" arm64 "*" x86_64 "*) ;; *) exit 1 ;; esac
+          for arch in x86_64 arm64; do
+            case " $archs " in *" $arch "*) ;; *) echo "::error::no $arch in $lib"; exit 1 ;; esac
+          done
       # From outside the checkout, so `import gridwell` is the installed wheel.
       - name: Test installed wheel
         working-directory: ${{ runner.temp }}
